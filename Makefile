@@ -1,30 +1,32 @@
 # makefile for POSIX library for Lua
 
 # change these to reflect your Lua installation
-LUA= /tmp/lhf/lua-5.0
+#LUA= /tmp/lhf/lua-5.0
+LUA= /pkg/lua-5.1.1-LR1
 LUAINC= $(LUA)/include
 LUALIB= $(LUA)/lib
 LUABIN= $(LUA)/bin
 
 # no need to change anything below here
-CFLAGS= -fPIC $(INCS) $(WARN) -O2 $G
+CPPFLAGS= -fPIC $(INCS) $(WARN)
+#LDFLAGS= -O2
 WARN= -pedantic -Wall
 INCS= -I$(LUAINC)
 
 MYNAME= posix
-MYLIB= l$(MYNAME)
+MYLIB= $(MYNAME)
 
-OBJS= $(MYLIB).o
+OBJS= l$(MYLIB).o
 
 T= $(MYLIB).so
 
 all:	test
 
 test:	$T
-	$(LUABIN)/lua -l$(MYNAME) test.lua
+	$(LUABIN)/lua test.lua
 
 $T:	$(OBJS)
-	$(CC) -o $@ -shared $(OBJS)
+	$(CC) $(LDFLAGS) -o $@ -shared $(OBJS)
 
 $(OBJS): modemuncher.c
 

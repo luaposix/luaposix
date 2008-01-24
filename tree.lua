@@ -19,7 +19,7 @@ local function do_directory(directory, level, prefix)
     local files = posix.dir(directory)
     local last_file_index = table.getn(files)
     table.sort(files)
-    for i, name in files do
+    for i, name in ipairs(files) do
         if name ~= '.' and name ~= '..' then
             local full_name = string.format('%s/%s', directory, name)
             local info = assert(posix.stat(full_name))
@@ -52,5 +52,6 @@ local function fore(directory)
     printf('\n%d directories, %d files\n', num_dirs, num_files)
 end
 
-directory = (arg.n > 0) and arg[1] or '.'
+--directory = (arg.n > 0) and arg[1] or '.'
+directory = (#arg > 0) and arg[1] or '.'
 fore(directory)

@@ -1,5 +1,7 @@
 -- test posix library
 
+require 'posix'
+
 function testing(s)
  print""
  print("-------------------------------------------------------",s)
@@ -41,15 +43,15 @@ f"USER"
 f"HOME"
 f"SHELL"
 f"absent"
-for k in ox.getenv() do io.write(k,"\t") end io.write"\n"
+for k,v in pairs(ox.getenv()) do print(k,'=',v) end io.write"\n"
 
 ------------------------------------------------------------------------------
-testing"putenv"
-function f(s) print("putenv",s,ox.putenv(s)) end
-function g(v) print("now",v,ox.getenv(v)) end
-f"MYVAR=123"	g"MYVAR"
-f"MYVAR="	g"MYVAR"
-f"MYVAR"	g"MYVAR"
+testing"setenv"
+function f(n,v) print("setenv",n,'=',v) ox.setenv(n,v) end
+function g(n) print("now",n,'=',ox.getenv(n)) end
+f("MYVAR","123");	g"MYVAR"
+f("MYVAR",nil);	    g"MYVAR"
+--f"MYVAR"	g"MYVAR"
 
 ------------------------------------------------------------------------------
 testing"getcwd, chdir, mkdir, rmdir"
@@ -77,14 +79,14 @@ testing"fork, exec"
 io.flush()
 pid=assert(ox.fork())
 if pid==0 then
-	pid=ox.getprocessid"pid"
-	ppid=ox.getprocessid"ppid"
+	pid=ox.getpid"pid"
+	ppid=ox.getpid"ppid"
 	io.write("in child process ",pid," from ",ppid,".\nnow executing date... ")
 	io.flush()
 	assert(ox.exec("date","+[%c]"))
 	print"should not get here"
 else
-	io.write("process ",ox.getprocessid"pid"," forked child process ",pid,". waiting...\n")
+	io.write("process ",ox.getpid"pid"," forked child process ",pid,". waiting...\n")
 	ox.wait(pid)
 	io.write("child process ",pid," done\n")
 end
@@ -101,11 +103,24 @@ for f in ox.files"." do
 end
 
 ------------------------------------------------------------------------------
+testing"glob"
+function g() local d=ox.getcwd() print("now at",d) return d end
+g()
+for _,f in pairs(ox.glob "*.lua") do
+  local T=assert(ox.stat(f))
+  local p=assert(ox.getpasswd(T.uid))
+  local g=assert(ox.getgroup(T.gid))
+  print(T.mode,p.name.."/"..g.name,T.size,os.date("%b %d %H:%M",T.mtime),f,T.type)
+end
+
+------------------------------------------------------------------------------
 testing"umask"
 -- assert(not ox.access("xxx"),"`xxx' already exists")
 ox.unlink"xxx"
 print(ox.umask())
-print(ox.umask("a-r,o+w"))
+--print(ox.umask("a-r,o+w"))
+print(ox.umask("a=r"))
+print(ox.umask("o+w"))
 io.close(io.open("xxx","w"))
 os.execute"ls -l xxx"
 ox.unlink"xxx"
@@ -126,18 +141,22 @@ ox.unlink"xxx"
 ------------------------------------------------------------------------------
 testing"utime"
 io.close(io.open("xxx","w"))
-os.execute"ls -l xxx test.lua"
-a=ox.stat"test.lua"
+io.flush()
+--os.execute"ls -l xxx test.lua"
+os.execute( string.format("ls -l xxx %s", arg[0]))
+--a=ox.stat"test.lua"
+a=ox.stat( arg[0] )
 ox.utime("xxx",a.mtime)
-os.execute"ls -l xxx test.lua"
+os.execute( string.format("ls -l xxx %s", arg[0]))
 ox.unlink"xxx"
+io.flush()
 
 ------------------------------------------------------------------------------
 testing"links"
 ox.unlink"xxx"
 io.close(io.open("xxx","w"))
-print(ox.link("xxx","yyy"))
-print(ox.symlink("xxx","zzz"))
+print(ox.link("xxx","yyy"))       --> hardlink
+print(ox.link("xxx","zzz", true)) --> symlink
 os.execute"ls -l xxx yyy zzz"
 print("zzz ->",ox.readlink"zzz")
 print("zzz ->",ox.readlink"xxx")
@@ -167,7 +186,8 @@ f"xxx"
 function f(x) print(ox.getpasswd(x,"name"),ox.getpasswd(x,"gecos")) end
 f()
 f(nil)
-ox.putenv"USER=root"
+--ox.putenv"USER=root"
+ox.setenv("USER","root")
 f(ox.getenv"USER")
 
 ------------------------------------------------------------------------------
@@ -179,11 +199,11 @@ a=ox.pathconf(".") table.foreach(a,print)
 ------------------------------------------------------------------------------
 testing"times"
 a=ox.times()
-for k,v in a do print(k,v) end
-print"sleeping 10 seconds..."
-ox.sleep(10)
+for k,v in pairs(a) do print(k,v) end
+print"sleeping 4 seconds..."
+ox.sleep(4)
 b=ox.times()
-for k,v in b do print(k,v) end
+for k,v in pairs(b) do print(k,v) end
 print""
 print("elapsed",b.elapsed-a.elapsed)
 print("clock",os.clock())

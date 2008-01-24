@@ -8,7 +8,6 @@ environment variable LUA_SOPATH at run time).
 
 Here is a brief explanation of the files in this package:
   lposix.c        posix library
-  posix.lua       support code
   test.lua        test code
   tree.lua        tree view of the file system
 
