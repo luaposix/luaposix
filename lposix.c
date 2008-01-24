@@ -14,6 +14,7 @@
 #include <grp.h>
 #include <libgen.h>
 #include <limits.h>
+#include <poll.h>
 #include <pwd.h>
 #include <signal.h>
 #include <stdio.h>
@@ -30,7 +31,7 @@
 #include <glob.h>
 
 #define MYNAME		"posix"
-#define MYVERSION	MYNAME " library for " LUA_VERSION " / Apr 2006"
+#define MYVERSION	MYNAME " library for " LUA_VERSION " / Dec 2007"
 
 #include "lua.h"
 #include "lualib.h"
@@ -452,6 +453,25 @@ static int Pfork(lua_State *L)			/** fork() */
 	return pushresult(L, fork(), NULL);
 }
 
+/* from http://lua-users.org/lists/lua-l/2007-11/msg00346.html */
+static int Ppoll(lua_State *L)   /** poll() */
+{
+	struct pollfd fds;
+	FILE* file = *(FILE**)luaL_checkudata(L,1,LUA_FILEHANDLE);
+	int ret,timeout = luaL_checkint(L,2);
+	fds.fd = fileno(file);
+	fds.events = POLLIN;
+	ret = poll(&fds,1,timeout);
+	if (ret == -1) {
+		lua_error(L);
+	}
+	if (ret == 1 && ((fds.revents & POLLHUP) || (fds.revents & POLLNVAL))) {
+		lua_pushnil(L);
+	} else {
+		lua_pushnumber(L,ret);
+	}    
+	return 1;
+}
 
 static int Pwait(lua_State *L)			/** wait([pid]) */
 {
@@ -960,6 +980,7 @@ static const luaL_reg R[] =
 	{"pipe",		Ppipe},
 	{"readlink",		Preadlink},
 	{"rmdir",		Prmdir},
+	{"rpoll",		Ppoll},
 	{"setenv",		Psetenv},
 	{"setpid",		Psetpid},
 	{"sleep",		Psleep},
