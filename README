@@ -1,0 +1,26 @@
+This is a POSIX library for Lua 5.0.
+
+To try this Lua library, edit Makefile to reflect your installation of Lua.
+Then run make. This will build lposix.so and run a simple test. If everything
+is ok, install lposix.so and posix.lua in some official place. You may want
+to edit posix.lua to change the default value of SOPATH (you can also set the
+environment variable LUA_SOPATH at run time).
+
+Here is a brief explanation of the files in this package:
+  lposix.c        posix library
+  posix.lua       support code
+  test.lua        test code
+  tree.lua        tree view of the file system
+
+The only documentation is the reference manual written by Claudio Terra for
+the original release of poslib. See
+	http://www.soho-one.com/software/poslib/
+This text is now outdated, because new functions have been added and some of
+the semantics have changed. For updated documentation, read the code :-) and
+a POSIX manual. I used this online reference for POSIX:
+	http://www.opengroup.org/onlinepubs/007904875/toc.htm
+To see a summary of what is exported to Lua, do "make xx". The examples in
+test.lua and tree.lua show the library in action.
+
+This code is hereby placed in the public domain.
+Please send comments, suggestions, and bug reports to lhf@tecgraf.puc-rio.br .
