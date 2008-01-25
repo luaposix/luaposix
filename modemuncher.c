@@ -35,7 +35,7 @@ static modeLookup modesel[] =
 	{'r',					S_IROTH},
 	{'w',					S_IWOTH},
 	{'x',					S_IXOTH},
-	{(char)NULL, 					(mode_t)-1} /* do not delete this line */
+	{0, 					(mode_t)-1} /* do not delete this line */
 };
 
 
