@@ -8,9 +8,16 @@
 * With contributions by Roberto Ierusalimschy.
 */
 
+#include <sys/stat.h>
+#include <sys/times.h>
+#include <sys/types.h>
+#include <sys/utsname.h>
+#include <sys/wait.h>
+
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <glob.h>
 #include <grp.h>
 #include <libgen.h>
 #include <limits.h>
@@ -20,15 +27,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <sys/times.h>
-#include <sys/types.h>
-#include <sys/utsname.h>
-#include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
 #include <utime.h>
-#include <glob.h>
 
 #define MYNAME		"posix"
 #define MYVERSION	MYNAME " library for " LUA_VERSION " / Dec 2007"
@@ -66,34 +67,6 @@ static const struct { char c; mode_t b; } M[] =
 	{'r', S_IROTH}, {'w', S_IWOTH}, {'x', S_IXOTH},
 };
 
-#if 0 
-static int modemunch(mode_t *mode, const char *p)
-{/* <!LR> this function is still broken. Do not use! */ 
-	int i;
-	mode_t m=*mode;
-	for (i=0; i<9; i ++)
-	{
-		if (p[i] == M[i].c)
-			m |= M[i].b;
-		else if (p[i] == '-')
-			m &= ~M[i].b;
-		else if (p[i]=='.')
-			;
-		else if (p[i]=='s')
-		{
-			if (i==2)
-				m |= S_ISUID | S_IXUSR;
-			else if (i==5)
-				m |= S_ISGID | S_IXGRP;
-			else
-				return -1;
-		}
-		else return -1;
-	}
-	*mode=m;
-	return 0;
-}
-#endif
 
 static void pushmode(lua_State *L, mode_t mode)
 {
@@ -612,19 +585,7 @@ static int Pumask(lua_State *L)			/** umask([mode]) */
 	return 1;
 }
 
-#if 0 
-static int Pchmod(lua_State *L)			/** chmod(path,mode) */
-{
-	mode_t mode;
-	struct stat s;
-	const char *path = luaL_checkstring(L, 1);
-	const char *modestr = luaL_checkstring(L, 2);
-	if (stat(path, &s)==-1) return pusherror(L, path);
-	mode = s.st_mode;
-	if (modemunch(&mode, modestr)) luaL_argerror(L, 2, "bad mode");
-	return pushresult(L, chmod(path, mode), path);
-}
-#else
+
 static int Pchmod(lua_State *L)			/** chmod(path,mode) */
 {
 	mode_t mode;
@@ -636,7 +597,7 @@ static int Pchmod(lua_State *L)			/** chmod(path,mode) */
 	if (mode_munch(&mode, modestr)) luaL_argerror(L, 2, "bad mode");
 	return pushresult(L, chmod(path, mode), path);
 }
-#endif
+
 
 static int Pchown(lua_State *L)			/** chown(path,uid,gid) */
 {
@@ -952,7 +913,7 @@ static int Psysconf(lua_State *L)		/** sysconf([options]) */
 static const luaL_reg R[] =
 {
 	{"access",		Paccess},
-	{"basename",	Pbasename},
+	{"basename",		Pbasename},
 	{"chdir",		Pchdir},
 	{"chmod",		Pchmod},
 	{"chown",		Pchown},
@@ -970,7 +931,7 @@ static const luaL_reg R[] =
 	{"getlogin",		Pgetlogin},
 	{"getpasswd",		Pgetpasswd},
 	{"getpid",		Pgetpid},
-    {"glob",        Pglob},
+	{"glob",		Pglob},
 	{"hostid",		Phostid},
 	{"kill",		Pkill},
 	{"link",		Plink},
