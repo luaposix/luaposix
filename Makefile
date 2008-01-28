@@ -36,10 +36,10 @@ T= 		$(MYLIB).so
 
 # targets
 phony += all
-all:	test
+all:	$T
 
 phony += test
-test:	$T
+test:	all
 	$(LUA) test.lua
 
 $T:	$(OBJS)
