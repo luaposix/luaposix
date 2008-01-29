@@ -406,6 +406,16 @@ static int Pfileno(lua_State *L)	/** fileno(filehandle) */
 }
 
 
+static int Pfdopen(lua_State *L)	/** fdopen(fd, mode) */
+{
+	int fd = luaL_checkint(L, 1);
+	const char *mode = luaL_checkstring(L, 2);
+	if (!pushfile(L, fd, mode))
+		return pusherror(L, "fdpoen");
+	return 1;
+}
+
+
 /* helper func for Pdup */
 static const char *filemode(int fd)
 {
@@ -1020,6 +1030,7 @@ static const luaL_reg R[] =
 	{"errno",		Perrno},
 	{"exec",		Pexec},
 	{"execp",		Pexecp},
+	{"fdopen",		Pfdopen},
 	{"fileno",		Pfileno},
 	{"files",		Pfiles},
 	{"fork",		Pfork},
