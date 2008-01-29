@@ -14,7 +14,7 @@ INSTALL=	install
 
 # no need to change anything below here
 PACKAGE=	luaposix
-LIBVERSION=	1
+LIBVERSION=	2
 VERSION=	$(LUAVERSION).$(LIBVERSION)
 
 SRCS=		lposix.c modemuncher.c test.lua tree.lua
