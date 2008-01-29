@@ -27,12 +27,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <syslog.h>
 #include <time.h>
 #include <unistd.h>
 #include <utime.h>
 
 #define MYNAME		"posix"
-#define MYVERSION	MYNAME " library for " LUA_VERSION " / Dec 2007"
+#define MYVERSION	MYNAME " library for " LUA_VERSION " / Jan 2008"
+
+#ifndef ENABLE_SYSLOG
+#define ENABLE_SYSLOG 	1
+#endif
 
 #include "lua.h"
 #include "lualib.h"
@@ -394,12 +399,48 @@ static int Ppipe(lua_State *L)			/** pipe() */
 }
 
 
+static int Pfileno(lua_State *L)	/** fileno(filehandle) */
+{
+	FILE *f = *(FILE**) luaL_checkudata(L, 1, LUA_FILEHANDLE);
+	return pushresult(L, fileno(f), NULL);
+}
+
+
+/* helper func for Pdup */
+static const char *filemode(int fd)
+{
+	const char *m;
+	int mode = fcntl(fd, F_GETFL);
+	if (mode < 0)
+		return NULL;
+	switch (mode & O_ACCMODE) {
+		case O_RDONLY:  m = "r"; break;
+		case O_WRONLY:  m = "w"; break;
+		default:    	m = "rw"; break;
+	}
+	return m;
+}
+
 static int Pdup(lua_State *L)			/** dup(old,[new]) */
 {
-	int oldfd = luaL_checkint(L, 1);
-	int newfd = luaL_optint(L, 2, -1);
-	return pushresult(L, (newfd<0) ? dup(oldfd) : dup2(oldfd, newfd), NULL);
+	FILE **oldf = (FILE**)luaL_checkudata(L, 1, LUA_FILEHANDLE);
+  	FILE **newf = (FILE **)lua_touserdata(L, 2);
+	int fd;
+	const char *msg = "dup2";
+	fflush(*newf);
+	if (newf == NULL) {
+		fd = dup(fileno(*oldf));
+		msg = "dup";
+	} else {
+		fflush(*newf);
+		fd = dup2(fileno(*oldf), fileno(*newf));
+	}
+
+	if ((fd < 0) || !pushfile(L, fd, filemode(fd)))
+		return pusherror(L, msg);
+	return 1;
 }
+
 
 static int Pmkfifo(lua_State *L)		/** mkfifo(path) */
 {
@@ -408,7 +449,7 @@ static int Pmkfifo(lua_State *L)		/** mkfifo(path) */
 }
 
 
-static int Pexec(lua_State *L)			/** exec(path,[args]) */
+static int runexec(lua_State *L, int use_shell)
 {
 	const char *path = luaL_checkstring(L, 1);
 	int i,n=lua_gettop(L);
@@ -416,8 +457,24 @@ static int Pexec(lua_State *L)			/** exec(path,[args]) */
 	argv[0] = (char*)path;
 	for (i=1; i<n; i++) argv[i] = (char*)luaL_checkstring(L, i+1);
 	argv[n] = NULL;
-	execvp(path,argv);
+	if (use_shell) {
+		execvp(path, argv);
+	} else {
+		execv(path, argv);
+	}
 	return pusherror(L, path);
+}
+
+
+static int Pexec(lua_State *L)			/** exec(path,[args]) */
+{
+	return runexec(L, 0);
+}
+
+
+static int Pexecp(lua_State *L)			/** execp(path,[args]) */
+{
+	return runexec(L, 1);
 }
 
 
@@ -427,7 +484,7 @@ static int Pfork(lua_State *L)			/** fork() */
 }
 
 /* from http://lua-users.org/lists/lua-l/2007-11/msg00346.html */
-static int Ppoll(lua_State *L)   /** poll() */
+static int Ppoll(lua_State *L)   /** poll(filehandle, timeout) */
 {
 	struct pollfd fds;
 	FILE* file = *(FILE**)luaL_checkudata(L,1,LUA_FILEHANDLE);
@@ -909,6 +966,45 @@ static int Psysconf(lua_State *L)		/** sysconf([options]) */
 	return doselection(L, 1, Ssysconf, Fsysconf, NULL);
 }
 
+#if ENABLE_SYSLOG
+/* syslog funcs */
+static int Popenlog(lua_State *L)	/** openlog(ident, [option], [facility]) */
+{
+	const char *ident = luaL_checkstring(L, 1);
+	int option = 0;
+	int facility = luaL_optint(L, 3, LOG_USER);
+	const char *s = luaL_optstring(L, 2, "");
+	while (*s) {
+		switch (*s) {
+			case ' ': break;
+			case 'c': option |= LOG_CONS; break;
+			case 'n': option |= LOG_NDELAY; break;
+			case 'e': option |= LOG_PERROR; break;
+			case 'p': option |= LOG_PID; break;
+			default: badoption(L, 2, "option", *s); break;
+		}
+		s++;
+	}
+	openlog(ident, option, facility);
+	return 0;
+}
+
+
+static int Psyslog(lua_State *L)		/** syslog(priority, message) */
+{
+	int priority = luaL_checkint(L, 1);
+	const char *msg = luaL_checkstring(L, 2);
+	syslog(priority, "%s", msg);
+	return 0;
+}
+
+
+static int Pcloselog(lua_State *L)		/** closelog() */
+{
+	closelog();
+	return 0;
+}
+#endif
 
 static const luaL_reg R[] =
 {
@@ -923,6 +1019,8 @@ static const luaL_reg R[] =
 	{"dup",			Pdup},
 	{"errno",		Perrno},
 	{"exec",		Pexec},
+	{"execp",		Pexecp},
+	{"fileno",		Pfileno},
 	{"files",		Pfiles},
 	{"fork",		Pfork},
 	{"getcwd",		Pgetcwd},
@@ -955,8 +1053,19 @@ static const luaL_reg R[] =
 	{"utime",		Putime},
 	{"wait",		Pwait},
 
+#if ENABLE_SYSLOG
+	{"openlog",		Popenlog},
+	{"syslog",		Psyslog},
+	{"closelog",		Pcloselog},
+#endif
+
 	{NULL,			NULL}
 };
+
+#define set_const(key, value)		\
+	lua_pushliteral(L, key);	\
+	lua_pushnumber(L, value);	\
+	lua_settable(L, -3)
 
 LUALIB_API int luaopen_posix (lua_State *L)
 {
@@ -964,6 +1073,40 @@ LUALIB_API int luaopen_posix (lua_State *L)
 	lua_pushliteral(L,"version");		/** version */
 	lua_pushliteral(L,MYVERSION);
 	lua_settable(L,-3);
+
+#if ENABLE_SYSLOG
+	set_const("LOG_AUTH", LOG_AUTH);
+	set_const("LOG_AUTHPRIV", LOG_AUTHPRIV);
+	set_const("LOG_CRON", LOG_CRON);
+	set_const("LOG_DAEMON", LOG_DAEMON);
+	set_const("LOG_FTP", LOG_FTP);
+	set_const("LOG_KERN", LOG_KERN);
+	set_const("LOG_LOCAL0", LOG_LOCAL0);
+	set_const("LOG_LOCAL1", LOG_LOCAL1);
+	set_const("LOG_LOCAL2", LOG_LOCAL2);
+	set_const("LOG_LOCAL3", LOG_LOCAL3);
+	set_const("LOG_LOCAL4", LOG_LOCAL4);
+	set_const("LOG_LOCAL5", LOG_LOCAL5);
+	set_const("LOG_LOCAL6", LOG_LOCAL6);
+	set_const("LOG_LOCAL7", LOG_LOCAL7);
+	set_const("LOG_LPR", LOG_LPR);
+	set_const("LOG_MAIL", LOG_MAIL);
+	set_const("LOG_NEWS", LOG_NEWS);
+	set_const("LOG_SYSLOG", LOG_SYSLOG);
+	set_const("LOG_USER", LOG_USER);
+	set_const("LOG_UUCP", LOG_UUCP);
+
+	set_const("LOG_EMERG", LOG_EMERG);
+	set_const("LOG_ALERT", LOG_ALERT);
+	set_const("LOG_CRIT", LOG_CRIT);
+	set_const("LOG_ERR", LOG_ERR);
+	set_const("LOG_WARNING", LOG_WARNING);
+	set_const("LOG_NOTICE", LOG_NOTICE);
+	set_const("LOG_INFO", LOG_INFO);
+	set_const("LOG_DEBUG", LOG_DEBUG);
+#endif
+
+
 	return 1;
 }
 
