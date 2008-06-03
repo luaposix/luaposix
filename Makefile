@@ -14,7 +14,7 @@ INSTALL=	install
 
 # no need to change anything below here
 PACKAGE=	luaposix
-LIBVERSION=	2
+LIBVERSION=	3
 VERSION=	$(LUAVERSION).$(LIBVERSION)
 
 SRCS=		lposix.c modemuncher.c test.lua tree.lua
@@ -34,6 +34,13 @@ OBJS=		l$(MYLIB).o
 
 T= 		$(MYLIB).so
 
+OS=$(shell uname)
+ifeq ($(OS),Darwin)
+  LDFLAGS_SHARED=-bundle -undefined dynamic_lookup
+else
+  LDFLAGS_SHARED=-shared
+endif
+
 # targets
 phony += all
 all:	$T
@@ -43,7 +50,7 @@ test:	all
 	$(LUA) test.lua
 
 $T:	$(OBJS)
-	$(CC) $(LDFLAGS) -o $@ -shared $(OBJS)
+	$(CC) $(LDFLAGS) -o $@ $(LDFLAGS_SHARED) $(OBJS)
 
 $(OBJS): modemuncher.c
 
