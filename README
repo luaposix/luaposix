@@ -1,4 +1,4 @@
-This is a POSIX library for Lua 5.0.
+This is a POSIX library for Lua 5.1.
 
 To try this Lua library, edit Makefile to reflect your installation of Lua.
 Then run make. This will build lposix.so and run a simple test. If everything

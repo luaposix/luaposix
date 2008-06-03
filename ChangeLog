@@ -1,3 +1,8 @@
+2008-06-03 Natanael Copa <natanael.copa _AT_ gmail.com>
+  * replace luaL_openlib with the newer luaL_register.
+  * Support for building on Darwin/OSX. Patch from 
+    Felix Fietkau <nbd _AT_ openwrt.org>
+
 2008-01-29 Natanael Copa <natanael.copa _AT_ gmail.com>
   * added openlog(), syslog() and closelog()
   * fixed dup() to handle lua files
