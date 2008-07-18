@@ -37,8 +37,10 @@ T= 		$(MYLIB).so
 OS=$(shell uname)
 ifeq ($(OS),Darwin)
   LDFLAGS_SHARED=-bundle -undefined dynamic_lookup
+  LIBS=
 else
   LDFLAGS_SHARED=-shared
+  LIBS=-lcrypt
 endif
 
 # targets
@@ -50,7 +52,7 @@ test:	all
 	$(LUA) test.lua
 
 $T:	$(OBJS)
-	$(CC) $(LDFLAGS) -o $@ $(LDFLAGS_SHARED) $(OBJS)
+	$(CC) $(LDFLAGS) -o $@ $(LDFLAGS_SHARED) $(OBJS) $(LIBS)
 
 $(OBJS): modemuncher.c
 

@@ -1,3 +1,8 @@
+2008-07-18 Natanael Copa <natanael.copa _AT_ gmail.com>
+  * fix rpoll to ignore the POLLHUP and POLLNVAL reported at:
+    http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=491257
+  * added crypt(). Patch from dev.openwrt.org
+
 2008-06-03 Natanael Copa <natanael.copa _AT_ gmail.com>
   * replace luaL_openlib with the newer luaL_register.
   * Support for building on Darwin/OSX. Patch from 

@@ -1007,6 +1007,29 @@ static int Pcloselog(lua_State *L)		/** closelog() */
 }
 #endif
 
+/*
+ * XXX: GNU and BSD handle the forward declaration of crypt() in different
+ * and annoying ways (especially GNU). Declare it here just to make sure
+ * that it's there
+ */
+char *crypt(const char *, const char *);
+
+static int Pcrypt(lua_State *L)
+{
+	const char *str, *salt;
+	char *res;
+
+	str = luaL_checkstring(L, 1);
+	salt = luaL_checkstring(L, 2);
+	if (strlen(salt) < 2)
+		luaL_error(L, "not enough salt");
+
+	res = crypt(str, salt);
+	lua_pushstring(L, res);
+
+	return 1;
+}
+
 static const luaL_reg R[] =
 {
 	{"access",		Paccess},
@@ -1014,6 +1037,7 @@ static const luaL_reg R[] =
 	{"chdir",		Pchdir},
 	{"chmod",		Pchmod},
 	{"chown",		Pchown},
+	{"crypt",		Pcrypt},
 	{"ctermid",		Pctermid},
 	{"dirname",		Pdirname},
 	{"dir",			Pdir},
