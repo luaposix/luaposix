@@ -498,19 +498,10 @@ static int Ppoll(lua_State *L)   /** poll(filehandle, timeout) */
 {
 	struct pollfd fds;
 	FILE* file = *(FILE**)luaL_checkudata(L,1,LUA_FILEHANDLE);
-	int ret,timeout = luaL_checkint(L,2);
+	int timeout = luaL_checkint(L,2);
 	fds.fd = fileno(file);
 	fds.events = POLLIN;
-	ret = poll(&fds,1,timeout);
-	if (ret == -1) {
-		lua_error(L);
-	}
-	if (ret == 1 && ((fds.revents & POLLHUP) || (fds.revents & POLLNVAL))) {
-		lua_pushnil(L);
-	} else {
-		lua_pushnumber(L,ret);
-	}    
-	return 1;
+	return pushresult(L, poll(&fds,1,timeout), NULL);
 }
 
 static int Pwait(lua_State *L)			/** wait([pid]) */
