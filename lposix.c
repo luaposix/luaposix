@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <sys/utsname.h>
 #include <sys/wait.h>
+#include <sys/resource.h>
 
 #include <dirent.h>
 #include <errno.h>
@@ -1005,6 +1006,19 @@ static int Pcloselog(lua_State *L)		/** closelog() */
 	closelog();
 	return 0;
 }
+
+static int Psetlogmask(lua_State* L) 		/** setlogmask(priority...) */
+{
+	int argno = lua_gettop(L);
+	int mask = 0;
+	int i;
+
+	for (i=1; i <= argno; i++){
+		mask |= LOG_MASK(luaL_checkint(L,i));
+	} 
+
+	return pushresult(L, setlogmask(mask),"setlogmask");
+}
 #endif
 
 /*
@@ -1014,7 +1028,7 @@ static int Pcloselog(lua_State *L)		/** closelog() */
  */
 char *crypt(const char *, const char *);
 
-static int Pcrypt(lua_State *L)
+static int Pcrypt(lua_State *L)		/** crypt(string,salt) */
 {
 	const char *str, *salt;
 	char *res;
@@ -1028,6 +1042,66 @@ static int Pcrypt(lua_State *L)
 	lua_pushstring(L, res);
 
 	return 1;
+}
+
+/*	Like POSIX's setrlimit()/getrlimit() API functions.
+ *	
+ *	Syntax:
+ *	pposix.setrlimit( resource, soft limit, hard limit)
+ *	
+ *	Any negative limit will be replace with the current limit by an additional call of getrlimit().
+ *	
+ *	Example usage:
+ *	pposix.setrlimit("NOFILE", 1000, 2000)
+ */
+
+static int Psetrlimit(lua_State *L) 	/** setrlimit(resource,soft,hard) */
+{
+	int arguments = lua_gettop(L);
+	int softlimit = -1;
+	int hardlimit = -1;
+	int rid = -1;
+	struct rlimit lim;
+	struct rlimit lim_current;
+	int rc;
+	
+	if(arguments < 1 || arguments > 3) 
+		return pushresult(L, -1, "setrlimit: incorrect-arguments");
+	
+	rid = luaL_checkint(L, 1);
+	softlimit = luaL_checkinteger(L, 2);
+	hardlimit = luaL_checkinteger(L, 3);
+	
+	if (softlimit < 0 || hardlimit < 0) {
+		if ((rc = getrlimit(rid, &lim_current))) 
+			return pushresult(L, rc, "getrlimit");
+	}
+	
+	if (softlimit < 0) lim.rlim_cur = lim_current.rlim_cur;
+		else lim.rlim_cur = softlimit;
+	if (hardlimit < 0) lim.rlim_max = lim_current.rlim_max;
+		else lim.rlim_max = hardlimit;
+	
+	return pushresult(L, setrlimit(rid, &lim), "setrlimit");       
+}
+
+static int Pgetrlimit(lua_State *L) 	/** getrlimit(resource) */
+{
+	int arguments = lua_gettop(L);
+	int rid = -1;
+	struct rlimit lim;
+	int rc;
+	
+	if (arguments != 1) 
+		return pushresult(L, -1, "getrlimit: invalid arguments");
+	
+	rid = luaL_checkint(L, 1);
+	if ((rc = getrlimit(rid, &lim)))
+		return pushresult(L, rc, "getrlimit");       
+
+	lua_pushnumber(L, lim.rlim_cur);
+	lua_pushnumber(L, lim.rlim_max);
+	return 2;
 }
 
 static const luaL_reg R[] =
@@ -1055,6 +1129,7 @@ static const luaL_reg R[] =
 	{"getlogin",		Pgetlogin},
 	{"getpasswd",		Pgetpasswd},
 	{"getpid",		Pgetpid},
+	{"getrlimit",		Pgetrlimit},
 	{"glob",		Pglob},
 	{"hostid",		Phostid},
 	{"kill",		Pkill},
@@ -1068,6 +1143,7 @@ static const luaL_reg R[] =
 	{"rpoll",		Ppoll},
 	{"setenv",		Psetenv},
 	{"setpid",		Psetpid},
+	{"setrlimit",		Psetrlimit},
 	{"sleep",		Psleep},
 	{"stat",		Pstat},
 	{"sysconf",		Psysconf},
@@ -1083,6 +1159,7 @@ static const luaL_reg R[] =
 	{"openlog",		Popenlog},
 	{"syslog",		Psyslog},
 	{"closelog",		Pcloselog},
+	{"setlogmask",		Psetlogmask},
 #endif
 
 	{NULL,			NULL}
@@ -1099,6 +1176,16 @@ LUALIB_API int luaopen_posix (lua_State *L)
 	lua_pushliteral(L,"version");		/** version */
 	lua_pushliteral(L,MYVERSION);
 	lua_settable(L,-3);
+
+	set_const("RLIMIT_CORE", RLIMIT_CORE);
+	set_const("RLIMIT_CPU", RLIMIT_CPU);
+	set_const("RLIMIT_DATA", RLIMIT_DATA);
+	set_const("RLIMIT_FSIZE", RLIMIT_FSIZE);
+	set_const("RLIMIT_MEMLOCK", RLIMIT_MEMLOCK);
+	set_const("RLIMIT_NOFILE", RLIMIT_NOFILE);
+	set_const("RLIMIT_NPROC", RLIMIT_NPROC);
+	set_const("RLIMIT_RSS", RLIMIT_RSS);
+	set_const("RLIMIT_STACK", RLIMIT_STACK);
 
 #if ENABLE_SYSLOG
 	set_const("LOG_AUTH", LOG_AUTH);
