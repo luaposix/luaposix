@@ -1101,6 +1101,7 @@ static int Psetrlimit(lua_State *L) 	/** setrlimit(resource,soft[,hard]) */
 	rid_str = luaL_checkstring(L, 1);
 	softlimit = luaL_optint(L, 2, -1);
 	hardlimit = luaL_optint(L, 3, -1);
+	rid = get_rlimit_const(rid_str);
 	
 	if (softlimit < 0 || hardlimit < 0) {
 		if ((rc = getrlimit(rid, &lim_current)) < 0)
