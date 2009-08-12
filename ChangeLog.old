@@ -1,3 +1,6 @@
+History is now tracked in git.
+http://git.alpinelinux.org/cgit/luaposix/log/
+
 2008-07-18 Natanael Copa <natanael.copa _AT_ gmail.com>
   * fix rpoll to ignore the POLLHUP and POLLNVAL reported at:
     http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=491257
