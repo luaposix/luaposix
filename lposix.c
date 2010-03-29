@@ -34,7 +34,7 @@
 #include <utime.h>
 
 #define MYNAME		"posix"
-#define MYVERSION	MYNAME " library for " LUA_VERSION " / Jan 2008"
+#define MYVERSION	MYNAME " library for " LUA_VERSION " / " VERSION
 
 #ifndef ENABLE_SYSLOG
 #define ENABLE_SYSLOG 	1

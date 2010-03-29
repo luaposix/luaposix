@@ -8,24 +8,24 @@ LUALIB= 	$(PREFIX)/lib/lua/$(LUAVERSION)
 LUABIN= 	$(PREFIX)/bin
 
 # other executables
-TAR=		tar
 LUA=		lua
 INSTALL=	install
 
 # no need to change anything below here
 PACKAGE=	luaposix
 LIBVERSION=	4
-VERSION=	$(LUAVERSION).$(LIBVERSION)
+RELEASE=	$(LUAVERSION).$(LIBVERSION)
 
-SRCS=		lposix.c modemuncher.c test.lua tree.lua
-EXTRADIST=	Makefile README ChangeLog
-DISTFILES=	$(SRCS) $(EXTRADIST)
-DISTDIR=	$(PACKAGE)-$(VERSION)
-TARGZ=		$(PACKAGE)-$(VERSION).tar.gz
+GIT_REV		:= $(shell test -d .git && git describe --always)
+ifeq ($(GIT_REV),)
+FULL_VERSION	:= $(RELEASE)
+else
+FULL_VERSION	:= $(GIT_REV)
+endif
 
-CPPFLAGS=	-fPIC $(INCS) $(WARN)
 WARN=		-pedantic -Wall
 INCS=		-I$(LUAINC)
+CFLAGS+=	-fPIC $(INCS) $(WARN) -DVERSION=\"$(FULL_VERSION)\"
 
 MYNAME=		posix
 MYLIB= 		$(MYNAME)
@@ -72,25 +72,6 @@ phony += show-funcs
 show-funcs:
 	@echo "$(MYNAME) library:"
 	@fgrep '/**' l$(MYLIB).c | cut -f2 -d/ | tr -d '*' | sort
-
-# distribution
-
-phony += distdir
-distdir: $(DISTFILES)
-	if [ -d "$(DISTDIR)" ]; then	\
-		rm -r "$(DISTDIR)";	\
-	fi
-	mkdir "$(DISTDIR)"
-	cp -a $(DISTFILES) "$(DISTDIR)/"
-
-
-phony += tar
-tar:	distdir	
-	$(TAR) zcf $(TARGZ) $(DISTDIR)
-	rm -r $(DISTDIR)
-
-phony += dist
-dist:	tar
 
 .PHONY: $(phony)
 # eof
