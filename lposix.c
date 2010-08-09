@@ -34,6 +34,10 @@
 #include <unistd.h>
 #include <utime.h>
 
+#ifndef VERSION
+#  define VERSION "unknown"
+#endif
+
 #define MYNAME		"posix"
 #define MYVERSION	MYNAME " library for " LUA_VERSION " / " VERSION
 
@@ -151,7 +155,7 @@ static uid_t mygetuid(lua_State *L, int i)
 	else if (lua_isstring(L, i))
 	{
 		struct passwd *p=getpwnam(lua_tostring(L, i));
-		return (p==NULL) ? -1 : p->pw_uid;
+		return (p==NULL) ? (uid_t)-1 : p->pw_uid;
 	}
 	else
 		return luaL_typerror(L, i, "string or number");
@@ -166,7 +170,7 @@ static gid_t mygetgid(lua_State *L, int i)
 	else if (lua_isstring(L, i))
 	{
 		struct group *g=getgrnam(lua_tostring(L, i));
-		return (g==NULL) ? -1 : g->gr_gid;
+		return (g==NULL) ? (uid_t)-1 : g->gr_gid;
 	}
 	else
 		return luaL_typerror(L, i, "string or number");
@@ -235,7 +239,7 @@ static int Pglob(lua_State *L)                  /** glob(pattern) */
    return pusherror(L, pattern);
  else
    {
-     int i;
+     unsigned int i;
      lua_newtable(L);
      for (i=1; i<=globres.gl_pathc; i++) {
        lua_pushstring(L, globres.gl_pathv[i-1]);
@@ -1089,7 +1093,7 @@ static int Psetrlimit(lua_State *L) 	/** setrlimit(resource,soft[,hard]) */
 	int softlimit;
 	int hardlimit;
 	const char *rid_str;
-	int rid;
+	int rid = 0;
 	struct rlimit lim;
 	struct rlimit lim_current;
 	int rc;
