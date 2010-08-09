@@ -40,7 +40,7 @@ ifeq ($(OS),Darwin)
   LIBS=
 else
   LDFLAGS_SHARED=-shared
-  LIBS=-lcrypt
+  LIBS=-lcrypt -lrt
 endif
 
 # targets

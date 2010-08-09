@@ -14,6 +14,7 @@
 #include <sys/utsname.h>
 #include <sys/wait.h>
 #include <sys/resource.h>
+#include <sys/time.h>
 
 #include <dirent.h>
 #include <errno.h>
@@ -1124,6 +1125,44 @@ static int Pgetrlimit(lua_State *L) 	/** getrlimit(resource) */
 	return 2;
 }
 
+static int Pgettimeofday(lua_State *L)
+{
+	struct timeval tv;
+	struct timezone tz;
+	if (gettimeofday(&tv, &tz) == -1)
+		return pusherror(L, "gettimeofday");
+	lua_pushnumber(L, tv.tv_sec);
+	lua_pushnumber(L, tv.tv_usec);
+	lua_pushnumber(L, tz.tz_minuteswest);
+	lua_pushnumber(L, tz.tz_dsttime);
+	return 4;
+}
+
+
+static int Pclock_getres(lua_State *L)
+{
+	struct timespec res;
+	clockid_t clk_id = (clockid_t)luaL_optint(L, 1, CLOCK_MONOTONIC);
+	if (clock_getres(clk_id, &res) == -1)
+		return pusherror(L, "clock_getres");
+	lua_pushnumber(L, res.tv_sec);
+	lua_pushnumber(L, res.tv_nsec);
+	return 2;
+}
+
+
+static int Pclock_gettime(lua_State *L)
+{
+	struct timespec res;
+	clockid_t clk_id = (clockid_t)luaL_optint(L, 1, CLOCK_MONOTONIC);
+	if (clock_gettime(clk_id, &res) == -1)
+		return pusherror(L, "clock_gettime");
+	lua_pushnumber(L, res.tv_sec);
+	lua_pushnumber(L, res.tv_nsec);
+	return 2;
+}
+
+
 static const luaL_reg R[] =
 {
 	{"access",		Paccess},
@@ -1131,6 +1170,8 @@ static const luaL_reg R[] =
 	{"chdir",		Pchdir},
 	{"chmod",		Pchmod},
 	{"chown",		Pchown},
+	{"clock_getres",	Pclock_getres},
+	{"clock_gettime",	Pclock_gettime},
 	{"crypt",		Pcrypt},
 	{"ctermid",		Pctermid},
 	{"dirname",		Pdirname},
@@ -1150,6 +1191,7 @@ static const luaL_reg R[] =
 	{"getpasswd",		Pgetpasswd},
 	{"getpid",		Pgetpid},
 	{"getrlimit",		Pgetrlimit},
+	{"gettimeofday",	Pgettimeofday},
 	{"glob",		Pglob},
 	{"hostid",		Phostid},
 	{"kill",		Pkill},
@@ -1196,6 +1238,11 @@ LUALIB_API int luaopen_posix (lua_State *L)
 	lua_pushliteral(L,"version");		/** version */
 	lua_pushliteral(L,MYVERSION);
 	lua_settable(L,-3);
+
+	set_const("CLOCK_REALTIME", CLOCK_REALTIME);
+	set_const("CLOCK_MONOTONIC", CLOCK_MONOTONIC);
+	set_const("CLOCK_PROCESS_CPUTIME_ID", CLOCK_PROCESS_CPUTIME_ID);
+	set_const("CLOCK_THREAD_CPUTIME_ID", CLOCK_THREAD_CPUTIME_ID);
 
 #if ENABLE_SYSLOG
 	set_const("LOG_AUTH", LOG_AUTH);
