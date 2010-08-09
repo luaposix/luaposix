@@ -1142,6 +1142,71 @@ static int Pgettimeofday(lua_State *L)
 	return 4;
 }
 
+static int Ptime(lua_State *L)
+{
+	time_t t = time(NULL);
+	if ((time_t)-1 == t)
+		return pusherror(L, "time");
+	lua_pushnumber(L, t);
+	return 1;
+}
+
+static int Plocaltime(lua_State *L)
+{
+	struct tm res;
+	time_t t = luaL_optint(L, 1, time(NULL));
+	if (localtime_r(&t, &res) == NULL)
+		return pusherror(L, "localtime");
+	lua_createtable(L, 0, 9);
+	lua_pushnumber(L, res.tm_sec);
+	lua_setfield(L, -2, "sec");
+	lua_pushnumber(L, res.tm_min);
+	lua_setfield(L, -2, "min");
+	lua_pushnumber(L, res.tm_hour);
+	lua_setfield(L, -2, "hour");
+	lua_pushnumber(L, res.tm_mday);
+	lua_setfield(L, -2, "monthday");
+	lua_pushnumber(L, res.tm_mon + 1);
+	lua_setfield(L, -2, "month");
+	lua_pushnumber(L, res.tm_year + 1900);
+	lua_setfield(L, -2, "year");
+	lua_pushnumber(L, res.tm_wday);
+	lua_setfield(L, -2, "weekday");
+	lua_pushnumber(L, res.tm_yday);
+	lua_setfield(L, -2, "yearday");
+	lua_pushboolean(L, res.tm_isdst);
+	lua_setfield(L, -2, "is_dst");
+	return 1;
+}
+
+
+static int Pgmtime(lua_State *L)
+{
+	struct tm res;
+	time_t t = luaL_optint(L, 1, time(NULL));
+	if (gmtime_r(&t, &res) == NULL)
+		return pusherror(L, "localtime");
+	lua_createtable(L, 0, 9);
+	lua_pushnumber(L, res.tm_sec);
+	lua_setfield(L, -2, "sec");
+	lua_pushnumber(L, res.tm_min);
+	lua_setfield(L, -2, "min");
+	lua_pushnumber(L, res.tm_hour);
+	lua_setfield(L, -2, "hour");
+	lua_pushnumber(L, res.tm_mday);
+	lua_setfield(L, -2, "monthday");
+	lua_pushnumber(L, res.tm_mon + 1);
+	lua_setfield(L, -2, "month");
+	lua_pushnumber(L, res.tm_year + 1900);
+	lua_setfield(L, -2, "year");
+	lua_pushnumber(L, res.tm_wday);
+	lua_setfield(L, -2, "weekday");
+	lua_pushnumber(L, res.tm_yday);
+	lua_setfield(L, -2, "yearday");
+	lua_pushboolean(L, res.tm_isdst);
+	lua_setfield(L, -2, "is_dst");
+	return 1;
+}
 
 static int Pclock_getres(lua_State *L)
 {
@@ -1197,9 +1262,11 @@ static const luaL_reg R[] =
 	{"getrlimit",		Pgetrlimit},
 	{"gettimeofday",	Pgettimeofday},
 	{"glob",		Pglob},
+	{"gmtime",		Pgmtime},
 	{"hostid",		Phostid},
 	{"kill",		Pkill},
 	{"link",		Plink},
+	{"localtime",		Plocaltime},
 	{"mkdir",		Pmkdir},
 	{"mkfifo",		Pmkfifo},
 	{"pathconf",		Ppathconf},
@@ -1213,6 +1280,7 @@ static const luaL_reg R[] =
 	{"sleep",		Psleep},
 	{"stat",		Pstat},
 	{"sysconf",		Psysconf},
+	{"time",		Ptime},
 	{"times",		Ptimes},
 	{"ttyname",		Pttyname},
 	{"unlink",		Punlink},
