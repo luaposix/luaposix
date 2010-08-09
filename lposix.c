@@ -1211,7 +1211,7 @@ static int Pgmtime(lua_State *L)
 static int Pclock_getres(lua_State *L)
 {
 	struct timespec res;
-	clockid_t clk_id = (clockid_t)luaL_optint(L, 1, CLOCK_MONOTONIC);
+	clockid_t clk_id = (clockid_t)luaL_optint(L, 1, CLOCK_REALTIME);
 	if (clock_getres(clk_id, &res) == -1)
 		return pusherror(L, "clock_getres");
 	lua_pushnumber(L, res.tv_sec);
@@ -1223,7 +1223,7 @@ static int Pclock_getres(lua_State *L)
 static int Pclock_gettime(lua_State *L)
 {
 	struct timespec res;
-	clockid_t clk_id = (clockid_t)luaL_optint(L, 1, CLOCK_MONOTONIC);
+	clockid_t clk_id = (clockid_t)luaL_optint(L, 1, CLOCK_REALTIME);
 	if (clock_gettime(clk_id, &res) == -1)
 		return pusherror(L, "clock_gettime");
 	lua_pushnumber(L, res.tv_sec);
