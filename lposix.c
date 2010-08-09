@@ -1231,6 +1231,50 @@ static int Pclock_gettime(lua_State *L)
 	return 2;
 }
 
+static int Pstrftime(lua_State *L)
+{
+	char tmp[256];
+	const char *format = luaL_checkstring(L, 1);
+
+	struct tm t;
+	if (lua_istable(L, 2)) {
+		lua_getfield(L, 2, "sec");
+		t.tm_sec = luaL_optint(L, -1, 0);
+		lua_pop(L, 1);
+		lua_getfield(L, 2, "min");
+		t.tm_min = luaL_optint(L, -1, 0);
+		lua_pop(L, 1);
+		lua_getfield(L, 2, "hour");
+		t.tm_hour = luaL_optint(L, -1, 0);
+		lua_pop(L, 1);
+		lua_getfield(L, 2, "monthday");
+		t.tm_mday = luaL_optint(L, -1, 0);
+		lua_pop(L, 1);
+		lua_getfield(L, 2, "month");
+		t.tm_mon = luaL_optint(L, -1, 0);
+		lua_pop(L, 1);
+		lua_getfield(L, 2, "year");
+		t.tm_year = luaL_optint(L, -1, 0);
+		lua_pop(L, 1);
+		lua_getfield(L, 2, "weekday");
+		t.tm_wday = luaL_optint(L, -1, 0);
+		lua_pop(L, 1);
+		lua_getfield(L, 2, "yearday");
+		t.tm_yday = luaL_optint(L, -1, 0);
+		lua_pop(L, 1);
+		lua_getfield(L, 2, "is_dst");
+		t.tm_isdst = lua_tointeger(L, -1);
+		lua_pop(L, 1);
+	} else {
+		time_t now = time(NULL);
+		localtime_r(&now, &t);
+	}
+
+	strftime(tmp, sizeof(tmp), format, &t);
+	lua_pushlstring(L, tmp, strlen(tmp));
+	return 1;
+}
+
 
 static const luaL_reg R[] =
 {
@@ -1279,6 +1323,7 @@ static const luaL_reg R[] =
 	{"setrlimit",		Psetrlimit},
 	{"sleep",		Psleep},
 	{"stat",		Pstat},
+	{"strftime",		Pstrftime},
 	{"sysconf",		Psysconf},
 	{"time",		Ptime},
 	{"times",		Ptimes},
