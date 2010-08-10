@@ -1129,7 +1129,7 @@ static int Pgetrlimit(lua_State *L) 	/** getrlimit(resource) */
 	return 2;
 }
 
-static int Pgettimeofday(lua_State *L)
+static int Pgettimeofday(lua_State *L)		/** gettimeofday() */
 {
 	struct timeval tv;
 	struct timezone tz;
@@ -1142,7 +1142,7 @@ static int Pgettimeofday(lua_State *L)
 	return 4;
 }
 
-static int Ptime(lua_State *L)
+static int Ptime(lua_State *L)			/** time() */
 {
 	time_t t = time(NULL);
 	if ((time_t)-1 == t)
@@ -1151,7 +1151,7 @@ static int Ptime(lua_State *L)
 	return 1;
 }
 
-static int Plocaltime(lua_State *L)
+static int Plocaltime(lua_State *L)		/** localtime([time]) */
 {
 	struct tm res;
 	time_t t = luaL_optint(L, 1, time(NULL));
@@ -1180,7 +1180,7 @@ static int Plocaltime(lua_State *L)
 }
 
 
-static int Pgmtime(lua_State *L)
+static int Pgmtime(lua_State *L)		/** gmtime([time]) */
 {
 	struct tm res;
 	time_t t = luaL_optint(L, 1, time(NULL));
@@ -1208,7 +1208,7 @@ static int Pgmtime(lua_State *L)
 	return 1;
 }
 
-static int Pclock_getres(lua_State *L)
+static int Pclock_getres(lua_State *L)		/** clock_getres([clockid])) */
 {
 	struct timespec res;
 	clockid_t clk_id = (clockid_t)luaL_optint(L, 1, CLOCK_REALTIME);
@@ -1220,7 +1220,7 @@ static int Pclock_getres(lua_State *L)
 }
 
 
-static int Pclock_gettime(lua_State *L)
+static int Pclock_gettime(lua_State *L)		/** clock_gettime([clockid]) */
 {
 	struct timespec res;
 	clockid_t clk_id = (clockid_t)luaL_optint(L, 1, CLOCK_REALTIME);
@@ -1231,7 +1231,7 @@ static int Pclock_gettime(lua_State *L)
 	return 2;
 }
 
-static int Pstrftime(lua_State *L)
+static int Pstrftime(lua_State *L)		/** strftime(format, [time]) */
 {
 	char tmp[256];
 	const char *format = luaL_checkstring(L, 1);
