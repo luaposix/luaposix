@@ -1208,23 +1208,34 @@ static int Pgmtime(lua_State *L)		/** gmtime([time]) */
 	return 1;
 }
 
-static int Pclock_getres(lua_State *L)		/** clock_getres([clockid])) */
+static int get_clk_id_const(const char *str)
+{
+	if (strcmp(str, "monotonic") == 0)
+		return CLOCK_MONOTONIC;
+	else if (strcmp(str, "process_cputime_id") == 0)
+		return CLOCK_PROCESS_CPUTIME_ID;
+	else if (strcmp(str, "thread_cputime_id") == 0)
+		return CLOCK_THREAD_CPUTIME_ID;
+	else
+		return CLOCK_REALTIME;
+}
+
+static int Pclock_getres(lua_State *L)		/** clock_getres([clockid]) */
 {
 	struct timespec res;
-	clockid_t clk_id = (clockid_t)luaL_optint(L, 1, CLOCK_REALTIME);
-	if (clock_getres(clk_id, &res) == -1)
+	const char *str = luaL_checkstring(L, 1);
+	if (clock_getres(get_clk_id_const(str), &res) == -1)
 		return pusherror(L, "clock_getres");
 	lua_pushnumber(L, res.tv_sec);
 	lua_pushnumber(L, res.tv_nsec);
 	return 2;
 }
 
-
 static int Pclock_gettime(lua_State *L)		/** clock_gettime([clockid]) */
 {
 	struct timespec res;
-	clockid_t clk_id = (clockid_t)luaL_optint(L, 1, CLOCK_REALTIME);
-	if (clock_gettime(clk_id, &res) == -1)
+	const char *str = luaL_checkstring(L, 1);
+	if (clock_gettime(get_clk_id_const(str), &res) == -1)
 		return pusherror(L, "clock_gettime");
 	lua_pushnumber(L, res.tv_sec);
 	lua_pushnumber(L, res.tv_nsec);
@@ -1355,11 +1366,6 @@ LUALIB_API int luaopen_posix (lua_State *L)
 	lua_pushliteral(L,"version");		/** version */
 	lua_pushliteral(L,MYVERSION);
 	lua_settable(L,-3);
-
-	set_const("CLOCK_REALTIME", CLOCK_REALTIME);
-	set_const("CLOCK_MONOTONIC", CLOCK_MONOTONIC);
-	set_const("CLOCK_PROCESS_CPUTIME_ID", CLOCK_PROCESS_CPUTIME_ID);
-	set_const("CLOCK_THREAD_CPUTIME_ID", CLOCK_THREAD_CPUTIME_ID);
 
 #if ENABLE_SYSLOG
 	set_const("LOG_AUTH", LOG_AUTH);
