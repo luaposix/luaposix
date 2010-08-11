@@ -1210,7 +1210,9 @@ static int Pgmtime(lua_State *L)		/** gmtime([time]) */
 
 static int get_clk_id_const(const char *str)
 {
-	if (strcmp(str, "monotonic") == 0)
+	if (str == NULL)
+		return CLOCK_REALTIME;
+	else if (strcmp(str, "monotonic") == 0)
 		return CLOCK_MONOTONIC;
 	else if (strcmp(str, "process_cputime_id") == 0)
 		return CLOCK_PROCESS_CPUTIME_ID;
@@ -1223,7 +1225,7 @@ static int get_clk_id_const(const char *str)
 static int Pclock_getres(lua_State *L)		/** clock_getres([clockid]) */
 {
 	struct timespec res;
-	const char *str = luaL_checkstring(L, 1);
+	const char *str = lua_tostring(L, 1);
 	if (clock_getres(get_clk_id_const(str), &res) == -1)
 		return pusherror(L, "clock_getres");
 	lua_pushnumber(L, res.tv_sec);
@@ -1234,7 +1236,7 @@ static int Pclock_getres(lua_State *L)		/** clock_getres([clockid]) */
 static int Pclock_gettime(lua_State *L)		/** clock_gettime([clockid]) */
 {
 	struct timespec res;
-	const char *str = luaL_checkstring(L, 1);
+	const char *str = lua_tostring(L, 1);
 	if (clock_gettime(get_clk_id_const(str), &res) == -1)
 		return pusherror(L, "clock_gettime");
 	lua_pushnumber(L, res.tv_sec);
