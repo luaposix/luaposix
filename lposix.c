@@ -1136,10 +1136,10 @@ static int Pgettimeofday(lua_State *L)		/** gettimeofday() */
 	struct timezone tz;
 	if (gettimeofday(&tv, &tz) == -1)
 		return pusherror(L, "gettimeofday");
-	lua_pushnumber(L, tv.tv_sec);
-	lua_pushnumber(L, tv.tv_usec);
-	lua_pushnumber(L, tz.tz_minuteswest);
-	lua_pushnumber(L, tz.tz_dsttime);
+	lua_pushinteger(L, tv.tv_sec);
+	lua_pushinteger(L, tv.tv_usec);
+	lua_pushinteger(L, tz.tz_minuteswest);
+	lua_pushinteger(L, tz.tz_dsttime);
 	return 4;
 }
 
