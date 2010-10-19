@@ -1124,8 +1124,8 @@ static int Pcrypt(lua_State *L)		/** crypt(string,salt) */
  *	Syntax:
  *	posix.setrlimit(resource, softlimit, hardlimit)
  *
- *	Any negative limit or nil will be replace with the current
- *	limit by an additional call of getrlimit().
+ *	A negative or nil limit will be replaced by the current
+ *	limit, obtained by calling getrlimit().
  *
  *	Valid resouces are:
  *		"core", "cpu", "data", "fsize", "memlock",
