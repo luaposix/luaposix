@@ -1024,13 +1024,6 @@ static int Psetlogmask(lua_State* L) 		/** setlogmask(priority...) */
 }
 #endif
 
-/*
- * XXX: GNU and BSD handle the forward declaration of crypt() in different
- * and annoying ways (especially GNU). Declare it here just to make sure
- * that it's there
- */
-char *crypt(const char *, const char *);
-
 static int Pcrypt(lua_State *L)		/** crypt(string,salt) */
 {
 	const char *str, *salt;
