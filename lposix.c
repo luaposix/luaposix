@@ -3,7 +3,7 @@
 * POSIX library for Lua 5.1.
 * Luiz Henrique de Figueiredo <lhf@tecgraf.puc-rio.br>
 * 07 Apr 2006 23:17:49
-* Clean up and bug fixes by Leo Razoumov <slonik.az@gmail.com> 2006-10-11 <!LR> 
+* Clean up and bug fixes by Leo Razoumov <slonik.az@gmail.com> 2006-10-11 <!LR>
 * Based on original by Claudio Terra for Lua 3.x.
 * With contributions by Roberto Ierusalimschy.
 */
@@ -54,9 +54,9 @@
 /* compatibility with Lua 5.0 */
 #ifndef LUA_VERSION_NUM
 static int luaL_checkoption (lua_State *L, int narg, const char *def,
-                                 const char *const lst[]) {
+				 const char *const lst[]) {
   const char *name = (def) ? luaL_optstring(L, narg, def) :
-                             luaL_checkstring(L, narg);
+			     luaL_checkstring(L, narg);
   int i = luaL_findstring(name, lst);
   if (i == -1)
 	luaL_argerror(L, narg, lua_pushfstring(L, "invalid option '%s'", name));
@@ -91,10 +91,10 @@ static void pushmode(lua_State *L, mode_t mode)
 
 typedef void (*Selector)(lua_State *L, int i, const void *data);
 
-static int doselection(lua_State *L, int i, int n, 
-                       const char *const S[], 
-                       Selector F, 
-                       const void *data)
+static int doselection(lua_State *L, int i, int n,
+		       const char *const S[],
+		       Selector F,
+		       const void *data)
 {
 	if (lua_isnone(L, i) || lua_istable(L, i))
 	{
@@ -374,7 +374,7 @@ static int myfclose (lua_State *L) {
   int rc = fclose(*p);
   if (rc == 0) *p = NULL;
   return pushresult(L, rc, NULL);
-} 
+}
 
 static int pushfile (lua_State *L, int id, const char *mode) {
   FILE **f = (FILE **)lua_newuserdata(L, sizeof(FILE *));
@@ -823,7 +823,7 @@ struct mytimes
 
 static void Ftimes(lua_State *L, int i, const void *data)
 {
-    static long clk_tck = 0; 
+    static long clk_tck = 0;
 	const struct mytimes *t=data;
 
     if( !clk_tck){ clk_tck= sysconf(_SC_CLK_TCK);}
@@ -1020,7 +1020,7 @@ static int Psetlogmask(lua_State* L) 		/** setlogmask(priority...) */
 
 	for (i=1; i <= argno; i++){
 		mask |= LOG_MASK(luaL_checkint(L,i));
-	} 
+	}
 
 	return pushresult(L, setlogmask(mask),"setlogmask");
 }
@@ -1097,23 +1097,23 @@ static int Psetrlimit(lua_State *L) 	/** setrlimit(resource,soft[,hard]) */
 	struct rlimit lim;
 	struct rlimit lim_current;
 	int rc;
-	
+
 	rid_str = luaL_checkstring(L, 1);
 	softlimit = luaL_optint(L, 2, -1);
 	hardlimit = luaL_optint(L, 3, -1);
 	rid = get_rlimit_const(rid_str);
-	
+
 	if (softlimit < 0 || hardlimit < 0) {
 		if ((rc = getrlimit(rid, &lim_current)) < 0)
 			return pushresult(L, rc, "getrlimit");
 	}
-	
+
 	if (softlimit < 0) lim.rlim_cur = lim_current.rlim_cur;
 		else lim.rlim_cur = softlimit;
 	if (hardlimit < 0) lim.rlim_max = lim_current.rlim_max;
 		else lim.rlim_max = hardlimit;
-	
-	return pushresult(L, setrlimit(rid, &lim), "setrlimit");       
+
+	return pushresult(L, setrlimit(rid, &lim), "setrlimit");
 }
 
 static int Pgetrlimit(lua_State *L) 	/** getrlimit(resource) */
