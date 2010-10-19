@@ -1124,14 +1124,11 @@ static int Pgetrlimit(lua_State *L) 	/** getrlimit(resource) */
 static int Pgettimeofday(lua_State *L)		/** gettimeofday() */
 {
 	struct timeval tv;
-	struct timezone tz;
-	if (gettimeofday(&tv, &tz) == -1)
+	if (gettimeofday(&tv, NULL) == -1)
 		return pusherror(L, "gettimeofday");
 	lua_pushinteger(L, tv.tv_sec);
 	lua_pushinteger(L, tv.tv_usec);
-	lua_pushinteger(L, tz.tz_minuteswest);
-	lua_pushinteger(L, tz.tz_dsttime);
-	return 4;
+	return 2;
 }
 
 static int Ptime(lua_State *L)			/** time() */
