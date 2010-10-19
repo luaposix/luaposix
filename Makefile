@@ -44,10 +44,8 @@ else
 endif
 
 # targets
-phony += all
 all:	$T
 
-phony += test
 test:	all
 	$(LUA) test.lua
 
@@ -56,22 +54,17 @@ $T:	$(OBJS)
 
 $(OBJS): modemuncher.c
 
-phony += tree
 tree:	$T
 	$(LUA) -l$(MYNAME) tree.lua .
 
-phony += clean
 clean:
 	rm -f $(OBJS) $T core core.* a.out $(TARGZ)
 
-phony += install
 install: $T
 	$(INSTALL) -D $T $(DESTDIR)/$(LUALIB)/$T
 
-phony += show-funcs
 show-funcs:
 	@echo "$(MYNAME) library:"
 	@fgrep '/**' l$(MYLIB).c | cut -f2 -d/ | tr -d '*' | sort
 
-.PHONY: $(phony)
 # eof
