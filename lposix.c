@@ -790,11 +790,7 @@ static void Fgetpasswd(lua_State *L, int i, const void *data)
 	case 4:
 		lua_pushstring(L, p->pw_shell);
 		break;
-/* not strictly POSIX */
 	case 5:
-		lua_pushstring(L, p->pw_gecos);
-		break;
-	case 6:
 		lua_pushstring(L, p->pw_passwd);
 		break;
 	}
@@ -802,7 +798,7 @@ static void Fgetpasswd(lua_State *L, int i, const void *data)
 
 static const char *const Sgetpasswd[] =
 {
-	"name", "uid", "gid", "dir", "shell", "gecos", "passwd", NULL
+	"name", "uid", "gid", "dir", "shell", "passwd", NULL
 };
 
 
