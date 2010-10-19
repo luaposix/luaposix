@@ -67,7 +67,7 @@ clean:
 phony += install
 install: $T
 	$(INSTALL) -D $T $(DESTDIR)/$(LUALIB)/$T
-	
+
 phony += show-funcs
 show-funcs:
 	@echo "$(MYNAME) library:"
