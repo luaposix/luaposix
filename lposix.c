@@ -41,10 +41,6 @@
 #define MYNAME		"posix"
 #define MYVERSION	MYNAME " library for " LUA_VERSION " / " VERSION
 
-#ifndef ENABLE_SYSLOG
-#define ENABLE_SYSLOG 	1
-#endif
-
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
@@ -973,7 +969,7 @@ static int Psysconf(lua_State *L)		/** sysconf([options]) */
 	return doselection(L, 1, Ssysconf, Fsysconf, NULL);
 }
 
-#if ENABLE_SYSLOG
+#if _POSIX_VERSION >= 200112L
 /* syslog funcs */
 static int Popenlog(lua_State *L)	/** openlog(ident, [option], [facility]) */
 {
@@ -986,7 +982,9 @@ static int Popenlog(lua_State *L)	/** openlog(ident, [option], [facility]) */
 			case ' ': break;
 			case 'c': option |= LOG_CONS; break;
 			case 'n': option |= LOG_NDELAY; break;
+#ifdef LOG_PERROR
 			case 'e': option |= LOG_PERROR; break;
+#endif
 			case 'p': option |= LOG_PID; break;
 			default: badoption(L, 2, "option", *s); break;
 		}
@@ -1348,7 +1346,7 @@ static const luaL_reg R[] =
 	{"utime",		Putime},
 	{"wait",		Pwait},
 
-#if ENABLE_SYSLOG
+#if _POSIX_VERSION >= 200112L
 	{"openlog",		Popenlog},
 	{"syslog",		Psyslog},
 	{"closelog",		Pcloselog},
@@ -1370,7 +1368,7 @@ LUALIB_API int luaopen_posix (lua_State *L)
 	lua_pushliteral(L,MYVERSION);
 	lua_settable(L,-3);
 
-#if ENABLE_SYSLOG
+#if _POSIX_VERSION >= 200112L
 	set_const("LOG_AUTH", LOG_AUTH);
 	set_const("LOG_AUTHPRIV", LOG_AUTHPRIV);
 	set_const("LOG_CRON", LOG_CRON);
