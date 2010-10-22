@@ -52,8 +52,6 @@ test:	all
 $T:	$(OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(LDFLAGS_SHARED) $(OBJS) $(LIBS)
 
-$(OBJS): modemuncher.c
-
 tree:	$T
 	$(LUA) -l$(MYNAME) tree.lua .
 
