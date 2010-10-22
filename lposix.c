@@ -46,13 +46,16 @@
 #include "lualib.h"
 #include "lauxlib.h"
 
+
+/* File mode translation between octal codes and `rwxrwxrwx' strings,
+   and between octal masks and `ugoa+-=rwx' strings. */
+
 static const struct { char c; mode_t b; } M[] =
 {
 	{'r', S_IRUSR}, {'w', S_IWUSR}, {'x', S_IXUSR},
 	{'r', S_IRGRP}, {'w', S_IWGRP}, {'x', S_IXGRP},
 	{'r', S_IROTH}, {'w', S_IWOTH}, {'x', S_IXOTH},
 };
-
 
 static void pushmode(lua_State *L, mode_t mode)
 {
@@ -207,6 +210,9 @@ static int mode_munch(mode_t *mode, const char* p)
 
 	return 0; /* successful call */
 }
+
+
+/* Utility functions. */
 
 typedef void (*Selector)(lua_State *L, int i, const void *data);
 
