@@ -1,9 +1,10 @@
 /*
 * lposix.c
 * POSIX library for Lua 5.1.
-* Luiz Henrique de Figueiredo <lhf@tecgraf.puc-rio.br>
-* 07 Apr 2006 23:17:49
+* (c) Natanael Copa (maintainer) <natanael.copa@gmail.com> 2008-2010
+* (c) Reuben Thomas <rrt@sc3d.org> 2010
 * Clean up and bug fixes by Leo Razoumov <slonik.az@gmail.com> 2006-10-11
+* Luiz Henrique de Figueiredo <lhf@tecgraf.puc-rio.br> 07 Apr 2006 23:17:49
 * Based on original by Claudio Terra for Lua 3.x.
 * With contributions by Roberto Ierusalimschy.
 */
