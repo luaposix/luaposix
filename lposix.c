@@ -46,26 +46,6 @@
 #include "lualib.h"
 #include "lauxlib.h"
 
-/* compatibility with Lua 5.0 */
-#ifndef LUA_VERSION_NUM
-static int luaL_checkoption (lua_State *L, int narg, const char *def,
-				 const char *const lst[]) {
-  const char *name = (def) ? luaL_optstring(L, narg, def) :
-			     luaL_checkstring(L, narg);
-  int i = luaL_findstring(name, lst);
-  if (i == -1)
-	luaL_argerror(L, narg, lua_pushfstring(L, "invalid option '%s'", name));
-  return i;
-}
-#define lua_pushinteger			lua_pushnumber
-#define lua_createtable(L,a,r)		lua_newtable(L)
-#define LUA_FILEHANDLE			"FILE*"
-
-#define lua_setfield(l,i,k)
-#define lua_getfield(l,i,k)
-
-#endif
-
 static const struct { char c; mode_t b; } M[] =
 {
 	{'r', S_IRUSR}, {'w', S_IWUSR}, {'x', S_IXUSR},
