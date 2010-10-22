@@ -68,33 +68,6 @@ static int rwxrwxrwx(mode_t *mode, const char *p)
 	return 0;
 }
 
-static void modechopper(mode_t mode, char *p)
-{
-	/* requires char p[10] */
-	int count;
-	char *pp;
-
-	pp=p;
-
-	for (count=0; count<9; count ++)
-	{
-		if (mode & modesel[count].bits)
-			*p = modesel[count].rwx;
-		else
-			*p='-';
-
-		p++;
-	}
-	*p=0; /* to finish the string */
-
-	/* dealing with suid and sgid flags */
-	if (mode & S_ISUID)
-		pp[2] = (mode & S_IXUSR) ? 's' : 'S';
-	if (mode & S_ISGID)
-		pp[5] = (mode & S_IXGRP) ? 's' : 'S';
-
-}
-
 static int mode_munch(mode_t *mode, const char* p)
 {
 

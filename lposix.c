@@ -3,7 +3,7 @@
 * POSIX library for Lua 5.1.
 * Luiz Henrique de Figueiredo <lhf@tecgraf.puc-rio.br>
 * 07 Apr 2006 23:17:49
-* Clean up and bug fixes by Leo Razoumov <slonik.az@gmail.com> 2006-10-11 <!LR>
+* Clean up and bug fixes by Leo Razoumov <slonik.az@gmail.com> 2006-10-11
 * Based on original by Claudio Terra for Lua 3.x.
 * With contributions by Roberto Ierusalimschy.
 */
@@ -643,8 +643,7 @@ static int Pgetenv(lua_State *L)		/** getenv([name]) */
 }
 
 static int Pumask(lua_State *L)			/** umask([mode]) */
-{/* <!LR> from old lposix-5.0 version */
-	char m[10];
+{
 	mode_t mode;
 	umask(mode=umask(0));
 	mode=(~mode)&0777;
@@ -658,8 +657,7 @@ static int Pumask(lua_State *L)			/** umask([mode]) */
 		mode&=0777;
 		umask(~mode);
 	}
-	modechopper(mode, m);
-	lua_pushstring(L, m);
+	pushmode(L, mode);
 	return 1;
 }
 
