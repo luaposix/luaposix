@@ -85,11 +85,9 @@ static int rwxrwxrwx(mode_t *mode, const char *p)
 			case 2: /* turn on suid flag */
 				tmp_mode |= S_ISUID | S_IXUSR;
 				break;
-
 			case 5: /* turn on sgid flag */
 				tmp_mode |= S_ISGID | S_IXGRP;
 				break;
-
 			default:
 				return -4; /* failed! -- bad rwxrwxrwx mode change */
 				break;
@@ -102,7 +100,6 @@ static int rwxrwxrwx(mode_t *mode, const char *p)
 
 static int mode_munch(mode_t *mode, const char* p)
 {
-
 	char op=0;
 	mode_t affected_bits, ch_mode;
 	int done = 0;
@@ -123,28 +120,21 @@ static int mode_munch(mode_t *mode, const char* p)
 		for ( ; ; p++)
 			switch (*p)
 			{
-				case 'u':
+			case 'u':
 				affected_bits |= 04700;
 				break;
-
-				case 'g':
+			case 'g':
 				affected_bits |= 02070;
 				break;
-
-				case 'o':
+			case 'o':
 				affected_bits |= 01007;
 				break;
-
-				case 'a':
+			case 'a':
 				affected_bits |= 07777;
 				break;
-
-				/* ignore spaces */
-				case ' ':
+			case ' ': /* ignore spaces */
 				break;
-
-
-				default:
+			default:
 				goto no_more_affected;
 			}
 
@@ -156,17 +146,14 @@ static int mode_munch(mode_t *mode, const char* p)
 		/* step 2 -- how is it changed? */
 		switch (*p)
 		{
-			case '+':
-			case '-':
-			case '=':
+		case '+':
+		case '-':
+		case '=':
 			op = *p;
 			break;
-
-			/* ignore spaces */
-			case ' ':
+		case ' ': /* ignore spaces */
 			break;
-
-			default:
+		default:
 			return -1; /* failed! -- bad operator */
 		}
 
@@ -177,24 +164,19 @@ static int mode_munch(mode_t *mode, const char* p)
 			case 'r':
 				ch_mode |= 00444;
 				break;
-
 			case 'w':
 				ch_mode |= 00222;
 				break;
-
 			case 'x':
 				ch_mode |= 00111;
 				break;
-
 			case 's':
 				/* Set the setuid/gid bits if `u' or `g' is selected. */
 				ch_mode |= 06000;
 				break;
-
 			case ' ':
 				/* ignore spaces */
 				break;
-
 			default:
 				goto specs_done;
 			}
@@ -212,15 +194,12 @@ static int mode_munch(mode_t *mode, const char* p)
 			case '+':
 				*mode = *mode |= ch_mode & affected_bits;
 				break;
-
 			case '-':
 				*mode = *mode &= ~(ch_mode & affected_bits);
 				break;
-
 			case '=':
 				*mode = ch_mode & affected_bits;
 				break;
-
 			default:
 				return -3; /* failed! -- unknown error */
 			}
@@ -1605,7 +1584,6 @@ LUALIB_API int luaopen_posix (lua_State *L)
 	set_const("LOG_INFO", LOG_INFO);
 	set_const("LOG_DEBUG", LOG_DEBUG);
 #endif
-
 
 	return 1;
 }
