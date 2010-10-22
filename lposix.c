@@ -47,6 +47,25 @@
 #include "lauxlib.h"
 
 
+/* ISO C functions missing from the standard Lua libraries. */
+
+static int Pabort(lua_State *L) /* abort() */
+{
+	(void)L; /* Avoid a compiler warning. */
+	abort();
+	return 0; /* Avoid a compiler warning (or possibly cause one
+		     if the compiler's too clever, sigh). */
+}
+
+static int Praise(lua_State *L)
+{
+	int sig = luaL_checkint(L, 1);
+	lua_pop(L, 1);
+	lua_pushinteger(L, raise(sig));
+	return 1;
+}
+
+
 /* File mode translation between octal codes and `rwxrwxrwx' strings,
    and between octal masks and `ugoa+-=rwx' strings. */
 
@@ -1481,6 +1500,7 @@ static int Pstrftime(lua_State *L)		/** strftime(format, [time]) */
 
 static const luaL_reg R[] =
 {
+	{"abort",		Pabort},
 	{"access",		Paccess},
 	{"basename",		Pbasename},
 	{"chdir",		Pchdir},
@@ -1518,6 +1538,7 @@ static const luaL_reg R[] =
 	{"mkfifo",		Pmkfifo},
 	{"pathconf",		Ppathconf},
 	{"pipe",		Ppipe},
+	{"raise",		Praise},
 	{"readlink",		Preadlink},
 	{"rmdir",		Prmdir},
 	{"rpoll",		Ppoll},
