@@ -17,6 +17,7 @@
 #include <sys/resource.h>
 #include <sys/time.h>
 
+#include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -64,6 +65,21 @@ static int Praise(lua_State *L)
 	lua_pushinteger(L, raise(sig));
 	return 1;
 }
+
+#define bind_ctype(f)                                     \
+	static int P ## f(lua_State *L)			  \
+	{						  \
+		const char *s = luaL_checkstring(L, 1);	  \
+		char c = *s;				  \
+		lua_pop(L, 1);				  \
+		lua_pushboolean(L, f((int)c));		  \
+		return 1;				  \
+	}
+
+bind_ctype(isgraph)
+bind_ctype(isprint)
+
+#undef bind_ctype
 
 
 /* File mode translation between octal codes and `rwxrwxrwx' strings,
@@ -1531,6 +1547,8 @@ static const luaL_reg R[] =
 	{"glob",		Pglob},
 	{"gmtime",		Pgmtime},
 	{"hostid",		Phostid},
+	{"isgraph",		Pisgraph},
+	{"isprint",		Pisprint},
 	{"kill",		Pkill},
 	{"link",		Plink},
 	{"localtime",		Plocaltime},
