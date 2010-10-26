@@ -75,7 +75,7 @@ f(d)
 myassert("rmdir",ox.rmdir"x")
 
 ------------------------------------------------------------------------------
-testing"fork, execp"
+testing"fork, exec"
 io.flush()
 pid=assert(ox.fork())
 if pid==0 then
@@ -83,12 +83,11 @@ if pid==0 then
 	ppid=ox.getpid"ppid"
 	io.write("in child process ",pid," from ",ppid,".\nnow executing date... ")
 	io.flush()
-	assert(ox.execp("date","+[%c]"))
+	assert(ox.exec("date","+[%c]"))
 	print"should not get here"
 else
 	io.write("process ",ox.getpid"pid"," forked child process ",pid,". waiting...\n")
-	p,msg,ret = ox.wait(pid)
-	assert(p == pid and msg == "exited" and ret == 0)
+	ox.wait(pid)
 	io.write("child process ",pid," done\n")
 end
 
