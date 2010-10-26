@@ -66,20 +66,24 @@ static int Praise(lua_State *L)
 	return 1;
 }
 
-#define bind_ctype(f)                                     \
-	static int P ## f(lua_State *L)			  \
-	{						  \
-		const char *s = luaL_checkstring(L, 1);	  \
-		char c = *s;				  \
-		lua_pop(L, 1);				  \
-		lua_pushboolean(L, f((int)c));		  \
-		return 1;				  \
-	}
+static int bind_ctype(lua_State *L, int (*cb)(int))
+{
+		const char *s = luaL_checkstring(L, 1);
+		char c = *s;
+		lua_pop(L, 1);
+		lua_pushboolean(L, cb((int)c));
+		return 1;
+}
 
-bind_ctype(isgraph)
-bind_ctype(isprint)
+static int Pisgraph(lua_State *L)
+{
+	return bind_ctype(L, &isgraph);
+}
 
-#undef bind_ctype
+static int Pisprint(lua_State *L)
+{
+	return bind_ctype(L, &isprint);
+}
 
 
 /* File mode translation between octal codes and `rwxrwxrwx' strings,
