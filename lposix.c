@@ -270,9 +270,8 @@ static int doselection(lua_State *L, int i, int n,
 			lua_settop(L, i);
 		for (j=0; S[j]!=NULL; j++)
 		{
-			lua_pushstring(L, S[j]);
 			F(L, j, data);
-			lua_settable(L, -3);
+			lua_setfield(L, -2, S[j]);
 		}
 		return 1;
 	}
@@ -457,9 +456,8 @@ static int Pfiles(lua_State *L)			/** files([path]) */
 	DIR **d = (DIR **)lua_newuserdata(L, sizeof(DIR *));
 	if (luaL_newmetatable(L, MYNAME " dir handle"))
 	{
-		lua_pushliteral(L, "__gc");
 		lua_pushcfunction(L, dir_gc);
-		lua_settable(L, -3);
+		lua_setfield(L, -2, "__gc");
 	}
 	lua_setmetatable(L, -2);
 	*d = opendir(path);
@@ -1000,12 +998,10 @@ static int Pgetgroup(lua_State *L)		/** getgroup(name|id) */
 	{
 		int i;
 		lua_newtable(L);
-		lua_pushliteral(L, "name");
 		lua_pushstring(L, g->gr_name);
-		lua_settable(L, -3);
-		lua_pushliteral(L, "gid");
+		lua_setfield(L, -2, "name");
 		lua_pushinteger(L, g->gr_gid);
-		lua_settable(L, -3);
+		lua_setfield(L, -2, "gid");
 		for (i=0; g->gr_mem[i]!=NULL; i++)
 		{
 			lua_pushstring(L, g->gr_mem[i]);
@@ -1696,16 +1692,14 @@ static const luaL_reg R[] =
 };
 
 #define set_const(key, value)		\
-	lua_pushliteral(L, key);	\
 	lua_pushnumber(L, value);	\
-	lua_settable(L, -3)
+	lua_setfield(L, -2, key)
 
 LUALIB_API int luaopen_posix (lua_State *L)
 {
-	luaL_register(L,MYNAME,R);
-	lua_pushliteral(L,"version");		/** version */
-	lua_pushliteral(L,MYVERSION);
-	lua_settable(L,-3);
+	luaL_register(L, MYNAME, R);
+	lua_pushliteral(L, MYVERSION);
+	lua_setfield(L, -2, "version");
 
 	/* stdio.h constants */
 	/* Those that are omitted already have a Lua interface, or alternative. */
