@@ -1618,6 +1618,69 @@ static int Pgetopt_long(lua_State *L)
 }
 
 
+/* Signals */
+
+static lua_State *signalL;
+static int signalno;
+
+static const char *const Ssigmacros[] =
+{
+	"SIG_DFL", "SIG_ERR", "SIG_HOLD", "SIG_IGN", NULL
+};
+
+static void (*Fsigmacros[])(int) =
+{
+	SIG_DFL, SIG_ERR, SIG_HOLD, SIG_IGN, NULL
+};
+
+static void sig_handle (lua_State *L, lua_Debug *ar) {
+	(void)ar;  /* unused arg. */
+	/* Get signal handlers table */
+	lua_sethook(L, NULL, 0, 0);
+	lua_pushlightuserdata(L, &signalL);
+	lua_rawget(L, LUA_REGISTRYINDEX);
+
+	/* Get handler */
+	lua_pushinteger(L, signalno);
+	lua_gettable(L, -2);
+
+	/* Call handler with signal number */
+	lua_pushinteger(L, signalno);
+	lua_pcall(L, 1, 0, 0);
+	/* FIXME: Deal with error */
+}
+
+static void sig_postpone (int i) {
+	signalno = i;
+	lua_sethook(signalL, sig_handle, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
+}
+
+static int sig_action (lua_State *L)
+{
+	/* As newindex metamethod, we are passed (table, key, value) on Lua stack */
+	struct sigaction sa;
+	int sig = luaL_checkinteger(L, 2);
+	void (*handler)(int) = sig_postpone;
+
+	luaL_checktype(L, 1, LUA_TTABLE);
+
+	/* Set Lua handler */
+	if (lua_type(L, 3) == LUA_TSTRING) {
+		handler = Fsigmacros[luaL_checkoption(L, 3, "SIG_DFL", Ssigmacros)];
+		fprintf (stderr, "setting handler for %d to %s: %p\n", sig, lua_tostring(L, 3), handler);
+	}
+	lua_rawset(L, 1);
+
+	/* Set up C signal handler */
+	sa.sa_handler = handler;
+	sa.sa_flags = 0;
+	sigemptyset(&sa.sa_mask);
+	sigaction(sig, &sa, 0);         /* XXX ignores errors */
+
+	return 0;
+}
+
+
 static const luaL_reg R[] =
 {
 	{"abort",		Pabort},
@@ -1788,6 +1851,37 @@ LUALIB_API int luaopen_posix (lua_State *L)
 	set_const("EWOULDBLOCK", EWOULDBLOCK);
 	set_const("EXDEV", EXDEV);
 
+	/* Signals */
+	set_const("SIGABRT", SIGABRT);
+	set_const("SIGALRM", SIGALRM);
+	set_const("SIGBUS", SIGBUS);
+	set_const("SIGCHLD", SIGCHLD);
+	set_const("SIGCONT", SIGCONT);
+	set_const("SIGFPE", SIGFPE);
+	set_const("SIGHUP", SIGHUP);
+	set_const("SIGILL", SIGILL);
+	set_const("SIGINT", SIGINT);
+	set_const("SIGKILL", SIGKILL);
+	set_const("SIGPIPE", SIGPIPE);
+	set_const("SIGQUIT", SIGQUIT);
+	set_const("SIGSEGV", SIGSEGV);
+	set_const("SIGSTOP", SIGSTOP);
+	set_const("SIGTERM", SIGTERM);
+	set_const("SIGTSTP", SIGTSTP);
+	set_const("SIGTTIN", SIGTTIN);
+	set_const("SIGTTOU", SIGTTOU);
+	set_const("SIGUSR1", SIGUSR1);
+	set_const("SIGUSR2", SIGUSR2);
+	set_const("SIGPOLL", SIGPOLL);
+	set_const("SIGPROF", SIGPROF);
+	set_const("SIGSYS", SIGSYS);
+	set_const("SIGTRAP", SIGTRAP);
+	set_const("SIGURG", SIGURG );
+	set_const("SIGVTALRM", SIGVTALRM);
+	set_const("SIGXCPU", SIGXCPU);
+	set_const("SIGXFSZ", SIGXFSZ);
+
+
 #if _POSIX_VERSION >= 200112L
 	set_const("LOG_AUTH", LOG_AUTH);
 	set_const("LOG_AUTHPRIV", LOG_AUTHPRIV);
@@ -1819,6 +1913,25 @@ LUALIB_API int luaopen_posix (lua_State *L)
 	set_const("LOG_INFO", LOG_INFO);
 	set_const("LOG_DEBUG", LOG_DEBUG);
 #endif
+
+	/* Signals table */
+	lua_newtable(L); /* Signals table */
+
+	/* Signals table's metatable */
+	lua_newtable(L);
+	lua_pushcfunction(L, sig_action);
+	lua_setfield(L, -2, "__newindex");
+	lua_setmetatable(L, -2);
+
+	/* Take a copy of the signals table to use in sig_action */
+	lua_pushlightuserdata(L, &signalL);
+	lua_pushvalue(L, -2);
+	lua_rawset(L, LUA_REGISTRYINDEX);
+
+	signalL = L; /* For sig_postpone */
+
+	/* Register signals table */
+	lua_setfield(L, -2, "signal");
 
 	return 1;
 }
