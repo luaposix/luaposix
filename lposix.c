@@ -676,6 +676,14 @@ static int Pfork(lua_State *L)			/** fork() */
 	return pushresult(L, fork(), NULL);
 }
 
+static int P_exit(lua_State *L) /* _exit() */
+{
+	pid_t ret = luaL_checkint(L, 1);
+	_exit(ret);
+	return 0; /* Avoid a compiler warning (or possibly cause one
+		     if the compiler's too clever, sigh). */
+}
+
 /* from http://lua-users.org/lists/lua-l/2007-11/msg00346.html */
 static int Ppoll(lua_State *L)   /** poll(filehandle, timeout) */
 {
@@ -1683,6 +1691,7 @@ static int sig_action (lua_State *L)
 
 static const luaL_reg R[] =
 {
+	{"_exit",		P_exit},
 	{"abort",		Pabort},
 	{"access",		Paccess},
 	{"basename",		Pbasename},
