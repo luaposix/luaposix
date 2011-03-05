@@ -353,6 +353,11 @@ static int Perrno(lua_State *L)			/** errno([n]) */
 	return 2;
 }
 
+static int Pset_errno(lua_State *L)
+{
+	errno = luaL_checkint(L, 1);
+	return 0;
+}
 
 static int Pbasename(lua_State *L)		/** basename(path) */
 {
@@ -1737,6 +1742,7 @@ static const luaL_reg R[] =
 	{"readlink",		Preadlink},
 	{"rmdir",		Prmdir},
 	{"rpoll",		Ppoll},
+	{"set_errno",		Pset_errno},
 	{"setenv",		Psetenv},
 	{"setpid",		Psetpid},
 	{"setrlimit",		Psetrlimit},
