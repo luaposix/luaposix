@@ -1024,6 +1024,37 @@ static int Pgetgroup(lua_State *L)		/** getgroup(name|id) */
 	return 1;
 }
 
+#if _POSIX_VERSION >= 200112L
+static int Pgetgroups(lua_State *L)		/** getgroups() */
+{
+	int n_group_slots = getgroups(0, NULL);
+
+	if (n_group_slots >= 0) {
+		int n_groups;
+		void *ud;
+		gid_t *group;
+		lua_Alloc lalloc = lua_getallocf(L, &ud);
+
+		if ((group = lalloc(ud, NULL, 0, n_group_slots * sizeof *group)) == NULL)
+			return 0;
+
+		if ((n_groups = getgroups(n_group_slots, group)) >= 0) {
+			int i;
+			lua_createtable(L, n_groups, 0);
+			for (i = 0; i < n_groups; i++) {
+				lua_pushinteger(L, group[i]);
+				lua_rawseti(L, -2, i + 1);
+			}
+			free (group);
+			return 1;
+		}
+
+		free(group);
+	}
+
+	return 0;
+}
+#endif
 
 struct mytimes
 {
@@ -1720,6 +1751,9 @@ static const luaL_reg R[] =
 	{"getcwd",		Pgetcwd},
 	{"getenv",		Pgetenv},
 	{"getgroup",		Pgetgroup},
+#if _POSIX_VERSION >= 200112L
+	{"getgroups",		Pgetgroups},
+#endif
 	{"getlogin",		Pgetlogin},
 	{"getopt_long",		Pgetopt_long},
 	{"getpasswd",		Pgetpasswd},
