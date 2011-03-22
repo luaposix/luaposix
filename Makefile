@@ -25,7 +25,7 @@ endif
 
 WARN=		-pedantic -Wall
 INCS=		-I$(LUAINC)
-CFLAGS+=	-fPIC $(INCS) $(WARN) -DVERSION=\"$(FULL_VERSION)\" -D_XOPEN_SOURCE=700
+CFLAGS+=	-fPIC $(INCS) $(WARN) -DVERSION=\"$(FULL_VERSION)\"
 
 MYNAME=		posix
 MYLIB= 		$(MYNAME)
@@ -40,7 +40,9 @@ ifeq ($(OS),Darwin)
   LIBS=
 else
   LDFLAGS_SHARED=-shared
+  # FIXME: Make -lrt conditional on _XOPEN_REALTIME
   LIBS=-lcrypt -lrt
+  CFLAGS += -D_XOPEN_SOURCE=700
 endif
 
 # targets
@@ -59,7 +61,8 @@ clean:
 	rm -f $(OBJS) $T core core.* a.out $(TARGZ)
 
 install: $T
-	$(INSTALL) -D $T $(DESTDIR)/$(LUALIB)/$T
+	$(INSTALL) -d $(DESTDIR)/$(LUALIB)
+	$(INSTALL) $T $(DESTDIR)/$(LUALIB)/$T
 
 show-funcs:
 	@echo "$(MYNAME) library:"
