@@ -1492,6 +1492,7 @@ static int get_clk_id_const(const char *str)
 		return CLOCK_REALTIME;
 }
 
+#ifdef _XOPEN_REALTIME
 static int Pclock_getres(lua_State *L)		/** clock_getres([clockid]) */
 {
 	struct timespec res;
@@ -1513,6 +1514,7 @@ static int Pclock_gettime(lua_State *L)		/** clock_gettime([clockid]) */
 	lua_pushnumber(L, res.tv_nsec);
 	return 2;
 }
+#endif
 
 static int Pstrftime(lua_State *L)		/** strftime(format, [time]) */
 {
@@ -1709,10 +1711,8 @@ static int sig_action (lua_State *L)
 	luaL_checktype(L, 1, LUA_TTABLE);
 
 	/* Set Lua handler */
-	if (lua_type(L, 3) == LUA_TSTRING) {
+	if (lua_type(L, 3) == LUA_TSTRING)
 		handler = Fsigmacros[luaL_checkoption(L, 3, "SIG_DFL", Ssigmacros)];
-		fprintf (stderr, "setting handler for %d to %s: %p\n", sig, lua_tostring(L, 3), handler);
-	}
 	lua_rawset(L, 1);
 
 	/* Set up C signal handler */
@@ -1734,8 +1734,10 @@ static const luaL_reg R[] =
 	{"chdir",		Pchdir},
 	{"chmod",		Pchmod},
 	{"chown",		Pchown},
+#ifdef _XOPEN_REALTIME
 	{"clock_getres",	Pclock_getres},
 	{"clock_gettime",	Pclock_gettime},
+#endif
 	{"crypt",		Pcrypt},
 	{"ctermid",		Pctermid},
 	{"dirname",		Pdirname},
