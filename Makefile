@@ -13,7 +13,7 @@ INSTALL=	install
 
 # no need to change anything below here
 PACKAGE=	luaposix
-LIBVERSION=	8
+LIBVERSION=	9
 RELEASE=	$(LUAVERSION).$(LIBVERSION)
 
 GIT_REV		:= $(shell test -d .git && git describe --always)
