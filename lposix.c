@@ -1492,7 +1492,7 @@ static int get_clk_id_const(const char *str)
 		return CLOCK_REALTIME;
 }
 
-#ifdef _XOPEN_REALTIME
+#if _XOPEN_REALTIME != -1
 static int Pclock_getres(lua_State *L)		/** clock_getres([clockid]) */
 {
 	struct timespec res;
@@ -1734,7 +1734,7 @@ static const luaL_reg R[] =
 	{"chdir",		Pchdir},
 	{"chmod",		Pchmod},
 	{"chown",		Pchown},
-#ifdef _XOPEN_REALTIME
+#if _XOPEN_REALTIME != -1
 	{"clock_getres",	Pclock_getres},
 	{"clock_gettime",	Pclock_gettime},
 #endif
