@@ -1328,24 +1328,24 @@ static int Pcrypt(lua_State *L)		/** crypt(string,salt) */
  *	limit, obtained by calling getrlimit().
  *
  *	Valid resouces are:
- *		"core", "cpu", "data", "fsize", "memlock",
- *		"nofile", "nproc", "rss", "stack"
+ *		"core", "cpu", "data", "fsize",
+ *		"nofile", "stack", "as"
  *
  *	Example usage:
- *	posix.setrlimit("NOFILE", 1000, 2000)
+ *	posix.setrlimit("nofile", 1000, 2000)
  */
 
 static const int Krlimit[] =
 {
-	RLIMIT_CORE, RLIMIT_CPU, RLIMIT_DATA, RLIMIT_FSIZE, RLIMIT_MEMLOCK,
-	RLIMIT_NOFILE, RLIMIT_NPROC, RLIMIT_RSS, RLIMIT_STACK,
+	RLIMIT_CORE, RLIMIT_CPU, RLIMIT_DATA, RLIMIT_FSIZE,
+	RLIMIT_NOFILE, RLIMIT_STACK, RLIMIT_AS,
 	-1
 };
 
 static const char *const Srlimit[] =
 {
-	"core", "cpu", "data", "fsize", "memlock",
-	"nofile", "nproc", "rss", "stack",
+	"core", "cpu", "data", "fsize",
+	"nofile", "stack", "as",
 	NULL
 };
 
