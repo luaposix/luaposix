@@ -38,6 +38,7 @@ OS=$(shell uname)
 ifeq ($(OS),Darwin)
   LDFLAGS_SHARED=-bundle -undefined dynamic_lookup
   LIBS=
+	CFLAGS += -D_POSIX_C_SOURCE
 else
   LDFLAGS_SHARED=-shared
   # FIXME: Make -lrt conditional on _XOPEN_REALTIME
