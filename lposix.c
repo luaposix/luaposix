@@ -1478,6 +1478,7 @@ static int Pgmtime(lua_State *L)		/** gmtime([time]) */
 	return 1;
 }
 
+#if defined (_XOPEN_REALTIME) && _XOPEN_REALTIME != -1
 static int get_clk_id_const(const char *str)
 {
 	if (str == NULL)
@@ -1492,7 +1493,6 @@ static int get_clk_id_const(const char *str)
 		return CLOCK_REALTIME;
 }
 
-#if defined (_XOPEN_REALTIME) && _XOPEN_REALTIME != -1
 static int Pclock_getres(lua_State *L)		/** clock_getres([clockid]) */
 {
 	struct timespec res;
