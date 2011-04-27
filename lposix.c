@@ -599,7 +599,7 @@ static int Pfdopen(lua_State *L)	/** fdopen(fd, mode) */
 	int fd = luaL_checkint(L, 1);
 	const char *mode = luaL_checkstring(L, 2);
 	if (!pushfile(L, fd, mode))
-		return pusherror(L, "fdpoen");
+		return pusherror(L, "fdopen");
 	return 1;
 }
 
