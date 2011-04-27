@@ -658,7 +658,7 @@ static int Pmkstemp(lua_State *L)                 /** mkstemp(path) */
 	if ((tmppath = lalloc(ud, NULL, 0, strlen(path + 1))) == NULL)
 		return 0;
 	strcpy(tmppath, path);
-	res = mkstemp(path);
+	res = mkstemp(tmppath);
 
 	if (res == -1)
 		return pusherror(L, path);
