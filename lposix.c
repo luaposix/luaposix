@@ -235,10 +235,10 @@ static int mode_munch(mode_t *mode, const char* p)
 			switch (op)
 			{
 			case '+':
-				*mode = *mode |= ch_mode & affected_bits;
+				*mode |= ch_mode & affected_bits;
 				break;
 			case '-':
-				*mode = *mode &= ~(ch_mode & affected_bits);
+				*mode &= ~(ch_mode & affected_bits);
 				break;
 			case '=':
 				*mode = ch_mode & affected_bits;
