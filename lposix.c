@@ -614,7 +614,7 @@ static const char *filemode(int fd)
 	switch (mode & O_ACCMODE) {
 		case O_RDONLY:  m = "r"; break;
 		case O_WRONLY:  m = "w"; break;
-		default:    	m = "rw"; break;
+		default:    	m = "w+"; break;
 	}
 	return m;
 }
@@ -622,16 +622,16 @@ static const char *filemode(int fd)
 static int Pdup(lua_State *L)			/** dup(old,[new]) */
 {
 	FILE **oldf = (FILE**)luaL_checkudata(L, 1, LUA_FILEHANDLE);
-  	FILE **newf = (FILE **)lua_touserdata(L, 2);
+	FILE **newf = (FILE**)lua_touserdata(L, 2);
 	int fd;
-	const char *msg = "dup2";
-	fflush(*newf);
+	const char * msg;
 	if (newf == NULL) {
 		fd = dup(fileno(*oldf));
 		msg = "dup";
 	} else {
 		fflush(*newf);
 		fd = dup2(fileno(*oldf), fileno(*newf));
+		msg = "dup2";
 	}
 
 	if ((fd < 0) || !pushfile(L, fd, filemode(fd)))
