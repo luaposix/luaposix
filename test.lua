@@ -1,6 +1,6 @@
 -- test posix library
 
-require 'posix'
+local ox = require 'posix'
 
 function testing(s)
  print""
@@ -13,13 +13,12 @@ function myassert(w,c,s)
 end
 
 function myprint(s,...)
- for i=1,table.getn(arg) do
+ for i=1,#arg do
   io.write(arg[i],s)
  end
  io.write"\n"
 end
 
-ox=posix
 
 ------------------------------------------------------------------------------
 print(ox.version)
@@ -193,22 +192,44 @@ f(ox.getenv"USER")
 
 ------------------------------------------------------------------------------
 testing"sysconf"
-a=ox.sysconf() table.foreach(a,print)
+local function prtab(a) for k,v in pairs(a) do print( k, v ); end end
+prtab( ox.sysconf() );
 testing"pathconf"
-a=ox.pathconf(".") table.foreach(a,print)
+prtab( ox.pathconf(".") );
 
 ------------------------------------------------------------------------------
-testing"times"
-a=ox.times()
-for k,v in pairs(a) do print(k,v) end
-print"sleeping 4 seconds..."
-ox.sleep(4)
-b=ox.times()
-for k,v in pairs(b) do print(k,v) end
-print""
-print("elapsed",b.elapsed-a.elapsed)
-print("clock",os.clock())
+if arg[1] ~= "--no-times"
+    then
+    testing"times"
+    a=ox.times()
+    for k,v in pairs(a) do print(k,v) end
+    print"sleeping 3 seconds..."
+    ox.sleep(3)
+    b=ox.times()
+    for k,v in pairs(b) do print(k,v) end
+    print""
+    print("elapsed",b.elapsed-a.elapsed)
+    print("clock",os.clock())
+    end
+
 
 ------------------------------------------------------------------------------
-print""
-print(ox.version)
+
+testing"dup(),fdopen()"
+
+local new_file = assert( ox.dup( io.stdout ) );
+print( "dup(io.stdout) =", new_file, "io.type() reports: ", io.type(new_file) );
+new_file:write( "This is the dup()ed file" );
+new_file:flush();
+new_file:close();
+io.stdout:write( " ... and this is stdout again.\n" );
+
+local f = assert( ox.fdopen( 1, "w" ) );
+f:write( "fdopen(1) here.\n" );
+f:close();
+io.stderr:write( "fdopen(1) now closed.\n" ); io.stderr:flush();
+io.stdout:write( "Write to closed stdout here.\n" );
+
+
+------------------------------------------------------------------------------
+io.stderr:write( "\n\n==== ", ox.version, " tests completed ====\n\n" );
