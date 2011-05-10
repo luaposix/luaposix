@@ -16,7 +16,7 @@ PACKAGE=	luaposix
 LIBVERSION=	11
 RELEASE=	$(LUAVERSION).$(LIBVERSION)
 
-GIT_REV		:= $(shell test -d .git && git describe --always)
+GIT_REV		:= $(shell test -d .git && git describe --tag --always)
 ifeq ($(GIT_REV),)
 FULL_VERSION	:= $(RELEASE)
 else
@@ -25,7 +25,8 @@ endif
 
 WARN=		-pedantic -Wall
 INCS=		-I$(LUAINC)
-CFLAGS+=	-fPIC $(INCS) $(WARN) -DVERSION=\"$(FULL_VERSION)\"
+OPTFLAGS:=	-O2
+CFLAGS+=	-fPIC $(INCS) $(WARN) -DVERSION=\"$(FULL_VERSION)\" $(OPTFLAGS)
 
 MYNAME=		posix
 MYLIB= 		$(MYNAME)
@@ -60,6 +61,10 @@ tree:	$T
 
 clean:
 	rm -f $(OBJS) $T core core.* a.out $(TARGZ)
+
+debug:
+	# The --no-print-directory option is non-POSIX, works with GNU make.
+	@$(MAKE) --no-print-directory "OPTFLAGS=-g"
 
 install: $T
 	$(INSTALL) -d $(DESTDIR)/$(LUALIB)
