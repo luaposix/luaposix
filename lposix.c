@@ -314,6 +314,17 @@ static void badoption(lua_State *L, int i, const char *what, int option)
 		lua_pushfstring(L, "unknown %s option '%c'", what, option));
 }
 
+
+#if LUA_VERSION_NUM > 501
+	static int luaL_typerror( lua_State *L, int narg, const char *tname )
+		{
+		const char *msg = lua_pushfstring(L, "%s expected, got %s",
+									tname, luaL_typename(L, narg));
+		return luaL_argerror(L, narg, msg);
+		}
+#endif
+
+
 static uid_t mygetuid(lua_State *L, int i)
 {
 	if (lua_isnone(L, i))
@@ -572,7 +583,16 @@ static int pushfile (lua_State *L, int id, const char *mode) {
 		lua_setfield(L, -2, "__close");
 		lua_setfield(L, LUA_REGISTRYINDEX, "POSIX_PIPEFILE");
 	}
-	lua_setfenv(L, -2);
+	#if LUA_VERSION_NUM <= 501
+		lua_setfenv( L, -2 );
+	#else
+		#define LUA_SETUSERVALUE_RV 0
+		#if LUA_SETUSERVALUE_RV
+			if ( lua_setuservalue( L, -2 ) != 0 )
+		#else
+			lua_setuservalue( L, -2 );
+		#endif
+	#endif
 	*f = fdopen(id, mode);
 	return (*f != NULL);
 }
@@ -1204,10 +1224,10 @@ static int Puname(lua_State *L)			/** uname([string]) */
 	luaL_buffinit(L, &b);
 	for (s=luaL_optstring(L, 1, "%s %n %r %v %m"); *s; s++)
 		if (*s!='%')
-			luaL_putchar(&b, *s);
+			luaL_addchar(&b, *s);
 		else switch (*++s)
 		{
-			case '%': luaL_putchar(&b, *s); break;
+			case '%': luaL_addchar(&b, *s); break;
 			case 'm': luaL_addstring(&b,u.machine); break;
 			case 'n': luaL_addstring(&b,u.nodename); break;
 			case 'r': luaL_addstring(&b,u.release); break;
@@ -1631,7 +1651,11 @@ static int Pgetopt_long(lua_State *L)
 	opterr = luaL_optinteger (L, 4, 0);
 	optind = luaL_optinteger (L, 5, 1);
 
-	argc = (int)lua_objlen(L, 1) + 1;
+	#if LUA_VERSION_NUM > 501
+		argc = (int)lua_rawlen(L, 1) + 1;
+	#else
+		argc = (int)lua_objlen(L, 1) + 1;
+	#endif
 	lua_pushinteger(L, argc);
 
 	lua_pushstring(L, shortopts);
@@ -1644,7 +1668,11 @@ static int Pgetopt_long(lua_State *L)
 		argv[i] = (char *)luaL_checkstring(L, -1);
 	}
 
-	n = (int)lua_objlen(L, 3);
+	#if LUA_VERSION_NUM > 501
+		n = (int)lua_rawlen(L, 3);
+	#else
+		n = (int)lua_objlen(L, 3);
+	#endif
 	longopts = lua_newuserdata(L, (n + 1) * sizeof(struct option));
 	longopts[n].name = NULL;
 	longopts[n].has_arg = 0;
@@ -1747,7 +1775,7 @@ static int sig_action (lua_State *L)
 }
 
 
-static const luaL_reg R[] =
+static const luaL_Reg R[] =
 {
 	{"_exit",		P_exit},
 	{"abort",		Pabort},
@@ -1834,7 +1862,23 @@ static const luaL_reg R[] =
 
 LUALIB_API int luaopen_posix (lua_State *L)
 {
-	luaL_register(L, MYNAME, R);
+	#if LUA_VERSION_NUM <= 501
+		luaL_register(L, MYNAME, R);
+	#else
+
+		/* Create the module-table: the "- 1" is for the sentinel element. */
+		const size_t n_funcs = sizeof(R)/sizeof(*R) - 1;
+		lua_createtable( L, 0, n_funcs );
+		luaL_setfuncs( L, R, 0 );
+
+		/* We can just return the module-table from this function in the new
+		** (>=5.2) style, but for compatibility we set the global MYNAME to the
+		** newly created table. */
+		lua_pushvalue( L, -1 );
+		lua_setglobal( L, MYNAME );
+
+	#endif
+
 	lua_pushliteral(L, MYVERSION);
 	lua_setfield(L, -2, "version");
 
