@@ -570,95 +570,10 @@ static int Paccess(lua_State *L)		/** access(path,[mode]) */
 }
 
 
-static int myfclose (lua_State *L) {
-	FILE **p = (FILE **)lua_touserdata(L, 1);
-	int rc = fclose(*p);
-	if (rc == 0)
-		*p = NULL;
-	return pushresult(L, rc, NULL);
-}
-
-static int pushfile (lua_State *L, int id, const char *mode) {
-	FILE **f = (FILE **)lua_newuserdata(L, sizeof(FILE *));
-	*f = NULL;
-	luaL_getmetatable(L, LUA_FILEHANDLE);
-	lua_setmetatable(L, -2);
-	lua_getfield(L, LUA_REGISTRYINDEX, "POSIX_PIPEFILE");
-	if (lua_isnil(L, -1))
-	{
-		lua_pop(L, 1);
-		lua_newtable(L);
-		lua_pushvalue(L, -1);
-		lua_pushcfunction(L, myfclose);
-		lua_setfield(L, -2, "__close");
-		lua_setfield(L, LUA_REGISTRYINDEX, "POSIX_PIPEFILE");
-	}
-	lua_setfenv(L, -2);
-
-	*f = fdopen(id, mode);
-	return (*f != NULL);
-}
-
-static int Ppipe(lua_State *L)			/** pipe() */
-{
-	int fd[2];
-	if (pipe(fd)==-1) return pusherror(L, NULL);
-	if (!pushfile(L, fd[0], "r") || !pushfile(L, fd[1], "w"))
-		return pusherror(L, "pipe");
-	return 2;
-}
-
-
 static int Pfileno(lua_State *L)	/** fileno(filehandle) */
 {
 	FILE *f = *(FILE**) luaL_checkudata(L, 1, LUA_FILEHANDLE);
 	return pushresult(L, fileno(f), NULL);
-}
-
-
-static int Pfdopen(lua_State *L)	/** fdopen(fd, mode) */
-{
-	int fd = luaL_checkint(L, 1);
-	const char *mode = luaL_checkstring(L, 2);
-	if (!pushfile(L, fd, mode))
-		return pusherror(L, "fdopen");
-	return 1;
-}
-
-
-/* helper func for Pdup */
-static const char *filemode(int fd)
-{
-	const char *m;
-	int mode = fcntl(fd, F_GETFL);
-	if (mode < 0)
-		return NULL;
-	switch (mode & O_ACCMODE) {
-		case O_RDONLY:  m = "r"; break;
-		case O_WRONLY:  m = "w"; break;
-		default:    	m = "w+"; break;
-	}
-	return m;
-}
-
-static int Pdup(lua_State *L)			/** dup(old,[new]) */
-{
-	FILE **oldf = (FILE**)luaL_checkudata(L, 1, LUA_FILEHANDLE);
-	FILE **newf = (FILE**)lua_touserdata(L, 2);
-	int fd;
-	const char * msg;
-	if (newf == NULL) {
-		fd = dup(fileno(*oldf));
-		msg = "dup";
-	} else {
-		fflush(*newf);
-		fd = dup2(fileno(*oldf), fileno(*newf));
-		msg = "dup2";
-	}
-
-	if ((fd < 0) || !pushfile(L, fd, filemode(fd)))
-		return pusherror(L, msg);
-	return 1;
 }
 
 
@@ -1787,11 +1702,9 @@ static const luaL_Reg R[] =
 	{"ctermid",		Pctermid},
 	{"dirname",		Pdirname},
 	{"dir",			Pdir},
-	{"dup",			Pdup},
 	{"errno",		Perrno},
 	{"exec",		Pexec},
 	{"execp",		Pexecp},
-	{"fdopen",		Pfdopen},
 	{"fileno",		Pfileno},
 	{"files",		Pfiles},
 	{"fork",		Pfork},
@@ -1819,7 +1732,6 @@ static const luaL_Reg R[] =
 	{"mkfifo",		Pmkfifo},
 	{"mkstemp",             Pmkstemp},
 	{"pathconf",		Ppathconf},
-	{"pipe",		Ppipe},
 	{"raise",		Praise},
 	{"readlink",		Preadlink},
 	{"rmdir",		Prmdir},

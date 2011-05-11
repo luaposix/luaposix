@@ -211,24 +211,5 @@ if arg[1] ~= "--no-times" then
   print("clock",os.clock())
 end
 
-
-------------------------------------------------------------------------------
-
-testing"dup(),fdopen()"
-
-local new_file = assert(ox.dup(io.stdout))
-print("dup(io.stdout) =", new_file, "io.type() reports: ", io.type(new_file))
-new_file:write("This is the dup()ed file")
-new_file:flush()
-new_file:close()
-io.stdout:write(" ... and this is stdout again.\n")
-
-local f = assert(ox.fdopen(1, "w"))
-f:write("fdopen(1) here.\n")
-f:close();
-io.stderr:write("fdopen(1) now closed.\n" ); io.stderr:flush()
-io.stdout:write("Write to closed stdout here.\n")
-
-
 ------------------------------------------------------------------------------
 io.stderr:write("\n\n==== ", ox.version, " tests completed ====\n\n")
