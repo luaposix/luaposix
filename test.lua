@@ -78,17 +78,17 @@ testing"fork, execp"
 io.flush()
 pid=assert(ox.fork())
 if pid==0 then
-	pid=ox.getpid"pid"
-	ppid=ox.getpid"ppid"
-	io.write("in child process ",pid," from ",ppid,".\nnow executing date... ")
-	io.flush()
-	assert(ox.execp("date","+[%c]"))
-	print"should not get here"
+  pid=ox.getpid"pid"
+  ppid=ox.getpid"ppid"
+  io.write("in child process ",pid," from ",ppid,".\nnow executing date... ")
+  io.flush()
+  assert(ox.execp("date","+[%c]"))
+  print"should not get here"
 else
-	io.write("process ",ox.getpid"pid"," forked child process ",pid,". waiting...\n")
-	p,msg,ret = ox.wait(pid)
-	assert(p == pid and msg == "exited" and ret == 0)
-	io.write("child process ",pid," done\n")
+  io.write("process ",ox.getpid"pid"," forked child process ",pid,". waiting...\n")
+  p,msg,ret = ox.wait(pid)
+  assert(p == pid and msg == "exited" and ret == 0)
+  io.write("child process ",pid," done\n")
 end
 
 ------------------------------------------------------------------------------
@@ -198,38 +198,37 @@ testing"pathconf"
 prtab( ox.pathconf(".") );
 
 ------------------------------------------------------------------------------
-if arg[1] ~= "--no-times"
-    then
-    testing"times"
-    a=ox.times()
-    for k,v in pairs(a) do print(k,v) end
-    print"sleeping 3 seconds..."
-    ox.sleep(3)
-    b=ox.times()
-    for k,v in pairs(b) do print(k,v) end
-    print""
-    print("elapsed",b.elapsed-a.elapsed)
-    print("clock",os.clock())
-    end
+if arg[1] ~= "--no-times" then
+  testing"times"
+  a=ox.times()
+  for k,v in pairs(a) do print(k,v) end
+  print"sleeping 1 second..."
+  ox.sleep(1)
+  b=ox.times()
+  for k,v in pairs(b) do print(k,v) end
+  print""
+  print("elapsed",b.elapsed-a.elapsed)
+  print("clock",os.clock())
+end
 
 
 ------------------------------------------------------------------------------
 
 testing"dup(),fdopen()"
 
-local new_file = assert( ox.dup( io.stdout ) );
-print( "dup(io.stdout) =", new_file, "io.type() reports: ", io.type(new_file) );
-new_file:write( "This is the dup()ed file" );
-new_file:flush();
-new_file:close();
-io.stdout:write( " ... and this is stdout again.\n" );
+local new_file = assert(ox.dup(io.stdout))
+print("dup(io.stdout) =", new_file, "io.type() reports: ", io.type(new_file))
+new_file:write("This is the dup()ed file")
+new_file:flush()
+new_file:close()
+io.stdout:write(" ... and this is stdout again.\n")
 
-local f = assert( ox.fdopen( 1, "w" ) );
-f:write( "fdopen(1) here.\n" );
+local f = assert(ox.fdopen(1, "w"))
+f:write("fdopen(1) here.\n")
 f:close();
-io.stderr:write( "fdopen(1) now closed.\n" ); io.stderr:flush();
-io.stdout:write( "Write to closed stdout here.\n" );
+io.stderr:write("fdopen(1) now closed.\n" ); io.stderr:flush()
+io.stdout:write("Write to closed stdout here.\n")
 
 
 ------------------------------------------------------------------------------
-io.stderr:write( "\n\n==== ", ox.version, " tests completed ====\n\n" );
+io.stderr:write("\n\n==== ", ox.version, " tests completed ====\n\n")
