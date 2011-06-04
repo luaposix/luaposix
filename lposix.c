@@ -53,11 +53,6 @@
 #if LUA_VERSION_NUM > 501
 #define lua_objlen lua_rawlen
 
-/* The "- 1" is for the sentinel element. */
-#define luaL_register(L, MYNAME, R) \
-	lua_createtable(L, 0, sizeof(R)/sizeof(*R) - 1); \
-	luaL_setfuncs(L, R, 0)
-
 #include <assert.h>
 #define lua_setenv(L, n)  assert(lua_setuservalue(L, -2) == 1)
 static int luaL_typerror(lua_State *L, int narg, const char *tname)
