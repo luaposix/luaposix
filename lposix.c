@@ -727,6 +727,14 @@ static int Psleep(lua_State *L)			/** sleep(seconds) */
 }
 
 
+static int Pusleep(lua_State *L)     /** usleep(microseconds) */
+{
+	unsigned int useconds = luaL_checkint(L, 1);
+	lua_pushinteger(L, usleep(useconds));
+	return 1;
+}
+
+
 static int Psetenv(lua_State *L)		/** setenv(name,value,[over]) */
 {
 	const char *name=luaL_checkstring(L, 1);
@@ -1736,6 +1744,7 @@ static const luaL_Reg R[] =
 	{"setpid",		Psetpid},
 	{"setrlimit",		Psetrlimit},
 	{"sleep",		Psleep},
+	{"usleep",		Pusleep},
 	{"stat",		Pstat},
 	{"strftime",		Pstrftime},
 	{"sysconf",		Psysconf},
