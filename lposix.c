@@ -727,6 +727,24 @@ static int Psleep(lua_State *L)			/** sleep(seconds) */
 }
 
 
+static int Pnanosleep(lua_State *L)		/** nanosleep(seconds, nseconds) */
+{
+	struct timespec req;
+	struct timespec rem;
+	int ret;
+	req.tv_sec = luaL_checkint(L, 1);
+	req.tv_nsec = luaL_checkint(L, 2);
+	ret = pushresult (L, nanosleep(&req, &rem), NULL);
+	if (ret == 3 && errno == EINTR)
+	{
+		lua_pushinteger (L, rem.tv_sec);
+		lua_pushinteger (L, rem.tv_nsec);
+		ret += 2;
+	}
+	return ret;
+}
+
+
 static int Psetenv(lua_State *L)		/** setenv(name,value,[over]) */
 {
 	const char *name=luaL_checkstring(L, 1);
@@ -1736,6 +1754,7 @@ static const luaL_Reg R[] =
 	{"setpid",		Psetpid},
 	{"setrlimit",		Psetrlimit},
 	{"sleep",		Psleep},
+	{"nanosleep",		Pnanosleep},
 	{"stat",		Pstat},
 	{"strftime",		Pstrftime},
 	{"sysconf",		Psysconf},
