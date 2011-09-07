@@ -304,6 +304,15 @@ static int doselection(lua_State *L, int i, int n,
 }
 #define doselection(L,i,S,F,d) (doselection)(L,i,sizeof(S)/sizeof(*S)-1,S,F,d)
 
+static int lookup_symbol(const char * const S[], const int K[], const char *str)
+{
+	int i;
+	for (i = 0; S[i] != NULL; i++)
+		if (strcmp(S[i], str) == 0)
+			return K[i];
+	return -1;
+}
+
 static int pusherror(lua_State *L, const char *info)
 {
 	lua_pushnil(L);
@@ -792,6 +801,57 @@ static int Pumask(lua_State *L)			/** umask([mode]) */
 	}
 	pushmode(L, mode);
 	return 1;
+}
+
+static const int Koflag[] =
+{
+	O_RDONLY, O_WRONLY, O_RDWR,
+	O_APPEND, O_CREAT, O_DSYNC, O_EXCL, O_NOCTTY, O_NONBLOCK,
+	O_RSYNC, O_SYNC, O_TRUNC,
+	-1
+};
+
+static const char *const Soflag[] =
+{
+	"rdonly", "wronly", "rdwr",
+	"append", "creat", "dsync", "excl", "noctty", "nonblock",
+	"rsync", "sync", "trunc",
+	NULL
+};
+
+static int make_oflags(lua_State *L, int i)
+{
+	int oflags = 0;
+	lua_pushnil(L);
+	while (lua_next(L, i) != 0) {
+		int flag = lookup_symbol(Soflag, Koflag, luaL_checkstring(L, -1));
+		if (flag == -1)
+			return -1;
+		oflags |= flag;
+		lua_pop(L, 1);
+	}
+	return oflags;
+}
+
+static int Popen(lua_State *L)			/** open(path, flags[, mode]) */
+{
+	const char *path = luaL_checkstring(L, 1);
+	int flags;
+	mode_t mode;
+	const char *modestr = luaL_optstring(L, 3, NULL);
+	luaL_checktype(L, 2, LUA_TTABLE);
+	flags = make_oflags(L, 2);
+	if (flags == -1)
+		luaL_argerror(L, 2, "bad flags");
+	if (modestr && mode_munch(&mode, modestr))
+		luaL_argerror(L, 3, "bad mode");
+	return pushresult(L, open(path, flags, mode), path);
+}
+
+static int Pclose(lua_State *L)			/** close(n) */
+{
+	int fd = luaL_checkint(L, 1);
+	return pushresult(L, close(fd), NULL);
 }
 
 static int Pchmod(lua_State *L)			/** chmod(path,mode) */
@@ -1300,15 +1360,6 @@ static const char *const Srlimit[] =
 	NULL
 };
 
-static int get_rlimit_const(const char *str)
-{
-	int i;
-	for (i = 0; Srlimit[i] != NULL; i++)
-		if (strcmp(Srlimit[i], str) == 0)
-			return Krlimit[i];
-	return -1;
-}
-
 static int Psetrlimit(lua_State *L) 	/** setrlimit(resource,soft[,hard]) */
 {
 	int softlimit;
@@ -1322,7 +1373,7 @@ static int Psetrlimit(lua_State *L) 	/** setrlimit(resource,soft[,hard]) */
 	rid_str = luaL_checkstring(L, 1);
 	softlimit = luaL_optint(L, 2, -1);
 	hardlimit = luaL_optint(L, 3, -1);
-	rid = get_rlimit_const(rid_str);
+	rid = lookup_symbol(Srlimit, Krlimit, rid_str);
 
 	if (softlimit < 0 || hardlimit < 0)
 		if ((rc = getrlimit(rid, &lim_current)) < 0)
@@ -1339,12 +1390,13 @@ static int Psetrlimit(lua_State *L) 	/** setrlimit(resource,soft[,hard]) */
 	return pushresult(L, setrlimit(rid, &lim), "setrlimit");
 }
 
+/* FIXME: Use doselection. */
 static int Pgetrlimit(lua_State *L) 	/** getrlimit(resource) */
 {
 	struct rlimit lim;
 	int rid, rc;
 	const char *rid_str = luaL_checkstring(L, 1);
-	rid = get_rlimit_const(rid_str);
+	rid = lookup_symbol(Srlimit, Krlimit, rid_str);
 	rc = getrlimit(rid, &lim);
 	if (rc < 0)
 		return pusherror(L, "getrlimit");
@@ -1689,6 +1741,7 @@ static const luaL_Reg R[] =
 	{"clock_getres",	Pclock_getres},
 	{"clock_gettime",	Pclock_gettime},
 #endif
+	{"close",		Pclose},
 	{"crypt",		Pcrypt},
 	{"ctermid",		Pctermid},
 	{"dirname",		Pdirname},
@@ -1722,6 +1775,7 @@ static const luaL_Reg R[] =
 	{"mkdir",		Pmkdir},
 	{"mkfifo",		Pmkfifo},
 	{"mkstemp",             Pmkstemp},
+	{"open",		Popen},
 	{"pathconf",		Ppathconf},
 	{"raise",		Praise},
 	{"readlink",		Preadlink},
