@@ -868,6 +868,29 @@ static int Pchmod(lua_State *L)			/** chmod(path,mode) */
 	return pushresult(L, chmod(path, mode), path);
 }
 
+static int Pread(lua_State *L)			/** buf = read(fd, count) */
+{
+	int fd = luaL_checkint(L, 1);
+	int count = luaL_checkint(L, 2), ret;
+	void *ud, *buf;
+	lua_Alloc lalloc = lua_getallocf(L, &ud);
+	if ((buf = lalloc(ud, NULL, 0, count)) == NULL)
+		return 0;
+	ret = read(fd, buf, count);
+	if (ret < 0)
+		return pusherror(L, NULL);
+	lua_pushlstring(L, buf, ret);
+	lalloc(ud, buf, 0, 0);
+	return 2;
+}
+
+static int Pwrite(lua_State *L)			/** write(fd, buf) */
+{
+	int fd = luaL_checkint(L, 1);
+	const char *buf = luaL_checkstring(L, 2);
+	return pushresult(L, write(fd, buf, lua_objlen(L, 2)), NULL);
+}
+
 static int Pchown(lua_State *L)			/** chown(path,uid,gid) */
 {
 	const char *path = luaL_checkstring(L, 1);
@@ -1778,6 +1801,7 @@ static const luaL_Reg R[] =
 	{"open",		Popen},
 	{"pathconf",		Ppathconf},
 	{"raise",		Praise},
+	{"read",		Pread},
 	{"readlink",		Preadlink},
 	{"rmdir",		Prmdir},
 	{"rpoll",		Ppoll},
@@ -1798,6 +1822,7 @@ static const luaL_Reg R[] =
 	{"uname",		Puname},
 	{"utime",		Putime},
 	{"wait",		Pwait},
+	{"write",		Pwrite},
 
 #if _POSIX_VERSION >= 200112L
 	{"openlog",		Popenlog},
