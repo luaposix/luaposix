@@ -82,7 +82,7 @@ if [ `uname` = Darwin ]; then
 else
   # FIXME: Make -lrt conditional on _XOPEN_REALTIME
   POSIX_EXTRA_CFLAGS=-D_XOPEN_SOURCE=700
-  POSIX_EXTRA_LDFLAGS=-lcrypt -lrt
+  POSIX_EXTRA_LDFLAGS="-lcrypt -lrt"
 fi
 AC_SUBST(POSIX_EXTRA_CFLAGS)
 AC_SUBST(POSIX_EXTRA_LDFLAGS)
