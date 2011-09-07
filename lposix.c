@@ -1334,7 +1334,6 @@ static int Psetlogmask(lua_State* L) 		/** setlogmask(priority...) */
 
 	return pushresult(L, setlogmask(mask),"setlogmask");
 }
-#endif
 
 static int Pcrypt(lua_State *L)		/** crypt(string,salt) */
 {
@@ -1351,6 +1350,7 @@ static int Pcrypt(lua_State *L)		/** crypt(string,salt) */
 
 	return 1;
 }
+#endif
 
 
 /*	Like POSIX's setrlimit()/getrlimit() API functions.
@@ -1702,7 +1702,7 @@ static const char *const Ssigmacros[] =
 
 static void (*Fsigmacros[])(int) =
 {
-	SIG_DFL, SIG_ERR, SIG_HOLD, SIG_IGN, NULL
+	SIG_DFL, SIG_IGN, NULL
 };
 
 static void sig_handle (lua_State *L, lua_Debug *ar) {
@@ -1765,7 +1765,9 @@ static const luaL_Reg R[] =
 	{"clock_gettime",	Pclock_gettime},
 #endif
 	{"close",		Pclose},
+#if _POSIX_VERSION >= 200112L
 	{"crypt",		Pcrypt},
+#endif
 	{"ctermid",		Pctermid},
 	{"dirname",		Pdirname},
 	{"dir",			Pdir},

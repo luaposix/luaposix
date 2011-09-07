@@ -1,0 +1,13 @@
+/Makefile.am
+/sig-handler.h
+/sigaction.c
+/signal.in.h
+/sigprocmask.c
+/stdint.in.h
+/Makefile
+/Makefile.in
+/arg-nonnull.h
+/c++defs.h
+/libgnu.la
+/signal.h
+/warn-on-use.h
