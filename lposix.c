@@ -9,6 +9,8 @@
 * With contributions by Roberto Ierusalimschy.
 */
 
+#include <config.h>
+
 #include <sys/stat.h>
 #include <sys/times.h>
 #include <sys/types.h>
