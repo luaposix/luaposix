@@ -1840,7 +1840,7 @@ static const luaL_Reg R[] =
 	lua_pushnumber(L, value);	\
 	lua_setfield(L, -2, key)
 
-LUALIB_API int luaopen_posix (lua_State *L)
+LUALIB_API int luaopen_posix_c (lua_State *L)
 {
 	luaL_register(L, MYNAME, R);
 
