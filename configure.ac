@@ -75,6 +75,18 @@ gl_INIT
 dnl Check for header files
 AC_HEADER_STDC
 
+dnl Compiler flags for POSIX
+dnl Get this from autotools/gnulib
+if [ `uname` = Darwin ]; then
+  POSIX_EXTRA_CFLAGS=-D_POSIX_C_SOURCE
+else
+  # FIXME: Make -lrt conditional on _XOPEN_REALTIME
+  POSIX_EXTRA_CFLAGS=-D_XOPEN_SOURCE=700
+  POSIX_EXTRA_LDFLAGS=-lcrypt -lrt
+fi
+AC_SUBST(POSIX_EXTRA_CFLAGS)
+AC_SUBST(POSIX_EXTRA_LDFLAGS)
+
 dnl Lua 5.1
 AX_PROG_LUA(501)
 AX_LUA_HEADERS

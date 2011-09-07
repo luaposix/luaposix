@@ -5,15 +5,13 @@ SUBDIRS = lib
 ACLOCAL_AMFLAGS = -I m4
 
 AM_CPPFLAGS = $(LUA_INCLUDE)
-# FIXME: Insert _XOPEN_SOURCE / _POSIX_C_SOURCE (for Darwin) automagically
-AM_CFLAGS = $(WERROR_CFLAGS) $(WARN_CFLAGS) -D_XOPEN_SOURCE=700
+AM_CFLAGS = $(WERROR_CFLAGS) $(WARN_CFLAGS) $(POSIX_EXTRA_CFLAGS)
 
 lualib_LTLIBRARIES = posix_c.la
 dist_luadata_DATA = posix.lua
 
 posix_c_la_SOURCES = lposix.c
-# FIXME: Add -lcrypt -lrt (for GNU only) automagically
-posix_c_la_LDFLAGS = -module $(builddir)/lib/libgnu.la -lcrypt -lrt
+posix_c_la_LDFLAGS = -module $(builddir)/lib/libgnu.la $(POSIX_EXTRA_LDFLAGS)
 
 ChangeLog:
 	git2cl > ChangeLog
