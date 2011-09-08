@@ -805,22 +805,37 @@ static int Pumask(lua_State *L)			/** umask([mode]) */
 	return 1;
 }
 
+#ifndef O_RSYNC
+#define O_RSYNC 0
+#endif
+
+#define oflags_map \
+	MENTRY( "rdonly",   O_RDONLY   ) \
+	MENTRY( "wronly",   O_WRONLY   ) \
+	MENTRY( "rdwr",     O_RDWR     ) \
+	MENTRY( "append",   O_APPEND   ) \
+	MENTRY( "creat",    O_CREAT    ) \
+	MENTRY( "dsync",    O_DSYNC    ) \
+	MENTRY( "excl",     O_EXCL     ) \
+	MENTRY( "noctty",   O_NOCTTY   ) \
+	MENTRY( "nonblock", O_NONBLOCK ) \
+	MENTRY( "rsync",    O_RSYNC    ) \
+	MENTRY( "sync",     O_SYNC     ) \
+	MENTRY( "trunc",    O_TRUNC    )
+
 static const int Koflag[] =
 {
-	O_RDONLY, O_WRONLY, O_RDWR,
-	O_APPEND, O_CREAT, O_DSYNC, O_EXCL, O_NOCTTY, O_NONBLOCK,
-#ifdef O_RSYNC
-	O_RSYNC,
-#endif
-       	O_SYNC, O_TRUNC,
+#define MENTRY(_n, _f) (_f),
+	oflags_map
+#undef MENTRY
 	-1
 };
 
 static const char *const Soflag[] =
 {
-	"rdonly", "wronly", "rdwr",
-	"append", "creat", "dsync", "excl", "noctty", "nonblock",
-	"rsync", "sync", "trunc",
+#define MENTRY(_n, _f) (_n),
+	oflags_map
+#undef MENTRY
 	NULL
 };
 
@@ -1237,11 +1252,22 @@ static int Puname(lua_State *L)			/** uname([string]) */
 	return 1;
 }
 
+#define pathconf_map \
+	MENTRY( "link_max",         _PC_LINK_MAX         ) \
+	MENTRY( "max_canon",        _PC_MAX_CANON        ) \
+	MENTRY( "max_input",        _PC_MAX_INPUT        ) \
+	MENTRY( "name_max",         _PC_NAME_MAX         ) \
+	MENTRY( "path_max",         _PC_PATH_MAX         ) \
+	MENTRY( "pipe_buf",         _PC_PIPE_BUF         ) \
+	MENTRY( "chown_restricted", _PC_CHOWN_RESTRICTED ) \
+	MENTRY( "no_trunc",         _PC_NO_TRUNC         ) \
+	MENTRY( "vdisable",         _PC_VDISABLE         )
 
 static const int Kpathconf[] =
 {
-	_PC_LINK_MAX, _PC_MAX_CANON, _PC_MAX_INPUT, _PC_NAME_MAX, _PC_PATH_MAX,
-	_PC_PIPE_BUF, _PC_CHOWN_RESTRICTED, _PC_NO_TRUNC, _PC_VDISABLE,
+#define MENTRY(_n, _f) (_f),
+	pathconf_map
+#undef MENTRY
 	-1
 };
 
@@ -1253,8 +1279,9 @@ static void Fpathconf(lua_State *L, int i, const void *data)
 
 static const char *const Spathconf[] =
 {
-	"link_max", "max_canon", "max_input", "name_max", "path_max",
-	"pipe_buf", "chown_restricted", "no_trunc", "vdisable",
+#define MENTRY(_n, _f) (_n),
+	pathconf_map
+#undef MENTRY
 	NULL
 };
 
@@ -1264,10 +1291,23 @@ static int Ppathconf(lua_State *L)		/** pathconf([path,options]) */
 	return doselection(L, 2, Spathconf, Fpathconf, path);
 }
 
+#define sysconf_map \
+	MENTRY( "arg_max",     _SC_ARG_MAX     ) \
+	MENTRY( "child_max",   _SC_CHILD_MAX   ) \
+	MENTRY( "clk_tck",     _SC_CLK_TCK     ) \
+	MENTRY( "ngroups_max", _SC_NGROUPS_MAX ) \
+	MENTRY( "stream_max",  _SC_STREAM_MAX  ) \
+	MENTRY( "tzname_max",  _SC_TZNAME_MAX  ) \
+	MENTRY( "open_max",    _SC_OPEN_MAX    ) \
+	MENTRY( "job_control", _SC_JOB_CONTROL ) \
+	MENTRY( "saved_ids",   _SC_SAVED_IDS   ) \
+	MENTRY( "version",     _SC_VERSION     )
+
 static const int Ksysconf[] =
 {
-	_SC_ARG_MAX, _SC_CHILD_MAX, _SC_CLK_TCK, _SC_NGROUPS_MAX, _SC_STREAM_MAX,
-	_SC_TZNAME_MAX, _SC_OPEN_MAX, _SC_JOB_CONTROL, _SC_SAVED_IDS, _SC_VERSION,
+#define MENTRY(_n, _f) (_f),
+	sysconf_map
+#undef MENTRY
 	-1
 };
 
@@ -1278,8 +1318,9 @@ static void Fsysconf(lua_State *L, int i, const void *data)
 
 static const char *const Ssysconf[] =
 {
-	"arg_max", "child_max", "clk_tck", "ngroups_max", "stream_max",
-	"tzname_max", "open_max", "job_control", "saved_ids", "version",
+#define MENTRY(_n, _f) (_n),
+	sysconf_map
+#undef MENTRY
 	NULL
 };
 
@@ -1374,17 +1415,28 @@ static int Pcrypt(lua_State *L)		/** crypt(string,salt) */
  *	posix.setrlimit("nofile", 1000, 2000)
  */
 
+#define rlimit_map \
+	MENTRY( "core",   RLIMIT_CORE   ) \
+	MENTRY( "cpu",    RLIMIT_CPU    ) \
+	MENTRY( "data",   RLIMIT_DATA   ) \
+	MENTRY( "fsize",  RLIMIT_FSIZE  ) \
+	MENTRY( "nofile", RLIMIT_NOFILE ) \
+	MENTRY( "stack",  RLIMIT_STACK  ) \
+	MENTRY( "as",     RLIMIT_AS     )
+
 static const int Krlimit[] =
 {
-	RLIMIT_CORE, RLIMIT_CPU, RLIMIT_DATA, RLIMIT_FSIZE,
-	RLIMIT_NOFILE, RLIMIT_STACK, RLIMIT_AS,
+#define MENTRY(_n, _f) (_f),
+	rlimit_map
+#undef MENTRY
 	-1
 };
 
 static const char *const Srlimit[] =
 {
-	"core", "cpu", "data", "fsize",
-	"nofile", "stack", "as",
+#define MENTRY(_n, _f) (_n),
+	rlimit_map
+#undef MENTRY
 	NULL
 };
 
