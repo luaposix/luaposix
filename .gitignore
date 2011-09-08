@@ -1,6 +1,7 @@
 *~
 .deps
 .libs
+/lib
 /lposix.o
 /lposix.lo
 /posix_c.la
