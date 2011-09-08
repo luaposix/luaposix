@@ -809,7 +809,10 @@ static const int Koflag[] =
 {
 	O_RDONLY, O_WRONLY, O_RDWR,
 	O_APPEND, O_CREAT, O_DSYNC, O_EXCL, O_NOCTTY, O_NONBLOCK,
-	O_RSYNC, O_SYNC, O_TRUNC,
+#ifdef O_RSYNC
+	O_RSYNC,
+#endif
+       	O_SYNC, O_TRUNC,
 	-1
 };
 
