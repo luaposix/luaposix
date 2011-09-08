@@ -77,7 +77,7 @@ AC_HEADER_STDC
 
 dnl Compiler flags for POSIX
 dnl Get this from autotools/gnulib
-if [ `uname` = Darwin ]; then
+if test Darwin = `uname`; then
   POSIX_EXTRA_CFLAGS=-D_POSIX_C_SOURCE
 else
   # FIXME: Make -lrt conditional on _XOPEN_REALTIME
