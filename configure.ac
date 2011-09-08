@@ -75,6 +75,12 @@ gl_INIT
 dnl Check for header files
 AC_HEADER_STDC
 
+AC_CHECK_FUNCS([crypt])
+if test $ac_cv_func_crypt = no; then
+  # crypt is not in the default libraries, try libcrypt.  FIXME: anywhere else?
+  AC_CHECK_LIB([crypt], [crypt], [LIBS="$LIBS -lcrypt"])
+fi
+
 dnl Compiler flags for POSIX
 dnl Get this from autotools/gnulib
 if [ `uname` = Darwin ]; then
@@ -82,7 +88,7 @@ if [ `uname` = Darwin ]; then
 else
   # FIXME: Make -lrt conditional on _XOPEN_REALTIME
   POSIX_EXTRA_CFLAGS=-D_XOPEN_SOURCE=700
-  POSIX_EXTRA_LDFLAGS="-lcrypt -lrt"
+  POSIX_EXTRA_LDFLAGS="-lrt"
 fi
 AC_SUBST(POSIX_EXTRA_CFLAGS)
 AC_SUBST(POSIX_EXTRA_LDFLAGS)
