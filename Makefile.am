@@ -25,7 +25,9 @@ LUA_ENV = LUA_INIT= LUA_PATH="$(abs_srcdir)/?.lua;;" LUA_CPATH="$(abs_srcdir)/$(
 
 HTML = lcurses.html lcurses_c.html
 
-EXTRA_DIST = $(HTML) strlcpy.c
+LUATESTS = tests-posix.lua tests-curses.lua
+
+EXTRA_DIST = $(HTML) $(LUATESTS) strlcpy.c
 
 $(HTML): lcurses.c make_lcurses_doc.pl
 	$(PERL) make_lcurses_doc.pl
@@ -33,8 +35,7 @@ $(HTML): lcurses.c make_lcurses_doc.pl
 doc: $(HTML)
 
 check-local:
-	$(LUA_ENV) $(LUA) tests-posix.lua
-	$(LUA_ENV) $(LUA) tests-curses.lua
+	echo $(LUATESTS) | $(LUA_ENV) xargs $(LUA)
 
 show-funcs:
 	@echo "posix library:"
