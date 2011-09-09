@@ -21,13 +21,19 @@ curses_c_la_LDFLAGS = -module $(CURSES_LIB) -rpath '$(lualibdir)'
 ChangeLog:
 	git2cl > ChangeLog
 
-LUA_ENV = LUA_INIT= LUA_PATH="$(abs_srcdir)/?.lua;;" LUA_CPATH="$(abs_srcdir)/$(objdir)/?$(shrext);;"
+LUA_ENV = LUA_INIT= LUA_PATH="$(abs_srcdir)/?.lua;;" LUA_CPATH="$(abs_builddir)/$(objdir)/?$(shrext);;"
 
 HTML = lcurses.html lcurses_c.html
 
-LUATESTS = tests-posix.lua tests-curses.lua
+LUATESTS =				\
+	$(srcdir)/tests-posix.lua	\
+	$(srcdir)/tests-curses.lua
 
-EXTRA_DIST = $(HTML) $(LUATESTS) strlcpy.c
+EXTRA_DIST =				\
+	$(HTML)				\
+	$(LUATESTS)			\
+	make_lcurses_doc.pl		\
+	strlcpy.c
 
 $(HTML): lcurses.c make_lcurses_doc.pl
 	$(PERL) make_lcurses_doc.pl
