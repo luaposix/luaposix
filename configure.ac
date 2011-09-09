@@ -96,11 +96,13 @@ AC_SUBST(POSIX_EXTRA_LDFLAGS)
 
 dnl Curses
 AX_WITH_CURSES
-dnl FIXME: Make curses optional
-if test "$ax_cv_curses" != "yes"; then
-  AC_MSG_ERROR([cannot find curses])
+if test "$ax_cv_curses" = "yes"; then
+  WANTEDLIBS=curses_c.la
+  WANTEDLUA=curses.lua
 fi
 AC_ARG_VAR(CURSES_LIB, [linker flags for curses library])
+AC_SUBST(WANTEDLIBS)
+AC_SUBST(WANTEDLUA)
 
 dnl Lua 5.1
 AX_PROG_LUA(501)

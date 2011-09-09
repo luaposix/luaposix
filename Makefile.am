@@ -7,15 +7,16 @@ ACLOCAL_AMFLAGS = -I m4
 AM_CPPFLAGS = $(LUA_INCLUDE)
 AM_CFLAGS = $(WERROR_CFLAGS) $(WARN_CFLAGS)
 
-lualib_LTLIBRARIES = posix_c.la curses_c.la
-dist_luadata_DATA = posix.lua curses.lua
+EXTRA_LTLIBRARIES = curses_c.la
+lualib_LTLIBRARIES = posix_c.la $(WANTEDLIBS)
+dist_luadata_DATA = posix.lua $(WANTEDLUA)
 
 posix_c_la_SOURCES = lposix.c
 posix_c_la_CFLAGS = $(POSIX_EXTRA_CFLAGS)
 posix_c_la_LDFLAGS = -module $(builddir)/lib/libgnu.la $(POSIX_EXTRA_LDFLAGS)
 
 curses_c_la_SOURCES = lcurses.c
-curses_c_la_LDFLAGS = -module $(CURSES_LIB)
+curses_c_la_LDFLAGS = -module $(CURSES_LIB) -rpath '$(lualibdir)'
 
 ChangeLog:
 	git2cl > ChangeLog
