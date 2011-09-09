@@ -51,6 +51,17 @@
 #include "lauxlib.h"
 
 
+/* The extra indirection to these macros is required so that if the
+   arguments are themselves macros, they will get expanded too.  */
+#define LPOSIX__SPLICE(_s, _t)	_s##_t
+#define LPOSIX_SPLICE(_s, _t)	LPOSIX__SPLICE(_s, _t)
+
+/* The +1 is to step over the leading '_' that is required to prevent
+   premature expansion of MENTRY arguments if we didn't add it.  */
+#define LPOSIX__STR(_s)		(#_s + 1)
+#define LPOSIX_STR(_s)		LPOSIX__STR(_s)
+
+
 /* Lua 5.2 compatibility */
 #if LUA_VERSION_NUM > 501
 #define lua_objlen lua_rawlen
@@ -810,22 +821,22 @@ static int Pumask(lua_State *L)			/** umask([mode]) */
 #endif
 
 #define oflags_map \
-	MENTRY( "rdonly",   O_RDONLY   ) \
-	MENTRY( "wronly",   O_WRONLY   ) \
-	MENTRY( "rdwr",     O_RDWR     ) \
-	MENTRY( "append",   O_APPEND   ) \
-	MENTRY( "creat",    O_CREAT    ) \
-	MENTRY( "dsync",    O_DSYNC    ) \
-	MENTRY( "excl",     O_EXCL     ) \
-	MENTRY( "noctty",   O_NOCTTY   ) \
-	MENTRY( "nonblock", O_NONBLOCK ) \
-	MENTRY( "rsync",    O_RSYNC    ) \
-	MENTRY( "sync",     O_SYNC     ) \
-	MENTRY( "trunc",    O_TRUNC    )
+	MENTRY( _RDONLY   ) \
+	MENTRY( _WRONLY   ) \
+	MENTRY( _RDWR     ) \
+	MENTRY( _APPEND   ) \
+	MENTRY( _CREAT    ) \
+	MENTRY( _DSYNC    ) \
+	MENTRY( _EXCL     ) \
+	MENTRY( _NOCTTY   ) \
+	MENTRY( _NONBLOCK ) \
+	MENTRY( _RSYNC    ) \
+	MENTRY( _SYNC     ) \
+	MENTRY( _TRUNC    )
 
 static const int Koflag[] =
 {
-#define MENTRY(_n, _f) (_f),
+#define MENTRY(_f) LPOSIX_SPLICE(O, _f),
 	oflags_map
 #undef MENTRY
 	-1
@@ -833,7 +844,7 @@ static const int Koflag[] =
 
 static const char *const Soflag[] =
 {
-#define MENTRY(_n, _f) (_n),
+#define MENTRY(_f) LPOSIX_STR(_f),
 	oflags_map
 #undef MENTRY
 	NULL
@@ -1253,19 +1264,19 @@ static int Puname(lua_State *L)			/** uname([string]) */
 }
 
 #define pathconf_map \
-	MENTRY( "link_max",         _PC_LINK_MAX         ) \
-	MENTRY( "max_canon",        _PC_MAX_CANON        ) \
-	MENTRY( "max_input",        _PC_MAX_INPUT        ) \
-	MENTRY( "name_max",         _PC_NAME_MAX         ) \
-	MENTRY( "path_max",         _PC_PATH_MAX         ) \
-	MENTRY( "pipe_buf",         _PC_PIPE_BUF         ) \
-	MENTRY( "chown_restricted", _PC_CHOWN_RESTRICTED ) \
-	MENTRY( "no_trunc",         _PC_NO_TRUNC         ) \
-	MENTRY( "vdisable",         _PC_VDISABLE         )
+	MENTRY( _LINK_MAX         ) \
+	MENTRY( _MAX_CANON        ) \
+	MENTRY( _MAX_INPUT        ) \
+	MENTRY( _NAME_MAX         ) \
+	MENTRY( _PATH_MAX         ) \
+	MENTRY( _PIPE_BUF         ) \
+	MENTRY( _CHOWN_RESTRICTED ) \
+	MENTRY( _NO_TRUNC         ) \
+	MENTRY( _VDISABLE         )
 
 static const int Kpathconf[] =
 {
-#define MENTRY(_n, _f) (_f),
+#define MENTRY(_f) LPOSIX_SPLICE(_PC, _f),
 	pathconf_map
 #undef MENTRY
 	-1
@@ -1279,7 +1290,7 @@ static void Fpathconf(lua_State *L, int i, const void *data)
 
 static const char *const Spathconf[] =
 {
-#define MENTRY(_n, _f) (_n),
+#define MENTRY(_f) LPOSIX_STR(_f),
 	pathconf_map
 #undef MENTRY
 	NULL
@@ -1292,20 +1303,20 @@ static int Ppathconf(lua_State *L)		/** pathconf([path,options]) */
 }
 
 #define sysconf_map \
-	MENTRY( "arg_max",     _SC_ARG_MAX     ) \
-	MENTRY( "child_max",   _SC_CHILD_MAX   ) \
-	MENTRY( "clk_tck",     _SC_CLK_TCK     ) \
-	MENTRY( "ngroups_max", _SC_NGROUPS_MAX ) \
-	MENTRY( "stream_max",  _SC_STREAM_MAX  ) \
-	MENTRY( "tzname_max",  _SC_TZNAME_MAX  ) \
-	MENTRY( "open_max",    _SC_OPEN_MAX    ) \
-	MENTRY( "job_control", _SC_JOB_CONTROL ) \
-	MENTRY( "saved_ids",   _SC_SAVED_IDS   ) \
-	MENTRY( "version",     _SC_VERSION     )
+	MENTRY( _ARG_MAX     ) \
+	MENTRY( _CHILD_MAX   ) \
+	MENTRY( _CLK_TCK     ) \
+	MENTRY( _NGROUPS_MAX ) \
+	MENTRY( _STREAM_MAX  ) \
+	MENTRY( _TZNAME_MAX  ) \
+	MENTRY( _OPEN_MAX    ) \
+	MENTRY( _JOB_CONTROL ) \
+	MENTRY( _SAVED_IDS   ) \
+	MENTRY( _VERSION     )
 
 static const int Ksysconf[] =
 {
-#define MENTRY(_n, _f) (_f),
+#define MENTRY(_f) LPOSIX_SPLICE(_SC, _f),
 	sysconf_map
 #undef MENTRY
 	-1
@@ -1318,7 +1329,7 @@ static void Fsysconf(lua_State *L, int i, const void *data)
 
 static const char *const Ssysconf[] =
 {
-#define MENTRY(_n, _f) (_n),
+#define MENTRY(_f) LPOSIX_STR(_f),
 	sysconf_map
 #undef MENTRY
 	NULL
@@ -1416,17 +1427,17 @@ static int Pcrypt(lua_State *L)		/** crypt(string,salt) */
  */
 
 #define rlimit_map \
-	MENTRY( "core",   RLIMIT_CORE   ) \
-	MENTRY( "cpu",    RLIMIT_CPU    ) \
-	MENTRY( "data",   RLIMIT_DATA   ) \
-	MENTRY( "fsize",  RLIMIT_FSIZE  ) \
-	MENTRY( "nofile", RLIMIT_NOFILE ) \
-	MENTRY( "stack",  RLIMIT_STACK  ) \
-	MENTRY( "as",     RLIMIT_AS     )
+	MENTRY( _CORE   ) \
+	MENTRY( _CPU    ) \
+	MENTRY( _DATA   ) \
+	MENTRY( _FSIZE  ) \
+	MENTRY( _NOFILE ) \
+	MENTRY( _STACK  ) \
+	MENTRY( _AS     )
 
 static const int Krlimit[] =
 {
-#define MENTRY(_n, _f) (_f),
+#define MENTRY(_f) LPOSIX_SPLICE(RLIMIT, _f),
 	rlimit_map
 #undef MENTRY
 	-1
@@ -1434,7 +1445,7 @@ static const int Krlimit[] =
 
 static const char *const Srlimit[] =
 {
-#define MENTRY(_n, _f) (_n),
+#define MENTRY(_f) LPOSIX_STR(_f),
 	rlimit_map
 #undef MENTRY
 	NULL
