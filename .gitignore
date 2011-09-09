@@ -6,6 +6,7 @@
 *.html
 .deps
 .libs
+/luaposix-*.tar.gz
 /lib
 /release-notes-*
 /.gitmodules
