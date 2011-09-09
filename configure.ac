@@ -34,7 +34,6 @@ if test "$gl_gcc_warnings" = yes; then
   nw="$nw -Wconversion"       # These warnings usually don’t point to mistakes.
   nw="$nw -Wsign-conversion"  # Likewise.
   nw="$nw -Waggregate-return" # We do this on purpose.
-  nw="$nw -Wbad-function-cast" # FIXME: We do this on purpose (non-pointer list elements).
   nw="$nw -Wtraditional-conversion" # Don't care.
   nw="$nw -Wpadded"           # Don't care.
   nw="$nw -Wc++-compat"       # Don't care.
@@ -75,6 +74,8 @@ gl_INIT
 dnl Check for header files
 AC_HEADER_STDC
 
+dnl Check for functions
+AC_CHECK_FUNCS([strlcpy])
 AC_CHECK_FUNCS([crypt])
 if test $ac_cv_func_crypt = no; then
   # crypt is not in the default libraries, try libcrypt.  FIXME: anywhere else?
@@ -93,6 +94,14 @@ fi
 AC_SUBST(POSIX_EXTRA_CFLAGS)
 AC_SUBST(POSIX_EXTRA_LDFLAGS)
 
+dnl Curses
+AX_WITH_CURSES
+dnl FIXME: Make curses optional
+if test "$ax_cv_curses" != "yes"; then
+  AC_MSG_ERROR([cannot find curses])
+fi
+AC_ARG_VAR(CURSES_LIB, [linker flags for curses library])
+
 dnl Lua 5.1
 AX_PROG_LUA(501)
 AX_LUA_HEADERS
@@ -101,11 +110,17 @@ AC_SUBST(LUA)
 AC_SUBST(LUA_INCLUDE)
 
 dnl Lua libraries
-dnl FIXME: Parametrize on version
+dnl FIXME: Parametrize on version; cf. use of --libdir.
 lualibdir='${libdir}/lua/5.1'
 AC_SUBST(lualibdir)
 luadatadir='${datadir}/lua/5.1'
 AC_SUBST(luadatadir)
+
+dnl Perl
+AX_WITH_PROG([PERL], [perl])
+if test -z "$PERL"; then
+  AC_MSG_FAILURE([cannot find perl])
+fi
 
 dnl Generate output files
 AC_CONFIG_MACRO_DIR(m4)

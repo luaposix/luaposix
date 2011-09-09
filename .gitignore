@@ -1,11 +1,12 @@
 *~
+*.o
+*.lo
+*.la
+*.so
 .deps
 .libs
 /lib
-/lposix.o
-/lposix.lo
-/posix_c.la
-/posix_c.so
+/release-notes-*
 /.gitmodules
 /AUTHORS
 /COPYING

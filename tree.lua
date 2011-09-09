@@ -52,6 +52,5 @@ local function fore(directory)
     printf('\n%d directories, %d files\n', num_dirs, num_files)
 end
 
---directory = (arg.n > 0) and arg[1] or '.'
 directory = (#arg > 0) and arg[1] or '.'
 fore(directory)

@@ -1,29 +1,77 @@
-This is a POSIX library for Lua 5.1.
+                               luaposix
+                               --------
 
-Send bug reports and patches to rrt@sc3d.org
+                     Reuben Thomas <rrt@sc3d.org>
+                http://luaforge.net/projects/luaposix
 
-This code is hereby placed in the public domain.
 
-To try this Lua library, edit Makefile to reflect your installation of Lua.
-Then run make. This will build lposix.so and run a simple test. If everything
-is ok, install lposix.so and posix.lua in some official place. You may want
-to edit posix.lua to change the default value of SOPATH (you can also set the
-environment variable LUA_SOPATH at run time).
+This is a POSIX library, including curses, for Lua 5. It is released
+under the MIT license, like Lua (see
+http://www.lua.org/copyright.html; it's basically the same as the BSD
+license). There is no warranty.
 
-Here is a brief explanation of the files in this package:
+Please report bugs and make suggestions to the email address above, or
+use the LuaForge trackers.
 
-  lposix.c        posix library
-  test.lua        test code
-  tree.lua        tree view of the file system
 
-For some documentation, see http://alpinelinux.org/wiki/Luaposix
-There is currently little documentation; for everything else, see lposix.c.
+Installation
+------------
 
-This text is now outdated, because new functions have been added and some of
-the semantics have changed. For updated documentation, read the code :-) and
-a POSIX manual. I used this online reference for POSIX:
+luaposix uses the GNU build system. For detailed instructions, see
+INSTALL. For a quick start:
+
+[If using git sources:
+
+    ./bootstrap
+]
+
+    ./configure && make [&& make install]
+
+The following options may be of interest if you have Lua installed on
+non-default paths (as you are likely to on any system supporting more
+than one version of Lua):
+
+  --libdir=DIR            Install shared library in this directory
+  --with-lua-prefix=DIR   Lua files are in DIR
+  --with-lua-suffix=ARG   Lua binary and library files are suffixed with ARG
+
+For example, on Debian or Ubuntu:
+
+  CPPFLAGS='-I/usr/include/lua5.1' ./configure --libdir=/usr/local/lib/lua/5.1 --with-lua-suffix=5.1
+
+To run some tests:
+
+  make check
+
+
+Use
+---
+
+The library is split into two modules. The basic POSIX APIs are in
+"posix"; the curses APIs in "curses".
+
+There is some HTML documentation for the curses module; to obtain it,
+run
+
+  make doc
+
+For the posix module, see lposix.c. For detailed documentation on
+POSIX APIs, read the POSIX and curses man pages, or an online POSIX
+reference such as:
 
 	http://www.opengroup.org/onlinepubs/007904875/toc.htm
 
-To see a summary of what is exported to Lua, do "make xx". The examples in
-test.lua and tree.lua show the library in action.
+To see a summary of which POSIX APIs are available, run
+
+  make show-funcs
+
+
+Example code
+------------
+
+See the example program tree.lua, along with the tests in
+tests*.lua.
+
+GNU Zile 2.5.0 and later is written in Lua, using luaposix, so it
+contains plenty of example code. See the lua branch of its git
+repository at: http://git.savannah.gnu.org/cgit/zile.git/log/?h=lua

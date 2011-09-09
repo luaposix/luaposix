@@ -5,37 +5,44 @@ SUBDIRS = lib
 ACLOCAL_AMFLAGS = -I m4
 
 AM_CPPFLAGS = $(LUA_INCLUDE)
-AM_CFLAGS = $(WERROR_CFLAGS) $(WARN_CFLAGS) $(POSIX_EXTRA_CFLAGS)
+AM_CFLAGS = $(WERROR_CFLAGS) $(WARN_CFLAGS)
 
-lualib_LTLIBRARIES = posix_c.la
-dist_luadata_DATA = posix.lua
+lualib_LTLIBRARIES = posix_c.la curses_c.la
+dist_luadata_DATA = posix.lua curses.lua
 
 posix_c_la_SOURCES = lposix.c
+posix_c_la_CFLAGS = $(POSIX_EXTRA_CFLAGS)
 posix_c_la_LDFLAGS = -module $(builddir)/lib/libgnu.la $(POSIX_EXTRA_LDFLAGS)
+
+curses_c_la_SOURCES = lcurses.c
+curses_c_la_LDFLAGS = -module $(CURSES_LIB)
 
 ChangeLog:
 	git2cl > ChangeLog
 
 LUA_ENV = LUA_INIT= LUA_PATH="$(abs_srcdir)/?.lua;;" LUA_CPATH="$(abs_srcdir)/$(objdir)/?$(shrext);;"
 
+HTML = lcurses.html lcurses_c.html
+
+EXTRA_DIST = $(HTML)
+
+$(HTML): lcurses.c make_lcurses_doc.pl
+	$(PERL) make_lcurses_doc.pl
+
+doc: $(HTML)
+
 check-local:
-	$(LUA_ENV) $(LUA) tests.lua
+	$(LUA_ENV) $(LUA) tests-posix.lua
+	$(LUA_ENV) $(LUA) tests-curses.lua
+
+show-funcs:
+	@echo "posix library:"
+	@fgrep '/**' lposix.c | cut -f2 -d/ | tr -d '*' | sort
 
 release: distcheck
 	git diff --exit-code && \
 	git push && \
-	woger lua-l package=$(PACKAGE) package_name=$(PACKAGE_NAME) version="release $(VERSION)" description="Lua bindings for posix" notes=release-notes-$(VERSION)
+	woger lua-l package=$(PACKAGE) package_name=$(PACKAGE_NAME) version="release $(VERSION)" description="Lua bindings for POSIX (including curses)" notes=release-notes-$(VERSION)
 	git tag -a -m "Release tag" rel-`echo $(VERSION) | sed -e 's/\./-/g'` && \
 	git push --tags
 	@cat release-notes-$(VERSION) && echo "\n\nDon't forget to release on LuaForge!"
-
-tree:
-	$(LUA_ENV) $(LUA) -l$(PACKAGE) tree.lua .
-
-# The --no-print-directory option is non-POSIX, works with GNU make.
-debug:
-	@$(MAKE) --no-print-directory "OPTFLAGS=-g"
-
-show-funcs:
-	@echo "$(MYNAME) library:"
-	@fgrep '/**' l$(MYLIB).c | cut -f2 -d/ | tr -d '*' | sort
