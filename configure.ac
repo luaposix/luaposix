@@ -111,13 +111,6 @@ AX_LUA_HEADERS_VERSION(501)
 AC_SUBST(LUA)
 AC_SUBST(LUA_INCLUDE)
 
-dnl Lua libraries
-dnl FIXME: Parametrize on version; cf. use of --libdir.
-lualibdir='${libdir}/lua/5.1'
-AC_SUBST(lualibdir)
-luadatadir='${datadir}/lua/5.1'
-AC_SUBST(luadatadir)
-
 dnl Perl
 AX_WITH_PROG([PERL], [perl])
 if test -z "$PERL"; then

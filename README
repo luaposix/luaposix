@@ -22,10 +22,10 @@ INSTALL. For a quick start:
 
 [If using git sources:
 
-    ./bootstrap
+  ./bootstrap
 ]
 
-    ./configure && make [&& make install]
+  ./configure && make [&& make install]
 
 The following options may be of interest if you have Lua installed on
 non-default paths (as you are likely to on any system supporting more
@@ -37,7 +37,7 @@ than one version of Lua):
 
 For example, on Debian or Ubuntu:
 
-  CPPFLAGS='-I/usr/include/lua5.1' ./configure --libdir=/usr/local/lib/lua/5.1 --with-lua-suffix=5.1
+  CPPFLAGS='-I/usr/include/lua5.1' ./configure --libdir=/usr/local/lib/lua/5.1 --datadir=/usr/local/share/lua/5.1 --with-lua-suffix=5.1
 
 To run some tests:
 
@@ -59,7 +59,7 @@ For the posix module, see lposix.c. For detailed documentation on
 POSIX APIs, read the POSIX and curses man pages, or an online POSIX
 reference such as:
 
-	http://www.opengroup.org/onlinepubs/007904875/toc.htm
+  http://www.opengroup.org/onlinepubs/007904875/toc.htm
 
 To see a summary of which POSIX APIs are available, run
 
