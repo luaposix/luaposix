@@ -25,7 +25,7 @@ LUA_ENV = LUA_INIT= LUA_PATH="$(abs_srcdir)/?.lua;;" LUA_CPATH="$(abs_srcdir)/$(
 
 HTML = lcurses.html lcurses_c.html
 
-EXTRA_DIST = $(HTML)
+EXTRA_DIST = $(HTML) strlcpy.c
 
 $(HTML): lcurses.c make_lcurses_doc.pl
 	$(PERL) make_lcurses_doc.pl
