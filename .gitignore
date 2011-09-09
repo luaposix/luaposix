@@ -3,12 +3,14 @@
 *.lo
 *.la
 *.so
+*.html
 .deps
 .libs
 /lib
 /release-notes-*
 /.gitmodules
 /AUTHORS
+/ChangeLog
 /COPYING
 /INSTALL
 /Makefile.in
