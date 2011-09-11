@@ -1,4 +1,4 @@
-# Build lcurses documentation
+# Build luaposix curses documentation
 # (c) Peter Billam 2011
 
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -59,7 +59,7 @@ EOT
 close O;
 
 my @P = (<DATA>);  close P;
-open(O, '>', 'lcurses.html') or die;
+open(O, '>', 'curses.html') or die;
 foreach my $line (@P) {
         if ($line =~ /^<code>(\w+)\(/) {
                 my $s = $1;
@@ -106,7 +106,7 @@ __END__
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>lcurses documentation</title>
+<title>luaposix curses documentation</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <link rev="made" href="mailto:root@localhost" />
 <STYLE type="text/css"><!--
@@ -117,7 +117,7 @@ DIV.txt  { margin-left: 4% }
 <body style="background-color: white">
 
 <CENTER><H1>
-<FONT COLOR="#800000"><I>lcurses documentation</I></FONT>
+<FONT COLOR="#800000"><I>luaposix curses documentation</I></FONT>
 </H1></CENTER>
 
 <!-- INDEX BEGIN -->
@@ -150,7 +150,7 @@ DIV.txt  { margin-left: 4% }
 <p>
 </p>
 <h2><a name="name">NAME</a></h2><DIV CLASS="txt">
-<p><strong>lcurses</strong> &nbsp; - &nbsp;
+<p><strong>luaposix curses</strong> &nbsp; - &nbsp;
 a C library for Lua 5.1 that wraps the curses API.
 </p><p></p>
 </DIV><h2><a name="synopsis">SYNOPSIS</a></h2><DIV CLASS="txt">
@@ -174,7 +174,7 @@ end</pre>
 <p>
 </p>
 </DIV><h2><a name="description">DESCRIPTION</a></h2><DIV CLASS="txt">
-<p><code>lcurses</code> is the interface between Lua and your system's <code>ncurses</code>
+<p>luaposix <code>curses</code> is the interface between Lua and your system's <code>ncurses</code>
 or <code>curses</code> library.  For descriptions on the usage of a given function
 or constant, consult your system's documentation, starting with
 <code>man ncurses</code> or <code>man curses</code></p>
@@ -470,34 +470,23 @@ that are used to move the cursor first.
 For example, <code>addch()</code> has three other
 variants: <code>waddch()</code>, <code>mvaddch()</code>,
 and <code>mvwaddch()</code>.
-The Perl Curses module combines these variants into one
-&quot;Unified Function&quot;
-which detects how many arguments it has and behaves accordingly.
-But with this Lua module you must always specify the window
-(because it is the Object)
-e.g.: <code>stdscr:addch()</code>,
-and so the <code>mv-</code> variant is retained.
-If you are translating Perl code into Lua you may wish to use
-<A HREF="uf.txt">some wrapper functions</A>.
 </p><p></p>
 </DIV><h2><a name="installation">INSTALLATION</a></h2><DIV CLASS="txt">
 <pre>
-  luarocks install lcurses</pre>
+  luarocks install luaposix</pre>
 <p></p>
 </DIV><h2><a name="author">AUTHOR</a></h2><DIV CLASS="txt">
-<p><B>lcurses</B> was written by &nbsp; Reuben Thomas &nbsp;
-<a href="http://github.com/rrthomas/lcurses">
-http://github.com/rrthomas/lcurses</a><BR>
+<p><B>luaposix curses</B> was originally written by Tiago Dionizio, and is maintained by Reuben Thomas at
+<a href="http://github.com/rrthomas/luaposix">
+http://github.com/rrthomas/luaposix</a><BR>
 This documentation was created by
 <A HREF="make_lcurses_doc">a script</A>
 written by
 <A HREF="http://www.pjb.com.au">Peter Billam</A>.
 </p><p></p>
 </DIV><h2><a name="see_also">SEE ALSO</a></h2><DIV CLASS="txt">
-<pre><a href="http://github.com/rrthomas/lcurses">http://github.com/rrthomas/lcurses</a>
-<a href="http://luaforge.net/projects/lcurses/">http://luaforge.net/projects/lcurses/</a>
-<a href="http://luarocks.org/repositories/rocks/index.html#lcurses">http://luarocks.org/repositories/rocks/index.html#lcurses</a>
-<a href="http://luaforge.net/frs/download.php/4823/lcurses-6.tar.gz">http://luaforge.net/frs/download.php/4823/lcurses-6.tar.gz</a>
+<a href="http://luaforge.net/projects/luaposix/">http://luaforge.net/projects/luaposix/</a>
+<a href="http://luarocks.org/repositories/rocks/index.html#luaposix">http://luarocks.org/repositories/rocks/index.html#luaposix</a>
 <a href="http://git.savannah.gnu.org/cgit/zile.git/tree/src/term_curses.lua?h=lua">http://git.savannah.gnu.org/cgit/zile.git/tree/src/term_curses.lua?h=lua</a>
 <a href="http://search.cpan.org/perldoc?Curses">http://search.cpan.org/perldoc?Curses</a>
 man ncurses
