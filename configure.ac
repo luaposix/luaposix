@@ -58,7 +58,7 @@ if test "$gl_gcc_warnings" = yes; then
 fi
 
 LT_PREREQ([2.2.6])
-LT_INIT
+LT_INIT([disable-static])
 LT_OUTPUT
 
 eval `./libtool --config |grep '^objdir='`

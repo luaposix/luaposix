@@ -13,10 +13,10 @@ dist_data_DATA = posix.lua $(WANTEDLUA)
 
 posix_c_la_SOURCES = lposix.c
 posix_c_la_CFLAGS = $(POSIX_EXTRA_CFLAGS)
-posix_c_la_LDFLAGS = -module $(builddir)/lib/libgnu.la $(POSIX_EXTRA_LDFLAGS)
+posix_c_la_LDFLAGS = -module -avoid-version $(builddir)/lib/libgnu.la $(POSIX_EXTRA_LDFLAGS)
 
 curses_c_la_SOURCES = lcurses.c
-curses_c_la_LDFLAGS = -module $(CURSES_LIB) -rpath '$(libdir)'
+curses_c_la_LDFLAGS = -module -avoid-version $(CURSES_LIB) -rpath '$(libdir)'
 
 ChangeLog:
 	git2cl > ChangeLog
