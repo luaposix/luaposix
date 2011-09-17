@@ -899,6 +899,17 @@ static int Pdup2(lua_State *L)          /** dup2(oldfd,newfd) */
 	return pushresult(L, dup2(oldfd, newfd), NULL);
 }
 
+static int Ppipe(lua_State *L)          /** pipe(pipefd[2]) */
+{
+	int pipefd[2];
+	int rc = pipe(pipefd);
+	if(rc < 0)
+		return pusherror(L, "pipe");
+	lua_pushinteger(L, pipefd[0]);
+	lua_pushinteger(L, pipefd[1]);
+	return 2;
+}
+
 static int Pchmod(lua_State *L)			/** chmod(path,mode) */
 {
 	mode_t mode;
@@ -1886,6 +1897,7 @@ static const luaL_Reg R[] =
 	{"mkstemp",             Pmkstemp},
 	{"open",		Popen},
 	{"pathconf",		Ppathconf},
+	{"pipe",        Ppipe},
 	{"raise",		Praise},
 	{"read",		Pread},
 	{"readlink",		Preadlink},
