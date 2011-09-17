@@ -886,6 +886,19 @@ static int Pclose(lua_State *L)			/** close(n) */
 	return pushresult(L, close(fd), NULL);
 }
 
+static int Pdup(lua_State *L)           /** dup(fd) */
+{
+	int fd = luaL_checkint(L, 1);
+	return pushresult(L, dup(fd), NULL);
+}
+
+static int Pdup2(lua_State *L)          /** dup2(oldfd,newfd) */
+{
+	int oldfd = luaL_checkint(L, 1);
+	int newfd = luaL_checkint(L, 2);
+	return pushresult(L, dup2(oldfd, newfd), NULL);
+}
+
 static int Pchmod(lua_State *L)			/** chmod(path,mode) */
 {
 	mode_t mode;
@@ -1840,6 +1853,8 @@ static const luaL_Reg R[] =
 	{"ctermid",		Pctermid},
 	{"dirname",		Pdirname},
 	{"dir",			Pdir},
+	{"dup",         Pdup},
+	{"dup2",        Pdup2},
 	{"errno",		Perrno},
 	{"exec",		Pexec},
 	{"execp",		Pexecp},
