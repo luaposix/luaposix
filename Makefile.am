@@ -29,10 +29,16 @@ LUATESTS =				\
 	$(srcdir)/tests-posix.lua	\
 	$(srcdir)/tests-curses.lua
 
+ROCKSPEC = $(PACKAGE)-$(VERSION)-1.rockspec
+
+$(ROCKSPEC): $(PACKAGE).rockspec $(distdir).tar.gz
+	sed -e 's/@MD5@/'`$(MD5SUM) $(distdir).tar.gz | cut -d " " -f 1`'/g' < $(PACKAGE).rockspec > $@
+
 EXTRA_DIST =				\
 	$(HTML)				\
 	$(LUATESTS)			\
 	make_lcurses_doc.pl		\
+	$(ROCKSPEC)			\
 	strlcpy.c
 
 $(HTML): lcurses.c make_lcurses_doc.pl
@@ -47,10 +53,10 @@ show-funcs:
 	@echo "posix library:"
 	@fgrep '/**' lposix.c | cut -f2 -d/ | tr -d '*' | sort
 
-release: distcheck
+release: distcheck $(PACKAGE).rockspec.in
 	git diff --exit-code && \
 	git push && \
-	woger lua-l package=$(PACKAGE) package_name=$(PACKAGE_NAME) version="release $(VERSION)" description="Lua bindings for POSIX (including curses)" notes=release-notes-$(VERSION)
-	git tag -a -m "Release tag" rel-`echo $(VERSION) | sed -e 's/\./-/g'` && \
+	woger lua-l package=$(PACKAGE) package_name=$(PACKAGE_NAME) version="release $(VERSION)" description=`LUA_INIT= LUA_PATH="$(abs_srcdir)/?.rockspec.in" $(LUA) -l$(PACKAGE) -e "print (description.summary)"` notes=release-notes-$(VERSION)
+	git tag -a -m "Release tag" v$(VERSION) && \
 	git push --tags
-	@cat release-notes-$(VERSION) && echo "\n\nDon't forget to release on LuaForge!"
+	@cat release-notes-$(VERSION) && echo "\n\nDon't forget to release on LuaForge, and fix the download URL in  and upload the rockspec!"

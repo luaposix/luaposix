@@ -4,6 +4,7 @@
 *.la
 *.so
 *.html
+*.rockspec
 .deps
 .libs
 /luaposix-*.tar.gz
