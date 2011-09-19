@@ -31,7 +31,7 @@ LUATESTS =				\
 
 ROCKSPEC = $(PACKAGE)-$(VERSION)-1.rockspec
 
-$(ROCKSPEC): $(PACKAGE).rockspec $(distdir).tar.gz
+$(ROCKSPEC): $(PACKAGE).rockspec dist
 	sed -e 's/@MD5@/'`$(MD5SUM) $(distdir).tar.gz | cut -d " " -f 1`'/g' < $(PACKAGE).rockspec > $@
 
 EXTRA_DIST =				\
