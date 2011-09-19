@@ -41,7 +41,7 @@ EXTRA_DIST =				\
 	luaposix.rockspec.in		\
 	strlcpy.c
 
-DISTCLEANFILES = luaposix.rockspec
+DISTCLEANFILES = $(PACKAGE).rockspec
 
 $(HTML): lcurses.c make_lcurses_doc.pl
 	$(PERL) make_lcurses_doc.pl
