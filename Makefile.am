@@ -52,7 +52,7 @@ show-funcs:
 	@echo "posix library:"
 	@fgrep '/**' lposix.c | cut -f2 -d/ | tr -d '*' | sort
 
-release: distcheck $(PACKAGE).rockspec.in
+release: distcheck $(ROCKSPEC)
 	git diff --exit-code && \
 	git push && \
 	woger lua-l package=$(PACKAGE) package_name=$(PACKAGE_NAME) version="release $(VERSION)" description="`LUA_INIT= LUA_PATH='$(abs_srcdir)/?.rockspec.in' $(LUA) -l$(PACKAGE) -e 'print (description.summary)'`" notes=release-notes-$(VERSION)
