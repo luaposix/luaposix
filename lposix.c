@@ -321,7 +321,7 @@ static int lookup_symbol(const char * const S[], const int K[], const char *str)
 {
 	int i;
 	for (i = 0; S[i] != NULL; i++)
-		if (strcmp(S[i], str) == 0)
+		if (strcasecmp(S[i], str) == 0)
 			return K[i];
 	return -1;
 }
@@ -816,11 +816,12 @@ static int Pumask(lua_State *L)			/** umask([mode]) */
 	return 1;
 }
 
+/* Darwin fails to define O_RSYNC. */
 #ifndef O_RSYNC
 #define O_RSYNC 0
 #endif
 
-#define oflags_map \
+#define OFLAGS_MAP \
 	MENTRY( _RDONLY   ) \
 	MENTRY( _WRONLY   ) \
 	MENTRY( _RDWR     ) \
@@ -837,7 +838,7 @@ static int Pumask(lua_State *L)			/** umask([mode]) */
 static const int Koflag[] =
 {
 #define MENTRY(_f) LPOSIX_SPLICE(O, _f),
-	oflags_map
+	OFLAGS_MAP
 #undef MENTRY
 	-1
 };
@@ -845,7 +846,7 @@ static const int Koflag[] =
 static const char *const Soflag[] =
 {
 #define MENTRY(_f) LPOSIX_STR(_f),
-	oflags_map
+	OFLAGS_MAP
 #undef MENTRY
 	NULL
 };
