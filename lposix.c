@@ -669,7 +669,9 @@ static int Pwait(lua_State *L)			/** wait([pid]) */
 {
 	int status;
 	pid_t pid = luaL_optint(L, 1, -1);
-	pid = waitpid(pid, &status, 0);
+	int options = luaL_optint(L, 2, 0);
+
+	pid = waitpid(pid, &status, options);
 	if (pid == -1)
 		return pusherror(L, NULL);
 	lua_pushinteger(L, pid);
@@ -1952,6 +1954,9 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	set_const("EOF", EOF);
 	set_const("FOPEN_MAX", FOPEN_MAX);
 	set_const("FILENAME_MAX", FILENAME_MAX);
+
+	/* from unistd.h */
+	set_const("WNOHANG", WNOHANG);
 
 	/* errno values */
 	set_const("E2BIG", E2BIG);
