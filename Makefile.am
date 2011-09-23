@@ -38,7 +38,7 @@ EXTRA_DIST =				\
 	$(HTML)				\
 	$(LUATESTS)			\
 	make_lcurses_doc.pl		\
-	luaposix.rockspec.in		\
+	$(PACKAGE).rockspec.in		\
 	strlcpy.c
 
 DISTCLEANFILES = $(PACKAGE).rockspec
