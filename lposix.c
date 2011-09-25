@@ -1785,6 +1785,20 @@ static int Pgetopt_long(lua_State *L)
 }
 
 
+/* fcntl */
+static int Pgetfl(lua_State* L)
+{
+	int fd=luaL_optint(L, 1, 0);
+	return pushresult(L, fcntl(fd, F_GETFL), "fcntl.getfl");
+}
+
+static int Psetfl(lua_State* L)
+{
+	int fd=luaL_optint(L, 1, 0);
+	int value=luaL_optint(L, 2, 0);
+	return pushresult(L, fcntl(fd, F_SETFL, value), "fcntl.setfl");
+}
+
 /* Signals */
 
 static lua_State *signalL;
@@ -1931,6 +1945,10 @@ static const luaL_Reg R[] =
 	{"setlogmask",		Psetlogmask},
 #endif
 
+	/* fcntl */
+	{"getfl",		Pgetfl},
+	{"setfl",		Psetfl},
+
 	{NULL,			NULL}
 };
 
@@ -1957,6 +1975,7 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 
 	/* from unistd.h */
 	set_const("WNOHANG", WNOHANG);
+	set_const("O_NONBLOCK", O_NONBLOCK);
 
 	/* errno values */
 	set_const("E2BIG", E2BIG);
@@ -2097,6 +2116,12 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	set_const("LOG_INFO", LOG_INFO);
 	set_const("LOG_DEBUG", LOG_DEBUG);
 #endif
+
+	/* fcntl */
+	lua_newtable(L); /* fcntl functions */
+
+	lua_setfield(L, -2, "fcntl");
+
 
 	/* Signals table */
 	lua_newtable(L); /* Signals table */
