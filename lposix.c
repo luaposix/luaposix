@@ -669,7 +669,9 @@ static int Pwait(lua_State *L)			/** wait([pid]) */
 {
 	int status;
 	pid_t pid = luaL_optint(L, 1, -1);
-	pid = waitpid(pid, &status, 0);
+	int options = luaL_optint(L, 2, 0);
+
+	pid = waitpid(pid, &status, options);
 	if (pid == -1)
 		return pusherror(L, NULL);
 	lua_pushinteger(L, pid);
@@ -884,6 +886,30 @@ static int Pclose(lua_State *L)			/** close(n) */
 {
 	int fd = luaL_checkint(L, 1);
 	return pushresult(L, close(fd), NULL);
+}
+
+static int Pdup(lua_State *L)           /** dup(fd) */
+{
+	int fd = luaL_checkint(L, 1);
+	return pushresult(L, dup(fd), NULL);
+}
+
+static int Pdup2(lua_State *L)          /** dup2(oldfd,newfd) */
+{
+	int oldfd = luaL_checkint(L, 1);
+	int newfd = luaL_checkint(L, 2);
+	return pushresult(L, dup2(oldfd, newfd), NULL);
+}
+
+static int Ppipe(lua_State *L)          /** pipe(pipefd[2]) */
+{
+	int pipefd[2];
+	int rc = pipe(pipefd);
+	if(rc < 0)
+		return pusherror(L, "pipe");
+	lua_pushinteger(L, pipefd[0]);
+	lua_pushinteger(L, pipefd[1]);
+	return 2;
 }
 
 static int Pchmod(lua_State *L)			/** chmod(path,mode) */
@@ -1759,6 +1785,20 @@ static int Pgetopt_long(lua_State *L)
 }
 
 
+/* fcntl */
+static int Pgetfl(lua_State* L)
+{
+	int fd=luaL_optint(L, 1, 0);
+	return pushresult(L, fcntl(fd, F_GETFL), "fcntl.getfl");
+}
+
+static int Psetfl(lua_State* L)
+{
+	int fd=luaL_optint(L, 1, 0);
+	int value=luaL_optint(L, 2, 0);
+	return pushresult(L, fcntl(fd, F_SETFL, value), "fcntl.setfl");
+}
+
 /* Signals */
 
 static lua_State *signalL;
@@ -1840,6 +1880,8 @@ static const luaL_Reg R[] =
 	{"ctermid",		Pctermid},
 	{"dirname",		Pdirname},
 	{"dir",			Pdir},
+	{"dup",         Pdup},
+	{"dup2",        Pdup2},
 	{"errno",		Perrno},
 	{"exec",		Pexec},
 	{"execp",		Pexecp},
@@ -1871,6 +1913,7 @@ static const luaL_Reg R[] =
 	{"mkstemp",             Pmkstemp},
 	{"open",		Popen},
 	{"pathconf",		Ppathconf},
+	{"pipe",        Ppipe},
 	{"raise",		Praise},
 	{"read",		Pread},
 	{"readlink",		Preadlink},
@@ -1902,6 +1945,10 @@ static const luaL_Reg R[] =
 	{"setlogmask",		Psetlogmask},
 #endif
 
+	/* fcntl */
+	{"getfl",		Pgetfl},
+	{"setfl",		Psetfl},
+
 	{NULL,			NULL}
 };
 
@@ -1925,6 +1972,10 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	set_const("EOF", EOF);
 	set_const("FOPEN_MAX", FOPEN_MAX);
 	set_const("FILENAME_MAX", FILENAME_MAX);
+
+	/* from unistd.h */
+	set_const("WNOHANG", WNOHANG);
+	set_const("O_NONBLOCK", O_NONBLOCK);
 
 	/* errno values */
 	set_const("E2BIG", E2BIG);
@@ -2065,6 +2116,12 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	set_const("LOG_INFO", LOG_INFO);
 	set_const("LOG_DEBUG", LOG_DEBUG);
 #endif
+
+	/* fcntl */
+	lua_newtable(L); /* fcntl functions */
+
+	lua_setfield(L, -2, "fcntl");
+
 
 	/* Signals table */
 	lua_newtable(L); /* Signals table */
