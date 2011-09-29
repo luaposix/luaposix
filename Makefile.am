@@ -21,12 +21,15 @@ curses_c_la_LDFLAGS = -module -avoid-version $(CURSES_LIB) -rpath '$(libdir)'
 ChangeLog:
 	git2cl > ChangeLog
 
-LUA_ENV = LUA_INIT= LUA_PATH="$(abs_srcdir)/?.lua;;" LUA_CPATH="$(abs_builddir)/$(objdir)/?$(shrext);;"
+LUA_PATH ?= ;
+LUA_CPATH ?= ;
+LUA_ENV = LUA_INIT= LUA_PATH="$(abs_srcdir)/?.lua;$(LUA_PATH)" LUA_CPATH="$(abs_builddir)/$(objdir)/?$(shrext);$(LUA_CPATH)"
 
 HTML = curses.html lcurses_c.html
 
 LUATESTS =				\
 	$(srcdir)/tests-posix.lua	\
+	$(srcdir)/tests-fcntl.lua	\
 	$(srcdir)/tests-curses.lua
 
 ROCKSPEC = $(PACKAGE)-$(VERSION)-1.rockspec
@@ -49,7 +52,7 @@ $(HTML): lcurses.c make_lcurses_doc.pl
 doc: $(HTML)
 
 check-local:
-	echo $(LUATESTS) | $(LUA_ENV) xargs $(LUA)
+	ls $(LUATESTS) | $(LUA_ENV) xargs -L 1 $(LUA)
 
 show-funcs:
 	@echo "posix library:"
