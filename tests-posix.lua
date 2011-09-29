@@ -198,6 +198,16 @@ testing"pathconf"
 prtab( ox.pathconf(".") );
 
 ------------------------------------------------------------------------------
+testing "pipe"
+local rpipe, wpipe = ox.pipe()
+ox.write(wpipe, "test")
+local testdata_len, testdata = ox.read(rpipe, 4)
+assert(testdata_len == 4)
+assert(testdata == "test")
+ox.close(rpipe)
+ox.close(wpipe)
+
+------------------------------------------------------------------------------
 if arg[1] ~= "--no-times" then
   testing"times"
   a=ox.times()
