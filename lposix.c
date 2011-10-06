@@ -667,7 +667,7 @@ static int Ppoll(lua_State *L)   /** poll(filehandle, timeout) */
 
 static int Pwait(lua_State *L)			/** wait([pid]) */
 {
-	int status;
+	int status = 0;
 	pid_t pid = luaL_optint(L, 1, -1);
 	int options = luaL_optint(L, 2, 0);
 
