@@ -939,7 +939,7 @@ static int Pread(lua_State *L)			/** buf = read(fd, count) */
 		return pusherror(L, NULL);
 	lua_pushlstring(L, buf, ret);
 	lalloc(ud, buf, 0, 0);
-	return 2;
+	return 1;
 }
 
 static int Pwrite(lua_State *L)			/** write(fd, buf) */
