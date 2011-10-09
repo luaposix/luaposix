@@ -1264,6 +1264,14 @@ static int Pstat(lua_State *L)			/** stat(path,[options]) */
 	return doselection(L, 2, Sstat, Fstat, &s);
 }
 
+static int Pfcntl(lua_State *L)
+{
+	int fd = luaL_optint(L, 1, 0);
+	int cmd = luaL_checkint(L, 2);
+	int arg = luaL_optint(L, 3, 0);
+	return pushresult(L, fcntl(fd, cmd, arg), "fcntl");
+}
+
 
 static int Puname(lua_State *L)			/** uname([string]) */
 {
@@ -1407,7 +1415,7 @@ static int Pcloselog(lua_State *L)		/** closelog() */
 	return 0;
 }
 
-static int Psetlogmask(lua_State* L) 		/** setlogmask(priority...) */
+static int Psetlogmask(lua_State* L)            /** setlogmask(priority...) */
 {
 	int argno = lua_gettop(L);
 	int mask = 0;
@@ -1478,7 +1486,7 @@ static const char *const Srlimit[] =
 	NULL
 };
 
-static int Psetrlimit(lua_State *L) 	/** setrlimit(resource,soft[,hard]) */
+static int Psetrlimit(lua_State *L)     /** setrlimit(resource,soft[,hard]) */
 {
 	int softlimit;
 	int hardlimit;
@@ -1509,7 +1517,7 @@ static int Psetrlimit(lua_State *L) 	/** setrlimit(resource,soft[,hard]) */
 }
 
 /* FIXME: Use doselection. */
-static int Pgetrlimit(lua_State *L) 	/** getrlimit(resource) */
+static int Pgetrlimit(lua_State *L)     /** getrlimit(resource) */
 {
 	struct rlimit lim;
 	int rid, rc;
@@ -1785,20 +1793,6 @@ static int Pgetopt_long(lua_State *L)
 }
 
 
-/* fcntl */
-static int Pgetfl(lua_State* L)
-{
-	int fd=luaL_optint(L, 1, 0);
-	return pushresult(L, fcntl(fd, F_GETFL), "fcntl.getfl");
-}
-
-static int Psetfl(lua_State* L)
-{
-	int fd=luaL_optint(L, 1, 0);
-	int value=luaL_optint(L, 2, 0);
-	return pushresult(L, fcntl(fd, F_SETFL, value), "fcntl.setfl");
-}
-
 /* Signals */
 
 static lua_State *signalL;
@@ -1880,8 +1874,8 @@ static const luaL_Reg R[] =
 	{"ctermid",		Pctermid},
 	{"dirname",		Pdirname},
 	{"dir",			Pdir},
-	{"dup",         Pdup},
-	{"dup2",        Pdup2},
+	{"dup",			Pdup},
+	{"dup2",		Pdup2},
 	{"errno",		Perrno},
 	{"exec",		Pexec},
 	{"execp",		Pexecp},
@@ -1913,7 +1907,7 @@ static const luaL_Reg R[] =
 	{"mkstemp",             Pmkstemp},
 	{"open",		Popen},
 	{"pathconf",		Ppathconf},
-	{"pipe",        Ppipe},
+	{"pipe",		Ppipe},
 	{"raise",		Praise},
 	{"read",		Pread},
 	{"readlink",		Preadlink},
@@ -2084,7 +2078,6 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	set_const("SIGXCPU", SIGXCPU);
 	set_const("SIGXFSZ", SIGXFSZ);
 
-
 #if _POSIX_VERSION >= 200112L
 	set_const("LOG_AUTH", LOG_AUTH);
 	set_const("LOG_AUTHPRIV", LOG_AUTHPRIV);
@@ -2117,14 +2110,19 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	set_const("LOG_DEBUG", LOG_DEBUG);
 #endif
 
-	/* fcntl */
-	lua_newtable(L); /* fcntl functions */
-
-	lua_setfield(L, -2, "fcntl");
-
+	set_const("F_DUPFD", F_DUPFD);
+	set_const("F_GETFD", F_GETFD);
+	set_const("F_SETFD", F_SETFD);
+	set_const("F_GETFL", F_GETFL);
+	set_const("F_SETFL", F_SETFL);
+	set_const("F_GETLK", F_GETLK);
+	set_const("F_SETLK", F_SETLK);
+	set_const("F_SETLKW", F_SETLKW);
+	set_const("F_GETOWN", F_GETOWN);
+	set_const("F_SETOWN", F_SETOWN);
 
 	/* Signals table */
-	lua_newtable(L); /* Signals table */
+	lua_newtable(L);
 
 	/* Signals table's metatable */
 	lua_newtable(L);
