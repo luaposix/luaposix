@@ -29,8 +29,10 @@ HTML = curses.html lcurses_c.html
 
 LUATESTS =				\
 	$(srcdir)/tests-posix.lua	\
-	$(srcdir)/tests-fcntl.lua	\
 	$(srcdir)/tests-curses.lua
+
+LUNITTESTS=				\
+	$(srcdir)/tests-fcntl.lua
 
 ROCKSPEC = $(PACKAGE)-$(VERSION)-1.rockspec
 
@@ -40,6 +42,7 @@ $(ROCKSPEC): $(PACKAGE).rockspec dist
 EXTRA_DIST =				\
 	$(HTML)				\
 	$(LUATESTS)			\
+	$(LUNITTESTS)			\
 	make_lcurses_doc.pl		\
 	$(PACKAGE).rockspec.in		\
 	strlcpy.c
@@ -53,6 +56,7 @@ doc: $(HTML)
 
 check-local:
 	ls $(LUATESTS) | $(LUA_ENV) xargs -L 1 $(LUA)
+	ls $(LUNITTESTS) | $(LUA_ENV) xargs -L 1 lunit
 
 show-funcs:
 	@echo "posix library:"
