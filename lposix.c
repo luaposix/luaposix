@@ -1879,6 +1879,7 @@ static const luaL_Reg R[] =
 	{"errno",		Perrno},
 	{"exec",		Pexec},
 	{"execp",		Pexecp},
+	{"fcntl",		Pfcntl},
 	{"fileno",		Pfileno},
 	{"files",		Pfiles},
 	{"fork",		Pfork},
@@ -1938,10 +1939,6 @@ static const luaL_Reg R[] =
 	{"closelog",		Pcloselog},
 	{"setlogmask",		Psetlogmask},
 #endif
-
-	/* fcntl */
-	{"getfl",		Pgetfl},
-	{"setfl",		Psetfl},
 
 	{NULL,			NULL}
 };
