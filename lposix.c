@@ -655,7 +655,7 @@ static int P_exit(lua_State *L) /* _exit() */
 }
 
 /* from http://lua-users.org/lists/lua-l/2007-11/msg00346.html */
-static int Ppoll(lua_State *L)   /** poll(filehandle, timeout) */
+static int Prpoll(lua_State *L)   /** poll(filehandle, timeout) */
 {
 	struct pollfd fds;
 	FILE* file = *(FILE**)luaL_checkudata(L,1,LUA_FILEHANDLE);
@@ -663,6 +663,213 @@ static int Ppoll(lua_State *L)   /** poll(filehandle, timeout) */
 	fds.fd = fileno(file);
 	fds.events = POLLIN;
 	return pushresult(L, poll(&fds,1,timeout), NULL);
+}
+
+static struct {
+	short       bit;
+	const char *name;
+} Ppoll_event_map[] = {
+#define MAP(_NAME) \
+	{POLL##_NAME, #_NAME}
+	MAP(IN),
+	MAP(PRI),
+	MAP(OUT),
+	MAP(ERR),
+	MAP(HUP),
+	MAP(NVAL),
+#undef MAP
+};
+
+#define PPOLL_EVENT_NUM (sizeof(Ppoll_event_map) / sizeof(*Ppoll_event_map))
+
+static void Ppoll_events_createtable(lua_State *L)
+{
+	lua_createtable(L, 0, PPOLL_EVENT_NUM);
+}
+
+static short Ppoll_events_from_table(lua_State *L, int table)
+{
+	short   events  = 0;
+	size_t  i;
+
+	/* Convert to absolute index */
+	if (table < 0)
+		table = lua_gettop(L) + table + 1;
+
+	for (i = 0; i < PPOLL_EVENT_NUM; i++)
+	{
+		lua_getfield(L, table, Ppoll_event_map[i].name);
+		if (lua_toboolean(L, -1))
+			events |= Ppoll_event_map[i].bit;
+		lua_pop(L, 1);
+	}
+
+	return events;
+}
+
+static void Ppoll_events_to_table(lua_State *L, int table, short events)
+{
+	size_t  i;
+
+	/* Convert to absolute index */
+	if (table < 0)
+		table = lua_gettop(L) + table + 1;
+
+	for (i = 0; i < PPOLL_EVENT_NUM; i++)
+	{
+		lua_pushboolean(L, events & Ppoll_event_map[i].bit);
+		lua_setfield(L, table, Ppoll_event_map[i].name);
+	}
+}
+
+static nfds_t Ppoll_fd_list_check_table(lua_State  *L,
+					int         table)
+{
+	nfds_t          fd_num      = 0;
+	FILE           *file;
+
+	/*
+	 * Assume table is an argument number.
+	 * Should be an assert(table > 0).
+	 */
+
+	luaL_checktype(L, table, LUA_TTABLE);
+
+	/* Nil key - the one before first */
+	lua_pushnil(L);
+
+	/* Push each key/value pair, popping previous key */
+	while (lua_next(L, 1) != 0)
+	{
+		/* Verify the fd key */
+		luaL_argcheck(L, lua_isnumber(L, -2), table,
+					  "contains non-integer key(s)");
+
+		/* Verify the table value */
+		luaL_argcheck(L, lua_istable(L, -1), table,
+					  "contains non-table value(s)");
+		lua_getfield(L, -1, "events");
+		luaL_argcheck(L, lua_istable(L, -1), table,
+					  "contains invalid value table(s)");
+		lua_pop(L, 1);
+		lua_getfield(L, -1, "revents");
+		luaL_argcheck(L, lua_isnil(L, -1) || lua_istable(L, -1), table,
+					  "contains invalid value table(s)");
+		lua_pop(L, 1);
+
+		/* Remove value (but leave the key) */
+		lua_pop(L, 1);
+
+		/* Count the fds */
+		fd_num++;
+	}
+
+	return fd_num;
+}
+
+static void Ppoll_fd_list_from_table(lua_State         *L,
+				     int                table,
+				     struct pollfd     *fd_list)
+{
+	struct pollfd  *pollfd  = fd_list;
+
+	/*
+	 * Assume the table didn't change since
+	 * the call to Ppoll_fd_list_check_table
+	 */
+
+	/* Convert to absolute index */
+	if (table < 0)
+		table = lua_gettop(L) + table + 1;
+
+	/* Nil key - the one before first */
+	lua_pushnil(L);
+
+	/* Push each key/value pair, popping previous key */
+	while (lua_next(L, table) != 0)
+	{
+		/* Transfer the fd key */
+		pollfd->fd = lua_tointeger(L, -2);
+
+		/* Transfer "events" field from the value */
+		lua_getfield(L, -1, "events");
+		pollfd->events = Ppoll_events_from_table(L, -1);
+		lua_pop(L, 1);
+
+		/* Remove value (but leave the key) */
+		lua_pop(L, 1);
+
+		/* Proceed to next fd */
+		pollfd++;
+	}
+}
+
+static void Ppoll_fd_list_to_table(lua_State           *L,
+				   int                  table,
+				   const struct pollfd *fd_list)
+{
+	const struct pollfd    *pollfd  = fd_list;
+
+	/*
+	 * Assume the table didn't change since
+	 * the call to Ppoll_fd_list_check_table.
+	 */
+
+	/* Convert to absolute index */
+	if (table < 0)
+		table = lua_gettop(L) + table + 1;
+
+	/* Nil key - the one before first */
+	lua_pushnil(L);
+
+	/* Push each key/value pair, popping previous key */
+	while (lua_next(L, 1) != 0)
+	{
+		/* Transfer "revents" field to the value */
+		lua_getfield(L, -1, "revents");
+		if (lua_isnil(L, -1))
+		{
+			lua_pop(L, 1);
+			Ppoll_events_createtable(L);
+			lua_pushvalue(L, -1);
+			lua_setfield(L, -3, "revents");
+		}
+		Ppoll_events_to_table(L, -1, pollfd->revents);
+		lua_pop(L, 1);
+
+		/* Remove value (but leave the key) */
+		lua_pop(L, 1);
+
+		/* Proceed to next fd */
+		pollfd++;
+	}
+}
+
+static int Ppoll(lua_State *L)          /** poll(pollfds, [timeout]) */
+{
+	struct pollfd   static_fd_list[16];
+	struct pollfd  *fd_list;
+	nfds_t          fd_num;
+	int             timeout;
+	int             result;
+
+	fd_num = Ppoll_fd_list_check_table(L, 1);
+	timeout = luaL_optint(L, 2, -1);
+
+	fd_list = (fd_num <= sizeof(static_fd_list) / sizeof(*static_fd_list))
+					? static_fd_list
+					: lua_newuserdata(L, sizeof(*fd_list) * fd_num);
+
+
+	Ppoll_fd_list_from_table(L, 1, fd_list);
+
+	result = poll(fd_list, fd_num, timeout);
+
+	/* If any of the descriptors changed state */
+	if (result > 0)
+		Ppoll_fd_list_to_table(L, 1, fd_list);
+
+	return pushresult(L, result, NULL);
 }
 
 static int Pwait(lua_State *L)			/** wait([pid]) */
@@ -1913,7 +2120,8 @@ static const luaL_Reg R[] =
 	{"read",		Pread},
 	{"readlink",		Preadlink},
 	{"rmdir",		Prmdir},
-	{"rpoll",		Ppoll},
+	{"rpoll",		Prpoll},
+	{"poll",		Ppoll},
 	{"set_errno",		Pset_errno},
 	{"setenv",		Psetenv},
 	{"setpid",		Psetpid},
