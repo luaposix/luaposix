@@ -23,6 +23,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <fnmatch.h>
 #include <getopt.h>
 #include <glob.h>
 #include <grp.h>
@@ -440,6 +441,24 @@ static int Pdir(lua_State *L)			/** dir([path]) */
 		lua_pushinteger(L, i-1);
 		return 2;
 	}
+}
+
+static int Pfnmatch(lua_State *L)     /** fnmatch(pattern, string [,flags]) */
+{
+	const char *pattern = lua_tostring(L, 1);
+	const char *string = lua_tostring(L, 2);
+	int flags = luaL_optint(L, 3, 0);
+	int res = fnmatch(pattern, string, flags);
+	if (res == 0)
+		lua_pushboolean(L, 1);
+	else if (res == FNM_NOMATCH)
+		lua_pushboolean(L, 0);
+	else
+	{
+		lua_pushstring(L, "fnmatch failed");
+		lua_error(L);
+	}
+	return 1;
 }
 
 static int Pglob(lua_State *L)                  /** glob(pattern) */
@@ -2089,6 +2108,7 @@ static const luaL_Reg R[] =
 	{"fcntl",		Pfcntl},
 	{"fileno",		Pfileno},
 	{"files",		Pfiles},
+	{"fnmatch",		Pfnmatch},
 	{"fork",		Pfork},
 	{"getcwd",		Pgetcwd},
 	{"getenv",		Pgetenv},
@@ -2325,6 +2345,22 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	set_const("F_SETLKW", F_SETLKW);
 	set_const("F_GETOWN", F_GETOWN);
 	set_const("F_SETOWN", F_SETOWN);
+
+	/* from fnmatch.h */
+	set_const("FNM_PATHNAME", FNM_PATHNAME);
+	set_const("FNM_NOESCAPE", FNM_NOESCAPE);
+	set_const("FNM_PERIOD", FNM_PERIOD);
+
+	/* GNU extensions for fnmatch.h */
+#ifdef FNM_FILE_NAME
+	set_const("FNM_FILE_NAME", FNM_FILE_NAME);
+#endif
+#ifdef FNM_LEADING_DIR
+	set_const("FNM_LEADING_DIR", FNM_LEADING_DIR);
+#endif
+#ifdef FNM_CASEFOLD
+	set_const("FNM_CASEFOLD", FNM_CASEFOLD);
+#endif
 
 	/* Signals table */
 	lua_newtable(L);
