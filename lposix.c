@@ -745,7 +745,6 @@ static nfds_t Ppoll_fd_list_check_table(lua_State  *L,
 					int         table)
 {
 	nfds_t          fd_num      = 0;
-	FILE           *file;
 
 	/*
 	 * Assume table is an argument number.
