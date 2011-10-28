@@ -117,7 +117,7 @@ assert(ox.fnmatch("*test", ".test", ox.FNM_PERIOD) == false)
 testing"glob"
 function g() local d=ox.getcwd() print("now at",d) return d end
 g()
-for _,f in pairs(ox.glob "*.la") do
+for _,f in pairs(ox.glob "*.c") do
   local T=assert(ox.stat(f))
   local p=assert(ox.getpasswd(T.uid))
   local g=assert(ox.getgroup(T.gid))
