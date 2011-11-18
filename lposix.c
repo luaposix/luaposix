@@ -1355,30 +1355,29 @@ static int Pgetgroups(lua_State *L)		/** getgroups() */
 {
 	int n_group_slots = getgroups(0, NULL);
 
-	if (n_group_slots >= 0) {
-		int n_groups;
-		void *ud;
-		gid_t *group;
-		lua_Alloc lalloc = lua_getallocf(L, &ud);
+	if (n_group_slots < 0)
+		return pusherror(L, NULL);
+	else if (n_group_slots == 0)
+		lua_newtable(L);
+	else {
+		gid_t  *group;
+		int     n_groups;
+		int     i;
 
-		if ((group = lalloc(ud, NULL, 0, n_group_slots * sizeof *group)) == NULL)
-			return 0;
+		group = lua_newuserdata(L, sizeof(*group) * n_group_slots);
 
-		if ((n_groups = getgroups(n_group_slots, group)) >= 0) {
-			int i;
-			lua_createtable(L, n_groups, 0);
-			for (i = 0; i < n_groups; i++) {
-				lua_pushinteger(L, group[i]);
-				lua_rawseti(L, -2, i + 1);
-			}
-			free (group);
-			return 1;
+		n_groups = getgroups(n_group_slots, group);
+		if (n_groups < 0)
+			return pusherror(L, NULL);
+
+		lua_createtable(L, n_groups, 0);
+		for (i = 0; i < n_groups; i++) {
+			lua_pushinteger(L, group[i]);
+			lua_rawseti(L, -2, i + 1);
 		}
-
-		free(group);
 	}
 
-	return 0;
+	return 1;
 }
 #endif
 
