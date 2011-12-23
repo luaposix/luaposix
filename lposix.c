@@ -2031,7 +2031,7 @@ static int signalno;
 
 static const char *const Ssigmacros[] =
 {
-	"SIG_DFL", "SIG_ERR", "SIG_HOLD", "SIG_IGN", NULL
+	"SIG_DFL", "SIG_IGN", NULL
 };
 
 static void (*Fsigmacros[])(int) =
