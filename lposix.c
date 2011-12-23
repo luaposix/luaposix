@@ -2071,7 +2071,7 @@ static int sig_action (lua_State *L)
 	luaL_checktype(L, 1, LUA_TTABLE);
 
 	/* Set Lua handler */
-	if (lua_type(L, 3) == LUA_TSTRING)
+	if (lua_type(L, 3) != LUA_TFUNCTION)
 		handler = Fsigmacros[luaL_checkoption(L, 3, "SIG_DFL", Ssigmacros)];
 	lua_rawset(L, 1);
 
