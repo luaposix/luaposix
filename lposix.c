@@ -2079,7 +2079,7 @@ static int sig_action (lua_State *L)
 	sa.sa_handler = handler;
 	sa.sa_flags = 0;
 	sigemptyset(&sa.sa_mask);
-	sigaction(sig, &sa, 0);         /* XXX ignores errors */
+	sigaction(sig, &sa, NULL);         /* XXX ignores errors */
 
 	return 0;
 }
