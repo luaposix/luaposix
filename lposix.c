@@ -98,11 +98,11 @@ static int Praise(lua_State *L)
 
 static int bind_ctype(lua_State *L, int (*cb)(int))
 {
-		const char *s = luaL_checkstring(L, 1);
-		char c = *s;
-		lua_pop(L, 1);
-		lua_pushboolean(L, cb((int)c));
-		return 1;
+	const char *s = luaL_checkstring(L, 1);
+	char c = *s;
+	lua_pop(L, 1);
+	lua_pushboolean(L, cb((int)c));
+	return 1;
 }
 
 static int Pisgraph(lua_State *L)
