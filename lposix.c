@@ -2053,8 +2053,10 @@ static void (*Fsigmacros[])(int) =
 
 static void sig_handle (lua_State *L, lua_Debug *ar) {
 	(void)ar;  /* unused arg. */
-	/* Get signal handlers table */
+
 	lua_sethook(L, NULL, 0, 0);
+
+	/* Get signal handlers table */
 	lua_pushlightuserdata(L, &signalL);
 	lua_rawget(L, LUA_REGISTRYINDEX);
 
@@ -2073,19 +2075,24 @@ static void sig_postpone (int i) {
 	lua_sethook(signalL, sig_handle, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
 }
 
-static int sig_action (lua_State *L)
+static int Psignal (lua_State *L)		/** signal(signum, handler) */
 {
-	/* As newindex metamethod, we are passed (table, key, value) on Lua stack */
 	struct sigaction sa;
-	int sig = luaL_checkinteger(L, 2);
+	int sig = luaL_checkinteger(L, 1);
 	void (*handler)(int) = sig_postpone;
 
-	luaL_checktype(L, 1, LUA_TTABLE);
-
-	/* Set Lua handler */
-	if (lua_type(L, 3) != LUA_TFUNCTION)
+        /* Check handler is OK */
+	if (lua_type(L, 2) != LUA_TFUNCTION)
 		handler = Fsigmacros[luaL_checkoption(L, 3, "SIG_DFL", Ssigmacros)];
-	lua_rawset(L, 1);
+
+	/* Set Lua handler, getting previous value */
+	lua_pushlightuserdata(L, &signalL);
+	lua_rawget(L, LUA_REGISTRYINDEX);
+        lua_pushvalue(L, 1);
+	lua_rawget(L, -2);
+        lua_pushvalue(L, 1);
+        lua_pushvalue(L, 2);
+	lua_rawset(L, -4);
 
 	/* Set up C signal handler */
 	sa.sa_handler = handler;
@@ -2093,7 +2100,7 @@ static int sig_action (lua_State *L)
 	sigemptyset(&sa.sa_mask);
 	sigaction(sig, &sa, NULL);         /* XXX ignores errors */
 
-	return 0;
+	return 1;
 }
 
 
@@ -2164,6 +2171,7 @@ static const luaL_Reg R[] =
 	MENTRY( Psetenv		),
 	MENTRY( Psetpid		),
 	MENTRY( Psetrlimit	),
+	MENTRY( Psignal		),
 	MENTRY( Psleep		),
 	MENTRY( Pnanosleep	),
 	MENTRY( Pstat		),
@@ -2390,24 +2398,12 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 #endif
 #undef MENTRY
 
-	/* Signals table */
-	lua_newtable(L);
-
-	/* Signals table's metatable */
-	lua_newtable(L);
-	lua_pushcfunction(L, sig_action);
-	lua_setfield(L, -2, "__newindex");
-	lua_setmetatable(L, -2);
-
-	/* Take a copy of the signals table to use in sig_action */
+	/* Signals table stored in registry for Psignal and sig_handle */
 	lua_pushlightuserdata(L, &signalL);
-	lua_pushvalue(L, -2);
+	lua_newtable(L);
 	lua_rawset(L, LUA_REGISTRYINDEX);
 
 	signalL = L; /* For sig_postpone */
-
-	/* Register signals table */
-	lua_setfield(L, -2, "signal");
 
 	return 1;
 }
