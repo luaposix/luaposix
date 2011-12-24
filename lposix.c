@@ -2086,7 +2086,7 @@ static int Psignal (lua_State *L)		/** signal(signum, handler) */
 		handler = Fsigmacros[luaL_checkoption(L, 3, "SIG_DFL", Ssigmacros)];
 
 	/* Set Lua handler, getting previous value */
-	lua_pushlightuserdata(L, &signalL);
+	lua_pushlightuserdata(L, &signalL); /* We could use an upvalue, but we need this for sig_handle anyway. */
 	lua_rawget(L, LUA_REGISTRYINDEX);
         lua_pushvalue(L, 1);
 	lua_rawget(L, -2);
