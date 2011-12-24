@@ -2037,7 +2037,7 @@ static int signalno;
 
 static const char *const Ssigmacros[] =
 {
-#define MENTRY(_s) LPOSIX_STR(LPOSIX_SPLICE(SIG, _s)),
+#define MENTRY(_s) LPOSIX_STR_1(LPOSIX_SPLICE(_SIG, _s)),
 	sigmacros_map
 #undef MENTRY
 	NULL
