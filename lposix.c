@@ -57,11 +57,13 @@
 #define LPOSIX__SPLICE(_s, _t)	_s##_t
 #define LPOSIX_SPLICE(_s, _t)	LPOSIX__SPLICE(_s, _t)
 
-/* The +1 is to step over the leading '_' that is required to prevent
-   premature expansion of MENTRY arguments if we didn't add it.  */
-#define LPOSIX__STR(_s)		(#_s + 1)
+#define LPOSIX__STR(_s)		#_s
 #define LPOSIX_STR(_s)		LPOSIX__STR(_s)
 
+/* The +1 is to step over the leading '_' that is required to prevent
+   premature expansion of MENTRY arguments if we didn't add it.  */
+#define LPOSIX__STR_1(_s)	(#_s + 1)
+#define LPOSIX_STR_1(_s)	LPOSIX__STR_1(_s)
 
 /* Lua 5.2 compatibility */
 #if LUA_VERSION_NUM > 501
@@ -1072,7 +1074,7 @@ static const int Koflag[] =
 
 static const char *const Soflag[] =
 {
-#define MENTRY(_f) LPOSIX_STR(_f),
+#define MENTRY(_f) LPOSIX_STR_1(_f),
 	OFLAGS_MAP
 #undef MENTRY
 	NULL
@@ -1556,7 +1558,7 @@ static void Fpathconf(lua_State *L, int i, const void *data)
 
 static const char *const Spathconf[] =
 {
-#define MENTRY(_f) LPOSIX_STR(_f),
+#define MENTRY(_f) LPOSIX_STR_1(_f),
 	pathconf_map
 #undef MENTRY
 	NULL
@@ -1595,7 +1597,7 @@ static void Fsysconf(lua_State *L, int i, const void *data)
 
 static const char *const Ssysconf[] =
 {
-#define MENTRY(_f) LPOSIX_STR(_f),
+#define MENTRY(_f) LPOSIX_STR_1(_f),
 	sysconf_map
 #undef MENTRY
 	NULL
@@ -1711,7 +1713,7 @@ static const int Krlimit[] =
 
 static const char *const Srlimit[] =
 {
-#define MENTRY(_f) LPOSIX_STR(_f),
+#define MENTRY(_f) LPOSIX_STR_1(_f),
 	rlimit_map
 #undef MENTRY
 	NULL
@@ -2029,14 +2031,24 @@ static int Pgetopt_long(lua_State *L)
 static lua_State *signalL;
 static int signalno;
 
+#define sigmacros_map \
+	MENTRY( _DFL ) \
+	MENTRY( _IGN )
+
 static const char *const Ssigmacros[] =
 {
-	"SIG_DFL", "SIG_IGN", NULL
+#define MENTRY(_s) LPOSIX_STR(LPOSIX_SPLICE(SIG, _s)),
+	sigmacros_map
+#undef MENTRY
+	NULL
 };
 
 static void (*Fsigmacros[])(int) =
 {
-	SIG_DFL, SIG_IGN, NULL
+#define MENTRY(_s) LPOSIX_SPLICE(SIG, _s),
+	sigmacros_map
+#undef MENTRY
+	NULL
 };
 
 static void sig_handle (lua_State *L, lua_Debug *ar) {
@@ -2087,93 +2099,94 @@ static int sig_action (lua_State *L)
 
 static const luaL_Reg R[] =
 {
-	{"_exit",		P_exit},
-	{"abort",		Pabort},
-	{"access",		Paccess},
-	{"basename",		Pbasename},
-	{"chdir",		Pchdir},
-	{"chmod",		Pchmod},
-	{"chown",		Pchown},
+#define MENTRY(_s) {LPOSIX_STR_1(_s), (_s)}
+	MENTRY( P_exit		),
+	MENTRY( Pabort		),
+	MENTRY( Paccess		),
+	MENTRY( Pbasename	),
+	MENTRY( Pchdir		),
+	MENTRY( Pchmod		),
+	MENTRY( Pchown		),
 #if defined (_XOPEN_REALTIME) && _XOPEN_REALTIME != -1
-	{"clock_getres",	Pclock_getres},
-	{"clock_gettime",	Pclock_gettime},
+	MENTRY( Pclock_getres	),
+	MENTRY( Pclock_gettime	),
 #endif
-	{"close",		Pclose},
+	MENTRY( Pclose		),
 #if _POSIX_VERSION >= 200112L
-	{"crypt",		Pcrypt},
+	MENTRY( Pcrypt		),
 #endif
-	{"ctermid",		Pctermid},
-	{"dirname",		Pdirname},
-	{"dir",			Pdir},
-	{"dup",			Pdup},
-	{"dup2",		Pdup2},
-	{"errno",		Perrno},
-	{"exec",		Pexec},
-	{"execp",		Pexecp},
-	{"fcntl",		Pfcntl},
-	{"fileno",		Pfileno},
-	{"files",		Pfiles},
-	{"fnmatch",		Pfnmatch},
-	{"fork",		Pfork},
-	{"getcwd",		Pgetcwd},
-	{"getenv",		Pgetenv},
-	{"getgroup",		Pgetgroup},
+	MENTRY( Pctermid	),
+	MENTRY( Pdirname	),
+	MENTRY( Pdir		),
+	MENTRY( Pdup		),
+	MENTRY( Pdup2		),
+	MENTRY( Perrno		),
+	MENTRY( Pexec		),
+	MENTRY( Pexecp		),
+	MENTRY( Pfcntl		),
+	MENTRY( Pfileno		),
+	MENTRY( Pfiles		),
+	MENTRY( Pfnmatch	),
+	MENTRY( Pfork		),
+	MENTRY( Pgetcwd		),
+	MENTRY( Pgetenv		),
+	MENTRY( Pgetgroup	),
 #if _POSIX_VERSION >= 200112L
-	{"getgroups",		Pgetgroups},
+	MENTRY( Pgetgroups	),
 #endif
-	{"getlogin",		Pgetlogin},
-	{"getopt_long",		Pgetopt_long},
-	{"getpasswd",		Pgetpasswd},
-	{"getpid",		Pgetpid},
-	{"getrlimit",		Pgetrlimit},
-	{"gettimeofday",	Pgettimeofday},
-	{"glob",		Pglob},
-	{"gmtime",		Pgmtime},
-	{"hostid",		Phostid},
-	{"isgraph",		Pisgraph},
-	{"isprint",		Pisprint},
-	{"kill",		Pkill},
-	{"link",		Plink},
-	{"localtime",		Plocaltime},
-	{"mkdir",		Pmkdir},
-	{"mkfifo",		Pmkfifo},
-	{"mkstemp",             Pmkstemp},
-	{"open",		Popen},
-	{"pathconf",		Ppathconf},
-	{"pipe",		Ppipe},
-	{"raise",		Praise},
-	{"read",		Pread},
-	{"readlink",		Preadlink},
-	{"rmdir",		Prmdir},
-	{"rpoll",		Prpoll},
-	{"poll",		Ppoll},
-	{"set_errno",		Pset_errno},
-	{"setenv",		Psetenv},
-	{"setpid",		Psetpid},
-	{"setrlimit",		Psetrlimit},
-	{"sleep",		Psleep},
-	{"nanosleep",		Pnanosleep},
-	{"stat",		Pstat},
-	{"strftime",		Pstrftime},
-	{"sysconf",		Psysconf},
-	{"time",		Ptime},
-	{"times",		Ptimes},
-	{"ttyname",		Pttyname},
-	{"unlink",		Punlink},
-	{"umask",		Pumask},
-	{"uname",		Puname},
-	{"utime",		Putime},
-	{"wait",		Pwait},
-	{"write",		Pwrite},
+	MENTRY( Pgetlogin	),
+	MENTRY( Pgetopt_long	),
+	MENTRY( Pgetpasswd	),
+	MENTRY( Pgetpid		),
+	MENTRY( Pgetrlimit	),
+	MENTRY( Pgettimeofday	),
+	MENTRY( Pglob		),
+	MENTRY( Pgmtime		),
+	MENTRY( Phostid		),
+	MENTRY( Pisgraph	),
+	MENTRY( Pisprint	),
+	MENTRY( Pkill		),
+	MENTRY( Plink		),
+	MENTRY( Plocaltime	),
+	MENTRY( Pmkdir		),
+	MENTRY( Pmkfifo		),
+	MENTRY( Pmkstemp	),
+	MENTRY( Popen		),
+	MENTRY( Ppathconf	),
+	MENTRY( Ppipe		),
+	MENTRY( Praise		),
+	MENTRY( Pread		),
+	MENTRY( Preadlink	),
+	MENTRY( Prmdir		),
+	MENTRY( Prpoll		),
+	MENTRY( Ppoll		),
+	MENTRY( Pset_errno	),
+	MENTRY( Psetenv		),
+	MENTRY( Psetpid		),
+	MENTRY( Psetrlimit	),
+	MENTRY( Psleep		),
+	MENTRY( Pnanosleep	),
+	MENTRY( Pstat		),
+	MENTRY( Pstrftime	),
+	MENTRY( Psysconf	),
+	MENTRY( Ptime		),
+	MENTRY( Ptimes		),
+	MENTRY( Pttyname	),
+	MENTRY( Punlink		),
+	MENTRY( Pumask		),
+	MENTRY( Puname		),
+	MENTRY( Putime		),
+	MENTRY( Pwait		),
+	MENTRY( Pwrite		),
 
 #if _POSIX_VERSION >= 200112L
-	{"openlog",		Popenlog},
-	{"syslog",		Psyslog},
-	{"closelog",		Pcloselog},
-	{"setlogmask",		Psetlogmask},
+	MENTRY( Popenlog	),
+	MENTRY( Psyslog		),
+	MENTRY( Pcloselog	),
+	MENTRY( Psetlogmask	),
 #endif
-
-	{NULL,			NULL}
+#undef MENTRY
+	{NULL,	NULL}
 };
 
 #define set_const(key, value)		\
@@ -2189,183 +2202,193 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 
 	/* stdio.h constants */
 	/* Those that are omitted already have a Lua interface, or alternative. */
-	set_const("_IOFBF", _IOFBF);
-	set_const("_IOLBF", _IOLBF);
-	set_const("_IONBF", _IONBF);
-	set_const("BUFSIZ", BUFSIZ);
-	set_const("EOF", EOF);
-	set_const("FOPEN_MAX", FOPEN_MAX);
-	set_const("FILENAME_MAX", FILENAME_MAX);
+	set_const( "_IOFBF",		_IOFBF		);
+	set_const( "_IOLBF",		_IOLBF		);
+	set_const( "_IONBF",		_IONBF		);
+	set_const( "BUFSIZ",		BUFSIZ		);
+	set_const( "EOF",		EOF		);
+	set_const( "FOPEN_MAX",		FOPEN_MAX	);
+	set_const( "FILENAME_MAX",	FILENAME_MAX	);
 
 	/* from unistd.h */
-	set_const("WNOHANG", WNOHANG);
-	set_const("O_NONBLOCK", O_NONBLOCK);
+	set_const( "WNOHANG",		WNOHANG		);
+	set_const( "O_NONBLOCK",	O_NONBLOCK	);
 
 	/* errno values */
-	set_const("E2BIG", E2BIG);
-	set_const("EACCES", EACCES);
-	set_const("EADDRINUSE", EADDRINUSE);
-	set_const("EADDRNOTAVAIL", EADDRNOTAVAIL);
-	set_const("EAFNOSUPPORT", EAFNOSUPPORT);
-	set_const("EAGAIN", EAGAIN);
-	set_const("EALREADY", EALREADY);
-	set_const("EBADF", EBADF);
-	set_const("EBADMSG", EBADMSG);
-	set_const("EBUSY", EBUSY);
-	set_const("ECANCELED", ECANCELED);
-	set_const("ECHILD", ECHILD);
-	set_const("ECONNABORTED", ECONNABORTED);
-	set_const("ECONNREFUSED", ECONNREFUSED);
-	set_const("ECONNRESET", ECONNRESET);
-	set_const("EDEADLK", EDEADLK);
-	set_const("EDESTADDRREQ", EDESTADDRREQ);
-	set_const("EDOM", EDOM);
-	set_const("EEXIST", EEXIST);
-	set_const("EFAULT", EFAULT);
-	set_const("EFBIG", EFBIG);
-	set_const("EHOSTUNREACH", EHOSTUNREACH);
-	set_const("EIDRM", EIDRM);
-	set_const("EILSEQ", EILSEQ);
-	set_const("EINPROGRESS", EINPROGRESS);
-	set_const("EINTR", EINTR);
-	set_const("EINVAL", EINVAL);
-	set_const("EIO", EIO);
-	set_const("EISCONN", EISCONN);
-	set_const("EISDIR", EISDIR);
-	set_const("ELOOP", ELOOP);
-	set_const("EMFILE", EMFILE);
-	set_const("EMLINK", EMLINK);
-	set_const("EMSGSIZE", EMSGSIZE);
-	set_const("ENAMETOOLONG", ENAMETOOLONG);
-	set_const("ENETDOWN", ENETDOWN);
-	set_const("ENETRESET", ENETRESET);
-	set_const("ENETUNREACH", ENETUNREACH);
-	set_const("ENFILE", ENFILE);
-	set_const("ENOBUFS", ENOBUFS);
-	set_const("ENODATA", ENODATA);
-	set_const("ENODEV", ENODEV);
-	set_const("ENOENT", ENOENT);
-	set_const("ENOEXEC", ENOEXEC);
-	set_const("ENOLCK", ENOLCK);
-	set_const("ENOMEM", ENOMEM);
-	set_const("ENOMSG", ENOMSG);
-	set_const("ENOPROTOOPT", ENOPROTOOPT);
-	set_const("ENOSPC", ENOSPC);
-	set_const("ENOSR", ENOSR);
-	set_const("ENOSTR", ENOSTR);
-	set_const("ENOSYS", ENOSYS);
-	set_const("ENOTCONN", ENOTCONN);
-	set_const("ENOTDIR", ENOTDIR);
-	set_const("ENOTEMPTY", ENOTEMPTY);
-	set_const("ENOTSOCK", ENOTSOCK);
-	set_const("ENOTSUP", ENOTSUP);
-	set_const("ENOTTY", ENOTTY);
-	set_const("ENXIO", ENXIO);
-	set_const("EOPNOTSUPP", EOPNOTSUPP);
-	set_const("EOVERFLOW", EOVERFLOW);
-	set_const("EPERM", EPERM);
-	set_const("EPIPE", EPIPE);
-	set_const("EPROTO", EPROTO);
-	set_const("EPROTONOSUPPORT", EPROTONOSUPPORT);
-	set_const("EPROTOTYPE", EPROTOTYPE);
-	set_const("ERANGE", ERANGE);
-	set_const("EROFS", EROFS);
-	set_const("ESPIPE", ESPIPE);
-	set_const("ESRCH", ESRCH);
-	set_const("ETIME", ETIME);
-	set_const("ETIMEDOUT", ETIMEDOUT);
-	set_const("ETXTBSY", ETXTBSY);
-	set_const("EWOULDBLOCK", EWOULDBLOCK);
-	set_const("EXDEV", EXDEV);
+#define MENTRY(_e) set_const(LPOSIX_STR_1(LPOSIX_SPLICE(_E, _e)), LPOSIX_SPLICE(E, _e))
+	MENTRY( 2BIG		);
+	MENTRY( ACCES		);
+	MENTRY( ADDRINUSE	);
+	MENTRY( ADDRNOTAVAIL	);
+	MENTRY( AFNOSUPPORT	);
+	MENTRY( AGAIN		);
+	MENTRY( ALREADY		);
+	MENTRY( BADF		);
+	MENTRY( BADMSG		);
+	MENTRY( BUSY		);
+	MENTRY( CANCELED	);
+	MENTRY( CHILD		);
+	MENTRY( CONNABORTED	);
+	MENTRY( CONNREFUSED	);
+	MENTRY( CONNRESET	);
+	MENTRY( DEADLK		);
+	MENTRY( DESTADDRREQ	);
+	MENTRY( DOM		);
+	MENTRY( EXIST		);
+	MENTRY( FAULT		);
+	MENTRY( FBIG		);
+	MENTRY( HOSTUNREACH	);
+	MENTRY( IDRM		);
+	MENTRY( ILSEQ		);
+	MENTRY( INPROGRESS	);
+	MENTRY( INTR		);
+	MENTRY( INVAL		);
+	MENTRY( IO		);
+	MENTRY( ISCONN		);
+	MENTRY( ISDIR		);
+	MENTRY( LOOP		);
+	MENTRY( MFILE		);
+	MENTRY( MLINK		);
+	MENTRY( MSGSIZE		);
+	MENTRY( NAMETOOLONG	);
+	MENTRY( NETDOWN		);
+	MENTRY( NETRESET	);
+	MENTRY( NETUNREACH	);
+	MENTRY( NFILE		);
+	MENTRY( NOBUFS		);
+	MENTRY( NODATA		);
+	MENTRY( NODEV		);
+	MENTRY( NOENT		);
+	MENTRY( NOEXEC		);
+	MENTRY( NOLCK		);
+	MENTRY( NOMEM		);
+	MENTRY( NOMSG		);
+	MENTRY( NOPROTOOPT	);
+	MENTRY( NOSPC		);
+	MENTRY( NOSR		);
+	MENTRY( NOSTR		);
+	MENTRY( NOSYS		);
+	MENTRY( NOTCONN		);
+	MENTRY( NOTDIR		);
+	MENTRY( NOTEMPTY	);
+	MENTRY( NOTSOCK		);
+	MENTRY( NOTSUP		);
+	MENTRY( NOTTY		);
+	MENTRY( NXIO		);
+	MENTRY( OPNOTSUPP	);
+	MENTRY( OVERFLOW	);
+	MENTRY( PERM		);
+	MENTRY( PIPE		);
+	MENTRY( PROTO		);
+	MENTRY( PROTONOSUPPORT	);
+	MENTRY( PROTOTYPE	);
+	MENTRY( RANGE		);
+	MENTRY( ROFS		);
+	MENTRY( SPIPE		);
+	MENTRY( SRCH		);
+	MENTRY( TIME		);
+	MENTRY( TIMEDOUT	);
+	MENTRY( TXTBSY		);
+	MENTRY( WOULDBLOCK	);
+	MENTRY( XDEV		);
+#undef MENTRY
 
 	/* Signals */
-	set_const("SIGABRT", SIGABRT);
-	set_const("SIGALRM", SIGALRM);
-	set_const("SIGBUS", SIGBUS);
-	set_const("SIGCHLD", SIGCHLD);
-	set_const("SIGCONT", SIGCONT);
-	set_const("SIGFPE", SIGFPE);
-	set_const("SIGHUP", SIGHUP);
-	set_const("SIGILL", SIGILL);
-	set_const("SIGINT", SIGINT);
-	set_const("SIGKILL", SIGKILL);
-	set_const("SIGPIPE", SIGPIPE);
-	set_const("SIGQUIT", SIGQUIT);
-	set_const("SIGSEGV", SIGSEGV);
-	set_const("SIGSTOP", SIGSTOP);
-	set_const("SIGTERM", SIGTERM);
-	set_const("SIGTSTP", SIGTSTP);
-	set_const("SIGTTIN", SIGTTIN);
-	set_const("SIGTTOU", SIGTTOU);
-	set_const("SIGUSR1", SIGUSR1);
-	set_const("SIGUSR2", SIGUSR2);
-	set_const("SIGPOLL", SIGPOLL);
-	set_const("SIGPROF", SIGPROF);
-	set_const("SIGSYS", SIGSYS);
-	set_const("SIGTRAP", SIGTRAP);
-	set_const("SIGURG", SIGURG );
-	set_const("SIGVTALRM", SIGVTALRM);
-	set_const("SIGXCPU", SIGXCPU);
-	set_const("SIGXFSZ", SIGXFSZ);
+#define MENTRY(_e) set_const(LPOSIX_STR_1(LPOSIX_SPLICE(_SIG, _e)), LPOSIX_SPLICE(SIG, _e))
+	MENTRY( ABRT	);
+	MENTRY( ALRM	);
+	MENTRY( BUS	);
+	MENTRY( CHLD	);
+	MENTRY( CONT	);
+	MENTRY( FPE	);
+	MENTRY( HUP	);
+	MENTRY( ILL	);
+	MENTRY( INT	);
+	MENTRY( KILL	);
+	MENTRY( PIPE	);
+	MENTRY( QUIT	);
+	MENTRY( SEGV	);
+	MENTRY( STOP	);
+	MENTRY( TERM	);
+	MENTRY( TSTP	);
+	MENTRY( TTIN	);
+	MENTRY( TTOU	);
+	MENTRY( USR1	);
+	MENTRY( USR2	);
+	MENTRY( POLL	);
+	MENTRY( PROF	);
+	MENTRY( SYS	);
+	MENTRY( TRAP	);
+	MENTRY( URG	);
+	MENTRY( VTALRM	);
+	MENTRY( XCPU	);
+	MENTRY( XFSZ	);
+#undef MENTRY
 
 #if _POSIX_VERSION >= 200112L
-	set_const("LOG_AUTH", LOG_AUTH);
-	set_const("LOG_AUTHPRIV", LOG_AUTHPRIV);
-	set_const("LOG_CRON", LOG_CRON);
-	set_const("LOG_DAEMON", LOG_DAEMON);
-	set_const("LOG_FTP", LOG_FTP);
-	set_const("LOG_KERN", LOG_KERN);
-	set_const("LOG_LOCAL0", LOG_LOCAL0);
-	set_const("LOG_LOCAL1", LOG_LOCAL1);
-	set_const("LOG_LOCAL2", LOG_LOCAL2);
-	set_const("LOG_LOCAL3", LOG_LOCAL3);
-	set_const("LOG_LOCAL4", LOG_LOCAL4);
-	set_const("LOG_LOCAL5", LOG_LOCAL5);
-	set_const("LOG_LOCAL6", LOG_LOCAL6);
-	set_const("LOG_LOCAL7", LOG_LOCAL7);
-	set_const("LOG_LPR", LOG_LPR);
-	set_const("LOG_MAIL", LOG_MAIL);
-	set_const("LOG_NEWS", LOG_NEWS);
-	set_const("LOG_SYSLOG", LOG_SYSLOG);
-	set_const("LOG_USER", LOG_USER);
-	set_const("LOG_UUCP", LOG_UUCP);
+#  define MENTRY(_e) set_const(LPOSIX_STR_1(LPOSIX_SPLICE(_LOG, _e)), LPOSIX_SPLICE(LOG, _e))
+	MENTRY( _AUTH		);
+	MENTRY( _AUTHPRIV	);
+	MENTRY( _CRON		);
+	MENTRY( _DAEMON		);
+	MENTRY( _FTP		);
+	MENTRY( _KERN		);
+	MENTRY( _LOCAL0		);
+	MENTRY( _LOCAL1		);
+	MENTRY( _LOCAL2		);
+	MENTRY( _LOCAL3		);
+	MENTRY( _LOCAL4		);
+	MENTRY( _LOCAL5		);
+	MENTRY( _LOCAL6		);
+	MENTRY( _LOCAL7		);
+	MENTRY( _LPR		);
+	MENTRY( _MAIL		);
+	MENTRY( _NEWS		);
+	MENTRY( _SYSLOG		);
+	MENTRY( _USER		);
+	MENTRY( _UUCP		);
 
-	set_const("LOG_EMERG", LOG_EMERG);
-	set_const("LOG_ALERT", LOG_ALERT);
-	set_const("LOG_CRIT", LOG_CRIT);
-	set_const("LOG_ERR", LOG_ERR);
-	set_const("LOG_WARNING", LOG_WARNING);
-	set_const("LOG_NOTICE", LOG_NOTICE);
-	set_const("LOG_INFO", LOG_INFO);
-	set_const("LOG_DEBUG", LOG_DEBUG);
+	MENTRY( _EMERG		);
+	MENTRY( _ALERT		);
+	MENTRY( _CRIT		);
+	MENTRY( _ERR		);
+	MENTRY( _WARNING	);
+	MENTRY( _NOTICE		);
+	MENTRY( _INFO		);
+	MENTRY( _DEBUG		);
+#  undef MENTRY
 #endif
 
-	set_const("F_DUPFD", F_DUPFD);
-	set_const("F_GETFD", F_GETFD);
-	set_const("F_SETFD", F_SETFD);
-	set_const("F_GETFL", F_GETFL);
-	set_const("F_SETFL", F_SETFL);
-	set_const("F_GETLK", F_GETLK);
-	set_const("F_SETLK", F_SETLK);
-	set_const("F_SETLKW", F_SETLKW);
-	set_const("F_GETOWN", F_GETOWN);
-	set_const("F_SETOWN", F_SETOWN);
+#define MENTRY(_e) set_const(LPOSIX_STR_1(LPOSIX_SPLICE(_F, _e)), LPOSIX_SPLICE(F, _e))
+	MENTRY( _DUPFD	);
+	MENTRY( _GETFD	);
+	MENTRY( _SETFD	);
+	MENTRY( _GETFL	);
+	MENTRY( _SETFL	);
+	MENTRY( _GETLK	);
+	MENTRY( _SETLK	);
+	MENTRY( _SETLKW	);
+	MENTRY( _GETOWN	);
+	MENTRY( _SETOWN	);
+#undef MENTRY
 
 	/* from fnmatch.h */
-	set_const("FNM_PATHNAME", FNM_PATHNAME);
-	set_const("FNM_NOESCAPE", FNM_NOESCAPE);
-	set_const("FNM_PERIOD", FNM_PERIOD);
+#define MENTRY(_e) set_const(LPOSIX_STR_1(LPOSIX_SPLICE(_FNM, _e)), LPOSIX_SPLICE(FNM, _e))
+	MENTRY( _PATHNAME	);
+	MENTRY( _NOESCAPE	);
+	MENTRY( _PERIOD		);
 
 	/* GNU extensions for fnmatch.h */
 #ifdef FNM_FILE_NAME
-	set_const("FNM_FILE_NAME", FNM_FILE_NAME);
+	MENTRY( _FILE_NAME	);
 #endif
 #ifdef FNM_LEADING_DIR
-	set_const("FNM_LEADING_DIR", FNM_LEADING_DIR);
+	MENTRY( _LEADING_DIR	);
 #endif
 #ifdef FNM_CASEFOLD
-	set_const("FNM_CASEFOLD", FNM_CASEFOLD);
+	MENTRY( _CASEFOLD	);
 #endif
+#undef MENTRY
 
 	/* Signals table */
 	lua_newtable(L);
