@@ -2075,31 +2075,46 @@ static void sig_postpone (int i) {
 	lua_sethook(signalL, sig_handle, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
 }
 
-static int Psignal (lua_State *L)		/** signal(signum, handler) */
+static int Psignal (lua_State *L)		/** old_handler = signal(signum, handler) */
 {
-	struct sigaction sa;
-	int sig = luaL_checkinteger(L, 1);
+	struct sigaction sa, oldsa;
+	int sig = luaL_checkinteger(L, 1), ret;
 	void (*handler)(int) = sig_postpone;
 
         /* Check handler is OK */
-	if (lua_type(L, 2) != LUA_TFUNCTION)
-		handler = Fsigmacros[luaL_checkoption(L, 3, "SIG_DFL", Ssigmacros)];
+	switch (lua_type(L, 2)) {
+	case LUA_TNIL:
+	case LUA_TSTRING:
+		handler = Fsigmacros[luaL_checkoption(L, 2, "SIG_DFL", Ssigmacros)];
+		break;
+	case LUA_TUSERDATA:
+		handler = lua_touserdata(L, 2);
+		break;
+	}
 
-	/* Set Lua handler, getting previous value */
-	lua_pushlightuserdata(L, &signalL); /* We could use an upvalue, but we need this for sig_handle anyway. */
-	lua_rawget(L, LUA_REGISTRYINDEX);
-        lua_pushvalue(L, 1);
-	lua_rawget(L, -2);
-        lua_pushvalue(L, 1);
-        lua_pushvalue(L, 2);
-	lua_rawset(L, -4);
-
-	/* Set up C signal handler */
+	/* Set up C signal handler, getting old handler */
 	sa.sa_handler = handler;
 	sa.sa_flags = 0;
 	sigemptyset(&sa.sa_mask);
-	sigaction(sig, &sa, NULL);         /* XXX ignores errors */
+	ret = sigaction(sig, &sa, &oldsa);
+	if (ret == -1)
+		return 0;
 
+	/* Set Lua handler, saving in table if it's a Lua function, and push old handler as result */
+	lua_pushlightuserdata(L, &signalL); /* We could use an upvalue, but we need this for sig_handle anyway. */
+	lua_rawget(L, LUA_REGISTRYINDEX);
+	if (oldsa.sa_handler == sig_postpone) {
+		lua_pushvalue(L, 1);
+		lua_rawget(L, -2);
+		lua_pushvalue(L, 1);
+		lua_pushvalue(L, 2);
+		lua_rawset(L, -4);
+	} else if (oldsa.sa_handler == SIG_DFL)
+		lua_pushstring(L, "SIG_DFL");
+	else if (oldsa.sa_handler == SIG_IGN)
+		lua_pushstring(L, "SIG_IGN");
+	else
+		lua_pushlightuserdata(L, oldsa.sa_handler); /* XXX Make it a full (tagged) userdatum so it can't be faked. */
 	return 1;
 }
 
