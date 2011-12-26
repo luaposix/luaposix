@@ -558,6 +558,7 @@ LC_NUMBER2(Clines, LINES)
 
 LC_BOOLOK(start_color)
 LC_BOOL(has_colors)
+LC_BOOLOK(use_default_colors)
 
 static int Cinit_pair(lua_State *L)
 {
@@ -1980,6 +1981,7 @@ static const luaL_reg curseslib[] =
     /* color */
     MENTRY( Cstart_color	),
     MENTRY( Chas_colors		),
+    MENTRY( Cuse_default_colors	),
     MENTRY( Cinit_pair		),
     MENTRY( Cpair_content	),
     MENTRY( Ccolors		),
