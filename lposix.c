@@ -2100,15 +2100,22 @@ static int Psignal (lua_State *L)		/** old_handler = signal(signum, handler) */
 	if (ret == -1)
 		return 0;
 
-	/* Set Lua handler, saving in table if it's a Lua function, and push old handler as result */
-	lua_pushlightuserdata(L, &signalL); /* We could use an upvalue, but we need this for sig_handle anyway. */
-	lua_rawget(L, LUA_REGISTRYINDEX);
-	if (oldsa.sa_handler == sig_postpone) {
-		lua_pushvalue(L, 1);
-		lua_rawget(L, -2);
+	/* Set Lua handler if necessary */
+	if (handler == sig_postpone) {
+		lua_pushlightuserdata(L, &signalL); /* We could use an upvalue, but we need this for sig_handle anyway. */
+		lua_rawget(L, LUA_REGISTRYINDEX);
 		lua_pushvalue(L, 1);
 		lua_pushvalue(L, 2);
-		lua_rawset(L, -4);
+		lua_rawset(L, -3);
+		lua_pop(L, 1);
+	}
+
+	/* Push old handler as result */
+	if (oldsa.sa_handler == sig_postpone) {
+		lua_pushlightuserdata(L, &signalL);
+		lua_rawget(L, LUA_REGISTRYINDEX);
+		lua_pushvalue(L, 1);
+		lua_rawget(L, -2);
 	} else if (oldsa.sa_handler == SIG_DFL)
 		lua_pushstring(L, "SIG_DFL");
 	else if (oldsa.sa_handler == SIG_IGN)
