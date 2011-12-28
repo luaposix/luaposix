@@ -2076,6 +2076,7 @@ static void sig_postpone (int i) {
 }
 
 static int Psignal (lua_State *L)		/** old_handler = signal(signum, handler) */
+/* N.B. Although this is the same API as signal(2), it uses sigaction for guaranteed semantics. */
 {
 	struct sigaction sa, oldsa;
 	int sig = luaL_checkinteger(L, 1), ret;
