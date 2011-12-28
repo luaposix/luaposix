@@ -70,7 +70,6 @@
 #define lua_objlen lua_rawlen
 
 #include <assert.h>
-#define lua_setenv(L, n)  assert(lua_setuservalue(L, -2) == 1)
 static int luaL_typerror(lua_State *L, int narg, const char *tname)
 {
 	const char *msg = lua_pushfstring(L, "%s expected, got %s",
