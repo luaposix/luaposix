@@ -65,19 +65,7 @@
 #define LPOSIX__STR_1(_s)	(#_s + 1)
 #define LPOSIX_STR_1(_s)	LPOSIX__STR_1(_s)
 
-/* Lua 5.2 compatibility */
-#if LUA_VERSION_NUM > 501
-#define lua_objlen lua_rawlen
-
-#include <assert.h>
-static int luaL_typerror(lua_State *L, int narg, const char *tname)
-{
-	const char *msg = lua_pushfstring(L, "%s expected, got %s",
-					  tname, luaL_typename(L, narg));
-	return luaL_argerror(L, narg, msg);
-}
-#endif
-
+#include "lua52compat.h"
 
 /* ISO C functions missing from the standard Lua libraries. */
 

@@ -36,6 +36,7 @@
 #include <curses.h>
 #endif
 #include <term.h>
+#include "lua52compat.h"
 
 /* The extra indirection to these macros is required so that if the
    arguments are themselves macros, they will get expanded too.  */
