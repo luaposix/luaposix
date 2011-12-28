@@ -5,8 +5,8 @@
                 http://luaforge.net/projects/luaposix
 
 
-This is a POSIX library, including curses, for Lua 5. It is released
-under the MIT license, like Lua (see
+This is a POSIX library, including curses, for Lua 5.1 and later. It
+is released under the MIT license, like Lua (see
 http://www.lua.org/copyright.html; it's basically the same as the BSD
 license). There is no warranty.
 
