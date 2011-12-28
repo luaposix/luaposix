@@ -82,6 +82,18 @@ static int luaL_typerror(lua_State *L, int narg, const char *tname)
 
 /* ISO C functions missing from the standard Lua libraries. */
 
+static int Pmemrchr(lua_State *L) /* offset = memrchr(s, c) */
+{
+	const char *s = luaL_checkstring(L, 1);
+	char c = *luaL_checkstring(L, 2);
+	const char *ret = memrchr(s, c, lua_objlen(L, 1));
+	if (ret)
+		lua_pushinteger(L, ret - s + 1);
+	else
+		lua_pushnil(L);
+	return 1;
+}
+
 static int Pabort(lua_State *L) /* abort() */
 {
 	(void)L; /* Avoid a compiler warning. */
@@ -2178,6 +2190,7 @@ static const luaL_Reg R[] =
 	MENTRY( Pkill		),
 	MENTRY( Plink		),
 	MENTRY( Plocaltime	),
+	MENTRY( Pmemrchr	),
 	MENTRY( Pmkdir		),
 	MENTRY( Pmkfifo		),
 	MENTRY( Pmkstemp	),
