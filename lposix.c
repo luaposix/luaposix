@@ -172,6 +172,27 @@ static int rwxrwxrwx(mode_t *mode, const char *p)
 	return 0;
 }
 
+static int octal_mode(mode_t *mode, const char *p)
+{
+	mode_t tmp_mode = 0;
+	int power = 1;
+	int at = strlen(p) - 1;
+	int i;
+	if (at > 7) {
+		return -4; /* error -- bad syntax, string too long */
+	}
+	for (i = 0; at >= 0; i++, at--) {
+		char c = p[at];
+		if (c < '0' || c > '7')
+			return -4; /* error -- bad syntax */
+		c -= '0';
+		tmp_mode += c * power;
+		power *= 8;
+	}
+	*mode = tmp_mode;
+	return 0;
+}
+
 static int mode_munch(mode_t *mode, const char* p)
 {
 	char op=0;
@@ -187,8 +208,12 @@ static int mode_munch(mode_t *mode, const char* p)
 		/* step 1 -- who's affected? */
 
 		/* mode string given in rwxrwxrwx format */
-		if (*p== 'r' || *p == '-')
+		if (*p == 'r' || *p == '-')
 			return rwxrwxrwx(mode, p);
+
+		/* mode string given in octal */
+		if (*p >= '0' && *p <= '7')
+			return octal_mode(mode, p);
 
 		/* mode string given in ugoa+-=rwx format */
 		for ( ; ; p++)
