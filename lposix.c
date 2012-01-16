@@ -175,22 +175,15 @@ static int rwxrwxrwx(mode_t *mode, const char *p)
 static int octal_mode(mode_t *mode, const char *p)
 {
 	mode_t tmp_mode = 0;
-	int power = 1;
-	int at = strlen(p) - 1;
-	int i;
-	if (at > 7) {
+	char* endp = NULL;
+	if (strlen(p) > 8)
 		return -4; /* error -- bad syntax, string too long */
+	tmp_mode = strtol(p, &endp, 8);
+	if (p && endp && *p != '\0' && *endp == '\0') {
+		*mode = tmp_mode;
+		return 0;
 	}
-	for (i = 0; at >= 0; i++, at--) {
-		char c = p[at];
-		if (c < '0' || c > '7')
-			return -4; /* error -- bad syntax */
-		c -= '0';
-		tmp_mode += c * power;
-		power *= 8;
-	}
-	*mode = tmp_mode;
-	return 0;
+	return -4; /* error -- bad syntax */
 }
 
 static int mode_munch(mode_t *mode, const char* p)
