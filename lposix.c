@@ -1260,9 +1260,7 @@ static int Pgetpid(lua_State *L)		/** getpid([options]) */
 
 static int Phostid(lua_State *L)		/** hostid() */
 {
-	char b[32];
-	sprintf(b,"%ld",gethostid());
-	lua_pushstring(L, b);
+	lua_pushinteger(L, gethostid());
 	return 1;
 }
 
