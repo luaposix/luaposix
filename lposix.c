@@ -1924,7 +1924,7 @@ static int Pstrftime(lua_State *L)		/** strftime(format, [time]) */
 		t.tm_yday = luaL_optint(L, -1, 0);
 		lua_pop(L, 1);
 		lua_getfield(L, 2, "is_dst");
-		t.tm_isdst = lua_tointeger(L, -1);
+		t.tm_isdst = luaL_optint(L, -1, 0);
 		lua_pop(L, 1);
 	} else {
 		time_t now = time(NULL);
