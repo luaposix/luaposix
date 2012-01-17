@@ -1936,6 +1936,42 @@ static int Pstrftime(lua_State *L)		/** strftime(format, [time]) */
 	return 1;
 }
 
+static int Pstrptime(lua_State *L)		/** tm, next = strptime(s, format) */
+{
+	struct tm t;
+	const char *s = luaL_checkstring(L, 1);
+	const char *fmt = luaL_checkstring(L, 2);
+	char *ret;
+
+	memset(&t, 0, sizeof(struct tm));
+	ret = strptime(s, fmt, &t);
+	if (ret) {
+		lua_newtable(L);
+		lua_pushinteger(L, t.tm_sec);
+		lua_setfield(L, -2, "sec");
+		lua_pushinteger(L, t.tm_min);
+		lua_setfield(L, -2, "min");
+		lua_pushinteger(L, t.tm_hour);
+		lua_setfield(L, -2, "hour");
+		lua_pushinteger(L, t.tm_mday);
+		lua_setfield(L, -2, "monthday");
+		lua_pushinteger(L, t.tm_mon);
+		lua_setfield(L, -2, "month");
+		lua_pushinteger(L, t.tm_year);
+		lua_setfield(L, -2, "year");
+		lua_pushinteger(L, t.tm_wday);
+		lua_setfield(L, -2, "weekday");
+		lua_pushinteger(L, t.tm_yday);
+		lua_setfield(L, -2, "yearday");
+		lua_pushinteger(L, t.tm_isdst);
+		lua_setfield(L, -2, "is_dst");
+
+		lua_pushinteger(L, ret - s);
+		return 2;
+	} else
+		return 0;
+}
+
 
 /* getopt_long */
 
@@ -2215,6 +2251,7 @@ static const luaL_Reg R[] =
 	MENTRY( Pnanosleep	),
 	MENTRY( Pstat		),
 	MENTRY( Pstrftime	),
+	MENTRY( Pstrptime	),
 	MENTRY( Psysconf	),
 	MENTRY( Ptime		),
 	MENTRY( Ptimes		),
