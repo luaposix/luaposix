@@ -1932,7 +1932,7 @@ static int Pstrftime(lua_State *L)		/** strftime(format, [time]) */
 	}
 
 	strftime(tmp, sizeof(tmp), format, &t);
-	lua_pushlstring(L, tmp, strlen(tmp));
+	lua_pushstring(L, tmp);
 	return 1;
 }
 
