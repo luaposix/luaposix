@@ -84,12 +84,10 @@ fi
 
 dnl Compiler flags for POSIX
 dnl Get this from autotools/gnulib
-if test Darwin = `uname`; then
-  POSIX_EXTRA_CFLAGS=-D_POSIX_C_SOURCE
-else
+if test Darwin != `uname`; then
   # FIXME: Make -lrt conditional on _XOPEN_REALTIME
   POSIX_EXTRA_CFLAGS=-D_XOPEN_SOURCE=700
-  POSIX_EXTRA_LDFLAGS="-lrt"
+  POSIX_EXTRA_LDFLAGS=-lrt
 fi
 AC_SUBST(POSIX_EXTRA_CFLAGS)
 AC_SUBST(POSIX_EXTRA_LDFLAGS)
