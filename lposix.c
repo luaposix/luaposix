@@ -2273,7 +2273,7 @@ static const luaL_Reg R[] =
 	{NULL,	NULL}
 };
 
-#define set_integer_const(key, value)		\
+#define set_integer_const(key, value)	\
 	lua_pushinteger(L, value);	\
 	lua_setfield(L, -2, key)
 
