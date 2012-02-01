@@ -74,21 +74,21 @@ static const char *WINDOWMETA          = "curses:window";
 static const char *CHSTRMETA           = "curses:chstr";
 static const char *RIPOFF_TABLE        = "curses:ripoffline";
 
-#define B(v) ((((int) (v)) == ERR))
+#define B(v) ((((int) (v)) == OK))
 
 /* ======================================================= */
 
 #define LC_NUMBER(v)                        \
     static int C ## v(lua_State *L)         \
     {                                       \
-        lua_pushnumber(L, v());             \
+        lua_pushinteger(L, v());            \
         return 1;                           \
     }
 
 #define LC_NUMBER2(n,v)                     \
     static int n(lua_State *L)              \
     {                                       \
-        lua_pushnumber(L, v);               \
+        lua_pushinteger(L, v);              \
         return 1;                           \
     }
 
@@ -117,26 +117,12 @@ static const char *RIPOFF_TABLE        = "curses:ripoffline";
         return 1;                           \
     }
 
-#define LC_BOOL2(n,v)                       \
-    static int n(lua_State *L)              \
-    {                                       \
-        lua_pushboolean(L, v);              \
-        return 1;                           \
-    }
-
 /* ======================================================= */
 
 #define LC_BOOLOK(v)                        \
     static int C ## v(lua_State *L)         \
     {                                       \
         lua_pushboolean(L, B(v()));         \
-        return 1;                           \
-    }
-
-#define LC_BOOLOK2(n,v)                     \
-    static int n(lua_State *L)              \
-    {                                       \
-        lua_pushboolean(L, B(v));           \
         return 1;                           \
     }
 
@@ -363,9 +349,9 @@ static int chstr_get(lua_State *L)
 
     ch = cs->str[offset];
 
-    lua_pushnumber(L, ch & A_CHARTEXT);
-    lua_pushnumber(L, ch & A_ATTRIBUTES);
-    lua_pushnumber(L, ch & A_COLOR);
+    lua_pushinteger(L, ch & A_CHARTEXT);
+    lua_pushinteger(L, ch & A_ATTRIBUTES);
+    lua_pushinteger(L, ch & A_COLOR);
     return 3;
 }
 
@@ -373,7 +359,7 @@ static int chstr_get(lua_State *L)
 static int chstr_len(lua_State *L)
 {
     chstr *cs = checkchstr(L, 1);
-    lua_pushnumber(L, cs->len);
+    lua_pushinteger(L, cs->len);
     return 1;
 }
 
@@ -395,7 +381,7 @@ static int chstr_dup(lua_State *L)
 
 #define CCR(n, v)                       \
     lua_pushstring(L, n);               \
-    lua_pushnumber(L, v);               \
+    lua_pushinteger(L, v);              \
     lua_settable(L, lua_upvalueindex(1));
 
 #define CC(s)       CCR(#s, s)
@@ -589,8 +575,8 @@ static int Cpair_content(lua_State *L)
     if (ret == ERR)
         return 0;
 
-    lua_pushnumber(L, f);
-    lua_pushnumber(L, b);
+    lua_pushinteger(L, f);
+    lua_pushinteger(L, b);
     return 2;
 }
 
@@ -600,7 +586,7 @@ LC_NUMBER2(Ccolor_pairs, COLOR_PAIRS)
 static int Ccolor_pair(lua_State *L)
 {
     int n = luaL_checkint(L, 1);
-    lua_pushnumber(L, COLOR_PAIR(n));
+    lua_pushinteger(L, COLOR_PAIR(n));
     return 1;
 }
 
@@ -619,9 +605,7 @@ LC_NUMBER(killchar)
 static int Ctermattrs(lua_State *L)
 {
     if (lua_gettop(L) < 1)
-    {
-        lua_pushnumber(L, termattrs());
-    }
+        lua_pushinteger(L, termattrs());
     else
     {
         int a = luaL_checkint(L, 1);
@@ -661,8 +645,8 @@ static int ripoffline_cb(WINDOW* w, int cols)
     }
 
     lua_rawgeti(rip_L, -1, ++line); /* function to be called */
-    lc_newwin(rip_L, w);              /* create window object */
-    lua_pushnumber(rip_L, cols);    /* push number of columns */
+    lc_newwin(rip_L, w);            /* create window object */
+    lua_pushinteger(rip_L, cols);   /* push number of columns */
 
     lua_pcall(rip_L, 2,  0, 0);     /* call the lua function */
 
@@ -714,7 +698,7 @@ static int Ccurs_set(lua_State *L)
     if (state == ERR)
         return 0;
 
-    lua_pushnumber(L, state);
+    lua_pushinteger(L, state);
     return 1;
 }
 
@@ -945,8 +929,8 @@ static int Wis_wintouched(lua_State *L)
         WINDOW *w = checkwin(L, 1);         \
         int y, x;                           \
         v(w, y, x);                         \
-        lua_pushnumber(L, y);               \
-        lua_pushnumber(L, x);               \
+        lua_pushinteger(L, y);              \
+        lua_pushinteger(L, x);              \
         return 2;                           \
     }
 
@@ -973,7 +957,7 @@ static int Wborder(lua_State *L)
     chtype bl = optch(L, 8, 0);
     chtype br = optch(L, 9, 0);
 
-    lua_pushnumber(L, B(wborder(w, ls, rs, ts, bs, tl, tr, bl, br)));
+    lua_pushinteger(L, B(wborder(w, ls, rs, ts, bs, tl, tr, bl, br)));
     return 1;
 }
 
@@ -983,7 +967,7 @@ static int Wbox(lua_State *L)
     chtype verch = checkch(L, 2);
     chtype horch = checkch(L, 3);
 
-    lua_pushnumber(L, B(box(w, verch, horch)));
+    lua_pushinteger(L, B(box(w, verch, horch)));
     return 1;
 }
 
@@ -993,7 +977,7 @@ static int Whline(lua_State *L)
     chtype ch = checkch(L, 2);
     int n = luaL_checkint(L, 3);
 
-    lua_pushnumber(L, B(whline(w, ch, n)));
+    lua_pushboolean(L, B(whline(w, ch, n)));
     return 1;
 }
 
@@ -1003,7 +987,7 @@ static int Wvline(lua_State *L)
     chtype ch = checkch(L, 2);
     int n = luaL_checkint(L, 3);
 
-    lua_pushnumber(L, B(wvline(w, ch, n)));
+    lua_pushboolean(L, B(wvline(w, ch, n)));
     return 1;
 }
 
@@ -1016,7 +1000,7 @@ static int Wmvhline(lua_State *L)
     chtype ch = checkch(L, 4);
     int n = luaL_checkint(L, 5);
 
-    lua_pushnumber(L, B(mvwhline(w, y, x, ch, n)));
+    lua_pushboolean(L, B(mvwhline(w, y, x, ch, n)));
     return 1;
 }
 
@@ -1028,7 +1012,7 @@ static int Wmvvline(lua_State *L)
     chtype ch = checkch(L, 4);
     int n = luaL_checkint(L, 5);
 
-    lua_pushnumber(L, B(mvwvline(w, y, x, ch, n)));
+    lua_pushboolean(L, B(mvwvline(w, y, x, ch, n)));
     return 1;
 }
 
@@ -1217,7 +1201,7 @@ static int Wwbkgd(lua_State *L)
 static int Wgetbkgd(lua_State *L)
 {
     WINDOW *w = checkwin(L, 1);
-    lua_pushnumber(L, B(getbkgd(w)));
+    lua_pushboolean(L, B(getbkgd(w)));
     return 1;
 }
 
@@ -1441,7 +1425,7 @@ static int Wgetch(lua_State *L)
 
     if (c == ERR) return 0;
 
-    lua_pushnumber(L, c);
+    lua_pushinteger(L, c);
     return 1;
 }
 
@@ -1458,7 +1442,7 @@ static int Wmvgetch(lua_State *L)
 
     if (c == ERR) return 0;
 
-    lua_pushnumber(L, c);
+    lua_pushinteger(L, c);
     return 1;
 }
 
@@ -1514,7 +1498,7 @@ static int Wmvgetstr(lua_State *L)
 static int Wwinch(lua_State *L)
 {
     WINDOW *w = checkwin(L, 1);
-    lua_pushnumber(L, winch(w));
+    lua_pushinteger(L, winch(w));
     return 1;
 }
 
@@ -1523,7 +1507,7 @@ static int Wmvwinch(lua_State *L)
     WINDOW *w = checkwin(L, 1);
     int y = luaL_checkint(L, 2);
     int x = luaL_checkint(L, 3);
-    lua_pushnumber(L, mvwinch(w, y, x));
+    lua_pushinteger(L, mvwinch(w, y, x));
     return 1;
 }
 
@@ -1784,7 +1768,7 @@ static int Ctigetnum (lua_State *L)
     else if (-1 == res)
         lua_pushnil (L);
     else
-        lua_pushnumber(L, res);
+        lua_pushinteger(L, res);
     return 1;
 }
 

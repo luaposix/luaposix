@@ -1774,8 +1774,8 @@ static int Pgetrlimit(lua_State *L)     /** getrlimit(resource) */
 	rc = getrlimit(rid, &lim);
 	if (rc < 0)
 		return pusherror(L, "getrlimit");
-	lua_pushnumber(L, lim.rlim_cur);
-	lua_pushnumber(L, lim.rlim_max);
+	lua_pushinteger(L, lim.rlim_cur);
+	lua_pushinteger(L, lim.rlim_max);
 	return 2;
 }
 
@@ -1794,7 +1794,7 @@ static int Ptime(lua_State *L)			/** time() */
 	time_t t = time(NULL);
 	if ((time_t)-1 == t)
 		return pusherror(L, "time");
-	lua_pushnumber(L, t);
+	lua_pushinteger(L, t);
 	return 1;
 }
 
@@ -1805,21 +1805,21 @@ static int Plocaltime(lua_State *L)		/** localtime([time]) */
 	if (localtime_r(&t, &res) == NULL)
 		return pusherror(L, "localtime");
 	lua_createtable(L, 0, 9);
-	lua_pushnumber(L, res.tm_sec);
+	lua_pushinteger(L, res.tm_sec);
 	lua_setfield(L, -2, "sec");
-	lua_pushnumber(L, res.tm_min);
+	lua_pushinteger(L, res.tm_min);
 	lua_setfield(L, -2, "min");
-	lua_pushnumber(L, res.tm_hour);
+	lua_pushinteger(L, res.tm_hour);
 	lua_setfield(L, -2, "hour");
-	lua_pushnumber(L, res.tm_mday);
+	lua_pushinteger(L, res.tm_mday);
 	lua_setfield(L, -2, "monthday");
-	lua_pushnumber(L, res.tm_mon + 1);
+	lua_pushinteger(L, res.tm_mon + 1);
 	lua_setfield(L, -2, "month");
-	lua_pushnumber(L, res.tm_year + 1900);
+	lua_pushinteger(L, res.tm_year + 1900);
 	lua_setfield(L, -2, "year");
-	lua_pushnumber(L, res.tm_wday);
+	lua_pushinteger(L, res.tm_wday);
 	lua_setfield(L, -2, "weekday");
-	lua_pushnumber(L, res.tm_yday);
+	lua_pushinteger(L, res.tm_yday);
 	lua_setfield(L, -2, "yearday");
 	lua_pushboolean(L, res.tm_isdst);
 	lua_setfield(L, -2, "is_dst");
@@ -1833,21 +1833,21 @@ static int Pgmtime(lua_State *L)		/** gmtime([time]) */
 	if (gmtime_r(&t, &res) == NULL)
 		return pusherror(L, "localtime");
 	lua_createtable(L, 0, 9);
-	lua_pushnumber(L, res.tm_sec);
+	lua_pushinteger(L, res.tm_sec);
 	lua_setfield(L, -2, "sec");
-	lua_pushnumber(L, res.tm_min);
+	lua_pushinteger(L, res.tm_min);
 	lua_setfield(L, -2, "min");
-	lua_pushnumber(L, res.tm_hour);
+	lua_pushinteger(L, res.tm_hour);
 	lua_setfield(L, -2, "hour");
-	lua_pushnumber(L, res.tm_mday);
+	lua_pushinteger(L, res.tm_mday);
 	lua_setfield(L, -2, "monthday");
-	lua_pushnumber(L, res.tm_mon + 1);
+	lua_pushinteger(L, res.tm_mon + 1);
 	lua_setfield(L, -2, "month");
-	lua_pushnumber(L, res.tm_year + 1900);
+	lua_pushinteger(L, res.tm_year + 1900);
 	lua_setfield(L, -2, "year");
-	lua_pushnumber(L, res.tm_wday);
+	lua_pushinteger(L, res.tm_wday);
 	lua_setfield(L, -2, "weekday");
-	lua_pushnumber(L, res.tm_yday);
+	lua_pushinteger(L, res.tm_yday);
 	lua_setfield(L, -2, "yearday");
 	lua_pushboolean(L, res.tm_isdst);
 	lua_setfield(L, -2, "is_dst");
@@ -1875,8 +1875,8 @@ static int Pclock_getres(lua_State *L)		/** clock_getres([clockid]) */
 	const char *str = lua_tostring(L, 1);
 	if (clock_getres(get_clk_id_const(str), &res) == -1)
 		return pusherror(L, "clock_getres");
-	lua_pushnumber(L, res.tv_sec);
-	lua_pushnumber(L, res.tv_nsec);
+	lua_pushinteger(L, res.tv_sec);
+	lua_pushinteger(L, res.tv_nsec);
 	return 2;
 }
 
@@ -1886,8 +1886,8 @@ static int Pclock_gettime(lua_State *L)		/** clock_gettime([clockid]) */
 	const char *str = lua_tostring(L, 1);
 	if (clock_gettime(get_clk_id_const(str), &res) == -1)
 		return pusherror(L, "clock_gettime");
-	lua_pushnumber(L, res.tv_sec);
-	lua_pushnumber(L, res.tv_nsec);
+	lua_pushinteger(L, res.tv_sec);
+	lua_pushinteger(L, res.tv_nsec);
 	return 2;
 }
 #endif
@@ -2273,8 +2273,8 @@ static const luaL_Reg R[] =
 	{NULL,	NULL}
 };
 
-#define set_const(key, value)		\
-	lua_pushnumber(L, value);	\
+#define set_integer_const(key, value)		\
+	lua_pushinteger(L, value);	\
 	lua_setfield(L, -2, key)
 
 LUALIB_API int luaopen_posix_c (lua_State *L)
@@ -2286,20 +2286,20 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 
 	/* stdio.h constants */
 	/* Those that are omitted already have a Lua interface, or alternative. */
-	set_const( "_IOFBF",		_IOFBF		);
-	set_const( "_IOLBF",		_IOLBF		);
-	set_const( "_IONBF",		_IONBF		);
-	set_const( "BUFSIZ",		BUFSIZ		);
-	set_const( "EOF",		EOF		);
-	set_const( "FOPEN_MAX",		FOPEN_MAX	);
-	set_const( "FILENAME_MAX",	FILENAME_MAX	);
+	set_integer_const( "_IOFBF",		_IOFBF		);
+	set_integer_const( "_IOLBF",		_IOLBF		);
+	set_integer_const( "_IONBF",		_IONBF		);
+	set_integer_const( "BUFSIZ",		BUFSIZ		);
+	set_integer_const( "EOF",		EOF		);
+	set_integer_const( "FOPEN_MAX",		FOPEN_MAX	);
+	set_integer_const( "FILENAME_MAX",	FILENAME_MAX	);
 
 	/* from unistd.h */
-	set_const( "WNOHANG",		WNOHANG		);
-	set_const( "O_NONBLOCK",	O_NONBLOCK	);
+	set_integer_const( "WNOHANG",		WNOHANG		);
+	set_integer_const( "O_NONBLOCK",	O_NONBLOCK	);
 
 	/* errno values */
-#define MENTRY(_e) set_const(LPOSIX_STR_1(LPOSIX_SPLICE(_E, _e)), LPOSIX_SPLICE(E, _e))
+#define MENTRY(_e) set_integer_const(LPOSIX_STR_1(LPOSIX_SPLICE(_E, _e)), LPOSIX_SPLICE(E, _e))
 	MENTRY( 2BIG		);
 	MENTRY( ACCES		);
 	MENTRY( ADDRINUSE	);
@@ -2378,7 +2378,7 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 #undef MENTRY
 
 	/* Signals */
-#define MENTRY(_e) set_const(LPOSIX_STR_1(LPOSIX_SPLICE(_SIG, _e)), LPOSIX_SPLICE(SIG, _e))
+#define MENTRY(_e) set_integer_const(LPOSIX_STR_1(LPOSIX_SPLICE(_SIG, _e)), LPOSIX_SPLICE(SIG, _e))
 	MENTRY( ABRT	);
 	MENTRY( ALRM	);
 	MENTRY( BUS	);
@@ -2408,7 +2408,7 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 #undef MENTRY
 
 #if _POSIX_VERSION >= 200112L
-#  define MENTRY(_e) set_const(LPOSIX_STR_1(LPOSIX_SPLICE(_LOG, _e)), LPOSIX_SPLICE(LOG, _e))
+#  define MENTRY(_e) set_integer_const(LPOSIX_STR_1(LPOSIX_SPLICE(_LOG, _e)), LPOSIX_SPLICE(LOG, _e))
 	MENTRY( _AUTH		);
 	MENTRY( _AUTHPRIV	);
 	MENTRY( _CRON		);
@@ -2441,7 +2441,7 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 #  undef MENTRY
 #endif
 
-#define MENTRY(_e) set_const(LPOSIX_STR_1(LPOSIX_SPLICE(_F, _e)), LPOSIX_SPLICE(F, _e))
+#define MENTRY(_e) set_integer_const(LPOSIX_STR_1(LPOSIX_SPLICE(_F, _e)), LPOSIX_SPLICE(F, _e))
 	MENTRY( _DUPFD	);
 	MENTRY( _GETFD	);
 	MENTRY( _SETFD	);
@@ -2455,7 +2455,7 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 #undef MENTRY
 
 	/* from fnmatch.h */
-#define MENTRY(_e) set_const(LPOSIX_STR_1(LPOSIX_SPLICE(_FNM, _e)), LPOSIX_SPLICE(FNM, _e))
+#define MENTRY(_e) set_integer_const(LPOSIX_STR_1(LPOSIX_SPLICE(_FNM, _e)), LPOSIX_SPLICE(FNM, _e))
 	MENTRY( _PATHNAME	);
 	MENTRY( _NOESCAPE	);
 	MENTRY( _PERIOD		);
