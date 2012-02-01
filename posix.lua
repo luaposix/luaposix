@@ -11,7 +11,7 @@ function creat (file, mode)
   return open (file, {"creat", "wronly", "trunc"}, mode)
 end
 
---- Run a program like <code>os.system</code>, but without a shell.
+--- Run a program like <code>os.execute</code>, but without a shell.
 -- @param file filename of program to run
 -- @param ... arguments to the program
 -- @return status exit code, or nil if fork or wait fails
