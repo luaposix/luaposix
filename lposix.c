@@ -1779,6 +1779,9 @@ static int Pgetrlimit(lua_State *L)     /** getrlimit(resource) */
 	return 2;
 }
 
+
+/* Time and date */
+
 static int Pgettimeofday(lua_State *L)		/** gettimeofday() */
 {
 	struct timeval tv;
@@ -1798,31 +1801,72 @@ static int Ptime(lua_State *L)			/** time() */
 	return 1;
 }
 
+/* N.B. In Lua broken-down time tables the month field is 1-based not
+   0-based, and the year field is the full year, not years since
+   1900. */
+
+static void totm(lua_State *L, int n, struct tm *tp)
+{
+	luaL_checktype(L, n, LUA_TTABLE);
+	lua_getfield(L, n, "sec");
+	tp->tm_sec = luaL_optint(L, -1, 0);
+	lua_pop(L, 1);
+	lua_getfield(L, n, "min");
+	tp->tm_min = luaL_optint(L, -1, 0);
+	lua_pop(L, 1);
+	lua_getfield(L, n, "hour");
+	tp->tm_hour = luaL_optint(L, -1, 0);
+	lua_pop(L, 1);
+	lua_getfield(L, n, "monthday");
+	tp->tm_mday = luaL_optint(L, -1, 0);
+	lua_pop(L, 1);
+	lua_getfield(L, n, "month");
+	tp->tm_mon = luaL_optint(L, -1, 0) - 1;
+	lua_pop(L, 1);
+	lua_getfield(L, n, "year");
+	tp->tm_year = luaL_optint(L, -1, 0) - 1900;
+	lua_pop(L, 1);
+	lua_getfield(L, n, "weekday");
+	tp->tm_wday = luaL_optint(L, -1, 0);
+	lua_pop(L, 1);
+	lua_getfield(L, n, "yearday");
+	tp->tm_yday = luaL_optint(L, -1, 0);
+	lua_pop(L, 1);
+	lua_getfield(L, n, "is_dst");
+	tp->tm_isdst = (lua_type(L, -1) == LUA_TBOOLEAN) ? lua_toboolean(L, -1) : 0;
+	lua_pop(L, 1);
+}
+
+static void pushtm(lua_State *L, struct tm t)
+{
+	lua_createtable(L, 0, 9);
+	lua_pushinteger(L, t.tm_sec);
+	lua_setfield(L, -2, "sec");
+	lua_pushinteger(L, t.tm_min);
+	lua_setfield(L, -2, "min");
+	lua_pushinteger(L, t.tm_hour);
+	lua_setfield(L, -2, "hour");
+	lua_pushinteger(L, t.tm_mday);
+	lua_setfield(L, -2, "monthday");
+	lua_pushinteger(L, t.tm_mon + 1);
+	lua_setfield(L, -2, "month");
+	lua_pushinteger(L, t.tm_year + 1900);
+	lua_setfield(L, -2, "year");
+	lua_pushinteger(L, t.tm_wday);
+	lua_setfield(L, -2, "weekday");
+	lua_pushinteger(L, t.tm_yday);
+	lua_setfield(L, -2, "yearday");
+	lua_pushboolean(L, t.tm_isdst);
+	lua_setfield(L, -2, "is_dst");
+}
+
 static int Plocaltime(lua_State *L)		/** localtime([time]) */
 {
 	struct tm res;
 	time_t t = luaL_optint(L, 1, time(NULL));
 	if (localtime_r(&t, &res) == NULL)
 		return pusherror(L, "localtime");
-	lua_createtable(L, 0, 9);
-	lua_pushinteger(L, res.tm_sec);
-	lua_setfield(L, -2, "sec");
-	lua_pushinteger(L, res.tm_min);
-	lua_setfield(L, -2, "min");
-	lua_pushinteger(L, res.tm_hour);
-	lua_setfield(L, -2, "hour");
-	lua_pushinteger(L, res.tm_mday);
-	lua_setfield(L, -2, "monthday");
-	lua_pushinteger(L, res.tm_mon + 1);
-	lua_setfield(L, -2, "month");
-	lua_pushinteger(L, res.tm_year + 1900);
-	lua_setfield(L, -2, "year");
-	lua_pushinteger(L, res.tm_wday);
-	lua_setfield(L, -2, "weekday");
-	lua_pushinteger(L, res.tm_yday);
-	lua_setfield(L, -2, "yearday");
-	lua_pushboolean(L, res.tm_isdst);
-	lua_setfield(L, -2, "is_dst");
+	pushtm(L, res);
 	return 1;
 }
 
@@ -1832,25 +1876,7 @@ static int Pgmtime(lua_State *L)		/** gmtime([time]) */
 	time_t t = luaL_optint(L, 1, time(NULL));
 	if (gmtime_r(&t, &res) == NULL)
 		return pusherror(L, "localtime");
-	lua_createtable(L, 0, 9);
-	lua_pushinteger(L, res.tm_sec);
-	lua_setfield(L, -2, "sec");
-	lua_pushinteger(L, res.tm_min);
-	lua_setfield(L, -2, "min");
-	lua_pushinteger(L, res.tm_hour);
-	lua_setfield(L, -2, "hour");
-	lua_pushinteger(L, res.tm_mday);
-	lua_setfield(L, -2, "monthday");
-	lua_pushinteger(L, res.tm_mon + 1);
-	lua_setfield(L, -2, "month");
-	lua_pushinteger(L, res.tm_year + 1900);
-	lua_setfield(L, -2, "year");
-	lua_pushinteger(L, res.tm_wday);
-	lua_setfield(L, -2, "weekday");
-	lua_pushinteger(L, res.tm_yday);
-	lua_setfield(L, -2, "yearday");
-	lua_pushboolean(L, res.tm_isdst);
-	lua_setfield(L, -2, "is_dst");
+	pushtm(L, res);
 	return 1;
 }
 
@@ -1898,37 +1924,11 @@ static int Pstrftime(lua_State *L)		/** strftime(format, [time]) */
 	const char *format = luaL_checkstring(L, 1);
 
 	struct tm t;
-	if (lua_istable(L, 2)) {
-		lua_getfield(L, 2, "sec");
-		t.tm_sec = luaL_optint(L, -1, 0);
-		lua_pop(L, 1);
-		lua_getfield(L, 2, "min");
-		t.tm_min = luaL_optint(L, -1, 0);
-		lua_pop(L, 1);
-		lua_getfield(L, 2, "hour");
-		t.tm_hour = luaL_optint(L, -1, 0);
-		lua_pop(L, 1);
-		lua_getfield(L, 2, "monthday");
-		t.tm_mday = luaL_optint(L, -1, 0);
-		lua_pop(L, 1);
-		lua_getfield(L, 2, "month");
-		t.tm_mon = luaL_optint(L, -1, 0);
-		lua_pop(L, 1);
-		lua_getfield(L, 2, "year");
-		t.tm_year = luaL_optint(L, -1, 0);
-		lua_pop(L, 1);
-		lua_getfield(L, 2, "weekday");
-		t.tm_wday = luaL_optint(L, -1, 0);
-		lua_pop(L, 1);
-		lua_getfield(L, 2, "yearday");
-		t.tm_yday = luaL_optint(L, -1, 0);
-		lua_pop(L, 1);
-		lua_getfield(L, 2, "is_dst");
-		t.tm_isdst = luaL_optint(L, -1, 0);
-		lua_pop(L, 1);
-	} else {
+	if (lua_isnil(L, 2)) {
 		time_t now = time(NULL);
 		localtime_r(&now, &t);
+	} else {
+		totm(L, 2, &t);
 	}
 
 	strftime(tmp, sizeof(tmp), format, &t);
@@ -1946,30 +1946,23 @@ static int Pstrptime(lua_State *L)		/** tm, next = strptime(s, format) */
 	memset(&t, 0, sizeof(struct tm));
 	ret = strptime(s, fmt, &t);
 	if (ret) {
-		lua_newtable(L);
-		lua_pushinteger(L, t.tm_sec);
-		lua_setfield(L, -2, "sec");
-		lua_pushinteger(L, t.tm_min);
-		lua_setfield(L, -2, "min");
-		lua_pushinteger(L, t.tm_hour);
-		lua_setfield(L, -2, "hour");
-		lua_pushinteger(L, t.tm_mday);
-		lua_setfield(L, -2, "monthday");
-		lua_pushinteger(L, t.tm_mon);
-		lua_setfield(L, -2, "month");
-		lua_pushinteger(L, t.tm_year);
-		lua_setfield(L, -2, "year");
-		lua_pushinteger(L, t.tm_wday);
-		lua_setfield(L, -2, "weekday");
-		lua_pushinteger(L, t.tm_yday);
-		lua_setfield(L, -2, "yearday");
-		lua_pushinteger(L, t.tm_isdst);
-		lua_setfield(L, -2, "is_dst");
-
+		pushtm(L, t);
 		lua_pushinteger(L, ret - s);
 		return 2;
 	} else
 		return 0;
+}
+
+static int Pmktime(lua_State *L)		/** ctime = mktime(tm) */
+{
+	struct tm t;
+	time_t ret;
+	totm(L, 1, &t);
+	ret = mktime(&t);
+	if (ret == -1)
+		return 0;
+	lua_pushinteger(L, ret);
+	return 1;
 }
 
 
@@ -2233,6 +2226,7 @@ static const luaL_Reg R[] =
 	MENTRY( Pmkdir		),
 	MENTRY( Pmkfifo		),
 	MENTRY( Pmkstemp	),
+	MENTRY( Pmktime		),
 	MENTRY( Popen		),
 	MENTRY( Ppathconf	),
 	MENTRY( Ppipe		),
