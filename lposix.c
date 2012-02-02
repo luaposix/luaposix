@@ -2074,6 +2074,7 @@ static int Pgetopt_long(lua_State *L)
 
 static lua_State *signalL;
 static int signalno;
+static sigset_t oldmask;
 
 #define sigmacros_map \
 	MENTRY( _DFL ) \
@@ -2099,6 +2100,7 @@ static void sig_handle (lua_State *L, lua_Debug *ar) {
 	(void)ar;  /* unused arg. */
 
 	lua_sethook(L, NULL, 0, 0);
+	sigprocmask(SIG_SETMASK, &oldmask, NULL);
 
 	/* Get signal handlers table */
 	lua_pushlightuserdata(L, &signalL);
@@ -2115,6 +2117,9 @@ static void sig_handle (lua_State *L, lua_Debug *ar) {
 }
 
 static void sig_postpone (int i) {
+	sigset_t mask;
+	sigfillset(&mask);
+	sigprocmask(SIG_SETMASK, &mask, &oldmask);
 	signalno = i;
 	lua_sethook(signalL, sig_handle, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
 }
@@ -2140,7 +2145,7 @@ static int Psignal (lua_State *L)		/** old_handler = signal(signum, handler) */
 	/* Set up C signal handler, getting old handler */
 	sa.sa_handler = handler;
 	sa.sa_flags = 0;
-	sigemptyset(&sa.sa_mask);
+	sigfillset(&sa.sa_mask);
 	ret = sigaction(sig, &sa, &oldsa);
 	if (ret == -1)
 		return 0;
