@@ -1624,9 +1624,6 @@ static int Popenlog(lua_State *L)	/** openlog(ident, [option], [facility]) */
 			case ' ': break;
 			case 'c': option |= LOG_CONS; break;
 			case 'n': option |= LOG_NDELAY; break;
-#ifdef LOG_PERROR
-			case 'e': option |= LOG_PERROR; break;
-#endif
 			case 'p': option |= LOG_PID; break;
 			default: badoption(L, 2, "option", *s); break;
 		}
@@ -2445,17 +2442,6 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( _PATHNAME	);
 	MENTRY( _NOESCAPE	);
 	MENTRY( _PERIOD		);
-
-	/* GNU extensions for fnmatch.h */
-#ifdef FNM_FILE_NAME
-	MENTRY( _FILE_NAME	);
-#endif
-#ifdef FNM_LEADING_DIR
-	MENTRY( _LEADING_DIR	);
-#endif
-#ifdef FNM_CASEFOLD
-	MENTRY( _CASEFOLD	);
-#endif
 #undef MENTRY
 
 	/* Signals table stored in registry for Psignal and sig_handle */
