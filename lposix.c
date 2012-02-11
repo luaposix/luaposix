@@ -19,6 +19,10 @@
 #include <sys/resource.h>
 #include <sys/time.h>
 
+#if HAVE_SYS_STATVFS_H == 1
+#  include <sys/statvfs.h>
+#endif /* HAVE_SYS_STATVFS_H == 1 */
+
 #include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
@@ -1500,6 +1504,63 @@ static int Pstat(lua_State *L)			/** stat(path,[options]) */
 	return doselection(L, 2, Sstat, Fstat, &s);
 }
 
+static void Fstatvfs(lua_State *L, int i, const void *data)
+{
+	const struct statvfs *s=data;
+	switch (i)
+	{
+	case 0:
+		lua_pushinteger(L, s->f_bsize);
+		break;
+	case 1:
+		lua_pushinteger(L, s->f_frsize);
+		break;
+	case 2:
+		lua_pushnumber(L, s->f_blocks);
+		break;
+	case 3:
+		lua_pushnumber(L, s->f_bfree);
+		break;
+	case 4:
+		lua_pushnumber(L, s->f_bavail);
+		break;
+	case 5:
+		lua_pushnumber(L, s->f_files);
+		break;
+	case 6:
+		lua_pushnumber(L, s->f_ffree);
+		break;
+	case 7:
+		lua_pushnumber(L, s->f_favail);
+		break;
+	case 8:
+		lua_pushinteger(L, s->f_fsid);
+		break;
+	case 9:
+		lua_pushinteger(L, s->f_flag);
+		break;
+	case 10:
+		lua_pushinteger(L, s->f_namemax);
+		break;
+	}
+}
+
+static const char *const Sstatvfs[] =
+{
+	"bsize", "frsize", "blocks", "bfree", "bavail",
+	"files", "ffree", "favail", "fsid", "flag", "namemax",
+	NULL
+};
+
+static int Pstatvfs(lua_State *L)		/** statvfs(path,[options]) */
+{
+	struct statvfs s;
+	const char *path=luaL_checkstring(L, 1);
+	if (statvfs(path,&s)==-1)
+		return pusherror(L, path);
+	return doselection(L, 2, Sstatvfs, Fstatvfs, &s);
+}
+
 static int Pfcntl(lua_State *L)
 {
 	int fd = luaL_optint(L, 1, 0);
@@ -2233,6 +2294,9 @@ static const luaL_Reg R[] =
 	MENTRY( Psleep		),
 	MENTRY( Pnanosleep	),
 	MENTRY( Pstat		),
+#if HAVE_STATVFS == 1
+	MENTRY( Pstatvfs	),
+#endif /* HAVE_STATVFS */
 	MENTRY( Pstrftime	),
 	MENTRY( Pstrptime	),
 	MENTRY( Psysconf	),

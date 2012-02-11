@@ -102,6 +102,20 @@ for f in ox.files"." do
   print(T.mode,p.name.."/"..g.name,T.size,os.date("%b %d %H:%M",T.mtime),f,T.type)
 end
 ------------------------------------------------------------------------------
+testing"statvfs"
+local st = ox.statvfs("/")
+print("bsize=" .. st.bsize)
+print("frsize=" .. st.frsize)
+print("blocks=" .. st.blocks)
+print("bfree=" .. st.bfree)
+print("bavail=" .. st.bavail)
+print("files=" .. st.files)
+print("ffree=" .. st.ffree)
+print("favail=" .. st.favail)
+print("fsid=" .. st.fsid)
+print("flag=" .. st.flag)
+print("namemax=" .. st.namemax)
+------------------------------------------------------------------------------
 testing"fnmatch"
 assert(ox.fnmatch("test", "test"))
 assert(ox.fnmatch("tes*", "test"))
