@@ -277,7 +277,7 @@ static int mode_munch(mode_t *mode, const char* p)
 				*mode &= ~(ch_mode & affected_bits);
 				break;
 			case '=':
-				*mode = ch_mode & affected_bits;
+				*mode = (*mode & ~affected_bits) | (ch_mode & affected_bits);
 				break;
 			default:
 				return -3; /* failed! -- unknown error */
