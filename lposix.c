@@ -19,6 +19,10 @@
 #include <sys/resource.h>
 #include <sys/time.h>
 
+#if HAVE_CRYPT_H
+#  include <crypt.h>
+#endif /* HAVE_CRYPT_H */
+
 #if HAVE_SYS_STATVFS_H == 1
 #  include <sys/statvfs.h>
 #endif /* HAVE_SYS_STATVFS_H == 1 */
@@ -1725,13 +1729,22 @@ static int Pcrypt(lua_State *L)		/** crypt(string,salt) */
 {
 	const char *str, *salt;
 	char *res;
+#if HAVE_CRYPT_R == 1
+	struct crypt_data cd;
+#endif /* HAVE_CRYPT_R */
 
 	str = luaL_checkstring(L, 1);
 	salt = luaL_checkstring(L, 2);
 	if (strlen(salt) < 2)
 		luaL_error(L, "not enough salt");
 
+#if HAVE_CRYPT_R == 1
+	cd.initialized = 0;
+	cd.current_salt[0] = ~salt[0]; /* work around the glibc bug */
+	res = crypt_r(str, salt, &cd);
+#else
 	res = crypt(str, salt);
+#endif /* HAVE_CRYPT_R  == 1 */
 	lua_pushstring(L, res);
 
 	return 1;

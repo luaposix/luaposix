@@ -74,13 +74,14 @@ gl_INIT
 dnl Check for header files
 AC_HEADER_STDC
 AC_CHECK_HEADERS([sys/statvfs.h])
+AC_CHECK_HEADERS([crypt.h])
 
 dnl Search libs
 AC_SEARCH_LIBS(crypt, crypt)
 
 dnl Check for functions
 AC_CHECK_FUNCS([strlcpy])
-AC_CHECK_FUNCS([crypt])
+AC_CHECK_FUNCS([crypt crypt_r])
 AC_CHECK_FUNCS([statvfs])
 
 dnl Compiler flags for POSIX

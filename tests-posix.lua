@@ -230,6 +230,11 @@ local testdata = ox.read(rpipe, 4)
 assert(testdata == "test")
 ox.close(rpipe)
 ox.close(wpipe)
+------------------------------------------------------------------------------
+testing "crypt"
+local r = ox.crypt("hello", "pl")
+assert(r == ox.crypt("hello", "pl"))
+print(r)
 
 ------------------------------------------------------------------------------
 if arg[1] ~= "--no-times" then
