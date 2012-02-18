@@ -45,7 +45,8 @@ EXTRA_DIST =				\
 	$(LUNITTESTS)			\
 	make_lcurses_doc.pl		\
 	$(PACKAGE).rockspec.in		\
-	strlcpy.c
+	strlcpy.c			\
+	lua52compat.h
 
 DISTCLEANFILES = $(PACKAGE).rockspec
 
