@@ -1,13 +1,12 @@
 --- Lua bindings for curses
-module ("curses", package.seeall)
-
-require "curses_c"
+local M = require "curses_c"
+local curses = M
 
 -- These Lua functions detect number of args, like Unified Funcs in Perl Curses
 -- see http://pjb.com.au/comp/lua/lcurses.html
 -- see http://search.cpan.org/perldoc?Curses
 
-function addch (...)
+function M.addch (...)
   if #{...} == 3 then
     return curses.stdscr():mvaddch(...)
   else
@@ -15,7 +14,7 @@ function addch (...)
   end
 end
 
-function addstr(...) -- detect number of args, like Unified Funcs in Perl Curses
+function M.addstr(...) -- detect number of args, like Unified Funcs in Perl Curses
   if #{...} == 3 then
     return curses.stdscr():mvaddstr(...)
   else
@@ -23,12 +22,12 @@ function addstr(...) -- detect number of args, like Unified Funcs in Perl Curses
   end
 end
 
-function attrset (a) return curses.stdscr():attrset(a) end
-function clear ()    return curses.stdscr():clear() end
-function clrtobot () return curses.stdscr():clrtobot() end
-function clrtoeol () return curses.stdscr():clrtoeol() end
+function M.attrset (a) return curses.stdscr():attrset(a) end
+function M.clear ()    return curses.stdscr():clear() end
+function M.clrtobot () return curses.stdscr():clrtobot() end
+function M.clrtoeol () return curses.stdscr():clrtoeol() end
 
-function getch (...)
+function M.getch (...)
   local c
   if #{...} == 2 then
     c = curses.stdscr():mvgetch(...)
@@ -42,17 +41,19 @@ function getch (...)
   return c
 end
 
-function getstr (...)
+function M.getstr (...)
   if #{...} > 1 then
     return curses.stdscr():mvgetstr(...)
   else
     return curses.stdscr():getstr(...)
   end
 end
-getnstr = getstr
+M.getnstr = M.getstr
 
-function getyx ()    return curses.stdscr():getyx() end
-function keypad (b)  return curses.stdscr():keypad(b) end
-function move (y,x)  return curses.stdscr():move(y,x) end
-function refresh ()  return curses.stdscr():refresh() end
-function timeout (t) return curses.stdscr():timeout(t) end
+function M.getyx ()    return curses.stdscr():getyx() end
+function M.keypad (b)  return curses.stdscr():keypad(b) end
+function M.move (y,x)  return curses.stdscr():move(y,x) end
+function M.refresh ()  return curses.stdscr():refresh() end
+function M.timeout (t) return curses.stdscr():timeout(t) end
+
+return M
