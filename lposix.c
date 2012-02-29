@@ -2059,7 +2059,7 @@ static int Pgetopt_long(lua_State *L)
 
 static lua_State *signalL;
 static int signalno;
-static sigset_t oldmask;
+static unsigned signals;
 
 #define sigmacros_map \
 	MENTRY( _DFL ) \
@@ -2082,10 +2082,14 @@ static void (*Fsigmacros[])(int) =
 };
 
 static void sig_handle (lua_State *L, lua_Debug *ar) {
+	/* Block all signals until we have run the Lua signal handler */
+	sigset_t mask, oldmask;
+	sigfillset(&mask);
+	sigprocmask(SIG_SETMASK, &mask, &oldmask);
+
 	(void)ar;  /* unused arg. */
 
 	lua_sethook(L, NULL, 0, 0);
-	sigprocmask(SIG_SETMASK, &oldmask, NULL);
 
 	/* Get signal handlers table */
 	lua_pushlightuserdata(L, &signalL);
@@ -2095,18 +2099,28 @@ static void sig_handle (lua_State *L, lua_Debug *ar) {
 	lua_pushinteger(L, signalno);
 	lua_gettable(L, -2);
 
-	/* Call handler with signal number */
-	lua_pushinteger(L, signalno);
-	lua_pcall(L, 1, 0, 0);
-	/* FIXME: Deal with error */
+	while (signals--) {
+		/* Call handler with signal number */
+		lua_pushinteger(L, signalno);
+		lua_pcall(L, 1, 0, 0);
+		/* FIXME: Deal with error */
+	}
+
+	/* Having run the Lua signal handler, restore original signal mask */
+	sigprocmask(SIG_SETMASK, &oldmask, NULL);
 }
 
 static void sig_postpone (int i) {
-	sigset_t mask;
-	sigfillset(&mask);
-	sigprocmask(SIG_SETMASK, &mask, &oldmask);
+	signals++; /* Increment signal counter in case signal is re-raised before handler is run. */
 	signalno = i;
 	lua_sethook(signalL, sig_handle, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
+}
+
+static int sig_handler_wrap (lua_State *L) {
+	int sig = luaL_checkinteger(L, lua_upvalueindex(1));
+	void (*handler)(int) = lua_touserdata(L, lua_upvalueindex(2));
+	handler(sig);
+	return 0;
 }
 
 static int Psignal (lua_State *L)		/** old_handler = signal(signum, handler) */
@@ -2122,9 +2136,12 @@ static int Psignal (lua_State *L)		/** old_handler = signal(signum, handler) */
 	case LUA_TSTRING:
 		handler = Fsigmacros[luaL_checkoption(L, 2, "SIG_DFL", Ssigmacros)];
 		break;
-	case LUA_TUSERDATA:
-		handler = lua_touserdata(L, 2);
-		break;
+	case LUA_TFUNCTION:
+		if (lua_tocfunction(L, 2) == sig_handler_wrap) {
+			lua_getupvalue(L, 2, 1);
+			handler = lua_touserdata(L, -1);
+			lua_pop(L, 1);
+		}
 	}
 
 	/* Set up C signal handler, getting old handler */
@@ -2155,8 +2172,11 @@ static int Psignal (lua_State *L)		/** old_handler = signal(signum, handler) */
 		lua_pushstring(L, "SIG_DFL");
 	else if (oldsa.sa_handler == SIG_IGN)
 		lua_pushstring(L, "SIG_IGN");
-	else
-		lua_pushlightuserdata(L, oldsa.sa_handler); /* XXX Make it a full (tagged) userdatum so it can't be faked. */
+        else {
+		lua_pushinteger(L, sig);
+		lua_pushlightuserdata(L, oldsa.sa_handler);
+		lua_pushcclosure(L, sig_handler_wrap, 2);
+        }
 	return 1;
 }
 
