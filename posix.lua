@@ -1,14 +1,13 @@
 -- Additions to the posix module (of luaposix).
-module ("posix", package.seeall)
-
-require "posix_c"
+local M = require "posix_c"
+local posix = M
 
 --- Create a file.
 -- @param file name of file to create
 -- @param mode permissions with which to create file
 -- @return file descriptor, or -1 on error
-function creat (file, mode)
-  return open (file, {"creat", "wronly", "trunc"}, mode)
+function M.creat (file, mode)
+  return posix.open (file, {"creat", "wronly", "trunc"}, mode)
 end
 
 --- Run a program like <code>os.execute</code>, but without a shell.
@@ -16,12 +15,12 @@ end
 -- @param ... arguments to the program
 -- @return status exit code, or nil if fork or wait fails
 -- @return error message, or exit type if wait succeeds
-function system (file, ...)
-  local pid = fork ()
+function M.system (file, ...)
+  local pid = posix.fork ()
   if pid == 0 then
-    return execp (file, ...)
+    return posix.execp (file, ...)
   else
-    local pid, reason, status = wait (pid)
+    local pid, reason, status = posix.wait (pid)
     return status, reason -- If wait failed, status is nil & reason is error
   end
 end
@@ -33,15 +32,15 @@ end
 -- @param file file to check
 -- @param mode checks to perform (as for access)
 -- @return 0 if access allowed; <code>nil</code> otherwise (and errno is set)
-function euidaccess (file, mode)
-  local pid = getpid ()
+function M.euidaccess (file, mode)
+  local pid = posix.getpid ()
 
   if pid.uid == pid.euid and pid.gid == pid.egid then
     -- If we are not set-uid or set-gid, access does the same.
     return access (file, mode)
   end
 
-  local stats = stat (file)
+  local stats = posix.stat (file)
   if not stats then
     return
   end
@@ -64,7 +63,7 @@ function euidaccess (file, mode)
   local granted = stats.st_mode:sub (1, 3)
   if pid.euid == stats.st_uid then
     granted = stats.st_mode:sub (7, 9)
-  elseif pid.egid == stats.st_gid or set.new (getgroups ()):member(stats.st_gid) then
+  elseif pid.egid == stats.st_gid or set.new (posix.getgroups ()):member(stats.st_gid) then
     granted = stats.st_mode:sub (4, 6)
   end
   granted = string.gsub (granted, "[^rwx]", "")
@@ -72,5 +71,7 @@ function euidaccess (file, mode)
   if string.gsub ("[^" .. granted .. "]", mode) == "" then
     return 0
   end
-  set_errno (EACCESS)
+  posix.set_errno (EACCESS)
 end
+
+return M
