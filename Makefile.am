@@ -57,7 +57,7 @@ doc: $(HTML)
 
 check-local:
 	ls $(LUATESTS) | $(LUA_ENV) xargs -L 1 $(LUA)
-	ls $(LUNITTESTS) | $(LUA_ENV) xargs -L 1 lunit
+	ls $(LUNITTESTS) | $(LUA_ENV) xargs -L 1 lunit --interpreter $(LUA)
 
 show-funcs:
 	@echo "posix library:"
