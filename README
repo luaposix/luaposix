@@ -43,9 +43,7 @@ To run some tests:
   make check
 
 lunit is required for some of the tests. For a version of lunit that
-works with Lua 5.2, see:
-
-https://github.com/dcurrie/lunit.git
+works with Lua 5.2, see: https://github.com/rrthomas/lunit.git
 
 
 Use
