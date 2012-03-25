@@ -6,9 +6,8 @@
 
 
 This is a POSIX library, including curses, for Lua 5.1 and later. It
-is released under the MIT license, like Lua (see
-http://www.lua.org/copyright.html; it's basically the same as the BSD
-license). There is no warranty.
+is released under the MIT license, like Lua (see COPYING; it's
+basically the same as the BSD license). There is no warranty.
 
 Please report bugs and make suggestions to the email address above, or
 use the LuaForge trackers.
