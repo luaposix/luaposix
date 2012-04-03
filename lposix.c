@@ -2343,7 +2343,6 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( NETUNREACH	);
 	MENTRY( NFILE		);
 	MENTRY( NOBUFS		);
-	MENTRY( NODATA		);
 	MENTRY( NODEV		);
 	MENTRY( NOENT		);
 	MENTRY( NOEXEC		);
@@ -2352,8 +2351,6 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( NOMSG		);
 	MENTRY( NOPROTOOPT	);
 	MENTRY( NOSPC		);
-	MENTRY( NOSR		);
-	MENTRY( NOSTR		);
 	MENTRY( NOSYS		);
 	MENTRY( NOTCONN		);
 	MENTRY( NOTDIR		);
@@ -2373,7 +2370,6 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( ROFS		);
 	MENTRY( SPIPE		);
 	MENTRY( SRCH		);
-	MENTRY( TIME		);
 	MENTRY( TIMEDOUT	);
 	MENTRY( TXTBSY		);
 	MENTRY( WOULDBLOCK	);
