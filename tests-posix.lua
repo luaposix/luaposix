@@ -101,6 +101,13 @@ for f in ox.files"." do
   local g=assert(ox.getgroup(T.gid))
   print(T.mode,p.name.."/"..g.name,T.size,os.date("%b %d %H:%M",T.mtime),f,T.type)
 end
+
+------------------------------------------------------------------------------
+testing"basename, dirname"
+local s = "/foo/bar"
+assert(ox.basename(s)=="bar")
+assert(ox.dirname(s)=="/foo")
+
 ------------------------------------------------------------------------------
 testing"fnmatch"
 assert(ox.fnmatch("test", "test"))
