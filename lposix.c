@@ -408,22 +408,26 @@ static int Pset_errno(lua_State *L)
 
 static int Pbasename(lua_State *L)		/** basename(path) */
 {
-	char b[PATH_MAX];
+	char *b;
 	size_t len;
+	void *ud;
+	lua_Alloc lalloc = lua_getallocf(L, &ud);
 	const char *path = luaL_checklstring(L, 1, &len);
-	if (len>=sizeof(b))
-		luaL_argerror(L, 1, "too long");
+	if ((b = lalloc(ud, NULL, 0, strlen(path) + 1)) == NULL)
+		return pusherror(L, "lalloc");
 	lua_pushstring(L, basename(strcpy(b,path)));
 	return 1;
 }
 
 static int Pdirname(lua_State *L)		/** dirname(path) */
 {
-	char b[PATH_MAX];
+	char *b;
 	size_t len;
+	void *ud;
+	lua_Alloc lalloc = lua_getallocf(L, &ud);
 	const char *path = luaL_checklstring(L, 1, &len);
-	if (len>=sizeof(b))
-		luaL_argerror(L, 1, "too long");
+	if ((b = lalloc(ud, NULL, 0, strlen(path) + 1)) == NULL)
+		return pusherror(L, "lalloc");
 	lua_pushstring(L, dirname(strcpy(b,path)));
 	return 1;
 }
@@ -537,8 +541,13 @@ static int Pfiles(lua_State *L)			/** files([path]) */
 
 static int Pgetcwd(lua_State *L)		/** getcwd() */
 {
-	char b[PATH_MAX];
-	if (getcwd(b, sizeof(b)) == NULL)
+	long size = pathconf(".", _PC_PATH_MAX);
+	void *ud;
+	lua_Alloc lalloc = lua_getallocf(L, &ud);
+	char *b;
+	if ((b = lalloc(ud, NULL, 0, (size_t)size + 1)) == NULL)
+		return pusherror(L, "lalloc");
+	if (getcwd(b, (size_t)size) == NULL)
 		return pusherror(L, ".");
 	lua_pushstring(L, b);
 	return 1;
@@ -579,9 +588,16 @@ static int Plink(lua_State *L)			/** link(old,new,[symbolic]) */
 
 static int Preadlink(lua_State *L)		/** readlink(path) */
 {
-	char b[PATH_MAX];
+	char *b;
+	struct stat s;
 	const char *path = luaL_checkstring(L, 1);
-	int n = readlink(path, b, sizeof(b));
+	void *ud;
+	lua_Alloc lalloc = lua_getallocf(L, &ud);
+	if (stat(path, &s))
+		return pusherror(L, path);
+	if ((b = lalloc(ud, NULL, 0, s.st_size + 1)) == NULL)
+		return pusherror(L, "lalloc");
+	ssize_t n = readlink(path, b, s.st_size);
 	if (n==-1)
 		return pusherror(L, path);
 	lua_pushlstring(L, b, n);
@@ -628,7 +644,7 @@ static int Pmkstemp(lua_State *L)                 /** mkstemp(path) */
 	int res;
 
 	if ((tmppath = lalloc(ud, NULL, 0, strlen(path) + 1)) == NULL)
-		return 0;
+		return pusherror(L, "lalloc");
 	strcpy(tmppath, path);
 	res = mkstemp(tmppath);
 
