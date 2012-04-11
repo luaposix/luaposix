@@ -547,6 +547,8 @@ static int Pgetcwd(lua_State *L)		/** getcwd() */
 	void *ud;
 	lua_Alloc lalloc = lua_getallocf(L, &ud);
 	char *b, *ret;
+        if (size == -1)
+		size = _POSIX_PATH_MAX; /* FIXME: Retry if this is not long enough */
 	if ((b = lalloc(ud, NULL, 0, (size_t)size + 1)) == NULL)
 		return pusherror(L, "lalloc");
 	ret = getcwd(b, (size_t)size);
