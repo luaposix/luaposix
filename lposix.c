@@ -642,15 +642,16 @@ static int Pmkfifo(lua_State *L)		/** mkfifo(path) */
 
 static int Pmkstemp(lua_State *L)                 /** mkstemp(path) */
 {
-	const char *path = luaL_checkstring(L, 1);
+    size_t len;
+	const char *path = luaL_checklstring(L, 1, &len);
 	void *ud;
 	lua_Alloc lalloc = lua_getallocf(L, &ud);
 	char *tmppath;
 	int res;
 
-	if ((tmppath = lalloc(ud, NULL, 0, strlen(path) + 1)) == NULL)
+	if ((tmppath = lalloc(ud, NULL, 0, len + 1)) == NULL)
 		return pusherror(L, "lalloc");
-	strcpy(tmppath, path);
+	strncpy(tmppath, path, len + 1);
 	res = mkstemp(tmppath);
 
 	if (res == -1)
