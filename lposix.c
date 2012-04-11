@@ -654,7 +654,10 @@ static int Pmkstemp(lua_State *L)                 /** mkstemp(path) */
 	res = mkstemp(tmppath);
 
 	if (res == -1)
+	{
+		lalloc(ud, tmppath, 0, 0);
 		return pusherror(L, path);
+	}
 
 	lua_pushinteger(L, res);
 	lua_pushstring(L, tmppath);
