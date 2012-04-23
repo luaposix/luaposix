@@ -5,10 +5,9 @@
                 http://luaforge.net/projects/luaposix
 
 
-This is a POSIX library, including curses, for Lua 5.1 and later. It
-is released under the MIT license, like Lua (see
-http://www.lua.org/copyright.html; it's basically the same as the BSD
-license). There is no warranty.
+This is a POSIX library, including curses, for Lua 5.1 and 5.2. It
+is released under the MIT license, like Lua (see COPYING; it's
+basically the same as the BSD license). There is no warranty.
 
 Please report bugs and make suggestions to the email address above, or
 use the LuaForge trackers.
@@ -42,6 +41,9 @@ For example, on Debian or Ubuntu:
 To run some tests:
 
   make check
+
+lunit is required for some of the tests. For a version of lunit that
+works with Lua 5.2, see: https://github.com/dcurrie/lunit.git
 
 
 Use

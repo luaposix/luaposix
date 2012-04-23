@@ -285,7 +285,7 @@ static int mode_munch(mode_t *mode, const char* p)
 				*mode &= ~(ch_mode & affected_bits);
 				break;
 			case '=':
-				*mode = ch_mode & affected_bits;
+				*mode = (*mode & ~affected_bits) | (ch_mode & affected_bits);
 				break;
 			default:
 				return -3; /* failed! -- unknown error */
@@ -416,23 +416,29 @@ static int Pset_errno(lua_State *L)
 
 static int Pbasename(lua_State *L)		/** basename(path) */
 {
-	char b[PATH_MAX];
+	char *b;
 	size_t len;
+	void *ud;
+	lua_Alloc lalloc = lua_getallocf(L, &ud);
 	const char *path = luaL_checklstring(L, 1, &len);
-	if (len>=sizeof(b))
-		luaL_argerror(L, 1, "too long");
+	if ((b = lalloc(ud, NULL, 0, strlen(path) + 1)) == NULL)
+		return pusherror(L, "lalloc");
 	lua_pushstring(L, basename(strcpy(b,path)));
+	lalloc(ud, b, 0, 0);
 	return 1;
 }
 
 static int Pdirname(lua_State *L)		/** dirname(path) */
 {
-	char b[PATH_MAX];
+	char *b;
 	size_t len;
+	void *ud;
+	lua_Alloc lalloc = lua_getallocf(L, &ud);
 	const char *path = luaL_checklstring(L, 1, &len);
-	if (len>=sizeof(b))
-		luaL_argerror(L, 1, "too long");
+	if ((b = lalloc(ud, NULL, 0, strlen(path) + 1)) == NULL)
+		return pusherror(L, "lalloc");
 	lua_pushstring(L, dirname(strcpy(b,path)));
+	lalloc(ud, b, 0, 0);
 	return 1;
 }
 
@@ -545,11 +551,19 @@ static int Pfiles(lua_State *L)			/** files([path]) */
 
 static int Pgetcwd(lua_State *L)		/** getcwd() */
 {
-	char b[PATH_MAX];
-	if (getcwd(b, sizeof(b)) == NULL)
-		return pusherror(L, ".");
-	lua_pushstring(L, b);
-	return 1;
+	long size = pathconf(".", _PC_PATH_MAX);
+	void *ud;
+	lua_Alloc lalloc = lua_getallocf(L, &ud);
+	char *b, *ret;
+        if (size == -1)
+		size = _POSIX_PATH_MAX; /* FIXME: Retry if this is not long enough */
+	if ((b = lalloc(ud, NULL, 0, (size_t)size + 1)) == NULL)
+		return pusherror(L, "lalloc");
+	ret = getcwd(b, (size_t)size);
+	if (ret != NULL)
+		lua_pushstring(L, b);
+	lalloc(ud, b, 0, 0);
+	return (ret == NULL) ? pusherror(L, ".") : 1;
 }
 
 static int Pmkdir(lua_State *L)			/** mkdir(path) */
@@ -587,13 +601,20 @@ static int Plink(lua_State *L)			/** link(old,new,[symbolic]) */
 
 static int Preadlink(lua_State *L)		/** readlink(path) */
 {
-	char b[PATH_MAX];
+	char *b;
+	struct stat s;
 	const char *path = luaL_checkstring(L, 1);
-	int n = readlink(path, b, sizeof(b));
-	if (n==-1)
+	void *ud;
+	lua_Alloc lalloc = lua_getallocf(L, &ud);
+	if (stat(path, &s))
 		return pusherror(L, path);
-	lua_pushlstring(L, b, n);
-	return 1;
+	if ((b = lalloc(ud, NULL, 0, s.st_size + 1)) == NULL)
+		return pusherror(L, "lalloc");
+	ssize_t n = readlink(path, b, s.st_size);
+	if (n != -1)
+		lua_pushlstring(L, b, n);
+	lalloc(ud, b, 0, 0);
+	return (n == -1) ? pusherror(L, path) : 1;
 }
 
 static int Paccess(lua_State *L)		/** access(path,[mode]) */
@@ -636,7 +657,7 @@ static int Pmkstemp(lua_State *L)                 /** mkstemp(path) */
 	int res;
 
 	if ((tmppath = lalloc(ud, NULL, 0, strlen(path) + 1)) == NULL)
-		return 0;
+		return pusherror(L, "lalloc");
 	strcpy(tmppath, path);
 	res = mkstemp(tmppath);
 
@@ -2133,7 +2154,7 @@ static int Pgetopt_long(lua_State *L)
 
 static lua_State *signalL;
 static int signalno;
-static sigset_t oldmask;
+static unsigned signals;
 
 #define sigmacros_map \
 	MENTRY( _DFL ) \
@@ -2156,10 +2177,14 @@ static void (*Fsigmacros[])(int) =
 };
 
 static void sig_handle (lua_State *L, lua_Debug *ar) {
+	/* Block all signals until we have run the Lua signal handler */
+	sigset_t mask, oldmask;
+	sigfillset(&mask);
+	sigprocmask(SIG_SETMASK, &mask, &oldmask);
+
 	(void)ar;  /* unused arg. */
 
 	lua_sethook(L, NULL, 0, 0);
-	sigprocmask(SIG_SETMASK, &oldmask, NULL);
 
 	/* Get signal handlers table */
 	lua_pushlightuserdata(L, &signalL);
@@ -2169,18 +2194,28 @@ static void sig_handle (lua_State *L, lua_Debug *ar) {
 	lua_pushinteger(L, signalno);
 	lua_gettable(L, -2);
 
-	/* Call handler with signal number */
-	lua_pushinteger(L, signalno);
-	lua_pcall(L, 1, 0, 0);
-	/* FIXME: Deal with error */
+	while (signals--) {
+		/* Call handler with signal number */
+		lua_pushinteger(L, signalno);
+		lua_pcall(L, 1, 0, 0);
+		/* FIXME: Deal with error */
+	}
+
+	/* Having run the Lua signal handler, restore original signal mask */
+	sigprocmask(SIG_SETMASK, &oldmask, NULL);
 }
 
 static void sig_postpone (int i) {
-	sigset_t mask;
-	sigfillset(&mask);
-	sigprocmask(SIG_SETMASK, &mask, &oldmask);
+	signals++; /* Increment signal counter in case signal is re-raised before handler is run. */
 	signalno = i;
 	lua_sethook(signalL, sig_handle, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
+}
+
+static int sig_handler_wrap (lua_State *L) {
+	int sig = luaL_checkinteger(L, lua_upvalueindex(1));
+	void (*handler)(int) = lua_touserdata(L, lua_upvalueindex(2));
+	handler(sig);
+	return 0;
 }
 
 static int Psignal (lua_State *L)		/** old_handler = signal(signum, handler) */
@@ -2196,9 +2231,12 @@ static int Psignal (lua_State *L)		/** old_handler = signal(signum, handler) */
 	case LUA_TSTRING:
 		handler = Fsigmacros[luaL_checkoption(L, 2, "SIG_DFL", Ssigmacros)];
 		break;
-	case LUA_TUSERDATA:
-		handler = lua_touserdata(L, 2);
-		break;
+	case LUA_TFUNCTION:
+		if (lua_tocfunction(L, 2) == sig_handler_wrap) {
+			lua_getupvalue(L, 2, 1);
+			handler = lua_touserdata(L, -1);
+			lua_pop(L, 1);
+		}
 	}
 
 	/* Set up C signal handler, getting old handler */
@@ -2229,8 +2267,11 @@ static int Psignal (lua_State *L)		/** old_handler = signal(signum, handler) */
 		lua_pushstring(L, "SIG_DFL");
 	else if (oldsa.sa_handler == SIG_IGN)
 		lua_pushstring(L, "SIG_IGN");
-	else
-		lua_pushlightuserdata(L, oldsa.sa_handler); /* XXX Make it a full (tagged) userdatum so it can't be faked. */
+        else {
+		lua_pushinteger(L, sig);
+		lua_pushlightuserdata(L, oldsa.sa_handler);
+		lua_pushcclosure(L, sig_handler_wrap, 2);
+        }
 	return 1;
 }
 
@@ -2400,7 +2441,6 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( NETUNREACH	);
 	MENTRY( NFILE		);
 	MENTRY( NOBUFS		);
-	MENTRY( NODATA		);
 	MENTRY( NODEV		);
 	MENTRY( NOENT		);
 	MENTRY( NOEXEC		);
@@ -2409,8 +2449,6 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( NOMSG		);
 	MENTRY( NOPROTOOPT	);
 	MENTRY( NOSPC		);
-	MENTRY( NOSR		);
-	MENTRY( NOSTR		);
 	MENTRY( NOSYS		);
 	MENTRY( NOTCONN		);
 	MENTRY( NOTDIR		);
@@ -2430,7 +2468,6 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( ROFS		);
 	MENTRY( SPIPE		);
 	MENTRY( SRCH		);
-	MENTRY( TIME		);
 	MENTRY( TIMEDOUT	);
 	MENTRY( TXTBSY		);
 	MENTRY( WOULDBLOCK	);

@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script
 
-AC_INIT(luaposix, 5.1.16, rrt@sc3d.org)
+AC_INIT(luaposix, 5.1.19, rrt@sc3d.org)
 AC_CONFIG_AUX_DIR([build-aux])
 
 AM_INIT_AUTOMAKE([-Wall -Werror std-options])
@@ -104,10 +104,10 @@ AC_ARG_VAR(CURSES_LIB, [linker flags for curses library])
 AC_SUBST(WANTEDLIBS)
 AC_SUBST(WANTEDLUA)
 
-dnl Lua 5.1
-AX_PROG_LUA(501)
+dnl Lua 5.1 or 5.2
+AX_PROG_LUA(501, 503)
 AX_LUA_HEADERS
-AX_LUA_HEADERS_VERSION(501)
+AX_LUA_HEADERS_VERSION(501, 503)
 AC_SUBST(LUA)
 AC_SUBST(LUA_INCLUDE)
 

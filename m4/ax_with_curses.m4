@@ -127,15 +127,15 @@
 #   To use the HAVE_xxx_H preprocessor symbols, insert the following into
 #   your system.h (or equivalent) header file:
 #
-#     #if defined(HAVE_NCURSESW_CURSES_H)
+#     #if defined HAVE_NCURSESW_CURSES_H
 #     #  include <ncursesw/curses.h>
-#     #elif defined(HAVE_NCURSESW_H)
+#     #elif defined HAVE_NCURSESW_H
 #     #  include <ncursesw.h>
-#     #elif defined(HAVE_NCURSES_CURSES_H)
+#     #elif defined HAVE_NCURSES_CURSES_H
 #     #  include <ncurses/curses.h>
-#     #elif defined(HAVE_NCURSES_H)
+#     #elif defined HAVE_NCURSES_H
 #     #  include <ncurses.h>
-#     #elif defined(HAVE_CURSES_H)
+#     #elif defined HAVE_CURSES_H
 #     #  include <curses.h>
 #     #else
 #     #  error "SysV or X/Open-compatible Curses header file required"
@@ -153,7 +153,7 @@
 #
 #   Copyright (c) 2009 Mark Pulford <mark@kyne.com.au>
 #   Copyright (c) 2009 Damian Pietras <daper@daper.net>
-#   Copyright (c) 2011 Reuben Thomas <rrt@sc3d.org>
+#   Copyright (c) 2012 Reuben Thomas <rrt@sc3d.org>
 #   Copyright (c) 2011 John Zaitseff <J.Zaitseff@zap.org.au>
 #
 #   This program is free software: you can redistribute it and/or modify it
@@ -182,7 +182,7 @@
 #   modified version of the Autoconf Macro, you may extend this special
 #   exception to the GPL to apply to your modified version as well.
 
-#serial 12
+#serial 13
 
 AU_ALIAS([MP_WITH_CURSES], [AX_WITH_CURSES])
 AC_DEFUN([AX_WITH_CURSES], [
