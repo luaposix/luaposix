@@ -11,6 +11,7 @@ dnl Check for programs
 AC_PROG_CC
 gl_EARLY
 
+AC_USE_SYSTEM_EXTENSIONS
 AC_ARG_ENABLE([gcc-warnings],
   [AS_HELP_STRING([--enable-gcc-warnings],
                   [turn on lots of GCC warnings (for developers)])],
