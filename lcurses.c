@@ -200,13 +200,13 @@ static int W__tostring(lua_State *L)
 static chtype checkch(lua_State *L, int offset)
 {
     if (lua_type(L, offset) == LUA_TNUMBER)
-        return (chtype)luaL_checknumber(L, offset);
+        return luaL_checknumber(L, offset);
     if (lua_type(L, offset) == LUA_TSTRING)
         return *lua_tostring(L, offset);
 
     luaL_typerror(L, offset, "chtype");
     /* never executes */
-    return (chtype)0;
+    return 0;
 }
 
 static chtype optch(lua_State *L, int offset, chtype def)
@@ -281,7 +281,7 @@ static int chstr_set_str(lua_State *L)
     int offset = luaL_checkint(L, 2);
     const char *str = luaL_checkstring(L, 3);
     int len = lua_strlen(L, 3);
-    int attr = (chtype)luaL_optnumber(L, 4, A_NORMAL);
+    int attr = luaL_optnumber(L, 4, A_NORMAL);
     int rep = luaL_optint(L, 5, 1);
     int i;
 
@@ -322,7 +322,7 @@ static int chstr_set_ch(lua_State *L)
     chstr* cs = checkchstr(L, 1);
     int offset = luaL_checkint(L, 2);
     chtype ch = checkch(L, 3);
-    int attr = (chtype)luaL_optnumber(L, 4, A_NORMAL);
+    int attr = luaL_optnumber(L, 4, A_NORMAL);
     int rep = luaL_optint(L, 5, 1);
 
     while (rep-- > 0)
@@ -1356,7 +1356,7 @@ static int Wcopywin(lua_State *L)
 
 static int Cunctrl(lua_State *L)
 {
-    chtype c = (chtype)luaL_checknumber(L, 1);
+    chtype c = luaL_checknumber(L, 1);
     lua_pushstring(L, unctrl(c));
     return 1;
 }
