@@ -135,15 +135,64 @@ assert(ox.fnmatch("*test", "/test", ox.FNM_PATHNAME) == false)
 assert(ox.fnmatch("*test", ".test", ox.FNM_PERIOD) == false)
 
 ------------------------------------------------------------------------------
-testing"glob"
-function g() local d=ox.getcwd() print("now at",d) return d end
-g()
-for _,f in pairs(ox.glob "*.la") do
+testing"mkdtemp,mkstemp,glob"
+local tmpdir=ox.getenv("TMPDIR") or "/tmp"
+local testdir,err=ox.mkdtemp(tmpdir.."/luaposix-test-XXXXXX")
+assert(testdir, err)
+local st=ox.stat(testdir)
+assert(st.type=="directory")
+assert(st.mode=="rwx------")
+
+-- test mkstemp() ...
+local filename_template=testdir.."/test.XXXXXX"
+local first_fd,first_filename=ox.mkstemp(filename_template)
+assert(first_fd, first_filename) -- on error, first_filename contain error
+
+-- ... ensure fd was connected to _this_ filename, write something to fd ...
+ox.write(first_fd, "12345")
+ox.close(first_fd)
+st=ox.stat(first_filename)
+assert(st.mode=="rw-------")
+assert(st.size==5)
+
+-- ... then read and compare
+first_fd, err =ox.open(first_filename, { "RDONLY" })
+assert(first_fd, err)
+assert(ox.read(first_fd, 5) == "12345")
+local second_fd,second_filename=ox.mkstemp(filename_template)
+assert(second_filename)
+assert(second_filename~=first_filename)
+st=ox.stat(second_filename)
+assert(st.mode=="rw-------")
+
+-- clean up after tests
+ox.close(first_fd)
+ox.close(second_fd)
+
+-- create extra empty file, to check glob()
+local extra_filename=testdir.."/extra_file"
+local extra_file_fd, err=ox.open(extra_filename, { "RDWR", "CREAT" })
+assert(extra_file_fd, err)
+ox.close(extra_file_fd)
+
+local saved_cwd=ox.getcwd()
+ox.chdir(testdir)
+local globlist, err = ox.glob("test.*")
+assert(globlist, err)
+for _,f in pairs(globlist) do
   local T=assert(ox.stat(f))
   local p=assert(ox.getpasswd(T.uid))
   local g=assert(ox.getgroup(T.gid))
+  assert(ox.basename(f):sub(1,5) == "test.") -- ensure extra_file NOT included
   print(T.mode,p.name.."/"..g.name,T.size,os.date("%b %d %H:%M",T.mtime),f,T.type)
 end
+ox.chdir(saved_cwd)
+ox.unlink(extra_filename)
+ox.unlink(first_filename)
+ox.unlink(second_filename)
+ox.rmdir(testdir)
+st=ox.stat(testdir)
+assert(st==nil) -- ensure directory is removed
 
 ------------------------------------------------------------------------------
 testing"umask"

@@ -650,24 +650,52 @@ static int Pmkfifo(lua_State *L)		/** mkfifo(path) */
 
 static int Pmkstemp(lua_State *L)                 /** mkstemp(path) */
 {
-	const char *path = luaL_checkstring(L, 1);
+    size_t len;
+	const char *path = luaL_checklstring(L, 1, &len);
 	void *ud;
 	lua_Alloc lalloc = lua_getallocf(L, &ud);
 	char *tmppath;
 	int res;
 
-	if ((tmppath = lalloc(ud, NULL, 0, strlen(path) + 1)) == NULL)
+	if ((tmppath = lalloc(ud, NULL, 0, len + 1)) == NULL)
 		return pusherror(L, "lalloc");
-	strcpy(tmppath, path);
+	strncpy(tmppath, path, len + 1);
 	res = mkstemp(tmppath);
 
 	if (res == -1)
+	{
+		lalloc(ud, tmppath, 0, 0);
 		return pusherror(L, path);
+	}
 
 	lua_pushinteger(L, res);
 	lua_pushstring(L, tmppath);
 	lalloc(ud, tmppath, 0, 0);
 	return 2;
+}
+
+static int Pmkdtemp(lua_State *L)
+{
+	size_t len;
+	const char *template = luaL_checklstring(L, 1, &len);
+	void *ud;
+	lua_Alloc lalloc = lua_getallocf(L, &ud);
+	char *tmppath;
+
+	if ((tmppath = lalloc(ud, NULL, 0, len + 1)) == NULL)
+		return pusherror(L, "lalloc");
+
+	strncpy(tmppath, template, len + 1);
+
+	if (!mkdtemp(tmppath))
+	{
+		lalloc(ud, tmppath, 0, 0);
+		return pusherror(L, "mkdtemp");
+	}
+
+	lua_pushstring(L, tmppath);
+	lalloc(ud, tmppath, 0, 0);
+	return 1;
 }
 
 static int runexec(lua_State *L, int use_shell)
@@ -2330,6 +2358,7 @@ static const luaL_Reg R[] =
 	MENTRY( Pmkdir		),
 	MENTRY( Pmkfifo		),
 	MENTRY( Pmkstemp	),
+	MENTRY( Pmkdtemp	),
 	MENTRY( Pmktime		),
 	MENTRY( Popen		),
 	MENTRY( Ppathconf	),
