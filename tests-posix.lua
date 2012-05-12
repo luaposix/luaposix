@@ -109,6 +109,20 @@ assert(ox.basename(s)=="bar")
 assert(ox.dirname(s)=="/foo")
 
 ------------------------------------------------------------------------------
+testing"statvfs"
+local st = ox.statvfs("/")
+print("bsize=" .. st.bsize)
+print("frsize=" .. st.frsize)
+print("blocks=" .. st.blocks)
+print("bfree=" .. st.bfree)
+print("bavail=" .. st.bavail)
+print("files=" .. st.files)
+print("ffree=" .. st.ffree)
+print("favail=" .. st.favail)
+print("fsid=" .. st.fsid)
+print("flag=" .. st.flag)
+print("namemax=" .. st.namemax)
+------------------------------------------------------------------------------
 testing"fnmatch"
 assert(ox.fnmatch("test", "test"))
 assert(ox.fnmatch("tes*", "test"))
@@ -223,6 +237,11 @@ local testdata = ox.read(rpipe, 4)
 assert(testdata == "test")
 ox.close(rpipe)
 ox.close(wpipe)
+------------------------------------------------------------------------------
+testing "crypt"
+local r = ox.crypt("hello", "pl")
+assert(r == ox.crypt("hello", "pl"))
+print(r)
 
 ------------------------------------------------------------------------------
 if arg[1] ~= "--no-times" then

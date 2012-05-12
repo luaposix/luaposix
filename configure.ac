@@ -11,6 +11,7 @@ dnl Check for programs
 AC_PROG_CC
 gl_EARLY
 
+AC_USE_SYSTEM_EXTENSIONS
 AC_ARG_ENABLE([gcc-warnings],
   [AS_HELP_STRING([--enable-gcc-warnings],
                   [turn on lots of GCC warnings (for developers)])],
@@ -73,13 +74,16 @@ gl_INIT
 
 dnl Check for header files
 AC_HEADER_STDC
+AC_CHECK_HEADERS([sys/statvfs.h])
+AC_CHECK_HEADERS([crypt.h])
 
 dnl Search libs
 AC_SEARCH_LIBS(crypt, crypt)
 
 dnl Check for functions
 AC_CHECK_FUNCS([strlcpy])
-AC_CHECK_FUNCS([crypt])
+AC_CHECK_FUNCS([crypt crypt_r])
+AC_CHECK_FUNCS([statvfs])
 
 dnl Compiler flags for POSIX
 dnl Get this from autotools/gnulib
