@@ -1,6 +1,6 @@
 /*
 * lposix.c
-* POSIX library for Lua 5.1.
+* POSIX library for Lua 5.1/5.2.
 * (c) Reuben Thomas (maintainer) <rrt@sc3d.org> 2010-2012
 * (c) Natanael Copa <natanael.copa@gmail.com> 2008-2010
 * Clean up and bug fixes by Leo Razoumov <slonik.az@gmail.com> 2006-10-11
@@ -10,22 +10,6 @@
 */
 
 #include <config.h>
-
-#include <sys/stat.h>
-#include <sys/times.h>
-#include <sys/types.h>
-#include <sys/utsname.h>
-#include <sys/wait.h>
-#include <sys/resource.h>
-#include <sys/time.h>
-
-#if HAVE_CRYPT_H
-#  include <crypt.h>
-#endif /* HAVE_CRYPT_H */
-
-#if HAVE_SYS_STATVFS_H == 1
-#  include <sys/statvfs.h>
-#endif /* HAVE_SYS_STATVFS_H == 1 */
 
 #include <ctype.h>
 #include <dirent.h>
@@ -47,6 +31,19 @@
 #include <time.h>
 #include <unistd.h>
 #include <utime.h>
+#include <sys/stat.h>
+#include <sys/times.h>
+#include <sys/types.h>
+#include <sys/utsname.h>
+#include <sys/wait.h>
+#include <sys/resource.h>
+#include <sys/time.h>
+#if _POSIX_VERSION >= 200112L
+#  include <crypt.h>
+#endif
+#if _POSIX_VERSION >= 200112L
+#  include <sys/statvfs.h>
+#endif
 
 #ifndef VERSION
 #  define VERSION "unknown"
@@ -1554,6 +1551,7 @@ static int Pstat(lua_State *L)			/** stat(path,[options]) */
 	return doselection(L, 2, Sstat, Fstat, &s);
 }
 
+#if _POSIX_VERSION >= 200112L
 static void Fstatvfs(lua_State *L, int i, const void *data)
 {
 	const struct statvfs *s=data;
@@ -1610,6 +1608,7 @@ static int Pstatvfs(lua_State *L)		/** statvfs(path,[options]) */
 		return pusherror(L, path);
 	return doselection(L, 2, Sstatvfs, Fstatvfs, &s);
 }
+#endif
 
 static int Pfcntl(lua_State *L)
 {
@@ -1775,22 +1774,13 @@ static int Pcrypt(lua_State *L)		/** crypt(string,salt) */
 {
 	const char *str, *salt;
 	char *res;
-#if HAVE_CRYPT_R == 1
-	struct crypt_data cd;
-#endif /* HAVE_CRYPT_R */
 
 	str = luaL_checkstring(L, 1);
 	salt = luaL_checkstring(L, 2);
 	if (strlen(salt) < 2)
 		luaL_error(L, "not enough salt");
 
-#if HAVE_CRYPT_R == 1
-	cd.initialized = 0;
-	cd.current_salt[0] = ~salt[0]; /* work around the glibc bug */
-	res = crypt_r(str, salt, &cd);
-#else
 	res = crypt(str, salt);
-#endif /* HAVE_CRYPT_R  == 1 */
 	lua_pushstring(L, res);
 
 	return 1;
@@ -2374,9 +2364,6 @@ static const luaL_Reg R[] =
 	MENTRY( Psleep		),
 	MENTRY( Pnanosleep	),
 	MENTRY( Pstat		),
-#if HAVE_STATVFS == 1
-	MENTRY( Pstatvfs	),
-#endif /* HAVE_STATVFS */
 	MENTRY( Pstrftime	),
 	MENTRY( Pstrptime	),
 	MENTRY( Psysconf	),
@@ -2395,6 +2382,7 @@ static const luaL_Reg R[] =
 	MENTRY( Psyslog		),
 	MENTRY( Pcloselog	),
 	MENTRY( Psetlogmask	),
+	MENTRY( Pstatvfs	),
 #endif
 #undef MENTRY
 	{NULL,	NULL}
