@@ -1796,7 +1796,7 @@ static int Pcrypt(lua_State *L)		/** crypt(string,salt) */
  *	A negative or nil limit will be replaced by the current
  *	limit, obtained by calling getrlimit().
  *
- *	Valid resouces are:
+ *	Valid resources are:
  *		"core", "cpu", "data", "fsize",
  *		"nofile", "stack", "as"
  *
@@ -2409,7 +2409,7 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	set_integer_const( "FOPEN_MAX",		FOPEN_MAX	);
 	set_integer_const( "FILENAME_MAX",	FILENAME_MAX	);
 
-	/* from unistd.h */
+	/* Miscellaneous */
 	set_integer_const( "WNOHANG",		WNOHANG		);
 	set_integer_const( "O_NONBLOCK",	O_NONBLOCK	);
 
