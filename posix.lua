@@ -66,7 +66,7 @@ function M.euidaccess (file, mode)
   local granted = stats.st_mode:sub (1, 3)
   if pid.euid == stats.st_uid then
     granted = stats.st_mode:sub (7, 9)
-  elseif pid.egid == stats.st_gid or set.new (posix.getgroups ()):member(stats.st_gid) then
+  elseif pid.egid == stats.st_gid or set.new (posix.getgroups ()):member (stats.st_gid) then
     granted = stats.st_mode:sub (4, 6)
   end
   granted = string.gsub (granted, "[^rwx]", "")
