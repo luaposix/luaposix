@@ -552,7 +552,7 @@ static int Pgetcwd(lua_State *L)		/** getcwd() */
 	void *ud;
 	lua_Alloc lalloc = lua_getallocf(L, &ud);
 	char *b, *ret;
-        if (size == -1)
+	if (size == -1)
 		size = _POSIX_PATH_MAX; /* FIXME: Retry if this is not long enough */
 	if ((b = lalloc(ud, NULL, 0, (size_t)size + 1)) == NULL)
 		return pusherror(L, "lalloc");
@@ -686,7 +686,7 @@ static int Pmkdtemp(lua_State *L)		/** mkdtemp(path) */
 	if (res == NULL) {
 		lalloc(ud, tmppath, 0, 0);
 		return pusherror(L, path);
-        }
+	}
 	lua_pushstring(L, tmppath);
 	lalloc(ud, tmppath, 0, 0);
 	return 1;
@@ -2187,7 +2187,7 @@ static int Psignal (lua_State *L)		/** old_handler = signal(signum, handler) */
 	int sig = luaL_checkinteger(L, 1), ret;
 	void (*handler)(int) = sig_postpone;
 
-        /* Check handler is OK */
+	/* Check handler is OK */
 	switch (lua_type(L, 2)) {
 	case LUA_TNIL:
 	case LUA_TSTRING:
@@ -2229,11 +2229,11 @@ static int Psignal (lua_State *L)		/** old_handler = signal(signum, handler) */
 		lua_pushstring(L, "SIG_DFL");
 	else if (oldsa.sa_handler == SIG_IGN)
 		lua_pushstring(L, "SIG_IGN");
-        else {
+	else {
 		lua_pushinteger(L, sig);
 		lua_pushlightuserdata(L, oldsa.sa_handler);
 		lua_pushcclosure(L, sig_handler_wrap, 2);
-        }
+	}
 	return 1;
 }
 
@@ -2356,12 +2356,12 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	set_integer_const( "FOPEN_MAX",		FOPEN_MAX	);
 	set_integer_const( "FILENAME_MAX",	FILENAME_MAX	);
 
-        /* Darwin fails to define O_RSYNC. */
+	/* Darwin fails to define O_RSYNC. */
 #ifndef O_RSYNC
 #define O_RSYNC 0
 #endif
 
-        /* file creation & status flags */
+	/* file creation & status flags */
 #define MENTRY(_f) set_integer_const(LPOSIX_STR_1(LPOSIX_SPLICE(_O_, _f)), LPOSIX_SPLICE(O_, _f))
 	MENTRY( RDONLY   );
 	MENTRY( WRONLY   );
