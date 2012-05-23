@@ -18,7 +18,10 @@ end
 function M.system (file, ...)
   local pid = posix.fork ()
   if pid == 0 then
-    return posix.execp (file, ...)
+    posix.execp (file, ...)
+    -- Only get here if there's an error; kill the fork
+    local _, no = posix.errno ()
+    posix._exit (no)
   else
     local pid, reason, status = posix.wait (pid)
     return status, reason -- If wait failed, status is nil & reason is error
