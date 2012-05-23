@@ -1348,7 +1348,7 @@ static int Pgetgroup(lua_State *L)		/** getgroup(name|id) */
 		for (i = 0; g->gr_mem[i] != NULL; i++)
 		{
 			lua_pushstring(L, g->gr_mem[i]);
-			lua_rawseti(L, -2, i);
+			lua_rawseti(L, -2, i + 1);
 		}
 	}
 	return 1;
