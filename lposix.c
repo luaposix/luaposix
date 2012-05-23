@@ -1106,9 +1106,11 @@ static int Popen(lua_State *L)			/** open(path, flags[, mode]) */
 	const char *path = luaL_checkstring(L, 1);
 	int flags = luaL_checkint(L, 2);
 	mode_t mode;
-	const char *modestr = luaL_optstring(L, 3, NULL);
-	if (modestr && mode_munch(&mode, modestr))
-		luaL_argerror(L, 3, "bad mode");
+	if (flags & O_CREAT) {
+		const char *modestr = luaL_checkstring(L, 3);
+		if (mode_munch(&mode, modestr))
+			luaL_argerror(L, 3, "bad mode");
+	}
 	return pushresult(L, open(path, flags, mode), path);
 }
 
