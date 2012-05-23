@@ -1,5 +1,8 @@
 -- test posix library
 
+local bit
+if _VERSION == "Lua 5.1" then bit = require 'bit' else bit = require 'bit32' end
+
 local ox = require 'posix'
 
 function testing(s)
@@ -156,7 +159,7 @@ assert(st.mode=="rw-------")
 assert(st.size==5)
 
 -- ... then read and compare
-first_fd, err =ox.open(first_filename, { "RDONLY" })
+first_fd, err =ox.open(first_filename, posix.O_RDONLY)
 assert(first_fd, err)
 assert(ox.read(first_fd, 5) == "12345")
 local second_fd,second_filename=ox.mkstemp(filename_template)
@@ -171,7 +174,7 @@ ox.close(second_fd)
 
 -- create extra empty file, to check glob()
 local extra_filename=testdir.."/extra_file"
-local extra_file_fd, err=ox.open(extra_filename, { "RDWR", "CREAT" })
+local extra_file_fd, err=ox.open(extra_filename, bit.bor (posix.O_RDWR, posix.O_CREAT), "r--------")
 assert(extra_file_fd, err)
 ox.close(extra_file_fd)
 
