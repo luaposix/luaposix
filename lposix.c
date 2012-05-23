@@ -1101,65 +1101,12 @@ static int Pumask(lua_State *L)			/** umask([mode]) */
 	return 1;
 }
 
-/* Darwin fails to define O_RSYNC. */
-#ifndef O_RSYNC
-#define O_RSYNC 0
-#endif
-
-#define OFLAGS_MAP \
-	MENTRY( _RDONLY   ) \
-	MENTRY( _WRONLY   ) \
-	MENTRY( _RDWR     ) \
-	MENTRY( _APPEND   ) \
-	MENTRY( _CREAT    ) \
-	MENTRY( _DSYNC    ) \
-	MENTRY( _EXCL     ) \
-	MENTRY( _NOCTTY   ) \
-	MENTRY( _NONBLOCK ) \
-	MENTRY( _RSYNC    ) \
-	MENTRY( _SYNC     ) \
-	MENTRY( _TRUNC    )
-
-static const int Koflag[] =
-{
-#define MENTRY(_f) LPOSIX_SPLICE(O, _f),
-	OFLAGS_MAP
-#undef MENTRY
-	-1
-};
-
-static const char *const Soflag[] =
-{
-#define MENTRY(_f) LPOSIX_STR_1(_f),
-	OFLAGS_MAP
-#undef MENTRY
-	NULL
-};
-
-static int make_oflags(lua_State *L, int i)
-{
-	int oflags = 0;
-	lua_pushnil(L);
-	while (lua_next(L, i) != 0) {
-		int flag = lookup_symbol(Soflag, Koflag, luaL_checkstring(L, -1));
-		if (flag == -1)
-			return -1;
-		oflags |= flag;
-		lua_pop(L, 1);
-	}
-	return oflags;
-}
-
 static int Popen(lua_State *L)			/** open(path, flags[, mode]) */
 {
 	const char *path = luaL_checkstring(L, 1);
-	int flags;
+	int flags = luaL_checkint(L, 2);
 	mode_t mode;
 	const char *modestr = luaL_optstring(L, 3, NULL);
-	luaL_checktype(L, 2, LUA_TTABLE);
-	flags = make_oflags(L, 2);
-	if (flags == -1)
-		luaL_argerror(L, 2, "bad flags");
 	if (modestr && mode_munch(&mode, modestr))
 		luaL_argerror(L, 3, "bad mode");
 	return pushresult(L, open(path, flags, mode), path);
@@ -2409,9 +2356,29 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	set_integer_const( "FOPEN_MAX",		FOPEN_MAX	);
 	set_integer_const( "FILENAME_MAX",	FILENAME_MAX	);
 
+        /* Darwin fails to define O_RSYNC. */
+#ifndef O_RSYNC
+#define O_RSYNC 0
+#endif
+
+        /* file creation & status flags */
+#define MENTRY(_f) set_integer_const(LPOSIX_STR_1(LPOSIX_SPLICE(_O_, _f)), LPOSIX_SPLICE(O_, _f))
+	MENTRY( RDONLY   );
+	MENTRY( WRONLY   );
+	MENTRY( RDWR     );
+	MENTRY( APPEND   );
+	MENTRY( CREAT    );
+	MENTRY( DSYNC    );
+	MENTRY( EXCL     );
+	MENTRY( NOCTTY   );
+	MENTRY( NONBLOCK );
+	MENTRY( RSYNC    );
+	MENTRY( SYNC     );
+	MENTRY( TRUNC    );
+#undef MENTRY
+
 	/* Miscellaneous */
 	set_integer_const( "WNOHANG",		WNOHANG		);
-	set_integer_const( "O_NONBLOCK",	O_NONBLOCK	);
 
 	/* errno values */
 #define MENTRY(_e) set_integer_const(LPOSIX_STR_1(LPOSIX_SPLICE(_E, _e)), LPOSIX_SPLICE(E, _e))
