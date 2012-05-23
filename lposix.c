@@ -1329,24 +1329,23 @@ static int Pgetpasswd(lua_State *L)		/** getpasswd(name|id,[sel]) */
 
 static int Pgetgroup(lua_State *L)		/** getgroup(name|id) */
 {
-	struct group *g=NULL;
+	struct group *g = NULL;
 	if (lua_isnumber(L, 1))
 		g = getgrgid((gid_t)lua_tonumber(L, 1));
 	else if (lua_isstring(L, 1))
 		g = getgrnam(lua_tostring(L, 1));
 	else
 		luaL_typerror(L, 1, "string or number");
-	if (g==NULL)
+	if (g == NULL)
 		lua_pushnil(L);
-	else
-	{
+	else {
 		int i;
 		lua_newtable(L);
 		lua_pushstring(L, g->gr_name);
 		lua_setfield(L, -2, "name");
 		lua_pushinteger(L, g->gr_gid);
 		lua_setfield(L, -2, "gid");
-		for (i=0; g->gr_mem[i]!=NULL; i++)
+		for (i = 0; g->gr_mem[i] != NULL; i++)
 		{
 			lua_pushstring(L, g->gr_mem[i]);
 			lua_rawseti(L, -2, i);
