@@ -40,7 +40,7 @@ function M.euidaccess (file, mode)
 
   if pid.uid == pid.euid and pid.gid == pid.egid then
     -- If we are not set-uid or set-gid, access does the same.
-    return access (file, mode)
+    return posix.access (file, mode)
   end
 
   local stats = posix.stat (file)
