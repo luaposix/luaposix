@@ -2116,8 +2116,10 @@ static int Pgetopt_long(lua_State *L)
 /* Signals */
 
 static lua_State *signalL;
-static int signalno;
-static unsigned signals;
+#define SIGNAL_QUEUE_MAX 25
+static volatile sig_atomic_t signal_pending, defer_signal;
+static volatile sig_atomic_t signal_count = 0;
+static volatile sig_atomic_t signals[SIGNAL_QUEUE_MAX];
 
 #define sigmacros_map \
 	MENTRY( _DFL ) \
@@ -2153,25 +2155,40 @@ static void sig_handle (lua_State *L, lua_Debug *ar) {
 	lua_pushlightuserdata(L, &signalL);
 	lua_rawget(L, LUA_REGISTRYINDEX);
 
-	/* Get handler */
-	lua_pushinteger(L, signalno);
-	lua_gettable(L, -2);
-
-	while (signals--) {
+    /* Empty the signal queue */
+    while (signal_count--) {
+        sig_atomic_t signalno = signals[signal_count];
+        /* Get handler */
+        lua_pushinteger(L, signalno);
+        lua_gettable(L, -2);
+	
 		/* Call handler with signal number */
 		lua_pushinteger(L, signalno);
-		lua_pcall(L, 1, 0, 0);
-		/* FIXME: Deal with error */
+		if (lua_pcall(L, 1, 0, 0) != 0) 
+            fprintf(stderr,"error in signal handler %d: %s\n",signalno,lua_tostring(L,-1));
 	}
-
-	/* Having run the Lua signal handler, restore original signal mask */
+    signal_count = 0;  /* reset global to initial state */
+    
+	/* Having run the Lua signal handler, restore original signal mask */    
 	sigprocmask(SIG_SETMASK, &oldmask, NULL);
 }
 
 static void sig_postpone (int i) {
-	signals++; /* Increment signal counter in case signal is re-raised before handler is run. */
-	signalno = i;
+    if (defer_signal) {
+        signal_pending = i;
+        return;
+    }
+    if (signal_count == SIGNAL_QUEUE_MAX)
+        return;        
+    defer_signal++;
+    /* Queue signals */
+    signals[signal_count] = i;
+    signal_count ++;    
 	lua_sethook(signalL, sig_handle, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
+    defer_signal--;
+    /* re-raise any pending signals */
+    if (defer_signal == 0 && signal_pending != 0)
+        raise (signal_pending);
 }
 
 static int sig_handler_wrap (lua_State *L) {
