@@ -41,7 +41,7 @@
 #if HAVE_CRYPT_H
 #  include <crypt.h>
 #endif
-#if _POSIX_VERSION >= 200112L
+#if HAVE_SYS_STATVFS_H
 #  include <sys/statvfs.h>
 #endif
 
@@ -1499,7 +1499,7 @@ static int Pstat(lua_State *L)			/** stat(path,[options]) */
 	return doselection(L, 2, Sstat, Fstat, &s);
 }
 
-#if _POSIX_VERSION >= 200112L
+#if defined (HAVE_STATVFS)
 static void Fstatvfs(lua_State *L, int i, const void *data)
 {
 	const struct statvfs *s=data;
@@ -2349,6 +2349,8 @@ static const luaL_Reg R[] =
 	MENTRY( Psyslog		),
 	MENTRY( Pcloselog	),
 	MENTRY( Psetlogmask	),
+#endif
+#if defined (HAVE_STATVFS)
 	MENTRY( Pstatvfs	),
 #endif
 #undef MENTRY

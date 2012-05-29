@@ -74,14 +74,14 @@ gl_INIT
 
 dnl Check for header files
 AC_HEADER_STDC
-AC_CHECK_HEADERS([crypt.h])
+AC_CHECK_HEADERS([crypt.h sys/statvfs.h])
 
 dnl Search libs
 AC_SEARCH_LIBS([crypt], [crypt],
   [AC_DEFINE([HAVE_CRYPT], [], [Define this if your system has a crypt() function])])
 
 dnl Check for functions
-AC_CHECK_FUNCS([strlcpy])
+AC_CHECK_FUNCS([strlcpy statvfs])
 
 dnl Compiler flags for POSIX
 dnl Get this from autotools/gnulib
