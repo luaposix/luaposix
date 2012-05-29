@@ -1832,9 +1832,114 @@ static int Pgettimeofday(lua_State *L)		/** gettimeofday() */
 	struct timeval tv;
 	if (gettimeofday(&tv, NULL) == -1)
 		return pusherror(L, "gettimeofday");
+
+	lua_newtable(L);
+	lua_pushstring(L, "sec");
 	lua_pushinteger(L, tv.tv_sec);
+	lua_settable(L, -3);
+	lua_pushstring(L, "usec");
 	lua_pushinteger(L, tv.tv_usec);
-	return 2;
+	lua_settable(L, -3);
+	return 1;
+}
+
+static int Ptimeradd(lua_State *L)		/** timeradd() */
+{
+	struct timeval tv;
+	luaL_checktype(L, 1, LUA_TTABLE);
+	luaL_checktype(L, 2, LUA_TTABLE);
+
+	lua_getfield (L, 1, "sec");
+	tv.tv_sec = luaL_optint(L, -1, 0);
+	lua_pop(L, 1);
+	lua_getfield (L, 1, "usec");
+	tv.tv_usec = luaL_optint(L, -1, 0);
+	lua_pop(L, 1);
+
+	lua_getfield (L, 2, "sec");
+	tv.tv_sec += luaL_optint(L, -1, 0);
+	lua_pop(L, 1);
+	lua_getfield (L, 2, "usec");
+	tv.tv_usec += luaL_optint(L, -1, 0);
+	lua_pop(L, 1);
+
+	if (tv.tv_usec >= 1000000) {
+		tv.tv_sec += 1;
+		tv.tv_usec -= 1000000;
+	}
+
+	lua_newtable(L);
+	lua_pushstring(L, "sec");
+	lua_pushinteger(L, tv.tv_sec);
+	lua_settable(L, -3);
+	lua_pushstring(L, "usec");
+	lua_pushinteger(L, tv.tv_usec);
+	lua_settable(L, -3);
+	return 1;
+}
+
+static int Ptimercmp(lua_State *L)		/** timercmp() */
+{
+	struct timeval tv;
+	luaL_checktype(L, 1, LUA_TTABLE);
+	luaL_checktype(L, 2, LUA_TTABLE);
+
+	lua_getfield (L, 1, "sec");
+	tv.tv_sec = luaL_optint(L, -1, 0);
+	lua_pop(L, 1);
+	lua_getfield (L, 2, "sec");
+	tv.tv_sec -= luaL_optint(L, -1, 0);
+	lua_pop(L, 1);
+
+	if (tv.tv_sec != 0) {
+		lua_pushinteger (L, tv.tv_sec);
+	} else {
+		lua_getfield (L, 1, "usec");
+		tv.tv_usec = luaL_optint(L, -1, 0);
+		lua_pop(L, 1);
+		lua_getfield (L, 2, "usec");
+		tv.tv_usec -= luaL_optint(L, -1, 0);
+		lua_pop(L, 1);
+		
+		lua_pushinteger (L, tv.tv_usec);
+	}
+
+	return 1;
+}
+
+static int Ptimersub(lua_State *L)		/** timersub() */
+{
+	struct timeval tv;
+	luaL_checktype(L, 1, LUA_TTABLE);
+	luaL_checktype(L, 2, LUA_TTABLE);
+
+	lua_getfield (L, 1, "sec");
+	tv.tv_sec = luaL_optint(L, -1, 0);
+	lua_pop(L, 1);
+	lua_getfield (L, 1, "usec");
+	tv.tv_usec = luaL_optint(L, -1, 0);
+	lua_pop(L, 1);
+
+	lua_getfield (L, 2, "sec");
+	tv.tv_sec -= luaL_optint(L, -1, 0);
+	lua_pop(L, 1);
+	lua_getfield (L, 2, "usec");
+	tv.tv_usec -= luaL_optint(L, -1, 0);
+	lua_pop(L, 1);
+
+	if (tv.tv_usec < 0) {
+		tv.tv_sec -= 1;
+		tv.tv_usec += 1000000;
+	}
+
+	lua_newtable(L);
+	lua_pushstring(L, "sec");
+	lua_pushinteger(L, tv.tv_sec);
+	lua_settable(L, -3);
+	lua_pushstring(L, "usec");
+	lua_pushinteger(L, tv.tv_usec);
+	lua_settable(L, -3);
+	return 1;
 }
 
 static int Ptime(lua_State *L)			/** time() */
@@ -2335,6 +2440,9 @@ static const luaL_Reg R[] =
 	MENTRY( Pstrptime	),
 	MENTRY( Psysconf	),
 	MENTRY( Ptime		),
+	MENTRY( Ptimeradd	),
+	MENTRY( Ptimercmp	),
+	MENTRY( Ptimersub	),
 	MENTRY( Ptimes		),
 	MENTRY( Pttyname	),
 	MENTRY( Punlink		),
