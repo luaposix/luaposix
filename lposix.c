@@ -38,7 +38,7 @@
 #include <sys/wait.h>
 #include <sys/resource.h>
 #include <sys/time.h>
-#if _POSIX_VERSION >= 200112L
+#if HAVE_CRYPT_H
 #  include <crypt.h>
 #endif
 #if _POSIX_VERSION >= 200112L
@@ -1717,7 +1717,9 @@ static int Psetlogmask(lua_State* L)            /** setlogmask(priority...) */
 
 	return pushresult(L, setlogmask(mask),"setlogmask");
 }
+#endif
 
+#if defined(HAVE_CRYPT)
 static int Pcrypt(lua_State *L)		/** crypt(string,salt) */
 {
 	const char *str, *salt;
@@ -2271,7 +2273,7 @@ static const luaL_Reg R[] =
 	MENTRY( Pclock_gettime	),
 #endif
 	MENTRY( Pclose		),
-#if _POSIX_VERSION >= 200112L
+#if defined (HAVE_CRYPT)
 	MENTRY( Pcrypt		),
 #endif
 	MENTRY( Pctermid	),

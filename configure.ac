@@ -74,9 +74,11 @@ gl_INIT
 
 dnl Check for header files
 AC_HEADER_STDC
+AC_CHECK_HEADERS([crypt.h])
 
 dnl Search libs
-AC_SEARCH_LIBS(crypt, crypt)
+AC_SEARCH_LIBS([crypt], [crypt],
+  [AC_DEFINE([HAVE_CRYPT], [], [Define this if your system has a crypt() function])])
 
 dnl Check for functions
 AC_CHECK_FUNCS([strlcpy])
