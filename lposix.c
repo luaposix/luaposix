@@ -38,10 +38,10 @@
 #include <sys/wait.h>
 #include <sys/resource.h>
 #include <sys/time.h>
-#if _POSIX_VERSION >= 200112L
+#if HAVE_CRYPT_H
 #  include <crypt.h>
 #endif
-#if _POSIX_VERSION >= 200112L
+#if HAVE_SYS_STATVFS_H
 #  include <sys/statvfs.h>
 #endif
 
@@ -1499,7 +1499,7 @@ static int Pstat(lua_State *L)			/** stat(path,[options]) */
 	return doselection(L, 2, Sstat, Fstat, &s);
 }
 
-#if _POSIX_VERSION >= 200112L
+#if defined (HAVE_STATVFS)
 static void Fstatvfs(lua_State *L, int i, const void *data)
 {
 	const struct statvfs *s=data;
@@ -1717,7 +1717,9 @@ static int Psetlogmask(lua_State* L)            /** setlogmask(priority...) */
 
 	return pushresult(L, setlogmask(mask),"setlogmask");
 }
+#endif
 
+#if defined(HAVE_CRYPT)
 static int Pcrypt(lua_State *L)		/** crypt(string,salt) */
 {
 	const char *str, *salt;
@@ -2271,7 +2273,7 @@ static const luaL_Reg R[] =
 	MENTRY( Pclock_gettime	),
 #endif
 	MENTRY( Pclose		),
-#if _POSIX_VERSION >= 200112L
+#if defined (HAVE_CRYPT)
 	MENTRY( Pcrypt		),
 #endif
 	MENTRY( Pctermid	),
@@ -2347,6 +2349,8 @@ static const luaL_Reg R[] =
 	MENTRY( Psyslog		),
 	MENTRY( Pcloselog	),
 	MENTRY( Psetlogmask	),
+#endif
+#if defined (HAVE_STATVFS)
 	MENTRY( Pstatvfs	),
 #endif
 #undef MENTRY
