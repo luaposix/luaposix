@@ -79,4 +79,54 @@ function M.euidaccess (file, mode)
   posix.set_errno (EACCESS)
 end
 
+--- Add one gettimeofday() returned timeval to another.
+-- @param x a timeval
+-- @param y another timeval
+-- @return x + y, adjusted for usec overflow
+function M.timeradd (x,y)
+  local sec, usec = 0, 0
+  if x.sec then sec = sec + x.sec end
+  if y.sec then sec = sec + y.sec end
+  if x.usec then usec = usec + x.usec end
+  if y.usec then usec = usec + y.usec end
+  if usec > 1000000 then
+    sec = sec + 1
+    usec = usec - 1000000
+  end
+
+  return { sec = sec, usec = usec }
+end
+
+--- Compare one gettimeofday() returned timeval with another
+-- @param x a timeval
+-- @param y another timeval
+-- @return 0 if x and y are equal, >0 if x is newer, <0 if y is newer
+function M.timercmp (x, y)
+  local x = { sec = x.sec or 0, usec = x.usec or 0 }
+  local y = { sec = y.sec or 0, usec = y.usec or 0 }
+  if x.sec ~= y.sec then
+    return x.sec - y.sec
+  else
+    return x.usec - y.usec
+  end
+end
+
+--- Subtract one gettimeofday() returned timeval from another.
+-- @param x a timeval
+-- @param y another timeval
+-- @return x - y, adjusted for usec underflow
+function M.timersub (x,y)
+  local sec, usec = 0, 0
+  if x.sec then sec = x.sec end
+  if y.sec then sec = sec - y.sec end
+  if x.usec then usec = x.usec end
+  if y.usec then usec = usec - y.usec end
+  if usec < 0 then
+    sec = sec - 1
+    usec = usec + 1000000
+  end
+
+  return { sec = sec, usec = usec }
+end
+
 return M
