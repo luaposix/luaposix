@@ -310,4 +310,15 @@ if arg[1] ~= "--no-times" then
 end
 
 ------------------------------------------------------------------------------
+testing"gettimeofday"
+x=ox.gettimeofday()
+for k,v in pairs(x) do print(k,v) end
+y=ox.timeradd(x,{usec=999999})
+assert (ox.timercmp(x,x) == 0)
+assert (ox.timercmp(x,y) < 0)
+assert (ox.timercmp(y,x) > 0)
+y=ox.timersub(y,{usec=999999})
+assert (ox.timercmp(x,y) == 0)
+
+------------------------------------------------------------------------------
 io.stderr:write("\n\n==== ", ox.version, " tests completed ====\n\n")

@@ -1832,9 +1832,15 @@ static int Pgettimeofday(lua_State *L)		/** gettimeofday() */
 	struct timeval tv;
 	if (gettimeofday(&tv, NULL) == -1)
 		return pusherror(L, "gettimeofday");
+
+	lua_newtable(L);
+	lua_pushstring(L, "sec");
 	lua_pushinteger(L, tv.tv_sec);
+	lua_settable(L, -3);
+	lua_pushstring(L, "usec");
 	lua_pushinteger(L, tv.tv_usec);
-	return 2;
+	lua_settable(L, -3);
+	return 1;
 }
 
 static int Ptime(lua_State *L)			/** time() */
