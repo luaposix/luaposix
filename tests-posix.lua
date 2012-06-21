@@ -159,7 +159,7 @@ assert(st.mode=="rw-------")
 assert(st.size==5)
 
 -- ... then read and compare
-first_fd, err =ox.open(first_filename, posix.O_RDONLY)
+first_fd, err =ox.open(first_filename, ox.O_RDONLY)
 assert(first_fd, err)
 assert(ox.read(first_fd, 5) == "12345")
 local second_fd,second_filename=ox.mkstemp(filename_template)
@@ -174,7 +174,7 @@ ox.close(second_fd)
 
 -- create extra empty file, to check glob()
 local extra_filename=testdir.."/extra_file"
-local extra_file_fd, err=ox.open(extra_filename, bit.bor (posix.O_RDWR, posix.O_CREAT), "r--------")
+local extra_file_fd, err=ox.open(extra_filename, bit.bor (ox.O_RDWR, ox.O_CREAT), "r--------")
 assert(extra_file_fd, err)
 ox.close(extra_file_fd)
 
