@@ -14,8 +14,8 @@ bind only available APIs.
 luaposix is released under the MIT license, like Lua (see COPYING;
 it's basically the same as the BSD license). There is no warranty.
 
-Please report bugs and make suggestions to the email address above, or
-use the LuaForge trackers.
+Please report bugs and make suggestions by opening an issue on the
+github tracker, or to the email address above.
 
 
 Installation
