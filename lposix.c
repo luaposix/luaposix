@@ -45,7 +45,8 @@
 #  include <sys/statvfs.h>
 #endif
 
-#define MYVERSION	PACKAGE " library for " LUA_VERSION " / " VERSION
+#define MYNAME		"posix"
+#define MYVERSION	MYNAME " library for " LUA_VERSION " / " VERSION
 
 #include "lua.h"
 #include "lualib.h"
@@ -528,7 +529,7 @@ static int Pfiles(lua_State *L)			/** files([path]) */
 {
 	const char *path = luaL_optstring(L, 1, ".");
 	DIR **d = (DIR **)lua_newuserdata(L, sizeof(DIR *));
-	if (luaL_newmetatable(L, PACKAGE " dir handle"))
+	if (luaL_newmetatable(L, MYNAME " dir handle"))
 	{
 		lua_pushcfunction(L, dir_gc);
 		lua_setfield(L, -2, "__gc");
@@ -2364,7 +2365,7 @@ static const luaL_Reg R[] =
 
 LUALIB_API int luaopen_posix_c (lua_State *L)
 {
-	luaL_register(L, PACKAGE, R);
+	luaL_register(L, MYNAME, R);
 
 	lua_pushliteral(L, MYVERSION);
 	lua_setfield(L, -2, "version");
