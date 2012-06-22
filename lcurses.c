@@ -30,6 +30,7 @@
 #include <string.h>
 #include <lua.h>
 #include <lauxlib.h>
+#include "lua52compat.h"
 #if defined(HAVE_NCURSESW_CURSES_H)
 #  include <ncursesw/curses.h>
 #elif defined(HAVE_NCURSESW_H)
@@ -44,7 +45,6 @@
 #  error "SysV or X/Open-compatible Curses header file required"
 #endif
 #include <term.h>
-#include "lua52compat.h"
 
 /* The extra indirection to these macros is required so that if the
    arguments are themselves macros, they will get expanded too.  */
@@ -1794,7 +1794,7 @@ static int Ctigetstr (lua_State *L)
 ** =======================================================
 */
 /* chstr members */
-static const luaL_reg chstrlib[] =
+static const luaL_Reg chstrlib[] =
 {
 #define MENTRY(_f) { LCURSES_STR(_f), LCURSES_SPLICE(chstr_, _f) }
     MENTRY( len		),
@@ -1807,7 +1807,7 @@ static const luaL_reg chstrlib[] =
     { NULL, NULL }
 };
 
-static const luaL_reg windowlib[] =
+static const luaL_Reg windowlib[] =
 {
 #define MENTRY(_f) { LCURSES_STR_1(_f), (_f) }
     /* window */
@@ -1958,7 +1958,7 @@ static const luaL_reg windowlib[] =
     {NULL, NULL}
 };
 
-static const luaL_reg curseslib[] =
+static const luaL_Reg curseslib[] =
 {
 #define MENTRY(_f) { LCURSES_STR_1(_f), (_f) }
     /* chstr helper function */

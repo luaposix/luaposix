@@ -48,9 +48,11 @@
 #define MYNAME		"posix"
 #define MYVERSION	MYNAME " library for " LUA_VERSION " / " VERSION
 
+#define LUA_COMPAT_ALL
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
+#include "lua52compat.h"
 
 
 /* The extra indirection to these macros is required so that if the
@@ -65,8 +67,6 @@
    premature expansion of MENTRY arguments if we didn't add it.  */
 #define LPOSIX__STR_1(_s)	(#_s + 1)
 #define LPOSIX_STR_1(_s)	LPOSIX__STR_1(_s)
-
-#include "lua52compat.h"
 
 /* ISO C functions missing from the standard Lua libraries. */
 
