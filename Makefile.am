@@ -23,7 +23,7 @@ ChangeLog:
 
 LUA_PATH ?= ;
 LUA_CPATH ?= ;
-LUA_ENV = LUA_INIT= LUA_PATH="$(abs_srcdir)/?.lua;$(LUA_PATH)" LUA_CPATH="$(abs_builddir)/$(objdir)/?$(shrext);$(LUA_CPATH)"
+LUA_ENV = LUA_PATH="$(abs_srcdir)/?.lua;$(LUA_PATH)" LUA_CPATH="$(abs_builddir)/$(objdir)/?$(shrext);$(LUA_CPATH)"
 
 HTML = curses.html lcurses_c.html
 
