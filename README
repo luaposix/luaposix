@@ -21,6 +21,9 @@ github tracker, or to the email address above.
 Installation
 ------------
 
+With Lua 5.1, luaposix requires the bitop library from http://bitop.luajit.org/
+(On Lua 5.2 it will work whether bitop is installed or not.)
+
 luaposix uses the GNU build system. For detailed instructions, see
 INSTALL. For a quick start:
 
