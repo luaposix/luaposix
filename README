@@ -31,13 +31,8 @@ INSTALL. For a quick start:
 
   ./configure && make [&& make install]
 
-The following options may be of interest if you have Lua installed on
-non-default paths (as you are likely to on any system supporting more
-than one version of Lua):
-
-  --libdir=DIR            Install shared library in this directory
-  --with-lua-prefix=DIR   Lua files are in DIR
-  --with-lua-suffix=ARG   Lua binary and library files are suffixed with ARG
+You may need to supply non-default paths (e.g. if you are using a
+system that supports more than one version of Lua):
 
 For example, on Debian or Ubuntu:
 
