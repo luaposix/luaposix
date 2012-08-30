@@ -55,34 +55,30 @@ Use
 The library is split into two modules. The basic POSIX APIs are in
 "posix"; the curses APIs in "curses".
 
-There is some HTML documentation for the curses module; to obtain it,
-run
+There is HTML documentation; to obtain it, run:
 
   make doc
 
-For the posix module, see lposix.c. For detailed documentation on
-POSIX APIs, read the POSIX and curses man pages, or an online POSIX
-reference such as:
+The posix module documentation requires LDoc, from
+
+  https://github.com/stevedonovan/LDoc
+
+It includes links to online man pages.
+
+You can find an authoritative online POSIX reference at:
 
   http://www.opengroup.org/onlinepubs/007904875/toc.htm
-
-To see a summary of which POSIX APIs are available, run
-
-  make show-funcs
-
-Some documentation (possibly not up-to-date) with examples can be
-found at http://wiki.alpinelinux.org/wiki/LuaPosix
 
 
 Example code
 ------------
 
 See the example program tree.lua, along with the tests in
-tests*.lua.
+tests-*.lua.
 
-GNU Zile 2.5 and later is written in Lua, using luaposix, so it
-contains plenty of example code. See the lua branch of its git
-repository at: http://git.savannah.gnu.org/cgit/zile.git/log/?h=lua
+For a complete application, see the lua branch of GNU Zile's (a
+cut-down Emacs clone) git repository at:
+http://git.savannah.gnu.org/cgit/zile.git/log/?h=lua
 
 
 Bugs reports & patches
@@ -102,4 +98,8 @@ bear in mind the following points when writing new code:
 2. No non-POSIX APIs; no platform-specific code. When wrapping APIs
    introduced in POSIX 2001 or later, add an appropriate #if. If your
    platform isn't quite POSIX, you may find a gnulib module to bridge
-   the gap.
+   the gap. If absolutely necessary, use autoconf feature tests.
+
+3. Thin wrappers: although some existing code contradicts this, wrap
+   POSIX APIs in the simplest way possible. If necessary, more
+   convenient wrappers can be added in Lua (posix.lua).

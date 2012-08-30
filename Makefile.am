@@ -54,14 +54,11 @@ $(HTML): lcurses.c make_lcurses_doc.pl
 	$(PERL) make_lcurses_doc.pl
 
 doc: $(HTML)
+	ldoc .
 
 check-local:
 	ls $(LUATESTS) | $(LUA_ENV) xargs -L 1 $(LUA)
 	ls $(LUNITTESTS) | $(LUA_ENV) xargs -L 1 lunit --interpreter $(LUA)
-
-show-funcs:
-	@echo "posix library:"
-	@fgrep '/**' lposix.c | cut -f2 -d/ | tr -d '*' | sort
 
 release: distcheck $(ROCKSPEC)
 	git diff --exit-code && \
