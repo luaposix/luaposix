@@ -1,8 +1,7 @@
                                luaposix
                                --------
 
-                     Reuben Thomas <rrt@sc3d.org>
-                 https://github.com/rrthomas/luaposix
+                 https://github.com/luaposix/luaposix
 
 
 luaposix is a POSIX binding, including curses, for Lua 5.1 and 5.2;
@@ -15,7 +14,7 @@ luaposix is released under the MIT license, like Lua (see COPYING;
 it's basically the same as the BSD license). There is no warranty.
 
 Please report bugs and make suggestions by opening an issue on the
-github tracker, or to the email address above.
+github tracker.
 
 
 Installation
