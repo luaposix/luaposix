@@ -62,7 +62,10 @@ The posix module documentation requires LDoc, from
 
   https://github.com/stevedonovan/LDoc
 
-It includes links to online man pages.
+It includes links to online man pages. All the HTML documentation is
+online at:
+
+  http://luaposix.github.com/luaposix/
 
 You can find an authoritative online POSIX reference at:
 
