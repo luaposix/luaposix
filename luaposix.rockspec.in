@@ -1,7 +1,7 @@
 package="@PACKAGE@"
 version="@VERSION@-1"
 source = {
-  url = "https://github.com/downloads/rrthomas/@PACKAGE@/@PACKAGE@-@VERSION@.tar.gz",
+  url = "https://github.com/downloads/luaposix/@PACKAGE@/@PACKAGE@-@VERSION@.tar.gz",
   md5 = "@MD5@",
   dir = "@PACKAGE@-@VERSION@"
 }
@@ -12,7 +12,7 @@ description = {
       POSIX is the IEEE Portable Operating System Interface standard.
       luaposix is based on lposix and lcurses.
    ]],
-  homepage = "http://github.com/rrthomas/@PACKAGE@/",
+  homepage = "http://github.com/luaposix/@PACKAGE@/",
   license = "MIT/X11"
 }
 dependencies = {

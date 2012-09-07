@@ -1,5 +1,5 @@
 History is now tracked in git.
-https://github.com/rrthomas/luaposix
+https://github.com/luaposix/luaposix
 
 2008-07-18 Natanael Copa <natanael.copa _AT_ gmail.com>
   * fix rpoll to ignore the POLLHUP and POLLNVAL reported at:
