@@ -477,8 +477,8 @@ and <code>mvwaddch()</code>.
 <p></p>
 </DIV><h2><a name="author">AUTHOR</a></h2><DIV CLASS="txt">
 <p><B>luaposix curses</B> was originally written by Tiago Dionizio, and is maintained by Reuben Thomas at
-<a href="http://github.com/rrthomas/luaposix">
-http://github.com/rrthomas/luaposix</a><BR>
+<a href="http://github.com/luaposix/luaposix">
+http://github.com/luaposix/luaposix</a><BR>
 This documentation was created by
 <A HREF="make_lcurses_doc">a script</A>
 written by
