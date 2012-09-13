@@ -1,9 +1,6 @@
 /* A dummy file, to prevent empty libraries from breaking builds.
-   Copyright (C) 2004, 2007, 2009-2012 Free Software Foundation, Inc.
 
-   Copying and distribution of this file, with or without
-   modification, are permitted in any medium without royalty
-   provided the copyright notice and this notice are preserved.  */
+   This file is in the public domain.  -- Bruno Haible */
 
 /* Some systems, reportedly OpenBSD and Mac OS X, refuse to create
    libraries without any object files.  You might get an error like:
