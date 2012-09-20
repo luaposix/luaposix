@@ -28,6 +28,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#define LUA_COMPAT_ALL
 #include <lua.h>
 #include <lauxlib.h>
 #include "lua52compat.h"
