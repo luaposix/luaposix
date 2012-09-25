@@ -39,8 +39,14 @@ ROCKSPEC = $(PACKAGE)-$(VERSION)-1.rockspec
 $(ROCKSPEC): $(PACKAGE).rockspec dist
 	sed -e 's/@MD5@/'`$(MD5SUM) $(distdir).tar.gz | cut -d " " -f 1`'/g' < $(PACKAGE).rockspec > $@
 
-EXTRA_DIST =				\
+dist_doc_DATA = 			\
 	$(HTML)				\
+	docs/index.html			\
+	docs/ldoc.css
+examplesdir = $(docdir)/examples
+examples_DATA = $(wildcard examples/*.lua)
+
+EXTRA_DIST =				\
 	$(LUATESTS)			\
 	$(LUNITTESTS)			\
 	make_lcurses_doc.pl		\
