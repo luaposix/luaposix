@@ -1,7 +1,7 @@
 -- tree view of the file system like the "tree" unix utility
 -- John Belmonte <jvb@prairienet.org>
 
-require('posix')
+local posix = require 'posix'
 
 local leaf_indent = '|   '
 local tail_leaf_indent = '    '
@@ -10,14 +10,14 @@ local tail_leaf_prefix = '`-- '
 local link_prefix = ' -> '
 
 local function printf(...)
-    io.write(string.format(unpack(arg)))
+  io.write(string.format(unpack({...})))
 end
 
 local function do_directory(directory, level, prefix)
     local num_dirs = 0
     local num_files = 0
     local files = posix.dir(directory)
-    local last_file_index = table.getn(files)
+    local last_file_index = #files
     table.sort(files)
     for i, name in ipairs(files) do
         if name ~= '.' and name ~= '..' then
@@ -52,5 +52,5 @@ local function fore(directory)
     printf('\n%d directories, %d files\n', num_dirs, num_files)
 end
 
-directory = (#arg > 0) and arg[1] or '.'
+directory = (arg and #arg > 0) and arg[1] or '.'
 fore(directory)
