@@ -66,9 +66,20 @@ check-local:
 	ls $(LUATESTS) | $(LUA_ENV) xargs -L 1 $(LUA)
 	ls $(LUNITTESTS) | $(LUA_ENV) xargs -L 1 lunit --interpreter $(LUA)
 
-release: distcheck $(ROCKSPEC)
+prerelease: distcheck
 	git diff --exit-code && \
-	git push && \
-	woger lua,github package=$(PACKAGE) package_name=$(PACKAGE_NAME) version=$(VERSION) description="`LUA_INIT= LUA_PATH='$(abs_srcdir)/?.rockspec.in' $(LUA) -l$(PACKAGE) -e 'print (description.summary)'`" notes=release-notes-$(VERSION) dist_type="tar.gz" github_user=rrthomas && \
+	git push
+
+WOGER_ARGS = package=$(PACKAGE) package_name=$(PACKAGE_NAME) version=$(VERSION) description="`LUA_INIT= LUA_PATH='$(abs_srcdir)/?.rockspec.in' $(LUA) -l$(PACKAGE) -e 'print (description.summary)'`" notes=release-notes-$(VERSION) dist_type="tar.gz" github_user=rrthomas
+
+# Should also upload the rock, but currently github-upload is broken
+#woger github $(WOGER_ARGS) &&
+# check-luarock should depend on $(ROCKSPEC), but uploading to github seems to change the file, so
+# we have to upload and then insert the MD5sum of the downloaded file
+check-luarock: prerelease
+	LUAROCKS_CONFIG=$(abs_srcdir)/luarocks-config.lua luarocks --tree=$(abs_srcdir)/luarocks build $(ROCKSPEC)
+
+release: check-luarock
+	woger lua $(WOGER_ARGS) && \
 	git tag -a -m "Release tag" v$(VERSION) && \
 	git push --tags
