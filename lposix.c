@@ -51,7 +51,6 @@
 #define MYNAME		"posix"
 #define MYVERSION	MYNAME " library for " LUA_VERSION " / " VERSION
 
-#define LUA_COMPAT_ALL
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
