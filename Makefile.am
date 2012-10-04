@@ -36,9 +36,6 @@ LUNITTESTS=				\
 
 ROCKSPEC = $(PACKAGE)-$(VERSION)-1.rockspec
 
-$(ROCKSPEC): $(PACKAGE).rockspec dist
-	sed -e 's/@MD5@/'`$(MD5SUM) $(distdir).tar.gz | cut -d " " -f 1`'/g' < $(PACKAGE).rockspec > $@
-
 dist_doc_DATA = 			\
 	$(HTML)				\
 	docs/index.html			\
@@ -66,18 +63,19 @@ check-local:
 	ls $(LUATESTS) | $(LUA_ENV) xargs -L 1 $(LUA)
 	ls $(LUNITTESTS) | $(LUA_ENV) xargs -L 1 lunit --interpreter $(LUA)
 
-prerelease: distcheck
-	git diff --exit-code && \
-	git push
-
 WOGER_ARGS = package=$(PACKAGE) package_name=$(PACKAGE_NAME) version=$(VERSION) description="`LUA_INIT= LUA_PATH='$(abs_srcdir)/?.rockspec.in' $(LUA) -l$(PACKAGE) -e 'print (description.summary)'`" notes=release-notes-$(VERSION) dist_type="tar.gz" github_user=luaposix
 
-# Should also upload the rock, but currently github-upload is broken
-#woger github $(WOGER_ARGS) &&
-check-luarock: prerelease
-	LUAROCKS_CONFIG=$(abs_srcdir)/luarocks-config.lua luarocks --tree=$(abs_srcdir)/luarocks build $(ROCKSPEC)
+# Depend on distcheck so that 'make release' runs distcheck before
+# making the rockspec, so the release archive MD5sum is correct in the
+# rockspec
+$(ROCKSPEC): $(PACKAGE).rockspec distcheck
+	sed -e 's/@MD5@/'`$(MD5SUM) $(distdir).tar.gz | cut -d " " -f 1`'/g' < $(PACKAGE).rockspec > $@
 
-release: check-luarock
+release: $(ROCKSPEC)
+	git diff --exit-code && \
+	git push && \
+	woger github $(WOGER_ARGS) && \
+	LUAROCKS_CONFIG=$(abs_srcdir)/luarocks-config.lua luarocks --tree=$(abs_srcdir)/luarocks build $(ROCKSPEC) && \
 	woger lua $(WOGER_ARGS) && \
 	git tag -a -m "Release tag" v$(VERSION) && \
 	git push --tags
