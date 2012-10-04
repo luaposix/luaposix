@@ -31,3 +31,5 @@
 /config.status
 /libtool
 /stamp-h1
+/luarocks-config.lua
+/luarocks

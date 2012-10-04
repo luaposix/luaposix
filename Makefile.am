@@ -74,7 +74,7 @@ WOGER_ARGS = package=$(PACKAGE) package_name=$(PACKAGE_NAME) version=$(VERSION) 
 
 # Should also upload the rock, but currently github-upload is broken
 #woger github $(WOGER_ARGS) &&
-check-luarock: prerelease $(ROCKSPEC)
+check-luarock: prerelease
 	LUAROCKS_CONFIG=$(abs_srcdir)/luarocks-config.lua luarocks --tree=$(abs_srcdir)/luarocks build $(ROCKSPEC)
 
 release: check-luarock
