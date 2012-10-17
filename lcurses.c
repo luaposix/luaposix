@@ -1155,10 +1155,8 @@ static int Waddstr(lua_State *L)
     WINDOW *w = checkwin(L, 1);
     const char *str = luaL_checkstring(L, 2);
     int n = luaL_optint(L, 3, -1);
-
-    if (n < 0) n = lua_strlen(L, 2);
-
     lua_pushboolean(L, B(waddnstr(w, str, n)));
+    lua_pushboolean(L, B(waddstr(w, str)));
     return 1;
 }
 
@@ -1169,9 +1167,6 @@ static int Wmvaddstr(lua_State *L)
     int x = luaL_checkint(L, 3);
     const char *str = luaL_checkstring(L, 4);
     int n = luaL_optint(L, 5, -1);
-
-    if (n < 0) n = lua_strlen(L, 4);
-
     lua_pushboolean(L, B(mvwaddnstr(w, y, x, str, n)));
     return 1;
 }
