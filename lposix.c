@@ -744,7 +744,7 @@ static int Preadlink(lua_State *L)
 	const char *path = luaL_checkstring(L, 1);
 	void *ud;
 	lua_Alloc lalloc = lua_getallocf(L, &ud);
-	if (stat(path, &s))
+	if (lstat(path, &s))
 		return pusherror(L, path);
 	if ((b = lalloc(ud, NULL, 0, s.st_size + 1)) == NULL)
 		return pusherror(L, "lalloc");
