@@ -2459,7 +2459,11 @@ static void totm(lua_State *L, int n, struct tm *tp)
 	lua_getfield(L, n, "hour");
 	tp->tm_hour = luaL_optint(L, -1, 0);
 	lua_pop(L, 1);
+	/* For compatibility to Lua os.date() read "day" if "monthday"
+		 does not yield a number */
 	lua_getfield(L, n, "monthday");
+	if (!lua_isnumber(L, -1))
+		lua_getfield(L, n, "day");
 	tp->tm_mday = luaL_optint(L, -1, 0);
 	lua_pop(L, 1);
 	lua_getfield(L, n, "month");
@@ -2481,7 +2485,7 @@ static void totm(lua_State *L, int n, struct tm *tp)
 
 static void pushtm(lua_State *L, struct tm t)
 {
-	lua_createtable(L, 0, 9);
+	lua_createtable(L, 0, 10);
 	lua_pushinteger(L, t.tm_sec);
 	lua_setfield(L, -2, "sec");
 	lua_pushinteger(L, t.tm_min);
@@ -2490,6 +2494,8 @@ static void pushtm(lua_State *L, struct tm t)
 	lua_setfield(L, -2, "hour");
 	lua_pushinteger(L, t.tm_mday);
 	lua_setfield(L, -2, "monthday");
+	lua_pushinteger(L, t.tm_mday);
+	lua_setfield(L, -2, "day");
 	lua_pushinteger(L, t.tm_mon + 1);
 	lua_setfield(L, -2, "month");
 	lua_pushinteger(L, t.tm_year + 1900);
@@ -2507,7 +2513,7 @@ Convert time in seconds to table.
 @function localtime
 @param t time in seconds since epoch (default now)
 @return time table: contains "is_dst","yearday","hour","min","year","month",
- "sec","weekday","monthday"
+ "sec","weekday","monthday", "day" (the same as "monthday")
 */
 static int Plocaltime(lua_State *L)
 {
