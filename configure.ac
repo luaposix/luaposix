@@ -122,6 +122,6 @@ AX_WITH_PROG([MD5SUM], [md5sum], [false])
 dnl Generate output files
 AC_CONFIG_MACRO_DIR(m4)
 AC_CONFIG_HEADER(config.h)
-AC_SUBST(PACKAGE) # so that automake can dependencies for ${PACKAGE}.rockspec
+AC_SUBST(PACKAGE) # so that automake can generate dependencies for ${PACKAGE}.rockspec
 AC_CONFIG_FILES(Makefile lib/Makefile ${PACKAGE}.rockspec luarocks-config.lua)
 AC_OUTPUT
