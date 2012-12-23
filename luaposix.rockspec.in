@@ -3,7 +3,6 @@ version="@VERSION@-1"
 source = {
   url = "https://github.com/downloads/luaposix/@PACKAGE@/@PACKAGE@-@VERSION@.tar.gz",
   md5 = "@MD5@",
-  dir = "@PACKAGE@-@VERSION@"
 }
 description = {
   summary = "Lua bindings for POSIX (including curses)",
