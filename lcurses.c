@@ -711,6 +711,24 @@ static int Cnapms(lua_State *L)
 
 /*
 ** =======================================================
+** resizeterm
+** =======================================================
+*/
+
+static int Cresizeterm(lua_State *L)
+{
+    int nlines  = luaL_checkint(L, 1);
+    int ncols   = luaL_checkint(L, 2);
+#if HAVE_RESIZETERM
+    lua_pushboolean(L, B(resizeterm (nlines, ncols)));
+    return 1;
+#else
+    return luaL_error (L, "`resizeterm' is not implemented by your curses library");
+#endif
+}
+
+/*
+** =======================================================
 ** beep
 ** =======================================================
 */
@@ -1990,6 +2008,9 @@ static const luaL_Reg curseslib[] =
     MENTRY( Cripoffline	),
     MENTRY( Cnapms	),
     MENTRY( Ccurs_set	),
+
+    /* resize */
+    MENTRY( Cresizeterm	),
 
     /* beep */
     MENTRY( Cbeep	),
