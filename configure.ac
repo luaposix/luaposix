@@ -60,10 +60,7 @@ fi
 
 LT_PREREQ([2.2.6])
 LT_INIT([disable-static])
-LT_OUTPUT
 
-eval `./libtool --config |grep '^objdir='`
-eval `./libtool --config |grep '^shrext_cmds='`
 module=yes eval shrext=$shrext_cmds
 
 AC_SUBST([objdir])
