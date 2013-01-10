@@ -1156,7 +1156,6 @@ static int Waddstr(lua_State *L)
     const char *str = luaL_checkstring(L, 2);
     int n = luaL_optint(L, 3, -1);
     lua_pushboolean(L, B(waddnstr(w, str, n)));
-    lua_pushboolean(L, B(waddstr(w, str)));
     return 1;
 }
 
