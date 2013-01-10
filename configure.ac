@@ -103,6 +103,11 @@ AC_ARG_VAR(CURSES_LIB, [linker flags for curses library])
 AC_SUBST(WANTEDLIBS)
 AC_SUBST(WANTEDLUA)
 
+save_LIBS=$LIBS
+LIBS="$CURSES_LIB $LIBS"
+AC_CHECK_FUNCS([resizeterm])
+LIBS=$save_LIBS
+
 dnl Lua 5.1 or 5.2
 AX_PROG_LUA(501, 503)
 AX_LUA_HEADERS
