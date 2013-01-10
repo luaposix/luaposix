@@ -3,7 +3,7 @@ dnl Process this file with autoconf to produce a configure script
 AC_INIT(luaposix, 5.1.25, rrt@sc3d.org)
 AC_CONFIG_AUX_DIR([build-aux])
 
-AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AM_INIT_AUTOMAKE([-Wall foreign])
 
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
