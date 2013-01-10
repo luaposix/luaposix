@@ -23,7 +23,6 @@
 /build-aux
 /config.h.in
 /configure
-/gnulib
 /Makefile
 /config.h
 /config.log
