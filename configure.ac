@@ -58,6 +58,9 @@ if test "$gl_gcc_warnings" = yes; then
   gl_WARN_ADD([-fmudflap])
 fi
 
+dnl required by automake 1.12.x, not available in 1.10.x
+m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
+
 LT_PREREQ([2.2.6])
 LT_INIT([disable-static])
 
