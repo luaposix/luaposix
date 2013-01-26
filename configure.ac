@@ -124,6 +124,10 @@ fi
 dnl md5sum
 AX_WITH_PROG([MD5SUM], [md5sum], [false])
 
+dnl ldoc
+AX_WITH_PROG([LDOC], [ldoc], [false])
+AM_CONDITIONAL([HAVE_LDOC], [test false != "$LDOC"])
+
 dnl Generate output files
 AC_CONFIG_MACRO_DIR(m4)
 AC_CONFIG_HEADER(config.h)
