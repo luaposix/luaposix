@@ -25,8 +25,6 @@ LUA_PATH ?= ;
 LUA_CPATH ?= ;
 LUA_ENV = LUA_PATH="$(abs_srcdir)/?.lua;$(LUA_PATH)" LUA_CPATH="$(abs_builddir)/$(objdir)/?$(shrext);$(LUA_CPATH)"
 
-HTML = curses.html lcurses_c.html
-
 LUATESTS =				\
 	$(srcdir)/tests-posix.lua	\
 	$(srcdir)/tests-curses.lua
@@ -37,7 +35,8 @@ LUNITTESTS=				\
 ROCKSPEC = $(PACKAGE)-$(VERSION)-1.rockspec
 
 dist_doc_DATA = 			\
-	$(HTML)				\
+	curses.html			\
+	lcurses_c.html			\
 	docs/index.html			\
 	docs/ldoc.css
 examplesdir = $(docdir)/examples
@@ -53,11 +52,15 @@ EXTRA_DIST =				\
 
 DISTCLEANFILES = $(PACKAGE).rockspec
 
-$(HTML): lcurses.c make_lcurses_doc.pl
+$(dist_doc_DATA): lcurses.c make_lcurses_doc.pl
 	$(PERL) make_lcurses_doc.pl
+if HAVE_LDOC
+	$(LDOC) .
+else
+	touch docs/index.html docs/ldoc.css
+endif
 
-doc: $(HTML)
-	ldoc .
+doc: $(dist_doc_DATA)
 
 check-local:
 	ls $(LUATESTS) | $(LUA_ENV) xargs -L 1 $(LUA)
