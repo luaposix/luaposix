@@ -131,5 +131,5 @@ AM_CONDITIONAL([HAVE_LDOC], [test false != "$LDOC"])
 dnl Generate output files
 AC_CONFIG_MACRO_DIR(m4)
 AC_CONFIG_HEADER(config.h)
-AC_CONFIG_FILES([Makefile lib/Makefile] m4_defn([AC_PACKAGE_TARNAME])[.rockspec luarocks-config.lua])
+AC_CONFIG_FILES([Makefile ]m4_defn([AC_PACKAGE_TARNAME])[.rockspec luarocks-config.lua])
 AC_OUTPUT
