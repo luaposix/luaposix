@@ -1,7 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = lib
-
 ACLOCAL_AMFLAGS = -I m4
 
 AM_CPPFLAGS = $(LUA_INCLUDE)
@@ -13,7 +11,7 @@ dist_data_DATA = posix.lua $(WANTEDLUA)
 
 posix_c_la_SOURCES = lposix.c
 posix_c_la_CFLAGS = $(POSIX_EXTRA_CFLAGS)
-posix_c_la_LDFLAGS = -module -avoid-version $(builddir)/lib/libgnu.la $(POSIX_EXTRA_LDFLAGS)
+posix_c_la_LDFLAGS = -module -avoid-version $(POSIX_EXTRA_LDFLAGS)
 
 curses_c_la_SOURCES = lcurses.c
 curses_c_la_LDFLAGS = -module -avoid-version $(CURSES_LIB) -rpath '$(libdir)'
