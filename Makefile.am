@@ -58,6 +58,8 @@ else
 	touch docs/index.html docs/ldoc.css
 endif
 
+MAINTAINERCLEANFILES = docs/index.html docs/ldoc.css
+
 doc: $(dist_doc_DATA)
 
 check-local:
