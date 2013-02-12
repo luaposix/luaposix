@@ -16,7 +16,7 @@ description = {
 }
 dependencies = {
   "lua >= 5.1",
-  "luabitop >= 1.0.2"
+  "bit32"
 }
 build = {
   type = "command",

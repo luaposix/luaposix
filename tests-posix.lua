@@ -1,8 +1,6 @@
 -- test posix library
 
-local bit
-if _VERSION == "Lua 5.1" then bit = require 'bit' else bit = require 'bit32' end
-
+local bit32 = require 'bit32'
 local ox = require 'posix'
 
 function testing(s)
@@ -174,7 +172,7 @@ ox.close(second_fd)
 
 -- create extra empty file, to check glob()
 local extra_filename=testdir.."/extra_file"
-local extra_file_fd, err=ox.open(extra_filename, bit.bor (ox.O_RDWR, ox.O_CREAT), "r--------")
+local extra_file_fd, err=ox.open(extra_filename, bit32.bor (ox.O_RDWR, ox.O_CREAT), "r--------")
 assert(extra_file_fd, err)
 ox.close(extra_file_fd)
 
