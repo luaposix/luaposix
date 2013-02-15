@@ -2720,7 +2720,7 @@ Parse command-line options.
 @string shortopts e.g 'ho:v' (colon means 'receives argument')
 @param longopts e.g. `{{'help','none',2},...}`
 @usage for ret, longindex, optind, optarg in posix.getopt_long (arg, shortopts, longopts, opterr, optind) do ... end
-@see options.lua
+@see getopt.lua
 */
 static int Pgetopt_long(lua_State *L)
 {
