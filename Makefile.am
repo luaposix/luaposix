@@ -78,11 +78,11 @@ check-in-release: distcheck
 	git checkout release && \
 	tar zxf $(PACKAGE)-$(VERSION).tar.gz && \
 	cp -af $(PACKAGE)-$(VERSION)/* . && \
+	rm -rf $(PACKAGE)-$(VERSION)/ && \
 	git add . && git ci -m "Release v$(VERSION)" && \
 	git tag -a -m "Full source release tag" release-v$(VERSION) && \
 	git push && git push --tags && \
-	git checkout master && \
-	rm -rf $(PACKAGE)-$(VERSION)/
+	git checkout master
 
 # After check-in-release we need to bootstrap to get the build files back
 release: rockspecs
