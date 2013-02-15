@@ -3,7 +3,7 @@
 */
 /*
 *  POSIX library for Lua 5.1/5.2.
-* (c) Reuben Thomas <rrt@sc3d.org> 2010-2012
+* (c) Reuben Thomas <rrt@sc3d.org> 2010-2013
 * (c) Natanael Copa <natanael.copa@gmail.com> 2008-2010
 * Clean up and bug fixes by Leo Razoumov <slonik.az@gmail.com> 2006-10-11
 * Luiz Henrique de Figueiredo <lhf@tecgraf.puc-rio.br> 07 Apr 2006 23:17:49
@@ -2059,6 +2059,19 @@ static int Pfcntl(lua_State *L)
 }
 
 /***
+Test whether a file descriptor refers to a terminal.
+@function isatty
+@see isatty(3)
+@int fd file descriptor to test
+@return 1 if fd is an open file descriptor referring to a terminal, or nil otherwise
+@return error message if failed
+*/
+static int Pisatty(lua_State *L)
+{
+	return pushresult(L, isatty(luaL_checkint(L, 1)) == 0 ? -1 : 1, "isatty");
+}
+
+/***
 Return information about this machine.
 @function uname
 @see uname(2)
@@ -2976,6 +2989,7 @@ static const luaL_Reg R[] =
 	MENTRY( Pglob		),
 	MENTRY( Pgmtime		),
 	MENTRY( Phostid		),
+	MENTRY( Pisatty		),
 	MENTRY( Pisgraph	),
 	MENTRY( Pisprint	),
 	MENTRY( Pkill		),
