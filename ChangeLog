@@ -1,5 +1,44 @@
 2013-02-15  Reuben Thomas <rrt@sc3d.org>
 
+	* rockspecs.lua: rockspecs.lua: don't need to turn dots in version
+	into dashes to get release tag.
+
+2013-02-15  Reuben Thomas <rrt@sc3d.org>
+
+	* .gitignore: .gitignore: remove tarball pattern, as we no longer
+	have tarballs.
+
+2013-02-15  Reuben Thomas <rrt@sc3d.org>
+
+	* posix.lua, rockspecs.lua, tests-fcntl.lua, tests-posix.lua: Revert
+	31671409e62e: bit32 doesn't build with Lua 5.2, so require luabitop
+	instead.
+
+2013-02-15  Reuben Thomas <rrt@sc3d.org>
+
+	* rockspecs.lua: rockspecs.lua: fix a misnamed variable
+
+2013-02-15  Reuben Thomas <rrt@sc3d.org>
+
+	* configure.ac, luaposix.rockspec.in, mkrockspecs.lua,
+	rockspecs.lua: configury: add rockspec-generating files for
+	git/release rockspecs.
+
+2013-02-15  Reuben Thomas <rrt@sc3d.org>
+
+	* Makefile.am: Makefile.am: remove obsolete definition of ROCKSPEC
+
+2013-02-15  Reuben Thomas <rrt@sc3d.org>
+
+	* configure.ac: configure.ac: remove useless AC_SUBST calls for
+	precious variables.
+
+2013-02-15  Reuben Thomas <rrt@sc3d.org>
+
+	* tests-posix.lua: tests-posix.lua: remove a debugging line.
+
+2013-02-15  Reuben Thomas <rrt@sc3d.org>
+
 	* lposix.c: lposix.c: correct cross-reference to getopt.lua
 
 2013-02-15  Reuben Thomas <rrt@sc3d.org>

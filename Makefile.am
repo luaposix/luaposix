@@ -30,8 +30,6 @@ LUATESTS =				\
 LUNITTESTS=				\
 	$(srcdir)/tests-fcntl.lua
 
-ROCKSPEC = $(PACKAGE)-$(VERSION)-1.rockspec
-
 dist_doc_DATA = 			\
 	curses.html			\
 	lcurses_c.html			\
@@ -44,11 +42,11 @@ EXTRA_DIST =				\
 	$(LUATESTS)			\
 	$(LUNITTESTS)			\
 	make_lcurses_doc.pl		\
-	$(PACKAGE).rockspec.in		\
 	strlcpy.c			\
-	lua52compat.h
-
-DISTCLEANFILES = $(PACKAGE).rockspec
+	lua52compat.h			\
+	build-aux/install-sh		\
+	build-aux/config.guess		\
+	build-aux/config.sub
 
 $(dist_doc_DATA): lcurses.c make_lcurses_doc.pl
 	$(PERL) make_lcurses_doc.pl

@@ -1,5 +1,5 @@
 lunit = require "lunit"
-bit32 = require "bit32"
+bit = bit32 or require "bit"
 
 module("test_fcntl", lunit.testcase, package.seeall)
 
@@ -16,12 +16,12 @@ function test_setfl_works()
    local fd = posix.fileno(io.stdin)
    local flags = posix.fcntl(fd, posix.F_GETFL)
    -- Remove NONBLOCK, if any
-   posix.fcntl(fd, posix.F_SETFL, bit32.band(flags, bit32.bnot(posix.O_NONBLOCK)))
+   posix.fcntl(fd, posix.F_SETFL, bit.band(flags, bit.bnot(posix.O_NONBLOCK)))
    flags = posix.fcntl(fd, posix.F_GETFL)
-   assert(bit32.band(flags, posix.O_NONBLOCK) == 0, "Removal of O_NONBLOCK failed")
-   posix.fcntl(fd, posix.F_SETFL, bit32.bor(flags, posix.O_NONBLOCK))
+   assert(bit.band(flags, posix.O_NONBLOCK) == 0, "Removal of O_NONBLOCK failed")
+   posix.fcntl(fd, posix.F_SETFL, bit.bor(flags, posix.O_NONBLOCK))
    flags = posix.fcntl(fd, posix.F_GETFL)
-   assert(bit32.band(flags, posix.O_NONBLOCK) ~= 0, "Set of O_NONBLOCK failed")
+   assert(bit.band(flags, posix.O_NONBLOCK) ~= 0, "Set of O_NONBLOCK failed")
 end
 
 function test_negative_fd_fails()

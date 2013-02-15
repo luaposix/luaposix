@@ -55,11 +55,11 @@ host_triplet = @host@
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(dist_data_DATA) \
 	$(dist_doc_DATA) $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/config.h.in $(srcdir)/luaposix.rockspec.in \
-	$(srcdir)/luarocks-config.lua.in $(top_srcdir)/configure \
-	AUTHORS COPYING ChangeLog INSTALL NEWS build-aux/ar-lib \
-	build-aux/config.guess build-aux/config.sub build-aux/depcomp \
-	build-aux/install-sh build-aux/ltmain.sh build-aux/missing
+	$(srcdir)/config.h.in $(srcdir)/luarocks-config.lua.in \
+	$(top_srcdir)/configure AUTHORS COPYING ChangeLog NEWS \
+	build-aux/ar-lib build-aux/config.guess build-aux/config.sub \
+	build-aux/depcomp build-aux/install-sh build-aux/ltmain.sh \
+	build-aux/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/00gnulib.m4 \
 	$(top_srcdir)/m4/ax_compare_version.m4 \
@@ -77,7 +77,7 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = config.h
-CONFIG_CLEAN_FILES = luaposix.rockspec luarocks-config.lua
+CONFIG_CLEAN_FILES = luarocks-config.lua
 CONFIG_CLEAN_VPATH_FILES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
@@ -337,7 +337,6 @@ LUATESTS = \
 LUNITTESTS = \
 	$(srcdir)/tests-fcntl.lua
 
-ROCKSPEC = $(PACKAGE)-$(VERSION)-1.rockspec
 dist_doc_DATA = \
 	curses.html			\
 	lcurses_c.html			\
@@ -350,11 +349,12 @@ EXTRA_DIST = \
 	$(LUATESTS)			\
 	$(LUNITTESTS)			\
 	make_lcurses_doc.pl		\
-	$(PACKAGE).rockspec.in		\
 	strlcpy.c			\
-	lua52compat.h
+	lua52compat.h			\
+	build-aux/install-sh		\
+	build-aux/config.guess		\
+	build-aux/config.sub
 
-DISTCLEANFILES = $(PACKAGE).rockspec
 MAINTAINERCLEANFILES = docs/index.html docs/ldoc.css
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -410,8 +410,6 @@ $(srcdir)/config.h.in:  $(am__configure_deps)
 
 distclean-hdr:
 	-rm -f config.h stamp-h1
-luaposix.rockspec: $(top_builddir)/config.status $(srcdir)/luaposix.rockspec.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
 luarocks-config.lua: $(top_builddir)/config.status $(srcdir)/luarocks-config.lua.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 install-libLTLIBRARIES: $(lib_LTLIBRARIES)
@@ -808,7 +806,6 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-test -z "$(DISTCLEANFILES)" || rm -f $(DISTCLEANFILES)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
