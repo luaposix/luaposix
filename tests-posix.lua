@@ -159,7 +159,6 @@ assert(st.size==5)
 -- ... then read and compare
 first_fd, err =ox.open(first_filename, ox.O_RDONLY)
 assert(first_fd, err)
-print (ox.isatty)
 assert(not ox.isatty(first_fd))
 assert(ox.read(first_fd, 5) == "12345")
 local second_fd,second_filename=ox.mkstemp(filename_template)
