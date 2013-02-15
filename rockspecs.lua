@@ -11,7 +11,7 @@ local default = {
   package = package_name,
   version = version.."-1",
   source = {
-    url = "git://github.com/luaposix/"..package..".git",
+    url = "git://github.com/luaposix/"..package_name..".git",
   },
   description = {
     summary = "Lua bindings for POSIX (including curses)",
@@ -20,7 +20,7 @@ local default = {
       POSIX is the IEEE Portable Operating System Interface standard.
       luaposix is based on lposix and lcurses.
      ]],
-    homepage = "http://github.com/luaposix/"..package.."/",
+    homepage = "http://github.com/luaposix/"..package_name.."/",
     license = "MIT/X11",
   },
   dependencies = {
