@@ -1,3 +1,0 @@
-rocks_trees = {
-  "@abs_srcdir@/luarocks"
-}
