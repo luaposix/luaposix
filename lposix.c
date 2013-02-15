@@ -3087,6 +3087,9 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 
 	/* Miscellaneous */
 	set_integer_const( "WNOHANG",		WNOHANG		);
+	set_integer_const( "STDIN_FILENO",	STDIN_FILENO	);
+	set_integer_const( "STDOUT_FILENO",	STDOUT_FILENO	);
+	set_integer_const( "STDERR_FILENO",	STDERR_FILENO	);
 
 	/* errno values */
 #define MENTRY(_e) set_integer_const(LPOSIX_STR_1(LPOSIX_SPLICE(_E, _e)), LPOSIX_SPLICE(E, _e))
