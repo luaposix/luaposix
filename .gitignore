@@ -8,7 +8,6 @@
 .deps
 .libs
 /docs
-/luaposix-*.tar.gz
 /lib
 /release-notes-*
 /.gitmodules
