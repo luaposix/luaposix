@@ -120,9 +120,6 @@ if test -z "$PERL"; then
   AC_MSG_FAILURE([cannot find perl])
 fi
 
-dnl md5sum
-AX_WITH_PROG([MD5SUM], [md5sum], [false])
-
 dnl ldoc
 AX_WITH_PROG([LDOC], [ldoc], [false])
 AM_CONDITIONAL([HAVE_LDOC], [test false != "$LDOC"])
