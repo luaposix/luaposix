@@ -5,8 +5,6 @@
 -- package
 -- version
 
-local version_dashed = version:gsub ("%.", "-")
-
 local default = {
   package = package_name,
   version = version.."-1",
@@ -36,7 +34,7 @@ local default = {
 }
 
 if version ~= "git" then
-  default.source.branch = "release-v"..version_dashed
+  default.source.branch = "release-v"..version
 else
   default.build.build_command = "./bootstrap && " .. default.build.build_command
   table.insert (default.dependencies, "ldoc")
