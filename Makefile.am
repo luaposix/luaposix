@@ -30,8 +30,6 @@ LUATESTS =				\
 LUNITTESTS=				\
 	$(srcdir)/tests-fcntl.lua
 
-ROCKSPEC = $(PACKAGE)-$(VERSION)-1.rockspec
-
 dist_doc_DATA = 			\
 	curses.html			\
 	lcurses_c.html			\
