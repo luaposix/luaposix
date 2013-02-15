@@ -1,14 +1,15 @@
 -- Additions to the posix module (of luaposix).
 local M = require "posix_c"
 local posix = M
-local bit32 = require "bit32"
+local bit
+if _VERSION == "Lua 5.1" then bit = require "bit" else bit = require "bit32" end
 
 --- Create a file.
 -- @param file name of file to create
 -- @param mode permissions with which to create file
 -- @return file descriptor, or -1 on error
 function M.creat (file, mode)
-  return posix.open (file, bit32.bor (posix.O_CREAT, posix.O_WRONLY, posix.O_TRUNC), mode)
+  return posix.open (file, bit.bor (posix.O_CREAT, posix.O_WRONLY, posix.O_TRUNC), mode)
 end
 
 --- Run a program like <code>os.execute</code>, but without a shell.
