@@ -270,7 +270,6 @@ f"xxx"
 function f(x) print(ox.getpasswd(x,"name"),ox.getpasswd(x,"shell")) end
 f()
 f(nil)
---ox.putenv"USER=root"
 ox.setenv("USER","root")
 f(ox.getenv"USER")
 
