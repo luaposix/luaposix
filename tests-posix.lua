@@ -211,6 +211,18 @@ os.execute"ls -l xxx"
 ox.unlink"xxx"
 
 ------------------------------------------------------------------------------
+testing"pseudoterminal"
+do
+    local master = assert(ox.openpt(ox.O_RDWR+ox.O_NOCTTY))
+    assert(ox.grantpt(master))
+    assert(ox.unlockpt(master))
+    local slavename = assert(ox.ptsname(master))
+    local slave = assert(ox.open(slavename, ox.O_RDWR+ox.O_NOCTTY))
+    ox.close(slave)
+    ox.close(master)
+end
+
+------------------------------------------------------------------------------
 testing"chmod, access"
 ox.unlink"xxx"
 print(ox.access("xxx"))
