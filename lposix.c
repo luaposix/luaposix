@@ -1413,6 +1413,78 @@ static int Pumask(lua_State *L)
 }
 
 /***
+Open a pseudoterminal.
+@function openpt
+@see posix_openpt(3)
+@int oflags bitwise OR of the values `O_RDWR`,
+and possibly `O_NOCTTY` (all in the library's namespace)
+@return file descriptor on success, nil otherwise
+@return error message if failed.
+@see grantpt
+@see ptsname
+@see unlockpt
+*/
+static int Popenpt(lua_State *L)
+{
+	const char *path = luaL_checkstring(L, 1);
+	int flags = luaL_checkint(L, 2);
+	/* The name of the pseudo-device is specified by POSIX */
+	return pushresult(L, open("/dev/ptmx", flags), NULL);
+}
+
+/***
+Grant access to a slave pseudoterminal
+@function grantpt
+@param file descriptor returned by opening /dev/ptmx
+@return 0 on success
+@return nil, error message if failed.
+@see openpt
+@see ptsname
+@see unlockpt
+*/
+static int Pgrantpt(lua_State *L)
+{
+    int fd=luaL_checkint(L, 1);
+    return pushresult(L, grantpt(fd), "grantpt");
+}
+
+/***
+Unlock a pseudoterminal master/slave pair
+@function unlockpt
+@param file descriptor returned by opening /dev/ptmx
+@return 0 on success
+@return nil, error message if failed.
+@see openpt
+@see ptsname
+@see grantpt
+*/
+static int Punlockpt(lua_State *L)
+{
+    int fd=luaL_checkint(L, 1);
+    return pushresult(L, unlockpt(fd), "unlockpt");
+}
+
+/***
+Get the name of a slave pseudo-terminal
+@function ptsname
+@param file descriptor returned by opening /dev/ptmx
+@return path name of the slave terminal device
+@return nil, error message if failed.
+@see openpt
+@see grantpt
+@see unlockpt
+*/
+static int Pptsname(lua_State *L)
+{
+    int fd=luaL_checkint(L, 1);
+    const char* slave = ptsname(fd);
+    if(!slave)
+        return pusherror(L, "getptsname");
+    lua_pushstring(L, slave);
+    return 1;
+}
+
+/***
 Open a file.
 @function open
 @see open(2)
@@ -2988,6 +3060,7 @@ static const luaL_Reg R[] =
 	MENTRY( Pgettimeofday	),
 	MENTRY( Pglob		),
 	MENTRY( Pgmtime		),
+	MENTRY( Pgrantpt        ),
 	MENTRY( Phostid		),
 	MENTRY( Pisatty		),
 	MENTRY( Pisgraph	),
@@ -3001,6 +3074,7 @@ static const luaL_Reg R[] =
 	MENTRY( Pmkdtemp	),
 	MENTRY( Pmktime		),
 	MENTRY( Popen		),
+	MENTRY( Popenpt		),
 	MENTRY( Ppathconf	),
 	MENTRY( Ppipe		),
 	MENTRY( Praise		),
@@ -3009,6 +3083,7 @@ static const luaL_Reg R[] =
 	MENTRY( Prmdir		),
 	MENTRY( Prpoll		),
 	MENTRY( Ppoll		),
+	MENTRY( Pptsname        ),
 	MENTRY( Pset_errno	),
 	MENTRY( Psetenv		),
 	MENTRY( Psetpid		),
@@ -3024,6 +3099,7 @@ static const luaL_Reg R[] =
 	MENTRY( Ptimes		),
 	MENTRY( Pttyname	),
 	MENTRY( Punlink		),
+	MENTRY( Punlockpt	),
 	MENTRY( Pumask		),
 	MENTRY( Puname		),
 	MENTRY( Putime		),
