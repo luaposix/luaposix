@@ -333,4 +333,18 @@ y=ox.timersub(y,{usec=999999})
 assert (ox.timercmp(x,y) == 0)
 
 ------------------------------------------------------------------------------
+testing"msgget/msgsnd/msgrcv"
+mq, err, errno = ox.msgget(100, bit.bor(ox.IPC_CREAT, ox.IPC_EXCL), "rwxrwxrwx")
+if errno == ox.EEXIST then
+	mq, err = ox.msgget(100, 0, "rwxrwxrwx")
+end
+assert (mq, err)
+a, err = ox.msgsnd(mq, 42, 'Answer to the Ultimate Question of Life')
+assert(a, err)
+mtype, mtext, err = ox.msgrcv(mq, 128)
+assert(mtype == 42)
+assert(mtext == 'Answer to the Ultimate Question of Life')
+assert(err == nil)
+
+------------------------------------------------------------------------------
 io.stderr:write("\n\n==== ", ox.version, " tests completed ====\n\n")
