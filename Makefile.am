@@ -50,6 +50,7 @@ $(dist_doc_DATA): lcurses.c make_lcurses_doc.pl
 if HAVE_LDOC
 	$(LDOC) .
 else
+	$(MKDIR_P) docs
 	touch docs/index.html docs/ldoc.css
 endif
 

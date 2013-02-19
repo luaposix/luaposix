@@ -10,6 +10,7 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 dnl Check for programs
 AC_PROG_CC
 gl_EARLY
+AC_PROG_MKDIR_P
 
 AC_USE_SYSTEM_EXTENSIONS
 AC_ARG_ENABLE([gcc-warnings],
