@@ -1426,8 +1426,7 @@ and possibly `O_NOCTTY` (all in the library's namespace)
 */
 static int Popenpt(lua_State *L)
 {
-	const char *path = luaL_checkstring(L, 1);
-	int flags = luaL_checkint(L, 2);
+	int flags = luaL_checkint(L, 1);
 	/* The name of the pseudo-device is specified by POSIX */
 	return pushresult(L, open("/dev/ptmx", flags), NULL);
 }
