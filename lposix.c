@@ -34,6 +34,8 @@
 #include <time.h>
 #include <unistd.h>
 #include <utime.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
 #include <sys/stat.h>
 #include <sys/times.h>
 #include <sys/types.h>
@@ -1319,6 +1321,121 @@ static int Pnanosleep(lua_State *L)
 		ret += 2;
 	}
 	return ret;
+}
+
+/***
+Get a message queue identifier
+@function msgget
+@see msgget(2)
+@int key
+@int flags (optional, default - 0)
+@int mode (optional, default - 0777)
+@return message queue identifier on success
+@return nil and error message if failed
+ */
+static int Pmsgget(lua_State *L)
+{
+	mode_t mode;
+	const char *modestr;
+	key_t key = luaL_checkint(L, 1);
+	int msgflg = luaL_optint(L, 2, 0);
+
+	modestr = luaL_optstring(L, 3,"rwxrwxrwx");
+	if (mode_munch(&mode, modestr)) {
+		luaL_argerror(L, 2, "bad mode");
+	}
+	msgflg |= mode;
+
+	return pushresult(L, msgget(key, msgflg), NULL);
+}
+
+/***
+Send message to a message queue
+@function msgsnd
+@see msgsnd(2)
+@int id - message queue identifier returned by msgget
+@long type - message type
+@string message
+@int flags (optional, default - 0)
+@return 0 on success
+@return nil and error message if failed
+ */
+static int Pmsgsnd(lua_State *L)
+{
+	void *ud;
+	lua_Alloc lalloc;
+	struct {
+		long mtype;
+		char mtext[0];
+	} *msg;
+	size_t len;	
+	size_t msgsz;
+	ssize_t res;
+	
+	int msgid = luaL_checkint(L, 1);
+	long msgtype = luaL_checklong(L, 2);
+	const char *msgp = luaL_checklstring(L, 3, &len);
+	int msgflg = luaL_optint(L, 4, 0);
+
+	lalloc = lua_getallocf(L, &ud);
+
+	msgsz = sizeof(long) + len;
+
+	if ((msg = lalloc(ud, NULL, 0, msgsz)) == NULL) {
+		return pusherror(L, "lalloc");
+	}
+
+	msg->mtype = msgtype;
+	memcpy(msg->mtext, msgp, len);
+
+	res = msgsnd(msgid, msg, msgsz, msgflg);
+	lua_pushinteger(L, res);
+
+	lalloc(ud, msg, 0, 0);
+
+	return (res == -1 ? pusherror(L, NULL) : 1);
+}
+
+/***
+Receive message from a message queue
+@function msgrcv
+@see msgrcv(2)
+@int id - message queue identifier returned by msgget
+@int size - maximum message size
+@long type - message type (optional, default - 0)
+@int flags (optional, default - 0)
+@return message type and message text on success
+@return nil, nil and error message if failed
+ */
+static int Pmsgrcv(lua_State *L)
+{
+	int msgid = luaL_checkint(L, 1);
+	size_t msgsz = luaL_checkint(L, 2);
+	long msgtyp = luaL_optint(L, 3, 0);
+	int msgflg = luaL_optint(L, 4, 0);
+
+	void *ud;
+	lua_Alloc lalloc;
+	struct {
+		long mtype;
+		char mtext[0];
+	} *msg;
+
+	lalloc = lua_getallocf(L, &ud);
+	if ((msg = lalloc(ud, NULL, 0, msgsz)) == NULL) {
+		return pusherror(L, "lalloc");
+	}
+
+	int res = msgrcv(msgid, msg, msgsz, msgtyp, msgflg);
+	if (res == -1) {
+		lalloc(ud, msg, 0, 0);
+		lua_pushnil(L);
+		return pusherror(L, NULL);
+	}
+	lua_pushinteger(L, msg->mtype);
+	lua_pushlstring(L, msg->mtext, res - sizeof(long));
+
+	return 2;
 }
 
 /***
@@ -3090,6 +3207,9 @@ static const luaL_Reg R[] =
 	MENTRY( Psignal		),
 	MENTRY( Psleep		),
 	MENTRY( Pnanosleep	),
+	MENTRY( Pmsgget ),
+	MENTRY( Pmsgsnd ),
+	MENTRY( Pmsgrcv ),
 	MENTRY( Pstat		),
 	MENTRY( Pstrftime	),
 	MENTRY( Pstrptime	),
@@ -3159,6 +3279,11 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( SYNC     );
 	MENTRY( TRUNC    );
 #undef MENTRY
+
+	/* Message queues */
+	set_integer_const( "IPC_CREAT",		IPC_CREAT);
+	set_integer_const( "IPC_EXCL",		IPC_EXCL);
+	set_integer_const( "IPC_PRIVATE",		IPC_PRIVATE);
 
 	/* Miscellaneous */
 	set_integer_const( "WNOHANG",		WNOHANG		);
