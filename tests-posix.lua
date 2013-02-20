@@ -79,20 +79,25 @@ myassert("rmdir",ox.rmdir"x")
 ------------------------------------------------------------------------------
 testing"fork, execp"
 io.flush()
-pid=assert(ox.fork())
-if pid==0 then
-  pid=ox.getpid"pid"
-  ppid=ox.getpid"ppid"
-  io.write("in child process ",pid," from ",ppid,".\nnow executing date... ")
-  io.flush()
-  assert(ox.execp("date","+[%c]"))
-  print"should not get here"
-else
-  io.write("process ",ox.getpid"pid"," forked child process ",pid,". waiting...\n")
-  p,msg,ret = ox.wait(pid)
-  assert(p == pid and msg == "exited" and ret == 0)
-  io.write("child process ",pid," done\n")
+function test_fork (use_table)
+  local pid=assert(ox.fork())
+  if pid==0 then
+    pid=ox.getpid"pid"
+    local ppid=ox.getpid"ppid"
+    io.write("in child process ",pid," from ",ppid,".\nnow executing date... ")
+    io.flush()
+    assert(ox.execp("date",use_table and {"+[%c]"} or "+[%c]"))
+    print"should not get here"
+  else
+    io.write("process ",ox.getpid"pid"," forked child process ",pid,". waiting...\n")
+    local p,msg,ret = ox.wait(pid)
+    assert(p == pid and msg == "exited" and ret == 0)
+    io.write("child process ",pid," done\n")
+  end
 end
+test_fork(false) -- test passing command arguments as scalars
+test_fork(true) -- test passing command arguments in a table
+-- FIXME: test setting argv[0]
 
 ------------------------------------------------------------------------------
 testing"dir, stat"

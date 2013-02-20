@@ -879,17 +879,43 @@ static int Pmkdtemp(lua_State *L)
 
 static int runexec(lua_State *L, int use_shell)
 {
+	char **argv;
 	const char *path = luaL_checkstring(L, 1);
-	int i,n=lua_gettop(L);
-	char **argv = lua_newuserdata(L,(n+1)*sizeof(char*));
+	int i,n=lua_gettop(L), table = 0;
+	if (n >= 1 && lua_type(L, 2) == LUA_TTABLE) {
+		int isint;
+		lua_len(L, 2);
+		n = lua_tointegerx(L, -1, &isint);
+		if (!isint)
+			luaL_error(L, "argument 2 is a table, but has non-numeric length");
+		table = 1;
+	} else
+		n--;
+	argv = lua_newuserdata(L,(n+2)*sizeof(char*));
+
+	/* Set argv[0], defaulting to command */
 	argv[0] = (char*)path;
-	for (i=1; i<n; i++)
-		argv[i] = (char*)luaL_checkstring(L, i+1);
-	argv[n] = NULL;
-	if (use_shell)
-		execvp(path, argv);
-	else
-		execv(path, argv);
+	if (table) {
+		lua_pushinteger(L, 0);
+		lua_gettable(L, 2);
+		if (lua_type(L, -1) == LUA_TSTRING)
+			argv[0] = (char*)lua_tostring(L, -1);
+		else
+			lua_pop(L, 1);
+	}
+
+	/* Read argv[1..n] from arguments or table. */
+	for (i=1; i<=n; i++) {
+		if (table) {
+			lua_pushinteger(L, i);
+			lua_gettable(L, 2);
+			argv[i] = (char*)lua_tostring(L, -1);
+		} else
+			argv[i] = (char*)luaL_checkstring(L, i+1);
+	}
+	argv[n+1] = NULL;
+
+	(use_shell?execvp:execv)(path, argv);
 	return pusherror(L, path);
 }
 
@@ -898,7 +924,8 @@ Execute a program without using the shell.
 @function exec
 @see execve(2)
 @string path
-@param ... any arguments
+@param ... any arguments, or
+@param t table of arguments (can include index 0)
 @return return code, nil otherwise
 @return error message if failed.
 */
@@ -912,7 +939,8 @@ Execute a program using the shell.
 @function execp
 @see execve(2)
 @string path
-@param ... any arguments
+@param ... any arguments, or
+@param t table of arguments (can include index 0)
 @return return code, nil otherwise
 @return error message if failed.
 */
