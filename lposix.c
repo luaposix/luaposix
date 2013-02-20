@@ -34,6 +34,8 @@
 #include <time.h>
 #include <unistd.h>
 #include <utime.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
 #include <sys/stat.h>
 #include <sys/times.h>
 #include <sys/types.h>
@@ -877,17 +879,43 @@ static int Pmkdtemp(lua_State *L)
 
 static int runexec(lua_State *L, int use_shell)
 {
+	char **argv;
 	const char *path = luaL_checkstring(L, 1);
-	int i,n=lua_gettop(L);
-	char **argv = lua_newuserdata(L,(n+1)*sizeof(char*));
+	int i,n=lua_gettop(L), table = 0;
+	if (n >= 1 && lua_type(L, 2) == LUA_TTABLE) {
+		int isint;
+		lua_len(L, 2);
+		n = lua_tointegerx(L, -1, &isint);
+		if (!isint)
+			luaL_error(L, "argument 2 is a table, but has non-numeric length");
+		table = 1;
+	} else
+		n--;
+	argv = lua_newuserdata(L,(n+2)*sizeof(char*));
+
+	/* Set argv[0], defaulting to command */
 	argv[0] = (char*)path;
-	for (i=1; i<n; i++)
-		argv[i] = (char*)luaL_checkstring(L, i+1);
-	argv[n] = NULL;
-	if (use_shell)
-		execvp(path, argv);
-	else
-		execv(path, argv);
+	if (table) {
+		lua_pushinteger(L, 0);
+		lua_gettable(L, 2);
+		if (lua_type(L, -1) == LUA_TSTRING)
+			argv[0] = (char*)lua_tostring(L, -1);
+		else
+			lua_pop(L, 1);
+	}
+
+	/* Read argv[1..n] from arguments or table. */
+	for (i=1; i<=n; i++) {
+		if (table) {
+			lua_pushinteger(L, i);
+			lua_gettable(L, 2);
+			argv[i] = (char*)lua_tostring(L, -1);
+		} else
+			argv[i] = (char*)luaL_checkstring(L, i+1);
+	}
+	argv[n+1] = NULL;
+
+	(use_shell?execvp:execv)(path, argv);
 	return pusherror(L, path);
 }
 
@@ -896,7 +924,8 @@ Execute a program without using the shell.
 @function exec
 @see execve(2)
 @string path
-@param ... any arguments
+@param ... any arguments, or
+@param t table of arguments (can include index 0)
 @return return code, nil otherwise
 @return error message if failed.
 */
@@ -910,7 +939,8 @@ Execute a program using the shell.
 @function execp
 @see execve(2)
 @string path
-@param ... any arguments
+@param ... any arguments, or
+@param t table of arguments (can include index 0)
 @return return code, nil otherwise
 @return error message if failed.
 */
@@ -1322,6 +1352,121 @@ static int Pnanosleep(lua_State *L)
 }
 
 /***
+Get a message queue identifier
+@function msgget
+@see msgget(2)
+@int key
+@int flags (optional, default - 0)
+@int mode (optional, default - 0777)
+@return message queue identifier on success
+@return nil and error message if failed
+ */
+static int Pmsgget(lua_State *L)
+{
+	mode_t mode;
+	const char *modestr;
+	key_t key = luaL_checkint(L, 1);
+	int msgflg = luaL_optint(L, 2, 0);
+
+	modestr = luaL_optstring(L, 3,"rwxrwxrwx");
+	if (mode_munch(&mode, modestr)) {
+		luaL_argerror(L, 2, "bad mode");
+	}
+	msgflg |= mode;
+
+	return pushresult(L, msgget(key, msgflg), NULL);
+}
+
+/***
+Send message to a message queue
+@function msgsnd
+@see msgsnd(2)
+@int id - message queue identifier returned by msgget
+@long type - message type
+@string message
+@int flags (optional, default - 0)
+@return 0 on success
+@return nil and error message if failed
+ */
+static int Pmsgsnd(lua_State *L)
+{
+	void *ud;
+	lua_Alloc lalloc;
+	struct {
+		long mtype;
+		char mtext[0];
+	} *msg;
+	size_t len;	
+	size_t msgsz;
+	ssize_t res;
+	
+	int msgid = luaL_checkint(L, 1);
+	long msgtype = luaL_checklong(L, 2);
+	const char *msgp = luaL_checklstring(L, 3, &len);
+	int msgflg = luaL_optint(L, 4, 0);
+
+	lalloc = lua_getallocf(L, &ud);
+
+	msgsz = sizeof(long) + len;
+
+	if ((msg = lalloc(ud, NULL, 0, msgsz)) == NULL) {
+		return pusherror(L, "lalloc");
+	}
+
+	msg->mtype = msgtype;
+	memcpy(msg->mtext, msgp, len);
+
+	res = msgsnd(msgid, msg, msgsz, msgflg);
+	lua_pushinteger(L, res);
+
+	lalloc(ud, msg, 0, 0);
+
+	return (res == -1 ? pusherror(L, NULL) : 1);
+}
+
+/***
+Receive message from a message queue
+@function msgrcv
+@see msgrcv(2)
+@int id - message queue identifier returned by msgget
+@int size - maximum message size
+@long type - message type (optional, default - 0)
+@int flags (optional, default - 0)
+@return message type and message text on success
+@return nil, nil and error message if failed
+ */
+static int Pmsgrcv(lua_State *L)
+{
+	int msgid = luaL_checkint(L, 1);
+	size_t msgsz = luaL_checkint(L, 2);
+	long msgtyp = luaL_optint(L, 3, 0);
+	int msgflg = luaL_optint(L, 4, 0);
+
+	void *ud;
+	lua_Alloc lalloc;
+	struct {
+		long mtype;
+		char mtext[0];
+	} *msg;
+
+	lalloc = lua_getallocf(L, &ud);
+	if ((msg = lalloc(ud, NULL, 0, msgsz)) == NULL) {
+		return pusherror(L, "lalloc");
+	}
+
+	int res = msgrcv(msgid, msg, msgsz, msgtyp, msgflg);
+	if (res == -1) {
+		lalloc(ud, msg, 0, 0);
+		lua_pushnil(L);
+		return pusherror(L, NULL);
+	}
+	lua_pushinteger(L, msg->mtype);
+	lua_pushlstring(L, msg->mtext, res - sizeof(long));
+
+	return 2;
+}
+
+/***
 Set an environment variable for this process.
 (Child processes will inherit this)
 @function setenv
@@ -1410,6 +1555,77 @@ static int Pumask(lua_State *L)
 	}
 	pushmode(L, mode);
 	return 1;
+}
+
+/***
+Open a pseudoterminal.
+@function openpt
+@see posix_openpt(3)
+@int oflags bitwise OR of the values `O_RDWR`,
+and possibly `O_NOCTTY` (all in the library's namespace)
+@return file descriptor on success, nil otherwise
+@return error message if failed.
+@see grantpt
+@see ptsname
+@see unlockpt
+*/
+static int Popenpt(lua_State *L)
+{
+	int flags = luaL_checkint(L, 1);
+	/* The name of the pseudo-device is specified by POSIX */
+	return pushresult(L, open("/dev/ptmx", flags), NULL);
+}
+
+/***
+Grant access to a slave pseudoterminal
+@function grantpt
+@param file descriptor returned by opening /dev/ptmx
+@return 0 on success
+@return nil, error message if failed.
+@see openpt
+@see ptsname
+@see unlockpt
+*/
+static int Pgrantpt(lua_State *L)
+{
+    int fd=luaL_checkint(L, 1);
+    return pushresult(L, grantpt(fd), "grantpt");
+}
+
+/***
+Unlock a pseudoterminal master/slave pair
+@function unlockpt
+@param file descriptor returned by opening /dev/ptmx
+@return 0 on success
+@return nil, error message if failed.
+@see openpt
+@see ptsname
+@see grantpt
+*/
+static int Punlockpt(lua_State *L)
+{
+    int fd=luaL_checkint(L, 1);
+    return pushresult(L, unlockpt(fd), "unlockpt");
+}
+
+/***
+Get the name of a slave pseudo-terminal
+@function ptsname
+@param file descriptor returned by opening /dev/ptmx
+@return path name of the slave terminal device
+@return nil, error message if failed.
+@see openpt
+@see grantpt
+@see unlockpt
+*/
+static int Pptsname(lua_State *L)
+{
+    int fd=luaL_checkint(L, 1);
+    const char* slave = ptsname(fd);
+    if(!slave)
+        return pusherror(L, "getptsname");
+    lua_pushstring(L, slave);
+    return 1;
 }
 
 /***
@@ -2988,6 +3204,7 @@ static const luaL_Reg R[] =
 	MENTRY( Pgettimeofday	),
 	MENTRY( Pglob		),
 	MENTRY( Pgmtime		),
+	MENTRY( Pgrantpt        ),
 	MENTRY( Phostid		),
 	MENTRY( Pisatty		),
 	MENTRY( Pisgraph	),
@@ -3001,6 +3218,7 @@ static const luaL_Reg R[] =
 	MENTRY( Pmkdtemp	),
 	MENTRY( Pmktime		),
 	MENTRY( Popen		),
+	MENTRY( Popenpt		),
 	MENTRY( Ppathconf	),
 	MENTRY( Ppipe		),
 	MENTRY( Praise		),
@@ -3009,6 +3227,7 @@ static const luaL_Reg R[] =
 	MENTRY( Prmdir		),
 	MENTRY( Prpoll		),
 	MENTRY( Ppoll		),
+	MENTRY( Pptsname        ),
 	MENTRY( Pset_errno	),
 	MENTRY( Psetenv		),
 	MENTRY( Psetpid		),
@@ -3016,6 +3235,9 @@ static const luaL_Reg R[] =
 	MENTRY( Psignal		),
 	MENTRY( Psleep		),
 	MENTRY( Pnanosleep	),
+	MENTRY( Pmsgget ),
+	MENTRY( Pmsgsnd ),
+	MENTRY( Pmsgrcv ),
 	MENTRY( Pstat		),
 	MENTRY( Pstrftime	),
 	MENTRY( Pstrptime	),
@@ -3024,6 +3246,7 @@ static const luaL_Reg R[] =
 	MENTRY( Ptimes		),
 	MENTRY( Pttyname	),
 	MENTRY( Punlink		),
+	MENTRY( Punlockpt	),
 	MENTRY( Pumask		),
 	MENTRY( Puname		),
 	MENTRY( Putime		),
@@ -3084,6 +3307,11 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( SYNC     );
 	MENTRY( TRUNC    );
 #undef MENTRY
+
+	/* Message queues */
+	set_integer_const( "IPC_CREAT",		IPC_CREAT);
+	set_integer_const( "IPC_EXCL",		IPC_EXCL);
+	set_integer_const( "IPC_PRIVATE",		IPC_PRIVATE);
 
 	/* Miscellaneous */
 	set_integer_const( "WNOHANG",		WNOHANG		);

@@ -79,20 +79,25 @@ myassert("rmdir",ox.rmdir"x")
 ------------------------------------------------------------------------------
 testing"fork, execp"
 io.flush()
-pid=assert(ox.fork())
-if pid==0 then
-  pid=ox.getpid"pid"
-  ppid=ox.getpid"ppid"
-  io.write("in child process ",pid," from ",ppid,".\nnow executing date... ")
-  io.flush()
-  assert(ox.execp("date","+[%c]"))
-  print"should not get here"
-else
-  io.write("process ",ox.getpid"pid"," forked child process ",pid,". waiting...\n")
-  p,msg,ret = ox.wait(pid)
-  assert(p == pid and msg == "exited" and ret == 0)
-  io.write("child process ",pid," done\n")
+function test_fork (use_table)
+  local pid=assert(ox.fork())
+  if pid==0 then
+    pid=ox.getpid"pid"
+    local ppid=ox.getpid"ppid"
+    io.write("in child process ",pid," from ",ppid,".\nnow executing date... ")
+    io.flush()
+    assert(ox.execp("date",use_table and {"+[%c]"} or "+[%c]"))
+    print"should not get here"
+  else
+    io.write("process ",ox.getpid"pid"," forked child process ",pid,". waiting...\n")
+    local p,msg,ret = ox.wait(pid)
+    assert(p == pid and msg == "exited" and ret == 0)
+    io.write("child process ",pid," done\n")
+  end
 end
+test_fork(false) -- test passing command arguments as scalars
+test_fork(true) -- test passing command arguments in a table
+-- FIXME: test setting argv[0]
 
 ------------------------------------------------------------------------------
 testing"dir, stat"
@@ -211,6 +216,18 @@ os.execute"ls -l xxx"
 ox.unlink"xxx"
 
 ------------------------------------------------------------------------------
+testing"pseudoterminal"
+do
+    local master = assert(ox.openpt(ox.O_RDWR+ox.O_NOCTTY))
+    assert(ox.grantpt(master))
+    assert(ox.unlockpt(master))
+    local slavename = assert(ox.ptsname(master))
+    local slave = assert(ox.open(slavename, ox.O_RDWR+ox.O_NOCTTY))
+    ox.close(slave)
+    ox.close(master)
+end
+
+------------------------------------------------------------------------------
 testing"chmod, access"
 ox.unlink"xxx"
 print(ox.access("xxx"))
@@ -319,6 +336,20 @@ assert (ox.timercmp(x,y) < 0)
 assert (ox.timercmp(y,x) > 0)
 y=ox.timersub(y,{usec=999999})
 assert (ox.timercmp(x,y) == 0)
+
+------------------------------------------------------------------------------
+testing"msgget/msgsnd/msgrcv"
+mq, err, errno = ox.msgget(100, bit.bor(ox.IPC_CREAT, ox.IPC_EXCL), "rwxrwxrwx")
+if errno == ox.EEXIST then
+	mq, err = ox.msgget(100, 0, "rwxrwxrwx")
+end
+assert (mq, err)
+a, err = ox.msgsnd(mq, 42, 'Answer to the Ultimate Question of Life')
+assert(a, err)
+mtype, mtext, err = ox.msgrcv(mq, 128)
+assert(mtype == 42)
+assert(mtext == 'Answer to the Ultimate Question of Life')
+assert(err == nil)
 
 ------------------------------------------------------------------------------
 io.stderr:write("\n\n==== ", ox.version, " tests completed ====\n\n")
