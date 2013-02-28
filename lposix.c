@@ -1769,7 +1769,8 @@ Read bytes from a file.
 @see read(2)
 @int fd the file descriptor
 @int count number of bytes to read
-@return string with at most `count` bytes.
+@return string with at most `count` bytes, or nil on error
+@return error message if failed
 */
 static int Pread(lua_State *L)
 {
