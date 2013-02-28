@@ -1218,8 +1218,9 @@ Wait for the given process.
 @function wait
 @see waitpid(2)
 @int pid optional (default -1 (any child process))
-@return return code, nil otherwise
-@return error message if failed.
+@return pid of terminated child, nil on error
+@return how child ended ("exited", "killed" or "stopped"), or error message on error.
+@return status value (computed with WEXITSTATUS, WTERMSIG or WSTOPSIG as appropriate), or nothing on error.
 */
 static int Pwait(lua_State *L)
 {
