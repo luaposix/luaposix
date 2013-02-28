@@ -1269,6 +1269,22 @@ static int Pkill(lua_State *L)
 }
 
 /***
+Send a signal to the given process group.
+@function killpg
+@see killpg(2)
+@int pgrp group id
+@int sig optional (default SIGTERM)
+@return return code, nil otherwise
+@return error message if failed.
+*/
+static int Pkillpg(lua_State *L)
+{
+	int pgrp = luaL_checkint(L, 1);
+	int sig = luaL_optint(L, 2, SIGTERM);
+	return pushresult(L, killpg(pgrp, sig), NULL);
+}
+
+/***
 Set the uid, euid, gid, egid, sid or pid & gid.
 @function setpid
 @see setuid(2)
@@ -3210,6 +3226,7 @@ static const luaL_Reg R[] =
 	MENTRY( Pisgraph	),
 	MENTRY( Pisprint	),
 	MENTRY( Pkill		),
+	MENTRY( Pkillpg		),
 	MENTRY( Plink		),
 	MENTRY( Plocaltime	),
 	MENTRY( Pmkdir		),
