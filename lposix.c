@@ -3118,6 +3118,7 @@ N.B. Although this is the same API as signal(2), it uses sigaction for guarantee
 @see signal.lua
 @int signum
 @param handler function
+@param flags optional the `sa_flags` element of `struct sigaction`
 @return previous handler function
 */
 static int Psignal (lua_State *L)
@@ -3142,7 +3143,7 @@ static int Psignal (lua_State *L)
 
 	/* Set up C signal handler, getting old handler */
 	sa.sa_handler = handler;
-	sa.sa_flags = 0;
+	sa.sa_flags = luaL_optint(L, 3, 0);
 	sigfillset(&sa.sa_mask);
 	ret = sigaction(sig, &sa, &oldsa);
 	if (ret == -1)
@@ -3441,6 +3442,16 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( VTALRM	);
 	MENTRY( XCPU	);
 	MENTRY( XFSZ	);
+#undef MENTRY
+
+	/* Signal flags */
+#define MENTRY(_e) set_integer_const(LPOSIX_STR_1(LPOSIX_SPLICE(_SA, _e)), LPOSIX_SPLICE(SA, _e))
+	MENTRY( _NOCLDSTOP	);
+#if _POSIX_VERSION >= 20112L
+	MENTRY( _NOCLDWAIT	);
+	MENTRY( _RESETHAND	);
+	MENTRY( _NODEFER	);
+#endif
 #undef MENTRY
 
 #if _POSIX_VERSION >= 200112L
