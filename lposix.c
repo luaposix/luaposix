@@ -452,6 +452,23 @@ static int Pset_errno(lua_State *L)
 }
 
 /***
+Find canonicalized absolute pathname.
+@function realpath
+@see realpath(3)
+@string path
+@return canonicalized absolute path, or nil on error
+@return error message if failed
+*/
+static int Prealpath(lua_State *L)
+{
+	char *s;
+	if ((s = realpath(luaL_checkstring(L, 1), NULL)) == NULL)
+		return pusherror(L, "realpath");
+	lua_pushstring(L, s);
+	return 1;
+}
+
+/***
 File part of path.
 @function basename
 @see basename(3)
@@ -3244,6 +3261,7 @@ static const luaL_Reg R[] =
 	MENTRY( Praise		),
 	MENTRY( Pread		),
 	MENTRY( Preadlink	),
+	MENTRY( Prealpath	),
 	MENTRY( Prmdir		),
 	MENTRY( Prpoll		),
 	MENTRY( Ppoll		),
