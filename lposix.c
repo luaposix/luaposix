@@ -820,7 +820,7 @@ static int Pfileno(lua_State *L)
 Make a FIFO pipe.
 @function mkfifo
 @see mkfifo(2)
-@param path
+@string path
 @return handle on success, nil otherwise
 @return error message if failed.
 */
@@ -2277,7 +2277,7 @@ Get file system statistics.
 @function statvfs
 @see statvfs(3)
 @string path any path within the mounted file system
-@param ... field names, each one of "bsize", "frsize", "blocks", "bfree", "bavail",
+@string ... field names, each one of "bsize", "frsize", "blocks", "bfree", "bavail",
 "files", "ffree", "favail", "fsid", "flag", "namemax"
 @return ... values, or table of all fields if no option given
 */
