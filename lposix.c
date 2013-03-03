@@ -465,6 +465,7 @@ static int Prealpath(lua_State *L)
 	if ((s = realpath(luaL_checkstring(L, 1), NULL)) == NULL)
 		return pusherror(L, "realpath");
 	lua_pushstring(L, s);
+	free(s);
 	return 1;
 }
 
