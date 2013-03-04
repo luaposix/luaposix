@@ -74,7 +74,6 @@ tag-release:
 
 check-in-release: distcheck
 	cd ../$(PACKAGE)-release && \
-	git checkout release && \
 	tar zxf ../$(PACKAGE)/$(PACKAGE)-$(VERSION).tar.gz && \
 	cp -af $(PACKAGE)-$(VERSION)/* . && \
 	rm -rf $(PACKAGE)-$(VERSION)/ && \

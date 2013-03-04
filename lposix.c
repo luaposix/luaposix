@@ -452,6 +452,24 @@ static int Pset_errno(lua_State *L)
 }
 
 /***
+Find canonicalized absolute pathname.
+@function realpath
+@see realpath(3)
+@string path
+@return canonicalized absolute path, or nil on error
+@return error message if failed
+*/
+static int Prealpath(lua_State *L)
+{
+	char *s;
+	if ((s = realpath(luaL_checkstring(L, 1), NULL)) == NULL)
+		return pusherror(L, "realpath");
+	lua_pushstring(L, s);
+	free(s);
+	return 1;
+}
+
+/***
 File part of path.
 @function basename
 @see basename(3)
@@ -803,7 +821,7 @@ static int Pfileno(lua_State *L)
 Make a FIFO pipe.
 @function mkfifo
 @see mkfifo(2)
-@param path
+@string path
 @return handle on success, nil otherwise
 @return error message if failed.
 */
@@ -1218,8 +1236,9 @@ Wait for the given process.
 @function wait
 @see waitpid(2)
 @int pid optional (default -1 (any child process))
-@return return code, nil otherwise
-@return error message if failed.
+@return pid of terminated child, nil on error
+@return how child ended ("exited", "killed" or "stopped"), or error message on error.
+@return status value (computed with WEXITSTATUS, WTERMSIG or WSTOPSIG as appropriate), or nothing on error.
 */
 static int Pwait(lua_State *L)
 {
@@ -1266,6 +1285,22 @@ static int Pkill(lua_State *L)
 	pid_t pid = luaL_checkint(L, 1);
 	int sig = luaL_optint(L, 2, SIGTERM);
 	return pushresult(L, kill(pid, sig), NULL);
+}
+
+/***
+Send a signal to the given process group.
+@function killpg
+@see killpg(2)
+@int pgrp group id
+@int sig optional (default SIGTERM)
+@return return code, nil otherwise
+@return error message if failed.
+*/
+static int Pkillpg(lua_State *L)
+{
+	int pgrp = luaL_checkint(L, 1);
+	int sig = luaL_optint(L, 2, SIGTERM);
+	return pushresult(L, killpg(pgrp, sig), NULL);
 }
 
 /***
@@ -1752,7 +1787,8 @@ Read bytes from a file.
 @see read(2)
 @int fd the file descriptor
 @int count number of bytes to read
-@return string with at most `count` bytes.
+@return string with at most `count` bytes, or nil on error
+@return error message if failed
 */
 static int Pread(lua_State *L)
 {
@@ -2242,7 +2278,7 @@ Get file system statistics.
 @function statvfs
 @see statvfs(3)
 @string path any path within the mounted file system
-@param ... field names, each one of "bsize", "frsize", "blocks", "bfree", "bavail",
+@string ... field names, each one of "bsize", "frsize", "blocks", "bfree", "bavail",
 "files", "ffree", "favail", "fsid", "flag", "namemax"
 @return ... values, or table of all fields if no option given
 */
@@ -3100,6 +3136,7 @@ N.B. Although this is the same API as signal(2), it uses sigaction for guarantee
 @see signal.lua
 @int signum
 @param handler function
+@param flags optional the `sa_flags` element of `struct sigaction`
 @return previous handler function
 */
 static int Psignal (lua_State *L)
@@ -3124,7 +3161,7 @@ static int Psignal (lua_State *L)
 
 	/* Set up C signal handler, getting old handler */
 	sa.sa_handler = handler;
-	sa.sa_flags = 0;
+	sa.sa_flags = luaL_optint(L, 3, 0);
 	sigfillset(&sa.sa_mask);
 	ret = sigaction(sig, &sa, &oldsa);
 	if (ret == -1)
@@ -3210,6 +3247,7 @@ static const luaL_Reg R[] =
 	MENTRY( Pisgraph	),
 	MENTRY( Pisprint	),
 	MENTRY( Pkill		),
+	MENTRY( Pkillpg		),
 	MENTRY( Plink		),
 	MENTRY( Plocaltime	),
 	MENTRY( Pmkdir		),
@@ -3224,6 +3262,7 @@ static const luaL_Reg R[] =
 	MENTRY( Praise		),
 	MENTRY( Pread		),
 	MENTRY( Preadlink	),
+	MENTRY( Prealpath	),
 	MENTRY( Prmdir		),
 	MENTRY( Prpoll		),
 	MENTRY( Ppoll		),
@@ -3422,6 +3461,16 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( VTALRM	);
 	MENTRY( XCPU	);
 	MENTRY( XFSZ	);
+#undef MENTRY
+
+	/* Signal flags */
+#define MENTRY(_e) set_integer_const(LPOSIX_STR_1(LPOSIX_SPLICE(_SA, _e)), LPOSIX_SPLICE(SA, _e))
+	MENTRY( _NOCLDSTOP	);
+#if _POSIX_VERSION >= 20112L
+	MENTRY( _NOCLDWAIT	);
+	MENTRY( _RESETHAND	);
+	MENTRY( _NODEFER	);
+#endif
 #undef MENTRY
 
 #if _POSIX_VERSION >= 200112L
