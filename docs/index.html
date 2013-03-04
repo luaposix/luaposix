@@ -56,10 +56,9 @@
 
 <h1>Module <code>lposix</code></h1>
 
-<p>
-</p>
-<p>
-</p>
+<p></p>
+<p></p>
+
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
@@ -81,7 +80,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#errno">errno&nbsp;(n)</a></td>
-	<td class="summary">Describe an error code/and or read <a href="index.html#errno">errno</a> </td>
+	<td class="summary">Describe an error code/and or read `errno`</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#set_errno">set_errno&nbsp;(n)</a></td>
@@ -141,7 +140,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#access">access&nbsp;(path, mode)</a></td>
-	<td class="summary">Check real user&rsquo;s permissions for a file.</td>
+	<td class="summary">Check real user's permissions for a file.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#fileno">fileno&nbsp;(file)</a></td>
@@ -193,7 +192,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#setpid">setpid&nbsp;(what, id, gid)</a></td>
-	<td class="summary">Set the uid, euid, gid, egid, sid or pid &amp; gid.</td>
+	<td class="summary">Set the uid, euid, gid, egid, sid or pid & gid.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#sleep">sleep&nbsp;(seconds)</a></td>
@@ -209,7 +208,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#getenv">getenv&nbsp;(name)</a></td>
-	<td class="summary">Get value of environment variable, or <em>all</em> variables.</td>
+	<td class="summary">Get value of environment variable, or _all_ variables.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#umask">umask&nbsp;(mode)</a></td>
@@ -294,6 +293,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#fcntl">fcntl&nbsp;(fd, cmd, arg)</a></td>
 	<td class="summary">Manipulate file descriptor.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#isatty">isatty&nbsp;(fd)</a></td>
+	<td class="summary">Test whether a file descriptor refers to a terminal.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#uname">uname&nbsp;(optional)</a></td>
@@ -397,11 +400,12 @@
 
 
 
-
     <h3>see also:</h3>
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/abort.3.html">abort(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "raise"></a>
@@ -412,13 +416,14 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>nsig</em></code>: <strong>int</strong>
-</li>
+      <li><span class="parameter">nsig</span>
+        <span class="types"><span class="type">int</span></span>
+      </li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         integer error code
     </ol>
 
@@ -427,6 +432,8 @@
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/raise.3.html">raise(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "isgraph"></a>
@@ -437,12 +444,14 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>character</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  to check</li>
+      <li><span class="parameter">character</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       to check</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         true if character is in the class
     </ol>
 
@@ -451,6 +460,8 @@
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/isprint.3.html">isprint(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "isgraph"></a>
@@ -461,12 +472,14 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>character</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  to check</li>
+      <li><span class="parameter">character</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       to check</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         true if character is in the class
     </ol>
 
@@ -475,25 +488,29 @@
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/isgraph.3.html">isgraph(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "errno"></a>
     <strong>errno&nbsp;(n)</strong>
     </dt>
     <dd>
-    Describe an error code/and or read <a href="index.html#errno">errno</a><br/>
-
+    Describe an error code/and or read `errno`
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>n</em></code>: <strong>int</strong>  optional error code (default: current value of <a href="index.html#errno">errno</a> )</li>
+      <li><span class="parameter">n</span>
+        <span class="types"><span class="type">int</span></span>
+       optional error code (default: current value of `errno`)</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>description</li>
-        <li>error code</li>
+        <li>
+        description</li>
+        <li>
+        error code</li>
     </ol>
 
 
@@ -501,6 +518,8 @@
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/errno.3.html">errno(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "set_errno"></a>
@@ -511,9 +530,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>n</em></code>: <strong>int</strong>  error code</li>
+      <li><span class="parameter">n</span>
+        <span class="types"><span class="type">int</span></span>
+       error code</li>
     </ul>
-
 
 
 
@@ -521,6 +541,8 @@
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/errno.3.html">errno(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "basename"></a>
@@ -531,13 +553,14 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>path</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>
-</li>
+      <li><span class="parameter">path</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+      </li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         file part
     </ol>
 
@@ -546,6 +569,8 @@
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/basename.3.html">basename(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "dirname"></a>
@@ -556,13 +581,14 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>path</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>
-</li>
+      <li><span class="parameter">path</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+      </li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         directory part
     </ol>
 
@@ -571,6 +597,8 @@
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/dirname.3.html">dirname(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "dir"></a>
@@ -581,12 +609,14 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>path</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  optional (default .)</li>
+      <li><span class="parameter">path</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       optional (default .)</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         contents as table
     </ol>
 
@@ -595,6 +625,8 @@
     <ul>
          <a href="examples/dir.lua.html#">dir.lua</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "fnmatch"></a>
@@ -605,14 +637,20 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>pat</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  shell pattern</li>
-       <li><code><em>name</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  filename</li>
-       <li><code><em>flags</em></code>: <strong>int</strong>  optional (default 0)</li>
+      <li><span class="parameter">pat</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       shell pattern</li>
+      <li><span class="parameter">name</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       filename</li>
+      <li><span class="parameter">flags</span>
+        <span class="types"><span class="type">int</span></span>
+       optional (default 0)</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         true or false
     </ol>
 
@@ -623,6 +661,8 @@
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/fnmatch.3.html">fnmatch(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "glob"></a>
@@ -633,12 +673,14 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>pat</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  shell pattern</li>
+      <li><span class="parameter">pat</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       shell pattern</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         table of matching filenames
     </ol>
 
@@ -648,6 +690,8 @@
          <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man3/glob.3.html">glob(3)</a></li>
          <li><a href="examples/glob.lua.html#">glob.lua</a></li>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "files"></a>
@@ -658,14 +702,18 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>path</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  optional (default .)</li>
+      <li><span class="parameter">path</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       optional (default .)</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         an iterator
     </ol>
+
+
 
 
 </dd>
@@ -677,9 +725,9 @@
     Current working directory for this process.
 
 
-
     <h3>Returns:</h3>
     <ol>
+
         path
     </ol>
 
@@ -688,6 +736,8 @@
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/getcwd.3.html">getcwd(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "mkdir"></a>
@@ -698,15 +748,17 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>path</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>
-</li>
+      <li><span class="parameter">path</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+      </li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>0 on success, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        0 on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -714,6 +766,8 @@
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/mkdir.2.html">mkdir(2)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "chdir"></a>
@@ -724,19 +778,17 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>path</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>
-</li>
-    </ul>
-
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">status, errstr, errno = posix.access("/etc/passwd", "rw")</pre>
+      <li><span class="parameter">path</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+      </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
-        <li>0 on success, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        0 on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -744,6 +796,12 @@
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/chdir.2.html">chdir(2)</a>
     </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">status, errstr, errno = posix.access(&quot;/etc/passwd&quot;, &quot;rw&quot;)</pre>
+    </ul>
+
 </dd>
     <dt>
     <a name = "rmdir"></a>
@@ -754,15 +812,17 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>path</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>
-</li>
+      <li><span class="parameter">path</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+      </li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>0 on success, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        0 on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -770,6 +830,8 @@
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/rmdir.2.html">rmdir(2)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "unlink"></a>
@@ -780,15 +842,17 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>path</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>
-</li>
+      <li><span class="parameter">path</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+      </li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>0 on success, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        0 on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -796,6 +860,8 @@
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/unlink.2.html">unlink(2)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "link"></a>
@@ -806,16 +872,23 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>target</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  name</li>
-       <li><code><em>link</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  name</li>
-       <li><code><em>soft</em></code>: <strong>bool</strong>  link</li>
+      <li><span class="parameter">target</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       name</li>
+      <li><span class="parameter">link</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       name</li>
+      <li><span class="parameter">soft</span>
+        <span class="types"><span class="type">bool</span></span>
+       link</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>0 on success, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        0 on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -824,6 +897,8 @@
          <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/link.2.html">link(2)</a></li>
          <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/symlink.2.html">symlink(2)</a></li>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "readlink"></a>
@@ -834,15 +909,17 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>path</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>
-</li>
+      <li><span class="parameter">path</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+      </li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>link target on success, error otherwise</li>
-        <li>error message if failed</li>
+        <li>
+        link target on success, error otherwise</li>
+        <li>
+        error message if failed</li>
     </ol>
 
 
@@ -850,30 +927,32 @@
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/readlink.2.html">readlink(2)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "access"></a>
     <strong>access&nbsp;(path, mode)</strong>
     </dt>
     <dd>
-    Check real user&rsquo;s permissions for a file.
+    Check real user's permissions for a file.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>path</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>
-</li>
-       <li><code><em>mode</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  optional, can contain &lsquo;r&rsquo;,&lsquo;w&rsquo;,&lsquo;x&rsquo; and &lsquo;f&rsquo; (default &lsquo;f&rsquo;)</li>
-    </ul>
-
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">status, errstr, errno = posix.access("/etc/passwd", "rw")</pre>
+      <li><span class="parameter">path</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+      </li>
+      <li><span class="parameter">mode</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       optional, can contain 'r','w','x' and 'f' (default 'f')</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
-        <li>0 on success, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        0 on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -881,6 +960,12 @@
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/access.2.html">access(2)</a>
     </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">status, errstr, errno = posix.access(&quot;/etc/passwd&quot;, &quot;rw&quot;)</pre>
+    </ul>
+
 </dd>
     <dt>
     <a name = "fileno"></a>
@@ -891,15 +976,19 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>file</em></code>:  Lua file object</li>
+      <li><span class="parameter">file</span>
+       Lua file object</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>handle on success, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        handle on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
+
+
 
 
 </dd>
@@ -912,15 +1001,16 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>path</em></code>:
-</li>
+      <li><span class="parameter">path</span>
+      </li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>handle on success, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        handle on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -928,6 +1018,8 @@
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/mkfifo.2.html">mkfifo(2)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "mkstemp"></a>
@@ -938,18 +1030,17 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>templ</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  pattern that ends in six &lsquo;X&rsquo; characters</li>
-    </ul>
-
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">posix.mkstemp 'wooXXXXXX'</pre>
+      <li><span class="parameter">templ</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       pattern that ends in "XXXXXX"</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
-        <li>file descriptor, nil otherwise</li>
-        <li>name on success, error otherwise</li>
+        <li>
+        file descriptor, nil otherwise</li>
+        <li>
+        name on success, error otherwise</li>
     </ol>
 
 
@@ -957,6 +1048,12 @@
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/mkstemp.3.html">mkstemp(3)</a>
     </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">posix.mkstemp &apos;wooXXXXXX&apos;</pre>
+    </ul>
+
 </dd>
     <dt>
     <a name = "mkdtemp"></a>
@@ -967,14 +1064,17 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>templ</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  pattern that ends in six &lsquo;X&rsquo; characters</li>
+      <li><span class="parameter">templ</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       pattern that ends in six 'X' characters</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>path on success, nil otherwise</li>
-        <li>error message if failed</li>
+        <li>
+        path on success, nil otherwise</li>
+        <li>
+        error message if failed</li>
     </ol>
 
 
@@ -982,6 +1082,8 @@
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/mkdtemp.3.html">mkdtemp(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "exec"></a>
@@ -992,16 +1094,19 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>path</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>
-</li>
-       <li><code><em>...</em></code>:  any arguments</li>
+      <li><span class="parameter">path</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+      </li>
+      <li><span class="parameter">...</span>
+       any arguments</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>return code, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        return code, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -1009,6 +1114,8 @@
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/execve.2.html">execve(2)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "execp"></a>
@@ -1019,16 +1126,19 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>path</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>
-</li>
-       <li><code><em>...</em></code>:  any arguments</li>
+      <li><span class="parameter">path</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+      </li>
+      <li><span class="parameter">...</span>
+       any arguments</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>return code, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        return code, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -1036,6 +1146,8 @@
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/execve.2.html">execve(2)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "fork"></a>
@@ -1045,11 +1157,12 @@
     Fork this program.
 
 
-
     <h3>Returns:</h3>
     <ol>
-        <li>return code, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        return code, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -1059,6 +1172,8 @@
          <li><a href="examples/fork.lua.html#">fork.lua</a></li>
          <li><a href="examples/fork2.lua.html#">fork2.lua</a></li>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "_exit"></a>
@@ -1069,9 +1184,10 @@
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>return</em></code>: <strong>int</strong>  status</li>
+      <li><span class="parameter">return</span>
+        <span class="types"><span class="type">int</span></span>
+       status</li>
     </ul>
-
 
 
 
@@ -1079,6 +1195,8 @@
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/_exit.2.html">_exit(2)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "rpoll"></a>
@@ -1090,16 +1208,20 @@ Adapted from http://lua-users.org/lists/lua-l/2007-11/msg00346.html
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>file</em></code>: <strong>int</strong>  descriptor</li>
-       <li><code><em>timeout</em></code>: <strong>int</strong>
-</li>
+      <li><span class="parameter">file</span>
+        <span class="types"><span class="type">int</span></span>
+       descriptor</li>
+      <li><span class="parameter">timeout</span>
+        <span class="types"><span class="type">int</span></span>
+      </li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>return code, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        return code, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -1107,6 +1229,8 @@ Adapted from http://lua-users.org/lists/lua-l/2007-11/msg00346.html
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/poll.2.html">poll(2)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "poll"></a>
@@ -1117,15 +1241,19 @@ Adapted from http://lua-users.org/lists/lua-l/2007-11/msg00346.html
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>list</em></code>:  of file descriptors</li>
-       <li><code><em>timeout</em></code>: <strong>int</strong>  optional (default -1)</li>
+      <li><span class="parameter">list</span>
+       of file descriptors</li>
+      <li><span class="parameter">timeout</span>
+        <span class="types"><span class="type">int</span></span>
+       optional (default -1)</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>return code, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        return code, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -1134,6 +1262,8 @@ Adapted from http://lua-users.org/lists/lua-l/2007-11/msg00346.html
          <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/poll.2.html">poll(2)</a></li>
          <li><a href="examples/poll.lua.html#">poll.lua</a></li>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "wait"></a>
@@ -1144,14 +1274,17 @@ Adapted from http://lua-users.org/lists/lua-l/2007-11/msg00346.html
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>pid</em></code>: <strong>int</strong>  optional (default -1 (any child process))</li>
+      <li><span class="parameter">pid</span>
+        <span class="types"><span class="type">int</span></span>
+       optional (default -1 (any child process))</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>return code, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        return code, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -1159,6 +1292,8 @@ Adapted from http://lua-users.org/lists/lua-l/2007-11/msg00346.html
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/waitpid.2.html">waitpid(2)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "kill"></a>
@@ -1169,15 +1304,20 @@ Adapted from http://lua-users.org/lists/lua-l/2007-11/msg00346.html
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>pid</em></code>: <strong>int</strong>  process id</li>
-       <li><code><em>sig</em></code>: <strong>int</strong>  optional (default SIGTERM)</li>
+      <li><span class="parameter">pid</span>
+        <span class="types"><span class="type">int</span></span>
+       process id</li>
+      <li><span class="parameter">sig</span>
+        <span class="types"><span class="type">int</span></span>
+       optional (default SIGTERM)</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>return code, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        return code, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -1185,26 +1325,33 @@ Adapted from http://lua-users.org/lists/lua-l/2007-11/msg00346.html
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/kill.2.html">kill(2)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "setpid"></a>
     <strong>setpid&nbsp;(what, id, gid)</strong>
     </dt>
     <dd>
-    Set the uid, euid, gid, egid, sid or pid &amp; gid.
+    Set the uid, euid, gid, egid, sid or pid & gid.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>what</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  one of &lsquo;u&rsquo;, &lsquo;U&rsquo;, &lsquo;g&rsquo;, &lsquo;G&rsquo;, &rsquo;s', &lsquo;p&rsquo; (upper-case means &ldquo;effective&rdquo;)</li>
-       <li><code><em>id</em></code>:  (uid, gid or pid for every value of <code>what</code> except &rsquo;s')</li>
-       <li><code><em>gid</em></code>:  (only for <code>what</code> value &lsquo;p&rsquo;)</li>
+      <li><span class="parameter">what</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       one of 'u', 'U', 'g', 'G', 's', 'p' (upper-case means "effective")</li>
+      <li><span class="parameter">id</span>
+       (uid, gid or pid for every value of `what` except 's')</li>
+      <li><span class="parameter">gid</span>
+       (only for `what` value 'p')</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>0 on success, nil otherwise</li>
-        <li>error message if failed</li>
+        <li>
+        0 on success, nil otherwise</li>
+        <li>
+        error message if failed</li>
     </ol>
 
 
@@ -1217,6 +1364,8 @@ Adapted from http://lua-users.org/lists/lua-l/2007-11/msg00346.html
          <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/setsid.2.html">setsid(2)</a></li>
          <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/setpgid.2.html">setpgid(2)</a></li>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "sleep"></a>
@@ -1227,13 +1376,14 @@ Adapted from http://lua-users.org/lists/lua-l/2007-11/msg00346.html
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>seconds</em></code>: <strong>int</strong>
-</li>
+      <li><span class="parameter">seconds</span>
+        <span class="types"><span class="type">int</span></span>
+      </li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         code
     </ol>
 
@@ -1242,6 +1392,8 @@ Adapted from http://lua-users.org/lists/lua-l/2007-11/msg00346.html
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/sleep.3.html">sleep(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "nanosleep"></a>
@@ -1249,21 +1401,24 @@ Adapted from http://lua-users.org/lists/lua-l/2007-11/msg00346.html
     </dt>
     <dd>
     Sleep with nanosecond precision.
+results `tv_sec`, `tv_nsec` if return value is `EINTR`.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>seconds</em></code>: <strong>int</strong>
-</li>
-       <li><code><em>nanoseconds</em></code>: <strong>int</strong>
-</li>
+      <li><span class="parameter">seconds</span>
+        <span class="types"><span class="type">int</span></span>
+      </li>
+      <li><span class="parameter">nanoseconds</span>
+        <span class="types"><span class="type">int</span></span>
+      </li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>0 on success, nil otherwise</li>
-        <li>error message if failed, or the remaining time as two
-results <code>tv_sec</code>, <code>tv_nsec</code> if return value is <code>EINTR</code>.</li>
+        <li>
+        0 on success, nil otherwise</li>
+        <li>
+        error message if failed, or the remaining time as two</li>
     </ol>
 
 
@@ -1271,6 +1426,8 @@ results <code>tv_sec</code>, <code>tv_nsec</code> if return value is <code>EINTR
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/nanosleep.2.html">nanosleep(2)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "setenv"></a>
@@ -1282,17 +1439,22 @@ results <code>tv_sec</code>, <code>tv_nsec</code> if return value is <code>EINTR
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>name</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>
-</li>
-       <li><code><em>value</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  (maybe nil, meaning &lsquo;unset&rsquo;)</li>
-       <li><code><em>over</em></code>:  non-nil prevents overwriting a variable</li>
+      <li><span class="parameter">name</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+      </li>
+      <li><span class="parameter">value</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       (maybe nil, meaning 'unset')</li>
+      <li><span class="parameter">over</span>
+       non-nil prevents overwriting a variable</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>0 on success, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        0 on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -1300,26 +1462,26 @@ results <code>tv_sec</code>, <code>tv_nsec</code> if return value is <code>EINTR
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/setenv.3.html">setenv(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "getenv"></a>
     <strong>getenv&nbsp;(name)</strong>
     </dt>
     <dd>
-    Get value of environment variable, or <em>all</em> variables.
+    Get value of environment variable, or _all_ variables.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>name</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  if nil, get all</li>
-    </ul>
-
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">for a,b in pairs(posix.getenv()) do print(a, b) end</pre>
+      <li><span class="parameter">name</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       if nil, get all</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
+
         value if name given, otherwise a name-indexed table of values.
     </ol>
 
@@ -1328,6 +1490,12 @@ results <code>tv_sec</code>, <code>tv_nsec</code> if return value is <code>EINTR
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/getenv.3.html">getenv(3)</a>
     </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">for a,b in pairs(posix.getenv()) do print(a, b) end</pre>
+    </ul>
+
 </dd>
     <dt>
     <a name = "umask"></a>
@@ -1338,12 +1506,14 @@ results <code>tv_sec</code>, <code>tv_nsec</code> if return value is <code>EINTR
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>mode</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  optional file creation mask string (default current mask; see chmod for format)</li>
+      <li><span class="parameter">mode</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       optional file creation mask string (default current mask; see chmod for format)</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         previous umask
     </ol>
 
@@ -1353,6 +1523,8 @@ results <code>tv_sec</code>, <code>tv_nsec</code> if return value is <code>EINTR
          <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/umask.2.html">umask(2)</a></li>
          <li><a href="index.html#chmod">chmod</a></li>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "open"></a>
@@ -1363,19 +1535,25 @@ results <code>tv_sec</code>, <code>tv_nsec</code> if return value is <code>EINTR
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>path</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>
-</li>
-       <li><code><em>oflags</em></code>: <strong>int</strong>  bitwise OR of the values <code>O_RDONLY</code>, <code>O_WRONLY</code>, <code>O_RDWR</code>,
-<code>O_APPEND</code>, <code>O_CREAT</code>, <code>O_DSYNC</code>, <code>O_EXCL</code>, <code>O_NOCTTY</code>, <code>O_NONBLOCK</code>, <code>O_RSYNC</code>,
-<code>O_SYNC</code>, <code>O_TRUNC</code> (all in the library&rsquo;s namespace)</li>
-       <li><code><em>mode</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  (used with <code>O_CREAT</code>; see chmod for format)</li>
+      <li><span class="parameter">path</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+      </li>
+      <li><span class="parameter">oflags</span>
+        <span class="types"><span class="type">int</span></span>
+       bitwise OR of the values `O_RDONLY`, `O_WRONLY`, `O_RDWR`,
+`O_APPEND`, `O_CREAT`, `O_DSYNC`, `O_EXCL`, `O_NOCTTY`, `O_NONBLOCK`, `O_RSYNC`,
+`O_SYNC`, `O_TRUNC` (all in the library's namespace)</li>
+      <li><span class="parameter">mode</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       (used with `O_CREAT`; see chmod for format)</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>file descriptor on success, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        file descriptor on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -1384,6 +1562,8 @@ results <code>tv_sec</code>, <code>tv_nsec</code> if return value is <code>EINTR
          <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/open.2.html">open(2)</a></li>
          <li><a href="index.html#chmod">chmod</a></li>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "close"></a>
@@ -1394,15 +1574,17 @@ results <code>tv_sec</code>, <code>tv_nsec</code> if return value is <code>EINTR
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>fd</em></code>: <strong>int</strong>
-</li>
+      <li><span class="parameter">fd</span>
+        <span class="types"><span class="type">int</span></span>
+      </li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>0 on success, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        0 on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -1410,6 +1592,8 @@ results <code>tv_sec</code>, <code>tv_nsec</code> if return value is <code>EINTR
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/close.2.html">close(2)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "dup"></a>
@@ -1420,15 +1604,17 @@ results <code>tv_sec</code>, <code>tv_nsec</code> if return value is <code>EINTR
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>fd</em></code>: <strong>int</strong>
-</li>
+      <li><span class="parameter">fd</span>
+        <span class="types"><span class="type">int</span></span>
+      </li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>file descriptor on success, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        file descriptor on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -1436,6 +1622,8 @@ results <code>tv_sec</code>, <code>tv_nsec</code> if return value is <code>EINTR
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/dup.2.html">dup(2)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "dup2"></a>
@@ -1446,17 +1634,20 @@ results <code>tv_sec</code>, <code>tv_nsec</code> if return value is <code>EINTR
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>oldfd</em></code>: <strong>int</strong>
-</li>
-       <li><code><em>newfd</em></code>: <strong>int</strong>
-</li>
+      <li><span class="parameter">oldfd</span>
+        <span class="types"><span class="type">int</span></span>
+      </li>
+      <li><span class="parameter">newfd</span>
+        <span class="types"><span class="type">int</span></span>
+      </li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>new file descriptor on success, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        new file descriptor on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -1464,39 +1655,38 @@ results <code>tv_sec</code>, <code>tv_nsec</code> if return value is <code>EINTR
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/dup2.2.html">dup2(2)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "chmod"></a>
     <strong>chmod&nbsp;(path, mode)</strong>
     </dt>
     <dd>
-    <p>Change the mode of the path.
-Modes are specified in one of the following formats:</p>
+    Change the mode of the path.
+Modes are specified in one of the following formats:
 
-<ul>
-<li>&ldquo;rwxrwxrwx&rdquo; (e.g. &ldquo;rw-rw-w&mdash;&rdquo;)</li>
-<li>&ldquo;ugoa+&ndash;=rwx&rdquo; (e.g. &ldquo;u+w&rdquo;)</li>
-<li>&ldquo;+&ndash;=rwx&rdquo; (e.g. &ldquo;+w&rdquo;)</li>
-</ul>
-
+ * "rwxrwxrwx" (e.g. "rw-rw-w--")
+ * "ugoa+-=rwx" (e.g. "u+w")
+ * "+-=rwx" (e.g. "+w")
 
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>path</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  existing file path</li>
-       <li><code><em>mode</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>
-</li>
-    </ul>
-
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">posix.chmod('bin/dof','+x')</pre>
+      <li><span class="parameter">path</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       existing file path</li>
+      <li><span class="parameter">mode</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+      </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
-        <li>0 on success, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        0 on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -1504,6 +1694,12 @@ Modes are specified in one of the following formats:</p>
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/chmod.2.html">chmod(2)</a>
     </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">posix.chmod(&apos;bin/dof&apos;,&apos;+x&apos;)</pre>
+    </ul>
+
 </dd>
     <dt>
     <a name = "read"></a>
@@ -1514,14 +1710,18 @@ Modes are specified in one of the following formats:</p>
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>fd</em></code>: <strong>int</strong>  the file descriptor</li>
-       <li><code><em>count</em></code>: <strong>int</strong>  number of bytes to read</li>
+      <li><span class="parameter">fd</span>
+        <span class="types"><span class="type">int</span></span>
+       the file descriptor</li>
+      <li><span class="parameter">count</span>
+        <span class="types"><span class="type">int</span></span>
+       number of bytes to read</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        string with at most <code>count</code> bytes.
+
+        string with at most `count` bytes.
     </ol>
 
 
@@ -1529,6 +1729,8 @@ Modes are specified in one of the following formats:</p>
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/read.2.html">read(2)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "write"></a>
@@ -1539,15 +1741,20 @@ Modes are specified in one of the following formats:</p>
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>fd</em></code>: <strong>int</strong>  the file descriptor</li>
-       <li><code><em>buf</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  containing bytes</li>
+      <li><span class="parameter">fd</span>
+        <span class="types"><span class="type">int</span></span>
+       the file descriptor</li>
+      <li><span class="parameter">buf</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       containing bytes</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>number of bytes written on success, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        number of bytes written on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -1555,6 +1762,8 @@ Modes are specified in one of the following formats:</p>
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/write.2.html">write(2)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "chown"></a>
@@ -1565,20 +1774,21 @@ Modes are specified in one of the following formats:</p>
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>path</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  existing file path</li>
-       <li><code><em>uid</em></code>:  (string or number)</li>
-       <li><code><em>gid</em></code>:  (string or number)</li>
-    </ul>
-
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">print(posix.chown("/etc/passwd",100,200)) -- will fail for a normal user, and hence print an error</pre>
+      <li><span class="parameter">path</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       existing file path</li>
+      <li><span class="parameter">uid</span>
+       (string or number)</li>
+      <li><span class="parameter">gid</span>
+       (string or number)</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
-        <li>0 on success, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        0 on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -1586,6 +1796,12 @@ Modes are specified in one of the following formats:</p>
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/chown.2.html">chown(2)</a>
     </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">print(posix.chown(&quot;/etc/passwd&quot;,100,200)) -- will fail for a normal user, and hence print an error</pre>
+    </ul>
+
 </dd>
     <dt>
     <a name = "utime"></a>
@@ -1596,16 +1812,23 @@ Modes are specified in one of the following formats:</p>
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>path</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  existing file path</li>
-       <li><code><em>mtime</em></code>: <strong>int</strong>  optional modification time (default current time)</li>
-       <li><code><em>atime</em></code>: <strong>int</strong>  optional access time (default current time)</li>
+      <li><span class="parameter">path</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       existing file path</li>
+      <li><span class="parameter">mtime</span>
+        <span class="types"><span class="type">int</span></span>
+       optional modification time (default current time)</li>
+      <li><span class="parameter">atime</span>
+        <span class="types"><span class="type">int</span></span>
+       optional access time (default current time)</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>0 on success, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        0 on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -1613,6 +1836,8 @@ Modes are specified in one of the following formats:</p>
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/utime.2.html">utime(2)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "getpid"></a>
@@ -1623,19 +1848,23 @@ Modes are specified in one of the following formats:</p>
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>...</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  types, each one of &ldquo;egid&rdquo;, &ldquo;euid&rdquo;, &ldquo;gid&rdquo;, &ldquo;uid&rdquo;, &ldquo;pgrp&rdquo;, &ldquo;pid&rdquo;, &ldquo;ppid&rdquo;</li>
-    </ul>
-
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">posix.getpid 'pid' -- PID of current process</pre>
+      <li><span class="parameter">...</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       types, each one of "egid", "euid", "gid", "uid", "pgrp", "pid", "ppid"</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
-        &hellip; values, or table of all ids if no option given
+
+        ... values, or table of all ids if no option given
     </ol>
 
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">posix.getpid &apos;pid&apos; -- PID of current process</pre>
+    </ul>
 
 </dd>
     <dt>
@@ -1646,9 +1875,9 @@ Modes are specified in one of the following formats:</p>
     Get host id.
 
 
-
     <h3>Returns:</h3>
     <ol>
+
         host id
     </ol>
 
@@ -1657,6 +1886,8 @@ Modes are specified in one of the following formats:</p>
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/gethostid.3.html">gethostid(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "ttyname"></a>
@@ -1667,12 +1898,14 @@ Modes are specified in one of the following formats:</p>
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>fd</em></code>: <strong>int</strong>  optional file descriptor (default 0)</li>
+      <li><span class="parameter">fd</span>
+        <span class="types"><span class="type">int</span></span>
+       optional file descriptor (default 0)</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         string name
     </ol>
 
@@ -1681,6 +1914,8 @@ Modes are specified in one of the following formats:</p>
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/ttyname.3.html">ttyname(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "ctermid"></a>
@@ -1690,9 +1925,9 @@ Modes are specified in one of the following formats:</p>
     Name of controlling terminal.
 
 
-
     <h3>Returns:</h3>
     <ol>
+
         code
     </ol>
 
@@ -1701,6 +1936,8 @@ Modes are specified in one of the following formats:</p>
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/ctermid.3.html">ctermid(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "getpasswd"></a>
@@ -1711,21 +1948,26 @@ Modes are specified in one of the following formats:</p>
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>user</em></code>:  (name or id)</li>
-       <li><code><em>...</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  field names, each one of &ldquo;uid&rdquo;, &ldquo;name&rdquo;, &ldquo;gid&rdquo;, &ldquo;passwd&rdquo;, &ldquo;dir&rdquo;, &ldquo;shell&rdquo;</li>
-    </ul>
-
-    <h3>Usage:</h3>
-    <ul>
-        <li><pre class="example">for a,b in pairs(posix.getpasswd("root")) do print(a,b) end</pre></li>
-        <li><pre class="example">print(posix.getpasswd("root", "shell"))</pre></li>
+      <li><span class="parameter">user</span>
+       (name or id)</li>
+      <li><span class="parameter">...</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       field names, each one of "uid", "name", "gid", "passwd", "dir", "shell"</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
-        &hellip; values, or table of all fields if no option given
+
+        ... values, or table of all fields if no option given
     </ol>
 
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <li><pre class="example">for a,b in pairs(posix.getpasswd(&quot;root&quot;)) do print(a,b) end</pre></li>
+        <li><pre class="example">print(posix.getpasswd(&quot;root&quot;, &quot;shell&quot;))</pre></li>
+    </ul>
 
 </dd>
     <dt>
@@ -1737,14 +1979,17 @@ Modes are specified in one of the following formats:</p>
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>group</em></code>:  id or name</li>
+      <li><span class="parameter">group</span>
+       id or name</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        table <code>{name=name,gid=gid,0=member0,1=member1,...}</code>
+
+        table `{name=name,gid=gid,0=member0,1=member1,...}`
     </ol>
+
+
 
 
 </dd>
@@ -1756,9 +2001,9 @@ Modes are specified in one of the following formats:</p>
     Get list of supplementary group IDs.
 
 
-
     <h3>Returns:</h3>
     <ol>
+
         table of group IDs.
     </ol>
 
@@ -1767,6 +2012,8 @@ Modes are specified in one of the following formats:</p>
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/getgroups.2.html">getgroups(2)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "times"></a>
@@ -1777,13 +2024,15 @@ Modes are specified in one of the following formats:</p>
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>...</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  field names, each one of &ldquo;utime&rdquo;, &ldquo;stime&rdquo;, &ldquo;cutime&rdquo;, &ldquo;cstime&rdquo;, &ldquo;elapsed&rdquo;</li>
+      <li><span class="parameter">...</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       field names, each one of "utime", "stime", "cutime", "cstime", "elapsed"</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        &hellip; times, or table of all times if no option given
+
+        ... times, or table of all times if no option given
     </ol>
 
 
@@ -1791,6 +2040,8 @@ Modes are specified in one of the following formats:</p>
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/times.2.html">times(2)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "stat"></a>
@@ -1801,19 +2052,19 @@ Modes are specified in one of the following formats:</p>
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>path</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  file path</li>
-       <li><code><em>...</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  field names, each one of &ldquo;mode&rdquo;, &ldquo;ino&rdquo;, &ldquo;dev&rdquo;, &ldquo;nlink&rdquo;, &ldquo;uid&rdquo;, &ldquo;gid&rdquo;,
-&ldquo;size&rdquo;, &ldquo;atime&rdquo;, &ldquo;mtime&rdquo;, &ldquo;ctime&rdquo;, &ldquo;type&rdquo;</li>
-    </ul>
-
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">for a, b in pairs(posix.stat("/etc/")) do print(a, b) end</pre>
+      <li><span class="parameter">path</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       file path</li>
+      <li><span class="parameter">...</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       field names, each one of "mode", "ino", "dev", "nlink", "uid", "gid",
+"size", "atime", "mtime", "ctime", "type"</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
-        &hellip; values, or table of all fields if no option given
+
+        ... values, or table of all fields if no option given
     </ol>
 
 
@@ -1821,6 +2072,12 @@ Modes are specified in one of the following formats:</p>
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/stat.2.html">stat(2)</a>
     </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">for a, b in pairs(posix.stat(&quot;/etc/&quot;)) do print(a, b) end</pre>
+    </ul>
+
 </dd>
     <dt>
     <a name = "statvfs"></a>
@@ -1828,18 +2085,21 @@ Modes are specified in one of the following formats:</p>
     </dt>
     <dd>
     Get file system statistics.
+"files", "ffree", "favail", "fsid", "flag", "namemax"
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>path</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  any path within the mounted file system</li>
-       <li><code><em>...</em></code>:  field names, each one of &ldquo;bsize&rdquo;, &ldquo;frsize&rdquo;, &ldquo;blocks&rdquo;, &ldquo;bfree&rdquo;, &ldquo;bavail&rdquo;,
-&ldquo;files&rdquo;, &ldquo;ffree&rdquo;, &ldquo;favail&rdquo;, &ldquo;fsid&rdquo;, &ldquo;flag&rdquo;, &ldquo;namemax&rdquo;</li>
+      <li><span class="parameter">path</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       any path within the mounted file system</li>
+      <li><span class="parameter">...</span>
+       field names, each one of "bsize", "frsize", "blocks", "bfree", "bavail",</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        &hellip; values, or table of all fields if no option given
+
+        ... values, or table of all fields if no option given
     </ol>
 
 
@@ -1847,6 +2107,8 @@ Modes are specified in one of the following formats:</p>
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/statvfs.3.html">statvfs(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "fcntl"></a>
@@ -1857,16 +2119,23 @@ Modes are specified in one of the following formats:</p>
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>fd</em></code>: <strong>int</strong>  file descriptor to act on</li>
-       <li><code><em>cmd</em></code>: <strong>int</strong>  operation to perform</li>
-       <li><code><em>arg</em></code>: <strong>int</strong>  optional (default 0)</li>
+      <li><span class="parameter">fd</span>
+        <span class="types"><span class="type">int</span></span>
+       file descriptor to act on</li>
+      <li><span class="parameter">cmd</span>
+        <span class="types"><span class="type">int</span></span>
+       operation to perform</li>
+      <li><span class="parameter">arg</span>
+        <span class="types"><span class="type">int</span></span>
+       optional (default 0)</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>integer return value depending on <code>cmd</code>, or nil on error</li>
-        <li>error message if failed</li>
+        <li>
+        integer return value depending on `cmd`, or nil on error</li>
+        <li>
+        error message if failed</li>
     </ol>
 
 
@@ -1874,6 +2143,38 @@ Modes are specified in one of the following formats:</p>
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/fcntl.2.html">fcntl(2)</a>
     </ul>
+
+
+</dd>
+    <dt>
+    <a name = "isatty"></a>
+    <strong>isatty&nbsp;(fd)</strong>
+    </dt>
+    <dd>
+    Test whether a file descriptor refers to a terminal.
+
+    <h3>Parameters:</h3>
+    <ul>
+      <li><span class="parameter">fd</span>
+        <span class="types"><span class="type">int</span></span>
+       file descriptor to test</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        1 if fd is an open file descriptor referring to a terminal, or nil otherwise</li>
+        <li>
+        error message if failed</li>
+    </ol>
+
+
+    <h3>see also:</h3>
+    <ul>
+         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/isatty.3.html">isatty(3)</a>
+    </ul>
+
+
 </dd>
     <dt>
     <a name = "uname"></a>
@@ -1884,25 +2185,25 @@ Modes are specified in one of the following formats:</p>
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>optional</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a> , contains zero or more of:</p>
+      <li><span class="parameter">optional</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+      , contains zero or more of:
 
-<ul>
-<li>%m  machine name</li>
-<li>%n  node name</li>
-<li>%r  release</li>
-<li>%s  sys name</li>
-<li>%v  version</li>
-</ul>
+ * %m  machine name
+ * %n  node name
+ * %r  release
+ * %s  sys name
+ * %v  version
 
-
-<p>(default return all information available)</li>
+(default return all information available)</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>information string on success, nil otherwise</li>
-        <li>error message if failed</li>
+        <li>
+        information string on success, nil otherwise</li>
+        <li>
+        error message if failed</li>
     </ol>
 
 
@@ -1910,6 +2211,8 @@ Modes are specified in one of the following formats:</p>
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/uname.2.html">uname(2)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "pathconf"></a>
@@ -1920,19 +2223,19 @@ Modes are specified in one of the following formats:</p>
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>path</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  optional (default &ldquo;.&rdquo;)</li>
-       <li><code><em>...</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  field names, each one of &ldquo;LINK_MAX&rdquo;, &ldquo;MAX_CANON&rdquo;, &ldquo;NAME_MAX&rdquo;, &ldquo;PIPE_BUF&rdquo;,
-&ldquo;CHOWN_RESTRICTED&rdquo;, &ldquo;NO_TRUNC&rdquo;, &ldquo;VDISABLE&rdquo;</li>
-    </ul>
-
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">for a, b in pairs(posix.pathconf("/dev/tty")) do print(a, b) end</pre>
+      <li><span class="parameter">path</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       optional (default ".")</li>
+      <li><span class="parameter">...</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       field names, each one of "LINK_MAX", "MAX_CANON", "NAME_MAX", "PIPE_BUF",
+"CHOWN_RESTRICTED", "NO_TRUNC", "VDISABLE"</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
-        &hellip; values, or table of all fields if no option given
+
+        ... values, or table of all fields if no option given
     </ol>
 
 
@@ -1940,6 +2243,12 @@ Modes are specified in one of the following formats:</p>
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/pathconf.3.html">pathconf(3)</a>
     </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">for a, b in pairs(posix.pathconf(&quot;/dev/tty&quot;)) do print(a, b) end</pre>
+    </ul>
+
 </dd>
     <dt>
     <a name = "sysconf"></a>
@@ -1950,14 +2259,16 @@ Modes are specified in one of the following formats:</p>
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>...</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  field names, each one of &ldquo;ARG_MAX&rdquo;, &ldquo;CHILD_MAX&rdquo;, &ldquo;CLK_TCK&rdquo;, &ldquo;NGROUPS_MAX&rdquo;,
-&ldquo;STREAM_MAX&rdquo;, &ldquo;TZNAME_MAX&rdquo;, &ldquo;OPEN_MAX&rdquo;, &ldquo;JOB_CONTROL&rdquo;, &ldquo;VERSION&rdquo;</li>
+      <li><span class="parameter">...</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       field names, each one of "ARG_MAX", "CHILD_MAX", "CLK_TCK", "NGROUPS_MAX",
+"STREAM_MAX", "TZNAME_MAX", "OPEN_MAX", "JOB_CONTROL", "VERSION"</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        &hellip; values, or table of all fields no option
+
+        ... values, or table of all fields no option
     </ol>
 
 
@@ -1965,6 +2276,8 @@ Modes are specified in one of the following formats:</p>
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/sysconf.3.html">sysconf(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "openlog"></a>
@@ -1975,12 +2288,17 @@ Modes are specified in one of the following formats:</p>
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>ident</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  all messages will start with this</li>
-       <li><code><em>option</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  optional, any combination of &lsquo;c&rsquo; (directly to system console if an error sending),
-&lsquo;n&rsquo; (no delay) or &lsquo;p&rsquo; (show PID)</li>
-       <li><code><em>facility</em></code>: <strong>int</strong>  optional (default LOG_USER)</li>
+      <li><span class="parameter">ident</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       all messages will start with this</li>
+      <li><span class="parameter">option</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       optional, any combination of 'c' (directly to system console if an error sending),
+'n' (no delay) or 'p' (show PID)</li>
+      <li><span class="parameter">facility</span>
+        <span class="types"><span class="type">int</span></span>
+       optional (default LOG_USER)</li>
     </ul>
-
 
 
 
@@ -1988,6 +2306,8 @@ Modes are specified in one of the following formats:</p>
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/syslog.3.html">syslog(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "syslog"></a>
@@ -1998,22 +2318,20 @@ Modes are specified in one of the following formats:</p>
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>priority</em></code>: <strong>int</strong> <p> one of these values:</p>
+      <li><span class="parameter">priority</span>
+        <span class="types"><span class="type">int</span></span>
+       one of these values:
 
-<ul>
-<li>1  Alert &ndash; immediate action</li>
-<li>2  Critcal</li>
-<li>3  Error</li>
-<li>4  Warning</li>
-<li>5  Notice</li>
-<li>6  Informational</li>
-</ul>
-
-</li>
-       <li><code><em>message</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>
-</li>
+ * 1  Alert - immediate action
+ * 2  Critcal
+ * 3  Error
+ * 4  Warning
+ * 5  Notice
+ * 6  Informational</li>
+      <li><span class="parameter">message</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+      </li>
     </ul>
-
 
 
 
@@ -2021,6 +2339,8 @@ Modes are specified in one of the following formats:</p>
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/syslog.3.html">syslog(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "closelog"></a>
@@ -2032,11 +2352,12 @@ Modes are specified in one of the following formats:</p>
 
 
 
-
     <h3>see also:</h3>
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/syslog.3.html">syslog(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "setlogmask"></a>
@@ -2047,15 +2368,20 @@ Modes are specified in one of the following formats:</p>
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>bitwise</em></code>: <strong>int</strong>  OR of values from <code>LOG_EMERG</code>, <code>LOG_ALERT</code>, <code>LOG_CRIT</code>, <code>LOG_WARNING</code>, <code>LOG_NOTICE</code>, <code>LOG_INFO</code>, <code>LOG_DEBUG</code></li>
+      <li><span class="parameter">bitwise</span>
+        <span class="types"><span class="type">int</span></span>
+       OR of values from `LOG_EMERG`, `LOG_ALERT`, `LOG_CRIT`, `LOG_WARNING`, `LOG_NOTICE`, `LOG_INFO`, `LOG_DEBUG`</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>0 on success, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        0 on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
+
+
 
 
 </dd>
@@ -2069,14 +2395,17 @@ Not recommended for general encryption purposes.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>string</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>
-</li>
-       <li><code><em>salt</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  two-character string from [a-zA-Z0-9./]</li>
+      <li><span class="parameter">string</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+      </li>
+      <li><span class="parameter">salt</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       two-character string from [a-zA-Z0-9./]</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         encrypted string
     </ol>
 
@@ -2085,6 +2414,8 @@ Not recommended for general encryption purposes.
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/crypt.3.html">crypt(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "setrlimit"></a>
@@ -2095,21 +2426,22 @@ Not recommended for general encryption purposes.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>resource</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  one of &ldquo;core&rdquo;, &ldquo;cpu&rdquo;, &ldquo;data&rdquo;, &ldquo;fsize&rdquo;,
- &ldquo;nofile&rdquo;, &ldquo;stack&rdquo;, &ldquo;as&rdquo;</li>
-       <li><code><em>softlimit</em></code>:  optional (default keep current limit)</li>
-       <li><code><em>hardlimit</em></code>:  optional (default keep current limit)</li>
-    </ul>
-
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example">posix.setrlimit("nofile", 1000, 2000)</pre>
+      <li><span class="parameter">resource</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       one of "core", "cpu", "data", "fsize",
+ "nofile", "stack", "as"</li>
+      <li><span class="parameter">softlimit</span>
+       optional (default keep current limit)</li>
+      <li><span class="parameter">hardlimit</span>
+       optional (default keep current limit)</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
-        <li>0 on success, nil otherwise</li>
-        <li>error message if failed.</li>
+        <li>
+        0 on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
     </ol>
 
 
@@ -2118,6 +2450,12 @@ Not recommended for general encryption purposes.
          <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/getrlimit.2.html">getrlimit(2)</a></li>
          <li><a href="examples/limit.lua.html#">limit.lua</a></li>
     </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">posix.setrlimit(&quot;nofile&quot;, 1000, 2000)</pre>
+    </ul>
+
 </dd>
     <dt>
     <a name = "getrlimit"></a>
@@ -2128,22 +2466,26 @@ Not recommended for general encryption purposes.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>resource</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  one of &ldquo;core&rdquo;, &ldquo;cpu&rdquo;, &ldquo;data&rdquo;, &ldquo;fsize&rdquo;,
- &ldquo;nofile&rdquo;, &ldquo;stack&rdquo;, &ldquo;as&rdquo;</li>
+      <li><span class="parameter">resource</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       one of "core", "cpu", "data", "fsize",
+ "nofile", "stack", "as"</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>softlimit, or nil if error</li>
-        <li>hardlimit, or message on error</li>
+        <li>
+        softlimit, or nil if error</li>
+        <li>
+        hardlimit, or message on error</li>
     </ol>
+
+
 
 
 </dd>
 </dl>
     <h2><a name="Time_and_date"></a>Time and date</h2>
-
 
     <dl class="function">
     <dt>
@@ -2154,11 +2496,12 @@ Not recommended for general encryption purposes.
     Get time of day.
 
 
-
     <h3>Returns:</h3>
     <ol>
-        <li>time in seconds</li>
-        <li>remainder in nanoseconds</li>
+        <li>
+        time in seconds</li>
+        <li>
+        remainder in nanoseconds</li>
     </ol>
 
 
@@ -2166,6 +2509,8 @@ Not recommended for general encryption purposes.
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/gettimeofday.2.html">gettimeofday(2)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "time"></a>
@@ -2175,11 +2520,13 @@ Not recommended for general encryption purposes.
     Get current time.
 
 
-
     <h3>Returns:</h3>
     <ol>
+
         time in seconds since epoch
     </ol>
+
+
 
 
 </dd>
@@ -2189,18 +2536,21 @@ Not recommended for general encryption purposes.
     </dt>
     <dd>
     Convert time in seconds to table.
+ "sec","weekday","monthday", "day" (the same as "monthday")
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  time in seconds since epoch (default now)</li>
+      <li><span class="parameter">t</span>
+       time in seconds since epoch (default now)</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        time table: contains &ldquo;is_dst&rdquo;,&ldquo;yearday&rdquo;,&ldquo;hour&rdquo;,&ldquo;min&rdquo;,&ldquo;year&rdquo;,&ldquo;month&rdquo;,
- &ldquo;sec&rdquo;,&ldquo;weekday&rdquo;,&ldquo;monthday&rdquo;
+
+        time table: contains "is_dst","yearday","hour","min","year","month",
     </ol>
+
+
 
 
 </dd>
@@ -2213,14 +2563,17 @@ Not recommended for general encryption purposes.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>t</em></code>:  time in seconds since epoch (default now)</li>
+      <li><span class="parameter">t</span>
+       time in seconds since epoch (default now)</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        time table as in <a href="index.html#localtime">localtime</a>
+
+        time table as in `localtime`
     </ol>
+
+
 
 
 </dd>
@@ -2233,16 +2586,21 @@ Not recommended for general encryption purposes.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>name</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  of clock, one of &ldquo;monotonic&rdquo;, &ldquo;process_cputime_id&rdquo;, or
-&ldquo;thread_cputime_id&rdquo;, or nil for realtime clock.</li>
+      <li><span class="parameter">name</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       of clock, one of "monotonic", "process_cputime_id", or
+"thread_cputime_id", or nil for realtime clock.</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>seconds, or nil on error</li>
-        <li>nanoseconds, or message on error</li>
+        <li>
+        seconds, or nil on error</li>
+        <li>
+        nanoseconds, or message on error</li>
     </ol>
+
+
 
 
 </dd>
@@ -2255,16 +2613,21 @@ Not recommended for general encryption purposes.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>name</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  of clock, one of &ldquo;monotonic&rdquo;, &ldquo;process_cputime_id&rdquo;, or
-&ldquo;thread_cputime_id&rdquo;, or nil for realtime clock.</li>
+      <li><span class="parameter">name</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       of clock, one of "monotonic", "process_cputime_id", or
+"thread_cputime_id", or nil for realtime clock.</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
-        <li>seconds, or nil on error</li>
-        <li>nanoseconds, or message on error</li>
+        <li>
+        seconds, or nil on error</li>
+        <li>
+        nanoseconds, or message on error</li>
     </ol>
+
+
 
 
 </dd>
@@ -2277,9 +2640,9 @@ Not recommended for general encryption purposes.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>tm</em></code>:  optional time table (e.g from <a href="index.html#localtime">localtime</a> ; default current time)</li>
+      <li><span class="parameter">tm</span>
+       optional time table (e.g from `localtime`; default current time)</li>
     </ul>
-
 
 
 
@@ -2287,6 +2650,8 @@ Not recommended for general encryption purposes.
     <ul>
          <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/strftime.3.html">strftime(3)</a>
     </ul>
+
+
 </dd>
     <dt>
     <a name = "mktime"></a>
@@ -2297,14 +2662,17 @@ Not recommended for general encryption purposes.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>tm</em></code>:  time table as in <a href="index.html#localtime">localtime</a> </li>
+      <li><span class="parameter">tm</span>
+       time table as in `localtime`</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         time in seconds since epoch
     </ol>
+
+
 
 
 </dd>
@@ -2317,9 +2685,21 @@ Not recommended for general encryption purposes.
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>arg</em></code>:  command line arguments</li>
-       <li><code><em>shortopts</em></code>: <a href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>  e.g &lsquo;ho:v&rsquo; (colon means &lsquo;receives argument&rsquo;)</li>
-       <li><code><em>longopts</em></code>:  e.g. <code>{{'help','none',2},...}</code></li>
+      <li><span class="parameter">arg</span>
+       command line arguments</li>
+      <li><span class="parameter">shortopts</span>
+        <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+       e.g 'ho:v' (colon means 'receives argument')</li>
+      <li><span class="parameter">longopts</span>
+       e.g. `{{'help','none',2},...}`</li>
+    </ul>
+
+
+
+    <h3>see also:</h3>
+    <ul>
+         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man3/getopt.3.html">getopt(3)</a></li>
+         <li><a href="examples/getopt.lua.html#">getopt.lua</a></li>
     </ul>
 
     <h3>Usage:</h3>
@@ -2327,12 +2707,6 @@ Not recommended for general encryption purposes.
         <pre class="example">for ret, longindex, optind, optarg in posix.getopt_long (arg, shortopts, longopts, opterr, optind) do ... end</pre>
     </ul>
 
-
-
-    <h3>see also:</h3>
-    <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/getopt.3.html">getopt(3)</a>
-    </ul>
 </dd>
     <dt>
     <a name = "signal"></a>
@@ -2344,14 +2718,16 @@ N.B. Although this is the same API as signal(2), it uses sigaction for guarantee
 
     <h3>Parameters:</h3>
     <ul>
-       <li><code><em>signum</em></code>: <strong>int</strong>
-</li>
-       <li><code><em>handler</em></code>:  function</li>
+      <li><span class="parameter">signum</span>
+        <span class="types"><span class="type">int</span></span>
+      </li>
+      <li><span class="parameter">handler</span>
+       function</li>
     </ul>
-
 
     <h3>Returns:</h3>
     <ol>
+
         previous handler function
     </ol>
 
@@ -2361,6 +2737,8 @@ N.B. Although this is the same API as signal(2), it uses sigaction for guarantee
          <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/sigaction.2.html">sigaction(2)</a></li>
          <li><a href="examples/signal.lua.html#">signal.lua</a></li>
     </ul>
+
+
 </dd>
 </dl>
 
@@ -2368,7 +2746,7 @@ N.B. Although this is the same API as signal(2), it uses sigaction for guarantee
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.2</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
