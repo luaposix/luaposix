@@ -16,9 +16,6 @@ posix_c_la_LDFLAGS = -module -avoid-version $(POSIX_EXTRA_LDFLAGS)
 curses_c_la_SOURCES = lcurses.c
 curses_c_la_LDFLAGS = -module -avoid-version $(CURSES_LIB) -rpath '$(libdir)'
 
-ChangeLog:
-	git2cl > ChangeLog
-
 LUA_PATH ?= ;
 LUA_CPATH ?= ;
 LUA_ENV = LUA_PATH="$(abs_srcdir)/?.lua;$(LUA_PATH)" LUA_CPATH="$(abs_builddir)/$(objdir)/?$(shrext);$(LUA_CPATH)"
