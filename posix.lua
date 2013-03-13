@@ -30,6 +30,75 @@ function M.system (file, ...)
   end
 end
 
+--- Perform a series of commands and Lua functions as a pipeline.
+-- @param t1 ... tasks, each a string which will be executed as a
+-- shell command, or a Lua function which should read from standard
+-- input, write to standard output, and return an exit code
+-- @return status exit code of the pipeline
+local function pipeline (t1, t2, ...)
+  local got_sigint = false
+  local pid, read_fd, write_fd, save_stdout
+
+  assert (type (t1) == "string" or type (t1) == "function",
+          "bad argument #1 to 'pipeline' (string or function expected, got " .. type (t1) .. ")")
+
+  if t2 then
+    read_fd, write_fd = posix.pipe ()
+    if not read_fd then
+      die ("error opening pipe")
+    end
+    pid = posix.fork ()
+    if pid == nil then
+      die ("error forking")
+    elseif pid == 0 then -- child process
+      if not posix.dup2 (read_fd, posix.STDIN_FILENO) then
+        die ("error dup2-ing")
+      end
+      posix.close (read_fd)
+      posix.close (write_fd)
+      os.exit (pipeline (t2, ...)) -- recurse with remaining arguments
+    else -- parent process
+      save_stdout = posix.dup (posix.STDOUT_FILENO)
+      if not save_stdout then
+        die ("error dup-ing")
+      end
+      if not posix.dup2 (write_fd, posix.STDOUT_FILENO) then
+        die ("error dup2-ing")
+      end
+      posix.close (read_fd)
+      posix.close (write_fd)
+    end
+  end
+  
+  local ret
+  local cpid = posix.fork ()
+  if cpid == nil then
+    die ("error forking")
+  elseif cpid == 0 then -- child process
+    if type (t1) == "string" then
+      os.exit (posix.execp ("/bin/sh", "-c", t1))
+    elseif type (t1) == "function" then
+      os.exit (t1 () or 0)
+    end
+  else -- parent process
+    local _, how
+    _, how, ret = posix.wait (cpid)
+  end
+  posix.close (posix.STDOUT_FILENO)
+  
+  if t2 then
+    posix.close (write_fd)
+    posix.wait (pid)
+    if not posix.dup2 (save_stdout, posix.STDOUT_FILENO) then
+      die ("error dup2-ing")
+    end
+    posix.close (save_stdout)
+  end
+
+  return ret
+end
+M.pipeline = pipeline
+
 --- Check permissions like <code>access</code>, but for euid.
 -- Based on the glibc function of the same name. Does not always check
 -- for read-only file system, text busy, etc., and does not work with
