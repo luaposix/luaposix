@@ -901,11 +901,7 @@ static int runexec(lua_State *L, int use_shell)
 	const char *path = luaL_checkstring(L, 1);
 	int i,n=lua_gettop(L), table = 0;
 	if (n >= 1 && lua_type(L, 2) == LUA_TTABLE) {
-		int isint;
-		lua_len(L, 2);
-		n = lua_tointegerx(L, -1, &isint);
-		if (!isint)
-			luaL_error(L, "argument 2 is a table, but has non-numeric length");
+		n = lua_objlen(L, 2);
 		table = 1;
 	} else
 		n--;
