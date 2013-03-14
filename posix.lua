@@ -34,9 +34,8 @@ end
 -- @param t1 ... tasks, each a string which will be executed as a
 -- shell command, or a Lua function which should read from standard
 -- input, write to standard output, and return an exit code
--- @return status exit code of the pipeline
+-- @return exit code of the pipeline
 local function pipeline (t1, t2, ...)
-  local got_sigint = false
   local pid, read_fd, write_fd, save_stdout
 
   assert (type (t1) == "string" or type (t1) == "function",
@@ -81,8 +80,8 @@ local function pipeline (t1, t2, ...)
       os.exit (t1 () or 0)
     end
   else -- parent process
-    local _, how
-    _, how, ret = posix.wait (cpid)
+    local _
+    _, _, ret = posix.wait (cpid)
   end
   posix.close (posix.STDOUT_FILENO)
   
@@ -98,6 +97,68 @@ local function pipeline (t1, t2, ...)
   return ret
 end
 M.pipeline = pipeline
+
+--- Perform a series of commands and Lua functions as a pipeline,
+-- returning the output of the last stage's <code>stdout</code> as
+-- the output of an iterator.
+-- @param t1 ... tasks, as for <code>posix.pipeline</code>
+-- @return iterator function
+function M.pipeline_iterator (...)
+  local read_fd, write_fd = posix.pipe ()
+  if not read_fd then
+    die ("error opening pipe")
+  end
+  local arg = {...}
+  table.insert (arg, function ()
+                       local s
+                       repeat
+                         s = posix.read (posix.STDIN_FILENO, posix.BUFSIZ)
+                         if s and #s > 0 then
+                           posix.write (write_fd, s)
+                         else
+                           break
+                         end
+                         posix.close (write_fd)
+                       until false
+                     end)
+
+  local ret
+  local exit = false
+  local pid = posix.fork ()
+  if pid == nil then
+    die ("error forking")
+  elseif pid == 0 then -- child process
+    os.exit (M.pipeline (unpack (arg)))
+  else -- parent process
+    posix.signal (posix.SIGCHLD,
+                  function ()
+                    posix.fcntl (read_fd, posix.F_SETFL, posix.O_NONBLOCK)
+                    exit = true
+                  end,
+                  posix.SA_NOCLDSTOP)
+    return function ()
+      local s = posix.read (read_fd, posix.BUFSIZ)
+      if (not s or #s == 0) and exit == true then
+        local _
+        _, _, ret = posix.wait (pid)
+        return nil
+      end
+      return s or ""
+    end
+  end
+end
+
+--- Perform a series of commands and Lua functions as a pipeline,
+-- returning the output of the last stage's <code>stdout</code>.
+-- @param t1 ... tasks, as for <code>posix.pipeline</code>
+-- @return output of the pipeline
+function M.pipeline_slurp (...)
+  local out = ""
+  for s in M.pipeline_iterator (...) do
+    out = out .. s
+  end
+  return out
+end
 
 --- Check permissions like <code>access</code>, but for euid.
 -- Based on the glibc function of the same name. Does not always check
