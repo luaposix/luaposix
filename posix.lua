@@ -12,37 +12,51 @@ function M.creat (file, mode)
   return posix.open (file, bit.bor (posix.O_CREAT, posix.O_WRONLY, posix.O_TRUNC), mode)
 end
 
---- Run a program like <code>os.execute</code>, but without a shell.
--- @param file filename of program to run
--- @param ... arguments to the program
+--- Run a command or function in a sub-process.
+-- @param command, a string to be executed as a shell command, or a
+-- table of arguments to <code>posix.execp</code> or a Lua function
+-- which should read from standard input, write to standard output,
+-- and return an exit code
+-- @param task command to run, or Lua function
+-- @param ... positional arguments to the program or function
 -- @return status exit code, or nil if fork or wait fails
 -- @return error message, or exit type if wait succeeds
-function M.system (file, ...)
-  local pid = posix.fork ()
-  if pid == 0 then
-    posix.execp (file, ...)
-    -- Only get here if there's an error; kill the fork
-    local _, no = posix.errno ()
-    posix._exit (no)
+function M.system (task, ...)
+  local pid, err = posix.fork ()
+  if pid == nil then
+    return pid, err
+  elseif pid == 0 then
+    if type (task) == "string" then
+      task = {"/bin/sh", "-c", task, ...}
+    end
+    if type (task) == "table" then
+      posix.execp (unpack (task))
+      -- Only get here if there's an error; kill the fork
+      local _, no = posix.errno ()
+      posix._exit (no)
+    else
+      posix._exit (task (...) or 0)
+    end
   else
-    local pid, reason, status = posix.wait (pid)
+    local _, reason, status = posix.wait (pid)
     return status, reason -- If wait failed, status is nil & reason is error
   end
 end
 
 --- Perform a series of commands and Lua functions as a pipeline.
--- @param t1 ... tasks, each a string which will be executed as a
--- shell command, or a Lua function which should read from standard
--- input, write to standard output, and return an exit code
--- @return exit code of the pipeline
-local function pipeline (t1, t2, ...)
+-- @param {t1 ...} tasks for <code>posix.system</code>
+-- @param pipe_fn function returning a paired read and write file
+-- descriptor
+-- (default: <code>posix.pipe</code>)
+-- @return exit code of the chain
+local function pipeline (t, pipe_fn)
+  local pipe_fn = pipe_fn or posix.pipe
+  assert (type (t) == "table",
+          "bad argument #1 to 'pipeline' (table expected, got " .. type (t1) .. ")")
+
   local pid, read_fd, write_fd, save_stdout
-
-  assert (type (t1) == "string" or type (t1) == "function",
-          "bad argument #1 to 'pipeline' (string or function expected, got " .. type (t1) .. ")")
-
-  if t2 then
-    read_fd, write_fd = posix.pipe ()
+  if #t > 1 then
+    read_fd, write_fd = pipe_fn ()
     if not read_fd then
       die ("error opening pipe")
     end
@@ -55,7 +69,7 @@ local function pipeline (t1, t2, ...)
       end
       posix.close (read_fd)
       posix.close (write_fd)
-      os.exit (pipeline (t2, ...)) -- recurse with remaining arguments
+      os.exit (pipeline (list.sub (t, 2), pipe_fn)) -- recurse with remaining arguments
     else -- parent process
       save_stdout = posix.dup (posix.STDOUT_FILENO)
       if not save_stdout then
@@ -68,24 +82,14 @@ local function pipeline (t1, t2, ...)
       posix.close (write_fd)
     end
   end
-  
-  local ret
-  local cpid = posix.fork ()
-  if cpid == nil then
-    die ("error forking")
-  elseif cpid == 0 then -- child process
-    if type (t1) == "string" then
-      os.exit (posix.execp ("/bin/sh", "-c", t1))
-    elseif type (t1) == "function" then
-      os.exit (t1 () or 0)
-    end
-  else -- parent process
-    local _
-    _, _, ret = posix.wait (cpid)
+
+  local ret = M.system (t[1])
+  if not ret then
+    die ("error in fork or wait")
   end
   posix.close (posix.STDOUT_FILENO)
   
-  if t2 then
+  if #t > 1 then
     posix.close (write_fd)
     posix.wait (pid)
     if not posix.dup2 (save_stdout, posix.STDOUT_FILENO) then
@@ -101,26 +105,26 @@ M.pipeline = pipeline
 --- Perform a series of commands and Lua functions as a pipeline,
 -- returning the output of the last stage's <code>stdout</code> as
 -- the output of an iterator.
--- @param t1 ... tasks, as for <code>posix.pipeline</code>
--- @return iterator function
-function M.pipeline_iterator (...)
+-- @param t as for <code>posix.pipeline</code>
+-- @param pipe_fn as for <code>posix.pipeline</code>
+-- @return iterator function returning a chunk of output on each call
+function M.pipeline_iterator (t, pipe_fn)
   local read_fd, write_fd = posix.pipe ()
   if not read_fd then
     die ("error opening pipe")
   end
-  local arg = {...}
-  table.insert (arg, function ()
-                       local s
-                       repeat
-                         s = posix.read (posix.STDIN_FILENO, posix.BUFSIZ)
-                         if s and #s > 0 then
-                           posix.write (write_fd, s)
-                         else
-                           break
-                         end
-                         posix.close (write_fd)
-                       until false
-                     end)
+  table.insert (t, function ()
+                     local s
+                     repeat
+                       s = posix.read (posix.STDIN_FILENO, posix.BUFSIZ)
+                       if s and #s > 0 then
+                         posix.write (write_fd, s)
+                       else
+                         break
+                       end
+                       posix.close (write_fd)
+                     until false
+                   end)
 
   local ret
   local exit = false
@@ -128,7 +132,7 @@ function M.pipeline_iterator (...)
   if pid == nil then
     die ("error forking")
   elseif pid == 0 then -- child process
-    os.exit (M.pipeline (unpack (arg)))
+    os.exit (M.pipeline (t, pipe_fn))
   else -- parent process
     posix.signal (posix.SIGCHLD,
                   function ()
@@ -141,7 +145,8 @@ function M.pipeline_iterator (...)
       if (not s or #s == 0) and exit == true then
         local _
         _, _, ret = posix.wait (pid)
-        return nil
+        s = posix.read (read_fd, posix.BUFSIZ)
+        return s
       end
       return s or ""
     end
@@ -150,11 +155,12 @@ end
 
 --- Perform a series of commands and Lua functions as a pipeline,
 -- returning the output of the last stage's <code>stdout</code>.
--- @param t1 ... tasks, as for <code>posix.pipeline</code>
+-- @param t as for <code>posix.pipeline</code>
+-- @param pipe_fn as for <code>posix.pipeline</code>
 -- @return output of the pipeline
-function M.pipeline_slurp (...)
+function M.pipeline_slurp (t, pipe_fn)
   local out = ""
-  for s in M.pipeline_iterator (...) do
+  for s in M.pipeline_iterator (t, pipe_fn) do
     out = out .. s
   end
   return out
