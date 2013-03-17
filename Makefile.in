@@ -56,10 +56,9 @@ subdir = .
 DIST_COMMON = README $(am__configure_deps) $(dist_data_DATA) \
 	$(dist_doc_DATA) $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(srcdir)/config.h.in $(srcdir)/luarocks-config.lua.in \
-	$(top_srcdir)/configure AUTHORS COPYING ChangeLog NEWS \
-	build-aux/ar-lib build-aux/config.guess build-aux/config.sub \
-	build-aux/depcomp build-aux/install-sh build-aux/ltmain.sh \
-	build-aux/missing
+	$(top_srcdir)/configure AUTHORS COPYING NEWS build-aux/ar-lib \
+	build-aux/config.guess build-aux/config.sub build-aux/depcomp \
+	build-aux/install-sh build-aux/ltmain.sh build-aux/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/00gnulib.m4 \
 	$(top_srcdir)/m4/ax_compare_version.m4 \
@@ -906,9 +905,6 @@ uninstall-am: uninstall-dist_dataDATA uninstall-dist_docDATA \
 	uninstall-dist_docDATA uninstall-examplesDATA \
 	uninstall-libLTLIBRARIES
 
-
-ChangeLog:
-	git2cl > ChangeLog
 
 LUA_PATH ?= ;
 LUA_CPATH ?= ;
