@@ -21,7 +21,7 @@ end
 -- @param ... positional arguments to the program or function
 -- @return status exit code, or nil if fork or wait fails
 -- @return error message, or exit type if wait succeeds
-function M.system (task, ...)
+function M.spawn (task, ...)
   local pid, err = posix.fork ()
   if pid == nil then
     return pid, err
@@ -42,9 +42,10 @@ function M.system (task, ...)
     return status, reason -- If wait failed, status is nil & reason is error
   end
 end
+M.system = M.spawn -- OBSOLETE alias
 
 --- Perform a series of commands and Lua functions as a pipeline.
--- @param {t1 ...} tasks for <code>posix.system</code>
+-- @param {t1 ...} tasks for <code>posix.spawn</code>
 -- @param pipe_fn function returning a paired read and write file
 -- descriptor
 -- (default: <code>posix.pipe</code>)
@@ -83,7 +84,7 @@ local function pipeline (t, pipe_fn)
     end
   end
 
-  local ret = M.system (t[1])
+  local ret = M.spawn (t[1])
   if not ret then
     die ("error in fork or wait")
   end
