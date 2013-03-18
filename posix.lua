@@ -118,13 +118,11 @@ function M.pipeline_iterator (t, pipe_fn)
                      local s
                      repeat
                        s = posix.read (posix.STDIN_FILENO, posix.BUFSIZ)
-                       if s and #s > 0 then
+                       if s then
                          posix.write (write_fd, s)
-                       else
-                         break
                        end
-                       posix.close (write_fd)
-                     until false
+                     until not s
+                     posix.close (write_fd)
                    end)
 
   local ret
