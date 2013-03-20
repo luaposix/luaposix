@@ -306,6 +306,12 @@ local testdata = ox.read(rpipe, 4)
 assert(testdata == "test")
 ox.close(rpipe)
 ox.close(wpipe)
+
+------------------------------------------------------------------------------
+testing "pipeline"
+local testdata = ox.pipeline_iterator({"tail -3 COPYING", "wc -l"})
+assert(testdata == "3\n")
+
 ------------------------------------------------------------------------------
 testing "crypt"
 local r = ox.crypt("hello", "pl")
