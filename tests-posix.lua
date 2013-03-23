@@ -309,7 +309,7 @@ ox.close(wpipe)
 
 ------------------------------------------------------------------------------
 testing "pipeline"
-local testdata = ox.pipeline_slurp({"tail -3 COPYING", "wc -l"})
+local testdata = ox.pipeline_slurp({"tail -3 luarocks-config.lua", "wc -l"})
 assert(testdata == "3\n")
 
 ------------------------------------------------------------------------------
