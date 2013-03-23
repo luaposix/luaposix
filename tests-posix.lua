@@ -306,6 +306,12 @@ local testdata = ox.read(rpipe, 4)
 assert(testdata == "test")
 ox.close(rpipe)
 ox.close(wpipe)
+
+------------------------------------------------------------------------------
+testing "pipeline"
+local testdata = ox.pipeline_slurp({"tail -3 luarocks-config.lua", "wc -l"})
+assert(testdata == "3\n")
+
 ------------------------------------------------------------------------------
 testing "crypt"
 local r = ox.crypt("hello", "pl")

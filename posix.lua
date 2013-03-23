@@ -105,7 +105,7 @@ M.pipeline = pipeline
 
 --- Perform a series of commands and Lua functions as a pipeline,
 -- returning the output of the last stage's <code>stdout</code> as
--- the output of an iterator.
+-- the values of an iterator.
 -- @param t as for <code>posix.pipeline</code>
 -- @param pipe_fn as for <code>posix.pipeline</code>
 -- @return iterator function returning a chunk of output on each call
@@ -115,41 +115,28 @@ function M.pipeline_iterator (t, pipe_fn)
     die ("error opening pipe")
   end
   table.insert (t, function ()
-                     local s
-                     repeat
-                       s = posix.read (posix.STDIN_FILENO, posix.BUFSIZ)
-                       if s and #s > 0 then
-                         posix.write (write_fd, s)
-                       else
-                         break
-                       end
-                       posix.close (write_fd)
-                     until false
+                     while true do
+                       local s = posix.read (posix.STDIN_FILENO, posix.BUFSIZ)
+                       if not s or #s == 0 then break end
+                       posix.write (write_fd, s)
+                     end
+                     posix.close (write_fd)
                    end)
 
-  local ret
-  local exit = false
   local pid = posix.fork ()
   if pid == nil then
     die ("error forking")
   elseif pid == 0 then -- child process
     os.exit (M.pipeline (t, pipe_fn))
   else -- parent process
-    posix.signal (posix.SIGCHLD,
-                  function ()
-                    posix.fcntl (read_fd, posix.F_SETFL, posix.O_NONBLOCK)
-                    exit = true
-                  end,
-                  posix.SA_NOCLDSTOP)
+    posix.close (write_fd)
     return function ()
       local s = posix.read (read_fd, posix.BUFSIZ)
-      if (not s or #s == 0) and exit == true then
-        local _
-        _, _, ret = posix.wait (pid)
-        s = posix.read (read_fd, posix.BUFSIZ)
-        return s
+      if not s or #s == 0 then
+        posix.wait (pid)
+        return nil
       end
-      return s or ""
+      return s
     end
   end
 end
