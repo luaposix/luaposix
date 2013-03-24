@@ -125,7 +125,7 @@ static int Pisgraph(lua_State *L)
 
 /***
 Check for any printable character including space.
-@function isgraph
+@function isprint
 @see isgraph(3)
 @string character to check
 @return true if character is in the class
