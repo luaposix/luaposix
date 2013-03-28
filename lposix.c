@@ -1413,7 +1413,7 @@ Send message to a message queue
 @function msgsnd
 @see msgsnd(2)
 @int id - message queue identifier returned by msgget
-@long type - message type
+@int type - message type
 @string message
 @int flags (optional, default - 0)
 @return 0 on success
@@ -1461,7 +1461,7 @@ Receive message from a message queue
 @see msgrcv(2)
 @int id - message queue identifier returned by msgget
 @int size - maximum message size
-@long type - message type (optional, default - 0)
+@int type - message type (optional, default - 0)
 @int flags (optional, default - 0)
 @return message type and message text on success
 @return nil, nil and error message if failed
