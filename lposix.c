@@ -1731,6 +1731,7 @@ static int Pdup2(lua_State *L)
 
 /***
 Creates a pipe.
+@function pipe
 @see pipe(2)
 @return fd read end
 @return fd write end
