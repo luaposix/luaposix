@@ -483,10 +483,11 @@ static int Pbasename(lua_State *L)
 	void *ud;
 	lua_Alloc lalloc = lua_getallocf(L, &ud);
 	const char *path = luaL_checklstring(L, 1, &len);
-	if ((b = lalloc(ud, NULL, 0, strlen(path) + 1)) == NULL)
+	size_t path_len = strlen(path) + 1;
+	if ((b = lalloc(ud, NULL, 0, path_len)) == NULL)
 		return pusherror(L, "lalloc");
 	lua_pushstring(L, basename(strcpy(b,path)));
-	lalloc(ud, b, 0, 0);
+	lalloc(ud, b, path_len, 0);
 	return 1;
 }
 
@@ -504,10 +505,11 @@ static int Pdirname(lua_State *L)
 	void *ud;
 	lua_Alloc lalloc = lua_getallocf(L, &ud);
 	const char *path = luaL_checklstring(L, 1, &len);
-	if ((b = lalloc(ud, NULL, 0, strlen(path) + 1)) == NULL)
+	size_t path_len = strlen(path) + 1;
+	if ((b = lalloc(ud, NULL, 0, path_len)) == NULL)
 		return pusherror(L, "lalloc");
 	lua_pushstring(L, dirname(strcpy(b,path)));
-	lalloc(ud, b, 0, 0);
+	lalloc(ud, b, path_len, 0);
 	return 1;
 }
 
@@ -668,7 +670,7 @@ static int Pgetcwd(lua_State *L)
 	ret = getcwd(b, (size_t)size);
 	if (ret != NULL)
 		lua_pushstring(L, b);
-	lalloc(ud, b, 0, 0);
+	lalloc(ud, b, (size_t)size + 1, 0);
 	return (ret == NULL) ? pusherror(L, ".") : 1;
 }
 
@@ -771,7 +773,7 @@ static int Preadlink(lua_State *L)
 	ssize_t n = readlink(path, b, s.st_size);
 	if (n != -1)
 		lua_pushlstring(L, b, n);
-	lalloc(ud, b, 0, 0);
+	lalloc(ud, b, s.st_size + 1, 0);
 	return (n == -1) ? pusherror(L, path) : 1;
 }
 
@@ -843,26 +845,25 @@ Create a unique temporary file.
 static int Pmkstemp(lua_State *L)
 {
 	const char *path = luaL_checkstring(L, 1);
+	size_t path_len = strlen(path) + 1;
 	void *ud;
 	lua_Alloc lalloc = lua_getallocf(L, &ud);
 	char *tmppath;
 	int res;
 
-	if ((tmppath = lalloc(ud, NULL, 0, strlen(path) + 1)) == NULL)
+	if ((tmppath = lalloc(ud, NULL, 0, path_len)) == NULL)
 		return pusherror(L, "lalloc");
 	strcpy(tmppath, path);
 	res = mkstemp(tmppath);
 
-	if (res == -1)
+	if (res != -1)
 	{
-		lalloc(ud, tmppath, 0, 0);
-		return pusherror(L, path);
+		lua_pushinteger(L, res);
+		lua_pushstring(L, tmppath);
 	}
 
-	lua_pushinteger(L, res);
-	lua_pushstring(L, tmppath);
-	lalloc(ud, tmppath, 0, 0);
-	return 2;
+	lalloc(ud, tmppath, path_len, 0);
+	return (res == -1) ? pusherror(L, path) : 2;
 }
 
 /***
@@ -876,23 +877,20 @@ Create a unique temporary directory.
 static int Pmkdtemp(lua_State *L)
 {
 	const char *path = luaL_checkstring(L, 1);
+	size_t path_len = strlen(path) + 1;
 	void *ud;
 	lua_Alloc lalloc = lua_getallocf(L, &ud);
 	char *tmppath;
 	char *res;
 
-	if ((tmppath = lalloc(ud, NULL, 0, strlen(path) + 1)) == NULL)
+	if ((tmppath = lalloc(ud, NULL, 0, path_len)) == NULL)
 		return pusherror(L, "lalloc");
 	strcpy(tmppath, path);
-	res = mkdtemp(tmppath);
 
-	if (res == NULL) {
-		lalloc(ud, tmppath, 0, 0);
-		return pusherror(L, path);
-	}
-	lua_pushstring(L, tmppath);
-	lalloc(ud, tmppath, 0, 0);
-	return 1;
+	if ((res = mkdtemp(tmppath)))
+		lua_pushstring(L, tmppath);
+	lalloc(ud, tmppath, path_len, 0);
+	return (res == NULL) ? pusherror(L, path) : 1;
 }
 
 static int runexec(lua_State *L, int use_shell)
@@ -1422,7 +1420,7 @@ Send message to a message queue
 static int Pmsgsnd(lua_State *L)
 {
 	void *ud;
-	lua_Alloc lalloc;
+	lua_Alloc lalloc = lua_getallocf(L, &ud);
 	struct {
 		long mtype;
 		char mtext[0];
@@ -1436,13 +1434,10 @@ static int Pmsgsnd(lua_State *L)
 	const char *msgp = luaL_checklstring(L, 3, &len);
 	int msgflg = luaL_optint(L, 4, 0);
 
-	lalloc = lua_getallocf(L, &ud);
-
 	msgsz = sizeof(long) + len;
 
-	if ((msg = lalloc(ud, NULL, 0, msgsz)) == NULL) {
+	if ((msg = lalloc(ud, NULL, 0, msgsz)) == NULL)
 		return pusherror(L, "lalloc");
-	}
 
 	msg->mtype = msgtype;
 	memcpy(msg->mtext, msgp, len);
@@ -1450,7 +1445,7 @@ static int Pmsgsnd(lua_State *L)
 	res = msgsnd(msgid, msg, msgsz, msgflg);
 	lua_pushinteger(L, res);
 
-	lalloc(ud, msg, 0, 0);
+	lalloc(ud, msg, msgsz, 0);
 
 	return (res == -1 ? pusherror(L, NULL) : 1);
 }
@@ -1474,27 +1469,23 @@ static int Pmsgrcv(lua_State *L)
 	int msgflg = luaL_optint(L, 4, 0);
 
 	void *ud;
-	lua_Alloc lalloc;
+	lua_Alloc lalloc = lua_getallocf(L, &ud);
 	struct {
 		long mtype;
 		char mtext[0];
 	} *msg;
 
-	lalloc = lua_getallocf(L, &ud);
-	if ((msg = lalloc(ud, NULL, 0, msgsz)) == NULL) {
+	if ((msg = lalloc(ud, NULL, 0, msgsz)) == NULL)
 		return pusherror(L, "lalloc");
-	}
 
 	int res = msgrcv(msgid, msg, msgsz, msgtyp, msgflg);
-	if (res == -1) {
-		lalloc(ud, msg, 0, 0);
-		lua_pushnil(L);
-		return pusherror(L, NULL);
+	if (res != -1) {
+		lua_pushinteger(L, msg->mtype);
+		lua_pushlstring(L, msg->mtext, res - sizeof(long));
 	}
-	lua_pushinteger(L, msg->mtype);
-	lua_pushlstring(L, msg->mtext, res - sizeof(long));
+	lalloc(ud, msg, msgsz, 0);
 
-	return 2;
+	return (res == -1) ? pusherror(L, NULL) : 2;
 }
 
 /***
@@ -1802,7 +1793,7 @@ static int Pread(lua_State *L)
 	ret = read(fd, buf, count);
 	if (ret >= 0)
 		lua_pushlstring(L, buf, ret);
-	lalloc(ud, buf, 0, 0);
+	lalloc(ud, buf, count, 0);
 	return (ret < 0) ? pusherror(L, NULL) : 1;
 }
 
