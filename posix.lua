@@ -53,7 +53,7 @@ M.system = M.spawn -- OBSOLETE alias
 local function pipeline (t, pipe_fn)
   local pipe_fn = pipe_fn or posix.pipe
   assert (type (t) == "table",
-          "bad argument #1 to 'pipeline' (table expected, got " .. type (t1) .. ")")
+          "bad argument #1 to 'pipeline' (table expected, got " .. type (t) .. ")")
 
   local pid, read_fd, write_fd, save_stdout
   if #t > 1 then
