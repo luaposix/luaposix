@@ -1800,14 +1800,10 @@ static int Pread(lua_State *L)
 		return pusherror(L, "lalloc");
 
 	ret = read(fd, buf, count);
-	if (ret < 0)
-		return pusherror(L, NULL);
-
-	lua_pushlstring(L, buf, ret);
-
+	if (ret >= 0)
+		lua_pushlstring(L, buf, ret);
 	lalloc(ud, buf, 0, 0);
-
-	return 1;
+	return (ret < 0) ? pusherror(L, NULL) : 1;
 }
 
 /***
