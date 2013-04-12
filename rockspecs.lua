@@ -24,6 +24,7 @@ local default = {
   dependencies = {
     "lua >= 5.1",
     "luabitop >= 1.0.2",
+    "stdlib >= 35",
   },
   build = {
     type = "command",

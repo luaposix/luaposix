@@ -3,6 +3,7 @@
 local bit
 if _VERSION == "Lua 5.1" then bit = require 'bit' else bit = require 'bit32' end
 
+local list = require 'std.list'
 local ox = require 'posix'
 
 function testing(s)
