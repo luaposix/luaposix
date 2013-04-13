@@ -3,6 +3,7 @@ local M = require "posix_c"
 local posix = M
 local bit
 if _VERSION == "Lua 5.1" then bit = require "bit" else bit = require "bit32" end
+local list = require 'std.list'
 
 --- Create a file.
 -- @param file name of file to create
