@@ -1220,7 +1220,9 @@ static int Ppoll(lua_State *L)
 
 	result = poll(fd_list, fd_num, timeout);
 
-	Ppoll_fd_list_to_table(L, 1, fd_list);
+	/* For performance reasons, omit adding revents table if no fd's changed state */
+	if (result > 0)
+		Ppoll_fd_list_to_table(L, 1, fd_list);
 
 	return pushresult(L, result, NULL);
 }
