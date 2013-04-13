@@ -1061,8 +1061,10 @@ static void Ppoll_events_to_table(lua_State *L, int table, short events)
 
 	for (i = 0; i < PPOLL_EVENT_NUM; i++)
 	{
-		lua_pushboolean(L, events & Ppoll_event_map[i].bit);
-		lua_setfield(L, table, Ppoll_event_map[i].name);
+		if(events & Ppoll_event_map[i].bit) {
+			lua_pushboolean(L, events & Ppoll_event_map[i].bit);
+			lua_setfield(L, table, Ppoll_event_map[i].name);
+		}
 	}
 }
 
