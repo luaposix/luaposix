@@ -2203,7 +2203,7 @@ test extract-trace = "$progname" && func_main "$@"
 # End:
 
 # Set a version string for *this* script.
-scriptversion=2012-10-21.12; # UTC
+scriptversion=2013-01-20.16; # UTC
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -2571,12 +2571,8 @@ func_reconfigure ()
 #
 # It's assumed that since you are using gnulib's 'bootstrap' script,
 # you're also using gnulib elsewhere in your package.  If not, then
-# you can replace this function in 'bootstrap.conf' with:
-#
-#   func_gnulib_tool () { :; }
-#
-# (although the function returns immediately if $gnulib_tool is set to
-# true in any case).
+# you can preset 'gnulib_tool=true' in your 'bootstrap.conf' to force
+# this function to return immediately.
 func_hookable func_gnulib_tool
 func_gnulib_tool ()
 {
@@ -2588,60 +2584,50 @@ func_gnulib_tool ()
     test true = "$gnulib_tool" || {
       if test -n "$gnulib_modules"; then
         $require_gnulib_cache
-        $require_build_aux
-        $require_macro_dir
+        $require_gnulib_tool_base_options
+
+        gnulib_mode=--import
 
         # Try not to pick up any stale values from 'gnulib-cache.m4'.
         rm -f "$gnulib_cache"
 
-        gnulib_mode=--import
-
-        # 'gnulib_modules' and others are maintained in 'bootstrap.conf':
-        # Use 'gnulib --import' to fetch gnulib modules.
-        test -n "$build_aux" \
-            && func_append_uniq gnulib_tool_options " --aux-dir=$build_aux"
-        test -n "$macro_dir" \
-            && func_append_uniq gnulib_tool_options " --m4-base=$macro_dir"
-        test -n "$doc_base" \
-            && func_append_uniq gnulib_tool_options " --doc-base=$doc_base"
-        test -n "$gnulib_name" \
-            && func_append_uniq gnulib_tool_options " --lib=$gnulib_name"
-        test -n "$local_gl_dir" \
-            && func_append_uniq gnulib_tool_options " --local-dir=$local_gl_dir"
-        test -n "$source_base" \
-            && func_append_uniq gnulib_tool_options " --source-base=$source_base"
+        gnulib_tool_all_options=$gnulib_tool_options
+        test -n "$gnulib_tool_base_options" \
+            && func_append_uniq gnulib_tool_all_options " $gnulib_tool_base_options"
         test -n "$gnulib_mk" \
-            && func_append_uniq gnulib_tool_options " --makefile-name=$gnulib_mk"
+            && func_append_uniq gnulib_tool_all_options " --makefile-name=$gnulib_mk"
         test -n "$tests_base" && {
-          func_append_uniq gnulib_tool_options " --tests-base=$tests_base"
-          func_append_uniq gnulib_tool_options " --with-tests"
+          func_append_uniq gnulib_tool_all_options " --tests-base=$tests_base"
+          func_append_uniq gnulib_tool_all_options " --with-tests"
         }
       else
 
         # 'gnulib_modules' and others are cached in 'gnulib-cache.m4':
         # Use 'gnulib --update' to fetch gnulib modules.
         gnulib_mode=--update
+
+        gnulib_tool_all_options=$gnulib_tool_options
       fi
 
       # Add a sensible default libtool option to gnulib_tool_options.
       # The embedded echo is to squash whitespace before globbing.
-      case `echo " "$gnulib_tool_options" "` in
+      case `echo " "$gnulib_tool_all_options" "` in
         *" --no-libtool "*|*" --libtool "*) ;;
         *)  if test true = "$LIBTOOLIZE"; then
-              func_append_uniq gnulib_tool_options " --no-libtool"
+              func_append_uniq gnulib_tool_all_options " --no-libtool"
             else
-              func_append_uniq gnulib_tool_options " --libtool"
+              func_append_uniq gnulib_tool_all_options " --libtool"
             fi
             ;;
       esac
 
-      $opt_copy || func_append_uniq gnulib_tool_options " --symlink"
+      $opt_copy || func_append_uniq gnulib_tool_all_options " --symlink"
 
-      func_append_uniq gnulib_tool_options " $gnulib_mode"
-      func_append gnulib_tool_options " $gnulib_modules"
+      func_append_uniq gnulib_tool_all_options " $gnulib_mode"
+      func_append gnulib_tool_all_options " $gnulib_modules"
 
       # The embedded echo is to squash whitespace before display.
-      gnulib_cmd=`echo $gnulib_tool $gnulib_tool_options`
+      gnulib_cmd=`echo $gnulib_tool $gnulib_tool_all_options`
 
       func_show_eval "$gnulib_cmd" 'exit $?'
 
@@ -2955,34 +2941,36 @@ func_clean_unused_macros ()
 {
     $debug_cmd
 
-    $require_gnulib_path
-    $require_macro_dir
+    test true = "$gnulib_tool" || {
+      $require_gnulib_path
+      $require_macro_dir
 
-    test -n "$gnulib_path" && test -f aclocal.m4 && {
-      aclocal_m4s=`find . -name aclocal.m4 -print`
+      test -n "$gnulib_path" && test -f aclocal.m4 && {
+        aclocal_m4s=`find . -name aclocal.m4 -print`
 
-      # We use 'ls|grep' instead of 'ls *.m4' to avoid exceeding
-      # command line length limits in some shells.
-      for file in `cd "$macro_dir" && ls -1 |grep '\.m4$'`; do
+        # We use 'ls|grep' instead of 'ls *.m4' to avoid exceeding
+        # command line length limits in some shells.
+        for file in `cd "$macro_dir" && ls -1 |grep '\.m4$'`; do
 
-	# Remove a macro file when aclocal.m4 does not m4_include it...
-        func_grep_q 'm4_include([[]'$macro_dir/$file'])' $aclocal_m4s \
-            || test ! -f "$gnulib_path/m4/$file" || {
+	  # Remove a macro file when aclocal.m4 does not m4_include it...
+          func_grep_q 'm4_include([[]'$macro_dir/$file'])' $aclocal_m4s \
+              || test ! -f "$gnulib_path/m4/$file" || {
 
-              # ...and there is an identical file in gnulib...
-              if func_cmp_s "$gnulib_path/m4/$file" "$macro_dir/$file"; then
+                # ...and there is an identical file in gnulib...
+                if func_cmp_s "$gnulib_path/m4/$file" "$macro_dir/$file"; then
 
-                # ...and it's not in the precious list ('echo' is needed
-                # here to squash whitespace for the match expression).
-                case " "`echo $gnulib_precious`" " in
-                  *" $file "*) ;;
-                  *) rm -f "$macro_dir/$file"
-                     func_verbose \
-                       "removing unused gnulib file '$macro_dir/$file'"
-                esac
-              fi
-        }
-      done
+                  # ...and it's not in the precious list ('echo' is needed
+                  # here to squash whitespace for the match expression).
+                  case " "`echo $gnulib_precious`" " in
+                    *" $file "*) ;;
+                    *) rm -f "$macro_dir/$file"
+                       func_verbose \
+                         "removing unused gnulib file '$macro_dir/$file'"
+                  esac
+                fi
+          }
+        done
+      }
     }
 }
 
@@ -3216,7 +3204,7 @@ func_require_build_aux ()
       func_show_eval "mkdir '$build_aux'"
 
       test -n "$vc_ignore_files" \
-          || func_insert_sorted_if_absent "$build_aux" $vc_ignore_files
+          || func_insert_if_absent "$build_aux" $vc_ignore_files
     fi
 
     require_build_aux=:
@@ -3437,7 +3425,7 @@ func_require_dotgitmodules ()
         } >> .gitmodules
 
         test -n "$vc_ignore_files" \
-          || func_insert_sorted_if_absent ".gitmodules" $vc_ignore_files
+          || func_insert_if_absent ".gitmodules" $vc_ignore_files
       }
     }
 
@@ -3667,9 +3655,10 @@ func_require_gnulib_tool ()
 {
     $debug_cmd
 
-    $require_gnulib_submodule
+    test -n "$GNULIB_TOOL" && gnulib_tool=$GNULIB_TOOL
 
     test true = "$gnulib_tool" || {
+      $require_gnulib_submodule
       $require_gnulib_path
 
       test -n "$gnulib_tool" \
@@ -3686,6 +3675,43 @@ func_require_gnulib_tool ()
     }
 
     require_gnulib_tool=:
+}
+
+
+# require_gnulib_tool_base_options
+# --------------------------------
+# Ensure that '$gnulib_tool_base_options' contains all the base options
+# required according to user configuration from bootstrap.conf.
+require_gnulib_tool_base_options=func_require_gnulib_tool_base_options
+func_require_gnulib_tool_base_options ()
+{
+    $debug_cmd
+
+    $require_gnulib_tool
+
+    gnulib_tool_base_options=
+
+    test true = "$gnulib_tool" || {
+      $require_build_aux
+      $require_macro_dir
+
+      # 'gnulib_modules' and others are maintained in 'bootstrap.conf':
+      # Use 'gnulib --import' to fetch gnulib modules.
+      test -n "$build_aux" \
+          && func_append_uniq gnulib_tool_base_options " --aux-dir=$build_aux"
+      test -n "$macro_dir" \
+          && func_append_uniq gnulib_tool_base_options " --m4-base=$macro_dir"
+      test -n "$doc_base" \
+          && func_append_uniq gnulib_tool_base_options " --doc-base=$doc_base"
+      test -n "$gnulib_name" \
+          && func_append_uniq gnulib_tool_base_options " --lib=$gnulib_name"
+      test -n "$local_gl_dir" \
+          && func_append_uniq gnulib_tool_base_options " --local-dir=$local_gl_dir"
+      test -n "$source_base" \
+          && func_append_uniq gnulib_tool_base_options " --source-base=$source_base"
+    }
+
+    require_gnulib_tool_base_options=:
 }
 
 
@@ -3772,7 +3798,7 @@ func_require_macro_dir ()
       mkdir "$macro_dir" || func_permissions_error "$macro_dir"
 
       test -n "$vc_ignore_files" \
-        || func_insert_sorted_if_absent "$macro_dir" $vc_ignore_files
+        || func_insert_if_absent "$macro_dir" $vc_ignore_files
     fi
 
     require_macro_dir=:
@@ -4320,11 +4346,25 @@ func_truncate_cmd ()
 }
 
 
-# func_insert_sorted_if_absent STR FILE...
-# ----------------------------------------
-# If $STR is not already on a line by itself in $FILE, insert it,
+# func_gitignore_entries FILE...
+# ------------------------------
+# Strip blank and comment lines to leave significant entries.
+func_gitignore_entries ()
+{
+    $debug_cmd
+
+    sed -e '/^#/d' -e '/^$/d' "$@"
+}
+
+
+# func_insert_if_absent STR FILE...
+# ---------------------------------
+# If $STR is not already on a line by itself in $FILE, insert it, at the
+# start.  Entries are inserted at the start of the ignore list to ensure
+# existing entries starting with ! are not overridden.  Such entries
+# support whilelisting exceptions after a more generic blacklist pattern.
 # sorting the new contents of the file and replacing $FILE with the result.
-func_insert_sorted_if_absent ()
+func_insert_if_absent ()
 {
     $debug_cmd
 
@@ -4335,11 +4375,18 @@ func_insert_sorted_if_absent ()
     do
       test -f "$file" || touch "$file"
 
-      func_grep_q "$str" "$file" \
-          && func_verbose "inserting '$str' into '$file'"
+      duplicate_entries=`func_gitignore_entries "$file" |sort |uniq -d`
+      test -n "$duplicate_entries" \
+          && func_error "duplicate entries in $file: " $duplicate_entries
 
-      $bs_echo "$str" |sort -u - "$file" |func_cmp_s - "$file" \
-        || $bs_echo "$str" |sort -u - "$file" -o "$file" \
+      func_grep_q "^$str\$" "$file" \
+          || func_verbose "inserting '$str' into '$file'"
+
+      linesold=`func_gitignore_entries "$file" |wc -l`
+      linesnew=`$bs_echo "$str" \
+                |func_gitignore_entries - "$file" |sort -u |wc -l`
+      test "$linesold" -eq "$linesnew" \
+        || { sed "1i\\$nl$str$nl" "$file" >"$file"T && mv "$file"T "$file"; } \
         || func_permissions_error "$file"
     done
 }
