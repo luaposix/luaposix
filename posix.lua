@@ -91,7 +91,11 @@ local function pipeline (t, pipe_fn)
       end
       posix.close (read_fd)
       posix.close (write_fd)
-      os.exit (pipeline (list.sub (t, 2), pipe_fn)) -- recurse with remaining arguments
+      local tail = { }
+      for i = 2, #t do
+        tail[#tail+1] = t[i]
+      end
+      os.exit (pipeline (tail, pipe_fn)) -- recurse with remaining arguments
     else -- parent process
       save_stdout = posix.dup (posix.STDOUT_FILENO)
       if not save_stdout then
