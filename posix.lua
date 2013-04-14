@@ -70,14 +70,16 @@ M.system = M.spawn -- OBSOLETE alias
 -- @param pipe_fn function returning a paired read and write file
 -- descriptor
 -- (default: <code>posix.pipe</code>)
+-- @param n item of table with first command of pipeline
+-- (optional, default: 1)
 -- @return exit code of the chain
-local function pipeline (t, pipe_fn)
+local function pipeline (t, pipe_fn, n)
   local pipe_fn = pipe_fn or posix.pipe
   assert (type (t) == "table",
           "bad argument #1 to 'pipeline' (table expected, got " .. type (t) .. ")")
-
+  local n = n or 1
   local pid, read_fd, write_fd, save_stdout
-  if #t > 1 then
+  if n < #t then
     read_fd, write_fd = pipe_fn ()
     if not read_fd then
       die ("error opening pipe")
@@ -91,7 +93,7 @@ local function pipeline (t, pipe_fn)
       end
       posix.close (read_fd)
       posix.close (write_fd)
-      os.exit (pipeline (list.sub (t, 2), pipe_fn)) -- recurse with remaining arguments
+      os.exit (pipeline (t, pipe_fn, n + 1)) -- recurse with remaining arguments
     else -- parent process
       save_stdout = posix.dup (posix.STDOUT_FILENO)
       if not save_stdout then
@@ -105,13 +107,13 @@ local function pipeline (t, pipe_fn)
     end
   end
 
-  local ret = M.spawn (t[1])
+  local ret = M.spawn (t[n])
   if not ret then
     die ("error in fork or wait")
   end
   posix.close (posix.STDOUT_FILENO)
   
-  if #t > 1 then
+  if n < #t then
     posix.close (write_fd)
     posix.wait (pid)
     if not posix.dup2 (save_stdout, posix.STDOUT_FILENO) then
