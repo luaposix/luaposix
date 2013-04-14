@@ -51,9 +51,6 @@ for details of available command-line switches.
 [luarocks]: http://www.luarocksporg "LuaRocks Project"
 [install]: https://raw.github.com/luaposix/luaposix/release/INSTALL
 
-lunit is required for some of the tests. For a version of lunit that
-works with Lua 5.2, see: https://github.com/dcurrie/lunit.git
-
 
 Use
 ---

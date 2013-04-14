@@ -25,6 +25,7 @@ old_NEWS_hash = unknown
 dist_data_DATA		=
 dist_doc_DATA		=
 
+include specs/specs.mk
 
 ## ------ ##
 ## Build. ##

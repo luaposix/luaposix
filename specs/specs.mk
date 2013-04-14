@@ -13,6 +13,7 @@ SPECL_ENV = $(LUA_ENV)
 ## ------ ##
 
 specl_SPECS =					\
+	$(srcdir)/specs/posix_lua_spec.yaml	\
 	$(NOTHING_ELSE)
 
 include build-aux/specl.mk
