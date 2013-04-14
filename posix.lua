@@ -3,7 +3,27 @@ local M = require "posix_c"
 local posix = M
 local bit
 if _VERSION == "Lua 5.1" then bit = require "bit" else bit = require "bit32" end
-local list = require 'std.list'
+
+-- Code extracted from lua-stdlib with minimal modifications
+local list = {
+  sub = function (l, from, to)
+    local r = {}
+    local len = #l
+    from = from or 1
+    to = to or len
+    if from < 0 then
+      from = from + len + 1
+    end
+    if to < 0 then
+      to = to + len + 1
+    end
+    for i = from, to do
+      table.insert (r, l[i])
+    end
+    return r
+  end
+}
+-- end of stdlib code
 
 --- Create a file.
 -- @param file name of file to create
