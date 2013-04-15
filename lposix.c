@@ -2943,34 +2943,35 @@ static int iter_getopt_long(lua_State *L)
 	if (ret == -1)
 		return 0;
 	else {
-		lua_pushinteger(L, ret);
-		lua_pushinteger(L, longindex);
-		lua_pushinteger(L, optind);
+		char c = ret;
+		lua_pushlstring(L, &c, 1);
 		lua_pushstring(L, optarg);
+		lua_pushinteger(L, optind);
+		lua_pushinteger(L, longindex);
 		return 4;
 	}
 }
 
 /***
 Parse command-line options.
-@function getopt_long
-@see getopt(3)
+@function getopt
+@see getopt(3) / getopt_long()
 @param arg command line arguments
 @string shortopts e.g 'ho:v' (colon means 'receives argument')
 @param longopts e.g. `{{'help','none',2},...}`
-@usage for ret, longindex, optind, optarg in posix.getopt_long (arg, shortopts, longopts, opterr, optind) do ... end
+@usage for ret, longindex, optind, optarg in posix.getopt (arg, shortopts[, longopts[, opterr[, optind]]]) do ... end
 @see getopt.lua
 */
-static int Pgetopt_long(lua_State *L)
+static int Pgetopt(lua_State *L)
 {
-	int argc, i, n;
+	int argc, i, n = 0;
 	const char *shortopts;
 	char **argv;
 	struct option *longopts;
 
 	luaL_checktype(L, 1, LUA_TTABLE);
 	shortopts = luaL_checkstring(L, 2);
-	luaL_checktype(L, 3, LUA_TTABLE);
+	if(!lua_isnone(L, 3) && !lua_isnil(L, 3)) luaL_checktype(L, 3, LUA_TTABLE);
 	opterr = luaL_optinteger (L, 4, 0);
 	optind = luaL_optinteger (L, 5, 1);
 
@@ -2988,15 +2989,17 @@ static int Pgetopt_long(lua_State *L)
 		argv[i] = (char *)luaL_checkstring(L, -1);
 	}
 
-	n = (int)lua_objlen(L, 3);
+	if(lua_type(L, 3) == LUA_TTABLE) {
+		n = (int)lua_objlen(L, 3);
+	}
 	longopts = lua_newuserdata(L, (n + 1) * sizeof(struct option));
 	longopts[n].name = NULL;
 	longopts[n].has_arg = 0;
 	longopts[n].flag = NULL;
 	longopts[n].val = 0;
 	for (i = 1; i <= n; i++) {
-		const char *name;
-		int has_arg, val;
+		const char *name, *val;
+		int has_arg;
 
 		lua_pushinteger(L, i);
 		lua_gettable(L, 3);
@@ -3013,13 +3016,13 @@ static int Pgetopt_long(lua_State *L)
 
 		lua_pushinteger(L, 3);
 		lua_gettable(L, -3);
-		val = luaL_checkint(L, -1);
+		val = luaL_checkstring(L, -1);
 		lua_pop(L, 1);
 
 		longopts[i - 1].name = name;
 		longopts[i - 1].has_arg = has_arg;
 		longopts[i - 1].flag = NULL;
-		longopts[i - 1].val = val;
+		longopts[i - 1].val = val[0];
 		lua_pop(L, 1);
 	}
 
@@ -3296,7 +3299,7 @@ static const luaL_Reg R[] =
 	MENTRY( Pgetgroups	),
 #endif
 	MENTRY( Pgetlogin	),
-	MENTRY( Pgetopt_long	),
+	MENTRY( Pgetopt		),
 	MENTRY( Pgetpasswd	),
 	MENTRY( Pgetpid		),
 	MENTRY( Pgetrlimit	),
