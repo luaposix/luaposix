@@ -143,7 +143,7 @@ assert(ox.fnmatch("*test", "/test", ox.FNM_PATHNAME) == false)
 assert(ox.fnmatch("*test", ".test", ox.FNM_PERIOD) == false)
 
 ------------------------------------------------------------------------------
-testing"mkdtemp,mkstemp,glob,isatty"
+testing"mkdtemp,mkstemp,glob,isatty,lseek"
 local tmpdir=ox.getenv("TMPDIR") or "/tmp"
 local testdir,err=ox.mkdtemp(tmpdir.."/luaposix-test-XXXXXX")
 assert(testdir, err)
@@ -177,6 +177,18 @@ assert(st.mode=="rw-------")
 -- clean up after tests
 ox.close(first_fd)
 ox.close(second_fd)
+
+-- lseek
+first_fd, err = ox.open(first_filename, ox.O_RDWR)
+assert(first_fd, err)
+ox.write(first_fd, "0123456789")
+ox.lseek(first_fd, 3, ox.SEEK_SET)
+assert(ox.read(first_fd, 3) == "345")
+ox.lseek(first_fd, -2, ox.SEEK_CUR)
+assert(ox.read(first_fd, 3) == "456")
+ox.lseek(first_fd, -5, ox.SEEK_END)
+assert(ox.read(first_fd, 3) == "567")
+ox.close(first_fd)
 
 -- create extra empty file, to check glob()
 local extra_filename=testdir.."/extra_file"
@@ -356,6 +368,15 @@ mtype, mtext, err = ox.msgrcv(mq, 128)
 assert(mtype == 42)
 assert(mtext == 'Answer to the Ultimate Question of Life')
 assert(err == nil)
+
+------------------------------------------------------------------------------
+testing"nice"
+local old = ox.nice(1)
+assert(old)
+local new = ox.nice(2)
+assert(new == old + 2)
+print("nice " .. old .. " -> " .. new)
+assert(ox.nice(-1) == nil)
 
 ------------------------------------------------------------------------------
 io.stderr:write("\n\n==== ", ox.version, " tests completed ====\n\n")
