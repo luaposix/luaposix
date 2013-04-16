@@ -22,6 +22,7 @@ LUA_ENV = LUA_PATH="$(abs_srcdir)/?.lua;$(LUA_PATH)" LUA_CPATH="$(abs_builddir)/
 
 LUATESTS =				\
 	$(srcdir)/tests-posix.lua	\
+	$(srcdir)/tests-socket.lua	\
 	$(srcdir)/tests-termios.lua	\
 	$(srcdir)/tests-curses.lua
 
