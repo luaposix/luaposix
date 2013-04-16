@@ -44,6 +44,15 @@
 #include <sys/resource.h>
 #include <sys/time.h>
 #include <termios.h>
+#if _POSIX_VERSION >= 200112L
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <netinet/udp.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#endif
 #if HAVE_CRYPT_H
 #  include <crypt.h>
 #endif
@@ -3258,6 +3267,346 @@ static int Ptcflow(lua_State *L)
 	return pushresult(L, tcflow(fd, action), NULL);
 }
 
+#if _POSIX_VERSION >= 200112L
+
+static int Psocket(lua_State *L)
+{
+	int domain = luaL_checknumber(L, 1);
+	int type = luaL_checknumber(L, 2);
+	int options = luaL_checknumber(L, 3);
+	return pushresult(L, socket(domain, type, options), NULL);
+}
+
+/* Push a new lua table populated with the fields describing the passed sockaddr */
+
+static int sockaddr_to_lua(lua_State *L, int family, struct sockaddr *sa)
+{
+	char addr[INET6_ADDRSTRLEN];
+	int port;
+	struct sockaddr_in *sa4;
+	struct sockaddr_in6 *sa6;
+
+	switch (family)
+	{
+		case AF_INET:
+			sa4 = (struct sockaddr_in *)sa;
+			inet_ntop(family, &sa4->sin_addr, addr, sizeof addr);
+			port = ntohs(sa4->sin_port);
+			break;
+		case AF_INET6:
+			sa6 = (struct sockaddr_in6 *)sa;
+			inet_ntop(family, &sa6->sin6_addr, addr, sizeof addr);
+			port = ntohs(sa6->sin6_port);
+			break;
+	}
+
+	lua_newtable(L);
+	lua_pushnumber(L, family); lua_setfield(L, -2, "family");
+	lua_pushnumber(L, port); lua_setfield(L, -2, "port");
+	lua_pushstring(L, addr); lua_setfield(L, -2, "addr");
+	return 1;
+}
+
+/* Populate a sockaddr_storage with the info from the given lua table */
+
+static int sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *sa, socklen_t *addrlen)
+{
+	struct sockaddr_in *sa4;
+	struct sockaddr_in6 *sa6;
+	int family, port;
+	const char *addr;
+	int r;
+
+	memset(sa, 0, sizeof *sa);
+
+	luaL_checktype(L, index, LUA_TTABLE);
+	lua_getfield(L, index, "family"); family = luaL_checknumber(L, -1); lua_pop(L, 1);
+	lua_getfield(L, index, "port"); port = luaL_checknumber(L, -1); lua_pop(L, 1);
+	lua_getfield(L, index, "addr"); addr = luaL_checkstring(L, -1); lua_pop(L, 1);
+
+	switch(family) {
+		case AF_INET:
+			sa4 = (struct sockaddr_in *)sa;
+			r = inet_pton(AF_INET, addr, &sa4->sin_addr);
+			if(r == 1) {
+				sa4->sin_family = family;
+				sa4->sin_port = htons(port);
+				*addrlen = sizeof(*sa4);
+				return 0;
+			}
+			break;
+		case AF_INET6:
+			sa6 = (struct sockaddr_in6 *)sa;
+			r = inet_pton(AF_INET6, addr, &sa6->sin6_addr);
+			if(r == 1) {
+				sa6->sin6_family = family;
+				sa6->sin6_port = htons(port);
+				*addrlen = sizeof(*sa6);
+				return 0;
+			}
+			break;
+	}
+	return -1;
+}
+
+static int Pgetaddrinfo(lua_State *L)
+{
+	int r;
+	int n = 1;
+	struct addrinfo *res, *rp, *hints = NULL;
+	const char *host = luaL_checkstring(L, 1);
+	const char *service = lua_tostring(L, 2);
+
+	memset(&hints, 0, sizeof hints);
+	
+	if(lua_type(L, 3) == LUA_TTABLE) {
+		hints = alloca(sizeof *hints);
+		lua_getfield(L, 3, "family"); hints->ai_family = lua_tonumber(L, -1); lua_pop(L, 1);
+		lua_getfield(L, 3, "flags"); hints->ai_flags = lua_tonumber(L, -1); lua_pop(L, 1);
+		lua_getfield(L, 3, "socktype"); hints->ai_socktype = lua_tonumber(L, -1); lua_pop(L, 1);
+		lua_getfield(L, 3, "protocol"); hints->ai_protocol = lua_tonumber(L, -1); lua_pop(L, 1);
+	}
+
+	r = getaddrinfo(host, service, hints, &res);
+	if(r != 0) {
+		lua_pushnil(L);
+		lua_pushstring(L, gai_strerror(r));
+		lua_pushinteger(L, r);
+		return 3;
+	}
+	
+	/* Copy getaddrinfo() result into Lua table */
+
+	lua_newtable(L);
+
+	for (rp = res; rp != NULL; rp = rp->ai_next) {
+		lua_pushnumber(L, n++);
+		sockaddr_to_lua(L, rp->ai_family, rp->ai_addr);
+		lua_pushnumber(L, rp->ai_socktype); lua_setfield(L, -2, "socktype");
+		lua_pushstring(L, rp->ai_canonname); lua_setfield(L, -2, "canonname");
+		lua_pushnumber(L, rp->ai_protocol); lua_setfield(L, -2, "protocol");
+		lua_settable(L, -3);
+	}
+
+	freeaddrinfo(res);
+
+	return 1;
+}
+
+static int Pconnect(lua_State *L)
+{
+	struct sockaddr_storage sa;
+	socklen_t salen;
+	int r;
+	int fd = luaL_checknumber(L, 1);
+	r = sockaddr_from_lua(L, 2, &sa, &salen);
+	if(r == -1) return pusherror(L, "not a valid IPv4 dotted-decimal or IPv6 address string");
+
+	r = connect(fd, (struct sockaddr *)&sa, salen);
+	if(r < 0 && errno != EINPROGRESS) return pusherror(L, NULL);
+
+	lua_pushboolean(L, 1);
+	return 1;
+}
+
+static int Pbind(lua_State *L)
+{
+	struct sockaddr_storage sa;
+	socklen_t salen;
+	int r;
+	int fd = luaL_checknumber(L, 1);
+	r = sockaddr_from_lua(L, 2, &sa, &salen);
+	if(r == -1) return pusherror(L, "not a valid IPv4 dotted-decimal or IPv6 address string");
+
+	r = bind(fd, (struct sockaddr *)&sa, salen);
+	if(r < 0) return pusherror(L, NULL);
+	lua_pushboolean(L, 1);
+	return 1;
+}
+
+static int Plisten(lua_State *L)
+{
+	int fd = luaL_checknumber(L, 1);
+	int backlog = luaL_checkint(L, 2);
+
+	return pushresult(L, listen(fd, backlog), NULL);
+}
+
+static int Paccept(lua_State *L)
+{
+	int r;
+	int fd_client;
+	struct sockaddr_storage sa;
+	unsigned int salen;
+	char host[NI_MAXHOST];
+	char serv[NI_MAXSERV];
+	
+	int fd = luaL_checknumber(L, 1);
+
+	salen = sizeof(sa);
+	fd_client = accept(fd, (struct sockaddr *)&sa, &salen);
+	if(fd_client == -1) {
+		return pusherror(L, NULL);
+	}
+
+	lua_pushnumber(L, fd_client);
+	sockaddr_to_lua(L, sa.ss_family, (struct sockaddr *)&sa);
+	
+	return 2;
+}
+
+static int Precv(lua_State *L)
+{
+	int fd = luaL_checkint(L, 1);
+	int count = luaL_checkint(L, 2), ret;
+	void *ud, *buf;
+	lua_Alloc lalloc = lua_getallocf(L, &ud);
+
+	/* Reset errno in case lalloc doesn't set it */
+	errno = 0;
+	if ((buf = lalloc(ud, NULL, 0, count)) == NULL && count > 0)
+		return pusherror(L, "lalloc");
+
+	ret = recv(fd, buf, count, 0);
+	if (ret < 0) {
+		lalloc(ud, buf, count, 0);
+		return pusherror(L, NULL);
+	}
+
+	lua_pushlstring(L, buf, ret);
+	lalloc(ud, buf, count, 0);
+	return 1;
+}
+
+static int Precvfrom(lua_State *L)
+{
+	void *ud, *buf;
+	socklen_t salen;
+	struct sockaddr_storage sa;
+	char host[NI_MAXHOST];
+	char serv[NI_MAXSERV];
+	int r;
+	int fd = luaL_checkint(L, 1);
+	int count = luaL_checkint(L, 2);
+	lua_Alloc lalloc = lua_getallocf(L, &ud);
+
+	/* Reset errno in case lalloc doesn't set it */
+	errno = 0;
+	if ((buf = lalloc(ud, NULL, 0, count)) == NULL && count > 0)
+		return pusherror(L, "lalloc");
+	
+	salen = sizeof(sa);
+	r = recvfrom(fd, buf, count, 0, (struct sockaddr *)&sa, &salen);
+	if (r < 0) {
+		lalloc(ud, buf, count, 0);
+		return pusherror(L, NULL);
+	}
+
+	lua_pushlstring(L, buf, r);
+	lalloc(ud, buf, count, 0);
+	sockaddr_to_lua(L, sa.ss_family, (struct sockaddr *)&sa);
+
+	return 2;
+}
+
+static int Psend(lua_State *L)
+{
+	int fd = luaL_checknumber(L, 1);
+	size_t len;
+	const char *buf = luaL_checklstring(L, 2, &len);
+
+	return pushresult(L, send(fd, buf, len, 0), NULL);
+}
+
+static int Psendto(lua_State *L)
+{
+	size_t len;
+	struct sockaddr_storage sa;
+	socklen_t salen;
+	int r;
+	int fd = luaL_checknumber(L, 1);
+	const char *buf = luaL_checklstring(L, 2, &len);
+	r = sockaddr_from_lua(L, 3, &sa, &salen);
+	if(r == -1) return pusherror(L, "not a valid IPv4 dotted-decimal or IPv6 address string");
+
+	r = sendto(fd, buf, len, 0, (struct sockaddr *)&sa, salen);
+	return pushresult(L, r, NULL);
+}
+
+static int Pshutdown(lua_State *L)
+{
+	int fd = luaL_checknumber(L, 1);
+	int how = luaL_checknumber(L, 2);
+	return pushresult(L, shutdown(fd, how), NULL);
+}
+
+static int Psetsockopt(lua_State *L)
+{
+	int fd = luaL_checknumber(L, 1);
+	int level = luaL_checknumber(L, 2);
+	int optname = luaL_checknumber(L, 3);
+	struct linger linger;
+	struct timeval tv;
+	struct ipv6_mreq mreq6;
+	int vint = 0;
+	void *val = NULL;
+	socklen_t len = sizeof(vint);
+
+	switch(level) {
+		case SOL_SOCKET:
+			switch(optname) {
+				case SO_LINGER: 
+					linger.l_onoff = luaL_checknumber(L, 4); 
+					linger.l_linger = luaL_checknumber(L, 5);
+					val = &linger;
+					len = sizeof(linger);
+					break;
+				case SO_RCVTIMEO:
+				case SO_SNDTIMEO:
+					tv.tv_sec = luaL_checknumber(L, 4);
+					tv.tv_usec = luaL_checknumber(L, 5);
+					val = &tv;
+					len = sizeof(tv);
+					break;
+				default:
+					break;
+			}
+			break;
+		case IPPROTO_IPV6:
+			switch(optname) {
+				case IPV6_JOIN_GROUP:
+				case IPV6_LEAVE_GROUP:
+					memset(&mreq6, 0, sizeof mreq6);
+					inet_pton(AF_INET6, luaL_checkstring(L, 4), &mreq6.ipv6mr_multiaddr);
+					val = &mreq6;
+					len = sizeof(mreq6);
+					break;
+				default:
+					break;
+			}
+			break;
+		case IPPROTO_TCP:
+			switch(optname) {
+				default:
+					break;
+			}
+			break;
+		default:
+			break;
+	}
+
+	/* Default fallback to int if no specific handling of type above */
+
+	if(val == NULL) {
+		vint = luaL_checknumber(L, 4);
+		val = &vint;
+		len = sizeof(vint);
+	}
+
+	return pushresult(L, setsockopt(fd, level, optname, val, len), NULL);
+}
+#endif
+
 static const luaL_Reg R[] =
 {
 #define MENTRY(_s) {LPOSIX_STR_1(_s), (_s)}
@@ -3360,6 +3709,21 @@ static const luaL_Reg R[] =
 	MENTRY( Ptcdrain	),
 	MENTRY( Ptcflush	),
 	MENTRY( Ptcflow		),
+
+#if _POSIX_VERSION >= 200112L
+	MENTRY( Psocket		),
+	MENTRY( Pgetaddrinfo	),
+	MENTRY( Pconnect	),
+	MENTRY( Pbind		),
+	MENTRY( Plisten		),
+	MENTRY( Paccept		),
+	MENTRY( Precv		),
+	MENTRY( Precvfrom	),
+	MENTRY( Psend		),
+	MENTRY( Psendto		),
+	MENTRY( Psetsockopt	),
+#endif
+
 #if _POSIX_VERSION >= 200112L
 	MENTRY( Popenlog	),
 	MENTRY( Psyslog		),
@@ -3723,6 +4087,65 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( VTIME		);
 #undef MENTRY
 
+#if _POSIX_VERSION >= 200112L
+	
+	set_integer_const( "SOMAXCONN", SOMAXCONN);
+	set_integer_const( "AF_UNSPEC", AF_UNSPEC);
+	set_integer_const( "AF_INET", AF_INET);
+	set_integer_const( "AF_INET6", AF_INET6);
+	set_integer_const( "SOL_SOCKET", SOL_SOCKET);
+	set_integer_const( "IPPROTO_TCP", IPPROTO_TCP);
+	set_integer_const( "IPPROTO_IP", IPPROTO_IP);
+	set_integer_const( "IPPROTO_IPV6", IPPROTO_IPV6);
+	set_integer_const( "SOCK_STREAM", SOCK_STREAM);
+	set_integer_const( "SOCK_DGRAM", SOCK_DGRAM);
+	set_integer_const( "SHUT_RD", SHUT_RD);
+	set_integer_const( "SHUT_WR", SHUT_WR);
+	set_integer_const( "SHUT_RDRW", SHUT_RDWR);
+
+#define MENTRY(_f) set_integer_const(LPOSIX_STR_1(LPOSIX_SPLICE(_SO_, _f)), LPOSIX_SPLICE(SO_, _f))
+	MENTRY( ACCEPTCONN	);
+	MENTRY( BROADCAST	);
+	MENTRY( LINGER		);
+	MENTRY( RCVTIMEO	);
+	MENTRY( SNDTIMEO	);
+	MENTRY( DEBUG		);
+	MENTRY( DONTROUTE	);
+	MENTRY( ERROR		);
+	MENTRY( KEEPALIVE	);
+	MENTRY( OOBINLINE	);
+	MENTRY( RCVBUF		);
+	MENTRY( RCVLOWAT	);
+	MENTRY( REUSEADDR	);
+	MENTRY( SNDBUF		);
+	MENTRY( SNDLOWAT	);
+	MENTRY( TYPE		);
+#undef MENTRY
+
+#define MENTRY(_f) set_integer_const(LPOSIX_STR_1(LPOSIX_SPLICE(_TCP_, _f)), LPOSIX_SPLICE(TCP_, _f))
+	MENTRY( NODELAY		);
+#undef MENTRY
+
+#define MENTRY(_f) set_integer_const(LPOSIX_STR_1(LPOSIX_SPLICE(_AI_, _f)), LPOSIX_SPLICE(AI_, _f))
+	MENTRY( PASSIVE		);
+	MENTRY( CANONNAME	);
+	MENTRY( NUMERICHOST	);
+	MENTRY( V4MAPPED	);
+	MENTRY( ALL		);
+	MENTRY( ADDRCONFIG	);
+#undef MENTRY
+
+#define MENTRY(_f) set_integer_const(LPOSIX_STR_1(LPOSIX_SPLICE(_IPV6_, _f)), LPOSIX_SPLICE(IPV6_, _f))
+	MENTRY( JOIN_GROUP	);
+	MENTRY( LEAVE_GROUP	);
+	MENTRY( MULTICAST_HOPS	);
+	MENTRY( MULTICAST_IF	);
+	MENTRY( MULTICAST_LOOP	);
+	MENTRY( UNICAST_HOPS	);
+	MENTRY( V6ONLY		);
+#undef MENTRY
+
+#endif
 	/* Signals table stored in registry for Psignal and sig_handle */
 	lua_pushlightuserdata(L, &signalL);
 	lua_newtable(L);
