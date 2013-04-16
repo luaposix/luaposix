@@ -43,6 +43,7 @@
 #include <sys/wait.h>
 #include <sys/resource.h>
 #include <sys/time.h>
+#include <termios.h>
 #if HAVE_CRYPT_H
 #  include <crypt.h>
 #endif
@@ -3181,6 +3182,81 @@ static int Psignal (lua_State *L)
 	return 1;
 }
 
+static int Ptcsetattr(lua_State *L)
+{
+	struct termios t;
+	int fd = luaL_checknumber(L, 1);
+	int act = luaL_checknumber(L, 2);
+	luaL_checktype(L, 3, LUA_TTABLE);
+	
+	lua_getfield(L, 3, "iflag"); t.c_iflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
+	lua_getfield(L, 3, "oflag"); t.c_oflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
+	lua_getfield(L, 3, "cflag"); t.c_cflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
+	lua_getfield(L, 3, "lflag"); t.c_lflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
+
+	lua_getfield(L, 3, "cc");
+#define CC(f) \
+	lua_pushnumber(L, f); lua_gettable(L, -2); t.c_cc[f] = luaL_optint(L, -1, 0); lua_pop(L, 1);
+	CC(VINTR); CC(VQUIT); CC(VERASE);
+	CC(VKILL); CC(VEOF); CC(VEOL); 
+	CC(VEOL2); CC(VMIN); CC(VTIME);
+#undef CC
+
+	return pushresult(L, tcsetattr(fd, act, &t), NULL);
+}
+
+static int Ptcgetattr(lua_State *L)
+{
+	struct termios t;
+	int fd = luaL_checknumber(L, 1);
+
+	int r = tcgetattr(fd, &t);
+	if(r == -1) return pusherror(L, NULL);
+
+	lua_newtable(L);
+	lua_pushnumber(L, t.c_iflag); lua_setfield(L, -2, "iflag");
+	lua_pushnumber(L, t.c_oflag); lua_setfield(L, -2, "oflag");
+	lua_pushnumber(L, t.c_lflag); lua_setfield(L, -2, "lflag");
+	lua_pushnumber(L, t.c_cflag); lua_setfield(L, -2, "cflag");
+
+	lua_newtable(L);
+#define CC(f) \
+	lua_pushnumber(L, f); lua_pushnumber(L, t.c_cc[f]); lua_settable(L, -3);
+	CC(VINTR); CC(VQUIT); CC(VERASE);
+	CC(VKILL); CC(VEOF); CC(VEOL); 
+	CC(VEOL2); CC(VMIN); CC(VTIME);
+#undef CC
+	lua_setfield(L, -2, "cc");
+
+	return 1;
+}
+
+static int Ptcsendbreak(lua_State *L)
+{
+	int fd = luaL_checknumber(L, 1);
+	int duration = luaL_checknumber(L, 2);
+	return pushresult(L, tcsendbreak(fd, duration), NULL);
+}
+
+static int Ptcdrain(lua_State *L)
+{
+	int fd = luaL_checknumber(L, 1);
+	return pushresult(L, tcdrain(fd), NULL);
+}
+
+static int Ptcflush(lua_State *L)
+{
+	int fd = luaL_checknumber(L, 1);
+	int qs = luaL_checknumber(L, 2);
+	return pushresult(L, tcflush(fd, qs), NULL);
+}
+
+static int Ptcflow(lua_State *L)
+{
+	int fd = luaL_checknumber(L, 1);
+	int action = luaL_checknumber(L, 2);
+	return pushresult(L, tcflow(fd, action), NULL);
+}
 
 static const luaL_Reg R[] =
 {
@@ -3278,6 +3354,12 @@ static const luaL_Reg R[] =
 	MENTRY( Pwait		),
 	MENTRY( Pwrite		),
 
+	MENTRY( Ptcsetattr	),
+	MENTRY( Ptcgetattr	),
+	MENTRY( Ptcsendbreak	),
+	MENTRY( Ptcdrain	),
+	MENTRY( Ptcflush	),
+	MENTRY( Ptcflow		),
 #if _POSIX_VERSION >= 200112L
 	MENTRY( Popenlog	),
 	MENTRY( Psyslog		),
@@ -3511,6 +3593,134 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( _PATHNAME	);
 	MENTRY( _NOESCAPE	);
 	MENTRY( _PERIOD		);
+#undef MENTRY
+
+#define MENTRY( _f) set_integer_const(# _f, _f)
+
+	/* tcsetattr */
+	MENTRY( TCSANOW		);
+	MENTRY( TCSADRAIN	);
+	MENTRY( TCSAFLUSH	);
+
+	/* tcflush */
+	MENTRY( TCIFLUSH	);
+	MENTRY( TCOFLUSH	);
+	MENTRY( TCIOFLUSH	);
+
+	/* tcflow() */
+	MENTRY( TCOOFF		);
+	MENTRY( TCOON		);
+	MENTRY( TCIOFF		);
+	MENTRY( TCION		);
+
+	/* cflag */
+	MENTRY( CBAUD		);
+	MENTRY( B0		);
+	MENTRY( B50		);
+	MENTRY( B75		);
+	MENTRY( B110		);
+	MENTRY( B134		);
+	MENTRY( B150		);
+	MENTRY( B200		);
+	MENTRY( B300		);
+	MENTRY( B600		);
+	MENTRY( B1200		);
+	MENTRY( B1800		);
+	MENTRY( B2400		);
+	MENTRY( B4800		);
+	MENTRY( B9600		);
+	MENTRY( B19200		);
+	MENTRY( B38400		);
+	MENTRY( B115200		);
+	MENTRY( EXTA		);
+	MENTRY( EXTB		);
+	MENTRY( CSIZE		);
+	MENTRY( CS5		);
+	MENTRY( CS6		);
+	MENTRY( CS7		);
+	MENTRY( CS8		);
+	MENTRY( CSTOPB		);
+	MENTRY( CREAD		);
+	MENTRY( PARENB		);
+	MENTRY( PARODD		);
+	MENTRY( HUPCL		);
+	MENTRY( CLOCAL		);
+	MENTRY( CRTSCTS		);
+
+	/* lflag */
+	MENTRY( ISIG		);
+	MENTRY( ICANON		);
+	MENTRY( XCASE		);
+	MENTRY( ECHO		);
+	MENTRY( ECHOE		);
+	MENTRY( ECHOK		);
+	MENTRY( ECHONL		);
+	MENTRY( NOFLSH		);
+	MENTRY( IEXTEN		);
+	MENTRY( ECHOCTL		);
+	MENTRY( ECHOPRT		);
+	MENTRY( ECHOKE		);
+	MENTRY( FLUSHO		);
+	MENTRY( PENDIN		);
+	MENTRY( TOSTOP		);
+
+	/* iflag */
+	MENTRY( INPCK		);
+	MENTRY( IGNPAR		);
+	MENTRY( PARMRK		);
+	MENTRY( ISTRIP		);
+	MENTRY( IXON		);
+	MENTRY( IXOFF		);
+	MENTRY( IXANY		);
+	MENTRY( IGNBRK		);
+	MENTRY( BRKINT		);
+	MENTRY( INLCR		);
+	MENTRY( IGNCR		);
+	MENTRY( ICRNL		);
+	MENTRY( IUCLC		);
+	MENTRY( IMAXBEL		);
+
+	/* oflag */
+	MENTRY( OPOST		);
+	MENTRY( OLCUC		);
+	MENTRY( ONLCR		);
+	MENTRY( OCRNL		);
+	MENTRY( ONLRET		);
+	MENTRY( OFILL		);
+	MENTRY( OFDEL		);
+	MENTRY( NLDLY		);
+	MENTRY( NL0		);
+	MENTRY( NL1		);
+	MENTRY( CRDLY		);
+	MENTRY( CR0		);
+	MENTRY( CR1		);
+	MENTRY( CR2		);
+	MENTRY( CR3		);
+	MENTRY( TABDLY		);
+	MENTRY( TAB0		);
+	MENTRY( TAB1		);
+	MENTRY( TAB2		);
+	MENTRY( TAB3		);
+	MENTRY( BSDLY		);
+	MENTRY( BS0		);
+	MENTRY( BS1		);
+	MENTRY( VTDLY		);
+	MENTRY( VT0		);
+	MENTRY( VT1		);
+	MENTRY( FFDLY		);
+	MENTRY( FF0		);
+	MENTRY( FF1		);
+
+	/* cc */
+	MENTRY( VINTR		);
+	MENTRY( VQUIT		);
+	MENTRY( VERASE		);
+	MENTRY( VKILL		);
+	MENTRY( VEOF		);
+	MENTRY( VEOL		);
+	MENTRY( VEOL2		);
+	MENTRY( VMIN		);
+	MENTRY( VTIME		);
 #undef MENTRY
 
 	/* Signals table stored in registry for Psignal and sig_handle */
