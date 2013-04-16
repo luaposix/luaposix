@@ -1,5 +1,5 @@
-luaposix is the work of several authors. It is based on two earlier
-libraries:
+luaposix is the work of several authors (see git history for
+contributors). It is based on two earlier libraries:
 
 An earlier version of luaposix (up to 5.1.11)
 
