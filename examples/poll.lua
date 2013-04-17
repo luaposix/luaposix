@@ -1,7 +1,7 @@
 local P = require 'posix'
 
-local fd1 = P.open(arg[1],{'RDONLY'})
-local fd2 = P.open(arg[2],{'RDONLY'})
+local fd1 = P.open(arg[1], P.O_RDONLY)
+local fd2 = P.open(arg[2], P.O_RDONLY)
 
 local fds = {
   [fd1] = { events = {IN=true} },
