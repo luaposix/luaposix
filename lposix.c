@@ -3998,6 +3998,7 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( B9600		);
 	MENTRY( B19200		);
 	MENTRY( B38400		);
+	MENTRY( B57600		);
 	MENTRY( B115200		);
 	MENTRY( EXTA		);
 	MENTRY( EXTB		);
