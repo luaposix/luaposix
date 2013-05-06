@@ -2,6 +2,14 @@
 /config.guess
 /config.sub
 /depcomp
+/do-release-commit-and-tag
+/gitlog-to-changelog
 /install-sh
 /ltmain.sh
+/luarocks-config.lua
 /missing
+/mkrockspecs
+/release.mk
+/rockspecs.mk
+/sanity.mk
+/specl.mk

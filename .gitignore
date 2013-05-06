@@ -9,7 +9,6 @@
 .libs
 /.autom4te.cfg
 /.gitmodules
-/build-aux
 /ChangeLog
 /COPYING
 /docs
