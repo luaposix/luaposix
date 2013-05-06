@@ -63,7 +63,7 @@ specify lposix:
   - "it substitutes %r":
       expect (uname "%r").should_be (cmd_output "uname -r")
   - it outputs everything with no arguments:
-      expect (uname ()).should_be (cmd_output "uname -a")
+      expect (uname ()).should_be (cmd_output "uname -s -n -r -v -m")
 
 - context terminal:
   - describe ttyname:
