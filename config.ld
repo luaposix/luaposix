@@ -16,4 +16,3 @@ end)
 examples = 'examples'
 
 format = 'discount'
-

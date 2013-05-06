@@ -68,6 +68,10 @@
 #include "lauxlib.h"
 #include "lua52compat.h"
 
+#ifndef STREQ
+#  define STREQ(a, b)     (strcmp (a, b) == 0)
+#endif
+
 
 /* The extra indirection to these macros is required so that if the
    arguments are themselves macros, they will get expanded too.  */
@@ -1437,10 +1441,10 @@ static int Pmsgsnd(lua_State *L)
 		long mtype;
 		char mtext[0];
 	} *msg;
-	size_t len;	
+	size_t len;
 	size_t msgsz;
 	ssize_t res;
-	
+
 	int msgid = luaL_checkint(L, 1);
 	long msgtype = luaL_checklong(L, 2);
 	const char *msgp = luaL_checklstring(L, 3, &len);
@@ -2220,7 +2224,7 @@ static int Pstat(lua_State *L)
 	return doselection(L, 2, Sstat, Fstat, &s);
 }
 
-#if defined (HAVE_STATVFS)
+#if defined HAVE_STATVFS
 static void Fstatvfs(lua_State *L, int i, const void *data)
 {
 	const struct statvfs *s=data;
@@ -2541,7 +2545,7 @@ static int Psetlogmask(lua_State *L)
 }
 #endif
 
-#if defined(HAVE_CRYPT)
+#if defined HAVE_CRYPT
 /***
 Encrypt a password.
 Not recommended for general encryption purposes.
@@ -2802,17 +2806,17 @@ static int Pgmtime(lua_State *L)
 	return 1;
 }
 
-#if defined (_XOPEN_REALTIME) && _XOPEN_REALTIME != -1
+#if defined _XOPEN_REALTIME && _XOPEN_REALTIME != -1
 /* FIXME: Use numeric constants. */
 static int get_clk_id_const(const char *str)
 {
 	if (str == NULL)
 		return CLOCK_REALTIME;
-	else if (strcmp(str, "monotonic") == 0)
+	else if (STREQ (str, "monotonic"))
 		return CLOCK_MONOTONIC;
-	else if (strcmp(str, "process_cputime_id") == 0)
+	else if (STREQ (str, "process_cputime_id"))
 		return CLOCK_PROCESS_CPUTIME_ID;
-	else if (strcmp(str, "thread_cputime_id") == 0)
+	else if (STREQ (str, "thread_cputime_id"))
 		return CLOCK_THREAD_CPUTIME_ID;
 	else
 		return CLOCK_REALTIME;
@@ -3090,15 +3094,15 @@ static void sig_handle (lua_State *L, lua_Debug *ar) {
 		/* Get handler */
 		lua_pushinteger(L, signalno);
 		lua_gettable(L, -2);
-	
+
 		/* Call handler with signal number */
 		lua_pushinteger(L, signalno);
-		if (lua_pcall(L, 1, 0, 0) != 0) 
+		if (lua_pcall(L, 1, 0, 0) != 0)
 			fprintf(stderr,"error in signal handler %d: %s\n",signalno,lua_tostring(L,-1));
 	}
 	signal_count = 0;  /* reset global to initial state */
 
-	/* Having run the Lua signal handler, restore original signal mask */    
+	/* Having run the Lua signal handler, restore original signal mask */
 	sigprocmask(SIG_SETMASK, &oldmask, NULL);
 }
 
@@ -3108,11 +3112,11 @@ static void sig_postpone (int i) {
         return;
     }
     if (signal_count == SIGNAL_QUEUE_MAX)
-        return;        
+        return;
     defer_signal++;
     /* Queue signals */
     signals[signal_count] = i;
-    signal_count ++;    
+    signal_count ++;
 	lua_sethook(signalL, sig_handle, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
     defer_signal--;
     /* re-raise any pending signals */
@@ -3620,12 +3624,12 @@ static const luaL_Reg R[] =
 	MENTRY( Pchdir		),
 	MENTRY( Pchmod		),
 	MENTRY( Pchown		),
-#if defined (_XOPEN_REALTIME) && _XOPEN_REALTIME != -1
+#if defined _XOPEN_REALTIME && _XOPEN_REALTIME != -1
 	MENTRY( Pclock_getres	),
 	MENTRY( Pclock_gettime	),
 #endif
 	MENTRY( Pclose		),
-#if defined (HAVE_CRYPT)
+#if defined HAVE_CRYPT
 	MENTRY( Pcrypt		),
 #endif
 	MENTRY( Pctermid	),
@@ -3733,7 +3737,7 @@ static const luaL_Reg R[] =
 	MENTRY( Pcloselog	),
 	MENTRY( Psetlogmask	),
 #endif
-#if defined (HAVE_STATVFS)
+#if defined HAVE_STATVFS
 	MENTRY( Pstatvfs	),
 #endif
 #undef MENTRY

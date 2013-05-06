@@ -47,7 +47,7 @@ curses_c_la_LDFLAGS = -module -avoid-version $(CURSES_LIB) -rpath '$(libdir)'
 ## Documentation. ##
 ## -------------- ##
 
-dist_doc_DATA += 			\
+dist_doc_DATA +=			\
 	curses.html			\
 	lcurses_c.html			\
 	docs/index.html			\

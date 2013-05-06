@@ -110,7 +110,7 @@ local function pipeline (t, pipe_fn)
     die ("error in fork or wait")
   end
   posix.close (posix.STDOUT_FILENO)
-  
+
   if #t > 1 then
     posix.close (write_fd)
     posix.wait (pid)

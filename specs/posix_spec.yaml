@@ -4,7 +4,7 @@
 # at the top of the file, and calls with dependencies on correct functioning
 # of earlier specifications further down.
 #
-# If you get a series of failed expectations, fixing the earliest failures 
+# If you get a series of failed expectations, fixing the earliest failures
 # first will often clear up later failures automatically!
 
 before:
@@ -120,7 +120,7 @@ specify lposix:
         expect (getenv "SHELL").should_be (cmd_output ('echo "$SHELL"'))
     - it returns nil for an absent environment setting:
         expect (getenv "very_unlikely_to_be_set").should_be (nil)
-  
+
   - describe setenv:
     - it sets a new value in the process environment:
         setenv ("MYVAR", "123")
@@ -322,7 +322,7 @@ specify lposix:
   - describe statvfs:
     - before:
         statvfs = posix.statvfs
-    - it fetches statistics for a mounted filesystem:
+    - it fetches statistics for a mounted file system:
         st = statvfs "/"
         expect (type (st)).should_be "table"
         expect (st.bsize).should_be (statvfs ("/", "bsize"))
