@@ -15,7 +15,7 @@ LUA_ENV   = LUA_PATH="$(std_path)" LUA_CPATH="$(std_cpath)"
 ## ---------- ##
 
 AM_CFLAGS     = $(WERROR_CFLAGS) $(WARN_CFLAGS)
-old_NEWS_hash = unknown
+old_NEWS_hash = 3f835fe73525970ee6b423cc22d4b81b
 
 
 ## ------------- ##
