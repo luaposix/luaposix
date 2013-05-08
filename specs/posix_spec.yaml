@@ -70,7 +70,7 @@ specify lposix:
     - before:
         ttyname = posix.ttyname
     - it takes a file descriptor argument:
-        expect (ttyname (2)).should_contain "tty"
+        expect (ttyname (2)).should_contain.any_of {"pts", "tty"}
     - it returns a string:
         expect (type (ttyname (1))).should_be "string"
     - it defaults the first argument to 0:
