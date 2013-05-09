@@ -9,7 +9,7 @@ if not fds then
 	os.exit(1)
 end
 
-p.tcsetattr(fds, 0, { 
+p.tcsetattr(fds, 0, {
 	cflag = p.B115200 + p.CS8 + p.CLOCAL + p.CREAD,
 	iflag = p.IGNPAR,
 	oflag = p.OPOST,
@@ -22,7 +22,7 @@ p.tcsetattr(fds, 0, {
 -- Set stdin to non canonical mode. Save current settings
 
 local save = p.tcgetattr(0)
-p.tcsetattr(0, 0, { 
+p.tcsetattr(0, 0, {
 	cc = {
 		[p.VTIME] = 0,
 		[p.VMIN] = 1
@@ -47,7 +47,7 @@ end
 
 while true do
 	local r = p.poll(set, -1)
-	for fd, d in pairs(set) do 
+	for fd, d in pairs(set) do
 		if d.revents and d.revents.IN then
 			if fd == 0 then
 				local d, err = p.read(0, 1024)

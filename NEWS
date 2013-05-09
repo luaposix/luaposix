@@ -5,7 +5,7 @@ Stdlib NEWS - User visible changes
 ** New features:
 
  - Move to the Slingshot release system.
- 
+
  - Much improved former lunit and ad-hoc test scripts to Specl.
 
 

@@ -3202,7 +3202,7 @@ static int Ptcsetattr(lua_State *L)
 	int fd = luaL_checknumber(L, 1);
 	int act = luaL_checknumber(L, 2);
 	luaL_checktype(L, 3, LUA_TTABLE);
-	
+
 	lua_getfield(L, 3, "iflag"); t.c_iflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
 	lua_getfield(L, 3, "oflag"); t.c_oflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
 	lua_getfield(L, 3, "cflag"); t.c_cflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
@@ -3212,7 +3212,7 @@ static int Ptcsetattr(lua_State *L)
 #define CC(f) \
 	lua_pushnumber(L, f); lua_gettable(L, -2); t.c_cc[f] = luaL_optint(L, -1, 0); lua_pop(L, 1);
 	CC(VINTR); CC(VQUIT); CC(VERASE);
-	CC(VKILL); CC(VEOF); CC(VEOL); 
+	CC(VKILL); CC(VEOF); CC(VEOL);
 	CC(VEOL2); CC(VMIN); CC(VTIME);
 #undef CC
 
@@ -3237,7 +3237,7 @@ static int Ptcgetattr(lua_State *L)
 #define CC(f) \
 	lua_pushnumber(L, f); lua_pushnumber(L, t.c_cc[f]); lua_settable(L, -3);
 	CC(VINTR); CC(VQUIT); CC(VERASE);
-	CC(VKILL); CC(VEOF); CC(VEOL); 
+	CC(VKILL); CC(VEOF); CC(VEOL);
 	CC(VEOL2); CC(VMIN); CC(VTIME);
 #undef CC
 	lua_setfield(L, -2, "cc");
@@ -3363,7 +3363,7 @@ static int Pgetaddrinfo(lua_State *L)
 	const char *service = lua_tostring(L, 2);
 
 	memset(&hints, 0, sizeof hints);
-	
+
 	if(lua_type(L, 3) == LUA_TTABLE) {
 		hints = alloca(sizeof *hints);
 		lua_getfield(L, 3, "family"); hints->ai_family = lua_tonumber(L, -1); lua_pop(L, 1);
@@ -3379,7 +3379,7 @@ static int Pgetaddrinfo(lua_State *L)
 		lua_pushinteger(L, r);
 		return 3;
 	}
-	
+
 	/* Copy getaddrinfo() result into Lua table */
 
 	lua_newtable(L);
@@ -3445,7 +3445,7 @@ static int Paccept(lua_State *L)
 	unsigned int salen;
 	char host[NI_MAXHOST];
 	char serv[NI_MAXSERV];
-	
+
 	int fd = luaL_checknumber(L, 1);
 
 	salen = sizeof(sa);
@@ -3456,7 +3456,7 @@ static int Paccept(lua_State *L)
 
 	lua_pushnumber(L, fd_client);
 	sockaddr_to_lua(L, sa.ss_family, (struct sockaddr *)&sa);
-	
+
 	return 2;
 }
 
@@ -3499,7 +3499,7 @@ static int Precvfrom(lua_State *L)
 	errno = 0;
 	if ((buf = lalloc(ud, NULL, 0, count)) == NULL && count > 0)
 		return pusherror(L, "lalloc");
-	
+
 	salen = sizeof(sa);
 	r = recvfrom(fd, buf, count, 0, (struct sockaddr *)&sa, &salen);
 	if (r < 0) {
@@ -3560,8 +3560,8 @@ static int Psetsockopt(lua_State *L)
 	switch(level) {
 		case SOL_SOCKET:
 			switch(optname) {
-				case SO_LINGER: 
-					linger.l_onoff = luaL_checknumber(L, 4); 
+				case SO_LINGER:
+					linger.l_onoff = luaL_checknumber(L, 4);
 					linger.l_linger = luaL_checknumber(L, 5);
 					val = &linger;
 					len = sizeof(linger);
@@ -4138,7 +4138,7 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 #undef MENTRY
 
 #if _POSIX_VERSION >= 200112L
-	
+
 	set_integer_const( "SOMAXCONN", SOMAXCONN);
 	set_integer_const( "AF_UNSPEC", AF_UNSPEC);
 	set_integer_const( "AF_INET", AF_INET);

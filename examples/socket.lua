@@ -15,7 +15,7 @@ p.send(fd, "GET / HTTP/1.0\r\nHost: www.lua.org\r\n\r\n")
 local data = {}
 while true do
 	local b = p.recv(fd, 1024)
-	if not b or #b == 0 then 
+	if not b or #b == 0 then
 		break
 	end
 	table.insert(data, b)
@@ -24,7 +24,7 @@ p.close(fd)
 data = table.concat(data)
 print(data:match("<TITLE>(.+)</TITLE>"))
 
--- Loopback UDP test, IPV4 and IPV6 
+-- Loopback UDP test, IPV4 and IPV6
 
 local fd = p.socket(p.AF_INET6, p.SOCK_DGRAM, 0)
 p.bind(fd, { family = p.AF_INET6, addr = "::", port = 9999 })
