@@ -1,0 +1,277 @@
+# bootstrap.slingshot (Slingshot) version 2013-05-06
+#
+# Copyright (C) 2013 Gary V. Vaughan
+# Written by Gary V. Vaughan, 2013
+
+# This is free software; see the source for copying conditions.  There is NO
+# warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 3 of
+# the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Libtool; see the file COPYING.  If not, a copy
+# can be downloaded from  http://www.gnu.org/licenses/gpl.html,
+# or obtained by writing to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+
+# For your project to work with subproject slingshot out of the box, you'll
+# need to commit this file to your project's repository and source it from
+# bootstrap.conf.
+#
+#    case $0 in
+#      */*) . "$0.slingshot" ;;
+#      *)   . ./"$0.slingshot" ;;
+#    esac
+
+
+## -------------- ##
+## Configuration. ##
+## -------------- ##
+
+# Relative path to the local slingshot submodule, and url to the upsream
+# git repository.  If you have a slingshot entry in your .gitmodules file,
+# these values are ignored.
+slingshot_path=
+slingshot_url=
+
+
+## ------------------ ##
+## Utility functions. ##
+## ------------------ ##
+
+# slingshot_copy FILENAME SRCDIR DESTDIR
+# --------------------------------------
+# If option '--copy' was specified, or soft-linking SRCFILE to DESTFILE
+# fails, then try to copy SRCFILE to DESTFILE (making sure to update the
+# timestamp so that a series of files with dependencies can be copied
+# in the right order that their timestamps won't trigger rebuilds).
+slingshot_copy ()
+{
+    $debug_cmd
+
+    slingshot_srcfile=`echo "$2/$1" |sed -e 's|/\./|/|g'`
+    slingshot_destfile=`echo "$3/$1" |sed -e 's|/\./|/|g'`
+
+    $opt_force || {
+      # Nothing to do if the files are already identical.
+      if func_cmp_s "$slingshot_srcfile" "$slingshot_destfile"; then
+        func_verbose "'$slingshot_destfile' is up to date."
+        return 0
+      fi
+    }
+
+    # Require --force to remove existing $slingshot_destfile.
+    $opt_force && $RM "$slingshot_destfile"
+    test -f "$slingshot_destfile" && {
+      func_warn_and_continue "'$slingshot_destfile' exists: use '--force' to overwrite"
+      return 0
+    }
+
+    # Be careful to support 'func_copy dir/target srcbase destbase'.
+    func_dirname "$slingshot_destfile"
+    func_mkdir_p "$func_dirname_result"
+
+    # Copy or link according to '--copy' option.
+    if $opt_copy; then
+      slingshot_copycmd=$CP
+      slingshot_copy_type=copying
+    else
+      slingshot_copycmd=$LN_S
+      slingshot_copy_type=linking
+
+      func_relative_path "$3" "$2"
+      slingshot_srcfile=$func_relative_path_result/$1
+    fi
+    slingshot_copy_msg="$slingshot_copy_type file '$slingshot_destfile'"
+    $opt_verbose && \
+      slingshot_copy_msg="$slingshot_copy_type $slingshot_srcfile $3"
+
+    if $opt_dry_run || {
+        ( umask 0
+          $slingshot_copycmd "$slingshot_srcfile" "$slingshot_destfile"
+        ) >/dev/null 2>&1
+      }
+    then
+      echo "$slingshot_copy_msg"
+    else
+      func_error "$slingshot_copy_type '$2/$1' to '$3/' failed"
+      return 1
+    fi
+}
+
+
+## --------------- ##
+## Hook functions. ##
+## --------------- ##
+
+# slingshot_copy_files
+# --------------------
+# Update files from slingshot subproject.
+slingshot_copy_files ()
+{
+    $debug_cmd
+
+    $require_slingshot_submodule
+
+    # Make sure we have the latest mkrockspecs
+    make -C slingshot build-aux/mkrockspecs
+
+    # Update in-tree links.
+    for file in $slingshot_files; do
+      func_dirname_and_basename "./$file"
+      slingshot_copy "$func_basename_result" \
+        "slingshot/$func_dirname_result" "$func_dirname_result"
+    done
+}
+func_add_hook func_prep slingshot_copy_files
+
+
+## -------------------- ##
+## Resource management. ##
+## -------------------- ##
+
+# require_slingshot_dotgitmodules
+# -------------------------------
+# Ensure we have a '.gitmodules' file, with appropriate 'slingshot' settings.
+require_slingshot_dotgitmodules=slingshot_require_slingshot_dotgitmodules
+slingshot_require_slingshot_dotgitmodules ()
+{
+    $debug_cmd
+
+    $require_git
+
+    test true = "$GIT" || {
+      # A slingshot entry in .gitmodules always takes precedence.
+      _G_path=`$GIT config --file .gitmodules submodule.slingshot.path 2>/dev/null`
+
+      test -n "$_G_path" || {
+        $require_vc_ignore_files
+
+        func_verbose "adding slingshot entries to '.gitmodules'"
+
+        test -n "$slingshot_path" || slingshot_path=slingshot
+        test -n "$slingshot_url"  || slingshot_url=git://github.com/gvvaughan/slingshot.git
+
+        {
+          echo '[submodule "slingshot"]'
+          echo "	path=$slingshot_path"
+          echo "	url=$slingshot_url"
+        } >> .gitmodules
+
+        test -n "$vc_ignore_files" \
+          || func_insert_if_absent ".gitmodules" $vc_ignore_files
+      }
+    }
+
+    require_slingshot_dotgitmodules=:
+}
+
+
+# require_slingshot_path
+# require_slingshot_url
+# ----------------------
+# Ensure 'slingshot_path' and 'slingshot_url' are set.
+require_slingshot_path=slingshot_require_slingshot_dotgitmodules_parameters
+require_slingshot_url=slingshot_require_slingshot_dotgitmodules_parameters
+slingshot_require_slingshot_dotgitmodules_parameters ()
+{
+    $debug_cmd
+
+    $require_git
+    $require_slingshot_dotgitmodules
+
+    test -f .gitmodules \
+      || func_fatal_error "Unable to update '.gitmodules' with slingshot submodule"
+
+    test true = "$GIT" || {
+      slingshot_path=`$GIT config --file=.gitmodules --get submodule.slingshot.path`
+      slingshot_url=`$GIT config --file=.gitmodules --get submodule.slingshot.url`
+
+      func_verbose "slingshot_path='$slingshot_path'"
+      func_verbose "slingshot_url='$slingshot_url'"
+    }
+
+    require_slingshot_path=:
+    require_slingshot_url=:
+}
+
+
+# require_slingshot_submodule
+# ---------------------------
+# Ensure that there is a current slingshot submodule.
+require_slingshot_submodule=slingshot_require_slingshot_submodule
+slingshot_require_slingshot_submodule ()
+{
+    $debug_cmd
+
+    $require_git
+
+    if test true = "$GIT"; then
+      func_warning recommend \
+          "No 'git' found; imported slingshot modules may be missing."
+    else
+      $require_slingshot_dotgitmodules
+
+      if test -f .gitmodules && test -f "slingshot/build-aux/mkrockspecs.in"
+      then
+        : All present and correct.
+
+      else
+        $require_slingshot_path
+        $require_slingshot_url
+
+        trap slingshot_cleanup 1 2 13 15
+
+        shallow=
+        $GIT clone -h 2>&1 |func_grep_q -- --depth \
+            && shallow='--depth 365'
+
+        func_show_eval "$GIT clone $shallow '$slingshot_url' '$slingshot_path'" \
+          slingshot_cleanup
+
+        # FIXME: Solaris /bin/sh will try to execute '-' if any of
+        #        these signals are caught after this.
+        trap - 1 2 13 15
+
+        # Make sure we've checked out the correct revision of slingshot.
+        func_show_eval "$GIT submodule init" \
+          && func_show_eval "$GIT submodule update" \
+          || func_fatal_error "Unable to update slingshot submodule."
+      fi
+    fi
+
+    require_slingshot_submodule=:
+}
+
+
+# slingshot_cleanup
+# -----------------
+# Recursively delete everything at $slingshot_path.
+slingshot_cleanup ()
+{
+    $debug_cmd
+
+    $require_slingshot_path
+
+    _G_status=$?
+    $RM -fr $slingshot_path
+    exit $_G_status
+}
+
+# Local variables:
+# mode: shell-script
+# sh-indentation: 2
+# eval: (add-hook 'write-file-hooks 'time-stamp)
+# time-stamp-start: "# bootstrap.slingshot (Slingshot) version "
+# time-stamp-format: "%:y-%02m-%02d"
+# time-stamp-end: "$"
+# End:

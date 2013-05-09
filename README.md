@@ -1,8 +1,11 @@
-                               luaposix
-                               --------
+luaposix
+========
 
-                 https://github.com/luaposix/luaposix
+by the [luaposix project][github]
 
+[github]: https://github.com/luaposix/luaposix
+
+[![travis-ci status](https://secure.travis-ci.org/luaposix/luaposix.png?branche=master)](http://travis-ci.org/luaposix/lua-posix/builds)
 
 luaposix is a POSIX binding, including curses, for Lua 5.1 and 5.2;
 like most libraries it simply binds to C APIs on the underlying
@@ -20,32 +23,33 @@ github tracker.
 Installation
 ------------
 
+The simplest way to install luaposix is with [LuaRocks][]. To install the
+latest release (recommended):
+
+    luarocks install luaposix
+
+To install current git master (for testing):
+
+    luarocks install https://raw.github.com/luaposix/luaposix/release/luaposix-git-1.rockspec
+
 With Lua 5.1, luaposix requires the bitop library from http://bitop.luajit.org/
 (On Lua 5.2 it will work whether bitop is installed or not.)
 
-luaposix uses the GNU build system. For detailed instructions, see
-INSTALL. For a quick start:
+To install without LuaRocks, check out the sources from the
+[repository][github], and then run the following commands: the
+dependencies are listed in the dependencies entry of the file
+`rockspec.conf`. You will also need Autoconf and Automake.
 
-[If using git sources:
-
+  cd luaposix
   ./bootstrap
-]
+  ./configure --prefix=INSTALLATION-ROOT-DIRECTORY
+  make all check install
 
-  ./configure && make [&& make install]
+See [INSTALL][] for instructions for `configure`, and `configure --help`
+for details of available command-line switches.
 
-You may need to supply non-default paths (e.g. if you are using a
-system that supports more than one version of Lua):
-
-For example, on Debian or Ubuntu:
-
-  CPPFLAGS='-I/usr/include/lua5.1' ./configure --libdir=/usr/local/lib/lua/5.1 --datadir=/usr/local/share/lua/5.1 --with-lua-suffix=5.1
-
-To run some tests:
-
-  make check
-
-lunit is required for some of the tests. For a version of lunit that
-works with Lua 5.2, see: https://github.com/dcurrie/lunit.git
+[luarocks]: http://www.luarocksporg "LuaRocks Project"
+[install]: https://raw.github.com/luaposix/luaposix/release/INSTALL
 
 
 Use
@@ -76,11 +80,12 @@ Example code
 ------------
 
 See the example program tree.lua, along with the tests in
-tests-*.lua.
+`tests-*.lua`.
 
 For a complete application, see the lua branch of GNU Zile's (a
 cut-down Emacs clone) git repository at:
-http://git.savannah.gnu.org/cgit/zile.git/log/?h=lua
+
+    http://git.savannah.gnu.org/cgit/zile.git/log/?h=lua
 
 
 Bugs reports & patches

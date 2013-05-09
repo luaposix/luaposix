@@ -1,16 +1,21 @@
 dnl Process this file with autoconf to produce a configure script
 
-AC_INIT(luaposix, 5.1.28, rrt@sc3d.org)
+AC_INIT([luaposix], [29], [http://github.com/luaposix/luaposix/issues])
 AC_CONFIG_AUX_DIR([build-aux])
+AC_CONFIG_MACRO_DIR([m4])
+
+AS_BOX([Configuring AC_PACKAGE_TARNAME AC_PACKAGE_VERSION])
+echo
 
 AM_INIT_AUTOMAKE([-Wall foreign])
-
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 dnl Check for programs
 AC_PROG_CC
 gl_EARLY
 AC_PROG_MKDIR_P
+AC_PROG_EGREP
+AC_PROG_SED
 
 AC_USE_SYSTEM_EXTENSIONS
 AC_ARG_ENABLE([gcc-warnings],
@@ -112,19 +117,21 @@ LIBS=$save_LIBS
 dnl Lua 5.1 or 5.2
 AX_PROG_LUA(5.1, 5.3)
 AX_LUA_HEADERS
+AC_PATH_PROG([SPECL], [specl], [:])
 
 dnl Perl
-AX_WITH_PROG([PERL], [perl])
+AC_PATH_PROG([PERL], [perl])
 if test -z "$PERL"; then
   AC_MSG_FAILURE([cannot find perl])
 fi
 
 dnl ldoc
-AX_WITH_PROG([LDOC], [ldoc], [false])
+AC_PATH_PROG([LDOC], [ldoc], [false])
 AM_CONDITIONAL([HAVE_LDOC], [test false != "$LDOC"])
 
 dnl Generate output files
-AC_CONFIG_MACRO_DIR(m4)
+SPECL_MIN=6
+SS_CONFIG_TRAVIS([ldoc specl])
 AC_CONFIG_HEADER(config.h)
-AC_CONFIG_FILES([Makefile luarocks-config.lua])
+AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

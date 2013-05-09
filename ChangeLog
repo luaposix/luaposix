@@ -1,0 +1,1721 @@
+2013-05-09  Gary V. Vaughan  <gary@gnu.org>
+
+	Release version 29
+	* NEWS: Record release date.
+
+	Revert "Release version 29"
+	This reverts commit bfce2bc28a5a5f675e4b6f7ef790bcdbfba15aad.
+
+	syntax-check: remove trailing whitespace.
+	* build-aux/sanity-cfg.mk (error-message-uppercase): Exclude
+	examples/socket.lua, which otherwise triggers false positives.
+	* NEWS, examples/socket.lua, examples/termios.lua, lposix.c:
+	Remove trailing whitespace.
+
+	Release version 29
+	* NEWS: Record release date.
+
+	configury: distribute INSTALL for autotools instructions.
+	* bootstrap.conf (gnulib_non_module_files): Add doc/INSTALL.
+
+	typo: use correct spelling of prefix in README.md.
+	* README.md: s/perfix/prefix/g
+
+2013-05-09  Gary V. Vaughan  <gary@vaughan.pe>
+
+	Merge pull request #99 from zevv/fix-dir-example
+	Fixed dir example for 5.2
+
+	Merge pull request #96 from zevv/fix-glob-example
+	Fixed glob example
+
+	Merge pull request #100 from zevv/add-b57600
+	Added missing 57k6 baudrate to termios table
+
+	Merge pull request #95 from zevv/fix-poll
+	I broke poll with commit 8deb0ebd041ab6d4761f86a7a906dd850111bae7
+
+	Merge pull request #94 from zevv/fix-poll-example
+	Fix poll example, open failed due to wrong 2nd argument type
+
+2013-05-09  Gary V. Vaughan  <gary@gnu.org>
+
+	specs: add pending guards to weird Travis failures.
+	* specs/posix_spec.yaml: Mark pending those examples inexplicably
+	failing on Travis, per github issue #102.
+
+	configury: bump release version to 29.
+	* configure.ac (AC_INIT): Bump release version to 29.
+	The '5.1.' prefix is a misnomer now tha we support Lua 5.2, and
+	bumping the prefix to '5.2.' would be no better, since we support
+	Lua 5.1 simultaneously, and 5.3 will be along one of these days.
+
+	sanity: add configuration fragment with sanity exclusions.
+	* build-aux/sanity-config.mk (sc_require_config_h)
+	(sc_require_config_h_first): Exclude dummy.c and strlcpy.c, which
+	are both included directly into another source file before
+	compilation.
+	* .gitignore, build-aux/.gitignore: Adjust.
+
+	syntax-check: fix many tiny errors raised by sanity.mk.
+	* config.ld: Remove trailing blank line.
+	* lcurses.c, strlcpy.c: Remove useless preprocessor parens.
+	* lcurses.c: Use the blessed `#include <config.h>` format.
+	* local.mk: Remove leading space from SPACE-TAB sequence.
+	* lposix.c (STREQ): Define to avoid using inverted strcmp logic.
+	Also remove useless preprocessor parens, and trailing whitespace.
+	* posix.lua, specs/posix_spec.yaml: Remove trailing whitespace.
+	* specs/posix_spec.yaml: Use 'file system' in preference to
+	.filesystem'.
+
+	maint: collect previous release notes into NEWS.
+	* NEWS: New file, required for the Slingshot release process.
+	* local.mk (old_NEWS_hash): Update.
+
+2013-05-09  Reuben Thomas  <rrt@sc3d.org>
+
+	specs: ttyname can contain 'pts' rather than 'tty'
+
+	specs: fix some spec failures on Linux.
+	* specs/posix_spec.yaml (uname): uname -a can display information
+	that uname(2) does not return, so change the command to say
+	explicitly what fields we want.
+
+2013-05-09  Gary V. Vaughan  <gary@gnu.org>
+
+	specs: convert adhoc tests to specl specs.
+	* tests-curses.lua: Remove. Move contents from here...
+	* specs/curses_spec.yaml: New file. ...to here, and reformat.
+	* tests-posix.lua: Remove.
+	* specs/posix_spec.yaml: New file. Implement equivalent (or
+	better!) specs here.
+	* specs/specs.mk (specl_SPECS): Add new specs.
+
+	specs: convert lunit fcntl checks to specl specs.
+	* README: Remove reference to lunit.
+	* tests-fcntl.lua: Remove.
+	* specs/posix_lua_spec.yaml: New file with equivalent checks for
+	Specl.
+	* specs/specs.mk (specl_SPECS): Add specs/posix_lua_spec.yaml.
+	* local.mk: Include specs/specs.mk.
+
+	slingshot: adopt slingshot release mechanism.
+	* README: Move from here...
+	* README.md: ...to here. Adjust for GH Markdown.
+	* GNUmakefile, Makefile.am, build-aux/mkrockspecs,
+	m4/ax_compare_version.m4, m4/ax_lua.m4:
+	Remove. These files are handled by slingshot now.
+	* rockspecs.lua, m4/ax_with_prog.m4: Remove. No longer used.
+	* bootstrap.slingshot: New file. Slingshot bootstrap plugin.
+	* bootstrap.conf: Source it.
+	* configure.ac: Adjust to drive slingshot processes.
+	* local.mk: New file. Project local make rules.
+	* rockspec.conf: New file. Slingshat rockspec template.
+	* specs/specs.mk: Simplified.
+	* .prev-version: Record previous version number.
+	* .gitignore: Update.
+	* .travis.yml: Regenerate.
+
+	termios: remove deprecated legacy symbols.
+	Don't write new code with these, they are not definied by stricly
+	POSIX conformant hosts. See:
+	http://pubs.opengroup.org/onlinepubs/009695399/basedefs/termios.h.html
+	* lposix.c (XCASE, IUCLC, OUCLC): Remove.
+
+	termios: make XSI extensions optional.
+	Mac OS X is a POSIX conformant system, but does not implement
+	all XSI extensions. Only create constant for XSI extensions if
+	they are defined by the host system. See:
+	http://pubs.opengroup.org/onlinepubs/009695399/basedefs/termios.h.html
+	* lposix.c (CBAUD, EXTA, EXTB, ECHOCTL, ECHOPRT, ECHOKE, FLUSHO)
+	(PENDIN): Wrap with preprocessor guards.
+	(DEFECHO, LOBLK, SWTCH, VDISCARD, VDSUSP, VLNEXT, VREPRINT)
+	(VSTATUS, VWERASE): Additional conditional XSI extensions.
+
+2013-04-23  Ico Doornekamp  <ico@pruts.nl>
+
+	Fixed dir example for 5.2
+
+	Added missing 57k6 baudrate to termios table
+
+2013-04-18  Ico Doornekamp  <ico@pruts.nl>
+
+	Fixed glob example, added missing 'posix ='. Also removed the readlink() part because /proc on linux violates posix and does not properly fill in st_size on lstat(), causing readlink() to fail with EINVAL.
+
+	Fix poll example, open failed due to wrong 2nd argument type, probably from old lposix API?
+
+	I broke poll with commit 8deb0ebd041ab6d4761f86a7a906dd850111bae7
+	The result is just fine for calling poll() only once, but breaks for
+	subsequent calls to poll() when passing the same table. In this case,
+	the events are not cleared from the revents table, causing false
+	positives.
+
+2013-04-16  Reuben Thomas  <rrt@sc3d.org>
+
+	Merge pull request #90 from zevv/getopt
+	Rename getopt_long() to getopt(), long options are now optional.
+
+	Merge pull request #91 from zevv/termios
+	Moved tests-termios.lua to examples/termios.lua
+
+2013-04-16  Ico Doornekamp  <ico@pruts.nl>
+
+	Added minimal termios test.
+
+2013-04-16  Reuben Thomas  <rrt@sc3d.org>
+
+	Mention where to look for other contributors.
+
+	Merge pull request #82 from zevv/socket
+	Added socket functions and test script
+
+2013-04-16  Ico Doornekamp  <ico@pruts.nl>
+
+	Changed getopt_long semantics, reorderd iterator return values, optarg is now string instead of number. This allows getopt_long to closely mimic getopt
+	Renamed getopt_long to getopt, changed short options type from number to
+	string, updated example
+
+	Added POSIX socket functions and constants
+
+2013-04-16  Reuben Thomas  <rrt@sc3d.org>
+
+	Merge pull request #83 from zevv/termios
+	Added termios and test script
+
+2013-04-16  Ico Doornekamp  <ico@pruts.nl>
+
+	Added termios and test script
+
+2013-04-15  Reuben Thomas  <rrt@sc3d.org>
+
+	Copy stdlib code into posix.lua, minimally modified
+	Solves the discussion in already-closed issue #80, and closes pull
+	request #88 and closes pull request #89.
+
+2013-04-14  Reuben Thomas  <rrt@sc3d.org>
+
+	Merge pull request #85 from zevv/poll-only-triggered-revents
+	poll only returns active events in revents table, increases performance
+
+	Move require of std.list to correct place
+
+2013-04-13  Ico Doornekamp  <ico@pruts.nl>
+
+	Simplified lua_pushboolean() expression
+
+	poll only returns active events in revents table, increases performance
+
+2013-04-12  Reuben Thomas  <rrt@sc3d.org>
+
+	Require stdlib; fixes #80
+
+	.gitignore: add TAGS
+
+	lposix.c: fix lua_Alloc calls that free (they should pass the current size); fix a memory leak in msgrcv
+
+	lposix.c: fix error-case space leak in Pread; fixes issue #78
+
+2013-04-11  Gary V. Vaughan  <gary@gnu.org>
+
+	posix.lua: fix a typo in assert.
+	* posix.lua (pipeline): t1 is not declared, use type of t in the
+	assert error.
+
+2013-03-28  Reuben Thomas  <rrt@sc3d.org>
+
+	lposix.c: change bogus @long tags to @int tags.
+
+	lposix.c: add function line for pipe (was missing)
+	Thanks to behoffski for the report.
+
+2013-03-24  Reuben Thomas  <rrt@sc3d.org>
+
+	lposix.c: fix @function line of isprint (was wrongly "isgraph")
+	Thanks to behoffski for the report.
+
+2013-03-23  Reuben Thomas  <rrt@sc3d.org>
+
+	tests-posix.lua: fix pipeline test for VPATH build
+
+	tests-posix.lua: fix pipeline test
+	Should call pipeline_slurp, not pipeline_iterator to get whole output
+	in one go. This has the nice side-effect of testing both
+	pipeline_iterator and pipeline as well, as pipeline_slurp calls
+	pipeline_iterator, which calls pipeline.
+
+2013-03-20  Reuben Thomas  <rrt@sc3d.org>
+
+	Makefile.am: unset LUA_INIT_5_2 in calls to get information from woger.
+	This is an ugly hack, but since it will work at least until the
+	release of Lua 5.3, it's better than nothing.
+
+	configure.ac: bump version to 5.1.28
+
+	Simplify and fix pipeline_iterator, and add a test.
+
+2013-03-18  Reuben Thomas  <rrt@sc3d.org>
+
+	posix.lua: fix bug in posix.pipeline_iterator, where it always closed the pipe on first iteration
+
+2013-03-17  Reuben Thomas  <rrt@sc3d.org>
+
+	configure.ac: bump version to 5.1.27
+
+	posix.lua: rename posix.system to posix.spawn, keeping old name as alias for now.
+
+2013-03-16  Reuben Thomas  <rrt@sc3d.org>
+
+	Allow posix.system to take a function, a shell command, or a file and list of arguments. Use it in pipeline.
+	Allow pipeline functions to take an extra parameter giving the
+	function to use to make a pipe (e.g. so posix.openpty can be used
+	instead). Change argument to a table rather than a list of tasks.
+
+2013-03-14  Reuben Thomas  <rrt@sc3d.org>
+
+	posix.lua: tidy up pipeline and add pipeline_iterator and pipeline_slurp
+
+	Merge pull request #72 from nmcveity/fix-5.1-compat
+	Removed Lua 5.2 functions lua_len and lua_tointegerx
+
+	COPYING: bump copyright year
+
+	Add pipeline function to execute a pipeline of shell commands & Lua functions
+
+2013-03-05  nmcveity  <nmcveity@gmail.com>
+
+	Removed Lua 5.2 functions lua_len and lua_tointegerx
+	This fixes issue #71.
+
+2013-03-05  Reuben Thomas  <rrt@sc3d.org>
+
+	Makefile.am: stop making unnecessary ChangeLog.
+
+2013-03-04  Reuben Thomas  <rrt@sc3d.org>
+
+	lposix.c: fix a space leak in realpath
+
+	configure.ac: bump version to 5.1.26.
+
+	lposix.c: change some @param's to @string where possible
+
+	Add posix.realpath.
+
+	lposix.c: add support for SA_* flags when establishing a signal handler
+
+2013-03-02  Reuben Thomas  <rrt@sc3d.org>
+
+	posix.lua: add posix.openpty
+
+2013-02-28  Reuben Thomas  <rrt@sc3d.org>
+
+	lposix.c: improve documentation of posix.read
+
+	lposix.c: document posix.wait's return values properly
+
+	lposix.c: add killpg
+
+2013-02-21  Reuben Thomas  <rrt@sc3d.org>
+
+	Makefile.am: release directory should already be on release branch; remove checkout command
+
+	Makefile.am: use simpler and more robust scheme of parallel checkout for checking in release code.
+
+	Allow exec/execp arguments to be supplied as a table, including argv[0]. Closes #65.
+
+	configure.ac: bump version to 5.1.25
+
+	Merge pull request #67 from zserge/master
+	Support for message queues
+
+2013-02-19  Reuben Thomas  <rrt@sc3d.org>
+
+	Merge pull request #68 from sam-github/pts-support
+	Fix posix.openpt() requireing and ignoring a path.
+
+	When no LDoc installed, create docs directory before touching files in it; fixes issue #66
+
+2013-02-19  Sam Roberts  <vieuxtech@gmail.com>
+
+	Fix posix.openpt() requireing and ignoring a path.
+
+2013-02-19  Serge Zaitsev  <zaitsev.serge@gmail.com>
+
+	added basic message queues support
+
+2013-02-18  Reuben Thomas  <rrt@sc3d.org>
+
+	Merge pull request #58 from sam-github/pts-support
+	Support Unix 98 style pseudoterminals, as specified in POSIX.1-2001
+
+2013-02-18  Sam Roberts  <vieuxtech@gmail.com>
+
+	Tests for pseudoterminal support.
+
+2013-02-17  Sam Roberts  <vieuxtech@gmail.com>
+
+	Support Unix 98 style pseudoterminals, as specified in POSIX.1-2001
+	Support consists of openpt(), ptsname(), grantpt(), and unlockpt(). The master
+	fd can be created by calling  openpt(), or by opening "/dev/ptmx" (as
+	specified by POSIX).
+
+2013-02-16  Reuben Thomas  <rrt@sc3d.org>
+
+	Makefile.am: fix woger command for new rockspec arrangement.
+
+	Makefile.am: prevent unpacked sources being recursively checked in to release branch.
+
+	Makefile.am: remove references to defunct files.
+
+	rockspecs.lua: don't need to turn dots in version into dashes to get release tag.
+
+	.gitignore: remove tarball pattern, as we no longer have tarballs.
+
+2013-02-15  Reuben Thomas  <rrt@sc3d.org>
+
+	Revert 31671409e62e: bit32 doesn't build with Lua 5.2, so require luabitop instead.
+
+	rockspecs.lua: fix a misnamed variable
+
+	configury: add rockspec-generating files for git/release rockspecs.
+
+	Makefile.am: remove obsolete definition of ROCKSPEC
+
+	configure.ac: remove useless AC_SUBST calls for precious variables.
+
+	tests-posix.lua: remove a debugging line.
+
+	lposix.c: correct cross-reference to getopt.lua
+
+	Bump version down to 5.1.24: we haven't made such a release yet
+
+	configury: update for releasing on 'release' branch of github rather than via tarballs.
+
+	Update ax_lua.m4 to latest: no code changes, formatting only.
+
+	tests-posix.lua: remove commented-out test for non-POSIX putenv function
+
+	Add STD{IN,OUT,ERR}_FILENO constants.
+
+	Add isatty.
+
+2013-02-13  Reuben Thomas  <rrt@sc3d.org>
+
+	Use bit32 (now available for 5.1) rather than luabitop: slightly simplifies things.
+
+2013-02-11  Reuben Thomas  <rrt@sc3d.org>
+
+	lposix.c: Reuben Thomas is no longer the maintainer.
+
+	m4/ax_compare_version.m4: add support file for ax_lua.m4
+
+2013-02-07  Alexander V. Nikolaev  <avn@daemon.hole.ru>
+
+	Merge pull request #61 from gvvaughan/pull-request/maint-clean-ldocs-output
+	configury: clean up ldoc droppings with make maintainer-clean
+
+	Merge pull request #62 from gvvaughan/pull-request/remove-empty-lib-subdir
+	gnulib: no need to link always empty libgnu.
+
+2013-02-06  Reuben Thomas  <rrt@sc3d.org>
+
+	configury: update ax_lua.m4 to latest version, which simplifies configure.ac slightly.
+
+2013-01-29  Gary V. Vaughan  <gary@gnu.org>
+
+	gnulib: no need to link always empty libgnu.
+	Now that we have no C modules from gnulib, there's no need to
+	build and link the always empty library any more.
+	* Makefile.am (SUBDIRS): Remove.
+	* configure.ac (AC_CONFIG_FILES): Remove lib/Makefile.
+	* bootstrap.conf (gnulib_tool_options): Add --avoid=dummy to skip
+	the one remaining empty gnulib C source file.
+	(luaposix_remove_empty_lib): gnulib-tool now generates a useless
+	lib subdirectory containing just a Makefile.am and .gitignore. We
+	don't use or need it any more, so delete it.
+	(luaposix_finish): Don't copy dummy.c out of gnulib.
+
+	configury: clean up ldoc droppings with make maintainer-clean
+	* Makefile.am (MAINTAINERCLEANFILES): Add docs/index.html and
+	docs/ldoc.css.
+
+2013-01-27  Alexander V. Nikolaev  <avn@daemon.hole.ru>
+
+	Merge pull request #59 from gvvaughan/pull-request/handle-missing-ldoc
+	configury: handle missing ldoc binary.
+
+2013-01-26  Gary V. Vaughan  <gary@gnu.org>
+
+	configury: handle missing ldoc binary.
+	* configure.ac (LDOC): Set with AX_WITH_PROG.
+	(HAVE_LDOC): New conditional.
+	* Makefile.am (HTML): Fold into...
+	(dist_doc_DATA): ...here.
+	Run ldoc when available, otherwise touch the requried files to
+	prevent build failure.
+
+2013-01-10  Reuben Thomas  <rrt@sc3d.org>
+
+	Merge pull request #56 from gvvaughan/pull-request/curses-resizeterm-support
+	curses: conditional resizeterm support.
+
+	Merge pull request #55 from gvvaughan/pull-request/fix-waddstr-double-append-bug
+	curses: don't waddstr() each string twice.
+
+	Merge pull request #53 from gvvaughan/pull-request/remove-automake-werror
+	configury: remove automake -Werror option.
+
+	Merge pull request #52 from gvvaughan/pull-request/add-am-prog-ar
+	configury: use AM_PROG_AR for automake 1.13.
+
+	Merge pull request #50 from gvvaughan/pull-request/keep-gnulib-revision-under-version-control
+	configury: keep gnulib revision under version control.
+
+	Merge pull request #51 from gvvaughan/pull-request/sync-upstream-bootstrap
+	bootstrap: sync with upstream.
+
+	Merge pull request #54 from gvvaughan/pull-request/no-need-for-lt-output
+	configury: no need to fork for libtool.m4 variables.
+
+2013-01-10  Gary V. Vaughan  <gary@gnu.org>
+
+	curses: conditional resizeterm support.
+	* configure.ac (AC_CHECK_FUNCS): Check whether resizeterm is
+	implemented by the selected curses library.
+	* lcurses.c (Cresizeterm): If it is, use it, otherwis throw an
+	error to explain why not.
+	(curseslib): Add it to the toplevel curses functions.
+
+	curses: don't waddstr() each string twice.
+	Fix a bug introduced by commit 5aa297512.
+	* lcurses.c (Waddstr): Only add the string one time!
+
+	configury: no need to fork for libtool.m4 variables.
+	libtool.m4 is expanded into configure already, so the values are
+	available after LT_INIT in configure.in without creating config.lt
+	to copy the values we already have into an early libtool script,
+	and then fork again to grep the content of those copies back into
+	configure!!  (LT_OUTPUT is only necessary if you need to run
+	configure time compilation tests using the libtool script to
+	wrap the actual compiler).
+	* configure.ac (LT_OUTPUT): Remove.
+	(shrext): shrext_cmds is already set by LT_INIT, so just use it
+	without calling the early libtool script.
+
+	configury: remove automake -Werror option.
+	This option causes automake to bail out after warning about the
+	use of gmake extensions.
+	* configure.ac (AM_INIT_AUTOMAKE): Remove -Werror.
+
+	bootstrap: sync with upstream.
+	This revision fixes some small bugs, and is compatible with
+	non-gnu awk and non-gnu sed again.
+	* bootstrap: sync with upstream.
+
+	configury: keep gnulib revision under version control.
+	It's important to keep the gnulib revision number used by any
+	particular checkout of luaposix under version control rather than
+	hoping that whatever the current HEAD is will work.
+	* .gitignore: Remove gnulib.
+	* gnulib: Add current master revision.
+
+	configury: use AM_PROG_AR for automake 1.13.
+	* configure.ac (AM_PROG_AR): Required by recent automake releases,
+	but not available in very old releases.
+
+2012-12-25  Reuben Thomas  <rrt@sc3d.org>
+
+	configure.ac: fix regeneration of luaposix.rockspec
+
+2012-12-24  Reuben Thomas  <rrt@sc3d.org>
+
+	configure.ac: fix a comment
+
+	luaposix.rockspec.in: remove redundant dir setting
+
+2012-12-15  Alexander V. Nikolaev  <avn@daemon.hole.ru>
+
+	configure.ac: bump version to 5.1.25
+
+	rockspec: Add missing dependency for luabitop
+	luaposix depends on bitop library on lua 5.1 since luaposix 5.1.16
+
+2012-12-05  Alexander V. Nikolaev  <avn@daemon.hole.ru>
+
+	Merge pull request #48 from Keen-github/vs/2230/fix_hack_for_luaposix_compatibility
+	Added 'day' field for compatibility to Lua os.date(); fixed issue #32.
+
+2012-11-15  Valeriy Skurikhin  <Keen.vs@gmail.com>
+
+	Added 'day' field for compatibility to Lua os.date(); fixed issue #32.
+
+2012-10-25  Reuben Thomas  <rrt@sc3d.org>
+
+	Use lstat to read size of a link (for Preadlink); fixes issue #47.
+
+2012-10-17  Reuben Thomas  <rrt@sc3d.org>
+
+	configure.ac: bump version to 5.1.24
+
+	lcurses.c: don't run strlen unnecessarily; w[mv]addstr does that anyway
+
+2012-10-04  Reuben Thomas  <rrt@sc3d.org>
+
+	Makefile.am: now that github-upload is fixed, consolidate release into a single target
+
+	Makefile.am: correct github_user parameter to woger (thanks, Liam)
+
+	release: luarocks-related tweaks
+
+	Makefile.am: make check-luarock depend on the rockspec, as github seems to work after all
+
+	release: automatically check the rockspec before making a release
+
+	Make Lua 5.2-compatibility more Lua 5.2-ish.
+
+	tree.lua: make Lua 5.2-compatible
+
+2012-09-26  Reuben Thomas  <rrt@sc3d.org>
+
+	rockspec: make build_command more robust
+
+	build: install documentation with 'make install' and from luarocks
+
+2012-09-24  Reuben Thomas  <rrt@sc3d.org>
+
+	lposix.c: improve comment of mkstemp
+
+2012-09-21  Reuben Thomas  <rrt@sc3d.org>
+
+	configure.ac: bump version to 5.1.23
+
+	lcurses.c: define LUA_COMPAT_ALL to get luaL_register.
+
+2012-09-14  Reuben Thomas  <rrt@sc3d.org>
+
+	dummy.c: fix copyright notice to be public domain
+
+2012-09-13  Reuben Thomas  <rrt@sc3d.org>
+
+	version: bump to 5.1.22.
+
+	gnulib: re-add dummy.c with correct license to fix Mac OS X build (issue #46)
+
+2012-09-11  Reuben Thomas  <rrt@sc3d.org>
+
+	configure.ac: enable automake to generate dependencies for rockspec (thanks, Hisham Muhammad).
+
+2012-09-08  Reuben Thomas  <rrt@sc3d.org>
+
+	Merge pull request #45 from wcmaier/fix/github-url
+	Update Github URL.
+
+2012-09-07  Will Maier  <wcmaier@m.aier.us>
+
+	Update Github URL.
+
+2012-09-04  Reuben Thomas  <rrt@sc3d.org>
+
+	Bump version to 5.1.21.
+
+2012-09-02  Reuben Thomas  <rrt@sc3d.org>
+
+	README: Add link to online HTML docs.
+
+	README: Update location of repo and contact details.
+
+2012-09-01  Reuben Thomas  <rrt@sc3d.org>
+
+	bootstrap.conf: no longer require now-defunct `missing' script.
+
+2012-08-30  Reuben Thomas  <rrt@sc3d.org>
+
+	Add docstrings (using Steve Donovan's ldoc) to lposix.c
+	The documentation comes from from Steve Donovan and the Alpine Linux
+	wiki (Natanael Copa).
+
+	Reindent Psignal, which was a bit out of order.
+
+	Make rpoll use file descriptors, not Lua file objects, so it can be
+	used with both (via fileno).
+
+2012-06-29  Reuben Thomas  <rrt@sc3d.org>
+
+	Document dependency on bitop library with Lua 5.1 (thanks to Bernd Eggink).
+
+	Remove documentation of configure options, one of which was obsolete.
+
+2012-06-23  Reuben Thomas  <rrt@sc3d.org>
+
+	Simplify Lua 5.2 compatibility
+
+	lposix.c: revert to using MYNAME, as it is different from PACKAGE.
+
+2012-06-22  Reuben Thomas  <rrt@sc3d.org>
+
+	build: don't unset LUA_INIT, as it may be needed to set Lua paths.
+
+	Update bug reporting advice (thanks, Yuri Takhteyev).
+
+	Fix some incorrectly-named references to posix module.
+
+	Simplify construction of messages with autoconf variables.
+
+2012-06-06  Reuben Thomas  <rrt@sc3d.org>
+
+	build: don't include non-MIT-licensed dummy.c from gnulib (fixes issue #42).
+
+2012-06-04  Reuben Thomas  <rrt@sc3d.org>
+
+	Merge pull request #41 from gvvaughan/pull-request/timer-macros
+	gettimeofday: change format to a table with sec and usec fields.
+
+2012-06-01  Gary V. Vaughan  <gary@gnu.org>
+
+	gettimeofday: replace C timer macros with lua equivalents.
+	* lposix.c (Ptimeradd, Ptimercmp, Ptimersub): Remove.
+	* posix.lua (timeradd, timercmp, timersub): New Lua equivalents
+	to removed C implementations.
+
+2012-05-29  Gary V. Vaughan  <gary@gnu.org>
+
+	gettimeofday: change format to a table with sec and usec fields.
+	* lposix.c (Pgettimeofday): Return a single table with sec and usec
+	fields, rather than a pair of numbers.
+	(Ptimeradd, Ptimercmp, Ptimersub): New functions to emulate the
+	macros timeradd, timercmp and timersub respectively.
+
+2012-05-29  Reuben Thomas  <rrt@sc3d.org>
+
+	Merge pull request #40 from gvvaughan/pull-request/feature-tests-not-version-checks
+	crypt: this function is available on darwin, but no crypt.h header is
+
+2012-05-29  Gary V. Vaughan  <gary@gnu.org>
+
+	statvfs: check for actual presence of function and header.
+	* configure.ac (sys/statvfs.h): Test for presence of this header.
+	(statvfs): Test for availability of this API.
+	* lposix.c (sys/statvfs.h): Include it, if configure found it.
+	(Pstatvfs): Wrap statvfs if configure found the API.
+	(R): List Pstatvfs if we wrapped it earlier.
+
+	crypt: this function is available on darwin, but no crypt.h header is
+	One of the main principles of Autoconf is that you should test for
+	features, not for versions - exactly because of compilation problems
+	like this, where Apple sets _POSIX_VERSION to make us think that
+	crypt.h is available, but there is no crypt.h header.
+	* configure.ac (crypt.h): Test for presence of this header.
+	(crypt): If the crypt function is available, whether or not the
+	additional -lcrypt library is required, define HAVE_CRYPT.
+	* lposix.c (crypt.h): Include it if configure found it.
+	(Pcrypt): Define it if configure detected a system crypt API.
+	(R): List Pcrypt, if we defined it earlier.
+
+2012-05-28  Reuben Thomas  <rrt@sc3d.org>
+
+	posix.lua: update call of posix.open to match new API.
+
+	Add missing posix suffix to a call of access.
+
+	Merge pull request #39 from stevedonovan/master
+	Implement signal queue so signals arriving while in a Lua signal handler are not lost.
+
+2012-05-28  Steve Donovan  <steve.j.donovan@gmail.com>
+
+	signal handling queue implemented
+
+2012-05-23  Reuben Thomas  <rrt@sc3d.org>
+
+	Bump version to 5.1.20.
+
+	getgroup: fix an off-by-one error (thanks, Steve Donovan)
+
+	lposix.c: more minor whitespace fixes
+
+	posix.lua: add a missing space (whitespace fix).
+
+	system: Kill the fork if execp fails (thanks, Steve Donovan)
+
+	lposix.c: require a mode for open with O_CREAT, and only then.
+
+	tests: update for revised open API.
+
+	lposix.c: minor whitespace fixes.
+
+	lposix.c: make file & creation flags public; pass flags to open as an integer mask, not a table.
+
+	Fix some comments.
+
+2012-05-21  Reuben Thomas  <rrt@sc3d.org>
+
+	Remove non-POSIX crypt_r and replace function checks with POSIX version checks.
+
+	Add a pointer to documentation and some basic coding principles.
+
+2012-05-14  Reuben Thomas  <rrt@sc3d.org>
+
+	Update web site URL and be more explicit about system requirements.
+
+2012-05-13  Alexander V. Nikolaev  <avn@daemon.hole.ru>
+
+	Rework test for glob() -- use temporary directory
+	This allow us to not depend from *.la files from build.
+
+	Simple tests for mkdtemp and mkstemp
+
+2012-05-13  Your Name  <7hemroc@gmail.com>
+
+	Add mkdtemp()
+
+2012-05-13  Alexander V. Nikolaev  <avn@daemon.hole.ru>
+
+	Memory leak in mkstemp
+	Pmkstemp not release temporary string buffer, if mkstemp() raise an error
+
+2012-05-13  Reuben Thomas  <rrt@sc3d.org>
+
+	Merge pull request #35 from likema/master
+	Add statvfs and crypt_r.
+
+2012-05-02  Reuben Thomas  <rrt@sc3d.org>
+
+	lcurses.c: Remove some casts to chtype that only cause trouble.
+
+	strlcpy.c: add prototype to squash compiler warning.
+
+	strlcpy.c: Make function declaration ANSI.
+
+2012-05-01  Like Ma  <likemartinma@gmail.com>
+
+	Add AC_USE_SYSTEM_EXTENSIONS to configure.ac for define _GNU_SOURCE in config.h.in
+
+2012-04-23  Like Ma  <likemartinma@gmail.com>
+
+	Merge remote-tracking branch 'upstream/master'
+
+2012-04-11  Reuben Thomas  <rrt@sc3d.org>
+
+	Copy with -1 return for _PC_PATH_MAX.
+
+2012-04-10  Reuben Thomas  <rrt@sc3d.org>
+
+	Bump version to 5.1.19.
+
+	Replace LGPLed strlcpy with BSD licensed strlcpy, from http://opensource.apple.com/source/OpenSSH/OpenSSH-7.1/openssh/bsd-strlcpy.c
+
+2012-04-08  Reuben Thomas  <rrt@sc3d.org>
+
+	Fix memory leaks introduced by fix to cope with arbitrary-length paths.
+
+2012-04-05  Reuben Thomas  <rrt@sc3d.org>
+
+	Add tests for dirname and basename.
+
+	Work with arbitrary-length paths.
+
+2012-04-03  Reuben Thomas  <rrt@sc3d.org>
+
+	Remove XSR errno.h codes (thanks Enrico Tassi).
+
+2012-03-26  Reuben Thomas  <rrt@sc3d.org>
+
+	Don't use gnulib sigaction module, as its license is incompatible; don't want COPYINGv3.
+
+	Back to using only a double fork of lunit.
+
+	README: Update URL to lunit: for now need my version.
+
+	Makefile.am: tell lunit which Lua interpreter to use.
+
+	tests-fcntl.lua: make them work with Lua 5.2.
+
+	Improve documentation for use with Lua 5.2.
+
+2012-03-25  Reuben Thomas  <rrt@sc3d.org>
+
+	Bump version to 5.1.18.
+
+	posix.lua: make Lua 5.2-compatible.
+
+	Make configure accept Lua 5.2.
+
+	Add correct license, and refer to it in README.
+
+2012-02-29  Reuben Thomas  <rrt@sc3d.org>
+
+	Bump version to 5.1.17.
+
+	Return old C handler from signal, so it can be chained; fix masking of signals during Lua handler.
+
+2012-02-22  Reuben Thomas  <rrt@sc3d.org>
+
+	Make curses module work with Lua 5.2 module system (patch by StarWing).
+
+2012-02-19  Reuben Thomas  <rrt@sc3d.org>
+
+	Makefile.am: update woger call.
+
+	Makefile.am: Update woger call.
+
+	Makefile.am: add lua52compat.h to EXTRA_DIST.
+
+2012-02-13  Reuben Thomas  <rrt@sc3d.org>
+
+	Merge pull request #28 from likema/HEAD~~
+	Use AC_SEARCH_LIBS instead of AC_CHECK_LIBS in configure.ac.
+
+2012-02-12  Like Ma  <likemartinma@gmail.com>
+
+	Use crypt_r instead of crypt if it exists for thread-safe.
+
+	Add statvfs
+
+	Use AC_SEARCH_LIBS instead of AC_CHECK_LIBS to fix function crypt not found when configuring.
+
+2012-02-11  Reuben Thomas  <rrt@sc3d.org>
+
+	Fix bug in chmod (closes issue #55).
+
+	Update ax_with_curses.m4.
+
+2012-02-03  Reuben Thomas  <rrt@sc3d.org>
+
+	Remove some non-POSIX features.
+
+	Remove non-standard memrchr.
+
+2012-02-02  Reuben Thomas  <rrt@sc3d.org>
+
+	Fix signal handling so all signals are handled, one at a time.
+
+	lposix.c: overhaul time struct functions; add mktime.
+
+	lposix.c: fix whitespace typo.
+
+2012-02-02  Reuben Thomas  <rrt@sc3d.org>
+
+	Overhaul use of numeric types going to Lua.
+	Use lua_pushinteger rather than lua_pushnumber where it makes sense.
+
+	In lcurses, use lua_pushboolean for all boolean quantities, and always
+	return Lua booleans, not C booleans. Remove some unused function
+	macros.
+
+2012-02-01  Reuben Thomas  <rrt@sc3d.org>
+
+	Fix a docstring mistake: refer to os.execute, not os.system.
+
+	Remove setting _POSIX_C_SOURCE on Darwin, as apparently this only restricts APIs, or instates obsolescent APIs.
+	Remove some pointless quotes.
+
+	Remove SIGPROF and SIGPOLL, which are marked obsolescent.
+
+2012-01-28  Reuben Thomas  <rrt@sc3d.org>
+
+	curses: update ax_with_curses.m4 to latest version.
+
+2012-01-18  Reuben Thomas  <rrt@sc3d.org>
+
+	In strftime, make isdst optional like all other fields.
+
+	Add strptime.
+
+	Simplify a lua_pushlstring call to a lua_pushstring call.
+
+	Simplify hostid, making it return a number, not a string.
+
+	Merge pull request #23 from hishamhm/master
+	Add support of octal stat modes in mode_munch
+
+2012-01-17  Hisham Muhammad  <hisham@gobolinux.org>
+
+	Make octal_mode use strtol, as requested by rrthomas.
+
+2011-12-30  Hisham Muhammad  <hisham@gobolinux.org>
+
+	Add support of octal stat modes in mode_munch
+
+2011-12-29  Reuben Thomas  <rrt@sc3d.org>
+
+	Update and make precise the versions of Lua catered to.
+
+	Move Lua 5.2 compatibility into a separate file; use it in lcurses.c.
+	Change version check to be “== 502” rather than “> 501” now that 5.2
+	is released and we have no idea what 5.3 or later will bring.
+
+	Remove unused lua_setenv macro.
+
+	Add memrchr.
+
+	Add a comment explaining that posix.signal has sensible semantics.
+
+2011-12-27  Reuben Thomas  <rrt@sc3d.org>
+
+	Fix an egregious bug in the previous commit which only updated a Lua handler when the previous handler was also a Lua function.
+
+	Merge pull request #22 from gvvaughan/pull-request/expose-use_default_colors
+	Pull request/expose use default colors
+
+	Merge pull request #21 from gvvaughan/pull-request/refactor-lcurses-with-cpp
+	refactor: use lposix-style macro splicing in lcurses.
+
+2011-12-27  Gary V. Vaughan  <gary@gnu.org>
+
+	curses: expose use_default_colors to lua.
+	* lcurses.c (Cuse_default_colors): Marshalling for
+	use_default_colors.
+	(curseslib): Add it.
+
+	refactor: use lposix-style macro splicing in lcurses.
+	Make the style of lcurses.c more like lposix.c, with the aid of
+	splice and stringify macros, and judicious renaming to make
+	their usage pattern the same too.
+	* lcurses.c (LCURSES_SPLICE, LCURSES_STR, LCURSES_STR_1):
+	Analagous to LPOSIX_SPLICE, LPOSIX_STR and LPOSIX_STR_1
+	respectively.
+	(LC_NUMBER, LC_NUMBER2, LC_STRING, LC_STRING2, LC_BOOL)
+	(LC_BOOL2, LC_BOOLOK, LC_BOOLOK2): Change prefix of generated
+	functions from `lc_' to `C' so that LCURSES_STR_1 can be used
+	idiomatically.
+	(LCW_BOOLOK): Likewise, only changing from `lcw_' to `W' prefix.
+	(LCW_BOOLOK2): New macre used when the curses symbol and the lua
+	api have different names.
+	(lcw_new, lcw_get, lcw_check, lc_checkch, lc_optch): Rename from
+	these...
+	(lc_newwin, lc_getwin, lc_checkwin, checkch, optch): ...to
+	these, respectively, no need to namespace static symbols so
+	carefully. Adjust all callers.
+	(CC2): Remove.
+	(CF): New macro for generating FN key exports into lua. Use it
+	to export all 64 valid FN keys.
+	(LCW_WIN2): New macro.
+	(Wsyncup, Wcursyncup, Wsyncdown): Use it to define these
+	functions.
+	(LCW_WIN2YX): New macro.
+	(Wgetyx, Wgetparyx, Wgetbegyx, getmaxyx): Use it to define these
+	functions.
+	(LC_ATTROK): New macro.
+	(Cslk_attron, Cslk_attroff, Cslk_attrset): Use it to define
+	these functions.
+	(LC_TOGGLEOK): New macro.
+	(Ccbreak, Cecho, Craw, Cnl): Use it to define these functions.
+	(LCW_WINBOOLOK): New macro.
+	(Wintrflush, Wmeta, Wnodelay, Widlok, Wleaveok, Wscrollok): Use
+	it to define these functions.
+	(LCW_WININTOK): New macro.
+	(Wattroff, Wattron, Wattrset): Use it to define these functions.
+	(chstrlib, windowlib, curseslib): Much simplified by naming
+	implementation functions more carefully, and defining temporary
+	MENTRY macro to expand and splice arguments that populate the
+	tables.
+
+2011-12-26  Reuben Thomas  <rrt@sc3d.org>
+
+	signal: Cope with C handler functions.
+	Fix a bug in setting symbolic (SIG_IGN/DFL) handlers.
+
+	Make setting handler to nil indistinguishable from setting to SIG_DFL.
+
+2011-12-25  Reuben Thomas  <rrt@sc3d.org>
+
+	Explain why we don’t use an upvalue in an obvious situation.
+
+	Redo signal API to be more conventional, allowing signal handlers to be reset (no __newindex nonsense).
+
+2011-12-24  Reuben Thomas  <rrt@sc3d.org>
+
+	Use LPOSIX_STR_1 to prevent premature expansion of signal handler macro names.
+
+	Merge pull request #20 from gvvaughan/pull-request/use-cpp-to-keep-symbols-in-sync
+	refactor: use macro splicing for more tabulation.
+
+2011-12-24  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: use macro splicing for more tabulation.
+	This would have prevented the recent unsynced signal tables bug,
+	but also use cpp metaprogramming to write more repetitive code
+	that needs to stay in sync between various strings and symbols.
+	* lposix.c (LPOSIX__STR): Remove +1 offset.
+	(LPOSIX__STR_1, LPOSIX_STR_1): Better name for +1 offset
+	stringification macros. Adjust all callers.
+	(sigmacros_map): New cpp table of signal symbol basenames.
+	(Ssigmacros, Fsigmacros): Generate from sigmacros_map.
+	(R): Use cpp to keep lua symbols and C implementations in sync.
+	(luaopen_posix_c): Replace each group of preprocessor exports with
+	a cpp macro call to keep C API macro values and their lua symbol
+	names in sync.
+
+2011-12-23  Reuben Thomas  <rrt@sc3d.org>
+
+	Allow signal handlers to be set to nil (unset), as well as a function or macro.
+
+	Bump version to 5.1.16.
+
+	Clarify a NULL pointer.
+
+	Remove non-POSIX SIG_IGN and SIG_HOLD.
+
+	Fix some deviant indentation.
+
+2011-11-19  Reuben Thomas  <rrt@sc3d.org>
+
+	Merge pull request #19 from spbnick/master
+	Fix corner cases in Pread and Pgetgroups. Thanks to Nikolai Kondrashov.
+
+2011-11-18  Nikolai Kondrashov  <nkondrashov@nvidia.com>
+
+	Fix getgroups corner cases
+	Fix getgroups memory deallocation by simply using lua_newuserdata instead of
+	potentially mismatching lalloc/free pair.
+	Handle getgroups(0, NULL) returning 0 - although practically impossible,
+	documentation doesn't say it can't happen.
+	Handle getgroups returning negative values (reporting errors).
+
+	Handle and report Pread allocation errors properly
+	Report Pread buffer allocation errors with pusherror, account for allocation
+	functions which don't modify errno.
+	Handle allocation of zero bytes in Pread properly: don't consider returned
+	NULL an error.
+	Add some "air" into Pread formatting.
+
+2011-10-28  Reuben Thomas  <rrt@sc3d.org>
+
+	Merge pull request #18 from ittner/fix-unused-var
+	Remove unused variable (thanks, Alexandre Ittner).
+
+	Merge pull request #17 from ittner/add-fnmatch
+	Add function fnmatch() (thanks, Alexandre Ittner).
+
+2011-10-28  Alexandre Erwin Ittner  <alexandre@ittner.com.br>
+
+	Remove unused variable in the poll interface
+
+	Add function fnmatch()
+	According to
+	http://pubs.opengroup.org/onlinepubs/9699919799/functions/fnmatch.html
+	plus GNU extensions (if available)
+
+2011-10-26  Reuben Thomas  <rrt@sc3d.org>
+
+	Merge pull request #16 from spbnick/master
+	Add full poll(2) interface
+
+2011-10-22  Nikolai Kondrashov  <nkondrashov@nvidia.com>
+
+	Add full poll(2) interface
+	Rename Ppoll to Prpoll to match external name of "rpoll".
+	Add full poll(2) interface under name "poll".
+
+	The arguments to the "poll" function are fd->pollfd map and an optional
+	timeout in milliseconds (default being -1, i.e. infinity).
+
+	"Pollfd" is a table analogue of struct pollfd, with "event" and "revent"
+	fields being tables with boolean fields corresponding to bits, named without
+	"POLL" suffix.
+
+	Example usage:
+
+	local pollfd_map = {
+	    [fd1]   = {events = {IN = true}},
+	    [fd2]   = {events = {IN = true}},
+	    [fd3]   = {events = {IN = true}}
+	}
+
+	while next(pollfd_map) ~= nil do
+	    local ready, errmsg = posix.poll(pollfd_map)
+
+	    if ready == nil then
+	        error(errmsg)
+	    end
+
+	    for fd, pollfd in pairs(polfd_map) do
+	        if pollfd.revents.IN or pollfd.revents.HUP then
+	            local input, errmsg, errno = posix.read(fd, 8)
+
+	            if input == nil then
+	                error(errmsg)
+	            elseif #input == 0 then
+	                pollfd_map[fd] = nil
+	            else
+	                print(tostring(fd) .. ":", input:byte(1, -1))
+	            end
+	        end
+	    end
+	end
+
+2011-10-10  Alexander V. Nikolaev  <avn@daemon.hole.ru>
+
+	Don't leave status uninitialized
+	SUSv4 states that &status is undefined if WNOHANG option is passed to
+	waitpid and no processes are ready to be collected at the time of call.
+
+2011-10-10  Alexander V. Nikolaev  <avn@daemon.hole.ru>
+
+	Fix bug -- posix.read returns wrong value
+	Pread() is documented to return a single value, and pushed only one
+	return value to stack, but it told Lua that it returns two values.
+
+	Note that this change may existing workarounds and should be
+	explicitly mentioned in release notes.
+
+2011-10-10  Reuben Thomas  <rrt@sc3d.org>
+
+	Expose new fcntl function (oops!) and rewrite tests to use it.
+
+	tests: Call fcntl tests with lunit (fixes issue #13); thanks Mikhail Gusarov.
+
+2011-10-09  Reuben Thomas  <rrt@sc3d.org>
+
+	Rewrite fcntl support.
+	* Remove fcntl table and special handlers for F_GET/SETFL.
+
+	* Add instead a single fcntl functions, with constants for all the
+	  standard commands except for the file-locking commands (this would
+	  require support for struct flock).
+
+2011-09-29  Reuben Thomas  <rrt@sc3d.org>
+
+	rockspec: move distribution & home page to github
+
+	Makefile.am: update to latest woger
+
+	Bump version to 5.1.15.
+
+	tests: rename test_fcntl.lua -> tests-fcntl.lua for consistency
+
+	tests: fix Lua paths and xargs usage to run tests correctly
+
+	Fix license.
+
+	Merge pull request #11 from avnik/feature-pipe-and-dup2
+	Add dup, pipe & more, from avnik. Thanks!
+
+2011-09-27  Mikhail Gusarov  <dottedmag@dottedmag.net>
+
+	Tests for fcntl (untested)
+
+2011-09-25  Alexander V. Nikolaev  <avn@daemon.hole.ru>
+
+	Add setfl/getfl
+	Access to functionality of fcntl(fd, F_GETFL) and fcntl(fd, F_SETFL, arg)
+
+2011-09-23  Alexander V. Nikolaev  <avn@daemon.hole.ru>
+
+	Export WNOHANG to lua and pass options to wait
+
+	Add pipe() and test
+
+	Add dup/dup2 functions
+
+2011-09-23  Reuben Thomas  <rrt@sc3d.org>
+
+	Makefile.am: replace literal name of package with $(PACKAGE) once more.
+
+2011-09-20  Reuben Thomas  <rrt@sc3d.org>
+
+	Makefile.am: fix deps of the rockspec.
+
+	Makefile.am: make release message shorter and more precise.
+
+	Use $PACKAGE instead of luaposix.
+
+	Fix distribution of rockspec source.
+
+	Bump version to 5.1.14.
+
+	Make some symbolic constants case-insensitive in Lua.
+
+2011-09-19  Reuben Thomas  <rrt@sc3d.org>
+
+	configure.ac: use $PACKAGE rather than spelling out the name.
+
+	Makefile.am: actually make rockspec on release
+
+2011-09-17  Reuben Thomas  <rrt@sc3d.org>
+
+	Makefile.am: fixes for building with rockspec.
+	Don’t put the fully expanded rockspec in EXTRA_DIST, as this creates a
+	recursive dependency (on the distribution archive).
+
+	Fix the extraction of the summary description from the rockspec.
+
+	Whitespace fixes to reminder output at end of make release.
+
+2011-09-17  Reuben Thomas  <rrt@sc3d.org>
+
+	rockspec: Find a remaining non-parametrized reference to the package name.
+
+	rockspec: auto-generate (except for part of download URL, argh).
+
+	Bump version to 5.1.13.
+
+	tests-posix.lua: Fix glob test again; we seem to have no .o files, so use .la files.
+
+2011-09-13  Reuben Thomas  <rrt@sc3d.org>
+
+	Don't build or install useless static libs or versioned symlinks.
+
+2011-09-12  Reuben Thomas  <rrt@sc3d.org>
+
+	Update curses documentation for luaposix integration.
+
+2011-09-10  Reuben Thomas  <rrt@sc3d.org>
+
+	configury: don’t try to guess install paths.
+	Remove machinery for guessing non-standardized install paths, and
+	instead expand documentation so it covers the standard Debian/Ubuntu
+	case.
+
+	.gitignore: Add distribution tarball.
+
+	Merge pull request #10 from gvvaughan/pull-request/refactor-lookup_symbol-mappings
+	refactor: lookup_symbol mappings with macro splicing
+
+2011-09-10  Gary V. Vaughan  <gary@vaughan.pe>
+
+	refactor: lookup_symbol mappings with macro splicing
+	Tabulate just the basename for each mapping, and then stringify with an
+	offset, or splice in the prefix before macro expansion as each static
+	table initializer is built by the preprocessor.
+
+2011-09-09  Reuben Thomas  <rrt@sc3d.org>
+
+	Makefile.am: fix make distcheck.
+
+	.gitignore: Add *.html and ChangeLog.
+
+	Distribute tests.
+
+	Distribute strlcpy.c.
+
+	configury: Make building curses optional.
+
+	Merge lcurses into luaposix.
+
+	Merge pull request #9 from gvvaughan/pull-request/tabulate-lookup_symbol-mappings
+	bugfix: tabulate lookup_symbol mappings
+
+2011-09-08  Gary V. Vaughan  <gary@vaughan.pe>
+
+	bugfix: tabulate lookup_symbol mappings
+	By keeping the map relationship explicitly in a macro expanded table,
+	prevent: And in this case fix a bug in the earlier changeset 58f586b
+	where they got out of sync.
+
+2011-09-08  Reuben Thomas  <rrt@sc3d.org>
+
+	Merge pull request #8 from gvvaughan/pull-request/add-libcrypt-if-required
+	configury: add libcrypt if required
+
+	Merge pull request #7 from gvvaughan/pull-request/no-m4-quotes-in-configure-ac
+	configury: no m4 quotes in configure.ac
+
+	Merge pull request #6 from gvvaughan/pull-request/need-dummy-incase-gnulib-has-no-objects
+	configury: need dummy module incase gnulib has no other objects
+
+	Merge pull request #5 from gvvaughan/pull-request/let-bootstrap-conf-manage-gnulib-gitignore
+	configury: let bootstrap.conf manage gnulib .gitignore
+
+	Merge pull request #4 from gvvaughan/pull-request/darwin-has-no-o-rsync-definition
+	portability: darwin has no O_RSYNC definition
+
+2011-09-08  Gary V. Vaughan  <gary@vaughan.pe>
+
+	configury: add libcrypt if required
+	When the crypt() function does not work unaided, try again by adding
+	libcrypt to LIBS and substituting into Makefile.in.
+
+	portability: darwin has no O_RSYNC definition
+
+	configury: need dummy module incase gnulib has no other objects
+	It's only safe to use --avoid=dummy when there will never be a libgnu.a
+	built, i.e there are no other modules with C code, and thus the parent
+	project is never linked with libgnu.
+
+2011-09-08  Gary V. Vaughan  <gary@vaughan.pe>
+
+	configury: let bootstrap.conf manage gnulib .gitignore
+	No need to check these files in when bootstrap.conf has functions to
+	manage them automatically without creating merge conflicts.
+
+	For this changeset to work properly, you'll need to `git clean -f -x -d`
+	and then rerun bootstrap to generate a proper set of .gitignore files.
+
+2011-09-08  Gary V. Vaughan  <gary@vaughan.pe>
+
+	configury: no m4 quotes in configure.ac
+	Also, for the sake of forming good habits, keep the lvalua on the left
+	of a comparison, and avoid the potential for uname returning something
+	that test might interpret as an argument.
+
+2011-09-08  Reuben Thomas  <rrt@sc3d.org>
+
+	lposix.c: Include config.h.
+
+	Rename luaopen function to match new library name.
+
+	Add missing quotes.
+
+	Replace previous machinery for detecting extra cc and ld flags.
+
+	autotoolize the build system.
+
+2011-09-07  Reuben Thomas  <rrt@sc3d.org>
+
+	Add read and write.
+
+2011-09-07  Reuben Thomas  <rrt@sc3d.org>
+
+	Add open and close.
+	Generalise get_rlimit_const to lookup_symbol, and use it for open
+	flags.
+
+	Add a FIXME.
+
+2011-09-07  Reuben Thomas  <rrt@sc3d.org>
+
+	Tidy up whitespace and comments a bit for consistency.
+
+2011-06-21  Reuben Thomas  <rrt@sc3d.org>
+
+	Merge pull request #3 from jdegges/master
+	Add nanosleep.
+
+2011-06-21  Joey Degges  <jdegges@gmail.com>
+
+	Add nanosleep.
+
+2011-06-04  Reuben Thomas  <rrt@sc3d.org>
+
+	Remove unneeded shim for luaL_register; Lua 5.2 still has compatibility code for this.
+
+2011-05-12  Reuben Thomas  <rrt@sc3d.org>
+
+	Remove pushfile, which uses undocumented tricks which don’t work on LuaJIT, and hence dup, fdopen and pipe.
+
+2011-05-11  Reuben Thomas  <rrt@sc3d.org>
+
+	Reformat test.lua a bit more consistently.
+
+	Separate out Lua 5.2 compatibility.
+
+2011-05-11  David Favro  <lua@meta-dynamic.com>
+
+	Ported to 5.2.0-alpha.
+	 * Lightly tested.
+	 * Conditional compilation, so remains backwards-compatible with 5.1.
+
+2011-05-11  David Favro  <lua@meta-dynamic.com>
+
+	Makefile fix/enhancement.
+	 * Fixed incorrect version string in library.
+
+	 * Compiles with -O2 rather than no optimization.
+
+	 * Added 'debug' target.  This may not work for non-GNU makes.
+
+2011-05-11  David Favro  <lua@meta-dynamic.com>
+
+	Fixed bugs in dup().
+	 * Fixed bug: segfault (null pointer dereference) in dup(x,nil).
+
+	 * Fixed bug: non-conforming mode "rw" changed to "w+".  POSIX specifies "w+" or
+	   "r+" for read/write open.  "rw" is incorrect and fails to open for writing
+	   on GNU libc's fdopen().
+
+2011-05-11  David Favro  <lua@meta-dynamic.com>
+
+	Updated test.lua and added new tests.
+	 * Removed deprecated constructs foreach(), getn().
+	 * Added --no-times command-line option since that test is a bear to wait for.
+	 * Added new tests: dup(), fdopen().
+
+2011-04-28  Reuben Thomas  <rrt@sc3d.org>
+
+	Bump version to 5.1.11.
+
+	Fix a typo which caused a buffer overrun.
+
+2011-04-27  Reuben Thomas  <rrt@sc3d.org>
+
+	Bump version to 5.1.10.
+
+	Fix typo in Pmkstemp.
+
+	Fix possibly dangerous typos in mode_munch.
+
+	Update maintainer and bump copyright year.
+
+	Fix typo in error mesage.
+
+	Add mkstemp.
+
+2011-04-03  Gary V. Vaughan  <gary@gnu.org>
+
+	lposix.c: Widen the _XOPEN_REALTIME guards around CLOCK_MONOTONIC et.al.
+	Several constants that are only defined with _XOPEN_REALTIME were
+	referenced even when _XOPEN_REALTIME is -1.
+
+	Makefile: Darwin needs -D_POSIX_C_SOURCE in order to define SIGPOLL
+
+2011-03-30  Reuben Thomas  <rrt@sc3d.org>
+
+	Make sure _XOPEN_REALTIME is defined before testing its value.
+
+	Remove non-POSIX rlimit resources, and as missing RLIMIT_AS.
+
+	Test _XOPEN_REALTIME correctly (!= -1, not merely defined).
+
+2011-03-25  Reuben Thomas  <rrt@sc3d.org>
+
+	Update maintainer and git repo location.
+
+	Bump version to 5.1.9.
+
+	Fix some Darwin problems.
+
+	Guard realtime functions with _XOPEN_REALTIME, and remove a bogus debug line.
+
+	Add getgroups.
+
+	Add set_errno.
+
+	Add _exit.
+
+	Add signals support.
+
+	Use lua_setfield where possible.
+
+2011-03-22  Natanael Copa  <ncopa@alpinelinux.org>
+
+	release 5.1.8
+
+2010-11-13  Reuben Thomas  <rrt@sc3d.org>
+
+	Add getopt_long.
+
+2010-11-12  Reuben Thomas  <rrt@sc3d.org>
+
+	Update maintainer and documentation information.
+
+2010-10-26  Natanael Copa  <ncopa@alpinelinux.org>
+
+	isgraph/isprint: use function pointer to save a few bytes
+
+2010-10-26  Natanael Copa  <ncopa@alpinelinux.org>
+
+	test: use execp instead of exec when testing fork (cherry picked from commit 42ec4caff2d4895577298f6f26156b80beacdaa6)
+	Conflicts:
+
+		test.lua
+
+2010-10-26  Reuben Thomas  <rrt@sc3d.org>
+
+	Add isprint and isgraph.
+
+	Add errno and stdio.h constants.
+
+	Add abort and raise.
+
+	Add some comments.
+
+	Remove excess white space to aid readability, and fix some indenting.
+
+	Remove Lua 5.0 compatibility.
+
+	Add copyright notices for new contributors and tidy up old ones.
+
+	Fold modemuncher.c into lposix.c, removing modesel array (same as lposix.c's M array).
+
+	Use pushmode in Pumask, and hence remove modechopper from modemuncher.c.
+
+	Put old ChangeLog in correct date order; remove non-ChangeLog format EOF marker.
+
+2010-10-26  Reuben Thomas  <rrt@sc3d.org>
+
+	Tidy up modemuncher.c.
+	Remove never-compiled debug code. This code is fairly well tested now.
+
+	Fix whitespace and indentation.
+
+	Remove camelCase name of modeLookup struct and typedef, which is only
+	used once, and use an anonymous struct instead.
+
+	Rename the only remaining camelCase identifier in the entire file to a
+	non-camelCase one.
+
+2010-10-26  Reuben Thomas  <rrt@sc3d.org>
+
+	Remove unnecessary phony targets.
+
+	Fix building with glibc (support for crypt).
+
+	Remove non-POSIX gecos field of struct passwd.
+
+	Improve a comment.
+
+	Fix inconsistent indentation.
+
+	Remove support for obsolete timezone argument of gettimeofday.
+
+	Remove declaration of crypt; it's a build system problem.
+
+	Add .gitignore file.
+
+	Compile syslog functions on any system with new-enough POSIX.
+
+	Clean up whitespace.
+
+	Remove bogus whitespace.
+
+2010-10-26  Natanael Copa  <ncopa@alpinelinux.org>
+
+	Revert "test: use execp instead of exec when testing fork"
+	This reverts commit 42ec4caff2d4895577298f6f26156b80beacdaa6.
+
+	reverting so i can apply patchset
+
+2010-10-23  Natanael Copa  <ncopa@alpinelinux.org>
+
+	test: use execp instead of exec when testing fork
+
+2010-09-15  Natanael Copa  <natanael.copa@gmail.com>
+
+	use integers for gettimeofday
+	so it works for platforms that uses float for lua numbers.
+
+	Add note to ChangeLog that we moved to git
+
+	rename ChangeLog to ChangeLog.old
+	We will only use git to provide the history from now on.
+
+	fix bug in setrlimit
+
+2010-08-12  Natanael Copa  <ncopa@alpinelinux.org>
+
+	release 5.1.7
+
+2010-08-12  Tim Niemueller  <niemueller@kbsg.rwth-aachen.de>
+
+	Make clock_* arguments optional
+	With the last change the clock id argument was no longer optional as
+	intended.
+
+2010-08-11  Natanael Copa  <ncopa@alpinelinux.org>
+
+	set LIBVERSION=6
+	should have been done before the 5.1.5 release :-(
+
+2010-08-11  Tim Niemueller  <niemueller@kbsg.rwth-aachen.de>
+
+	Make clock_get* functions take string argument
+	For consistency with existing functions.
+
+2010-08-10  Natanael Copa  <ncopa@alpinelinux.org>
+
+	added function definitions for 'make show-funcs'
+
+2010-08-10  Tim Niemueller  <niemueller@kbsg.rwth-aachen.de>
+
+	Use realtime clock by default in clock_get*
+
+2010-08-09  Tim Niemueller  <niemueller@kbsg.rwth-aachen.de>
+
+	Added strftime
+
+	Add localtime, gmtime and time
+
+	Compilation fixes
+	+ Fix compilation warnings (uninitialized values, signed vs. unsigned)
+	+ if VERSION macro is not passed on command line, set to "unknown", allows
+	  to integrate source file into other buildsystems more easily
+
+	Add gettimeofday, clock_getres, clock_gettime
+
+2010-03-30  Natanael Copa  <ncopa@alpinelinux.org>
+
+	release 5.1.5
+
+	use git describe to generate version string
+	and use cgit do distribute tarball so we dont need the tar stuff in makefile
+
+2009-08-11  Natanael Copa  <natanael.copa@gmail.com>
+
+	luafication of getrlimit/setrlimit
+	Use strings as parameters to select resource rather than integer
+	constants.
+
+2009-08-11  Enrico Tassi  <gares@fettunta.org>
+
+	set/getrlimit, set/getuid and setlogmask bindings
+	Hi,
+
+	  while packagin the jabber server "prosody" for Debian, I noticed that
+	it was using a custom binding of some posix function not available in
+	luaposix. After asking prosody author, I wrote a patch for luaposix
+	that adds the missing functionalities prosody is actually shipping in a
+	custom .so.
+
+	The attached patch binds the following functions:
+	set/getrlimit, set/getuid and setlogmask.
+
+	I'd like it to be integrated in a future release of luaposix, if
+	posible.
+
+	Cheers
+	--
+	Enrico Tassi
+
+2008-07-18  Natanael Copa  <natanael.copa@gmail.com>
+
+	Set LIBVERSION=4 for release 5.1.4.
+
+2008-07-18  Natanael Copa  <natanael.copa@gmail.com>
+
+	support for crypt()
+	from openwrt.
+
+	https://dev.openwrt.org/cgi-bin/trac.fcgi/browser/packages/lang/luaposix/patches/200-crypt.patch?rev=11585
+
+2008-07-18  Natanael Copa  <natanael.copa@gmail.com>
+
+	ignore POLLHUP and POLLNVAL since they are only for output
+	http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=491257
+
+2008-06-03  Natanael Copa  <natanael.copa@gmail.com>
+
+	updated readme and changelog
+
+	use luaL_register
+
+	From: 	Felix Fietkau <nbd@openwrt.org>
+	here's a small patch that fixes luaposix compile on Darwin / Mac OS X
+
+2008-01-29  Natanael Copa  <natanael.copa@gmail.com>
+
+	added fdopen()
+
+	updated changelog
+
+	version 5.1.2
+
+	added syslog funcs dup() takes and returns lua files. added fileno() exec renamed to execp and new exec func uses execv(3) rather than execvp(3)
+
+2008-01-28  Natanael Copa  <natanael.copa@gmail.com>
+
+	dont run test by default
+
+	sorted #includes, removed dead code, whitspacefixes
+
+2008-01-25  Natanael Copa  <natanael.copa@gmail.com>
+
+	cleaned up Makefile
+
+	avoid warning on 64 bit hosts
+
+2008-01-24  Natanael Copa  <natanael.copa@gmail.com>
+
+	added poll() from http://lua-users.org/lists/lua-l/2007-11/msg00346.html
+
+	included stuff from http://lua-users.org/lists/lua-l/2006-10/msg00448.html
+
+	Initial revision

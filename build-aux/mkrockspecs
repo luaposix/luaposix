@@ -1,0 +1,274 @@
+#!/bin/sh
+A=--[[ exec lua "$0" "$@" # -* mode: lua; -*s ]]A
+--
+-- Slingshot rockspec generator.
+--
+-- This file is distributed with Slingshot, and licensed under the
+-- terms of the MIT license reproduced below.
+
+--[[
+
+# ==================================================================== #
+# Copyright (C) 2013 Gary V. Vaughan                                   #
+#                                                                      #
+# Permission is hereby granted, free of charge, to any person          #
+# obtaining a copy of this software and associated documentation       #
+# files (the "Software"), to deal in the Software without restriction, #
+# including without limitation the rights to use, copy, modify, merge, #
+# publish, distribute, sublicense, and/or sell copies of the Software, #
+# and to permit persons to whom the Software is furnished to do so,    #
+# subject to the following conditions:                                 #
+#                                                                      #
+# The above copyright notice and this permission notice shall be       #
+# included in  all copies or substantial portions of the Software.     #
+#                                                                      #
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,      #
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF   #
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGE-   #
+# MENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE   #
+# FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF   #
+# CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION   #
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.      #
+# ==================================================================== #
+
+]]
+
+
+--[[ ============== ]]--
+--[[ Parse options. ]]--
+--[[ ============== ]]--
+
+local usage = 'Usage: mkrockspecs [OPTIONS] PACKAGE VERSION [REVISION]\n'
+
+local prog = {
+  _VERSION = "1",
+
+  name = arg[0] and arg[0]:gsub (".*/", "") or "mkrockspecs",
+
+  ["--help"] = function ()
+    print (usage .. [[
+
+Convert a YAML configuration file into a full rockspec.
+
+If there is a 'rockspec.conf' in the current directory, load it as the
+base configuration, otherwise wait for input on stdin.
+
+PACKAGE and VERSION are the package name and version number as defined
+by 'configure.ac' or similar. REVISION is only required for a revised
+rockspec if the default "-1" revision was released with errors.
+
+      --help      print this help, then exit
+      --version   print version number, then exit
+
+Report bugs to http://github.com/gvvaughan/slingshot/issues.]])
+    os.exit (0)
+  end,
+
+  ["--version"] = function ()
+    print [[mkrockspecs (slingshot) 2
+Written by Gary V. Vaughan <gary@gnu.org>, 2013
+
+Copyright (C) 2013, Gary V. Vaughan
+Slingshot comes with ABSOLUTELY NO WARRANTY.
+See source files for individual license conditions.]]
+    os.exit (0)
+  end,
+}
+
+-- Print an argument processing error message, and return non-zero exit
+-- status.
+local function warn (msg)
+  io.stderr:write (usage)
+  io.stderr:write (prog.name .. ": error: " .. msg .. ".\n")
+  io.stderr:write (prog.name .. ": Try '" .. prog.name .. " --help' for help,\n")
+  return 2
+end
+
+local nonopts
+local status  = 0
+for _, opt in ipairs (arg) do
+
+  -- Collect non-option arguments to save back into _G.arg later.
+  if type (nonopts) == "table" then
+    table.insert (nonopts, opt)
+
+  -- Run prog.option handler.
+  elseif opt:sub (1,1) == "-" and type (prog[opt]) == "function" then
+    prog[opt] ()
+
+  -- End of option arguments.
+  elseif opt == "--" then
+    nonopts = {}
+
+  -- Diagnose unknow command line options.
+  elseif opt:sub (1, 1) == "-" then
+    status = warn ("unrecognized option '" .. opt .. "'")
+
+  -- First non-option argument marks the end of options.
+  else
+    nonopts = { opt }
+  end
+end
+
+-- Don't exit until all warnings issued.
+if status ~= 0 then os.exit (status) end
+
+-- put non-option args back into global arg table.
+nonopts = nonopts or {}
+nonopts[0] = arg[0]
+_G.arg = nonopts
+
+if select ("#", ...) < 2 then
+  io.stderr:write "Usage: mkrockspecs PACKAGE VERSION [REVISION]\n"
+  os.exit ()
+end
+
+local package  = arg[1]
+local version  = arg[2]
+local revision = arg[3] or "1"
+
+
+--[[ =================== ]]--
+--[[ Load configuration. ]]--
+--[[ =================== ]]--
+
+local yaml = require "lyaml"
+local conf = "rockspec.conf"
+
+-- Slurp io.input ().
+local function slurp ()
+  h = io.input ()
+  if h then
+    local s = h:read "*a"
+    h:close ()
+    return s
+  end
+end
+
+local h = io.open (conf)
+if h then
+  io.input (conf)
+  h:close ()
+else
+  io.input (io.stdin)
+end
+
+local spec = yaml.load (slurp ())
+local default = { source = {} }
+
+-- url needn't be given if it is identical to homepage.
+local url
+if spec.source ~= nil then
+  url = spec.source.url
+elseif spec.description ~= nil then
+  url = spec.description.homepage
+end
+url = url:gsub ("^[a-z]*://", ""):gsub ("%.git$", "")
+
+-- Interpolate default values.
+default.package = package
+default.version = version .. "-" .. revision
+
+configure_flags = ""
+if type (spec.external_dependencies) == "table" then
+  CPPFLAGS, LDFLAGS = "", ""
+  for name, vars in pairs (spec.external_dependencies) do
+    if vars.library then
+      CPPFLAGS = CPPFLAGS .. " -I$(" .. name .. "_INCDIR)"
+      LDFLAGS  = LDFLAGS  .. " -L$(" .. name .. "_LIBDIR)"
+    end
+  end
+
+  if string.len (CPPFLAGS) > 0 then
+    configure_flags = configure_flags ..
+        "CPPFLAGS='" .. CPPFLAGS:gsub ("^%s", "") .. "'" ..
+        " LDFLAGS='" ..  LDFLAGS:gsub ("^%s", "") .. "'" ..
+	" "
+  end
+end
+
+default.build = {
+  type = "command",
+  build_command = "./configure " ..
+    "LUA='$(LUA)' LUA_INCLUDE='-I$(LUA_INCDIR)' " .. configure_flags ..
+    "--prefix='$(PREFIX)' --libdir='$(LIBDIR)' --datadir='$(LUADIR)' " ..
+    "&& make clean all",
+  install_command = "make install luadir='$(LUADIR)'",
+  copy_directories = {},
+}
+
+-- Additional spec-type dependenent values.
+spec.source = spec.source or {}
+if version ~= "scm" and version ~= "git" then
+  spec.source.url = "http://" .. url .. "/archive/release-v" .. version .. ".zip"
+  spec.source.dir = package .. "-release-v" .. version
+else
+  spec.source.url = "git://" .. url .. ".git"
+  default.build.build_command = "./bootstrap && " .. default.build.build_command
+end
+
+-- Recursive merge, settings from spec take precedence.  Elements of src
+-- overwrite equivalent keys in dest.
+local function merge (dest, src)
+  for k, v in pairs (src) do
+    if type (v) == "table" then
+      dest[k] = merge (dest[k] or {}, src[k])
+    else
+      dest[k] = src[k]
+    end
+  end
+  return dest
+end
+
+spec = merge (default, spec)
+
+
+--[[ ======= ]]--
+--[[ Output. ]]--
+--[[ ======= ]]--
+
+-- Recursively format X, with pretty printing.
+local function format (x, indent)
+  indent = indent or ""
+  if type (x) == "table" then
+    if next (x) == nil then
+      return "{}"
+    else
+      local s = "{\n"
+      for i, v in pairs (x) do
+        if type (i) ~= "number" then
+          s = s..indent..i.." = "..format (v, indent.."  ")..",\n"
+        end
+      end
+      for i, v in ipairs (x) do
+        s = s..indent..format (v, indent.."  ")..",\n"
+      end
+      return s..indent:sub (1, -3).."}"
+    end
+  elseif type (x) == "string" then
+    return string.format ("%q", x)
+  else
+    return tostring (x)
+  end
+end
+
+-- Use the standard order for known keys.
+for _, k in ipairs {
+  "package",
+  "version",
+  "description",
+  "source",
+  "dependencies",
+  "external_dependencies",
+  "build",
+} do
+  print (k .. " = " .. format (spec[k], "  "))
+  spec[k] = nil
+end
+
+-- Output anything left in the table at the end.
+for i, v in pairs (spec) do
+  print (i .. " = " .. format (v, "  "))
+end
+
+os.exit (0)

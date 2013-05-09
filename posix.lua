@@ -4,6 +4,27 @@ local posix = M
 local bit
 if _VERSION == "Lua 5.1" then bit = require "bit" else bit = require "bit32" end
 
+-- Code extracted from lua-stdlib with minimal modifications
+local list = {
+  sub = function (l, from, to)
+    local r = {}
+    local len = #l
+    from = from or 1
+    to = to or len
+    if from < 0 then
+      from = from + len + 1
+    end
+    if to < 0 then
+      to = to + len + 1
+    end
+    for i = from, to do
+      table.insert (r, l[i])
+    end
+    return r
+  end
+}
+-- end of stdlib code
+
 --- Create a file.
 -- @param file name of file to create
 -- @param mode permissions with which to create file
@@ -53,7 +74,7 @@ M.system = M.spawn -- OBSOLETE alias
 local function pipeline (t, pipe_fn)
   local pipe_fn = pipe_fn or posix.pipe
   assert (type (t) == "table",
-          "bad argument #1 to 'pipeline' (table expected, got " .. type (t1) .. ")")
+          "bad argument #1 to 'pipeline' (table expected, got " .. type (t) .. ")")
 
   local pid, read_fd, write_fd, save_stdout
   if #t > 1 then
@@ -89,7 +110,7 @@ local function pipeline (t, pipe_fn)
     die ("error in fork or wait")
   end
   posix.close (posix.STDOUT_FILENO)
-  
+
   if #t > 1 then
     posix.close (write_fd)
     posix.wait (pid)

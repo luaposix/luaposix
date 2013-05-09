@@ -26,22 +26,22 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                *
  ************************************************************************/
 
-#include "config.h"
+#include &lt;config.h&gt;
 
 #include &lt;stdlib.h&gt;
 #include &lt;string.h&gt;
 #include &lt;lua.h&gt;
 #include &lt;lauxlib.h&gt;
 #include "lua52compat.h"
-#if defined(HAVE_NCURSESW_CURSES_H)
+#if HAVE_NCURSESW_CURSES_H
 #  include &lt;ncursesw/curses.h&gt;
-#elif defined(HAVE_NCURSESW_H)
+#elif HAVE_NCURSESW_H
 #  include &lt;ncursesw.h&gt;
-#elif defined(HAVE_NCURSES_CURSES_H)
+#elif HAVE_NCURSES_CURSES_H
 #  include &lt;ncurses/curses.h&gt;
-#elif defined(HAVE_NCURSES_H)
+#elif HAVE_NCURSES_H
 #  include &lt;ncurses.h&gt;
-#elif defined(HAVE_CURSES_H)
+#elif HAVE_CURSES_H
 #  include &lt;curses.h&gt;
 #else
 #  error "SysV or X/Open-compatible Curses header file required"

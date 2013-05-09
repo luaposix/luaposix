@@ -1,0 +1,60 @@
+# Lua is not officially supported, but an erlang environment will do.
+language: erlang
+
+env:
+  global:
+    - PACKAGE=@PACKAGE@
+    - ROCKSPEC=$PACKAGE-git-1.rockspec
+    - LUAROCKS_CONFIG=build-aux/luarocks-config.lua
+    - LUAROCKS_BASE=luarocks-2.0.13
+    - LUAROCKS="$LUA $HOME/bin/luarocks"
+    - LUADOC=luarocks/bin/luadoc
+    - SPECL=bin/specl
+  matrix:
+    - LUA=lua5.1             LUA_INCDIR=/usr/include/lua5.1
+    - LUA=lua5.2             LUA_INCDIR=/usr/include/lua5.2
+    - LUA=luajit-2.0.0-beta9 LUA_INCDIR=/usr/include/luajit-2.0
+
+# Tool setup.
+install:
+  - sudo apt-get install help2man
+  - sudo apt-get install luajit
+  - sudo apt-get install libluajit-5.1-dev
+  - sudo apt-get install lua5.1
+  - sudo apt-get install liblua5.1-dev
+  - sudo apt-get install lua5.2
+  - sudo apt-get install liblua5.2-dev
+  # Install a recent luarocks release locally.
+  - wget http://luarocks.org/releases/$LUAROCKS_BASE.tar.gz
+  - tar zxvpf $LUAROCKS_BASE.tar.gz
+  - cd $LUAROCKS_BASE
+  - ./configure
+    --prefix=$HOME --lua-version=5.1 --lua-suffix=5.1
+    --with-lua-include="/usr/include/lua5.1"
+  - make all install
+  - cd ..
+  # Luadoc has to be installed separately while it is Lua 5.1 only.
+  @LUADOC_FALSE@ sudo apt-get install luarocks
+  @LUADOC_FALSE@ sudo luarocks install luadoc
+  @LUADOC_FALSE@ mkdir -p luarocks/bin
+  @LUADOC_FALSE@ sed 's|^exec "[^"]*"|exec lua5.1|' `which luadoc` > $LUADOC
+  @LUADOC_FALSE@ chmod a+rx $LUADOC
+
+# Configure and build.
+script:
+  - ./bootstrap
+  - ./configure LUA="$LUA"
+  - make $LUAROCKS_CONFIG
+    LUA="$LUA" LUA_INCDIR="$LUA_INCDIR" V=1
+    || cat $LUAROCKS_CONFIG config.log
+  # Set Lua and Shell paths up for local luarocks tree.
+  - eval `$LUAROCKS path`
+  - export PATH=`pwd`/luarocks/bin:$PATH
+  @EXTRA_ROCKS@
+  - make rockspecs LUAROCKS="$LUAROCKS" V=1
+    || { $LUAROCKS path; cat $ROCKSPEC; }
+  # LuaRocks make will fail if dependencies are missing.
+  - $LUAROCKS make $ROCKSPEC
+  # Use bin/specl if we built it, or else the specl rock we just installed.
+  - test -f "$SPECL" || SPECL=luarocks/bin/specl;
+    make check SPECL="$SPECL" V=1
