@@ -42,7 +42,7 @@ dependencies are listed in the dependencies entry of the file
 
   cd luaposix
   ./bootstrap
-  ./configure --perfix=INSTALLATION-ROOT-DIRECTORY
+  ./configure --prefix=INSTALLATION-ROOT-DIRECTORY
   make all check install
 
 See [INSTALL][] for instructions for `configure`, and `configure --help`
