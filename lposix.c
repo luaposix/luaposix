@@ -3981,7 +3981,6 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( TCION		);
 
 	/* cflag */
-	MENTRY( CBAUD		);
 	MENTRY( B0		);
 	MENTRY( B50		);
 	MENTRY( B75		);
@@ -3999,8 +3998,6 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( B19200		);
 	MENTRY( B38400		);
 	MENTRY( B115200		);
-	MENTRY( EXTA		);
-	MENTRY( EXTB		);
 	MENTRY( CSIZE		);
 	MENTRY( CS5		);
 	MENTRY( CS6		);
@@ -4024,11 +4021,6 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( ECHONL		);
 	MENTRY( NOFLSH		);
 	MENTRY( IEXTEN		);
-	MENTRY( ECHOCTL		);
-	MENTRY( ECHOPRT		);
-	MENTRY( ECHOKE		);
-	MENTRY( FLUSHO		);
-	MENTRY( PENDIN		);
 	MENTRY( TOSTOP		);
 
 	/* iflag */
@@ -4088,6 +4080,61 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( VEOL2		);
 	MENTRY( VMIN		);
 	MENTRY( VTIME		);
+
+	/* XSI extensions - don't use these if you care about portability
+	 * to strict POSIX conforming machines, such as Mac OS X.
+	 */
+#ifdef CBAUD
+	MENTRY( CBAUD		);
+#endif
+#ifdef EXTA
+	MENTRY( EXTA		);
+#endif
+#ifdef EXTB
+	MENTRY( EXTB		);
+#endif
+#ifdef DEFECHO
+	MENTRY( DEFECHO		);
+#endif
+#ifdef ECHOCTL
+	MENTRY( ECHOCTL		);
+#endif
+#ifdef ECHOPRT
+	MENTRY( ECHOPRT		);
+#endif
+#ifdef ECHOKE
+	MENTRY( ECHOKE		);
+#endif
+#ifdef FLUSHO
+	MENTRY( FLUSHO		);
+#endif
+#ifdef PENDIN
+	MENTRY( PENDIN		);
+#endif
+#ifdef LOBLK
+	MENTRY( LOBLK		);
+#endif
+#ifdef SWTCH
+	MENTRY( SWTCH		);
+#endif
+#ifdef VDISCARD
+	MENTRY( VDISCARD	);
+#endif
+#ifdef VDSUSP
+	MENTRY( VDSUSP		);
+#endif
+#ifdef VLNEXT
+	MENTRY( VLNEXT		);
+#endif
+#ifdef VREPRINT
+	MENTRY( VREPRINT	);
+#endif
+#ifdef VSTATUS
+	MENTRY( VSTATUS		);
+#endif
+#ifdef VWERASE
+	MENTRY( VWERASE		);
+#endif
 #undef MENTRY
 
 #if _POSIX_VERSION >= 200112L
