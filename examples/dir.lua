@@ -1,4 +1,4 @@
-require "posix"
+local posix = require "posix"
 
 files, errstr, errno = posix.dir("/var/log")
 if files then
