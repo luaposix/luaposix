@@ -4014,7 +4014,6 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	/* lflag */
 	MENTRY( ISIG		);
 	MENTRY( ICANON		);
-	MENTRY( XCASE		);
 	MENTRY( ECHO		);
 	MENTRY( ECHOE		);
 	MENTRY( ECHOK		);
@@ -4036,12 +4035,10 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( INLCR		);
 	MENTRY( IGNCR		);
 	MENTRY( ICRNL		);
-	MENTRY( IUCLC		);
 	MENTRY( IMAXBEL		);
 
 	/* oflag */
 	MENTRY( OPOST		);
-	MENTRY( OLCUC		);
 	MENTRY( ONLCR		);
 	MENTRY( OCRNL		);
 	MENTRY( ONLRET		);
