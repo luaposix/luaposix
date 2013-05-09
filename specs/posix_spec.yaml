@@ -327,11 +327,16 @@ specify lposix:
         expect (type (st)).should_be "table"
         expect (st.bsize).should_be (statvfs ("/", "bsize"))
         for _, field in pairs {"bsize", "frsize", "blocks", "bfree", "bavail",
-                        "files", "ffree", "favail", "fsid", "flag", "namemax"}
+                               "files", "ffree", "favail", "flag", "namemax"}
         do
           expect (type (st[field])).should_be "number"
           expect (st[field] >= 0).should_be (true)
         end
+    - it returns a non-negative value from fsid: |
+        -- Merge this back into the previous example when #102 is fixed
+        st = statvfs "/"
+        pending "issue #102"
+        expect (st[field] >= 0).should_be (true)
 
   - describe umask:
     - before:
@@ -556,13 +561,15 @@ specify lposix:
     - it fetches the maximum number of links to the given file:
         expect (type (pathconf ().LINK_MAX)).should_be "number"
         expect (pathconf (".", "LINK_MAX") >= 0).should_be (true)
-    - it fetches the maximum formatted line input length for a tty:
-        # not passing a tty, so should return -1
+    - it fetches the maximum formatted line input length for a tty: |
+        -- not passing a tty, so should return -1
         expect (type (pathconf ().MAX_CANON)).should_be "number"
+        pending "issue #102"
         expect (pathconf (".", "MAX_CANON")).should_be (-1)
-    - it fetches the maximum raw line input length for a tty:
-        # not passing a tty, so should return -1
+    - it fetches the maximum raw line input length for a tty: |
+        -- not passing a tty, so should return -1
         expect (type (pathconf ().MAX_INPUT)).should_be "number"
+        pending "issue #102"
         expect (pathconf (".", "MAX_INPUT")).should_be (-1)
     - it fetches the maximum filename length in this directory:
         expect (type (pathconf ().NAME_MAX)).should_be "number"
@@ -576,9 +583,10 @@ specify lposix:
     - it fetches the size of the pipe buffer:
         expect (type (pathconf ().PIPE_BUF)).should_be "number"
         expect (pathconf (".", "PIPE_BUF") >= 0).should_be (true)
-    - it fetches whether special character processing can be disabled:
-        # not passing a tty, so should return -1
+    - it fetches whether special character processing can be disabled: |
+        -- not passing a tty, so should return -1
         expect (type (pathconf ().VDISABLE)).should_be "number"
+        pending "issue #102"
         expect (pathconf (".", "VDISABLE")).should_be (-1)
     - it fetches a subtable of named fields:
         expect ({pathconf (".", "VDISABLE", "NAME_MAX")}).
