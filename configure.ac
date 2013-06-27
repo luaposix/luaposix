@@ -131,7 +131,7 @@ AM_CONDITIONAL([HAVE_LDOC], [test false != "$LDOC"])
 
 dnl Generate output files
 SPECL_MIN=8
-SS_CONFIG_TRAVIS([ldoc specl])
+SS_CONFIG_TRAVIS([ldoc specl luafilesystem])
 AC_CONFIG_HEADER(config.h)
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
