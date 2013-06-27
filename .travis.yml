@@ -50,7 +50,7 @@ script:
   # Set Lua and Shell paths up for local luarocks tree.
   - eval `$LUAROCKS path`
   - export PATH=`pwd`/luarocks/bin:$PATH
-  - $LUAROCKS install lyaml; $LUAROCKS install ldoc; $LUAROCKS install specl;
+  - $LUAROCKS install lyaml; $LUAROCKS install ldoc; $LUAROCKS install specl; $LUAROCKS install luafilesystem;
   - make rockspecs LUAROCKS="$LUAROCKS" V=1
     || { $LUAROCKS path; cat $ROCKSPEC; }
   # LuaRocks make will fail if dependencies are missing.
