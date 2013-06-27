@@ -1,6 +1,6 @@
 Stdlib NEWS - User visible changes
 
-* Noteworthy changes in release ?.? (????-??-??) [?]
+* Noteworthy changes in release 29 (2013-06-28) [stable]
 
 ** This release adds wresize to curses, and sync, fsync, fdatasync, nice,
    lseek as well as socket programming functions.  Several small improvements
