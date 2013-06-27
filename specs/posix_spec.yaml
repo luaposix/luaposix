@@ -8,7 +8,7 @@
 # first will often clear up later failures automatically!
 
 before:
-  require "specl.shell"
+  hell = require "specl.shell"
 
 specify lposix:
 - before: |
@@ -27,7 +27,7 @@ specify lposix:
 
     -- Collect stdout from a shell command, and strip surrounding whitespace.
     function cmd_output (cmd)
-      return spawn (cmd).output:gsub ("^%s+", ""):gsub ("%s+$", "")
+      return hell.spawn (cmd).output:gsub ("^%s+", ""):gsub ("%s+$", "")
     end
 
     -- Recursively remove a temporary directory.
@@ -111,7 +111,7 @@ specify lposix:
         volatile = { _ = true, LUA_PATH = true, SHLVL = true, }
         for k,v in pairs (getenv ()) do
            if not volatile[k] then
-             expect (cmd_output ('echo "' .. k .. '=$' .. k .. '"')).should_be (k.."="..v)
+             expect (hell.spawn ('echo "' .. k .. '=$' .. k .. '"')).should_contain_output (k.."="..v)
            end
         end
     - it fetches a named process environment variable:
