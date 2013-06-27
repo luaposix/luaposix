@@ -7,7 +7,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AS_BOX([Configuring AC_PACKAGE_TARNAME AC_PACKAGE_VERSION])
 echo
 
-AM_INIT_AUTOMAKE([-Wall foreign])
+AM_INIT_AUTOMAKE([-Wall])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 dnl Check for programs
@@ -130,7 +130,7 @@ AC_PATH_PROG([LDOC], [ldoc], [false])
 AM_CONDITIONAL([HAVE_LDOC], [test false != "$LDOC"])
 
 dnl Generate output files
-SPECL_MIN=6
+SPECL_MIN=8
 SS_CONFIG_TRAVIS([ldoc specl])
 AC_CONFIG_HEADER(config.h)
 AC_CONFIG_FILES([Makefile])

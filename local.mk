@@ -50,8 +50,8 @@ curses_c_la_LDFLAGS = -module -avoid-version $(CURSES_LIB) -rpath '$(libdir)'
 dist_doc_DATA +=			\
 	curses.html			\
 	lcurses_c.html			\
-	docs/index.html			\
-	docs/ldoc.css			\
+	doc/index.html			\
+	doc/ldoc.css			\
 	$(NOTHING_ELSE)
 
 examplesdir = $(docdir)/examples
@@ -65,6 +65,17 @@ doc: $(dist_doc_DATA)
 ## ------------- ##
 
 EXTRA_DIST +=				\
+	config.ld			\
+	examples/dir.lua		\
+	examples/fork.lua		\
+	examples/fork2.lua		\
+	examples/getopt.lua		\
+	examples/glob.lua		\
+	examples/limit.lua		\
+	examples/poll.lua		\
+	examples/signal.lua		\
+	examples/socket.lua		\
+	examples/termios.lua		\
 	make_lcurses_doc.pl		\
 	strlcpy.c			\
 	lua52compat.h
@@ -74,11 +85,11 @@ $(dist_doc_DATA): lcurses.c make_lcurses_doc.pl
 if HAVE_LDOC
 	$(LDOC) .
 else
-	$(MKDIR_P) docs
-	touch docs/index.html docs/ldoc.css
+	$(MKDIR_P) doc
+	touch doc/index.html doc/ldoc.css
 endif
 
 MAINTAINERCLEANFILES +=			\
-	docs/index.html			\
-	docs/ldoc.css			\
+	doc/index.html			\
+	doc/ldoc.css			\
 	$(NOTHING_ELSE)

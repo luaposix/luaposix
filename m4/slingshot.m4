@@ -20,9 +20,12 @@ dnl along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # --------------------------
 # Generate .travis.yml, ensuring LUAROCKS are installed.
 AC_DEFUN([SS_CONFIG_TRAVIS], [
-  # Luadoc only works with Lua 5.1, so must be installed with care.
-  LUADOC_FALSE=#
-  AC_SUBST(LUADOC_FALSE)
+  # Luadoc only works with Lua 5.1, and LDoc works better with Lua 5.1 on
+  # Travis, so must they be installed with care...
+  GENDOC_FALSE=#
+  AC_SUBST(GENDOC_FALSE)
+  GENDOC=
+  AC_SUBST(GENDOC)
 
   SPECL_MIN=${SPECL_MIN-"5"}
   AC_SUBST([SPECL_MIN])
@@ -33,8 +36,9 @@ AC_DEFUN([SS_CONFIG_TRAVIS], [
   for _ss_rock in lyaml $1; do
     # Enable associated .travis sections for special rocks.
     case $_ss_rock in
-      luadoc)
-        LUADOC_FALSE=-
+      luadoc|ldoc)
+        GENDOC=$_ss_rock
+        GENDOC_FALSE=-
         continue
         ;;
     esac

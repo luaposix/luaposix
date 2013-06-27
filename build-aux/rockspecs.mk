@@ -77,13 +77,15 @@ $(luarocks_config): Makefile.am
 $(package_rockspec): $(ROCKSPECS_DEPS)
 	$(AM_V_at)rm -f '$@' 2>/dev/null || :
 	$(AM_V_GEN)test -f '$@' ||				\
-	  $(MKROCKSPECS) $(PACKAGE) $(VERSION) $(rockspec_revision) > '$@'
+	  $(MKROCKSPECS) $(mkrockspecs_args)			\
+	    $(PACKAGE) $(VERSION) $(rockspec_revision) > '$@'
 	$(AM_V_at)$(LUAROCKS) lint '$@'
 
 $(scm_rockspec): $(ROCKSPECS_DEPS)
 	$(AM_V_at)rm '$@' 2>/dev/null || :
 	$(AM_V_GEN)test -f '$@' ||				\
-	  $(MKROCKSPECS) $(PACKAGE) git 1 > '$@'
+	  $(MKROCKSPECS) $(mkrockspecs_args)			\
+	    $(PACKAGE) git 1 > '$@'
 	$(AM_V_at)$(LUAROCKS) lint '$@'
 
 .PHONY: rockspecs
@@ -101,6 +103,8 @@ EXTRA_DIST +=						\
 	$(package_rockspec)				\
 	$(rockspec_conf)				\
 	$(NOTHING_ELSE)
+
+save_release_files += $(scm_rockspec)
 
 
 ## ------------ ##

@@ -43,7 +43,7 @@ endif
 # (i.e., with no $(srcdir) prefix), this definition is careful to
 # remove any $(srcdir) prefix, and to restore what it removes.
 _sc_excl = \
-  $(or $(exclude_file_name_regexp--$@),^build-aux/sanity.mk$$)
+  $(or $(exclude_file_name_regexp--$@),^build-aux/sanity.mk$$|gnulib$$|^slingshot$$)
 VC_LIST_EXCEPT = \
   $(VC_LIST) | sed 's|^$(_dot_escaped_srcdir)/||' \
 	| if test -f $(srcdir)/.x-$@; then grep -vEf $(srcdir)/.x-$@; \

@@ -1,7 +1,115 @@
-2013-05-09  Gary V. Vaughan  <gary@gnu.org>
+2013-06-28  Gary V. Vaughan  <gary@gnu.org>
 
 	Release version 29
 	* NEWS: Record release date.
+
+	configury: distribute config.ld.
+	* local.mk (EXTRA_DIST): Add config.ld, and various example files.
+
+	slingshot: update.
+	* slingshot: Update to version with spurious gitmodule output
+	from sanity checks fixed, and improved release branch cleanup.
+
+	configury: run automake without --foreign flag.
+	* configure.ac (AM_INIT_AUTOMAKE): Remove foreign.
+	* bootstrap.conf (luaposix_force_changelog, luaposix_finish):
+	Remove.  Bootstrap handles this automatically.
+	(luaposix_force_readme): Distribute README file.
+	* .gitignore: Add README.
+
+	curses: remove trailing whitespace.
+	* lcurses.c (Wresize): Remove trailing whitespace.
+
+	NEWS: update.
+
+2013-06-28  Gary V. Vaughan  <gary@vaughan.pe>
+
+	Merge pull request #105 from aeron005/master
+	Added wresize binding in curses library
+
+2013-06-28  Gary V. Vaughan  <gary@gnu.org>
+
+	slingshot: update.
+	* slingshot: Update to version with ax_lua.m4 cross compilation
+	fix.
+	Reported by Reuben Thomas.
+
+	Closes #98.
+
+2013-06-27  Gary V. Vaughan  <gary@gnu.org>
+
+	sync, fsync, fdatasync, nice, lseek: a bunch of new calls.
+	* lposix.c (Psync, Pfsync, Pfdatasync): Wrap disk synchronisation
+	calls.
+	(Pnice): New call. Change process priority.
+	(Plseek): New call. Move current position of a file discriptor.
+	* specs/posix_spec.yaml (sync, fsync, fdatasync): New pending
+	expectations.
+	(nice, lseek): Specify basic behaviour of these new calls.
+	Submitted by zevv@github.com, from a patch by Ico Doornekamp.
+
+	Closes #93.
+
+2013-06-27  Gary V. Vaughan  <gary@gnu.org>
+
+	specs: convert socket tests from issue #92 to specl.
+	* specs/posix_spec.yaml (socket handling): New spec, not working
+	on Mountain Lion, at least :(
+	Awaiting feedback, see issue #92.
+	Reported by zevv@github, from a patch by Ico Doornekamp.
+
+	specs: replace racy posix.times specs with more robust implementation.
+	* specs/posix_spec.yaml (time accounting): Note the inconsistency
+	between posix.times() and posix.times (...all keys...) from
+	issue #107, and replace racy spec for posix.times().
+
+2013-06-27  Gary V. Vaughan  <gary@gnu.org>
+
+	docs: fix typo in clock_gettime ldoc comments.
+	* lposix.c (Pclock_gettime): Fix a cut-n-paste duplication typo.
+	Reported by Steve Donovan.
+
+	Closes #104.
+
+2013-06-27  Gary V. Vaughan  <gary@gnu.org>
+
+	slingshot: update.
+	* slingshot: Update.
+	* configure.ac (SS_CONFIG_TRAVIS): Remove luafilesystem now that
+	slingshot takes care of ldoc prerequisites.
+	* .travis.yml: Regenerate.
+	* .gitignore: Ignore doc directory rather than docs, as latest
+	ldoc seems to be putting files in the former now.
+
+	travis: regenerate .travis.yml.
+	.travis.yml: Regenerate.
+
+	configury: travis builds with 5.2 require luafilesystem rock.
+	* configure.ac (SS_CONFIG_TRAVIS): Add luafilesystem to extra
+	rocks list.
+
+	configury: bump SPECL_MIN to 8.
+	* configure.ac (SPECL_MIN): Bump to 8, because we're using the
+	Specl 8 hell.spawn APIs now.
+
+	typo: the documentation directory is called doc, not docs!
+	* local.mk (dist_doc_DATA, MAINTAINERCLEANFILES): Use correctly
+	spelled 'doc' instead of previous typo, 'docs'.
+
+	specl: update to Specl 8 changes in hell.spawn.
+	* specs/posix_spec.yaml: Specl 8 no longer copies table entries
+	from require results into environments automatically, so make sure
+	we capture the table, and then use qualified access to spawn.
+
+	slingshot: update.
+	* slingshot: Update.
+	* bootstrap.slingshot: Install latest revision.
+
+2013-05-23  aeron005  <mitchell.burdette@gmail.com>
+
+	Added binding for wresize to curses library
+
+2013-05-09  Gary V. Vaughan  <gary@gnu.org>
 
 	Revert "Release version 29"
 	This reverts commit bfce2bc28a5a5f675e4b6f7ef790bcdbfba15aad.

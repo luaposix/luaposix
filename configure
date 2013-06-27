@@ -641,7 +641,8 @@ LTLIBOBJS
 LIBOBJS
 EXTRA_ROCKS
 SPECL_MIN
-LUADOC_FALSE
+GENDOC
+GENDOC_FALSE
 HAVE_LDOC_FALSE
 HAVE_LDOC_TRUE
 LDOC
@@ -2812,7 +2813,12 @@ mkdir_p='$(MKDIR_P)'
 # in the wild :-(  We should find a proper way to deprecate it ...
 AMTAR='$${TAR-tar}'
 
+
+# We'll loop over all known methods to create a tar archive until one works.
+_am_tools='gnutar  pax cpio none'
+
 am__tar='$${TAR-tar} chof - "$$tardir"' am__untar='$${TAR-tar} xf -'
+
 
 
 
@@ -14033,7 +14039,7 @@ fi
 
 fi
 
-  if test "x$ac_cv_header_lua_h" = 'xyes'; then :
+  if test "x$ac_cv_header_lua_h" = 'xyes' && test "x$cross_compiling" != 'xyes'; then :
 
       { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Lua header version" >&5
 $as_echo_n "checking for Lua header version... " >&6; }
@@ -14093,6 +14099,10 @@ $as_echo "no" >&6; }
           ax_header_version_match='no'
 
 fi
+
+else
+
+        ax_header_version_match='yes'
 
 fi
 
@@ -14246,10 +14256,13 @@ else
 fi
 
 
-SPECL_MIN=6
+SPECL_MIN=8
 
-  # Luadoc only works with Lua 5.1, so must be installed with care.
-  LUADOC_FALSE=#
+  # Luadoc only works with Lua 5.1, and LDoc works better with Lua 5.1 on
+  # Travis, so must they be installed with care...
+  GENDOC_FALSE=#
+
+  GENDOC=
 
 
   SPECL_MIN=${SPECL_MIN-"5"}
@@ -14261,8 +14274,9 @@ SPECL_MIN=6
   for _ss_rock in lyaml ldoc specl; do
     # Enable associated .travis sections for special rocks.
     case $_ss_rock in
-      luadoc)
-        LUADOC_FALSE=-
+      luadoc|ldoc)
+        GENDOC=$_ss_rock
+        GENDOC_FALSE=-
         continue
         ;;
     esac
@@ -15976,7 +15990,7 @@ $as_echo X"$mf" |
     DEPDIR=`sed -n 's/^DEPDIR = //p' < "$mf"`
     test -z "$DEPDIR" && continue
     am__include=`sed -n 's/^am__include = //p' < "$mf"`
-    test -z "am__include" && continue
+    test -z "$am__include" && continue
     am__quote=`sed -n 's/^am__quote = //p' < "$mf"`
     # Find all dependency output files, they are included files with
     # $(DEPDIR) in their names.  We invoke sed twice because it is the

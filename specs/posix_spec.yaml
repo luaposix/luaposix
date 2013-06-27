@@ -8,7 +8,7 @@
 # first will often clear up later failures automatically!
 
 before:
-  require "specl.shell"
+  hell = require "specl.shell"
 
 specify lposix:
 - before: |
@@ -27,7 +27,7 @@ specify lposix:
 
     -- Collect stdout from a shell command, and strip surrounding whitespace.
     function cmd_output (cmd)
-      return spawn (cmd).output:gsub ("^%s+", ""):gsub ("%s+$", "")
+      return hell.spawn (cmd).output:gsub ("^%s+", ""):gsub ("%s+$", "")
     end
 
     -- Recursively remove a temporary directory.
@@ -111,7 +111,7 @@ specify lposix:
         volatile = { _ = true, LUA_PATH = true, SHLVL = true, }
         for k,v in pairs (getenv ()) do
            if not volatile[k] then
-             expect (cmd_output ('echo "' .. k .. '=$' .. k .. '"')).should_be (k.."="..v)
+             expect (hell.spawn ('echo "' .. k .. '=$' .. k .. '"')).should_contain_output (k.."="..v)
            end
         end
     - it fetches a named process environment variable:
@@ -130,9 +130,17 @@ specify lposix:
 
 - context process handling:
   - before:
-      execp, fork, getpid, wait =
-        posix.execp, posix.fork, posix.getpid, posix.wait
+      nice, execp, fork, getpid, wait =
+        posix.nice, posix.execp, posix.fork, posix.getpid, posix.wait
       P_CHILD = 0
+
+  - describe nice:
+    - it adjusts the process priority:
+        old = nice (1)
+        expect (old).should_not_be (nil)
+        new = nice (2)
+        expect (new).should_be (old + 2)
+        expect (nice (-1)).should_be (nil)
 
   - describe fork:
     - it copies itself to a new child process:
@@ -229,6 +237,11 @@ specify lposix:
         expect (another).should_not_be (path)
         close (fd2)
         os.remove (another)
+
+- context disk synchronisation:
+  - describe sync:
+  - describe fsync:
+  - describe fdatasync:
 
 - context file handling:
   - before:
@@ -420,6 +433,27 @@ specify lposix:
         expect (Emsg (link ("xxx", "xxx-soft", true))).should_be ""
         expect (stat ("xxx-soft", "type")).should_be "link"
         os.remove "xxx-soft"
+
+  - describe lseek:
+    - before:
+        close, lseek, open, read, write =
+          posix.close, posix.lseek, posix.open, posix.read, posix.write
+        SEEK_SET, SEEK_CUR, SEEK_END =
+          posix.SEEK_SET, posix.SEEK_CUR, posix.SEEK_END
+
+    - it changes the current position of a file descriptor:
+        _, path = posix.mkstemp (template)
+        fd = open (path, posix.O_RDWR)
+        expect (fd).should_not_be (nil)
+        write (fd, "0123456789")
+        lseek (fd, 3, SEEK_SET)
+        expect (read (fd, 3)).should_be "345"
+        lseek (fd, -2, SEEK_CUR)
+        expect (read (fd, 3)).should_be "456"
+        lseek (fd, -5, SEEK_END)
+        expect (read (fd, 3)).should_be "567"
+        close (fd)
+        os.remove (path)
 
 - context directory handling:
   - before:
@@ -652,6 +686,7 @@ specify lposix:
 - context time accounting:
   - describe times:
     - before:
+        table.unpack = table.unpack or unpack
         times = posix.times
     - it fetches the user time:
         expect (type (times ().utime)).should_be "number"
@@ -668,14 +703,20 @@ specify lposix:
     - it fetches the elapsed time:
         expect (type (times ().elapsed)).should_be "number"
         expect (times ("elapsed") >= 0).should_be (true)
-    # mayxbe these last two will cause a race condition on a slow machine?
-    - it fetches a subtable of named fields:
-        expect ({times ("utime", "cutime", "elapsed")}).
-          should_equal {times "utime", times "cutime", times "elapsed"}
+    - it fetches a subtable of named fields: |
+        keys = {"utime", "cutime"}
+        t = {times (table.unpack (keys))}
+        pending "API inconsistency, issue #107"
+        expect (t).should_contain.all_of (keys)
+        for _, v in ipairs (keys) do
+          expect (type (t[v])).should_be "number"
+        end
     - it fetches everything without an argument:
+        keys = {"utime", "stime", "cutime", "cstime", "elapsed"}
         t = times ()
-        for k, v in pairs (t) do
-          expect (t[k]).should_be (times (k))
+        expect (t).should_contain.all_of (keys)
+        for _, v in ipairs (keys) do
+          expect (type (t[v])).should_be "number"
         end
 
   - describe gettimeofday:
@@ -708,3 +749,26 @@ specify lposix:
       expect (ok).should_not_be (err)
   - it receives a message with msgrcv:
       expect ({msgrcv (mq, 128)}).should_equal {type, data, nil}
+
+- describe socket handling:
+  - before:
+      bind, setsockopt, socket = posix.bind, posix.setsockopt, posix.socket
+      recvfrom, sendto = posix.recvfrom, posix.sendto
+      AF_INET, AF_INET6, SOCK_DGRAM = posix.AF_INET, posix.AF_INET6, posix.SOCK_DGRAM
+      SOL_SOCKET, SO_RCVTIMEO = posix.SOL_SOCKET, posix.SO_RCVTIMEO
+  - it communicates with IPV4 and IPV6 over loopback: |
+      fd = socket (AF_INET6, SOCK_DGRAM, 0)
+      expect (type (fd)).should_be "number"
+      expect (fd >= 0).should_be (true)
+
+      expect (setsockopt (fd, SOL_SOCKET, SO_RCVTIMEO, 1, 0)).should_be (0)
+
+      pending "returning `true` is NOT a minimal binding!"
+      expect (bind (fd, { family = AF_INET6, addr = "::", port = 9999 })).
+        should_be (0)
+
+      pending "issue #92"
+      expect (sendto (fd, "Test ipv4", { family = AF_INET, addr = "127.0.0.1", port = 9999 })).should_be (9)
+
+      data, so = recvfrom (fd, 1024)
+      expect (data).should_be "Test ipv4"

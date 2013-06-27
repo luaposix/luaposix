@@ -2841,7 +2841,7 @@ static int Pclock_getres(lua_State *L)
 
 /***
 Read a clock.
-@function clock_getres
+@function clock_gettime
 @string name of clock, one of "monotonic", "process_cputime_id", or
 "thread_cputime_id", or nil for realtime clock.
 @return seconds, or nil on error
@@ -3612,6 +3612,79 @@ static int Psetsockopt(lua_State *L)
 }
 #endif
 
+/***
+ commit buffer cache to disk
+@function sync
+@see sync(2)
+*/
+static int Psync(lua_State *L)
+{
+  sync();
+  return 0;
+}
+
+/***
+ synchronize a file's in-core state with storage device
+@function fsync
+@see fsync(2)
+@int fd
+@return 0 on success, nil otherwise
+@return error message if failed.
+*/
+static int Pfsync(lua_State *L)
+{
+  int fd = luaL_checkint(L, 1);
+  return pushresult(L, fsync(fd), NULL);
+}
+
+#if _POSIX_VERSION >= 200112L
+/***
+ synchronize a file's in-core state with storage device without metadata
+@function fdatasync
+@see fdatasync(2)
+@int fd
+@return 0 on success, nil otherwise
+@return error message if failed.
+*/
+static int Pfdatasync(lua_State *L)
+{
+  int fd = luaL_checkint(L, 1);
+  return pushresult(L, fdatasync(fd), NULL);
+}
+#endif
+
+/***
+reposition read/write file offset
+@function lseek
+@see lseek(2)
+@int fd
+@int offset
+@int whence one of SEEK_SET, SEEK_CUR or SEEK_END
+@return new offset on success, nil otherwise
+@return error message if failed.
+*/
+static int Plseek(lua_State *L)
+{
+  int fd = luaL_checknumber(L, 1);
+  int offset = luaL_checknumber(L, 2);
+  int whence = luaL_checknumber(L, 3);
+  return pushresult(L, lseek(fd, offset, whence), NULL);
+}
+
+/***
+change process priority
+@function nice
+@see nice(2)
+@int inc adds inc to the nice value for the calling process
+@return new nice value on success, nil otherwise
+@return error message if failed.
+*/
+static int Pnice(lua_State *L)
+{
+  int inc = luaL_checknumber(L, 1);
+  return pushresult(L, nice(inc), NULL);
+}
+
 static const luaL_Reg R[] =
 {
 #define MENTRY(_s) {LPOSIX_STR_1(_s), (_s)}
@@ -3638,11 +3711,15 @@ static const luaL_Reg R[] =
 	MENTRY( Perrno		),
 	MENTRY( Pexec		),
 	MENTRY( Pexecp		),
+#if _POSIX_VERSION >= 200112L
+	MENTRY( Pfdatasync	),
+#endif
 	MENTRY( Pfcntl		),
 	MENTRY( Pfileno		),
 	MENTRY( Pfiles		),
 	MENTRY( Pfnmatch	),
 	MENTRY( Pfork		),
+	MENTRY( Pfsync		),
 	MENTRY( Pgetcwd		),
 	MENTRY( Pgetenv		),
 	MENTRY( Pgetgroup	),
@@ -3666,11 +3743,13 @@ static const luaL_Reg R[] =
 	MENTRY( Pkillpg		),
 	MENTRY( Plink		),
 	MENTRY( Plocaltime	),
+	MENTRY( Plseek		),
 	MENTRY( Pmkdir		),
 	MENTRY( Pmkfifo		),
 	MENTRY( Pmkstemp	),
 	MENTRY( Pmkdtemp	),
 	MENTRY( Pmktime		),
+	MENTRY( Pnice		),
 	MENTRY( Popen		),
 	MENTRY( Popenpt		),
 	MENTRY( Ppathconf	),
@@ -3696,6 +3775,7 @@ static const luaL_Reg R[] =
 	MENTRY( Pstat		),
 	MENTRY( Pstrftime	),
 	MENTRY( Pstrptime	),
+	MENTRY( Psync		),
 	MENTRY( Psysconf	),
 	MENTRY( Ptime		),
 	MENTRY( Ptimes		),
@@ -3782,6 +3862,13 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( RSYNC    );
 	MENTRY( SYNC     );
 	MENTRY( TRUNC    );
+#undef MENTRY
+
+	/* lseek arguments */
+#define MENTRY(_f) set_integer_const(LPOSIX_STR_1(LPOSIX_SPLICE(_SEEK_, _f)), LPOSIX_SPLICE(SEEK_, _f))
+	MENTRY( SET	);
+	MENTRY( CUR	);
+	MENTRY( END	);
 #undef MENTRY
 
 	/* Message queues */

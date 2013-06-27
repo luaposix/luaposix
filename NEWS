@@ -1,10 +1,22 @@
 Stdlib NEWS - User visible changes
 
-* Noteworthy changes in release 29 (2013-05-09) [stable]
+* Noteworthy changes in release 29 (2013-06-28) [stable]
+
+** This release adds wresize to curses, and sync, fsync, fdatasync, nice,
+   lseek as well as socket programming functions.  Several small improvements
+   to the documentation were also added.
+
+** luaposix is compatible with Lua 5.1, Lua 5.2 and luajit 2.0, so the
+   5.1 prefix to the release version has become an anachronism and has
+   been dropped from this release onwards.
 
 ** New features:
 
- - Move to the Slingshot release system.
+ - Move to the Slingshot release system, which (among many other improvements)
+   fixes release tarballs from github to work with the standard GNU-style:
+   `./configure, make, make install`.  `bootstrap` is still distributed for
+   those who need to re-bootstrap with a different version of gnulib and/or
+   slingshot.
 
  - Much improved former lunit and ad-hoc test scripts to Specl.
 

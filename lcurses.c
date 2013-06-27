@@ -806,6 +806,19 @@ static int Wmove_derived(lua_State *L)
     return 1;
 }
 
+static int Wresize(lua_State *L)
+{
+    WINDOW *w = checkwin(L, 1);
+    int height = luaL_checkint(L, 2);
+    int width = luaL_checkint(L, 3);
+
+    int c = wresize(w, height, width);
+    if (c == ERR) return 0;
+
+    lua_pushboolean(L, B(true));
+    return 1;
+}
+
 #define LCW_WIN2(n, v)                      \
     static int n(lua_State *L)              \
     {                                       \
@@ -1828,6 +1841,7 @@ static const luaL_Reg windowlib[] =
     MENTRY( Wderive		),
     MENTRY( Wmove_window	),
     MENTRY( Wmove_derived	),
+    MENTRY( Wresize		),
     MENTRY( Wclone		),
     MENTRY( Wsyncup		),
     MENTRY( Wsyncdown		),

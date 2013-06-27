@@ -468,7 +468,7 @@ AC_DEFUN([AX_LUA_HEADERS],
       done
     ])
 
-  AS_IF([test "x$ac_cv_header_lua_h" = 'xyes'],
+  AS_IF([test "x$ac_cv_header_lua_h" = 'xyes' && test "x$cross_compiling" != 'xyes'],
     [ dnl Make a program to print LUA_VERSION defined in the header.
       dnl TODO This probably shouldn't be a runtime test.
 
@@ -505,6 +505,9 @@ int main(int argc, char ** argv)
         [ AC_MSG_RESULT([no])
           ax_header_version_match='no'
         ])
+    ],
+    [
+        ax_header_version_match='yes'
     ])
 
   dnl Was LUA_INCLUDE specified?
