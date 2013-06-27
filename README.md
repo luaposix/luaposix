@@ -5,7 +5,7 @@ by the [luaposix project][github]
 
 [github]: https://github.com/luaposix/luaposix
 
-[![travis-ci status](https://secure.travis-ci.org/luaposix/luaposix.png?branche=master)](http://travis-ci.org/luaposix/lua-posix/builds)
+[![travis-ci status](https://secure.travis-ci.org/luaposix/luaposix.png?branche=master)](http://travis-ci.org/luaposix/luaposix/builds)
 
 luaposix is a POSIX binding, including curses, for Lua 5.1 and 5.2;
 like most libraries it simply binds to C APIs on the underlying
