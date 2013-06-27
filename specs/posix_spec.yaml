@@ -652,6 +652,7 @@ specify lposix:
 - context time accounting:
   - describe times:
     - before:
+        table.unpack = table.unpack or unpack
         times = posix.times
     - it fetches the user time:
         expect (type (times ().utime)).should_be "number"
@@ -668,14 +669,20 @@ specify lposix:
     - it fetches the elapsed time:
         expect (type (times ().elapsed)).should_be "number"
         expect (times ("elapsed") >= 0).should_be (true)
-    # mayxbe these last two will cause a race condition on a slow machine?
-    - it fetches a subtable of named fields:
-        expect ({times ("utime", "cutime", "elapsed")}).
-          should_equal {times "utime", times "cutime", times "elapsed"}
+    - it fetches a subtable of named fields: |
+        keys = {"utime", "cutime"}
+        t = {times (table.unpack (keys))}
+        pending "API inconsistency, issue #107"
+        expect (t).should_contain.all_of (keys)
+        for _, v in ipairs (keys) do
+          expect (type (t[v])).should_be "number"
+        end
     - it fetches everything without an argument:
+        keys = {"utime", "stime", "cutime", "cstime", "elapsed"}
         t = times ()
-        for k, v in pairs (t) do
-          expect (t[k]).should_be (times (k))
+        expect (t).should_contain.all_of (keys)
+        for _, v in ipairs (keys) do
+          expect (type (t[v])).should_be "number"
         end
 
   - describe gettimeofday:
