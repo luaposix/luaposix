@@ -17,6 +17,7 @@
 /Makefile
 /Makefile.am
 /Makefile.in
+/README
 /aclocal.m4
 /config.h
 /config.h.in
