@@ -811,7 +811,7 @@ static int Wresize(lua_State *L)
     WINDOW *w = checkwin(L, 1);
     int height = luaL_checkint(L, 2);
     int width = luaL_checkint(L, 3);
-    
+
     int c = wresize(w, height, width);
     if (c == ERR) return 0;
 
