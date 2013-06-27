@@ -65,6 +65,17 @@ doc: $(dist_doc_DATA)
 ## ------------- ##
 
 EXTRA_DIST +=				\
+	config.ld			\
+	examples/dir.lua		\
+	examples/fork.lua		\
+	examples/fork2.lua		\
+	examples/getopt.lua		\
+	examples/glob.lua		\
+	examples/limit.lua		\
+	examples/poll.lua		\
+	examples/signal.lua		\
+	examples/socket.lua		\
+	examples/termios.lua		\
 	make_lcurses_doc.pl		\
 	strlcpy.c			\
 	lua52compat.h
