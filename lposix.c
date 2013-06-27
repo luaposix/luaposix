@@ -2841,7 +2841,7 @@ static int Pclock_getres(lua_State *L)
 
 /***
 Read a clock.
-@function clock_getres
+@function clock_gettime
 @string name of clock, one of "monotonic", "process_cputime_id", or
 "thread_cputime_id", or nil for realtime clock.
 @return seconds, or nil on error
