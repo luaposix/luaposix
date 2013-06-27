@@ -130,9 +130,17 @@ specify lposix:
 
 - context process handling:
   - before:
-      execp, fork, getpid, wait =
-        posix.execp, posix.fork, posix.getpid, posix.wait
+      nice, execp, fork, getpid, wait =
+        posix.nice, posix.execp, posix.fork, posix.getpid, posix.wait
       P_CHILD = 0
+
+  - describe nice:
+    - it adjusts the process priority:
+        old = nice (1)
+        expect (old).should_not_be (nil)
+        new = nice (2)
+        expect (new).should_be (old + 2)
+        expect (nice (-1)).should_be (nil)
 
   - describe fork:
     - it copies itself to a new child process:
@@ -229,6 +237,11 @@ specify lposix:
         expect (another).should_not_be (path)
         close (fd2)
         os.remove (another)
+
+- context disk synchronisation:
+  - describe sync:
+  - describe fsync:
+  - describe fdatasync:
 
 - context file handling:
   - before:
@@ -420,6 +433,27 @@ specify lposix:
         expect (Emsg (link ("xxx", "xxx-soft", true))).should_be ""
         expect (stat ("xxx-soft", "type")).should_be "link"
         os.remove "xxx-soft"
+
+  - describe lseek:
+    - before:
+        close, lseek, open, read, write =
+          posix.close, posix.lseek, posix.open, posix.read, posix.write
+        SEEK_SET, SEEK_CUR, SEEK_END =
+          posix.SEEK_SET, posix.SEEK_CUR, posix.SEEK_END
+
+    - it changes the current position of a file descriptor:
+        _, path = posix.mkstemp (template)
+        fd = open (path, posix.O_RDWR)
+        expect (fd).should_not_be (nil)
+        write (fd, "0123456789")
+        lseek (fd, 3, SEEK_SET)
+        expect (read (fd, 3)).should_be "345"
+        lseek (fd, -2, SEEK_CUR)
+        expect (read (fd, 3)).should_be "456"
+        lseek (fd, -5, SEEK_END)
+        expect (read (fd, 3)).should_be "567"
+        close (fd)
+        os.remove (path)
 
 - context directory handling:
   - before:
