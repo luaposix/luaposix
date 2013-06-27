@@ -37,11 +37,14 @@
 ## Configuration. ##
 ## -------------- ##
 
+# List of slingshot files to link into stdlib tree before autotooling.
+slingshot_files=$slingshot_files
+
 # Relative path to the local slingshot submodule, and url to the upsream
 # git repository.  If you have a slingshot entry in your .gitmodules file,
 # these values are ignored.
-slingshot_path=
-slingshot_url=
+slingshot_path=$slingshot_path
+slingshot_url=$slingshot_url
 
 
 ## ------------------ ##
@@ -119,6 +122,8 @@ slingshot_copy ()
 slingshot_copy_files ()
 {
     $debug_cmd
+
+    func_check_configuration slingshot_files
 
     $require_slingshot_submodule
 
@@ -221,7 +226,7 @@ slingshot_require_slingshot_submodule ()
     else
       $require_slingshot_dotgitmodules
 
-      if test -f .gitmodules && test -f "slingshot/build-aux/mkrockspecs.in"
+      if test -f .gitmodules && test -f "slingshot/src/mkrockspecs.in"
       then
         : All present and correct.
 
