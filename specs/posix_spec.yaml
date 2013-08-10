@@ -772,3 +772,126 @@ specify lposix:
 
       data, so = recvfrom (fd, 1024)
       expect (data).should_be "Test ipv4"
+
+- context file locks:
+  - before: |
+      F_GETLK, F_SETLK, F_SETLKW = posix.F_GETLK, posix.F_SETLK, posix.F_SETLKW
+      F_RDLCK, F_WRLCK, F_UNLCK = posix.F_RDLCK, posix.F_WRLCK, posix.F_UNLCK
+      SEEK_SET, SEEK_CUR, SEEK_END = posix.SEEK_SET, posix.SEEK_CUR, posix.SEEK_END
+      fcntl = posix.fcntl
+
+  - describe lock-related constants:
+    - it has all needed constants: |
+        expect (type (F_GETLK)).should_be "number"
+        expect (type (F_SETLK)).should_be "number"
+        expect (type (F_SETLKW)).should_be "number"
+        expect (type (F_RDLCK)).should_be "number"
+        expect (type (F_WRLCK)).should_be "number"
+        expect (type (F_UNLCK)).should_be "number"
+        expect (type (SEEK_SET)).should_be "number"
+        expect (type (SEEK_CUR)).should_be "number"
+        expect (type (SEEK_END)).should_be "number"
+
+  - describe file locks with fcntl:
+    - before: |
+        mkstemp, open, close = posix.mkstemp, posix.open, posix.close
+        fork, wait, errno = posix.fork, posix.wait, posix.errno
+        O_RDWR, EAGAIN, EACCES = posix.O_RDWR, posix.EAGAIN, posix.EACCES
+        P_CHILD = 0
+        SUCCESS = 0
+        fd, path = mkstemp "tmpXXXXXX"
+        close (fd)
+        parent_pid = posix.getpid "pid"
+    - after: |
+        os.remove (path)
+    - it checks whether lock is possible with F_GETLK: |
+        fd = open (path, O_RDWR)
+        query_lock =
+        {
+          l_type = F_RDLCK;
+          l_whence = SEEK_SET;
+          l_start = 0;
+          l_len = 0;
+        }
+        result = fcntl (fd, F_GETLK, query_lock)
+        expect (result).should_be (SUCCESS)
+        expect (query_lock.l_type).should_be (F_UNLCK)
+        close (fd)
+    - it can lock file with F_SETLK: |
+        parent_fd = open (path, O_RDWR)
+        result = fcntl (
+            parent_fd,
+            F_SETLK,
+            {
+              l_type = F_WRLCK;
+              l_whence = SEEK_SET;
+              l_start = 0;
+              l_len = 0;
+            }
+          )
+        expect (result).should_be (SUCCESS)
+        process = fork ()
+        if process == P_CHILD then
+          child_fd = open (path, O_RDWR)
+          query_lock =
+          {
+            l_type = F_WRLCK;
+            l_whence = SEEK_SET;
+            l_start = 0;
+            l_len = 0;
+          }
+          result = fcntl (child_fd, F_GETLK, query_lock)
+          close (child_fd)
+          -- (not sure how to expect () in subprocess)
+          if result ~= SUCCESS then
+            os.exit (10)
+          elseif query_lock.l_pid ~= parent_pid then
+            os.exit (11)
+          else
+            os.exit (12)
+          end
+        else
+          _, _, exit_code = wait (process)
+          expect (exit_code).should_be (12)
+        end
+        close (parent_fd)
+    - it returns error if cannot lock file with F_SETLK: |
+        parent_fd = open (path, O_RDWR)
+        result = fcntl (
+            parent_fd,
+            F_SETLK,
+            {
+              l_type = F_WRLCK;
+              l_whence = SEEK_SET;
+              l_start = 0;
+              l_len = 0;
+            }
+          )
+        expect (result).should_be (0)
+        process = fork ()
+        if process == P_CHILD then
+          child_fd = open (path, O_RDWR)
+          result = fcntl (
+              child_fd,
+              F_SETLK,
+              {
+                l_type = F_WRLCK;
+                l_whence = SEEK_SET;
+                l_start = 0;
+                l_len = 0;
+              }
+            )
+          close (child_fd)
+          -- (not sure how to expect () in subprocess)
+          if result == SUCCESS then
+            os.exit (10)
+          elseif errno () ~= errno (EACCES) and errno () ~= errno (EAGAIN) then
+            os.exit (11)
+          else
+            os.exit (12)
+          end
+        else
+          _, _, exit_code = wait (process)
+          expect (exit_code).should_be (12)
+        end
+        close (parent_fd)

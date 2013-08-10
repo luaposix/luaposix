@@ -2294,9 +2294,15 @@ static int Pstatvfs(lua_State *L)
 Manipulate file descriptor.
 @function fcntl
 @see fcntl(2)
+@see lock.lua
 @int fd file descriptor to act on
 @int cmd operation to perform
-@int arg optional (default 0)
+@param arg optional (default 0). Type and meaning of this param depends on `cmd`.
+Currently it expects arg to be a table for file lock related `cmd` and a number
+for all the rest. With file lock `cmd` the table should contain fields for flock
+structure (see example). When function returns the fields of the table
+get updated with corresponding values from flock structure (to comply
+with semantics of F_GETLK).
 @return integer return value depending on `cmd`, or nil on error
 @return error message if failed
 */
@@ -2304,8 +2310,47 @@ static int Pfcntl(lua_State *L)
 {
 	int fd = luaL_optint(L, 1, 0);
 	int cmd = luaL_checkint(L, 2);
-	int arg = luaL_optint(L, 3, 0);
-	return pushresult(L, fcntl(fd, cmd, arg), "fcntl");
+	int arg;
+	struct flock lockinfo;
+	int result;
+	switch (cmd) {
+		case F_SETLK:
+		case F_SETLKW:
+		case F_GETLK:
+			luaL_checktype(L, 3, LUA_TTABLE);
+
+			/* Copy fields to flock struct */
+			lua_getfield(L, 3, "l_type");
+			lockinfo.l_type = (short)lua_tointeger(L, -1);
+			lua_getfield(L, 3, "l_whence");
+			lockinfo.l_whence = (short)lua_tointeger(L, -1);
+			lua_getfield(L, 3, "l_start");
+			lockinfo.l_start = (off_t)lua_tointeger(L, -1);
+			lua_getfield(L, 3, "l_len");
+			lockinfo.l_len = (off_t)lua_tointeger(L, -1);
+
+			/* Lock */
+			result = fcntl(fd, cmd, &lockinfo);
+
+			/* Copy fields from flock struct */
+			lua_pushinteger(L, lockinfo.l_type);
+			lua_setfield(L, 3, "l_type");
+			lua_pushinteger(L, lockinfo.l_whence);
+			lua_setfield(L, 3, "l_whence");
+			lua_pushinteger(L, lockinfo.l_start);
+			lua_setfield(L, 3, "l_start");
+			lua_pushinteger(L, lockinfo.l_len);
+			lua_setfield(L, 3, "l_len");
+			lua_pushinteger(L, lockinfo.l_pid);
+			lua_setfield(L, 3, "l_pid");
+
+			break;
+		default:
+			arg = luaL_optint(L, 3, 0);
+			result = fcntl(fd, cmd, arg);
+			break;
+	}
+	return pushresult(L, result, "fcntl");
 }
 
 /***
@@ -4042,6 +4087,9 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( _SETLKW	);
 	MENTRY( _GETOWN	);
 	MENTRY( _SETOWN	);
+	MENTRY( _RDLCK	);
+	MENTRY( _WRLCK	);
+	MENTRY( _UNLCK	);
 #undef MENTRY
 
 	/* from fnmatch.h */
