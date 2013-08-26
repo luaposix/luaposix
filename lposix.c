@@ -673,6 +673,16 @@ Current working directory for this process.
 */
 static int Pgetcwd(lua_State *L)
 {
+#ifdef __GNU__
+	char *b = get_current_dir_name();
+	if (b != NULL) {
+		lua_pushstring(L, b);
+		return 1;
+	} else {
+		/* we return the same error as below */
+		return pusherror(L, ".");
+	}
+#else
 	long size = pathconf(".", _PC_PATH_MAX);
 	void *ud;
 	lua_Alloc lalloc = lua_getallocf(L, &ud);
@@ -686,6 +696,7 @@ static int Pgetcwd(lua_State *L)
 		lua_pushstring(L, b);
 	lalloc(ud, b, (size_t)size + 1, 0);
 	return (ret == NULL) ? pusherror(L, ".") : 1;
+#endif
 }
 
 /***
