@@ -34,11 +34,11 @@ if test "$gl_gcc_warnings" = yes; then
 
   # Set up the list of undesired warnings.
   nw=
-  nw="$nw -Wsystem-headers"   # Don’t let system headers trigger warnings
+  nw="$nw -Wsystem-headers"   # Don't let system headers trigger warnings
   nw="$nw -Wundef"            # All compiler preprocessors support #if UNDEF
   nw="$nw -Wtraditional"      # All compilers nowadays support ANSI C
   nw="$nw -Wstrict-overflow"  # Use a lower level (see below).
-  nw="$nw -Wconversion"       # These warnings usually don’t point to mistakes.
+  nw="$nw -Wconversion"       # These warnings usually don't point to mistakes.
   nw="$nw -Wsign-conversion"  # Likewise.
   nw="$nw -Waggregate-return" # We do this on purpose.
   nw="$nw -Wtraditional-conversion" # Don't care.
