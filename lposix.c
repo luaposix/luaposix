@@ -72,6 +72,14 @@
 #  define STREQ(a, b)     (strcmp (a, b) == 0)
 #endif
 
+/* Mark unused parameters required only to match a function type
+   specification. */
+#ifdef __GNUC__
+#  define UNUSED(x) UNUSED_ ## x __attribute__((__unused__))
+#else
+#  define UNUSED(x) UNUSED_ ## x
+#endif
+
 
 /* The extra indirection to these macros is required so that if the
    arguments are themselves macros, they will get expanded too.  */
@@ -1878,7 +1886,7 @@ static int Putime(lua_State *L)
 }
 
 
-static void FgetID(lua_State *L, int i, const void *data)
+static void FgetID(lua_State *L, int i, const void *UNUSED (data))
 {
 	switch (i)
 	{
@@ -2487,7 +2495,7 @@ static const int Ksysconf[] =
 	-1
 };
 
-static void Fsysconf(lua_State *L, int i, const void *data)
+static void Fsysconf(lua_State *L, int i, const void *UNUSED (data))
 {
 	lua_pushinteger(L, sysconf(Ksysconf[i]));
 }
@@ -2573,7 +2581,7 @@ Close system log.
 @function closelog
 @see syslog(3)
 */
-static int Pcloselog(lua_State *L)
+static int Pcloselog(lua_State *UNUSED (L))
 {
 	closelog();
 	return 0;
@@ -3673,7 +3681,7 @@ static int Psetsockopt(lua_State *L)
 @function sync
 @see sync(2)
 */
-static int Psync(lua_State *L)
+static int Psync(lua_State *UNUSED (L))
 {
   sync();
   return 0;
