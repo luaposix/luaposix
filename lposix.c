@@ -3503,12 +3503,9 @@ static int Plisten(lua_State *L)
 
 static int Paccept(lua_State *L)
 {
-	int r;
 	int fd_client;
 	struct sockaddr_storage sa;
 	unsigned int salen;
-	char host[NI_MAXHOST];
-	char serv[NI_MAXSERV];
 
 	int fd = luaL_checknumber(L, 1);
 
@@ -3552,8 +3549,6 @@ static int Precvfrom(lua_State *L)
 	void *ud, *buf;
 	socklen_t salen;
 	struct sockaddr_storage sa;
-	char host[NI_MAXHOST];
-	char serv[NI_MAXSERV];
 	int r;
 	int fd = luaL_checkint(L, 1);
 	int count = luaL_checkint(L, 2);
