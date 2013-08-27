@@ -29,7 +29,7 @@ print(data:match("<TITLE>(.+)</TITLE>"))
 local fd = p.socket(p.AF_INET6, p.SOCK_DGRAM, 0)
 p.bind(fd, { family = p.AF_INET6, addr = "::", port = 9999 })
 p.sendto(fd, "Test ipv4", { family = p.AF_INET, addr = "127.0.0.1", port = 9999 })
-p.sendto(fd, "Test ipv4", { family = p.AF_INET6, addr = "::", port = 9999 })
+p.sendto(fd, "Test ipv6", { family = p.AF_INET6, addr = "::", port = 9999 })
 for i = 1, 2 do
 	local ok, r = p.recvfrom(fd, 1024)
 	if ok then
