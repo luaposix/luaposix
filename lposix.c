@@ -721,7 +721,7 @@ Set the working directory.
 @string path
 @return 0 on success, nil otherwise
 @return error message if failed.
-@usage status, errstr, errno = posix.access("/etc/passwd", "rw")
+@usage status, errstr, errno = posix.chdir("/var/tmp")
 */
 static int Pchdir(lua_State *L)
 {
