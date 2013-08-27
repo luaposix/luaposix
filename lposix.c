@@ -400,7 +400,7 @@ static int pushresult(lua_State *L, int i, const char *info)
 
 static void badoption(lua_State *L, int i, const char *what, int option)
 {
-	luaL_argerror(L, 2,
+	luaL_argerror(L, i,
 		lua_pushfstring(L, "unknown %s option '%c'", what, option));
 }
 
