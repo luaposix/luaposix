@@ -3865,6 +3865,7 @@ static const luaL_Reg R[] =
 	MENTRY( Precvfrom	),
 	MENTRY( Psend		),
 	MENTRY( Psendto		),
+	MENTRY( Pshutdown	),
 	MENTRY( Psetsockopt	),
 #endif
 
