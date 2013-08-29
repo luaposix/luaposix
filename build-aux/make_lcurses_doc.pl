@@ -21,7 +21,7 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-open(I, 'lcurses.c') or die; my @I = (<I>); close I;
+open(I, 'ext/curses/curses.c') or die; my @I = (<I>); close I;
 
 # make list of the lc_ and lcw_ routines
 my %lc_routine = ();
@@ -37,10 +37,10 @@ foreach (@I) {
         }
 }
 
-open(O, '>', 'lcurses_c.html') or die;
+open(O, '>', 'doc/curses_c.html') or die;
 print O <<EOT;
-<HTML><HEAD><TITLE>lcurses.c</TITLE></HEAD><BODY BGCOLOR="#FFFFFF">
-<CENTER><H1><A NAME="top">lcurses.c</A></H1></CENTER><PRE>
+<HTML><HEAD><TITLE>curses.c</TITLE></HEAD><BODY BGCOLOR="#FFFFFF">
+<CENTER><H1><A NAME="top">curses.c</A></H1></CENTER><PRE>
 EOT
 foreach my $line (@I) {
         if ($line =~ /^#define CC\(/) {
@@ -59,16 +59,16 @@ EOT
 close O;
 
 my @P = (<DATA>);  close P;
-open(O, '>', 'curses.html') or die;
+open(O, '>', 'doc/curses.html') or die;
 foreach my $line (@P) {
         if ($line =~ /^<code>(\w+)\(/) {
                 my $s = $1;
                 if ($lc_routine{"lc_$s"}) {
                         print O $line,
-                          "&nbsp; see <A HREF=\"lcurses_c.html#lc_$s\">lcurses.c</A><BR>\n";
+                          "&nbsp; see <A HREF=\"curses_c.html#lc_$s\">curses.c</A><BR>\n";
                 } elsif ($lcw_routine{"lcw_$s"}) {
                         print O $line,
-                          "(see <A HREF=\"lcurses_c.html#lcw_$s\">lcurses.c</A>)<BR>\n";
+                          "(see <A HREF=\"curses_c.html#lcw_$s\">curses.c</A>)<BR>\n";
                 } else {
                         print O $line,'<BR>';
                 }
@@ -89,7 +89,7 @@ foreach my $line (@P) {
                         my $v = $wl{$k};
                         if ($lcw_routine{$v}) {
                                 print O "<CODE>$k()</CODE> &nbsp; see "
-                                  . "<A HREF=\"lcurses_c.html#$wl{$k}\">lcurses.c</A><BR>\n";
+                                  . "<A HREF=\"curses_c.html#$wl{$k}\">curses.c</A><BR>\n";
                         } else {
                                 print O "<CODE>$k()</CODE><BR>\n";
                         }
@@ -189,9 +189,9 @@ or constant, consult your system's documentation, starting with
   end
   table.sort(a) ; for i,k in ipairs(a) do print(k) end</pre>
 <p>and are defined in the
-<A HREF="./lcurses_c.html#curses_functions">
+<A HREF="./curses_c.html#curses_functions">
 static const luaL_reg curseslib</A>
-section of lcurses.c
+section of curses.c
 </p><p>
 <code>baudrate()</code>
 <code>beep()</code>
@@ -248,9 +248,9 @@ section of lcurses.c
 <p></p>
 </DIV><h2><a name="window_methods">WINDOW METHODS</a></h2><DIV CLASS="txt">
 <p>These are defined in the
-<A HREF="./lcurses_c.html#window_methods">
+<A HREF="./curses_c.html#window_methods">
 static const luaL_reg windowlib</A>
-section of lcurses.c
+section of curses.c
 </p><p>
 XXWINDOWLIBXX
 </p><p></p>
@@ -265,9 +265,9 @@ they can be seen by:</p>
   curses.endwin()
   table.sort(a) ; for i,k in ipairs(a) do print(k) end</pre>
 <p>and are defined in the
-<A HREF="./lcurses_c.html#constants">
+<A HREF="./curses_c.html#constants">
 static void register_curses_constants</A>
-section of lcurses.c</p>
+section of curses.c</p>
 <p>ACS_BLOCK
 ACS_BOARD
 ACS_BTEE

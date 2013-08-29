@@ -7,7 +7,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AS_BOX([Configuring AC_PACKAGE_TARNAME AC_PACKAGE_VERSION])
 echo
 
-AM_INIT_AUTOMAKE([-Wall])
+AM_INIT_AUTOMAKE([-Wall subdir-objects])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 dnl Check for programs
@@ -102,8 +102,8 @@ AC_SUBST(POSIX_EXTRA_LDFLAGS)
 dnl Curses
 AX_WITH_CURSES
 if test "$ax_cv_curses" = "yes"; then
-  WANTEDLIBS=curses_c.la
-  WANTEDLUA=curses.lua
+  WANTEDLIBS=ext/curses/curses_c.la
+  WANTEDLUA=lib/curses.lua
 fi
 AC_ARG_VAR(CURSES_LIB, [linker flags for curses library])
 AC_SUBST(WANTEDLIBS)

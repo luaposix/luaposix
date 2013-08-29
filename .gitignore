@@ -25,7 +25,8 @@
 /config.lt
 /config.status
 /configure
-/lib
+/ext/curses/.dirstamp
+/ext/posix/.dirstamp
 /libtool
 /luaposix-*.tar.gz
 /stamp-h1
