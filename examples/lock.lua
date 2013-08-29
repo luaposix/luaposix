@@ -10,7 +10,7 @@ local lock = {
   }
 local result = p.fcntl(fd, p.F_SETLK, lock)
 if result == -1 then
-  error("File locked by another process")
+  error("file locked by another process")
 end
 
 -- Do something with file while it's locked
