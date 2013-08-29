@@ -46,10 +46,12 @@
   <li><a href="examples/getopt.lua.html">getopt.lua</a></li>
   <li><a href="examples/glob.lua.html">glob.lua</a></li>
   <li><a href="examples/limit.lua.html">limit.lua</a></li>
+  <li><a href="examples/lock.lua.html">lock.lua</a></li>
   <li><a href="examples/poll.lua.html">poll.lua</a></li>
   <li><a href="examples/signal.lua.html">signal.lua</a></li>
   <li><a href="examples/socket.lua.html">socket.lua</a></li>
   <li><a href="examples/termios.lua.html">termios.lua</a></li>
+  <li><a href="examples/tree.lua.html">tree.lua</a></li>
 </ul>
 
 </div>
@@ -906,7 +908,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">status, errstr, errno = posix.access(<span class="string">"/etc/passwd"</span>, <span class="string">"rw"</span>)</pre>
+        <pre class="example">status, errstr, errno = posix.chdir(<span class="string">"/var/tmp"</span>)</pre>
     </ul>
 
 </dd>
@@ -2606,8 +2608,12 @@ Modes are specified in one of the following formats:</p>
             <span class="types"><span class="type">int</span></span>
          operation to perform</li>
         <li><span class="parameter">arg</span>
-            <span class="types"><span class="type">int</span></span>
-         optional (default 0)</li>
+         optional (default 0). Type and meaning of this param depends on <code>cmd</code>.
+Currently it expects arg to be a table for file lock related <code>cmd</code> and a number
+for all the rest. With file lock <code>cmd</code> the table should contain fields for flock
+structure (see example). When function returns the fields of the table
+get updated with corresponding values from flock structure (to comply
+with semantics of F_GETLK).</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -2621,7 +2627,8 @@ Modes are specified in one of the following formats:</p>
 
     <h3>see also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/fcntl.2.html">fcntl(2)</a>
+         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/fcntl.2.html">fcntl(2)</a></li>
+         <li><a href="examples/lock.lua.html#">lock.lua</a></li>
     </ul>
 
 

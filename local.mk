@@ -4,8 +4,11 @@
 ## Environment. ##
 ## ------------ ##
 
-std_path  = $(abs_srcdir)/?.lua;$(LUA_PATH)
-std_cpath = $(abs_builddir)/$(objdir)/?$(shrext);$(LUA_CPATH)
+curses_cpath = $(abs_builddir)/ext/curses/$(objdir)/?$(shrext)
+posix_cpath = $(abs_builddir)/ext/posix/$(objdir)/?$(shrext)
+
+std_cpath = $(curses_cpath);$(posix_cpath);$(LUA_CPATH)
+std_path  = $(abs_srcdir)/lib/?.lua;$(LUA_PATH)
 
 LUA_ENV   = LUA_PATH="$(std_path)" LUA_CPATH="$(std_cpath)"
 
@@ -14,8 +17,9 @@ LUA_ENV   = LUA_PATH="$(std_path)" LUA_CPATH="$(std_cpath)"
 ## Bootstrap. ##
 ## ---------- ##
 
+AM_CPPFLAGS  += -I $(srcdir)/ext/include
 AM_CFLAGS     = $(WERROR_CFLAGS) $(WARN_CFLAGS)
-old_NEWS_hash = 3f835fe73525970ee6b423cc22d4b81b
+old_NEWS_hash = 73b45ab8155db972364f61d1f2dc27f2
 
 
 ## ------------- ##
@@ -31,16 +35,25 @@ include specs/specs.mk
 ## Build. ##
 ## ------ ##
 
-EXTRA_LTLIBRARIES	+= curses_c.la
-lib_LTLIBRARIES		+= posix_c.la $(WANTEDLIBS)
-dist_data_DATA		+= posix.lua $(WANTEDLUA)
+EXTRA_LTLIBRARIES	+= ext/curses/curses_c.la
+lib_LTLIBRARIES		+= ext/posix/posix_c.la $(WANTEDLIBS)
+dist_data_DATA		+= lib/posix.lua $(WANTEDLUA)
 
-posix_c_la_SOURCES = lposix.c
-posix_c_la_CFLAGS  = $(POSIX_EXTRA_CFLAGS)
-posix_c_la_LDFLAGS = -module -avoid-version $(POSIX_EXTRA_LDFLAGS)
+ext_posix_posix_c_la_SOURCES =		\
+	ext/posix/posix.c		\
+	$(NOTHING_ELSE)
+ext_posix_posix_c_la_CFLAGS  =		\
+	$(POSIX_EXTRA_CFLAGS)
+ext_posix_posix_c_la_LDFLAGS =		\
+	-module -avoid-version $(POSIX_EXTRA_LDFLAGS)
 
-curses_c_la_SOURCES = lcurses.c
-curses_c_la_LDFLAGS = -module -avoid-version $(CURSES_LIB) -rpath '$(libdir)'
+ext_curses_curses_c_la_SOURCES =	\
+	ext/curses/curses.c		\
+	$(NOTHING_ELSE)
+ext_curses_curses_c_la_CPPFLAGS =	\
+	$(AM_CPPFLAGS) -I $(srcdir)/ext/curses
+ext_curses_curses_c_la_LDFLAGS =	\
+	-module -avoid-version $(CURSES_LIB) -rpath '$(libdir)'
 
 
 ## -------------- ##
@@ -48,8 +61,8 @@ curses_c_la_LDFLAGS = -module -avoid-version $(CURSES_LIB) -rpath '$(libdir)'
 ## -------------- ##
 
 dist_doc_DATA +=			\
-	curses.html			\
-	lcurses_c.html			\
+	doc/curses.html			\
+	doc/curses_c.html		\
 	doc/index.html			\
 	doc/ldoc.css			\
 	$(NOTHING_ELSE)
@@ -65,7 +78,7 @@ doc: $(dist_doc_DATA)
 ## ------------- ##
 
 EXTRA_DIST +=				\
-	config.ld			\
+	build-aux/make_lcurses_doc.pl	\
 	examples/dir.lua		\
 	examples/fork.lua		\
 	examples/fork2.lua		\
@@ -76,14 +89,16 @@ EXTRA_DIST +=				\
 	examples/signal.lua		\
 	examples/socket.lua		\
 	examples/termios.lua		\
-	make_lcurses_doc.pl		\
-	strlcpy.c			\
-	lua52compat.h
+	ext/curses/strlcpy.c		\
+	ext/include/lua52compat.h	\
+	ext/posix/config.ld		\
+	$(NOTHING_ELSE)
 
-$(dist_doc_DATA): lcurses.c make_lcurses_doc.pl
-	$(PERL) make_lcurses_doc.pl
+$(dist_doc_DATA): ext/curses/curses.c build-aux/make_lcurses_doc.pl
+	test -d $(builddir)/doc || mkdir $(builddir)/doc
+	$(PERL) build-aux/make_lcurses_doc.pl
 if HAVE_LDOC
-	$(LDOC) .
+	$(LDOC) $(srcdir)/ext/posix
 else
 	$(MKDIR_P) doc
 	touch doc/index.html doc/ldoc.css

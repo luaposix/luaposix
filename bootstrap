@@ -9,7 +9,7 @@
 
 # Source required external libraries:
 # Set a version string for this script.
-scriptversion=2012-10-21.11; # UTC
+scriptversion=2013-08-23.20; # UTC
 
 # General shell script boiler plate, and helper functions.
 # Written by Gary V. Vaughan, 2004
@@ -92,7 +92,7 @@ done
 sp=' '
 nl='
 '
-IFS="	$sp$nl"
+IFS="$sp	$nl"
 
 # There are still modern systems that have problems with 'echo' mis-
 # handling backslashes, among others, so make sure $bs_echo is set to a
@@ -177,7 +177,7 @@ sed_double_quote_subst='s/\(["`\\]\)/\\\1/g'
 sed_make_literal_regex='s|[].[^$\\*\/]|\\&|g'
 
 # Sed substitution that converts a w32 file name or path
-# which contains forward slashes, into one that contains
+# that contains forward slashes, into one that contains
 # (escaped) backslashes.  A very naive implementation.
 sed_naive_backslashify='s|\\\\*|\\|g;s|/|\\|g;s|\\|\\\\|g'
 
@@ -935,7 +935,7 @@ func_relative_path ()
 #   i) func_quote_for_eval_result
 #      double-quoted, suitable for a subsequent eval
 #  ii) func_quote_for_eval_unquoted_result
-#      has just all characters which are still active within double
+#      has all characters that are still active within double
 #      quotes backslashified.
 func_quote_for_eval ()
 {
@@ -1795,7 +1795,7 @@ test -z "$progpath" && . `echo "$0" |${SED-sed} 's|[^/]*$||'`/funclib.sh
 test extract-trace = "$progname" && . `echo "$0" |${SED-sed} 's|[^/]*$||'`/options-parser
 
 # Set a version string.
-scriptversion=2012-10-07.10; # UTC
+scriptversion=2013-08-22.10; # UTC
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -1838,7 +1838,7 @@ scriptversion=2012-10-07.10; # UTC
 # func_autoconf_configure MAYBE-CONFIGURE-FILE
 # --------------------------------------------
 # Ensure that MAYBE-CONFIGURE-FILE is the name of a file in the current
-# directory which contains an uncommented call to AC_INIT.
+# directory that contains an uncommented call to AC_INIT.
 func_autoconf_configure ()
 {
     $debug_cmd
@@ -1961,7 +1961,7 @@ func_tool_version_output ()
 # require_configure_ac
 # --------------------
 # Ensure that there is a 'configure.ac' or 'configure.in' file in the
-# current directory which contains an uncommented call to AC_INIT, and
+# current directory that contains an uncommented call to AC_INIT, and
 # that '$configure_ac' contains its name.
 require_configure_ac=func_require_configure_ac
 func_require_configure_ac ()
@@ -2203,7 +2203,7 @@ test extract-trace = "$progname" && func_main "$@"
 # End:
 
 # Set a version string for *this* script.
-scriptversion=2013-01-20.16; # UTC
+scriptversion=2013-08-23.20; # UTC
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -2372,7 +2372,7 @@ gnulib_tool_options="
 "
 
 # bootstrap removes any macro-files that are not included by aclocal.m4,
-# except for files listed in this variable which are always kept.
+# except for files listed in this variable that are always kept.
 gnulib_precious="
         gnulib-tool.m4
 "
@@ -2417,8 +2417,8 @@ copy=false
 
 # Set this to ".cvsignore .gitignore" in 'bootstrap.conf' if you want
 # those files to be generated in directories like 'lib/', 'm4/', and 'po/',
-# or set it to "auto" to make this script select which to use based
-# on which version control system (if any) is used in the source directory.
+# or set it to "auto" to make this script select what to use based
+# on what version control system (if any) is used in the source directory.
 # Or set it to "none" to ignore VCS ignore files entirely.  Default is
 # "auto".
 vc_ignore=
@@ -2431,7 +2431,7 @@ vc_ignore=
 # After 'bootstrap.conf' has been sourced, execution proceeds by calling
 # 'func_bootstrap'.  Wherever a function is decorated with
 # 'func_hookable func_name', you will find a matching 'func_run_hooks
-# func_name' which executes all functions added with 'func_add_hook
+# func_name', which executes all functions added with 'func_add_hook
 # func_name my_func'.
 #
 # You might notice that many of these functions begin with a series of
@@ -2571,8 +2571,12 @@ func_reconfigure ()
 #
 # It's assumed that since you are using gnulib's 'bootstrap' script,
 # you're also using gnulib elsewhere in your package.  If not, then
-# you can preset 'gnulib_tool=true' in your 'bootstrap.conf' to force
-# this function to return immediately.
+# you can replace this function in 'bootstrap.conf' with:
+#
+#   func_gnulib_tool () { :; }
+#
+# (although the function returns immediately if $gnulib_tool is set to
+# true in any case).
 func_hookable func_gnulib_tool
 func_gnulib_tool ()
 {
@@ -2582,6 +2586,13 @@ func_gnulib_tool ()
     $require_libtoolize
 
     test true = "$gnulib_tool" || {
+      # bootstrap.conf written for gnulib bootstrap expects
+      # gnulib_tool_option_extras to which --no-changelog is appended,
+      # but libtool bootstrap expects you to append to gnulib_tool_options
+      # so that you can override the --no-changelog default: make sure we
+      # support both styles so users can migrate between them easily.
+      gnulib_tool_all_options="$gnulib_tool_options $gnulib_tool_option_extras"
+
       if test -n "$gnulib_modules"; then
         $require_gnulib_cache
         $require_gnulib_tool_base_options
@@ -2591,7 +2602,6 @@ func_gnulib_tool ()
         # Try not to pick up any stale values from 'gnulib-cache.m4'.
         rm -f "$gnulib_cache"
 
-        gnulib_tool_all_options=$gnulib_tool_options
         test -n "$gnulib_tool_base_options" \
             && func_append_uniq gnulib_tool_all_options " $gnulib_tool_base_options"
         test -n "$gnulib_mk" \
@@ -2605,8 +2615,6 @@ func_gnulib_tool ()
         # 'gnulib_modules' and others are cached in 'gnulib-cache.m4':
         # Use 'gnulib --update' to fetch gnulib modules.
         gnulib_mode=--update
-
-        gnulib_tool_all_options=$gnulib_tool_options
       fi
 
       # Add a sensible default libtool option to gnulib_tool_options.
@@ -2912,7 +2920,7 @@ $2"
 # the usual portability constraints of this script, that may seem a very
 # demanding requirement, but it should be ok.  Ignore any failure,
 # which is fine, since this is only a convenience to help developers
-# avoid the relatively unusual case in which a symlinked-to .m4 file is
+# avoid the relatively unusual case where a symlinked-to .m4 file is
 # git-removed from gnulib between successive runs of this script.
 func_clean_dangling_symlinks ()
 {
@@ -2941,36 +2949,34 @@ func_clean_unused_macros ()
 {
     $debug_cmd
 
-    test true = "$gnulib_tool" || {
-      $require_gnulib_path
-      $require_macro_dir
+    $require_gnulib_path
+    $require_macro_dir
 
-      test -n "$gnulib_path" && test -f aclocal.m4 && {
-        aclocal_m4s=`find . -name aclocal.m4 -print`
+    test -n "$gnulib_path" && test -f aclocal.m4 && {
+      aclocal_m4s=`find . -name aclocal.m4 -print`
 
-        # We use 'ls|grep' instead of 'ls *.m4' to avoid exceeding
-        # command line length limits in some shells.
-        for file in `cd "$macro_dir" && ls -1 |grep '\.m4$'`; do
+      # We use 'ls|grep' instead of 'ls *.m4' to avoid exceeding
+      # command line length limits in some shells.
+      for file in `cd "$macro_dir" && ls -1 |grep '\.m4$'`; do
 
-	  # Remove a macro file when aclocal.m4 does not m4_include it...
-          func_grep_q 'm4_include([[]'$macro_dir/$file'])' $aclocal_m4s \
-              || test ! -f "$gnulib_path/m4/$file" || {
+	# Remove a macro file when aclocal.m4 does not m4_include it...
+        func_grep_q 'm4_include([[]'$macro_dir/$file'])' $aclocal_m4s \
+            || test ! -f "$gnulib_path/m4/$file" || {
 
-                # ...and there is an identical file in gnulib...
-                if func_cmp_s "$gnulib_path/m4/$file" "$macro_dir/$file"; then
+              # ...and there is an identical file in gnulib...
+              if func_cmp_s "$gnulib_path/m4/$file" "$macro_dir/$file"; then
 
-                  # ...and it's not in the precious list ('echo' is needed
-                  # here to squash whitespace for the match expression).
-                  case " "`echo $gnulib_precious`" " in
-                    *" $file "*) ;;
-                    *) rm -f "$macro_dir/$file"
-                       func_verbose \
-                         "removing unused gnulib file '$macro_dir/$file'"
-                  esac
-                fi
-          }
-        done
-      }
+                # ...and it's not in the precious list ('echo' is needed
+                # here to squash whitespace for the match expression).
+                case " "`echo $gnulib_precious`" " in
+                  *" $file "*) ;;
+                  *) rm -f "$macro_dir/$file"
+                     func_verbose \
+                       "removing unused gnulib file '$macro_dir/$file'"
+                esac
+              fi
+        }
+      done
     }
 }
 
@@ -3655,10 +3661,9 @@ func_require_gnulib_tool ()
 {
     $debug_cmd
 
-    test -n "$GNULIB_TOOL" && gnulib_tool=$GNULIB_TOOL
+    $require_gnulib_submodule
 
     test true = "$gnulib_tool" || {
-      $require_gnulib_submodule
       $require_gnulib_path
 
       test -n "$gnulib_tool" \
@@ -3951,7 +3956,7 @@ func_require_patch ()
     $debug_cmd
 
     test -n "$PATCH" || {
-      # Find a patch program, preferring gpatch which is usually better
+      # Find a patch program, preferring gpatch, which is usually better
       # than the vendor patch.
       func_find_tool PATCH gpatch patch
     }
@@ -4383,8 +4388,8 @@ func_insert_if_absent ()
           || func_verbose "inserting '$str' into '$file'"
 
       linesold=`func_gitignore_entries "$file" |wc -l`
-      linesnew=`$bs_echo "$str" \
-                |func_gitignore_entries - "$file" |sort -u |wc -l`
+      linesnew=`{ $bs_echo "$str"; cat "$file"; } \
+                |func_gitignore_entries |sort -u |wc -l`
       test "$linesold" -eq "$linesnew" \
         || { sed "1i\\$nl$str$nl" "$file" >"$file"T && mv "$file"T "$file"; } \
         || func_permissions_error "$file"
@@ -4478,6 +4483,35 @@ func_get_version ()
 }
 
 
+# func_check_tool APP
+# -------------------
+# Search PATH for an executable at APP.
+func_check_tool ()
+{
+    $debug_cmd
+
+    func_check_tool_result=
+
+    case $1 in
+    *[\\/]*)
+      test -x "$1" && func_check_tool_result=$1
+      ;;
+    *)
+      save_IFS=$IFS
+      IFS=:
+      for _G_check_tool_path in $PATH; do
+        IFS=$save_IFS
+	if test -x "$_G_check_tool_path/$1"; then
+	  func_check_tool_result=$_G_check_tool_path/$1
+	  break
+	fi
+      done
+      IFS=$save_IFS
+      ;;
+    esac
+}
+
+
 # func_check_versions APP1 VER1 URL1 ...[APPN VERN URLN]
 # ------------------------------------------------------
 func_check_versions ()
@@ -4491,30 +4525,54 @@ func_check_versions ()
       _G_reqver=$1; shift
       _G_url=$1; shift
 
+      # Diagnose bad buildreq formatting.
+      case $_G_url in
+      [a-z]*://*) ;; # looks like a url
+      *) func_fatal_error "\
+'$_G_url' from the buildreq table in
+'bootstrap.conf' does not look like the URL for downloading
+$_G_app. Please ensure that buildreq is a strict newline
+delimited list of triples; 'program min-version url'."
+        ;;
+      esac
+
       # Honor $APP variables ($TAR, $AUTOCONF, etc.)
       _G_appvar=`echo $_G_app |tr '[a-z]' '[A-Z]'`
       test TAR = "$_G_appvar" && _G_appvar=AMTAR
       eval "_G_app=\${$_G_appvar-$_G_app}"
-      _G_instver=`func_get_version $_G_app`
 
-      test -z "$_G_instver" \
-          || func_verbose "found '$_G_app' version $_G_instver."
-
-      # Fail if --version didn't work.
-      if test -z "$_G_instver"; then
-        func_error "Prerequisite '$_G_app' not found. Please install it, or
+      # Fail if no version specified, but the program can't be found.
+      if test x- = "x$_G_reqver"; then
+        func_check_tool $_G_app
+	if test -z "$func_check_tool_result"; then
+	  func_error "Prerequisite '$_G_app' not not found. Please install it, or
 'export $_G_appvar=/path/to/$_G_app'."
-        func_check_versions_result=false
-
-      # Fail if a new version than what we have is required.
-      elif test x- != "x$_G_reqver"; then
-        _G_newer=`func_sort_ver $_G_reqver $_G_instver |cut -d' ' -f2`
-        test "$_G_newer" != "$_G_instver" && {
-          func_error "\
-'$_G_app' version == $_G_instver is too old
-'$_G_app' version >= $_G_reqver is required"
           func_check_versions_result=false
-        }
+	else
+	  func_verbose "found '$func_check_tool_result' for $_G_appvar."
+	fi
+      else
+        _G_instver=`func_get_version $_G_app`
+
+        test -z "$_G_instver" \
+            || func_verbose "found '$_G_app' version $_G_instver."
+
+        # Fail if --version didn't work.
+        if test -z "$_G_instver"; then
+          func_error "Prerequisite '$_G_app' not found. Please install it, or
+'export $_G_appvar=/path/to/$_G_app'."
+          func_check_versions_result=false
+
+        # Fail if a newer version than what we have is required.
+        else
+          _G_newer=`func_sort_ver $_G_reqver $_G_instver |cut -d' ' -f2`
+          test "$_G_newer" != "$_G_instver" && {
+            func_error "\
+  '$_G_app' version == $_G_instver is too old
+  '$_G_app' version >= $_G_reqver is required"
+            func_check_versions_result=false
+          }
+        fi
       fi
     done
 }
@@ -4571,7 +4629,7 @@ func_update_po_files ()
          |$SED -e 's|.*/||' -e 's|\.po$||' > "$_G_po_dir/LINGUAS" || return
 
     # Find sha1sum, named gsha1sum on MacPorts, and shasum on MacOS 10.6+.
-    func_find_tool SHA1SUM sha1sum gsha1sum shasum
+    func_find_tool SHA1SUM sha1sum gsha1sum shasum sha1
 
     _G_langs=`cd $_G_ref_po_dir && echo *.po|$SED 's|\.po||g'`
     test '*' = "$_G_langs" && _G_langs=x
@@ -4581,11 +4639,11 @@ func_update_po_files ()
       _G_cksum_file=$_G_ref_po_dir/$_G_po.s1
       if ! test -f "$_G_cksum_file" ||
           ! test -f "$_G_po_dir/$_G_po.po" ||
-          ! $SHA1SUM -c --status "$_G_cksum_file" \
+          ! $SHA1SUM -c "$_G_cksum_file" \
               < "$_G_new_po" > /dev/null; then
         echo "updated $_G_po_dir/$_G_po.po..."
         cp "$_G_new_po" "$_G_po_dir/$_G_po.po" \
-          && $SHA1SUM < "$_G_new_po" > "$_G_cksum_file"
+          && $SHA1SUM < "$_G_new_po" > "$_G_cksum_file" || return
       fi
     done
 }
@@ -4692,8 +4750,13 @@ bootstrap_parse_options ()
                       shift
                       ;;
 
-        --skip-git)   opt_skip_git=: ;;
-        --skip-po)    opt_skip_po=: ;;
+        --skip-git|--no-git)
+                      opt_skip_git=:
+                      ;;
+
+        --skip-po|--no-po)
+                      opt_skip_po=:
+                      ;;
 
         # Separate non-argument short options:
         -c*|-f*|-n*)

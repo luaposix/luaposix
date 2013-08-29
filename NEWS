@@ -1,5 +1,25 @@
 Stdlib NEWS - User visible changes
 
+* Noteworthy changes in release 30 (2013-08-29) [stable]
+
+** New features:
+
+ - Support for file locks with fcntl() using F_SETLK, F_SETLKW, F_GETLK,
+   F_RDLCK, F_WRLCK and F_UNLCK.
+
+ - Preliminary support for GNU Hurd, and OpenBSD.
+
+** Bug fixes:
+
+ - posix.shutdown can actually be called now.
+
+ - Report the correct argument number in posix function error messages.
+
+ - Much reduced compiler warning noise.
+
+ - Many small typos and inconsistencies, see ChangeLog for details.
+
+
 * Noteworthy changes in release 29 (2013-06-28) [stable]
 
 ** This release adds wresize to curses, and sync, fsync, fdatasync, nice,

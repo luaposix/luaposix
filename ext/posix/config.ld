@@ -1,5 +1,5 @@
 -- -*- lua -*-
-file = 'lposix.c'
+file = 'posix.c'
 project = 'luaposix'
 description = 'POSIX bindings for Lua'
 

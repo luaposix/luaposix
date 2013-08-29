@@ -1,4 +1,146 @@
+2013-08-29  Gary V. Vaughan  <gary@gnu.org>
+
+	Release version 30
+	* NEWS: Record release date.
+
+	maint: update NEWS.
+	* NEWS: Update with user visible changes since previous release.
+
+	boostrap: sync with upstream.
+	This version fixes some cosmetic and CLI inconsistencies, as
+	well as improving portability to BSDs.
+	* bootstrap: sync with upstream.
+
+	configury: don't nuke the lib subdirectory.
+	Now that we've made use of lib for Lua library files, make sure
+	not to let gnulib-tool scribble in it.
+	* bootstrap.conf (source_base): Tell gnulib-tool to put its empty
+	library directory somewhere harmless.
+	(luaposix_remove_empty_lib): And then remove that.
+
+	maint: reorganise sources into subdirectories.
+	Rather than dump everything into the project root directory
+	indiscriminately, move extension modules into subdirectories
+	of a new 'ext/' subdirectory, Lua libraries into 'lib/'. And
+	adjust the build system to work with that layout.
+	* lua52compat.h: Move from here...
+	* ext/include/lua52compat.h: ...to here.
+	* local.mk (AM_CPPFLAGS): Add -I ext/include.
+	* lcurses.c, strlcpy.c, curses.lua: Move from here...
+	* ext/curses/curses.c, ext/curses/strlcpy.c, lib/curses.lua:
+	...to here.
+	* lposix.c, posix.lua: Move from here...
+	* ext/posix/posix.c, lib/posix.lua: ...to here.
+	* configure.ac (AM_INIT_AUTOMAKE): Add subdir-objects for future
+	compatibility with Automake 2.0.
+	(WANTEDLIBS, WANTEDLUA): Adjust paths.
+	* local.mk (std_cpath, std_path, EXTRA_LTLIBRARIES, lib_LTLIBRARIES)
+	(dist_data_DATA, dist_doc_DATA, EXTRA_DIST): Likewise.
+	* tree.lua: Move from here...
+	* examples/tree.lua: ...to here.
+	* make_lcurses_doc.pl, config.ld: Move from here...
+	* build-aux/make_lcurses_doc.pl, ext/posix/config.ld: ...to here,
+	and adjust for relative path changes.
+	* dummy.c: No longer used. Remove.
+	* build-aux/sanity-cfg.mk: Remove references to dummy.c.
+	Adjust for relative path changes.
+	* .gitignore: Update.
+
+	examples: error messages are not capitalized.
+	* examples/lock.lua: Don't capitalize error messages.
+	Discovered by 'make syntax-check'
+
+2013-08-27  Gary V. Vaughan  <gary@gnu.org>
+
+	posix: remember to register Pshutdown function.
+	* lposix.c (R): Add Pshutdown MENTRY.
+
+	posix: remove unused variables.
+	* lposix.c (Precvfrom): Remove unused host and serv variables.
+	(Paccept): Likewise, and remove unused r as well.
+
+	posix: mark unused parameters for gcc.
+	* lposix.c (UNUSED): New macro, expands to __unused__ with GNU C.
+	(FgetID, Fsysconf, Pcloselog, Psync): Use it to mark unused
+	function parameters.
+
+	posix: report correct bad option number.
+	* lposix.c (badoption): Report the passed option number as being
+	the bad option.
+
+2013-08-27  Gary V. Vaughan  <gary@vaughan.pe>
+
+	Merge pull request #114 from GranPC/patch-1
+	Fix repeated "Test ipv4" instead of "Test ipv6"
+
+2013-08-27  Gary V. Vaughan  <gary@gnu.org>
+
+	docs: fix typo in chdir ldoc comments.
+	* lposix.c (Pchdir): Supply a valid usage example.
+	Closes issue #113.
+	Reported by Craig Barnes.
+
+2013-08-26  Gary V. Vaughan  <gary@vaughan.pe>
+
+	Merge pull request #112 from craigbarnes/master
+	Fix and clean up Markdown formatting in README
+
+2013-08-26  Enrico Tassi  <gareuselesinge@debian.org>
+
+	posix: port getcwd to Hurd.
+	* lposix.c (Pgetcwd): Use get_current_dir_name function on Hurd.
+
+2013-08-26  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: git ignore build-aux/compile.
+	* build-aux/.gitignore: Add compile.
+
+	configury: don't use unicode characters in shell comments.
+	* configure.ac: Replace unicode apostrophes with ASCII equivalents.
+
+	typo: set the configure package version correctly.
+	* configure.ac (AC_INIT): The correct release number is 30.
+
+	posix: improve portability of constant definitions.
+	Rather than try to catalog what compiler/OS releases supply what
+	constant symbols in their headers with a rats nest of `#if __BSD`
+	etc, wrap all of the contentious preprocessor defines in matching
+	`#ifdefs` so that they are only provided by luaposix in the
+	environments that define them.  This should provide much better
+	future portability to new compiler/OS combinations.
+	* lposix.c (lua_open_posix_c): Simplify the declarations by using
+	a consistent MENTRY definition.
+	Except for extremely well-known groups of symbols, and groups
+	that are already inside _POSIX_VERSION >= 200112L guards, wrap
+	each constant declaration in a matching `#ifdef`.
+
+2013-08-12  GranPC  <gran.pc@gmail.com>
+
+	Fix repeated "Test ipv4" instead of "Test ipv6"
+
+2013-08-10  Alexander V. Nikolaev  <avn@daemon.hole.ru>
+
+	Merge pull request #111 from markgurevich/mg/2625/file-locks-v2
+	Lock or unlock files with fcntl()
+
+2013-08-08  Craig Barnes  <cr@igbarn.es>
+
+	Fix and clean up Markdown formatting in README.md
+
+2013-07-24  Mark Gurevich  <markgurevichster@gmail.com>
+
+	Lock or unlock files with fcntl()
+
 2013-06-28  Gary V. Vaughan  <gary@gnu.org>
+
+	typo: fix target URL of Travis badge link in README.md.
+	* README.md: Fix target URL of Travis badge link.
+
+	maint: post-release administrivia.
+	* NEWS: Add header line for next release.
+	* .prev-version: Record previous version.
+	* ./local.mk (old_NEWS_hash): Auto-update.
+	* configure.ac (AC_INIT): Bump revision to 30.
 
 	Release version 29
 	* NEWS: Record release date.

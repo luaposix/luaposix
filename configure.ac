@@ -1,13 +1,13 @@
 dnl Process this file with autoconf to produce a configure script
 
-AC_INIT([luaposix], [29], [http://github.com/luaposix/luaposix/issues])
+AC_INIT([luaposix], [30], [http://github.com/luaposix/luaposix/issues])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 
 AS_BOX([Configuring AC_PACKAGE_TARNAME AC_PACKAGE_VERSION])
 echo
 
-AM_INIT_AUTOMAKE([-Wall])
+AM_INIT_AUTOMAKE([-Wall subdir-objects])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 dnl Check for programs
@@ -34,11 +34,11 @@ if test "$gl_gcc_warnings" = yes; then
 
   # Set up the list of undesired warnings.
   nw=
-  nw="$nw -Wsystem-headers"   # Don’t let system headers trigger warnings
+  nw="$nw -Wsystem-headers"   # Don't let system headers trigger warnings
   nw="$nw -Wundef"            # All compiler preprocessors support #if UNDEF
   nw="$nw -Wtraditional"      # All compilers nowadays support ANSI C
   nw="$nw -Wstrict-overflow"  # Use a lower level (see below).
-  nw="$nw -Wconversion"       # These warnings usually don’t point to mistakes.
+  nw="$nw -Wconversion"       # These warnings usually don't point to mistakes.
   nw="$nw -Wsign-conversion"  # Likewise.
   nw="$nw -Waggregate-return" # We do this on purpose.
   nw="$nw -Wtraditional-conversion" # Don't care.
@@ -102,8 +102,8 @@ AC_SUBST(POSIX_EXTRA_LDFLAGS)
 dnl Curses
 AX_WITH_CURSES
 if test "$ax_cv_curses" = "yes"; then
-  WANTEDLIBS=curses_c.la
-  WANTEDLUA=curses.lua
+  WANTEDLIBS=ext/curses/curses_c.la
+  WANTEDLUA=lib/curses.lua
 fi
 AC_ARG_VAR(CURSES_LIB, [linker flags for curses library])
 AC_SUBST(WANTEDLIBS)
