@@ -3278,6 +3278,7 @@ static int Ptcsetattr(lua_State *L)
 	CC(VINTR); CC(VQUIT); CC(VERASE);
 	CC(VKILL); CC(VEOF); CC(VEOL);
 	CC(VEOL2); CC(VMIN); CC(VTIME);
+	CC(VSTART); CC(VSTOP); CC(VSUSP);
 #undef CC
 
 	return pushresult(L, tcsetattr(fd, act, &t), NULL);
@@ -3303,6 +3304,7 @@ static int Ptcgetattr(lua_State *L)
 	CC(VINTR); CC(VQUIT); CC(VERASE);
 	CC(VKILL); CC(VEOF); CC(VEOL);
 	CC(VEOL2); CC(VMIN); CC(VTIME);
+	CC(VSTART); CC(VSTOP); CC(VSUSP);
 #undef CC
 	lua_setfield(L, -2, "cc");
 
@@ -4590,6 +4592,15 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 #endif
 #ifdef VTIME
 	MENTRY( VTIME		);
+#endif
+#ifdef VSTART
+	MENTRY( VSTART		);
+#endif
+#ifdef VTOP
+	MENTRY( VTOP		);
+#endif
+#ifdef VSUSP
+	MENTRY( VSUSP		);
 #endif
 
 	/* XSI extensions - don't use these if you care about portability
