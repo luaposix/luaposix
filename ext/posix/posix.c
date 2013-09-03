@@ -3263,6 +3263,7 @@ static int Psignal (lua_State *L)
 static int Ptcsetattr(lua_State *L)
 {
 	struct termios t;
+	int i;
 	int fd = luaL_checknumber(L, 1);
 	int act = luaL_checknumber(L, 2);
 	luaL_checktype(L, 3, LUA_TTABLE);
@@ -3273,18 +3274,19 @@ static int Ptcsetattr(lua_State *L)
 	lua_getfield(L, 3, "lflag"); t.c_lflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
 
 	lua_getfield(L, 3, "cc");
-#define CC(f) \
-	lua_pushnumber(L, f); lua_gettable(L, -2); t.c_cc[f] = luaL_optint(L, -1, 0); lua_pop(L, 1);
-	CC(VINTR); CC(VQUIT); CC(VERASE);
-	CC(VKILL); CC(VEOF); CC(VEOL);
-	CC(VEOL2); CC(VMIN); CC(VTIME);
-#undef CC
+	for(i=0; i<NCCS; i++) {
+		lua_pushnumber(L, i); 
+		lua_gettable(L, -2); 
+		t.c_cc[i] = luaL_optint(L, -1, 0); 
+		lua_pop(L, 1);
+	}
 
 	return pushresult(L, tcsetattr(fd, act, &t), NULL);
 }
 
 static int Ptcgetattr(lua_State *L)
 {
+	int i;
 	struct termios t;
 	int fd = luaL_checknumber(L, 1);
 
@@ -3298,12 +3300,11 @@ static int Ptcgetattr(lua_State *L)
 	lua_pushnumber(L, t.c_cflag); lua_setfield(L, -2, "cflag");
 
 	lua_newtable(L);
-#define CC(f) \
-	lua_pushnumber(L, f); lua_pushnumber(L, t.c_cc[f]); lua_settable(L, -3);
-	CC(VINTR); CC(VQUIT); CC(VERASE);
-	CC(VKILL); CC(VEOF); CC(VEOL);
-	CC(VEOL2); CC(VMIN); CC(VTIME);
-#undef CC
+	for(i=0; i<NCCS; i++) {
+		lua_pushnumber(L, i); 
+		lua_pushnumber(L, t.c_cc[i]); 
+		lua_settable(L, -3);
+	}
 	lua_setfield(L, -2, "cc");
 
 	return 1;
@@ -4590,6 +4591,15 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 #endif
 #ifdef VTIME
 	MENTRY( VTIME		);
+#endif
+#ifdef VSTART
+	MENTRY( VSTART		);
+#endif
+#ifdef VTOP
+	MENTRY( VTOP		);
+#endif
+#ifdef VSUSP
+	MENTRY( VSUSP		);
 #endif
 
 	/* XSI extensions - don't use these if you care about portability
