@@ -4595,8 +4595,8 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 #ifdef VSTART
 	MENTRY( VSTART		);
 #endif
-#ifdef VTOP
-	MENTRY( VTOP		);
+#ifdef VSTOP
+	MENTRY( VSTOP		);
 #endif
 #ifdef VSUSP
 	MENTRY( VSUSP		);
