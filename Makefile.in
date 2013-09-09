@@ -518,7 +518,7 @@ std_cpath = $(curses_cpath);$(posix_cpath);$(LUA_CPATH)
 std_path = $(abs_srcdir)/lib/?.lua;$(LUA_PATH)
 LUA_ENV = LUA_PATH="$(std_path)" LUA_CPATH="$(std_cpath)"
 AM_CFLAGS = $(WERROR_CFLAGS) $(WARN_CFLAGS)
-old_NEWS_hash = 73b45ab8155db972364f61d1f2dc27f2
+old_NEWS_hash = 48864294e8740dbc040c3edfd6b2d1c4
 dist_data_DATA = lib/posix.lua $(WANTEDLUA)
 dist_doc_DATA = doc/curses.html doc/curses_c.html doc/index.html \
 	doc/ldoc.css $(NOTHING_ELSE)

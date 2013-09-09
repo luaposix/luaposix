@@ -1,4 +1,31 @@
+2013-09-09  Gary V. Vaughan  <gary@gnu.org>
+
+	Release version 31
+	* NEWS: Record release date.
+
+	maint: remove trailing spaces added by previous merge.
+	* ext/posix/posix.c (Ptcsetattr, Ptcgetattr): Remove trailing
+	whitespace.
+
+2013-09-07  Gary V. Vaughan  <gary@vaughan.pe>
+
+	Merge pull request #116 from zevv/termios-cc-flags
+	Added missing termios cc flags
+
+2013-09-04  Ico Doornekamp  <ico@pruts.nl>
+
+	all termios c_cc flags available are now used in tcgetattr() and tcsetattr(), even though no symbols may be available for each flag. this makes sure a tcsetattr() after a tcgetattr() preserves all flags, even the non POSIX cmplient ones
+
+2013-09-03  Ico Doornekamp  <ico@pruts.nl>
+
+	Added missing termios cc flags
+
 2013-08-29  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: post-release administrivia.
+	* NEWS: Add header line for next release.
+	* .prev-version: Record previous version.
+	* ./local.mk (old_NEWS_hash): Auto-update.
 
 	Release version 30
 	* NEWS: Record release date.

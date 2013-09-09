@@ -55,7 +55,7 @@ AC_DEFUN([gl_INIT],
   m4_pushdef([gl_LIBSOURCES_LIST], [])
   m4_pushdef([gl_LIBSOURCES_DIR], [])
   gl_COMMON
-  gl_source_base='lib'
+  gl_source_base='unused'
   # End of code from modules
   m4_ifval(gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([gl_LIBSOURCES_DIR])[ ||
@@ -156,7 +156,7 @@ AC_DEFUN([gl_REPLACE_FUNCS], [
 AC_DEFUN([gl_LIBSOURCES], [
   m4_foreach([_gl_NAME], [$1], [
     m4_if(_gl_NAME, [alloca.c], [], [
-      m4_define([gl_LIBSOURCES_DIR], [lib])
+      m4_define([gl_LIBSOURCES_DIR], [unused])
       m4_append([gl_LIBSOURCES_LIST], _gl_NAME, [ ])
     ])
   ])
