@@ -3,6 +3,21 @@
 	Release version 31
 	* NEWS: Record release date.
 
+	slingshot: sync with upstream.
+	* slingshot: Update to latest version for recent bootstrap fixes,
+	among others.
+	* bootstrap: Regenerate.
+
+	maint: update NEWS.
+	* NEWS: Update with user visible changes since previous release.
+
+	posix: fix a typo in tc[gs]etattr constant definitions.
+	* ext/posix/posix.c (VTOP): Changed spelling from this...
+	(VSTOP): ...to this.
+
+	maint: bump revision to 31.
+	* configure.ac (AC_INIT): Bump release revision to 31.
+
 	maint: remove trailing spaces added by previous merge.
 	* ext/posix/posix.c (Ptcsetattr, Ptcgetattr): Remove trailing
 	whitespace.

@@ -46,10 +46,17 @@ AC_DEFUN([SS_CONFIG_TRAVIS], [
     case $EXTRA_ROCKS in
       *" $_ss_rock;"*) ;; # ignore duplicates
       *)
-        EXTRA_ROCKS="$EXTRA_ROCKS"' $LUAROCKS install '"$_ss_rock;"
+        test "x$PACKAGE_NAME" != "x$_ss_rock" \
+            && EXTRA_ROCKS="$EXTRA_ROCKS"' $LUAROCKS install '"$_ss_rock;"
         ;;
     esac
   done
+
+  # Avoid empty travis commands.
+  test "x$EXTRA_ROCKS" != "x-" || EXTRA_ROCKS='# No extra rocks needed here;'
+
   AC_SUBST([EXTRA_ROCKS])
-  AC_CONFIG_FILES([.travis.yml:travis.yml.in])
+  AC_CONFIG_FILES([.travis.yml:travis.yml.in], [
+    # Remove trailing blanks so as not to trip sc_trailing_blank in syntax check
+    sed 's|  *$||' < .travis.yml > ss_tmp && mv ss_tmp .travis.yml; rm -f ss_tmp])
 ])
