@@ -1,5 +1,5 @@
-<HTML><HEAD><TITLE>lcurses.c</TITLE></HEAD><BODY BGCOLOR="#FFFFFF">
-<CENTER><H1><A NAME="top">lcurses.c</A></H1></CENTER><PRE>
+<HTML><HEAD><TITLE>curses.c</TITLE></HEAD><BODY BGCOLOR="#FFFFFF">
+<CENTER><H1><A NAME="top">curses.c</A></H1></CENTER><PRE>
 /*************************************************************************
  * Library: lcurses - Lua 5.1 interface to the curses library            *
  *                                                                       *
@@ -26,22 +26,22 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                *
  ************************************************************************/
 
-#include "config.h"
+#include &lt;config.h&gt;
 
 #include &lt;stdlib.h&gt;
 #include &lt;string.h&gt;
 #include &lt;lua.h&gt;
 #include &lt;lauxlib.h&gt;
 #include "lua52compat.h"
-#if defined(HAVE_NCURSESW_CURSES_H)
+#if HAVE_NCURSESW_CURSES_H
 #  include &lt;ncursesw/curses.h&gt;
-#elif defined(HAVE_NCURSESW_H)
+#elif HAVE_NCURSESW_H
 #  include &lt;ncursesw.h&gt;
-#elif defined(HAVE_NCURSES_CURSES_H)
+#elif HAVE_NCURSES_CURSES_H
 #  include &lt;ncurses/curses.h&gt;
-#elif defined(HAVE_NCURSES_H)
+#elif HAVE_NCURSES_H
 #  include &lt;ncurses.h&gt;
-#elif defined(HAVE_CURSES_H)
+#elif HAVE_CURSES_H
 #  include &lt;curses.h&gt;
 #else
 #  error "SysV or X/Open-compatible Curses header file required"
@@ -805,6 +805,19 @@ static int Wmove_derived(lua_State *L)
     int par_y = luaL_checkint(L, 2);
     int par_x = luaL_checkint(L, 3);
     lua_pushboolean(L, B(mvderwin(w, par_y, par_x)));
+    return 1;
+}
+
+static int Wresize(lua_State *L)
+{
+    WINDOW *w = checkwin(L, 1);
+    int height = luaL_checkint(L, 2);
+    int width = luaL_checkint(L, 3);
+
+    int c = wresize(w, height, width);
+    if (c == ERR) return 0;
+
+    lua_pushboolean(L, B(true));
     return 1;
 }
 
@@ -1830,6 +1843,7 @@ static const luaL_Reg windowlib[] =
     MENTRY( Wderive		),
     MENTRY( Wmove_window	),
     MENTRY( Wmove_derived	),
+    MENTRY( Wresize		),
     MENTRY( Wclone		),
     MENTRY( Wsyncup		),
     MENTRY( Wsyncdown		),
