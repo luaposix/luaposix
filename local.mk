@@ -19,7 +19,7 @@ LUA_ENV   = LUA_PATH="$(std_path)" LUA_CPATH="$(std_cpath)"
 
 AM_CPPFLAGS  += -I $(srcdir)/ext/include
 AM_CFLAGS     = $(WERROR_CFLAGS) $(WARN_CFLAGS)
-old_NEWS_hash = 48864294e8740dbc040c3edfd6b2d1c4
+old_NEWS_hash = 0892063d70673912ae06083cb59215a5
 
 
 ## ------------- ##
