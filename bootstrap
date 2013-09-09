@@ -2203,7 +2203,7 @@ test extract-trace = "$progname" && func_main "$@"
 # End:
 
 # Set a version string for *this* script.
-scriptversion=2013-08-23.20; # UTC
+scriptversion=2013-08-29.21; # UTC
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -3661,9 +3661,8 @@ func_require_gnulib_tool ()
 {
     $debug_cmd
 
-    $require_gnulib_submodule
-
     test true = "$gnulib_tool" || {
+      $require_gnulib_submodule
       $require_gnulib_path
 
       test -n "$gnulib_tool" \
