@@ -3275,9 +3275,9 @@ static int Ptcsetattr(lua_State *L)
 
 	lua_getfield(L, 3, "cc");
 	for(i=0; i<NCCS; i++) {
-		lua_pushnumber(L, i); 
-		lua_gettable(L, -2); 
-		t.c_cc[i] = luaL_optint(L, -1, 0); 
+		lua_pushnumber(L, i);
+		lua_gettable(L, -2);
+		t.c_cc[i] = luaL_optint(L, -1, 0);
 		lua_pop(L, 1);
 	}
 
@@ -3301,8 +3301,8 @@ static int Ptcgetattr(lua_State *L)
 
 	lua_newtable(L);
 	for(i=0; i<NCCS; i++) {
-		lua_pushnumber(L, i); 
-		lua_pushnumber(L, t.c_cc[i]); 
+		lua_pushnumber(L, i);
+		lua_pushnumber(L, t.c_cc[i]);
 		lua_settable(L, -3);
 	}
 	lua_setfield(L, -2, "cc");
