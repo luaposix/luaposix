@@ -46,6 +46,7 @@
 #include <termios.h>
 #if _POSIX_VERSION >= 200112L
 #include <sys/socket.h>
+#include <sys/un.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -3347,6 +3348,20 @@ static int Psocket(lua_State *L)
 	return pushresult(L, socket(domain, type, options), NULL);
 }
 
+static int Psocketpair(lua_State *L)
+{
+	int domain = luaL_checknumber(L, 1);
+	int type = luaL_checknumber(L, 2);
+	int options = luaL_checknumber(L, 3);
+	int fd[2];
+	int rc = socketpair(domain, type, options, fd);
+	if(rc < 0)
+		return pusherror(L, "socketpair");
+	lua_pushinteger(L, fd[0]);
+	lua_pushinteger(L, fd[1]);
+	return 2;
+}
+
 /* Push a new lua table populated with the fields describing the passed sockaddr */
 
 static int sockaddr_to_lua(lua_State *L, int family, struct sockaddr *sa)
@@ -3355,6 +3370,10 @@ static int sockaddr_to_lua(lua_State *L, int family, struct sockaddr *sa)
 	int port;
 	struct sockaddr_in *sa4;
 	struct sockaddr_in6 *sa6;
+	struct sockaddr_un *sau;
+
+	lua_newtable(L);
+	lua_pushnumber(L, family); lua_setfield(L, -2, "family");
 
 	switch (family)
 	{
@@ -3362,18 +3381,22 @@ static int sockaddr_to_lua(lua_State *L, int family, struct sockaddr *sa)
 			sa4 = (struct sockaddr_in *)sa;
 			inet_ntop(family, &sa4->sin_addr, addr, sizeof addr);
 			port = ntohs(sa4->sin_port);
+			lua_pushnumber(L, port); lua_setfield(L, -2, "port");
+			lua_pushstring(L, addr); lua_setfield(L, -2, "addr");
 			break;
 		case AF_INET6:
 			sa6 = (struct sockaddr_in6 *)sa;
 			inet_ntop(family, &sa6->sin6_addr, addr, sizeof addr);
 			port = ntohs(sa6->sin6_port);
+			lua_pushnumber(L, port); lua_setfield(L, -2, "port");
+			lua_pushstring(L, addr); lua_setfield(L, -2, "addr");
+			break;
+		case AF_UNIX:
+			sau = (struct sockaddr_un *)sa;
+			lua_pushstring(L, sau->sun_path); lua_setfield(L, -2, "path");
 			break;
 	}
 
-	lua_newtable(L);
-	lua_pushnumber(L, family); lua_setfield(L, -2, "family");
-	lua_pushnumber(L, port); lua_setfield(L, -2, "port");
-	lua_pushstring(L, addr); lua_setfield(L, -2, "addr");
 	return 1;
 }
 
@@ -3383,20 +3406,22 @@ static int sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *s
 {
 	struct sockaddr_in *sa4;
 	struct sockaddr_in6 *sa6;
+	struct sockaddr_un *sau;
 	int family, port;
 	const char *addr;
+	const char *path;
 	int r;
 
 	memset(sa, 0, sizeof *sa);
 
 	luaL_checktype(L, index, LUA_TTABLE);
 	lua_getfield(L, index, "family"); family = luaL_checknumber(L, -1); lua_pop(L, 1);
-	lua_getfield(L, index, "port"); port = luaL_checknumber(L, -1); lua_pop(L, 1);
-	lua_getfield(L, index, "addr"); addr = luaL_checkstring(L, -1); lua_pop(L, 1);
 
 	switch(family) {
 		case AF_INET:
 			sa4 = (struct sockaddr_in *)sa;
+			lua_getfield(L, index, "port"); port = luaL_checknumber(L, -1); lua_pop(L, 1);
+			lua_getfield(L, index, "addr"); addr = luaL_checkstring(L, -1); lua_pop(L, 1);
 			r = inet_pton(AF_INET, addr, &sa4->sin_addr);
 			if(r == 1) {
 				sa4->sin_family = family;
@@ -3407,6 +3432,8 @@ static int sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *s
 			break;
 		case AF_INET6:
 			sa6 = (struct sockaddr_in6 *)sa;
+			lua_getfield(L, index, "port"); port = luaL_checknumber(L, -1); lua_pop(L, 1);
+			lua_getfield(L, index, "addr"); addr = luaL_checkstring(L, -1); lua_pop(L, 1);
 			r = inet_pton(AF_INET6, addr, &sa6->sin6_addr);
 			if(r == 1) {
 				sa6->sin6_family = family;
@@ -3414,6 +3441,15 @@ static int sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *s
 				*addrlen = sizeof(*sa6);
 				return 0;
 			}
+			break;
+		case AF_UNIX:
+			lua_getfield(L, index, "path"); path = luaL_checkstring(L, -1); lua_pop(L, 1);
+			sau = (struct sockaddr_un *)sa;
+			sau->sun_family = family;
+			strncpy(sau->sun_path, path, sizeof(sau->sun_path));
+			sau->sun_path[sizeof(sau->sun_path) - 1]= '\0';
+			*addrlen = sizeof(*sau);
+			return 0;
 			break;
 	}
 	return -1;
@@ -3857,6 +3893,7 @@ static const luaL_Reg R[] =
 
 #if _POSIX_VERSION >= 200112L
 	MENTRY( Psocket		),
+	MENTRY( Psocketpair	),
 	MENTRY( Pgetaddrinfo	),
 	MENTRY( Pconnect	),
 	MENTRY( Pbind		),
@@ -4662,6 +4699,7 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( AF_UNSPEC	);
 	MENTRY( AF_INET		);
 	MENTRY( AF_INET6	);
+	MENTRY( AF_UNIX		);
 	MENTRY( SOL_SOCKET	);
 	MENTRY( IPPROTO_TCP	);
 	MENTRY( IPPROTO_IP	);
