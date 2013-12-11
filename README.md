@@ -92,7 +92,7 @@ bear in mind the following points when writing new code:
 
 [Lua]: http://www.lua.org/
 [GitHub]: https://github.com/luaposix/luaposix
-[LuaRocks]: http://www.luarocksporg "Lua package manager"
+[LuaRocks]: http://www.luarocks.org "Lua package manager"
 [LDoc]: https://github.com/stevedonovan/LDoc "Lua documentation generator"
 [COPYING]: https://raw.github.com/luaposix/luaposix/release/COPYING
 [INSTALL]: https://raw.github.com/luaposix/luaposix/release/INSTALL
