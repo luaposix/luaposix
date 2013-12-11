@@ -2727,272 +2727,6 @@ static int Pgetrlimit(lua_State *L)
 }
 
 
-/* Time and date */
-
-/***
-Time and date.
-@section timedate
-*/
-
-/***
-Get time of day.
-@function gettimeofday
-@see gettimeofday(2)
-@return time in seconds
-@return remainder in nanoseconds
-*/
-static int Pgettimeofday(lua_State *L)
-{
-	struct timeval tv;
-	if (gettimeofday(&tv, NULL) == -1)
-		return pusherror(L, "gettimeofday");
-
-	lua_newtable(L);
-	lua_pushstring(L, "sec");
-	lua_pushinteger(L, tv.tv_sec);
-	lua_settable(L, -3);
-	lua_pushstring(L, "usec");
-	lua_pushinteger(L, tv.tv_usec);
-	lua_settable(L, -3);
-	return 1;
-}
-
-/***
-Get current time.
-@function time
-@return time in seconds since epoch
-*/
-static int Ptime(lua_State *L)
-{
-	time_t t = time(NULL);
-	if ((time_t)-1 == t)
-		return pusherror(L, "time");
-	lua_pushinteger(L, t);
-	return 1;
-}
-
-/* N.B. In Lua broken-down time tables the month field is 1-based not
-   0-based, and the year field is the full year, not years since
-   1900. */
-
-static void totm(lua_State *L, int n, struct tm *tp)
-{
-	luaL_checktype(L, n, LUA_TTABLE);
-	lua_getfield(L, n, "sec");
-	tp->tm_sec = luaL_optint(L, -1, 0);
-	lua_pop(L, 1);
-	lua_getfield(L, n, "min");
-	tp->tm_min = luaL_optint(L, -1, 0);
-	lua_pop(L, 1);
-	lua_getfield(L, n, "hour");
-	tp->tm_hour = luaL_optint(L, -1, 0);
-	lua_pop(L, 1);
-	/* For compatibility to Lua os.date() read "day" if "monthday"
-		 does not yield a number */
-	lua_getfield(L, n, "monthday");
-	if (!lua_isnumber(L, -1))
-		lua_getfield(L, n, "day");
-	tp->tm_mday = luaL_optint(L, -1, 0);
-	lua_pop(L, 1);
-	lua_getfield(L, n, "month");
-	tp->tm_mon = luaL_optint(L, -1, 0) - 1;
-	lua_pop(L, 1);
-	lua_getfield(L, n, "year");
-	tp->tm_year = luaL_optint(L, -1, 0) - 1900;
-	lua_pop(L, 1);
-	lua_getfield(L, n, "weekday");
-	tp->tm_wday = luaL_optint(L, -1, 0);
-	lua_pop(L, 1);
-	lua_getfield(L, n, "yearday");
-	tp->tm_yday = luaL_optint(L, -1, 0);
-	lua_pop(L, 1);
-	lua_getfield(L, n, "is_dst");
-	tp->tm_isdst = (lua_type(L, -1) == LUA_TBOOLEAN) ? lua_toboolean(L, -1) : 0;
-	lua_pop(L, 1);
-}
-
-static void pushtm(lua_State *L, struct tm t)
-{
-	lua_createtable(L, 0, 10);
-	lua_pushinteger(L, t.tm_sec);
-	lua_setfield(L, -2, "sec");
-	lua_pushinteger(L, t.tm_min);
-	lua_setfield(L, -2, "min");
-	lua_pushinteger(L, t.tm_hour);
-	lua_setfield(L, -2, "hour");
-	lua_pushinteger(L, t.tm_mday);
-	lua_setfield(L, -2, "monthday");
-	lua_pushinteger(L, t.tm_mday);
-	lua_setfield(L, -2, "day");
-	lua_pushinteger(L, t.tm_mon + 1);
-	lua_setfield(L, -2, "month");
-	lua_pushinteger(L, t.tm_year + 1900);
-	lua_setfield(L, -2, "year");
-	lua_pushinteger(L, t.tm_wday);
-	lua_setfield(L, -2, "weekday");
-	lua_pushinteger(L, t.tm_yday);
-	lua_setfield(L, -2, "yearday");
-	lua_pushboolean(L, t.tm_isdst);
-	lua_setfield(L, -2, "is_dst");
-}
-
-/***
-Convert time in seconds to table.
-@function localtime
-@param t time in seconds since epoch (default now)
-@return time table: contains "is_dst","yearday","hour","min","year","month",
- "sec","weekday","monthday", "day" (the same as "monthday")
-*/
-static int Plocaltime(lua_State *L)
-{
-	struct tm res;
-	time_t t = luaL_optint(L, 1, time(NULL));
-	if (localtime_r(&t, &res) == NULL)
-		return pusherror(L, "localtime");
-	pushtm(L, res);
-	return 1;
-}
-
-/***
-Convert UTC time in seconds to table.
-@function gmtime
-@param t time in seconds since epoch (default now)
-@return time table as in `localtime`
-*/
-static int Pgmtime(lua_State *L)
-{
-	struct tm res;
-	time_t t = luaL_optint(L, 1, time(NULL));
-	if (gmtime_r(&t, &res) == NULL)
-		return pusherror(L, "localtime");
-	pushtm(L, res);
-	return 1;
-}
-
-#if defined _XOPEN_REALTIME && _XOPEN_REALTIME != -1
-/* FIXME: Use numeric constants. */
-static int get_clk_id_const(const char *str)
-{
-	if (str == NULL)
-		return CLOCK_REALTIME;
-	else if (STREQ (str, "monotonic"))
-		return CLOCK_MONOTONIC;
-	else if (STREQ (str, "process_cputime_id"))
-		return CLOCK_PROCESS_CPUTIME_ID;
-	else if (STREQ (str, "thread_cputime_id"))
-		return CLOCK_THREAD_CPUTIME_ID;
-	else
-		return CLOCK_REALTIME;
-}
-
-/***
-Find the precision of a clock.
-@function clock_getres
-@string name of clock, one of "monotonic", "process_cputime_id", or
-"thread_cputime_id", or nil for realtime clock.
-@return seconds, or nil on error
-@return nanoseconds, or message on error
-*/
-static int Pclock_getres(lua_State *L)
-{
-	struct timespec res;
-	const char *str = lua_tostring(L, 1);
-	if (clock_getres(get_clk_id_const(str), &res) == -1)
-		return pusherror(L, "clock_getres");
-	lua_pushinteger(L, res.tv_sec);
-	lua_pushinteger(L, res.tv_nsec);
-	return 2;
-}
-
-/***
-Read a clock.
-@function clock_gettime
-@string name of clock, one of "monotonic", "process_cputime_id", or
-"thread_cputime_id", or nil for realtime clock.
-@return seconds, or nil on error
-@return nanoseconds, or message on error
-*/
-static int Pclock_gettime(lua_State *L)
-{
-	struct timespec res;
-	const char *str = lua_tostring(L, 1);
-	if (clock_gettime(get_clk_id_const(str), &res) == -1)
-		return pusherror(L, "clock_gettime");
-	lua_pushinteger(L, res.tv_sec);
-	lua_pushinteger(L, res.tv_nsec);
-	return 2;
-}
-#endif
-
-/***
-Write a time out according to a format.
-@function strftime
-@see strftime(3)
-@param tm optional time table (e.g from `localtime`; default current time)
-*/
-static int Pstrftime(lua_State *L)
-{
-	char tmp[256];
-	const char *format = luaL_checkstring(L, 1);
-
-	struct tm t;
-	if (lua_isnil(L, 2)) {
-		time_t now = time(NULL);
-		localtime_r(&now, &t);
-	} else {
-		totm(L, 2, &t);
-	}
-
-	strftime(tmp, sizeof(tmp), format, &t);
-	lua_pushstring(L, tmp);
-	return 1;
-}
-
-/***
-Parse a date string.
-@see strptime(3)
-@string s
-@string format same as for `strftime`
-@usage posix.strptime('20','%d').monthday == 20
-@return time table, like `localtime`
-@return next index of first character not parsed as part of the date
-*/
-static int Pstrptime(lua_State *L)
-{
-	struct tm t;
-	const char *s = luaL_checkstring(L, 1);
-	const char *fmt = luaL_checkstring(L, 2);
-	char *ret;
-
-	memset(&t, 0, sizeof(struct tm));
-	ret = strptime(s, fmt, &t);
-	if (ret) {
-		pushtm(L, t);
-		lua_pushinteger(L, ret - s);
-		return 2;
-	} else
-		return 0;
-}
-
-/***
-Convert a time table into a time value.
-@function mktime
-@param tm time table as in `localtime`
-@return time in seconds since epoch
-*/
-static int Pmktime(lua_State *L)
-{
-	struct tm t;
-	time_t ret;
-	totm(L, 1, &t);
-	ret = mktime(&t);
-	if (ret == -1)
-		return 0;
-	lua_pushinteger(L, ret);
-	return 1;
-}
-
-
 /* getopt_long */
 
 /* N.B. We don't need the symbolic constants no_argument,
@@ -3782,6 +3516,284 @@ static int Pnice(lua_State *L)
   int inc = luaL_checknumber(L, 1);
   return pushresult(L, nice(inc), NULL);
 }
+
+
+/* Time and date */
+
+/***
+Time and date.
+@section timedate
+*/
+
+/***
+Get time of day.
+@function gettimeofday
+@see gettimeofday(2)
+@return time in seconds
+@return remainder in nanoseconds
+*/
+static int Pgettimeofday(lua_State *L)
+{
+	struct timeval tv;
+	if (gettimeofday(&tv, NULL) == -1)
+		return pusherror(L, "gettimeofday");
+
+	lua_newtable(L);
+	lua_pushstring(L, "sec");
+	lua_pushinteger(L, tv.tv_sec);
+	lua_settable(L, -3);
+	lua_pushstring(L, "usec");
+	lua_pushinteger(L, tv.tv_usec);
+	lua_settable(L, -3);
+	return 1;
+}
+
+/***
+Get current time.
+@function time
+@return time in seconds since epoch
+*/
+static int Ptime(lua_State *L)
+{
+	time_t t = time(NULL);
+	if ((time_t)-1 == t)
+		return pusherror(L, "time");
+	lua_pushinteger(L, t);
+	return 1;
+}
+
+/* N.B. In Lua broken-down time tables the month field is 1-based not
+   0-based, and the year field is the full year, not years since
+   1900. */
+
+static void totm(lua_State *L, int n, struct tm *tp)
+{
+	luaL_checktype(L, n, LUA_TTABLE);
+	lua_getfield(L, n, "sec");
+	tp->tm_sec = luaL_optint(L, -1, 0);
+	lua_pop(L, 1);
+	lua_getfield(L, n, "min");
+	tp->tm_min = luaL_optint(L, -1, 0);
+	lua_pop(L, 1);
+	lua_getfield(L, n, "hour");
+	tp->tm_hour = luaL_optint(L, -1, 0);
+	lua_pop(L, 1);
+	/* For compatibility to Lua os.date() read "day" if "monthday"
+		 does not yield a number */
+	lua_getfield(L, n, "monthday");
+	if (!lua_isnumber(L, -1))
+		lua_getfield(L, n, "day");
+	tp->tm_mday = luaL_optint(L, -1, 0);
+	lua_pop(L, 1);
+	lua_getfield(L, n, "month");
+	tp->tm_mon = luaL_optint(L, -1, 0) - 1;
+	lua_pop(L, 1);
+	lua_getfield(L, n, "year");
+	tp->tm_year = luaL_optint(L, -1, 0) - 1900;
+	lua_pop(L, 1);
+	lua_getfield(L, n, "weekday");
+	tp->tm_wday = luaL_optint(L, -1, 0);
+	lua_pop(L, 1);
+	lua_getfield(L, n, "yearday");
+	tp->tm_yday = luaL_optint(L, -1, 0);
+	lua_pop(L, 1);
+	lua_getfield(L, n, "is_dst");
+	tp->tm_isdst = (lua_type(L, -1) == LUA_TBOOLEAN) ? lua_toboolean(L, -1) : 0;
+	lua_pop(L, 1);
+}
+
+static void pushtm(lua_State *L, struct tm t)
+{
+	lua_createtable(L, 0, 10);
+	lua_pushinteger(L, t.tm_sec);
+	lua_setfield(L, -2, "sec");
+	lua_pushinteger(L, t.tm_min);
+	lua_setfield(L, -2, "min");
+	lua_pushinteger(L, t.tm_hour);
+	lua_setfield(L, -2, "hour");
+	lua_pushinteger(L, t.tm_mday);
+	lua_setfield(L, -2, "monthday");
+	lua_pushinteger(L, t.tm_mday);
+	lua_setfield(L, -2, "day");
+	lua_pushinteger(L, t.tm_mon + 1);
+	lua_setfield(L, -2, "month");
+	lua_pushinteger(L, t.tm_year + 1900);
+	lua_setfield(L, -2, "year");
+	lua_pushinteger(L, t.tm_wday);
+	lua_setfield(L, -2, "weekday");
+	lua_pushinteger(L, t.tm_yday);
+	lua_setfield(L, -2, "yearday");
+	lua_pushboolean(L, t.tm_isdst);
+	lua_setfield(L, -2, "is_dst");
+}
+
+/***
+Convert time in seconds to table.
+@function localtime
+@param t time in seconds since epoch (default now)
+@return time table: contains "is_dst","yearday","hour","min","year","month",
+ "sec","weekday","monthday", "day" (the same as "monthday")
+*/
+static int Plocaltime(lua_State *L)
+{
+	struct tm res;
+	time_t t = luaL_optint(L, 1, time(NULL));
+	if (localtime_r(&t, &res) == NULL)
+		return pusherror(L, "localtime");
+	pushtm(L, res);
+	return 1;
+}
+
+/***
+Convert UTC time in seconds to table.
+@function gmtime
+@param t time in seconds since epoch (default now)
+@return time table as in `localtime`
+*/
+static int Pgmtime(lua_State *L)
+{
+	struct tm res;
+	time_t t = luaL_optint(L, 1, time(NULL));
+	if (gmtime_r(&t, &res) == NULL)
+		return pusherror(L, "localtime");
+	pushtm(L, res);
+	return 1;
+}
+
+#if defined _XOPEN_REALTIME && _XOPEN_REALTIME != -1
+/* FIXME: Use numeric constants. */
+static int get_clk_id_const(const char *str)
+{
+	if (str == NULL)
+		return CLOCK_REALTIME;
+	else if (STREQ (str, "monotonic"))
+		return CLOCK_MONOTONIC;
+	else if (STREQ (str, "process_cputime_id"))
+		return CLOCK_PROCESS_CPUTIME_ID;
+	else if (STREQ (str, "thread_cputime_id"))
+		return CLOCK_THREAD_CPUTIME_ID;
+	else
+		return CLOCK_REALTIME;
+}
+
+/***
+Find the precision of a clock.
+@function clock_getres
+@string name of clock, one of "monotonic", "process_cputime_id", or
+"thread_cputime_id", or nil for realtime clock.
+@return seconds, or nil on error
+@return nanoseconds, or message on error
+*/
+static int Pclock_getres(lua_State *L)
+{
+	struct timespec res;
+	const char *str = lua_tostring(L, 1);
+	if (clock_getres(get_clk_id_const(str), &res) == -1)
+		return pusherror(L, "clock_getres");
+	lua_pushinteger(L, res.tv_sec);
+	lua_pushinteger(L, res.tv_nsec);
+	return 2;
+}
+
+/***
+Read a clock.
+@function clock_gettime
+@string name of clock, one of "monotonic", "process_cputime_id", or
+"thread_cputime_id", or nil for realtime clock.
+@return seconds, or nil on error
+@return nanoseconds, or message on error
+*/
+static int Pclock_gettime(lua_State *L)
+{
+	struct timespec res;
+	const char *str = lua_tostring(L, 1);
+	if (clock_gettime(get_clk_id_const(str), &res) == -1)
+		return pusherror(L, "clock_gettime");
+	lua_pushinteger(L, res.tv_sec);
+	lua_pushinteger(L, res.tv_nsec);
+	return 2;
+}
+#endif
+
+/***
+Write a time out according to a format.
+@function strftime
+@see strftime(3)
+@param tm optional time table (e.g from `localtime`; default current time)
+*/
+static int Pstrftime(lua_State *L)
+{
+	char tmp[256];
+	const char *format = luaL_checkstring(L, 1);
+
+	struct tm t;
+	if (lua_isnil(L, 2)) {
+		time_t now = time(NULL);
+		localtime_r(&now, &t);
+	} else {
+		totm(L, 2, &t);
+	}
+
+	strftime(tmp, sizeof(tmp), format, &t);
+	lua_pushstring(L, tmp);
+	return 1;
+}
+
+/***
+Parse a date string.
+@see strptime(3)
+@string s
+@string format same as for `strftime`
+@usage posix.strptime('20','%d').monthday == 20
+@return time table, like `localtime`
+@return next index of first character not parsed as part of the date
+*/
+static int Pstrptime(lua_State *L)
+{
+	struct tm t;
+	const char *s = luaL_checkstring(L, 1);
+	const char *fmt = luaL_checkstring(L, 2);
+	char *ret;
+
+	memset(&t, 0, sizeof(struct tm));
+	ret = strptime(s, fmt, &t);
+	if (ret) {
+		pushtm(L, t);
+		lua_pushinteger(L, ret - s);
+		return 2;
+	} else
+		return 0;
+}
+
+/***
+Convert a time table into a time value.
+@function mktime
+@param tm time table as in `localtime`
+@return time in seconds since epoch
+*/
+static int Pmktime(lua_State *L)
+{
+	struct tm t;
+	time_t ret;
+	totm(L, 1, &t);
+	ret = mktime(&t);
+	if (ret == -1)
+		return 0;
+	lua_pushinteger(L, ret);
+	return 1;
+}
+
+
+
+/* ======================================================== *
+ *                     !! IMPORTANT  !!                     *
+ * New `Time and Date` functions only go here.  Others must *
+ * go above LDoc `section timedate` to avoid going to the   *
+ * wrong section of the generated API documentation.        *
+ * ======================================================== */
+
+
+
 
 static const luaL_Reg R[] =
 {
