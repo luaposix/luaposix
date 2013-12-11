@@ -10,7 +10,7 @@ local tail_leaf_prefix = '`-- '
 local link_prefix = ' -> '
 
 local function printf(...)
-  io.write(string.format(unpack({...})))
+  io.write(string.format(...))
 end
 
 local function do_directory(directory, level, prefix)
