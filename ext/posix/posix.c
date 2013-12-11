@@ -3741,6 +3741,7 @@ static int Pstrftime(lua_State *L)
 
 /***
 Parse a date string.
+@function strptime
 @see strptime(3)
 @string s
 @string format same as for `strftime`
