@@ -61,10 +61,8 @@
 <h1>Module <code>lposix</code></h1>
 
 <p>
-
 </p>
 <p>
-
 </p>
 
 
@@ -152,7 +150,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#access">access&nbsp;(path, mode)</a></td>
-	<td class="summary">Check real user's permissions for a file.</td>
+	<td class="summary">Check real user&rsquo;s permissions for a file.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#fileno">fileno&nbsp;(file)</a></td>
@@ -386,6 +384,34 @@
 	<td class="name" nowrap><a href="#getrlimit">getrlimit&nbsp;(resource)</a></td>
 	<td class="summary">Get resource limits for this process.</td>
 	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getopt">getopt&nbsp;(arg, shortopts, longopts)</a></td>
+	<td class="summary">Parse command-line options.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#signal">signal&nbsp;(signum, handler, flags)</a></td>
+	<td class="summary">Install a signal handler for this signal number.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sync">sync&nbsp;()</a></td>
+	<td class="summary">commit buffer cache to disk</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#fsync">fsync&nbsp;(fd)</a></td>
+	<td class="summary">synchronize a file&rsquo;s in-core state with storage device</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#fdatasync">fdatasync&nbsp;(fd)</a></td>
+	<td class="summary">synchronize a file&rsquo;s in-core state with storage device without metadata</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lseek">lseek&nbsp;(fd, offset, whence)</a></td>
+	<td class="summary">reposition read/write file offset</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#nice">nice&nbsp;(inc)</a></td>
+	<td class="summary">change process priority</td>
+	</tr>
 </table>
 <h2><a href="#Time_and_date">Time and date </a></h2>
 <table class="function_list">
@@ -420,34 +446,6 @@
 	<tr>
 	<td class="name" nowrap><a href="#mktime">mktime&nbsp;(tm)</a></td>
 	<td class="summary">Convert a time table into a time value.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#getopt">getopt&nbsp;(arg, shortopts, longopts)</a></td>
-	<td class="summary">Parse command-line options.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#signal">signal&nbsp;(signum, handler, flags)</a></td>
-	<td class="summary">Install a signal handler for this signal number.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#sync">sync&nbsp;()</a></td>
-	<td class="summary">commit buffer cache to disk</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#fsync">fsync&nbsp;(fd)</a></td>
-	<td class="summary">synchronize a file's in-core state with storage device</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#fdatasync">fdatasync&nbsp;(fd)</a></td>
-	<td class="summary">synchronize a file's in-core state with storage device without metadata</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#lseek">lseek&nbsp;(fd, offset, whence)</a></td>
-	<td class="summary">reposition read/write file offset</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#nice">nice&nbsp;(inc)</a></td>
-	<td class="summary">change process priority</td>
 	</tr>
 </table>
 
@@ -485,7 +483,6 @@
     <ul>
         <li><span class="parameter">nsig</span>
             <span class="types"><span class="type">int</span></span>
-
 
 </li>
     </ul>
@@ -565,7 +562,8 @@
     <strong>errno&nbsp;(n)</strong>
     </dt>
     <dd>
-    Describe an error code/and or read <a href="index.html#errno">errno</a>
+    Describe an error code/and or read <a href="index.html#errno">errno</a><br/>
+
 
     <h3>Parameters:</h3>
     <ul>
@@ -625,7 +623,6 @@
         <li><span class="parameter">path</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
 
-
 </li>
     </ul>
 
@@ -657,7 +654,6 @@
         <li><span class="parameter">path</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
 
-
 </li>
     </ul>
 
@@ -686,7 +682,6 @@
     <ul>
         <li><span class="parameter">path</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-
 
 </li>
     </ul>
@@ -856,7 +851,6 @@
         <li><span class="parameter">path</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
 
-
 </li>
     </ul>
 
@@ -887,7 +881,6 @@
     <ul>
         <li><span class="parameter">path</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-
 
 </li>
     </ul>
@@ -924,7 +917,6 @@
         <li><span class="parameter">path</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
 
-
 </li>
     </ul>
 
@@ -955,7 +947,6 @@
     <ul>
         <li><span class="parameter">path</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-
 
 </li>
     </ul>
@@ -1025,7 +1016,6 @@
         <li><span class="parameter">path</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
 
-
 </li>
     </ul>
 
@@ -1050,18 +1040,17 @@
     <strong>access&nbsp;(path, mode)</strong>
     </dt>
     <dd>
-    Check real user's permissions for a file.
+    Check real user&rsquo;s permissions for a file.
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
 
-
 </li>
         <li><span class="parameter">mode</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         optional, can contain 'r','w','x' and 'f' (default 'f')</li>
+         optional, can contain &lsquo;r&rsquo;,&lsquo;w&rsquo;,&lsquo;x&rsquo; and &lsquo;f&rsquo; (default &lsquo;f&rsquo;)</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -1121,7 +1110,6 @@
         <li><span class="parameter">path</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
 
-
 </li>
     </ul>
 
@@ -1152,7 +1140,7 @@
     <ul>
         <li><span class="parameter">templ</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         pattern that ends in "XXXXXX"</li>
+         pattern that ends in &ldquo;XXXXXX&rdquo;</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -1186,7 +1174,7 @@
     <ul>
         <li><span class="parameter">templ</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         pattern that ends in six 'X' characters</li>
+         pattern that ends in six &lsquo;X&rsquo; characters</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -1216,7 +1204,6 @@
     <ul>
         <li><span class="parameter">path</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-
 
 </li>
         <li><span class="parameter">...</span>
@@ -1252,7 +1239,6 @@
     <ul>
         <li><span class="parameter">path</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-
 
 </li>
         <li><span class="parameter">...</span>
@@ -1342,7 +1328,6 @@ Adapted from http://lua-users.org/lists/lua-l/2007-11/msg00346.html
         <li><span class="parameter">timeout</span>
             <span class="types"><span class="type">int</span></span>
 
-
 </li>
     </ul>
 
@@ -1414,7 +1399,7 @@ Adapted from http://lua-users.org/lists/lua-l/2007-11/msg00346.html
         <li>
         pid of terminated child, nil on error</li>
         <li>
-        how child ended ("exited", "killed" or "stopped"), or error message on error.</li>
+        how child ended (&ldquo;exited&rdquo;, &ldquo;killed&rdquo; or &ldquo;stopped&rdquo;), or error message on error.</li>
         <li>
         status value (computed with WEXITSTATUS, WTERMSIG or WSTOPSIG as appropriate), or nothing on error.</li>
     </ol>
@@ -1504,11 +1489,11 @@ Adapted from http://lua-users.org/lists/lua-l/2007-11/msg00346.html
     <ul>
         <li><span class="parameter">what</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         one of 'u', 'U', 'g', 'G', 's', 'p' (upper-case means "effective")</li>
+         one of &lsquo;u&rsquo;, &lsquo;U&rsquo;, &lsquo;g&rsquo;, &lsquo;G&rsquo;, &rsquo;s', &lsquo;p&rsquo; (upper-case means &ldquo;effective&rdquo;)</li>
         <li><span class="parameter">id</span>
-         (uid, gid or pid for every value of <code>what</code> except 's')</li>
+         (uid, gid or pid for every value of <code>what</code> except &rsquo;s')</li>
         <li><span class="parameter">gid</span>
-         (only for <code>what</code> value 'p')</li>
+         (only for <code>what</code> value &lsquo;p&rsquo;)</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -1544,7 +1529,6 @@ Adapted from http://lua-users.org/lists/lua-l/2007-11/msg00346.html
         <li><span class="parameter">seconds</span>
             <span class="types"><span class="type">int</span></span>
 
-
 </li>
     </ul>
 
@@ -1574,11 +1558,9 @@ Adapted from http://lua-users.org/lists/lua-l/2007-11/msg00346.html
         <li><span class="parameter">seconds</span>
             <span class="types"><span class="type">int</span></span>
 
-
 </li>
         <li><span class="parameter">nanoseconds</span>
             <span class="types"><span class="type">int</span></span>
-
 
 </li>
     </ul>
@@ -1612,14 +1594,13 @@ results <code>tv_sec</code>, <code>tv_nsec</code> if return value is <code>EINTR
         <li><span class="parameter">key</span>
             <span class="types"><span class="type">int</span></span>
 
-
 </li>
         <li><span class="parameter">flags</span>
             <span class="types"><span class="type">int</span></span>
-         (optional, default - 0)</li>
+         (optional, default &ndash; 0)</li>
         <li><span class="parameter">mode</span>
             <span class="types"><span class="type">int</span></span>
-         (optional, default - 0777)</li>
+         (optional, default &ndash; 0777)</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -1649,26 +1630,25 @@ results <code>tv_sec</code>, <code>tv_nsec</code> if return value is <code>EINTR
     <ul>
         <li><span class="parameter">id</span>
             <span class="types"><span class="type">int</span></span>
-
-<ul>
-    <li>message queue identifier returned by msgget</li>
+        <ul>
+<li>message queue identifier returned by msgget</li>
 </ul>
+
 </li>
         <li><span class="parameter">type</span>
             <span class="types"><span class="type">int</span></span>
-
-<ul>
-    <li>message type</li>
+        <ul>
+<li>message type</li>
 </ul>
+
 </li>
         <li><span class="parameter">message</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
 
-
 </li>
         <li><span class="parameter">flags</span>
             <span class="types"><span class="type">int</span></span>
-         (optional, default - 0)</li>
+         (optional, default &ndash; 0)</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -1698,28 +1678,28 @@ results <code>tv_sec</code>, <code>tv_nsec</code> if return value is <code>EINTR
     <ul>
         <li><span class="parameter">id</span>
             <span class="types"><span class="type">int</span></span>
-
-<ul>
-    <li>message queue identifier returned by msgget</li>
+        <ul>
+<li>message queue identifier returned by msgget</li>
 </ul>
+
 </li>
         <li><span class="parameter">size</span>
             <span class="types"><span class="type">int</span></span>
-
-<ul>
-    <li>maximum message size</li>
+        <ul>
+<li>maximum message size</li>
 </ul>
+
 </li>
         <li><span class="parameter">type</span>
             <span class="types"><span class="type">int</span></span>
-
-<ul>
-    <li>message type (optional, default - 0)</li>
+        <ul>
+<li>message type (optional, default &ndash; 0)</li>
 </ul>
+
 </li>
         <li><span class="parameter">flags</span>
             <span class="types"><span class="type">int</span></span>
-         (optional, default - 0)</li>
+         (optional, default &ndash; 0)</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -1751,11 +1731,10 @@ results <code>tv_sec</code>, <code>tv_nsec</code> if return value is <code>EINTR
         <li><span class="parameter">name</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
 
-
 </li>
         <li><span class="parameter">value</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         (maybe nil, meaning 'unset')</li>
+         (maybe nil, meaning &lsquo;unset&rsquo;)</li>
         <li><span class="parameter">over</span>
          non-nil prevents overwriting a variable</li>
     </ul>
@@ -1849,7 +1828,7 @@ results <code>tv_sec</code>, <code>tv_nsec</code> if return value is <code>EINTR
         <li><span class="parameter">oflags</span>
             <span class="types"><span class="type">int</span></span>
          bitwise OR of the values <code>O_RDWR</code>,
-and possibly <code>O_NOCTTY</code> (all in the library's namespace)</li>
+and possibly <code>O_NOCTTY</code> (all in the library&rsquo;s namespace)</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -1976,13 +1955,12 @@ and possibly <code>O_NOCTTY</code> (all in the library's namespace)</li>
         <li><span class="parameter">path</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
 
-
 </li>
         <li><span class="parameter">oflags</span>
             <span class="types"><span class="type">int</span></span>
          bitwise OR of the values <code>O_RDONLY</code>, <code>O_WRONLY</code>, <code>O_RDWR</code>,
 <code>O_APPEND</code>, <code>O_CREAT</code>, <code>O_DSYNC</code>, <code>O_EXCL</code>, <code>O_NOCTTY</code>, <code>O_NONBLOCK</code>, <code>O_RSYNC</code>,
-<code>O_SYNC</code>, <code>O_TRUNC</code> (all in the library's namespace)</li>
+<code>O_SYNC</code>, <code>O_TRUNC</code> (all in the library&rsquo;s namespace)</li>
         <li><span class="parameter">mode</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          (used with <code>O_CREAT</code>; see chmod for format)</li>
@@ -2017,7 +1995,6 @@ and possibly <code>O_NOCTTY</code> (all in the library's namespace)</li>
         <li><span class="parameter">fd</span>
             <span class="types"><span class="type">int</span></span>
 
-
 </li>
     </ul>
 
@@ -2048,7 +2025,6 @@ and possibly <code>O_NOCTTY</code> (all in the library's namespace)</li>
     <ul>
         <li><span class="parameter">fd</span>
             <span class="types"><span class="type">int</span></span>
-
 
 </li>
     </ul>
@@ -2081,11 +2057,9 @@ and possibly <code>O_NOCTTY</code> (all in the library's namespace)</li>
         <li><span class="parameter">oldfd</span>
             <span class="types"><span class="type">int</span></span>
 
-
 </li>
         <li><span class="parameter">newfd</span>
             <span class="types"><span class="type">int</span></span>
-
 
 </li>
     </ul>
@@ -2136,14 +2110,13 @@ and possibly <code>O_NOCTTY</code> (all in the library's namespace)</li>
     <strong>chmod&nbsp;(path, mode)</strong>
     </dt>
     <dd>
-
-<p>Change the mode of the path.
+    <p>Change the mode of the path.
 Modes are specified in one of the following formats:</p>
 
 <ul>
-    <li>"rwxrwxrwx" (e.g. "rw-rw-w--")</li>
-    <li>"ugoa+-=rwx" (e.g. "u+w")</li>
-    <li>"+-=rwx" (e.g. "+w")</li>
+<li>&ldquo;rwxrwxrwx&rdquo; (e.g. &ldquo;rw-rw-w&mdash;&rdquo;)</li>
+<li>&ldquo;ugoa+&ndash;=rwx&rdquo; (e.g. &ldquo;u+w&rdquo;)</li>
+<li>&ldquo;+&ndash;=rwx&rdquo; (e.g. &ldquo;+w&rdquo;)</li>
 </ul>
 
 
@@ -2155,7 +2128,6 @@ Modes are specified in one of the following formats:</p>
          existing file path</li>
         <li><span class="parameter">mode</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-
 
 </li>
     </ul>
@@ -2331,13 +2303,13 @@ Modes are specified in one of the following formats:</p>
     <ul>
         <li><span class="parameter">...</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         types, each one of "egid", "euid", "gid", "uid", "pgrp", "pid", "ppid"</li>
+         types, each one of &ldquo;egid&rdquo;, &ldquo;euid&rdquo;, &ldquo;gid&rdquo;, &ldquo;uid&rdquo;, &ldquo;pgrp&rdquo;, &ldquo;pid&rdquo;, &ldquo;ppid&rdquo;</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        ... values, or table of all ids if no option given
+        &hellip; values, or table of all ids if no option given
     </ol>
 
 
@@ -2433,13 +2405,13 @@ Modes are specified in one of the following formats:</p>
          (name or id)</li>
         <li><span class="parameter">...</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         field names, each one of "uid", "name", "gid", "passwd", "dir", "shell"</li>
+         field names, each one of &ldquo;uid&rdquo;, &ldquo;name&rdquo;, &ldquo;gid&rdquo;, &ldquo;passwd&rdquo;, &ldquo;dir&rdquo;, &ldquo;shell&rdquo;</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        ... values, or table of all fields if no option given
+        &hellip; values, or table of all fields if no option given
     </ol>
 
 
@@ -2507,13 +2479,13 @@ Modes are specified in one of the following formats:</p>
     <ul>
         <li><span class="parameter">...</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         field names, each one of "utime", "stime", "cutime", "cstime", "elapsed"</li>
+         field names, each one of &ldquo;utime&rdquo;, &ldquo;stime&rdquo;, &ldquo;cutime&rdquo;, &ldquo;cstime&rdquo;, &ldquo;elapsed&rdquo;</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        ... times, or table of all times if no option given
+        &hellip; times, or table of all times if no option given
     </ol>
 
 
@@ -2538,14 +2510,14 @@ Modes are specified in one of the following formats:</p>
          file path</li>
         <li><span class="parameter">...</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         field names, each one of "mode", "ino", "dev", "nlink", "uid", "gid",
-"size", "atime", "mtime", "ctime", "type"</li>
+         field names, each one of &ldquo;mode&rdquo;, &ldquo;ino&rdquo;, &ldquo;dev&rdquo;, &ldquo;nlink&rdquo;, &ldquo;uid&rdquo;, &ldquo;gid&rdquo;,
+&ldquo;size&rdquo;, &ldquo;atime&rdquo;, &ldquo;mtime&rdquo;, &ldquo;ctime&rdquo;, &ldquo;type&rdquo;</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        ... values, or table of all fields if no option given
+        &hellip; values, or table of all fields if no option given
     </ol>
 
 
@@ -2574,14 +2546,14 @@ Modes are specified in one of the following formats:</p>
          any path within the mounted file system</li>
         <li><span class="parameter">...</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         field names, each one of "bsize", "frsize", "blocks", "bfree", "bavail",
-"files", "ffree", "favail", "fsid", "flag", "namemax"</li>
+         field names, each one of &ldquo;bsize&rdquo;, &ldquo;frsize&rdquo;, &ldquo;blocks&rdquo;, &ldquo;bfree&rdquo;, &ldquo;bavail&rdquo;,
+&ldquo;files&rdquo;, &ldquo;ffree&rdquo;, &ldquo;favail&rdquo;, &ldquo;fsid&rdquo;, &ldquo;flag&rdquo;, &ldquo;namemax&rdquo;</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        ... values, or table of all fields if no option given
+        &hellip; values, or table of all fields if no option given
     </ol>
 
 
@@ -2677,12 +2649,13 @@ with semantics of F_GETLK).</li>
         , contains zero or more of:</p>
 
 <ul>
-    <li>%m  machine name</li>
-    <li>%n  node name</li>
-    <li>%r  release</li>
-    <li>%s  sys name</li>
-    <li>%v  version</li>
+<li>%m  machine name</li>
+<li>%n  node name</li>
+<li>%r  release</li>
+<li>%s  sys name</li>
+<li>%v  version</li>
 </ul>
+
 
 <p>(default return all information available)</li>
     </ul>
@@ -2714,17 +2687,17 @@ with semantics of F_GETLK).</li>
     <ul>
         <li><span class="parameter">path</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         optional (default ".")</li>
+         optional (default &ldquo;.&rdquo;)</li>
         <li><span class="parameter">...</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         field names, each one of "LINK<em>MAX", "MAX</em>CANON", "NAME<em>MAX", "PIPE</em>BUF",
-"CHOWN<em>RESTRICTED", "NO</em>TRUNC", "VDISABLE"</li>
+         field names, each one of &ldquo;LINK_MAX&rdquo;, &ldquo;MAX_CANON&rdquo;, &ldquo;NAME_MAX&rdquo;, &ldquo;PIPE_BUF&rdquo;,
+&ldquo;CHOWN_RESTRICTED&rdquo;, &ldquo;NO_TRUNC&rdquo;, &ldquo;VDISABLE&rdquo;</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        ... values, or table of all fields if no option given
+        &hellip; values, or table of all fields if no option given
     </ol>
 
 
@@ -2750,14 +2723,14 @@ with semantics of F_GETLK).</li>
     <ul>
         <li><span class="parameter">...</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         field names, each one of "ARG<em>MAX", "CHILD</em>MAX", "CLK<em>TCK", "NGROUPS</em>MAX",
-"STREAM<em>MAX", "TZNAME</em>MAX", "OPEN<em>MAX", "JOB</em>CONTROL", "VERSION"</li>
+         field names, each one of &ldquo;ARG_MAX&rdquo;, &ldquo;CHILD_MAX&rdquo;, &ldquo;CLK_TCK&rdquo;, &ldquo;NGROUPS_MAX&rdquo;,
+&ldquo;STREAM_MAX&rdquo;, &ldquo;TZNAME_MAX&rdquo;, &ldquo;OPEN_MAX&rdquo;, &ldquo;JOB_CONTROL&rdquo;, &ldquo;VERSION&rdquo;</li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        ... values, or table of all fields no option
+        &hellip; values, or table of all fields no option
     </ol>
 
 
@@ -2782,8 +2755,8 @@ with semantics of F_GETLK).</li>
          all messages will start with this</li>
         <li><span class="parameter">option</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         optional, any combination of 'c' (directly to system console if an error sending),
-'n' (no delay) or 'p' (show PID)</li>
+         optional, any combination of &lsquo;c&rsquo; (directly to system console if an error sending),
+&lsquo;n&rsquo; (no delay) or &lsquo;p&rsquo; (show PID)</li>
         <li><span class="parameter">facility</span>
             <span class="types"><span class="type">int</span></span>
          optional (default LOG_USER)</li>
@@ -2809,22 +2782,20 @@ with semantics of F_GETLK).</li>
     <ul>
         <li><span class="parameter">priority</span>
             <span class="types"><span class="type">int</span></span>
-
-<p> one of these values:</p>
+        <p> one of these values:</p>
 
 <ul>
-    <li>1  Alert - immediate action</li>
-    <li>2  Critcal</li>
-    <li>3  Error</li>
-    <li>4  Warning</li>
-    <li>5  Notice</li>
-    <li>6  Informational</li>
+<li>1  Alert &ndash; immediate action</li>
+<li>2  Critcal</li>
+<li>3  Error</li>
+<li>4  Warning</li>
+<li>5  Notice</li>
+<li>6  Informational</li>
 </ul>
 
 </li>
         <li><span class="parameter">message</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-
 
 </li>
     </ul>
@@ -2894,7 +2865,6 @@ Not recommended for general encryption purposes.
         <li><span class="parameter">string</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
 
-
 </li>
         <li><span class="parameter">salt</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
@@ -2926,8 +2896,8 @@ Not recommended for general encryption purposes.
     <ul>
         <li><span class="parameter">resource</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         one of "core", "cpu", "data", "fsize",
- "nofile", "stack", "as"</li>
+         one of &ldquo;core&rdquo;, &ldquo;cpu&rdquo;, &ldquo;data&rdquo;, &ldquo;fsize&rdquo;,
+ &ldquo;nofile&rdquo;, &ldquo;stack&rdquo;, &ldquo;as&rdquo;</li>
         <li><span class="parameter">softlimit</span>
          optional (default keep current limit)</li>
         <li><span class="parameter">hardlimit</span>
@@ -2966,8 +2936,8 @@ Not recommended for general encryption purposes.
     <ul>
         <li><span class="parameter">resource</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         one of "core", "cpu", "data", "fsize",
- "nofile", "stack", "as"</li>
+         one of &ldquo;core&rdquo;, &ldquo;cpu&rdquo;, &ldquo;data&rdquo;, &ldquo;fsize&rdquo;,
+ &ldquo;nofile&rdquo;, &ldquo;stack&rdquo;, &ldquo;as&rdquo;</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -2979,6 +2949,219 @@ Not recommended for general encryption purposes.
     </ol>
 
 
+
+
+</dd>
+    <dt>
+    <a name = "getopt"></a>
+    <strong>getopt&nbsp;(arg, shortopts, longopts)</strong>
+    </dt>
+    <dd>
+    Parse command-line options.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">arg</span>
+         command line arguments</li>
+        <li><span class="parameter">shortopts</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         e.g &lsquo;ho:v&rsquo; (colon means &lsquo;receives argument&rsquo;)</li>
+        <li><span class="parameter">longopts</span>
+         e.g. <code>{{'help','none',2},...}</code></li>
+    </ul>
+
+
+
+    <h3>see also:</h3>
+    <ul>
+         <a href="examples/getopt.lua.html#">getopt.lua</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">for</span> ret, longindex, optind, optarg <span class="keyword">in</span> posix.getopt (arg, shortopts[, longopts[, opterr[, optind]]]) <span class="keyword">do</span> ... <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "signal"></a>
+    <strong>signal&nbsp;(signum, handler, flags)</strong>
+    </dt>
+    <dd>
+    Install a signal handler for this signal number.
+N.B. Although this is the same API as signal(2), it uses sigaction for guaranteed semantics.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">signum</span>
+            <span class="types"><span class="type">int</span></span>
+
+</li>
+        <li><span class="parameter">handler</span>
+         function</li>
+        <li><span class="parameter">flags</span>
+         optional the <code>sa_flags</code> element of <code>struct sigaction</code></li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        previous handler function
+    </ol>
+
+
+    <h3>see also:</h3>
+    <ul>
+         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/sigaction.2.html">sigaction(2)</a></li>
+         <li><a href="examples/signal.lua.html#">signal.lua</a></li>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "sync"></a>
+    <strong>sync&nbsp;()</strong>
+    </dt>
+    <dd>
+    commit buffer cache to disk
+
+
+
+
+    <h3>see also:</h3>
+    <ul>
+         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/sync.2.html">sync(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "fsync"></a>
+    <strong>fsync&nbsp;(fd)</strong>
+    </dt>
+    <dd>
+    synchronize a file&rsquo;s in-core state with storage device
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+
+</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        0 on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
+    </ol>
+
+
+    <h3>see also:</h3>
+    <ul>
+         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/fsync.2.html">fsync(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "fdatasync"></a>
+    <strong>fdatasync&nbsp;(fd)</strong>
+    </dt>
+    <dd>
+    synchronize a file&rsquo;s in-core state with storage device without metadata
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+
+</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        0 on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
+    </ol>
+
+
+    <h3>see also:</h3>
+    <ul>
+         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/fdatasync.2.html">fdatasync(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "lseek"></a>
+    <strong>lseek&nbsp;(fd, offset, whence)</strong>
+    </dt>
+    <dd>
+    reposition read/write file offset
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+
+</li>
+        <li><span class="parameter">offset</span>
+            <span class="types"><span class="type">int</span></span>
+
+</li>
+        <li><span class="parameter">whence</span>
+            <span class="types"><span class="type">int</span></span>
+         one of SEEK_SET, SEEK_CUR or SEEK_END</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        new offset on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
+    </ol>
+
+
+    <h3>see also:</h3>
+    <ul>
+         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/lseek.2.html">lseek(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "nice"></a>
+    <strong>nice&nbsp;(inc)</strong>
+    </dt>
+    <dd>
+    change process priority
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">inc</span>
+            <span class="types"><span class="type">int</span></span>
+         adds inc to the nice value for the calling process</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        new nice value on success, nil otherwise</li>
+        <li>
+        error message if failed.</li>
+    </ol>
+
+
+    <h3>see also:</h3>
+    <ul>
+         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/nice.2.html">nice(2)</a>
+    </ul>
 
 
 </dd>
@@ -3044,8 +3227,8 @@ Not recommended for general encryption purposes.
     <h3>Returns:</h3>
     <ol>
 
-        time table: contains "is_dst","yearday","hour","min","year","month",
- "sec","weekday","monthday", "day" (the same as "monthday")
+        time table: contains &ldquo;is_dst&rdquo;,&ldquo;yearday&rdquo;,&ldquo;hour&rdquo;,&ldquo;min&rdquo;,&ldquo;year&rdquo;,&ldquo;month&rdquo;,
+ &ldquo;sec&rdquo;,&ldquo;weekday&rdquo;,&ldquo;monthday&rdquo;, &ldquo;day&rdquo; (the same as &ldquo;monthday&rdquo;)
     </ol>
 
 
@@ -3086,8 +3269,8 @@ Not recommended for general encryption purposes.
     <ul>
         <li><span class="parameter">name</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         of clock, one of "monotonic", "process<em>cputime</em>id", or
-"thread<em>cputime</em>id", or nil for realtime clock.</li>
+         of clock, one of &ldquo;monotonic&rdquo;, &ldquo;process_cputime_id&rdquo;, or
+&ldquo;thread_cputime_id&rdquo;, or nil for realtime clock.</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -3113,8 +3296,8 @@ Not recommended for general encryption purposes.
     <ul>
         <li><span class="parameter">name</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         of clock, one of "monotonic", "process<em>cputime</em>id", or
-"thread<em>cputime</em>id", or nil for realtime clock.</li>
+         of clock, one of &ldquo;monotonic&rdquo;, &ldquo;process_cputime_id&rdquo;, or
+&ldquo;thread_cputime_id&rdquo;, or nil for realtime clock.</li>
     </ul>
 
     <h3>Returns:</h3>
@@ -3171,224 +3354,6 @@ Not recommended for general encryption purposes.
     </ol>
 
 
-
-
-</dd>
-    <dt>
-    <a name = "getopt"></a>
-    <strong>getopt&nbsp;(arg, shortopts, longopts)</strong>
-    </dt>
-    <dd>
-    Parse command-line options.
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">arg</span>
-         command line arguments</li>
-        <li><span class="parameter">shortopts</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
-         e.g 'ho:v' (colon means 'receives argument')</li>
-        <li><span class="parameter">longopts</span>
-         e.g. <code>{{'help','none',2},...}</code></li>
-    </ul>
-
-
-
-    <h3>see also:</h3>
-    <ul>
-         <a href="examples/getopt.lua.html#">getopt.lua</a>
-    </ul>
-
-    <h3>Usage:</h3>
-    <ul>
-        <pre class="example"><span class="keyword">for</span> ret, longindex, optind, optarg <span class="keyword">in</span> posix.getopt (arg, shortopts[, longopts[, opterr[, optind]]]) <span class="keyword">do</span> ... <span class="keyword">end</span></pre>
-    </ul>
-
-</dd>
-    <dt>
-    <a name = "signal"></a>
-    <strong>signal&nbsp;(signum, handler, flags)</strong>
-    </dt>
-    <dd>
-    Install a signal handler for this signal number.
-N.B. Although this is the same API as signal(2), it uses sigaction for guaranteed semantics.
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">signum</span>
-            <span class="types"><span class="type">int</span></span>
-
-
-</li>
-        <li><span class="parameter">handler</span>
-         function</li>
-        <li><span class="parameter">flags</span>
-         optional the <code>sa_flags</code> element of <code>struct sigaction</code></li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        previous handler function
-    </ol>
-
-
-    <h3>see also:</h3>
-    <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/sigaction.2.html">sigaction(2)</a></li>
-         <li><a href="examples/signal.lua.html#">signal.lua</a></li>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "sync"></a>
-    <strong>sync&nbsp;()</strong>
-    </dt>
-    <dd>
-    commit buffer cache to disk
-
-
-
-
-    <h3>see also:</h3>
-    <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/sync.2.html">sync(2)</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "fsync"></a>
-    <strong>fsync&nbsp;(fd)</strong>
-    </dt>
-    <dd>
-    synchronize a file's in-core state with storage device
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">fd</span>
-            <span class="types"><span class="type">int</span></span>
-
-
-</li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-        <li>
-        0 on success, nil otherwise</li>
-        <li>
-        error message if failed.</li>
-    </ol>
-
-
-    <h3>see also:</h3>
-    <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/fsync.2.html">fsync(2)</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "fdatasync"></a>
-    <strong>fdatasync&nbsp;(fd)</strong>
-    </dt>
-    <dd>
-    synchronize a file's in-core state with storage device without metadata
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">fd</span>
-            <span class="types"><span class="type">int</span></span>
-
-
-</li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-        <li>
-        0 on success, nil otherwise</li>
-        <li>
-        error message if failed.</li>
-    </ol>
-
-
-    <h3>see also:</h3>
-    <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/fdatasync.2.html">fdatasync(2)</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "lseek"></a>
-    <strong>lseek&nbsp;(fd, offset, whence)</strong>
-    </dt>
-    <dd>
-    reposition read/write file offset
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">fd</span>
-            <span class="types"><span class="type">int</span></span>
-
-
-</li>
-        <li><span class="parameter">offset</span>
-            <span class="types"><span class="type">int</span></span>
-
-
-</li>
-        <li><span class="parameter">whence</span>
-            <span class="types"><span class="type">int</span></span>
-         one of SEEK<em>SET, SEEK</em>CUR or SEEK_END</li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-        <li>
-        new offset on success, nil otherwise</li>
-        <li>
-        error message if failed.</li>
-    </ol>
-
-
-    <h3>see also:</h3>
-    <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/lseek.2.html">lseek(2)</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "nice"></a>
-    <strong>nice&nbsp;(inc)</strong>
-    </dt>
-    <dd>
-    change process priority
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">inc</span>
-            <span class="types"><span class="type">int</span></span>
-         adds inc to the nice value for the calling process</li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-        <li>
-        new nice value on success, nil otherwise</li>
-        <li>
-        error message if failed.</li>
-    </ol>
-
-
-    <h3>see also:</h3>
-    <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/nice.2.html">nice(2)</a>
-    </ul>
 
 
 </dd>

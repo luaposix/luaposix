@@ -68,7 +68,7 @@
 <span class="keyword">local</span> link_prefix = <span class="string">' -&gt; '</span>
 
 <span class="keyword">local</span> <span class="keyword">function</span> printf(...)
-  <span class="global">io</span>.write(<span class="global">string</span>.format(<span class="global">unpack</span>({...})))
+  <span class="global">io</span>.write(<span class="global">string</span>.format(...))
 <span class="keyword">end</span>
 
 <span class="keyword">local</span> <span class="keyword">function</span> do_directory(directory, level, prefix)
