@@ -6,14 +6,14 @@ env:
     - PACKAGE=luaposix
     - ROCKSPEC=$PACKAGE-git-1.rockspec
     - LUAROCKS_CONFIG=build-aux/luarocks-config.lua
-    - LUAROCKS_BASE=luarocks-2.0.13
+    - LUAROCKS_BASE=luarocks-2.1.1
     - LUAROCKS="$LUA $HOME/bin/luarocks"
     - GENDOC=luarocks/bin/ldoc
     - SPECL=bin/specl
   matrix:
-    - LUA=lua5.1             LUA_INCDIR=/usr/include/lua5.1
-    - LUA=lua5.2             LUA_INCDIR=/usr/include/lua5.2
-    - LUA=luajit-2.0.0-beta9 LUA_INCDIR=/usr/include/luajit-2.0
+    - LUA=lua5.1             LUA_INCDIR=/usr/include/lua5.1     LUA_SUFFIX=5.1
+    - LUA=lua5.2             LUA_INCDIR=/usr/include/lua5.2     LUA_SUFFIX=5.2
+    - LUA=luajit-2.0.0-beta9 LUA_INCDIR=/usr/include/luajit-2.0 LUA_SUFFIX=5.1
 
 # Tool setup.
 install:
@@ -24,6 +24,9 @@ install:
   - sudo apt-get install liblua5.1-dev
   - sudo apt-get install lua5.2
   - sudo apt-get install liblua5.2-dev
+  # Put back the links for libyaml, which missing on recent Travis VMs
+  - test -f /usr/lib/libyaml.so ||
+    sudo find /usr/lib -name 'libyaml*' -exec ln -s {} /usr/lib \;
   # Luadoc and Ldoc work best on Travis with Lua 5.1.
   - sudo apt-get install luarocks
   - sudo luarocks install ldoc
@@ -35,8 +38,8 @@ install:
   - tar zxvpf $LUAROCKS_BASE.tar.gz
   - cd $LUAROCKS_BASE
   - ./configure
-    --prefix=$HOME --lua-version=5.1 --lua-suffix=5.1
-    --with-lua-include="/usr/include/lua5.1"
+    --prefix=$HOME --lua-version=$LUA_SUFFIX --lua-suffix=$LUA_SUFFIX
+    --with-lua-include=$LUA_INCDIR
   - make all install
   - cd ..
 
@@ -57,4 +60,4 @@ script:
   - $LUAROCKS make $ROCKSPEC LUA="$LUA"
   # Use bin/specl if we built it, or else the specl rock we just installed.
   - test -f "$SPECL" || SPECL=luarocks/bin/specl;
-    make check SPECL="$SPECL" V=1
+    LUA_PATH=`pwd`'/lib/?.lua;'"${LUA_PATH-;}" make check SPECL="$SPECL" V=1
