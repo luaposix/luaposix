@@ -28,8 +28,12 @@ install:
   - test -f /usr/lib/libyaml.so ||
     sudo find /usr/lib -name 'libyaml*' -exec ln -s {} /usr/lib \;
   # Luadoc and Ldoc work best on Travis with Lua 5.1.
+  # LDoc master is unstable and crashy at the moment, this snapshot
+  # works for me. But apt-get's luarocks doesn't support source.branch
+  # in rockspec files, so we have to clone manually :(
   - sudo apt-get install luarocks
-  - sudo luarocks install ldoc
+  - git clone -b next --depth 1 https://github.com/gvvaughan/LDoc.git
+  - ( cd LDoc && sudo luarocks make ldoc-next-1.rockspec )
   - mkdir -p luarocks/bin
   - sed 's|^exec "[^"]*"|exec lua5.1|' `which ldoc` > $GENDOC
   - chmod a+rx $GENDOC
