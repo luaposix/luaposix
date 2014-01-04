@@ -1,4 +1,10 @@
 # Local Make rules.
+# Written by Gary V. Vaughan, 2013
+
+# Copyright (C) 2013-2014 Gary V. Vaughan
+
+# This file is part of luaposix.
+# See README for license.
 
 ## ------------ ##
 ## Environment. ##
@@ -20,6 +26,11 @@ LUA_ENV   = LUA_PATH="$(std_path)" LUA_CPATH="$(std_cpath)"
 AM_CPPFLAGS  += -I $(srcdir)/ext/include
 AM_CFLAGS     = $(WERROR_CFLAGS) $(WARN_CFLAGS)
 old_NEWS_hash = 0892063d70673912ae06083cb59215a5
+
+update_copyright_env = \
+	UPDATE_COPYRIGHT_HOLDER='(Gary V. Vaughan|Reuben Thomas|luaposix authors)' \
+	UPDATE_COPYRIGHT_USE_INTERVALS=1 \
+	UPDATE_COPYRIGHT_FORCE=1
 
 
 ## ------------- ##

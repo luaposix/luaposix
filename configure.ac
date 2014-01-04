@@ -1,4 +1,10 @@
-dnl Process this file with autoconf to produce a configure script
+dnl configure.ac
+dnl Written by Gary V. Vaughan, 2012
+
+dnl Copyright (c) 2012-2014 Gary V. Vaughan
+
+dnl This file is part of luaposix.
+dnl See README for license.
 
 AC_INIT([luaposix], [32], [http://github.com/luaposix/luaposix/issues])
 AC_CONFIG_AUX_DIR([build-aux])
