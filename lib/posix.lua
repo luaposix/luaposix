@@ -249,7 +249,7 @@ function M.openpty (term, win)
         end
       end
     end
-    close (master)
+    posix.close (master)
   end
   return nil, reason
 end
