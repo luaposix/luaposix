@@ -2765,7 +2765,8 @@ static int iter_getopt_long(lua_State *L)
 /***
 Parse command-line options.
 @function getopt
-@see getopt(3) / getopt_long()
+@see getopt(3)
+@see getopt_long(3)
 @param arg command line arguments
 @string shortopts e.g 'ho:v' (colon means 'receives argument')
 @param longopts e.g. `{{'help','none',2},...}`
