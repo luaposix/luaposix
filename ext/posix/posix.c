@@ -3962,6 +3962,10 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 #ifndef O_RSYNC
 #define O_RSYNC 0
 #endif
+	/* FreeBSD 10 fails to define O_DSYNC. */
+#ifndef O_DSYNC
+#define O_DSYNC 0
+#endif
 
 	/* file creation & status flags */
 	MENTRY( O_RDONLY	);
