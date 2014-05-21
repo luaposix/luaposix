@@ -850,6 +850,25 @@ static int Paccess(lua_State *L)
 	return pushresult(L, access(path, mode), path);
 }
 
+#if HAVE_POSIX_FADVISE
+/***
+Instruct kernel on appropriate cache behaviour for a file or file segment.
+@function fadvise
+@param file Lua file object
+@return 0 on success, nil otherwise
+@return error message if failed.
+*/
+static int Pfadvise(lua_State *L)
+{
+	FILE *f = *(FILE**) luaL_checkudata(L, 1, LUA_FILEHANDLE);
+	const lua_Integer offset = lua_tointeger(L, 2);
+	const lua_Integer len    = lua_tointeger(L, 3);
+	const lua_Integer advice = lua_tointeger(L, 4);
+	int res = posix_fadvise(fileno (f), offset, len, advice);
+	return pushresult(L, res == 0 ? 0 : -1, "posix_fadvise");
+}
+#endif
+
 /***
 File descriptor corresponding to a Lua file object.
 @function fileno
@@ -3868,6 +3887,9 @@ static const luaL_Reg R[] =
 	MENTRY( Perrno		),
 	MENTRY( Pexec		),
 	MENTRY( Pexecp		),
+#if HAVE_POSIX_FADVISE
+	MENTRY( Pfadvise	),
+#endif
 #if _POSIX_VERSION >= 200112L
 	MENTRY( Pfdatasync	),
 #endif
@@ -4338,6 +4360,26 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 #endif
 #ifdef SA_NODEFER
 	MENTRY( SA_NODEFER	);
+#endif
+
+	/* posix_fadvise flags */
+#ifdef POSIX_FADV_NORMAL
+	MENTRY( POSIX_FADV_NORMAL	);
+#endif
+#ifdef POSIX_FADV_SEQUENTIAL
+	MENTRY( POSIX_FADV_SEQUENTIAL	);
+#endif
+#ifdef POSIX_FADV_RANDOM
+	MENTRY( POSIX_FADV_RANDOM	);
+#endif
+#ifdef POSIX_FADV_NOREUSE
+	MENTRY( POSIX_FADV_NOREUSE	);
+#endif
+#ifdef POSIX_FADV_WILLNEED
+	MENTRY( POSIX_FADV_WILLNEED	);
+#endif
+#ifdef POSIX_FADV_DONTNEED
+	MENTRY( POSIX_FADV_DONTNEED	);
 #endif
 
 #if _POSIX_VERSION >= 200112L
