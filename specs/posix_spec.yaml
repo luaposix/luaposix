@@ -143,18 +143,33 @@ specify lposix:
         expect (nice (-1)).should_be (nil)
 
   - describe fork:
-    - it copies itself to a new child process:
+    # NOTE: Calling expect in a child process does not report results
+    #       back to parent, so we send test data over a pipe.
+    - before:
+        _exit, close, pipe, read, write =
+          posix._exit, posix.close, posix.pipe, posix.read, posix.write
+    - it copies itself to a new child process: |
+        r, w = pipe ()
         process, status = fork (), 67
         if process == P_CHILD then
-          pid, ppid = getpid "pid", getpid "ppid"
-          expect (ppid).should_be (process)
-          expect (ppid).should_not_be (pid)
-          os.exit (status)
+          close (r) -- close unused read end
+          -- write parent pid and child pid to shared pipe.
+          write (w, tostring (getpid "ppid").."\n")
+          write (w, tostring (getpid "pid").."\n")
+          close (w)
+          _exit (status)
         else
+          posix.close (w) -- close unused write end
           p, msg, ret = wait (process)
           expect (p).should_be (process)
           expect (msg).should_be "exited"
           expect (ret).should_be (status)
+          -- check pids from child process.
+          buf = posix.read (r, 1024)
+          cppid, cpid = string.match (buf, "(%d+)\n(%d+)\n")
+          close (r)
+          expect (cppid).should_be (tostring (getpid "pid"))
+          expect (cpid).should_be (tostring (process))
         end
 
   - describe exec:
