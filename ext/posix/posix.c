@@ -65,6 +65,9 @@
  * compliant yet :( */
 #  include <strings.h>
 #endif
+#if HAVE_LINUX_NETLINK_H
+#include <linux/netlink.h>
+#endif
 
 #define MYNAME		"posix"
 #define MYVERSION	MYNAME " library for " LUA_VERSION " / " VERSION
@@ -3112,6 +3115,9 @@ static int sockaddr_to_lua(lua_State *L, int family, struct sockaddr *sa)
 	struct sockaddr_in *sa4;
 	struct sockaddr_in6 *sa6;
 	struct sockaddr_un *sau;
+#if HAVE_LINUX_NETLINK_H
+	struct sockaddr_nl *san;
+#endif
 
 	lua_newtable(L);
 	lua_pushnumber(L, family); lua_setfield(L, -2, "family");
@@ -3136,6 +3142,13 @@ static int sockaddr_to_lua(lua_State *L, int family, struct sockaddr *sa)
 			sau = (struct sockaddr_un *)sa;
 			lua_pushstring(L, sau->sun_path); lua_setfield(L, -2, "path");
 			break;
+#if HAVE_LINUX_NETLINK_H
+		case AF_NETLINK:
+			san = (struct sockaddr_nl *)sa;
+			lua_pushnumber(L, san->nl_pid); lua_setfield(L, -2, "pid");
+			lua_pushnumber(L, san->nl_groups); lua_setfield(L, -2, "groups");
+			break;
+#endif
 	}
 
 	return 1;
@@ -3148,7 +3161,9 @@ static int sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *s
 	struct sockaddr_in *sa4;
 	struct sockaddr_in6 *sa6;
 	struct sockaddr_un *sau;
+	struct sockaddr_nl *san;
 	int family, port;
+	int pid, groups;
 	const char *addr;
 	const char *path;
 	int r;
@@ -3192,6 +3207,18 @@ static int sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *s
 			*addrlen = sizeof(*sau);
 			return 0;
 			break;
+#if HAVE_LINUX_NETLINK_H
+		case AF_NETLINK:
+			san = (struct sockaddr_nl *)sa;
+			lua_getfield(L, index, "pid"); pid = luaL_checknumber(L, -1); lua_pop(L, 1);
+			lua_getfield(L, index, "groups"); groups = luaL_checknumber(L, -1); lua_pop(L, 1);
+			san->nl_family = family;
+			san->nl_pid = pid;
+			san->nl_groups = groups;
+			*addrlen = sizeof(*san);
+			return 0;
+			break;
+#endif
 	}
 	return -1;
 }
@@ -4726,6 +4753,9 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( AF_INET		);
 	MENTRY( AF_INET6	);
 	MENTRY( AF_UNIX		);
+#if HAVE_LINUX_NETLINK_H
+	MENTRY( AF_NETLINK	);
+#endif
 	MENTRY( SOL_SOCKET	);
 	MENTRY( IPPROTO_TCP	);
 	MENTRY( IPPROTO_IP	);
@@ -4784,6 +4814,27 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 #ifdef IPV6_V6ONLY
 	MENTRY( IPV6_V6ONLY		);
 #endif
+#if HAVE_LINUX_NETLINK_H
+	MENTRY( NETLINK_ROUTE          );
+	MENTRY( NETLINK_UNUSED         );
+	MENTRY( NETLINK_USERSOCK       );
+	MENTRY( NETLINK_FIREWALL       );
+	MENTRY( NETLINK_NFLOG          );
+	MENTRY( NETLINK_XFRM           );
+	MENTRY( NETLINK_SELINUX        );
+	MENTRY( NETLINK_ISCSI          );
+	MENTRY( NETLINK_AUDIT          );
+	MENTRY( NETLINK_FIB_LOOKUP     );
+	MENTRY( NETLINK_CONNECTOR      );
+	MENTRY( NETLINK_NETFILTER      );
+	MENTRY( NETLINK_IP6_FW         );
+	MENTRY( NETLINK_DNRTMSG        );
+	MENTRY( NETLINK_KOBJECT_UEVENT );
+	MENTRY( NETLINK_GENERIC        );
+	MENTRY( NETLINK_SCSITRANSPORT  );
+	MENTRY( NETLINK_ECRYPTFS       );
+#endif
+
 #undef MENTRY
 
 	/* Signals table stored in registry for Psignal and sig_handle */
