@@ -65,6 +65,9 @@
  * compliant yet :( */
 #  include <strings.h>
 #endif
+#ifdef HAVE_NET_IF_H
+#include <net/if.h>
+#endif
 
 #define MYNAME		"posix"
 #define MYVERSION	MYNAME " library for " LUA_VERSION " / " VERSION
@@ -3390,6 +3393,9 @@ static int Psetsockopt(lua_State *L)
 	struct linger linger;
 	struct timeval tv;
 	struct ipv6_mreq mreq6;
+#ifdef SO_BINDTODEVICE
+	struct ifreq ifr;
+#endif
 	int vint = 0;
 	void *val = NULL;
 	socklen_t len = sizeof(vint);
@@ -3410,6 +3416,12 @@ static int Psetsockopt(lua_State *L)
 					val = &tv;
 					len = sizeof(tv);
 					break;
+#ifdef SO_BINDTODEVICE
+				case SO_BINDTODEVICE:
+					strncpy(ifr.ifr_name, luaL_checkstring(L, 4), IFNAMSIZ);
+					val = &ifr;
+					len = sizeof(ifr);
+#endif
 				default:
 					break;
 			}
@@ -4730,8 +4742,14 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( IPPROTO_TCP	);
 	MENTRY( IPPROTO_IP	);
 	MENTRY( IPPROTO_IPV6	);
+#ifdef IPPROTO_ICMP
+	MENTRY( IPPROTO_ICMP	);
+#endif
 	MENTRY( SOCK_STREAM	);
 	MENTRY( SOCK_DGRAM	);
+#ifdef SOCK_RAW
+	MENTRY( SOCK_RAW	);
+#endif
 	MENTRY( SHUT_RD		);
 	MENTRY( SHUT_WR		);
 	MENTRY( SHUT_RDWR	);
@@ -4741,6 +4759,9 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( SO_LINGER	);
 	MENTRY( SO_RCVTIMEO	);
 	MENTRY( SO_SNDTIMEO	);
+#ifdef SO_BINDTODEVICE
+	MENTRY( SO_BINDTODEVICE	);
+#endif
 	MENTRY( SO_DEBUG	);
 	MENTRY( SO_DONTROUTE	);
 	MENTRY( SO_ERROR	);
