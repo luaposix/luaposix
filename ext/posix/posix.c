@@ -60,6 +60,11 @@
 #if HAVE_SYS_STATVFS_H
 #  include <sys/statvfs.h>
 #endif
+#if HAVE_STRINGS_H
+/* POSIX declares strcasecmp in strings.h, but not everywhere is
+ * compliant yet :( */
+#  include <strings.h>
+#endif
 
 #define MYNAME		"posix"
 #define MYVERSION	MYNAME " library for " LUA_VERSION " / " VERSION
