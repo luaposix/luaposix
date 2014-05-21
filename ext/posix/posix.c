@@ -14,6 +14,7 @@
 
 #include <config.h>
 
+
 #include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
@@ -851,6 +852,29 @@ static int Paccess(lua_State *L)
 }
 
 /***
+Instruct kernel on appropriate cache behaviour for a file or file segment.
+@function fadvise
+@param file Lua file object
+@return 1 on success plus empty string
+@return NULL and error message if failed.
+*/
+static int Pfadvise(lua_State *L)
+{
+    /* Check argument types are sane */
+    if (!(lua_isuserdata(L, 1) & lua_isnumber(L, 2) & lua_isnumber(L, 3) & lua_isnumber(L, 4)))
+        pusherror(L, "Bad argument. Usage: Pfadvise(lua_filehandle, file_start (int), file_end (int; 0 for all), advise (int))");
+    /* Get args from stack, converting lua's FILE file descriptor to posix int file descriptor. */
+    FILE *f = *(FILE**) luaL_checkudata(L, 1, LUA_FILEHANDLE);
+    const int fn = fileno(f);
+    const lua_Integer start = lua_tointeger(L, 2);
+    const lua_Integer end = lua_tointeger(L, 3);
+    const lua_Integer advise = lua_tointeger(L, 4);
+    /* Call to fadvise (calling error on nonzero retcode) and push "1" as return value for assert. */
+    if (posix_fadvise(fn, start, end, advise)) pusherror(L, "posix_fadvise returned error code.");
+    return pushresult(L, 1, "Successfully called posix_fadvise on stream.");
+}
+
+/***
 File descriptor corresponding to a Lua file object.
 @function fileno
 @param file Lua file object
@@ -862,7 +886,6 @@ static int Pfileno(lua_State *L)
 	FILE *f = *(FILE**) luaL_checkudata(L, 1, LUA_FILEHANDLE);
 	return pushresult(L, fileno(f), NULL);
 }
-
 
 /***
 Make a FIFO pipe.
@@ -3868,6 +3891,7 @@ static const luaL_Reg R[] =
 	MENTRY( Perrno		),
 	MENTRY( Pexec		),
 	MENTRY( Pexecp		),
+    MENTRY( Pfadvise    ),
 #if _POSIX_VERSION >= 200112L
 	MENTRY( Pfdatasync	),
 #endif
@@ -3995,13 +4019,20 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 #define MENTRY(_f) set_integer_const(#_f, _f)
 	/* stdio.h constants */
 	/* Those that are omitted already have a Lua interface, or alternative. */
-	MENTRY( _IOFBF		);
-	MENTRY( _IOLBF		);
-	MENTRY( _IONBF		);
-	MENTRY( BUFSIZ		);
-	MENTRY( EOF		);
-	MENTRY( FOPEN_MAX	);
-	MENTRY( FILENAME_MAX	);
+	MENTRY( _IOFBF        );
+	MENTRY( _IOLBF        );
+	MENTRY( _IONBF		  );
+	MENTRY( BUFSIZ		  );
+	MENTRY( EOF		      );
+	MENTRY( FOPEN_MAX	  );
+	MENTRY( FILENAME_MAX  );
+    /* All used by Pfadvise as "advise" */
+    MENTRY( POSIX_FADV_NORMAL     );  /* No advise to offer for this file */
+    MENTRY( POSIX_FADV_SEQUENTIAL );  /* Expect to access file sequentially (lower offsets read before higher) */
+    MENTRY( POSIX_FADV_RANDOM     );  /* Specified data will be accessed in random order */
+    MENTRY( POSIX_FADV_NOREUSE    );  /* Specified data will be accessed only once */
+    MENTRY( POSIX_FADV_WILLNEED   );  /* Specified data will be accessed in the near future */
+    MENTRY( POSIX_FADV_DONTNEED   );  /* Specified data will not be accessed in the near future. */
 
 	/* Darwin fails to define O_RSYNC. */
 #ifndef O_RSYNC
