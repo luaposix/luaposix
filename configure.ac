@@ -86,7 +86,7 @@ gl_INIT
 
 dnl Check for header files
 AC_HEADER_STDC
-AC_CHECK_HEADERS([strings.h crypt.h sys/statvfs.h net/if.h])
+AC_CHECK_HEADERS([crypt.h strings.h sys/statvfs.h linux/netlink.h])
 
 dnl Search libs
 AC_SEARCH_LIBS([crypt], [crypt],
