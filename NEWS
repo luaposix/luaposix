@@ -2,6 +2,22 @@ Stdlib NEWS - User visible changes
 
 * Noteworthy changes in release ?.? (????-??-??) [?]
 
+** New features:
+
+ - Support for posix.socketpair call and posix.AF_UNIX constant.
+
+** Bug fixes:
+
+ - Builds correctly on hosts with no IPV6 capability.
+
+ - Small improvements in organisation of generated html docs.
+
+ - posix.openpty doesn't crash.
+
+ - configure now detects Lua correctly with busybox grep.
+
+ - Many fine portability fixes from latest gnulib.
+
 
 * Noteworthy changes in release 31 (2013-09-09) [stable]
 
