@@ -2571,6 +2571,7 @@ Write to the system logger.
  * 4  Warning
  * 5  Notice
  * 6  Informational
+ * 7  Debug
 
 @string message
 */
