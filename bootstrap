@@ -109,6 +109,11 @@ export AUTORECONF
 export CONFIG_SHELL
 
 
+: ${LUAROCKS="luarocks"}
+
+export LUAROCKS
+
+
 ## -------------- ##
 ## Configuration. ##
 ## -------------- ##
@@ -232,6 +237,10 @@ slingshot_files=$slingshot_files
 # these values are ignored.
 slingshot_path=$slingshot_path
 slingshot_url=$slingshot_url
+
+# NOTE: slingshot bootstrap will check rockspecs listed in $buildreq,
+#       according to the URL part of a specification triple ending in
+#       `.rockspec`.
 
 
 ## ------------------- ##
@@ -688,6 +697,44 @@ func_require_term_colors ()
     }
 
     require_term_colors=:
+}
+
+
+# require_rockspecs_req
+# ---------------------
+# Remove rockspecs from $buildreq, and add them to $rockspecs_req.
+require_rockspecs_req=slingshot_require_rockspecs_req
+slingshot_require_rockspecs_req ()
+{
+    $debug_cmd
+
+    test -n "$rockspecs_req" || {
+      _G_non_rockspecs=
+
+      set dummy $buildreq; shift
+
+      while test $# -gt 2; do
+        case $3 in
+          *.rockspec)
+            func_append rockspecs_req " $1 $2 $3"
+            ;;
+          [a-z]*://*)
+            func_append _G_non_rockspecs " $1 $2 $3"
+            ;;
+	  *) func_fatal_error "\
+'$3' from the buildreq table in
+'bootstrap.conf' does not look like the URL for downloading
+$1. Please ensure that buildreq is a strict newline
+delimited list of triples; 'program min-version url'."
+            ;;
+        esac
+	shift; shift; shift
+      done
+
+      buildreq=$_G_non_rockspecs
+    }
+
+    require_rockspecs_req=:
 }
 
 
@@ -1675,7 +1722,7 @@ func_lt_ver ()
 #! /bin/sh
 
 # Set a version string for this script.
-scriptversion=2014-01-04.01; # UTC
+scriptversion=2014-01-07.03; # UTC
 
 # A portable, pluggable option parser for Bourne shell.
 # Written by Gary V. Vaughan, 2010
@@ -2097,6 +2144,89 @@ func_validate_options ()
 
 
 
+
+# slingshot_options_prep
+# ----------------------
+# Preparation for additional slingshot option parsing.
+slingshot_options_prep ()
+{
+    $debug_cmd
+
+    # Option defaults:
+    opt_skip_rock_checks=false
+    # opt_luarocks_tree default in *unset*!
+
+    # Extend the existing usage message.
+    usage_message=$usage_message'
+Slingshot Options:
+
+        --luarocks-tree=DIR
+                      check a non-default tree for prerequisite rocks
+        --skip-rock-checks
+                      ignore Lua rocks in bootstrap.conf:buildreq'
+
+    func_quote_for_eval ${1+"$@"}
+    slingshot_options_prep_result=$func_quote_for_eval_result
+}
+func_add_hook func_options_prep slingshot_options_prep
+
+
+# slingshot_parse_options OPT...
+# ------------------------------
+# Called at the end of each main option parse loop to process any
+# additional slingshot options.
+slingshot_parse_options ()
+{
+    $debug_cmd
+
+    # Perform our own loop to consume as many options as possible in
+    # each iteration.
+    while test $# -gt 0; do
+      _G_opt=$1
+      shift
+      case $_G_opt in
+        --luarocks-tree)
+                      test $# = 0 && func_missing_arg $_G_opt && break
+                      opt_luarocks_tree=$1
+                      shift
+                      ;;
+
+        --skip-rock-checks)
+                      opt_skip_rock_checks=:
+                      ;;
+
+	# Separate optargs to long options (plugins may need this):
+	--*=*)        func_split_equals "$_G_opt"
+	              set dummy "$func_split_equals_lhs" \
+                          "$func_split_equals_rhs" ${1+"$@"}
+                      shift
+                      ;;
+
+        *)            set dummy "$_G_opt" ${1+"$@"}; shift; break ;;
+      esac
+    done
+
+    # save modified positional parameters for caller
+    func_quote_for_eval ${1+"$@"}
+    slingshot_parse_options_result=$func_quote_for_eval_result
+}
+func_add_hook func_parse_options slingshot_parse_options
+
+
+# slingshot_option_validation
+# ---------------------------
+# Flag any inconsistencies in users' selection of slingshot options.
+slingshot_option_validation ()
+{
+    $debug_cmd
+
+    test -z "$opt_luarocks_tree" \
+      || test -d "$opt_luarocks_tree" \
+      || func_fatal_help "$opt_luarocks_tree: not a directory"
+}
+func_add_hook func_validate_options slingshot_option_validation
+
+
 ## ----------------- ##
 ## Helper functions. ##
 ## ----------------- ##
@@ -2248,7 +2378,7 @@ func_version ()
     $debug_cmd
 
     printf '%s\n' "$progname $scriptversion"
-    $SED -n '/^##/q
+    $SED -n '
         /(C)/!b go
         :more
         /\./!{
@@ -2370,6 +2500,21 @@ slingshot_copy ()
       func_error "$slingshot_copy_type '$2/$1' to '$3/' failed"
       return 1
     fi
+}
+
+
+# slingshot_rockspec_error
+# ------------------------
+# Called by zile_check_rockspecs for missing rocks.
+slingshot_rockspec_error ()
+{
+    $debug_cmd
+
+    _G_strippedver=`expr "$_G_reqver" : '=*\(.*\)'`
+    func_error "\
+Prerequisite LuaRock '$_G_rock $_G_strippedver' not found. Please install it."
+
+    rockspecs_uptodate_result=false
 }
 
 
@@ -3078,6 +3223,104 @@ func_gettext_configuration ()
 
 
 
+## The section title above is chosen for what section of bootstrap
+## these functions will be merged to, so that the invocations of
+## `func_add_hook` are guaranteed not to be executed until after
+## the hook management functions are defined.
+
+
+# slingshot_split_buildreq
+# ------------------------
+# For convenience, let the user add rockspec requirements to $buildreq.
+# Note that this is for *build-time* requirements (e.g. ldoc), so that
+# make can complete without error. You should add *run-time* rockspec
+# requirements (e.g. stdlib) to rockspec.conf.
+slingshot_split_buildreq ()
+{
+    $debug_cmd
+
+    $require_rockspecs_req
+}
+func_add_hook func_init slingshot_split_buildreq
+
+
+# slingshot_check_rockspecs
+# -------------------------
+# Check build-time rockspecs from $buildreq are uptodate.
+# It would be nice if we could rely on luarock binaries to respond to
+# `--version` like GNU apps, but there is no reliable consensus, so we
+# have to check installed luarock versions directly, and warn the user
+# if the apps we're checking for are not somewhere along PATH.
+slingshot_check_rockspecs ()
+{
+    $debug_cmd
+
+    $opt_skip_rock_checks && return
+
+    $require_rockspecs_req
+
+    _G_req=
+    rockspecs_uptodate_result=:
+
+    set dummy $rockspecs_req; shift
+    while test $# -gt 0; do
+      _G_rock=$1; shift
+      _G_reqver=$1; shift
+      _G_url=$1; shift
+
+      func_append _G_req " $_G_rock $_G_url"
+
+      # Honor $APP variables ($LDOC, $SPECL, etc.)
+      _G_appvar=`echo $_G_rock |tr '[a-z]' '[A-Z]'`
+      eval "_G_rock=\${$_G_appvar-$_G_rock}"
+
+      # Trust the user will ensure the binaries will arive at the
+      # specified location before they are needed if they set these.
+      if eval 'test -n "${'$_G_appvar'+set}"'; then
+	eval test -f '"${'$_G_appvar'}"' \
+          || eval 'func_warning settings "\
+not checking whether $'$_G_appvar' has version $_G_reqver;
+configure or make may fail because you set $_G_appvar, but
+$'$_G_appvar' does not yet exist!"'
+      else
+        _G_instver=`$LUAROCKS ${opt_luarocks_tree+--tree=$opt_luarocks_tree} \
+                    show $_G_rock 2>/dev/null \
+          |sed -n '/^'"$_G_rock"' .* - /{s/^'"$_G_rock"' \(.*\) - .*$/\1/p;}'`
+
+        if test -z "$_G_instver"; then
+          slingshot_rockspec_error
+        else
+          func_verbose "found '$_G_rock' version $_G_instver."
+
+          case $_G_reqver in
+            =*)
+              test "x$_G_reqver" = "x=$_G_instver" || slingshot_rockspec_error
+              ;;
+            *)
+              func_lt_ver "$_G_reqver" "$_G_instver" || slingshot_rockspec_error
+              ;;
+          esac
+        fi
+      fi
+    done
+
+    $rockspecs_uptodate_result || {
+      func_strtable 0 10 48 \
+        "Program" "Rockspec_URL" $_G_req
+      func_fatal_error "Missing rocks:
+$func_strtable_result
+Install missing rockspecs with:
+    $LUAROCKS ${opt_luarocks_tree+--tree=$opt_luarocks_tree }install \$Rockspec_URL
+and then rerun bootstrap with the --luarocks-tree option set
+appropriately, or if you're sure that the missing rocks will
+be installed before running make by exporting:
+     APPNAME=/path/to/app.
+"
+    }
+}
+func_add_hook func_prep slingshot_check_rockspecs
+
+
 # slingshot_copy_files
 # --------------------
 # Update files from slingshot subproject.
@@ -3122,6 +3365,25 @@ slingshot_ensure_changelog ()
     return 0
 }
 func_add_hook func_prep slingshot_ensure_changelog
+
+
+# slingshot_check_rockstree_path
+# ------------------------------
+# Show a warning at the end of bootstrap if --luarocks-tree was passed
+# set, but $opt_luarocks_tree/bin is not in the command PATH.
+slingshot_check_rockstree_path ()
+{
+    $debug_cmd
+
+    test -z "$rockspecs_req" || {
+      case :$PATH: in
+        *:$opt_luarocks_tree/bin:*) ;;
+	*) func_warning recommend \
+             "If configure or make fail, try adding $opt_luarocks_tree/bin to PATH" ;;
+      esac
+    }
+}
+func_add_hook func_fini slingshot_check_rockstree_path
 
 
 ## --------------- ##
@@ -3944,8 +4206,8 @@ func_require_git ()
     $opt_skip_git && GIT=true
 
     test true = "$GIT" || {
-      if test -f .gitignore && ($GIT --version) >/dev/null 2>&1; then :; else
-      GIT=true
+      if test -f .git; then
+        ($GIT --version) >/dev/null 2>&1 || GIT=true
       fi
     }
 
@@ -5051,9 +5313,6 @@ delimited list of triples; 'program min-version url'."
       else
         _G_instver=`func_get_version $_G_app`
 
-        test -z "$_G_instver" \
-            || func_verbose "found '$_G_app' version $_G_instver."
-
         # Fail if --version didn't work.
         if test -z "$_G_instver"; then
           func_error "Prerequisite '$_G_app' not found. Please install it, or
@@ -5062,12 +5321,29 @@ delimited list of triples; 'program min-version url'."
 
         # Fail if a newer version than what we have is required.
         else
-          func_lt_ver "$_G_reqver" "$_G_instver" || {
-            func_error "\
+          func_verbose "found '$_G_app' version $_G_instver."
+
+	  case $_G_reqver in
+            =*)
+              # If $buildreq version starts with '=', version must
+	      # match the installed program exactly.
+	      test "x$_G_reqver" = "x=$_G_instver" || {
+	        func_error "\
+  '$_G_app' version == $_G_instver is too old
+  'exactly $_G_app-$_G_reqver is required"
+                func_check_versions_result=false
+              }
+	      ;;
+	    *)
+              # Otherwise, anything that is not older is a match.
+              func_lt_ver "$_G_reqver" "$_G_instver" || {
+                func_error "\
   '$_G_app' version == $_G_instver is too old
   '$_G_app' version >= $_G_reqver is required"
             func_check_versions_result=false
-          }
+              }
+	      ;;
+	  esac
         fi
       fi
     done
