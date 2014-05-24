@@ -1055,7 +1055,7 @@ static int P_exit(lua_State *L)
 
 /***
 Wait for some event on a file descriptor.
-Adapted from http://lua-users.org/lists/lua-l/2007-11/msg00346.html
+Adapted from [http://lua-users.org/lists/lua-l/2007-11/msg00346.html]()
 @function rpoll
 @int file descriptor
 @int timeout
@@ -1295,8 +1295,10 @@ Wait for the given process.
 @see waitpid(2)
 @int pid optional (default -1 (any child process))
 @return pid of terminated child, nil on error
-@return how child ended ("exited", "killed" or "stopped"), or error message on error.
-@return status value (computed with WEXITSTATUS, WTERMSIG or WSTOPSIG as appropriate), or nothing on error.
+@return how child ended ("exited", "killed" or "stopped"), or error message
+ on error.
+@return status value (computed with `WEXITSTATUS`, `WTERMSIG` or `WSTOPSIG` as
+ appropriate), or nothing on error.
 */
 static int Pwait(lua_State *L)
 {
@@ -1334,7 +1336,7 @@ Send a signal to the given process.
 @function kill
 @see kill(2)
 @int pid process id
-@int sig optional (default SIGTERM)
+@int sig optional (default `SIGTERM`)
 @return return code, nil otherwise
 @return error message if failed.
 */
@@ -1350,7 +1352,7 @@ Send a signal to the given process group.
 @function killpg
 @see killpg(2)
 @int pgrp group id
-@int sig optional (default SIGTERM)
+@int sig optional (default `SIGTERM`)
 @return return code, nil otherwise
 @return error message if failed.
 */
@@ -2352,7 +2354,7 @@ Currently it expects arg to be a table for file lock related `cmd` and a number
 for all the rest. With file lock `cmd` the table should contain fields for flock
 structure (see example). When function returns the fields of the table
 get updated with corresponding values from flock structure (to comply
-with semantics of F_GETLK).
+with semantics of `F_GETLK`).
 @return integer return value depending on `cmd`, or nil on error
 @return error message if failed
 */
@@ -2495,8 +2497,8 @@ Get a value for a configuration option for a filename.
 @function pathconf
 @see pathconf(3)
 @string path optional (default ".")
-@string ... field names, each one of "LINK_MAX", "MAX_CANON", "NAME_MAX", "PIPE_BUF",
-"CHOWN_RESTRICTED", "NO_TRUNC", "VDISABLE"
+@string ... field names, each one of "LINK\_MAX", "MAX\_CANON", "NAME\_MAX", "PIPE\_BUF",
+"CHOWN\_RESTRICTED", "NO\_TRUNC", "VDISABLE"
 @return ... values, or table of all fields if no option given
 @usage for a, b in pairs(posix.pathconf("/dev/tty")) do print(a, b) end
 */
@@ -2543,8 +2545,8 @@ static const char *const Ssysconf[] =
 Get configuration information at runtime.
 @function sysconf
 @see sysconf(3)
-@string ... field names, each one of "ARG_MAX", "CHILD_MAX", "CLK_TCK", "NGROUPS_MAX",
-"STREAM_MAX", "TZNAME_MAX", "OPEN_MAX", "JOB_CONTROL", "VERSION"
+@string ... field names, each one of "ARG\_MAX", "CHILD_MAX", "CLK\_TCK", "NGROUPS_MAX",
+"STREAM\_MAX", "TZNAME\_MAX", "OPEN\_MAX", "JOB\_CONTROL", "VERSION"
 @return ... values, or table of all fields no option
 */
 static int Psysconf(lua_State *L)
@@ -3744,8 +3746,8 @@ static int get_clk_id_const(const char *str)
 /***
 Find the precision of a clock.
 @function clock_getres
-@string name of clock, one of "monotonic", "process_cputime_id", or
-"thread_cputime_id", or nil for realtime clock.
+@string name of clock, one of "monotonic", "process\_cputime\_id", or
+"thread\_cputime\_id", or nil for realtime clock.
 @return seconds, or nil on error
 @return nanoseconds, or message on error
 */
@@ -3763,8 +3765,8 @@ static int Pclock_getres(lua_State *L)
 /***
 Read a clock.
 @function clock_gettime
-@string name of clock, one of "monotonic", "process_cputime_id", or
-"thread_cputime_id", or nil for realtime clock.
+@string name of clock, one of "monotonic", "process\_cputime\_id", or
+"thread\_cputime\_id", or nil for realtime clock.
 @return seconds, or nil on error
 @return nanoseconds, or message on error
 */
