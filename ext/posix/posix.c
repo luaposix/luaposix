@@ -3594,8 +3594,8 @@ Time and date.
 Get time of day.
 @function gettimeofday
 @see gettimeofday(2)
-@return time in seconds
-@return remainder in nanoseconds
+@return epoch table: contains fields "sec" (the number of seconds elapsed
+ since the epoch), and "usec" (remainder in nanoseconds)
 */
 static int Pgettimeofday(lua_State *L)
 {
