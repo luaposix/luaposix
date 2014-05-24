@@ -6,6 +6,7 @@ description = 'POSIX bindings for Lua'
 tparam_alias 'string'
 tparam_alias 'int'
 tparam_alias 'bool'
+tparam_alias 'table'
 
 local upat = "http://www.kernel.org/doc/man-pages/online/pages/man%s/%s.%s.html"
 custom_see_handler('^([%w_]+)%((%d)%)$',function(name,section)

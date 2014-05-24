@@ -53,6 +53,7 @@
 #include <netinet/udp.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <mqueue.h>
 #endif
 #if HAVE_CRYPT_H
 #  include <crypt.h>
@@ -3861,6 +3862,438 @@ static int Pmktime(lua_State *L)
 
 
 
+
+/***
+POSIX message queues
+@section posixmq
+*/
+
+#if _POSIX_C_SOURCE >= 200112L
+
+static void push_mq_attr(lua_State *L, struct mq_attr *attr)
+{
+	lua_newtable(L);
+
+	lua_pushstring(L, "mq_flags");
+	lua_pushinteger(L, attr->mq_flags);
+	lua_rawset(L, -3);
+
+	lua_pushstring(L, "mq_maxmsg");
+	lua_pushinteger(L, attr->mq_maxmsg);
+	lua_rawset(L, -3);
+
+	lua_pushstring(L, "mq_msgsize");
+	lua_pushinteger(L, attr->mq_msgsize);
+	lua_rawset(L, -3);
+
+	lua_pushstring(L, "mq_curmsgs");
+	lua_pushinteger(L, attr->mq_curmsgs);
+	lua_rawset(L, -3);
+}
+
+
+/* Auxiliary function to to_mq_attr. read a single field with the name
+ * 'field_name' from the table at index 'ndx' and copy its value to 'dst'.
+ * The value must be an integer. if 'req' is true, the field is required.
+ * Return value: zero on success, non-zero on error. On error, also leaves
+ * an error string in the top of the Lua stack, so the caller can use
+ * lua_error.
+ */
+static int to_mq_attr_aux(lua_State *L, int ndx, const char *field_name,
+	long *dst, int req)
+{
+	int ret = 0;
+	lua_pushstring(L, field_name);
+	lua_gettable(L, ndx);
+	if (lua_isnumber(L, -1)) {
+		*dst = lua_tointeger(L, -1);
+		lua_pop(L, 1);
+	} else if (lua_isnil(L, -1)) {
+		lua_pop(L, 1);
+		if (req) {
+			lua_pushfstring(L, "field \"%s\" is required", field_name);
+			ret = -1;	/* Error */
+		}
+	} else {
+		lua_pop(L, 1);
+		lua_pushfstring(L, "integer expected for field \"%s\"", field_name);
+		ret = -1;	/* Error */
+	}
+	return ret;
+}
+
+/*
+ * Reads a table at position ndx with the mq_* fields to a mq_attr.
+ * The only required field is mq_flags.
+ * Return value: zero on success, or non-zero on error. On error, also
+ * leaves an error string in the top of the Lua stack so the called
+ * can use lua_error.
+ */
+static int to_mq_attr(lua_State *L, int ndx, struct mq_attr *attr)
+{
+	if (!lua_istable(L, ndx)) {
+		lua_pushfstring(L, "expecting a table in argument %d", ndx);
+		return -1;	/* Error */
+	}
+
+	attr->mq_flags = 0;
+	attr->mq_maxmsg = 0;
+	attr->mq_msgsize = 0;
+	attr->mq_curmsgs = 0;
+
+	if (to_mq_attr_aux(L, ndx, "mq_flags", &attr->mq_flags, 1) == 0
+	&& to_mq_attr_aux(L, ndx, "mq_maxmsg", &attr->mq_maxmsg, 0) == 0
+	&& to_mq_attr_aux(L, ndx, "mq_msgsize", &attr->mq_msgsize, 0) == 0
+	&& to_mq_attr_aux(L, ndx, "mq_curmsgs", &attr->mq_curmsgs, 0) == 0)
+		return 0;	/* Success */
+	return -1;	/* Error */
+}
+
+
+/***
+Create a message queue or open an existing one.
+
+The function returns a message queue descriptor which can be used only
+with `mq_*` functions (i.e. it cannot be mixed with `msgget` and other
+System-V message queue functions). On Linux, this queue descriptor is
+also a file descriptor and can be used with `poll`. This behavior is
+not portable.
+
+@function mq_open
+@see mq_open(3)
+@see mq_overview(7)
+@string name name of the message queue
+@int oflags control flags for the operation, composed of exactly one of
+the values values:
+ `O_RDONLY`, `O_WRONLY`, or `O_RDWR`;
+optionally bitwise ORed with any of the following:
+ `O_NONBLOCK`, `O_CREAT`, `O_EXCL` (all in the library's namespace).
+@string mode used with `O_CREAT`, see `chmod` for format. It can be nil
+if `O_CREAT` isn't used, but attributes are given in `attr`.
+@table attr optional attributes in the format used by `mq_setattr`. To use
+this, the argument `mode` must be given.
+@return message queue descriptor on success, nil on error.
+@return nil on success, error message on error.
+@return nil on success, error code on error.
+@raise error in the event of syntactic errors in the arguments.
+
+@usage
+-- Open existing queue for reading
+local mqdes, errmsg, errno = posix.mq_open("/queue", posix.O_RDONLY)
+
+-- Open existing queue for reading or create it if non-existing
+local mqdes, errmsg, errno = posix.mq_open("/queue",
+    posix.O_RDONLY + posix.O_CREAT, "rw-------")
+
+-- Create and open a queue for writing in non-blocking mode
+local mqdes, errmsg, errno = posix.mq_open("/queue",
+    posix.O_WRONLY + posix.O_CREAT + posix.O_NONBLOCK, "rw-------")
+
+*/
+static int Pmq_open(lua_State *L)
+{
+	const char *name = luaL_checkstring(L, 1);
+	int flags = luaL_checkint(L, 2);
+	mode_t mode = 0;
+	if (flags & O_CREAT) {
+		const char *modestr = luaL_checkstring(L, 3);
+		if (mode_munch(&mode, modestr))
+			luaL_argerror(L, 3, "bad mode");
+	}
+	if (lua_gettop(L) == 4) {
+		struct mq_attr attr;
+		if (to_mq_attr(L, 4, &attr) != 0) {
+			/* to_mq_attr left an error message on top of the stack */
+			return lua_error(L);
+		}
+		return pushresult(L, mq_open(name, flags, mode, attr), NULL);
+	} else if (flags & O_CREAT) {
+		return pushresult(L, mq_open(name, flags, mode, NULL), NULL);
+	} else {
+		return pushresult(L, mq_open(name, flags), NULL);
+	}
+}
+
+
+/***
+Retrieve attributes of a message queue.
+
+@function mq_getattr
+@see mq_getattr(3)
+@int mqdes a message queue descriptor returned by `mq_open`
+@return A table with fields for each attribute on success, nil on failure.
+Attributes are:
+ `mq_flags`   (bitwise ORed flags, currently only `O_NONBLOCK`),
+ `mq_maxmsg`  (maximum number of messages in the queue),
+ `mq_msgsize` (maximum message size, in bytes), and
+ `mq_curmsgs` (current number of messages in the queue).
+
+@return nil on success, error message on failure
+@return nil on success, error code on failure
+
+@usage
+local attr, errmsg, errno = posix.mq_getattr(mqdes)
+
+*/
+
+static int Pmq_getattr(lua_State *L)
+{
+	mqd_t mqdes = luaL_checkint(L, 1);
+	struct mq_attr attr;
+	if (mq_getattr(mqdes, &attr) == 0) {
+		push_mq_attr(L, &attr);
+		return 1;	/* Success */
+	} else {
+		return pusherror(L, NULL);
+	}
+}
+
+
+
+
+/***
+Modify attributes of a message queue.
+
+According to mq_setattr(3), `mq_flags` is the only field which can be
+modified and the only valid values are either 0 or `O_NONBLOCK`.
+All other fields, if given, are ignored.
+
+Other values (`mq_maxmsg` and `mq_msgsize`) are kernel configurable
+through the `/proc` filesystem.
+
+@function mq_setattr
+@see mq_setattr(3)
+
+@int mqdes a message queue descriptor returned by `mq_open`
+
+@table attr a table with with the following integer fields:
+ `mq_flags`   (bitwise ORed flags, currently only `O_NONBLOCK`, required),
+ `mq_maxmsg`  (integer, maximum number of messages in the queue),
+ `mq_msgsize` (integer, maximum message size, in bytes), and
+ `mq_curmsgs` (integer, current number of messages in the queue).
+
+@return zero on success, nil on failure
+@return nil on success, error message on failure
+@return nil on success, error code on failure
+@raise error in the event of syntactic errors in the arguments
+
+@usage
+local res, errmsg, errno = posix.mq_setattr(mqdes, { mq_flags = posix.O_NONBLOCK } )
+assert(res == 0, errmsg)
+*/
+
+static int Pmq_setattr(lua_State *L)
+{
+	mqd_t mqdes = luaL_checkint(L, 1);
+	struct mq_attr newattr;
+	if (to_mq_attr(L, 2, &newattr) != 0) {
+		/* to_mq_attr left an error message on top of the stack */
+		return lua_error(L);
+	}
+	return pushresult(L, mq_setattr(mqdes, &newattr, NULL), NULL);
+}
+
+
+
+/***
+Close a message queue.
+@function mq_close
+@see mq_close(3)
+@int mqdes a message queue descriptor returned by `mq_open`
+@return zero on success, nil on failure
+@return nil on success, error message on failure
+@return nil on success, error code on failure
+*/
+static int Pmq_close(lua_State *L)
+{
+	mqd_t mqdes = luaL_checkint(L, 1);
+	return pushresult(L, mq_close(mqdes), NULL);
+}
+
+
+/***
+Delete a message queue.
+@function mq_unlink
+@see mq_unlink(3)
+@int mqdes a message queue descriptor returned by `mq_open`
+@return zero on success, nil on failure
+@return nil on success, error message on failure
+@return nil on success, error code on failure
+*/
+static int Pmq_unlink(lua_State *L)
+{
+	const char *name = luaL_checkstring(L, 1);
+	return pushresult(L, mq_unlink(name), NULL);
+}
+
+
+
+/***
+Send a message to a message queue.
+@function mq_send
+@see mq_send(3)
+@int mqdes a message queue descriptor returned by `mq_open`
+@string msg message data. Binary data is allowed
+@int prio message priority value, greater than zero
+@return zero on success, nil on failure
+@return nil on success, error message on failure
+@return nil on success, error code on failure
+@raise error on invalid arguments
+
+@usage local res, errmsg, errno = posix.mq_send(mqdes, msgdata, 1)
+*/
+static int Pmq_send(lua_State *L)
+{
+	mqd_t mqdes = luaL_checkint(L, 1);
+	size_t msg_len;
+	const char *msg = luaL_checklstring(L, 2, &msg_len);
+	int prio = luaL_checkint(L, 3);
+	if (prio < 0)
+		return luaL_argerror(L, 3, "priority must be >= 0");
+
+	return pushresult(L, mq_send(mqdes, msg, msg_len, prio), NULL);
+}
+
+
+
+/***
+Send a message to a message queue with an absolute timeout.
+@function mq_timedsend
+@see mq_timedsend(3)
+@int mqdes an message queue descriptor returned by `mq_open`
+@string msg message data. Binary data is allowed
+@int prio message priority value, greater than zero
+@int tv_sec absolute timeout since the Epoch in integer seconds
+@int tv_nsec fraction part of the absolute timeout, in nanoseconds
+@return zero on success, nil on failure
+@return nil on success, error message on failure
+@return nil on success, error code on failure
+@raise error on invalid arguments
+
+@usage
+local res, errmsg, errno = posix.mq_timedsend(mqdes, msgdata, 1, os.time()+1, 0)
+*/
+static int Pmq_timedsend(lua_State *L)
+{
+	mqd_t mqdes = luaL_checkint(L, 1);
+	size_t msg_len;
+	const char *msg = luaL_checklstring(L, 2, &msg_len);
+	int prio = luaL_checkint(L, 3);
+	if (prio < 0)
+		return luaL_argerror(L, 3, "priority must be >= 0");
+	struct timespec tm;
+	tm.tv_sec = luaL_checkint(L, 4);
+	tm.tv_nsec = luaL_checkint(L, 5);
+
+	return pushresult(L, mq_timedsend(mqdes, msg, msg_len, prio, &tm), NULL);
+}
+
+
+
+
+/***
+Receive a message from a message queue.
+@function mq_receive
+@see mq_receive(3)
+@int mqdes an message queue descriptor returned by `mq_open`
+@int size maximum message size, must be at least the value of the
+field `mq_msgsize` as returned by `mq_getattr`.
+@return message contents on success, nil on failure
+@return message priority on success, error message on failure
+@return nil on success, error code on failure
+@raise error on invalid arguments
+
+@usage
+local attr, errmsg, errno = posix.mq_getattr(mqdes)
+assert(attr, errmsg)
+local msgdata, pri_err, errno = posix.mq_receive(mqdes, attr.mq_msgsize)
+
+*/
+static int Pmq_receive(lua_State *L)
+{
+	mqd_t mqdes = luaL_checkint(L, 1);
+	int max_len = luaL_checkint(L, 2);
+	if (max_len < 1)
+		return luaL_argerror(L, 2, "message length must be > 0");
+
+	void *ud;
+	lua_Alloc lalloc = lua_getallocf(L, &ud);
+	char *msg;
+	if ((msg = lalloc(ud, NULL, 0, max_len)) == NULL)
+		return pusherror(L, "lalloc");
+
+	unsigned int prio;
+	int res = mq_receive(mqdes, msg, max_len, &prio);
+
+	int nret = 0;
+	if (res != -1) {
+		lua_pushlstring(L, msg, res);
+		lua_pushinteger(L, prio);
+		nret = 2;
+	} else {
+		nret = pusherror(L, NULL);
+	}
+	lalloc(ud, msg, max_len, 0);
+	return nret;
+}
+
+
+
+/***
+Receive a message from a message queue with a absolute timeout.
+@function mq_timedreceive
+@see mq_timedreceive(3)
+@int mqdes an message queue descriptor returned by `mq_open`
+@int size maximum message size, must be at least the value of the
+field `mq_msgsize` as returned by `mq_getattr`.
+@int tv_sec absolute timeout since the Epoch in integer seconds
+@int tv_nsec fraction part of the absolute timeout, in nanoseconds
+@return message contents on success, nil on failure
+@return message priority on success, error message on failure
+@return nil on success, error code on failure
+@raise error on invalid arguments
+
+@usage
+local attr, errmsg, errno = posix.mq_getattr(mqdes)
+assert(attr, errmsg)
+local msgdata, pri_err, errno = posix.mq_timedreceive(mqdes,
+    attr.mq_msgsize, os.time()+1, 500e6)
+
+*/
+static int Pmq_timedreceive(lua_State *L)
+{
+	mqd_t mqdes = luaL_checkint(L, 1);
+	int max_len = luaL_checkint(L, 2);
+	if (max_len < 1)
+		return luaL_argerror(L, 2, "message length must be > 0");
+	struct timespec tm;
+	tm.tv_sec = luaL_checkint(L, 3);
+	tm.tv_nsec = luaL_checkint(L, 4);
+
+	void *ud;
+	lua_Alloc lalloc = lua_getallocf(L, &ud);
+	char *msg;
+	if ((msg = lalloc(ud, NULL, 0, max_len)) == NULL)
+		return pusherror(L, "lalloc");
+
+	unsigned int prio;
+	int res = mq_timedreceive(mqdes, msg, max_len, &prio, &tm);
+
+	int nret = 0;
+	if (res != -1) {
+		lua_pushlstring(L, msg, res);
+		lua_pushinteger(L, prio);
+		nret = 2;
+	} else {
+		nret = pusherror(L, NULL);
+	}
+	lalloc(ud, msg, max_len, 0);
+	return nret;
+}
+
+#endif
+
+
 static const luaL_Reg R[] =
 {
 #define MENTRY(_s) {LPOSIX_STR_1(_s), (_s)}
@@ -3998,6 +4431,17 @@ static const luaL_Reg R[] =
 #endif
 #if defined HAVE_STATVFS
 	MENTRY( Pstatvfs	),
+#endif
+#if _POSIX_VERSION >= 200112L
+	MENTRY( Pmq_open	),
+	MENTRY( Pmq_getattr	),
+	MENTRY( Pmq_setattr	),
+	MENTRY( Pmq_close	),
+	MENTRY( Pmq_unlink	),
+	MENTRY( Pmq_send	),
+	MENTRY( Pmq_timedsend	),
+	MENTRY( Pmq_receive	),
+	MENTRY( Pmq_timedreceive	),
 #endif
 #undef MENTRY
 	{NULL,	NULL}
