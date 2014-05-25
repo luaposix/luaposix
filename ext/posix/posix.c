@@ -3620,6 +3620,18 @@ static int Pisatty(lua_State *L)
 }
 
 
+/***
+Set termios state.
+@function tcsetattr
+@see tcsetattr(3)
+@int fd terminal descriptor
+@int actions bitwise or of TCSANOW, TCSADRAIN, TCSAFLUSH and TSASOFT
+@param termios a table with fields from iflag, oflag, cflag, lflag and cc,
+ each formed by `bor` operations with various posix constants
+@return 0 if successful, otherwise nil
+@return error message if failed
+@usage ok, errmsg = tcsetattr (fd, 0, { cc = { [posix.VTIME] = 0, [posix.VMIN] = 1 })
+*/
 static int Ptcsetattr(lua_State *L)
 {
 	struct termios t;
@@ -3644,6 +3656,17 @@ static int Ptcsetattr(lua_State *L)
 	return pushresult(L, tcsetattr(fd, act, &t), NULL);
 }
 
+
+/***
+Get termios state.
+@function tcgetattr
+@see tcgetattr(3)
+@int fd terminal descriptor
+@return termios table with fields iflag, oflag, cflag, lflag and cc if
+ successful, otherwise nil
+@return error message if failed
+@usage termios, errmsg = tcgetattr (fd)
+*/
 static int Ptcgetattr(lua_State *L)
 {
 	int i;
@@ -3670,6 +3693,16 @@ static int Ptcgetattr(lua_State *L)
 	return 1;
 }
 
+
+/***
+Send a stream of zero valued bits.
+@function tcsendbreak
+@see tcsendbreak(3)
+@int fd terminal descriptor
+@int duration if non-zero, stream for some implementation defined time
+@return 0 if successful, otherwise nil
+@return error message if failed
+*/
 static int Ptcsendbreak(lua_State *L)
 {
 	int fd = luaL_checknumber(L, 1);
@@ -3677,12 +3710,31 @@ static int Ptcsendbreak(lua_State *L)
 	return pushresult(L, tcsendbreak(fd, duration), NULL);
 }
 
+
+/***
+Wait for all written output to reach the terminal.
+@function tcdrain
+@see tcdrain(3)
+@int fd terminal descriptor
+@return 0 if successful, otherwise nil
+@return error message if failed
+*/
 static int Ptcdrain(lua_State *L)
 {
 	int fd = luaL_checknumber(L, 1);
 	return pushresult(L, tcdrain(fd), NULL);
 }
 
+
+/***
+Discard any data already written but not yet sent to the terminal.
+@function tcflush
+@see tcflush(3)
+@int fd terminal descriptor
+@int action one of TCIFLUSH, TCOFLUSH, TCIOFLUSH
+@return 0 if successful, otherwise nil
+@return error message if failed
+*/
 static int Ptcflush(lua_State *L)
 {
 	int fd = luaL_checknumber(L, 1);
@@ -3690,6 +3742,16 @@ static int Ptcflush(lua_State *L)
 	return pushresult(L, tcflush(fd, qs), NULL);
 }
 
+
+/***
+Suspend transmission or receipt of data.
+@function tcflow
+@see tcflow(3)
+@int fd terminal descriptor
+@int action one of TCOOFF, TCOON, TCIOFF, TCION
+@return 0 if successful, otherwise nil
+@return error message if failed
+*/
 static int Ptcflow(lua_State *L)
 {
 	int fd = luaL_checknumber(L, 1);

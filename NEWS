@@ -12,6 +12,8 @@ Stdlib NEWS - User visible changes
    The sys submodule automatically loads on first reference, so no need to
    require it manually if you already have the main posix module loaded.
 
+ - posix api documentation is separated into groups for better discovery.
+
 ** Bug fixes:
 
  - Builds correctly on hosts with no IPV6 capability.
@@ -27,6 +29,9 @@ Stdlib NEWS - User visible changes
  - Missing docs for accept, bind, connect, getaddrinfo, listen, recv,
    recvfrom, send, sendto, setsockopt, shutdown, socket and socketpair apis
    is now provided.
+
+ - Missng docs for tcdrain, tcflow, tcflush, tcgetattr, tcsendbreak and
+   tcsetattr terminal apis are now provided.
 
  - Docs for apis implemented in Lua are now shown correctly.
 
