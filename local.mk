@@ -77,8 +77,6 @@ ext_posix_posix_c_la_LDFLAGS =		\
 ext_curses_curses_c_la_SOURCES =	\
 	ext/curses/curses.c		\
 	$(NOTHING_ELSE)
-ext_curses_curses_c_la_CPPFLAGS =	\
-	$(AM_CPPFLAGS) -I $(srcdir)/ext/curses
 ext_curses_curses_c_la_LDFLAGS =	\
 	-module -avoid-version $(CURSES_LIB) -rpath '$(libdir)'
 
@@ -150,7 +148,7 @@ EXTRA_DIST +=				\
 	examples/socket.lua		\
 	examples/termios.lua		\
 	examples/tree.lua		\
-	ext/curses/strlcpy.c		\
+	ext/include/strlcpy.c		\
 	ext/include/lua52compat.h	\
 	$(NOTHING_ELSE)
 

@@ -107,6 +107,11 @@
 #define LPOSIX_STR_1(_s)	LPOSIX__STR_1(_s)
 
 
+/* strlcpy() implementation for non-BSD based Unices.
+   strlcpy() is a safer less error-prone replacement for strncpy(). */
+#include "strlcpy.c"
+
+
 
 /* ================== *
  * Utility functions. *
@@ -2991,7 +2996,7 @@ static int sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *s
 			lua_getfield(L, index, "path"); path = luaL_checkstring(L, -1); lua_pop(L, 1);
 			sau = (struct sockaddr_un *)sa;
 			sau->sun_family = family;
-			strncpy(sau->sun_path, path, sizeof(sau->sun_path));
+			strlcpy(sau->sun_path, path, sizeof(sau->sun_path));
 			sau->sun_path[sizeof(sau->sun_path) - 1]= '\0';
 			*addrlen = sizeof(*sau);
 			return 0;
@@ -3350,7 +3355,7 @@ static int Psetsockopt(lua_State *L)
 					break;
 #ifdef SO_BINDTODEVICE
 				case SO_BINDTODEVICE:
-					strncpy(ifr.ifr_name, luaL_checkstring(L, 4), IFNAMSIZ);
+					strlcpy(ifr.ifr_name, luaL_checkstring(L, 4), IFNAMSIZ);
 					val = &ifr;
 					len = sizeof(ifr);
 #endif
