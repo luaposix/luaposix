@@ -19,6 +19,7 @@
 /Makefile.in
 /README
 /aclocal.m4
+/build-aux/config.ld
 /config.h
 /config.h.in
 /config.log
@@ -33,6 +34,5 @@
 /TAGS
 /travis.yml.in
 /*.rockspec
-/m4/ax_compare_version.m4
 /m4/ax_lua.m4
 /m4/slingshot.m4
