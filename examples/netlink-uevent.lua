@@ -1,4 +1,3 @@
-
 p = require "posix"
 
 if p.AF_NETLINK ~= nil then
@@ -17,4 +16,3 @@ if p.AF_NETLINK ~= nil then
 		print("\n")
 	end
 end
-

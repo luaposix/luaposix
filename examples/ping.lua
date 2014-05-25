@@ -1,4 +1,3 @@
-
 local p = require "posix"
 
 if p.SOCK_RAW and p.SO_BINDTODEVICE then
@@ -30,4 +29,3 @@ if p.SOCK_RAW and p.SO_BINDTODEVICE then
 		print("Received ICMP message from " .. sa.addr)
 	end
 end
-
