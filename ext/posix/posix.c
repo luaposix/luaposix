@@ -106,69 +106,81 @@
 #define LPOSIX__STR_1(_s)	(#_s + 1)
 #define LPOSIX_STR_1(_s)	LPOSIX__STR_1(_s)
 
-/* ISO C functions missing from the standard Lua libraries. */
 
-/***
-Abort the program immediately.
-@function abort
-@see abort(3)
-*/
-static int Pabort(lua_State *L)
+
+/* ================== *
+ * Utility functions. *
+ * ================== */
+
+
+typedef void (*Selector)(lua_State *L, int i, const void *data);
+
+static int doselection(lua_State *L, int i, int n,
+		       const char *const S[],
+		       Selector F,
+		       const void *data)
 {
-	(void)L; /* Avoid a compiler warning. */
-	abort();
-	return 0; /* Avoid a compiler warning (or possibly cause one
-		     if the compiler's too clever, sigh). */
+	if (lua_isnone(L, i) || lua_istable(L, i))
+	{
+		int j;
+		if (lua_isnone(L, i))
+			lua_createtable(L,0,n);
+		else
+			lua_settop(L, i);
+		for (j=0; S[j]!=NULL; j++)
+		{
+			F(L, j, data);
+			lua_setfield(L, -2, S[j]);
+		}
+		return 1;
+	}
+	else
+	{
+		int k,n=lua_gettop(L);
+		for (k=i; k<=n; k++)
+		{
+			int j=luaL_checkoption(L, k, NULL, S);
+			F(L, j, data);
+			lua_replace(L, k);
+		}
+		return n-i+1;
+	}
+}
+#define doselection(L,i,S,F,d) (doselection)(L,i,sizeof(S)/sizeof(*S)-1,S,F,d)
+
+static int lookup_symbol(const char * const S[], const int K[], const char *str)
+{
+	int i;
+	for (i = 0; S[i] != NULL; i++)
+		if (strcasecmp(S[i], str) == 0)
+			return K[i];
+	return -1;
 }
 
-/***
-Raise a signal on this process.
-@function raise
-@see raise(3)
-@int nsig
-@return integer error code
-*/
-static int Praise(lua_State *L)
+static int pusherror(lua_State *L, const char *info)
 {
-	int sig = luaL_checkint(L, 1);
-	lua_pop(L, 1);
-	lua_pushinteger(L, raise(sig));
+	lua_pushnil(L);
+	if (info==NULL)
+		lua_pushstring(L, strerror(errno));
+	else
+		lua_pushfstring(L, "%s: %s", info, strerror(errno));
+	lua_pushinteger(L, errno);
+	return 3;
+}
+
+static int pushresult(lua_State *L, int i, const char *info)
+{
+	if (i==-1)
+		return pusherror(L, info);
+	lua_pushinteger(L, i);
 	return 1;
 }
 
-static int bind_ctype(lua_State *L, int (*cb)(int))
+static void badoption(lua_State *L, int i, const char *what, int option)
 {
-	const char *s = luaL_checkstring(L, 1);
-	char c = *s;
-	lua_pop(L, 1);
-	lua_pushboolean(L, cb((int)c));
-	return 1;
+	luaL_argerror(L, i,
+		lua_pushfstring(L, "unknown %s option '%c'", what, option));
 }
-
-/***
-Check for any printable character except space.
-@function isgraph
-@see isprint(3)
-@string character to check
-@return true if character is in the class
-*/
-static int Pisgraph(lua_State *L)
-{
-	return bind_ctype(L, &isgraph);
-}
-
-/***
-Check for any printable character including space.
-@function isprint
-@see isgraph(3)
-@string character to check
-@return true if character is in the class
-*/
-static int Pisprint(lua_State *L)
-{
-	return bind_ctype(L, &isprint);
-}
-
 
 /* File mode translation between octal codes and `rwxrwxrwx' strings,
    and between octal masks and `ugoa+-=rwx' strings. */
@@ -353,77 +365,6 @@ static int mode_munch(mode_t *mode, const char* p)
 }
 
 
-/* Utility functions. */
-
-typedef void (*Selector)(lua_State *L, int i, const void *data);
-
-static int doselection(lua_State *L, int i, int n,
-		       const char *const S[],
-		       Selector F,
-		       const void *data)
-{
-	if (lua_isnone(L, i) || lua_istable(L, i))
-	{
-		int j;
-		if (lua_isnone(L, i))
-			lua_createtable(L,0,n);
-		else
-			lua_settop(L, i);
-		for (j=0; S[j]!=NULL; j++)
-		{
-			F(L, j, data);
-			lua_setfield(L, -2, S[j]);
-		}
-		return 1;
-	}
-	else
-	{
-		int k,n=lua_gettop(L);
-		for (k=i; k<=n; k++)
-		{
-			int j=luaL_checkoption(L, k, NULL, S);
-			F(L, j, data);
-			lua_replace(L, k);
-		}
-		return n-i+1;
-	}
-}
-#define doselection(L,i,S,F,d) (doselection)(L,i,sizeof(S)/sizeof(*S)-1,S,F,d)
-
-static int lookup_symbol(const char * const S[], const int K[], const char *str)
-{
-	int i;
-	for (i = 0; S[i] != NULL; i++)
-		if (strcasecmp(S[i], str) == 0)
-			return K[i];
-	return -1;
-}
-
-static int pusherror(lua_State *L, const char *info)
-{
-	lua_pushnil(L);
-	if (info==NULL)
-		lua_pushstring(L, strerror(errno));
-	else
-		lua_pushfstring(L, "%s: %s", info, strerror(errno));
-	lua_pushinteger(L, errno);
-	return 3;
-}
-
-static int pushresult(lua_State *L, int i, const char *info)
-{
-	if (i==-1)
-		return pusherror(L, info);
-	lua_pushinteger(L, i);
-	return 1;
-}
-
-static void badoption(lua_State *L, int i, const char *what, int option)
-{
-	luaL_argerror(L, i,
-		lua_pushfstring(L, "unknown %s option '%c'", what, option));
-}
-
 static uid_t mygetuid(lua_State *L, int i)
 {
 	if (lua_isnone(L, i))
@@ -455,7 +396,60 @@ static gid_t mygetgid(lua_State *L, int i)
 }
 
 
-/* API functions */
+
+/* ============== *
+ * API functions. *
+ * ============== */
+
+
+/* ISO C functions missing from the standard Lua libraries. */
+
+/***
+Abort the program immediately.
+@function abort
+@see abort(3)
+*/
+static int Pabort(lua_State *L)
+{
+	(void)L; /* Avoid a compiler warning. */
+	abort();
+	return 0; /* Avoid a compiler warning (or possibly cause one
+		     if the compiler's too clever, sigh). */
+}
+
+static int bind_ctype(lua_State *L, int (*cb)(int))
+{
+	const char *s = luaL_checkstring(L, 1);
+	char c = *s;
+	lua_pop(L, 1);
+	lua_pushboolean(L, cb((int)c));
+	return 1;
+}
+
+/***
+Check for any printable character except space.
+@function isgraph
+@see isprint(3)
+@string character to check
+@return true if character is in the class
+*/
+static int Pisgraph(lua_State *L)
+{
+	return bind_ctype(L, &isgraph);
+}
+
+/***
+Check for any printable character including space.
+@function isprint
+@see isgraph(3)
+@string character to check
+@return true if character is in the class
+*/
+static int Pisprint(lua_State *L)
+{
+	return bind_ctype(L, &isprint);
+}
+
 
 /***
 Describe an error code/and or read `errno`
@@ -484,6 +478,676 @@ static int Pset_errno(lua_State *L)
 	errno = luaL_checkint(L, 1);
 	return 0;
 }
+
+
+/* getopt_long */
+
+/* N.B. We don't need the symbolic constants no_argument,
+   required_argument and optional_argument, since their values are
+   defined as 0, 1 and 2 respectively. */
+static const char *const arg_types[] = {
+	"none", "required", "optional", NULL
+};
+
+static int iter_getopt_long(lua_State *L)
+{
+	int longindex = 0, ret, argc = lua_tointeger(L, lua_upvalueindex(1));
+	char **argv = (char **)lua_touserdata(L, lua_upvalueindex(3));
+	struct option *longopts = (struct option *)lua_touserdata(L, lua_upvalueindex(3 + argc + 1));
+
+	if (argv == NULL) /* If we have already completed, return now. */
+		return 0;
+
+	/* Fetch upvalues to pass to getopt_long. */
+	ret = getopt_long(argc, argv,
+			  lua_tostring(L, lua_upvalueindex(2)),
+			  longopts,
+			  &longindex);
+	if (ret == -1)
+		return 0;
+	else {
+		char c = ret;
+		lua_pushlstring(L, &c, 1);
+		lua_pushstring(L, optarg);
+		lua_pushinteger(L, optind);
+		lua_pushinteger(L, longindex);
+		return 4;
+	}
+}
+
+/***
+Parse command-line options.
+@function getopt
+@see getopt(3)
+@see getopt_long(3)
+@param arg command line arguments
+@string shortopts e.g 'ho:v' (colon means 'receives argument')
+@param longopts e.g. `{{'help','none',2},...}`
+@usage for ret, longindex, optind, optarg in posix.getopt (arg, shortopts[, longopts[, opterr[, optind]]]) do ... end
+@see getopt.lua
+*/
+static int Pgetopt(lua_State *L)
+{
+	int argc, i, n = 0;
+	const char *shortopts;
+	char **argv;
+	struct option *longopts;
+
+	luaL_checktype(L, 1, LUA_TTABLE);
+	shortopts = luaL_checkstring(L, 2);
+	if(!lua_isnone(L, 3) && !lua_isnil(L, 3)) luaL_checktype(L, 3, LUA_TTABLE);
+	opterr = luaL_optinteger (L, 4, 0);
+	optind = luaL_optinteger (L, 5, 1);
+
+	argc = (int)lua_objlen(L, 1) + 1;
+
+	lua_pushinteger(L, argc);
+
+	lua_pushstring(L, shortopts);
+
+	argv = lua_newuserdata(L, (argc + 1) * sizeof(char *));
+	argv[argc] = NULL;
+	for (i = 0; i < argc; i++) {
+		lua_pushinteger(L, i);
+		lua_gettable(L, 1);
+		argv[i] = (char *)luaL_checkstring(L, -1);
+	}
+
+	if(lua_type(L, 3) == LUA_TTABLE) {
+		n = (int)lua_objlen(L, 3);
+	}
+	longopts = lua_newuserdata(L, (n + 1) * sizeof(struct option));
+	longopts[n].name = NULL;
+	longopts[n].has_arg = 0;
+	longopts[n].flag = NULL;
+	longopts[n].val = 0;
+	for (i = 1; i <= n; i++) {
+		const char *name, *val;
+		int has_arg;
+
+		lua_pushinteger(L, i);
+		lua_gettable(L, 3);
+		luaL_checktype(L, -1, LUA_TTABLE);
+
+		lua_pushinteger(L, 1);
+		lua_gettable(L, -2);
+		name = luaL_checkstring(L, -1);
+
+		lua_pushinteger(L, 2);
+		lua_gettable(L, -3);
+		has_arg = luaL_checkoption(L, -1, NULL, arg_types);
+		lua_pop(L, 1);
+
+		lua_pushinteger(L, 3);
+		lua_gettable(L, -3);
+		val = luaL_checkstring(L, -1);
+		lua_pop(L, 1);
+
+		longopts[i - 1].name = name;
+		longopts[i - 1].has_arg = has_arg;
+		longopts[i - 1].flag = NULL;
+		longopts[i - 1].val = val[0];
+		lua_pop(L, 1);
+	}
+
+	/* Push remaining upvalues, and make and push closure. */
+	lua_pushcclosure(L, iter_getopt_long, 4 + argc + n);
+
+	return 1;
+}
+
+
+
+
+/* ================= *
+ * File descriptors. *
+ * ================= */
+
+/***
+File descriptors.
+@section filedescriptors
+*/
+
+
+/***
+File descriptor corresponding to a Lua file object.
+@function fileno
+@param file Lua file object
+@return handle on success, nil otherwise
+@return error message if failed.
+*/
+static int Pfileno(lua_State *L)
+{
+	FILE *f = *(FILE**) luaL_checkudata(L, 1, LUA_FILEHANDLE);
+	return pushresult(L, fileno(f), NULL);
+}
+
+
+/***
+Make a FIFO pipe.
+@function mkfifo
+@see mkfifo(2)
+@string path
+@return handle on success, nil otherwise
+@return error message if failed.
+*/
+static int Pmkfifo(lua_State *L)
+{
+	const char *path = luaL_checkstring(L, 1);
+	return pushresult(L, mkfifo(path, 0777), path);
+}
+
+
+/***
+Wait for some event on a file descriptor.
+Adapted from [http://lua-users.org/lists/lua-l/2007-11/msg00346.html]()
+@function rpoll
+@int file descriptor
+@int timeout
+@see poll(2)
+@return return code, nil otherwise
+@return error message if failed.
+*/
+static int Prpoll(lua_State *L)
+{
+	struct pollfd fds;
+	int file = luaL_checkint(L,1);
+	int timeout = luaL_checkint(L,2);
+	fds.fd = file;
+	fds.events = POLLIN;
+	return pushresult(L, poll(&fds,1,timeout), NULL);
+}
+
+static struct {
+	short       bit;
+	const char *name;
+} Ppoll_event_map[] = {
+#define MAP(_NAME) \
+	{POLL##_NAME, #_NAME}
+	MAP(IN),
+	MAP(PRI),
+	MAP(OUT),
+	MAP(ERR),
+	MAP(HUP),
+	MAP(NVAL),
+#undef MAP
+};
+
+#define PPOLL_EVENT_NUM (sizeof(Ppoll_event_map) / sizeof(*Ppoll_event_map))
+
+static void Ppoll_events_createtable(lua_State *L)
+{
+	lua_createtable(L, 0, PPOLL_EVENT_NUM);
+}
+
+static short Ppoll_events_from_table(lua_State *L, int table)
+{
+	short   events  = 0;
+	size_t  i;
+
+	/* Convert to absolute index */
+	if (table < 0)
+		table = lua_gettop(L) + table + 1;
+
+	for (i = 0; i < PPOLL_EVENT_NUM; i++)
+	{
+		lua_getfield(L, table, Ppoll_event_map[i].name);
+		if (lua_toboolean(L, -1))
+			events |= Ppoll_event_map[i].bit;
+		lua_pop(L, 1);
+	}
+
+	return events;
+}
+
+static void Ppoll_events_to_table(lua_State *L, int table, short events)
+{
+	size_t  i;
+
+	/* Convert to absolute index */
+	if (table < 0)
+		table = lua_gettop(L) + table + 1;
+
+	for (i = 0; i < PPOLL_EVENT_NUM; i++)
+	{
+		lua_pushboolean(L, events & Ppoll_event_map[i].bit);
+		lua_setfield(L, table, Ppoll_event_map[i].name);
+	}
+}
+
+static nfds_t Ppoll_fd_list_check_table(lua_State  *L,
+					int         table)
+{
+	nfds_t          fd_num      = 0;
+
+	/*
+	 * Assume table is an argument number.
+	 * Should be an assert(table > 0).
+	 */
+
+	luaL_checktype(L, table, LUA_TTABLE);
+
+	/* Nil key - the one before first */
+	lua_pushnil(L);
+
+	/* Push each key/value pair, popping previous key */
+	while (lua_next(L, 1) != 0)
+	{
+		/* Verify the fd key */
+		luaL_argcheck(L, lua_isnumber(L, -2), table,
+					  "contains non-integer key(s)");
+
+		/* Verify the table value */
+		luaL_argcheck(L, lua_istable(L, -1), table,
+					  "contains non-table value(s)");
+		lua_getfield(L, -1, "events");
+		luaL_argcheck(L, lua_istable(L, -1), table,
+					  "contains invalid value table(s)");
+		lua_pop(L, 1);
+		lua_getfield(L, -1, "revents");
+		luaL_argcheck(L, lua_isnil(L, -1) || lua_istable(L, -1), table,
+					  "contains invalid value table(s)");
+		lua_pop(L, 1);
+
+		/* Remove value (but leave the key) */
+		lua_pop(L, 1);
+
+		/* Count the fds */
+		fd_num++;
+	}
+
+	return fd_num;
+}
+
+static void Ppoll_fd_list_from_table(lua_State         *L,
+				     int                table,
+				     struct pollfd     *fd_list)
+{
+	struct pollfd  *pollfd  = fd_list;
+
+	/*
+	 * Assume the table didn't change since
+	 * the call to Ppoll_fd_list_check_table
+	 */
+
+	/* Convert to absolute index */
+	if (table < 0)
+		table = lua_gettop(L) + table + 1;
+
+	/* Nil key - the one before first */
+	lua_pushnil(L);
+
+	/* Push each key/value pair, popping previous key */
+	while (lua_next(L, table) != 0)
+	{
+		/* Transfer the fd key */
+		pollfd->fd = lua_tointeger(L, -2);
+
+		/* Transfer "events" field from the value */
+		lua_getfield(L, -1, "events");
+		pollfd->events = Ppoll_events_from_table(L, -1);
+		lua_pop(L, 1);
+
+		/* Remove value (but leave the key) */
+		lua_pop(L, 1);
+
+		/* Proceed to next fd */
+		pollfd++;
+	}
+}
+
+static void Ppoll_fd_list_to_table(lua_State           *L,
+				   int                  table,
+				   const struct pollfd *fd_list)
+{
+	const struct pollfd    *pollfd  = fd_list;
+
+	/*
+	 * Assume the table didn't change since
+	 * the call to Ppoll_fd_list_check_table.
+	 */
+
+	/* Convert to absolute index */
+	if (table < 0)
+		table = lua_gettop(L) + table + 1;
+
+	/* Nil key - the one before first */
+	lua_pushnil(L);
+
+	/* Push each key/value pair, popping previous key */
+	while (lua_next(L, 1) != 0)
+	{
+		/* Transfer "revents" field to the value */
+		lua_getfield(L, -1, "revents");
+		if (lua_isnil(L, -1))
+		{
+			lua_pop(L, 1);
+			Ppoll_events_createtable(L);
+			lua_pushvalue(L, -1);
+			lua_setfield(L, -3, "revents");
+		}
+		Ppoll_events_to_table(L, -1, pollfd->revents);
+		lua_pop(L, 1);
+
+		/* Remove value (but leave the key) */
+		lua_pop(L, 1);
+
+		/* Proceed to next fd */
+		pollfd++;
+	}
+}
+
+/***
+Wait for events on multiple file descriptors.
+@function poll
+@param list of file descriptors
+@int timeout optional (default -1)
+@see poll(2)
+@see poll.lua
+@return return code, nil otherwise
+@return error message if failed.
+*/
+static int Ppoll(lua_State *L)
+{
+	struct pollfd   static_fd_list[16];
+	struct pollfd  *fd_list;
+	nfds_t          fd_num;
+	int             timeout;
+	int             result;
+
+	fd_num = Ppoll_fd_list_check_table(L, 1);
+	timeout = luaL_optint(L, 2, -1);
+
+	fd_list = (fd_num <= sizeof(static_fd_list) / sizeof(*static_fd_list))
+					? static_fd_list
+					: lua_newuserdata(L, sizeof(*fd_list) * fd_num);
+
+
+	Ppoll_fd_list_from_table(L, 1, fd_list);
+
+	result = poll(fd_list, fd_num, timeout);
+
+	/* If any of the descriptors changed state */
+	if (result > 0)
+		Ppoll_fd_list_to_table(L, 1, fd_list);
+
+	return pushresult(L, result, NULL);
+}
+
+/***
+Open a file.
+@function open
+@see open(2)
+@see chmod
+@string path
+@int oflags bitwise OR of the values `O_RDONLY`, `O_WRONLY`, `O_RDWR`,
+`O_APPEND`, `O_CREAT`, `O_DSYNC`, `O_EXCL`, `O_NOCTTY`, `O_NONBLOCK`, `O_RSYNC`,
+`O_SYNC`, `O_TRUNC` (all in the library's namespace)
+@string mode (used with `O_CREAT`; see chmod for format)
+@return file descriptor on success, nil otherwise
+@return error message if failed.
+*/
+static int Popen(lua_State *L)
+{
+	const char *path = luaL_checkstring(L, 1);
+	int flags = luaL_checkint(L, 2);
+	mode_t mode;
+	if (flags & O_CREAT) {
+		const char *modestr = luaL_checkstring(L, 3);
+		if (mode_munch(&mode, modestr))
+			luaL_argerror(L, 3, "bad mode");
+	}
+	return pushresult(L, open(path, flags, mode), path);
+}
+
+/***
+Close an open file descriptor.
+@function close
+@see close(2)
+@int fd
+@return 0 on success, nil otherwise
+@return error message if failed.
+*/
+static int Pclose(lua_State *L)
+{
+	int fd = luaL_checkint(L, 1);
+	return pushresult(L, close(fd), NULL);
+}
+
+/***
+Duplicate an open file descriptor.
+@function dup
+@see dup(2)
+@int fd
+@return file descriptor on success, nil otherwise
+@return error message if failed.
+*/
+static int Pdup(lua_State *L)
+{
+	int fd = luaL_checkint(L, 1);
+	return pushresult(L, dup(fd), NULL);
+}
+
+/***
+Duplicate one open file descriptor to another, closing the new one if necessary.
+@function dup2
+@see dup2(2)
+@int oldfd
+@int newfd
+@return new file descriptor on success, nil otherwise
+@return error message if failed.
+*/
+static int Pdup2(lua_State *L)
+{
+	int oldfd = luaL_checkint(L, 1);
+	int newfd = luaL_checkint(L, 2);
+	return pushresult(L, dup2(oldfd, newfd), NULL);
+}
+
+
+/***
+Creates a pipe.
+@function pipe
+@see pipe(2)
+@return fd read end
+@return fd write end
+@see fork.lua
+*/
+static int Ppipe(lua_State *L)
+{
+	int pipefd[2];
+	int rc = pipe(pipefd);
+	if(rc < 0)
+		return pusherror(L, "pipe");
+	lua_pushinteger(L, pipefd[0]);
+	lua_pushinteger(L, pipefd[1]);
+	return 2;
+}
+
+
+/***
+Read bytes from a file.
+@function read
+@see read(2)
+@int fd the file descriptor
+@int count number of bytes to read
+@return string with at most `count` bytes, or nil on error
+@return error message if failed
+*/
+static int Pread(lua_State *L)
+{
+	int fd = luaL_checkint(L, 1);
+	int count = luaL_checkint(L, 2), ret;
+	void *ud, *buf;
+	lua_Alloc lalloc = lua_getallocf(L, &ud);
+
+	/* Reset errno in case lalloc doesn't set it */
+	errno = 0;
+	if ((buf = lalloc(ud, NULL, 0, count)) == NULL && count > 0)
+		return pusherror(L, "lalloc");
+
+	ret = read(fd, buf, count);
+	if (ret >= 0)
+		lua_pushlstring(L, buf, ret);
+	lalloc(ud, buf, count, 0);
+	return (ret < 0) ? pusherror(L, NULL) : 1;
+}
+
+/***
+Write bytes to a file.
+@function write
+@see write(2)
+@int fd the file descriptor
+@string buf containing bytes
+@return number of bytes written on success, nil otherwise
+@return error message if failed.
+*/
+static int Pwrite(lua_State *L)
+{
+	int fd = luaL_checkint(L, 1);
+	const char *buf = luaL_checkstring(L, 2);
+	return pushresult(L, write(fd, buf, lua_objlen(L, 2)), NULL);
+}
+
+
+/***
+Manipulate file descriptor.
+@function fcntl
+@see fcntl(2)
+@see lock.lua
+@int fd file descriptor to act on
+@int cmd operation to perform
+@param arg optional (default 0). Type and meaning of this param depends on `cmd`.
+Currently it expects arg to be a table for file lock related `cmd` and a number
+for all the rest. With file lock `cmd` the table should contain fields for flock
+structure (see example). When function returns the fields of the table
+get updated with corresponding values from flock structure (to comply
+with semantics of `F_GETLK`).
+@return integer return value depending on `cmd`, or nil on error
+@return error message if failed
+*/
+static int Pfcntl(lua_State *L)
+{
+	int fd = luaL_optint(L, 1, 0);
+	int cmd = luaL_checkint(L, 2);
+	int arg;
+	struct flock lockinfo;
+	int result;
+	switch (cmd) {
+		case F_SETLK:
+		case F_SETLKW:
+		case F_GETLK:
+			luaL_checktype(L, 3, LUA_TTABLE);
+
+			/* Copy fields to flock struct */
+			lua_getfield(L, 3, "l_type");
+			lockinfo.l_type = (short)lua_tointeger(L, -1);
+			lua_getfield(L, 3, "l_whence");
+			lockinfo.l_whence = (short)lua_tointeger(L, -1);
+			lua_getfield(L, 3, "l_start");
+			lockinfo.l_start = (off_t)lua_tointeger(L, -1);
+			lua_getfield(L, 3, "l_len");
+			lockinfo.l_len = (off_t)lua_tointeger(L, -1);
+
+			/* Lock */
+			result = fcntl(fd, cmd, &lockinfo);
+
+			/* Copy fields from flock struct */
+			lua_pushinteger(L, lockinfo.l_type);
+			lua_setfield(L, 3, "l_type");
+			lua_pushinteger(L, lockinfo.l_whence);
+			lua_setfield(L, 3, "l_whence");
+			lua_pushinteger(L, lockinfo.l_start);
+			lua_setfield(L, 3, "l_start");
+			lua_pushinteger(L, lockinfo.l_len);
+			lua_setfield(L, 3, "l_len");
+			lua_pushinteger(L, lockinfo.l_pid);
+			lua_setfield(L, 3, "l_pid");
+
+			break;
+		default:
+			arg = luaL_optint(L, 3, 0);
+			result = fcntl(fd, cmd, arg);
+			break;
+	}
+	return pushresult(L, result, "fcntl");
+}
+
+
+/***
+ synchronize a file's in-core state with storage device
+@function fsync
+@see sync
+@see fsync(2)
+@int fd
+@return 0 on success, nil otherwise
+@return error message if failed.
+*/
+static int Pfsync(lua_State *L)
+{
+  int fd = luaL_checkint(L, 1);
+  return pushresult(L, fsync(fd), NULL);
+}
+
+#if _POSIX_VERSION >= 200112L
+/***
+ synchronize a file's in-core state with storage device without metadata
+@function fdatasync
+@see fdatasync(2)
+@int fd
+@return 0 on success, nil otherwise
+@return error message if failed.
+*/
+static int Pfdatasync(lua_State *L)
+{
+  int fd = luaL_checkint(L, 1);
+  return pushresult(L, fdatasync(fd), NULL);
+}
+#endif
+
+/***
+reposition read/write file offset
+@function lseek
+@see lseek(2)
+@int fd
+@int offset
+@int whence one of SEEK_SET, SEEK_CUR or SEEK_END
+@return new offset on success, nil otherwise
+@return error message if failed.
+*/
+static int Plseek(lua_State *L)
+{
+  int fd = luaL_checknumber(L, 1);
+  int offset = luaL_checknumber(L, 2);
+  int whence = luaL_checknumber(L, 3);
+  return pushresult(L, lseek(fd, offset, whence), NULL);
+}
+
+/***
+change process priority
+@function nice
+@see nice(2)
+@int inc adds inc to the nice value for the calling process
+@return new nice value on success, nil otherwise
+@return error message if failed.
+*/
+static int Pnice(lua_State *L)
+{
+  int inc = luaL_checknumber(L, 1);
+  return pushresult(L, nice(inc), NULL);
+}
+
+
+
+
+/* ============ *
+ * File system. *
+ * ============ */
+
+/***
+File system.
+@section filesystem
+*/
 
 /***
 Find canonicalized absolute pathname.
@@ -870,34 +1534,6 @@ static int Pfadvise(lua_State *L)
 #endif
 
 /***
-File descriptor corresponding to a Lua file object.
-@function fileno
-@param file Lua file object
-@return handle on success, nil otherwise
-@return error message if failed.
-*/
-static int Pfileno(lua_State *L)
-{
-	FILE *f = *(FILE**) luaL_checkudata(L, 1, LUA_FILEHANDLE);
-	return pushresult(L, fileno(f), NULL);
-}
-
-
-/***
-Make a FIFO pipe.
-@function mkfifo
-@see mkfifo(2)
-@string path
-@return handle on success, nil otherwise
-@return error message if failed.
-*/
-static int Pmkfifo(lua_State *L)
-{
-	const char *path = luaL_checkstring(L, 1);
-	return pushresult(L, mkfifo(path, 0777), path);
-}
-
-/***
 Create a unique temporary file.
 @function mkstemp
 @see mkstemp(3)
@@ -956,6 +1592,586 @@ static int Pmkdtemp(lua_State *L)
 	lalloc(ud, tmppath, path_len, 0);
 	return (res == NULL) ? pusherror(L, path) : 1;
 }
+
+
+/***
+Set file mode creation mask.
+@function umask
+@see umask(2)
+@see chmod
+@string mode optional file creation mask string (default current mask; see chmod for format)
+@return previous umask
+*/
+static int Pumask(lua_State *L)
+{
+	mode_t mode;
+	umask(mode=umask(0));
+	mode=(~mode)&0777;
+	if (!lua_isnone(L, 1))
+	{
+		if (mode_munch(&mode, luaL_checkstring(L, 1)))
+		{
+			lua_pushnil(L);
+			return 1;
+		}
+		mode&=0777;
+		umask(~mode);
+	}
+	pushmode(L, mode);
+	return 1;
+}
+
+
+/***
+Change the mode of the path.
+Modes are specified in one of the following formats:
+
+ * "rwxrwxrwx" (e.g. "rw-rw-w--")
+ * "ugoa+-=rwx" (e.g. "u+w")
+ * "+-=rwx" (e.g. "+w")
+
+@function chmod
+@see chmod(2)
+@string path existing file path
+@string mode
+@return 0 on success, nil otherwise
+@return error message if failed.
+@usage posix.chmod('bin/dof','+x')
+*/
+static int Pchmod(lua_State *L)
+{
+	mode_t mode;
+	struct stat s;
+	const char *path = luaL_checkstring(L, 1);
+	const char *modestr = luaL_checkstring(L, 2);
+	if (stat(path, &s))
+		return pusherror(L, path);
+	mode = s.st_mode;
+	if (mode_munch(&mode, modestr))
+		luaL_argerror(L, 2, "bad mode");
+	return pushresult(L, chmod(path, mode), path);
+}
+
+
+/***
+Change ownership of a file.
+@function chown
+@see chown(2)
+@string path existing file path
+@param uid (string or number)
+@param gid (string or number)
+@return 0 on success, nil otherwise
+@return error message if failed.
+@usage print(posix.chown("/etc/passwd",100,200)) -- will fail for a normal user, and hence print an error
+*/
+static int Pchown(lua_State *L)
+{
+	const char *path = luaL_checkstring(L, 1);
+	uid_t uid = mygetuid(L, 2);
+	gid_t gid = mygetgid(L, 3);
+	return pushresult(L, chown(path, uid, gid), path);
+}
+
+
+/***
+Change file last access and modification times.
+@function utime
+@see utime(2)
+@string path existing file path
+@int mtime optional modification time (default current time)
+@int atime optional access time (default current time)
+@return 0 on success, nil otherwise
+@return error message if failed.
+*/
+static int Putime(lua_State *L)
+{
+	struct utimbuf times;
+	time_t currtime = time(NULL);
+	const char *path = luaL_checkstring(L, 1);
+	times.modtime = luaL_optnumber(L, 2, currtime);
+	times.actime  = luaL_optnumber(L, 3, currtime);
+	return pushresult(L, utime(path, &times), path);
+}
+
+
+static const char *filetype(mode_t m)
+{
+	if (S_ISREG(m))
+		return "regular";
+	else if (S_ISLNK(m))
+		return "link";
+	else if (S_ISDIR(m))
+		return "directory";
+	else if (S_ISCHR(m))
+		return "character device";
+	else if (S_ISBLK(m))
+		return "block device";
+	else if (S_ISFIFO(m))
+		return "fifo";
+	else if (S_ISSOCK(m))
+		return "socket";
+	else
+		return "?";
+}
+
+static void Fstat(lua_State *L, int i, const void *data)
+{
+	const struct stat *s=data;
+	switch (i)
+	{
+	case 0:
+		pushmode(L, s->st_mode);
+		break;
+	case 1:
+		lua_pushinteger(L, s->st_ino);
+		break;
+	case 2:
+		lua_pushinteger(L, s->st_dev);
+		break;
+	case 3:
+		lua_pushinteger(L, s->st_nlink);
+		break;
+	case 4:
+		lua_pushinteger(L, s->st_uid);
+		break;
+	case 5:
+		lua_pushinteger(L, s->st_gid);
+		break;
+	case 6:
+		lua_pushinteger(L, s->st_size);
+		break;
+	case 7:
+		lua_pushinteger(L, s->st_atime);
+		break;
+	case 8:
+		lua_pushinteger(L, s->st_mtime);
+		break;
+	case 9:
+		lua_pushinteger(L, s->st_ctime);
+		break;
+	case 10:
+		lua_pushstring(L, filetype(s->st_mode));
+		break;
+	}
+}
+
+static const char *const Sstat[] =
+{
+	"mode", "ino", "dev", "nlink", "uid", "gid",
+	"size", "atime", "mtime", "ctime", "type",
+	NULL
+};
+
+/***
+Information about an existing file path.
+@function stat
+@see stat(2)
+@string path file path
+@string ... field names, each one of "mode", "ino", "dev", "nlink", "uid", "gid",
+"size", "atime", "mtime", "ctime", "type"
+@return ... values, or table of all fields if no option given
+@usage for a, b in pairs(posix.stat("/etc/")) do print(a, b) end
+*/
+static int Pstat(lua_State *L)
+{
+	struct stat s;
+	const char *path=luaL_checkstring(L, 1);
+	if (lstat(path,&s)==-1)
+		return pusherror(L, path);
+	return doselection(L, 2, Sstat, Fstat, &s);
+}
+
+#if defined HAVE_STATVFS
+static void Fstatvfs(lua_State *L, int i, const void *data)
+{
+	const struct statvfs *s=data;
+	switch (i)
+	{
+	case 0:
+		lua_pushinteger(L, s->f_bsize);
+		break;
+	case 1:
+		lua_pushinteger(L, s->f_frsize);
+		break;
+	case 2:
+		lua_pushnumber(L, s->f_blocks);
+		break;
+	case 3:
+		lua_pushnumber(L, s->f_bfree);
+		break;
+	case 4:
+		lua_pushnumber(L, s->f_bavail);
+		break;
+	case 5:
+		lua_pushnumber(L, s->f_files);
+		break;
+	case 6:
+		lua_pushnumber(L, s->f_ffree);
+		break;
+	case 7:
+		lua_pushnumber(L, s->f_favail);
+		break;
+	case 8:
+		lua_pushinteger(L, s->f_fsid);
+		break;
+	case 9:
+		lua_pushinteger(L, s->f_flag);
+		break;
+	case 10:
+		lua_pushinteger(L, s->f_namemax);
+		break;
+	}
+}
+
+static const char *const Sstatvfs[] =
+{
+	"bsize", "frsize", "blocks", "bfree", "bavail",
+	"files", "ffree", "favail", "fsid", "flag", "namemax",
+	NULL
+};
+
+/***
+Get file system statistics.
+@function statvfs
+@see statvfs(3)
+@string path any path within the mounted file system
+@string ... field names, each one of "bsize", "frsize", "blocks", "bfree", "bavail",
+"files", "ffree", "favail", "fsid", "flag", "namemax"
+@return ... values, or table of all fields if no option given
+*/
+static int Pstatvfs(lua_State *L)
+{
+	struct statvfs s;
+	const char *path=luaL_checkstring(L, 1);
+	if (statvfs(path,&s)==-1)
+		return pusherror(L, path);
+	return doselection(L, 2, Sstatvfs, Fstatvfs, &s);
+}
+#endif
+
+
+#define pathconf_map \
+	MENTRY( _LINK_MAX         ) \
+	MENTRY( _MAX_CANON        ) \
+	MENTRY( _MAX_INPUT        ) \
+	MENTRY( _NAME_MAX         ) \
+	MENTRY( _PATH_MAX         ) \
+	MENTRY( _PIPE_BUF         ) \
+	MENTRY( _CHOWN_RESTRICTED ) \
+	MENTRY( _NO_TRUNC         ) \
+	MENTRY( _VDISABLE         )
+
+static const int Kpathconf[] =
+{
+#define MENTRY(_f) LPOSIX_SPLICE(_PC, _f),
+	pathconf_map
+#undef MENTRY
+	-1
+};
+
+static void Fpathconf(lua_State *L, int i, const void *data)
+{
+	const char *path=data;
+	lua_pushinteger(L, pathconf(path, Kpathconf[i]));
+}
+
+static const char *const Spathconf[] =
+{
+#define MENTRY(_f) LPOSIX_STR_1(_f),
+	pathconf_map
+#undef MENTRY
+	NULL
+};
+
+/***
+Get a value for a configuration option for a filename.
+@function pathconf
+@see pathconf(3)
+@string path optional (default ".")
+@string ... field names, each one of "LINK\_MAX", "MAX\_CANON", "NAME\_MAX", "PIPE\_BUF",
+"CHOWN\_RESTRICTED", "NO\_TRUNC", "VDISABLE"
+@return ... values, or table of all fields if no option given
+@usage for a, b in pairs(posix.pathconf("/dev/tty")) do print(a, b) end
+*/
+static int Ppathconf(lua_State *L)
+{
+	const char *path = luaL_optstring(L, 1, ".");
+	return doselection(L, 2, Spathconf, Fpathconf, path);
+}
+
+
+/***
+ commit buffer cache to disk
+@function sync
+@see fsync
+@see sync(2)
+*/
+static int Psync(lua_State *UNUSED (L))
+{
+  sync();
+  return 0;
+}
+
+
+
+
+/* ================ *
+ * Host management. *
+ * ================ */
+
+/***
+Host management.
+@section hostmanagement
+*/
+
+/***
+Get host id.
+@function hostid
+@see gethostid(3)
+@return host id
+*/
+static int Phostid(lua_State *L)
+{
+	lua_pushinteger(L, gethostid());
+	return 1;
+}
+
+
+/***
+Return information about this machine.
+@function uname
+@see uname(2)
+@string optional, contains zero or more of:
+
+ * %m  machine name
+ * %n  node name
+ * %r  release
+ * %s  sys name
+ * %v  version
+
+(default return all information available)
+@return information string on success, nil otherwise
+@return error message if failed
+*/
+static int Puname(lua_State *L)
+{
+	struct utsname u;
+	luaL_Buffer b;
+	const char *s;
+	if (uname(&u)==-1)
+		return pusherror(L, NULL);
+	luaL_buffinit(L, &b);
+	for (s=luaL_optstring(L, 1, "%s %n %r %v %m"); *s; s++)
+		if (*s!='%')
+			luaL_addchar(&b, *s);
+		else switch (*++s)
+		{
+			case '%': luaL_addchar(&b, *s); break;
+			case 'm': luaL_addstring(&b,u.machine); break;
+			case 'n': luaL_addstring(&b,u.nodename); break;
+			case 'r': luaL_addstring(&b,u.release); break;
+			case 's': luaL_addstring(&b,u.sysname); break;
+			case 'v': luaL_addstring(&b,u.version); break;
+			default: badoption(L, 2, "format", *s); break;
+		}
+	luaL_pushresult(&b);
+	return 1;
+}
+
+#define sysconf_map \
+	MENTRY( _ARG_MAX     ) \
+	MENTRY( _CHILD_MAX   ) \
+	MENTRY( _CLK_TCK     ) \
+	MENTRY( _NGROUPS_MAX ) \
+	MENTRY( _STREAM_MAX  ) \
+	MENTRY( _TZNAME_MAX  ) \
+	MENTRY( _OPEN_MAX    ) \
+	MENTRY( _JOB_CONTROL ) \
+	MENTRY( _SAVED_IDS   ) \
+	MENTRY( _VERSION     )
+
+static const int Ksysconf[] =
+{
+#define MENTRY(_f) LPOSIX_SPLICE(_SC, _f),
+	sysconf_map
+#undef MENTRY
+	-1
+};
+
+static void Fsysconf(lua_State *L, int i, const void *UNUSED (data))
+{
+	lua_pushinteger(L, sysconf(Ksysconf[i]));
+}
+
+static const char *const Ssysconf[] =
+{
+#define MENTRY(_f) LPOSIX_STR_1(_f),
+	sysconf_map
+#undef MENTRY
+	NULL
+};
+
+/***
+Get configuration information at runtime.
+@function sysconf
+@see sysconf(3)
+@string ... field names, each one of "ARG\_MAX", "CHILD_MAX", "CLK\_TCK", "NGROUPS_MAX",
+"STREAM\_MAX", "TZNAME\_MAX", "OPEN\_MAX", "JOB\_CONTROL", "VERSION"
+@return ... values, or table of all fields no option
+*/
+static int Psysconf(lua_State *L)
+{
+	return doselection(L, 1, Ssysconf, Fsysconf, NULL);
+}
+
+
+
+
+/* =============== *
+ * Message queues. *
+ * =============== */
+
+/***
+Message queues.
+@section messagequeues
+*/
+
+
+/***
+Get a message queue identifier
+@function msgget
+@see msgget(2)
+@int key
+@int flags (optional, default - 0)
+@int mode (optional, default - 0777)
+@return message queue identifier on success
+@return nil and error message if failed
+ */
+static int Pmsgget(lua_State *L)
+{
+	mode_t mode;
+	const char *modestr;
+	key_t key = luaL_checkint(L, 1);
+	int msgflg = luaL_optint(L, 2, 0);
+
+	modestr = luaL_optstring(L, 3,"rwxrwxrwx");
+	if (mode_munch(&mode, modestr)) {
+		luaL_argerror(L, 2, "bad mode");
+	}
+	msgflg |= mode;
+
+	return pushresult(L, msgget(key, msgflg), NULL);
+}
+
+/***
+Send message to a message queue
+@function msgsnd
+@see msgsnd(2)
+@int id - message queue identifier returned by msgget
+@int type - message type
+@string message
+@int flags (optional, default - 0)
+@return 0 on success
+@return nil and error message if failed
+ */
+static int Pmsgsnd(lua_State *L)
+{
+	void *ud;
+	lua_Alloc lalloc = lua_getallocf(L, &ud);
+	struct {
+		long mtype;
+		char mtext[0];
+	} *msg;
+	size_t len;
+	size_t msgsz;
+	ssize_t res;
+
+	int msgid = luaL_checkint(L, 1);
+	long msgtype = luaL_checklong(L, 2);
+	const char *msgp = luaL_checklstring(L, 3, &len);
+	int msgflg = luaL_optint(L, 4, 0);
+
+	msgsz = sizeof(long) + len;
+
+	if ((msg = lalloc(ud, NULL, 0, msgsz)) == NULL)
+		return pusherror(L, "lalloc");
+
+	msg->mtype = msgtype;
+	memcpy(msg->mtext, msgp, len);
+
+	res = msgsnd(msgid, msg, msgsz, msgflg);
+	lua_pushinteger(L, res);
+
+	lalloc(ud, msg, msgsz, 0);
+
+	return (res == -1 ? pusherror(L, NULL) : 1);
+}
+
+/***
+Receive message from a message queue
+@function msgrcv
+@see msgrcv(2)
+@int id - message queue identifier returned by msgget
+@int size - maximum message size
+@int type - message type (optional, default - 0)
+@int flags (optional, default - 0)
+@return message type and message text on success
+@return nil, nil and error message if failed
+ */
+static int Pmsgrcv(lua_State *L)
+{
+	int msgid = luaL_checkint(L, 1);
+	size_t msgsz = luaL_checkint(L, 2);
+	long msgtyp = luaL_optint(L, 3, 0);
+	int msgflg = luaL_optint(L, 4, 0);
+
+	void *ud;
+	lua_Alloc lalloc = lua_getallocf(L, &ud);
+	struct {
+		long mtype;
+		char mtext[0];
+	} *msg;
+
+	if ((msg = lalloc(ud, NULL, 0, msgsz)) == NULL)
+		return pusherror(L, "lalloc");
+
+	int res = msgrcv(msgid, msg, msgsz, msgtyp, msgflg);
+	if (res != -1) {
+		lua_pushinteger(L, msg->mtype);
+		lua_pushlstring(L, msg->mtext, res - sizeof(long));
+	}
+	lalloc(ud, msg, msgsz, 0);
+
+	return (res == -1) ? pusherror(L, NULL) : 2;
+}
+
+
+
+
+/* =================== *
+ * Process management. *
+ * =================== */
+
+/***
+Process management.
+@section processmanagement
+*/
+
+/***
+Raise a signal on this process.
+@function raise
+@see raise(3)
+@int nsig
+@return integer error code
+*/
+static int Praise(lua_State *L)
+{
+	int sig = luaL_checkint(L, 1);
+	lua_pop(L, 1);
+	lua_pushinteger(L, raise(sig));
+	return 1;
+}
+
 
 static int runexec(lua_State *L, int use_shell)
 {
@@ -1051,242 +2267,6 @@ static int P_exit(lua_State *L)
 	_exit(ret);
 	return 0; /* Avoid a compiler warning (or possibly cause one
 		     if the compiler's too clever, sigh). */
-}
-
-/***
-Wait for some event on a file descriptor.
-Adapted from [http://lua-users.org/lists/lua-l/2007-11/msg00346.html]()
-@function rpoll
-@int file descriptor
-@int timeout
-@see poll(2)
-@return return code, nil otherwise
-@return error message if failed.
-*/
-static int Prpoll(lua_State *L)
-{
-	struct pollfd fds;
-	int file = luaL_checkint(L,1);
-	int timeout = luaL_checkint(L,2);
-	fds.fd = file;
-	fds.events = POLLIN;
-	return pushresult(L, poll(&fds,1,timeout), NULL);
-}
-
-static struct {
-	short       bit;
-	const char *name;
-} Ppoll_event_map[] = {
-#define MAP(_NAME) \
-	{POLL##_NAME, #_NAME}
-	MAP(IN),
-	MAP(PRI),
-	MAP(OUT),
-	MAP(ERR),
-	MAP(HUP),
-	MAP(NVAL),
-#undef MAP
-};
-
-#define PPOLL_EVENT_NUM (sizeof(Ppoll_event_map) / sizeof(*Ppoll_event_map))
-
-static void Ppoll_events_createtable(lua_State *L)
-{
-	lua_createtable(L, 0, PPOLL_EVENT_NUM);
-}
-
-static short Ppoll_events_from_table(lua_State *L, int table)
-{
-	short   events  = 0;
-	size_t  i;
-
-	/* Convert to absolute index */
-	if (table < 0)
-		table = lua_gettop(L) + table + 1;
-
-	for (i = 0; i < PPOLL_EVENT_NUM; i++)
-	{
-		lua_getfield(L, table, Ppoll_event_map[i].name);
-		if (lua_toboolean(L, -1))
-			events |= Ppoll_event_map[i].bit;
-		lua_pop(L, 1);
-	}
-
-	return events;
-}
-
-static void Ppoll_events_to_table(lua_State *L, int table, short events)
-{
-	size_t  i;
-
-	/* Convert to absolute index */
-	if (table < 0)
-		table = lua_gettop(L) + table + 1;
-
-	for (i = 0; i < PPOLL_EVENT_NUM; i++)
-	{
-		lua_pushboolean(L, events & Ppoll_event_map[i].bit);
-		lua_setfield(L, table, Ppoll_event_map[i].name);
-	}
-}
-
-static nfds_t Ppoll_fd_list_check_table(lua_State  *L,
-					int         table)
-{
-	nfds_t          fd_num      = 0;
-
-	/*
-	 * Assume table is an argument number.
-	 * Should be an assert(table > 0).
-	 */
-
-	luaL_checktype(L, table, LUA_TTABLE);
-
-	/* Nil key - the one before first */
-	lua_pushnil(L);
-
-	/* Push each key/value pair, popping previous key */
-	while (lua_next(L, 1) != 0)
-	{
-		/* Verify the fd key */
-		luaL_argcheck(L, lua_isnumber(L, -2), table,
-					  "contains non-integer key(s)");
-
-		/* Verify the table value */
-		luaL_argcheck(L, lua_istable(L, -1), table,
-					  "contains non-table value(s)");
-		lua_getfield(L, -1, "events");
-		luaL_argcheck(L, lua_istable(L, -1), table,
-					  "contains invalid value table(s)");
-		lua_pop(L, 1);
-		lua_getfield(L, -1, "revents");
-		luaL_argcheck(L, lua_isnil(L, -1) || lua_istable(L, -1), table,
-					  "contains invalid value table(s)");
-		lua_pop(L, 1);
-
-		/* Remove value (but leave the key) */
-		lua_pop(L, 1);
-
-		/* Count the fds */
-		fd_num++;
-	}
-
-	return fd_num;
-}
-
-static void Ppoll_fd_list_from_table(lua_State         *L,
-				     int                table,
-				     struct pollfd     *fd_list)
-{
-	struct pollfd  *pollfd  = fd_list;
-
-	/*
-	 * Assume the table didn't change since
-	 * the call to Ppoll_fd_list_check_table
-	 */
-
-	/* Convert to absolute index */
-	if (table < 0)
-		table = lua_gettop(L) + table + 1;
-
-	/* Nil key - the one before first */
-	lua_pushnil(L);
-
-	/* Push each key/value pair, popping previous key */
-	while (lua_next(L, table) != 0)
-	{
-		/* Transfer the fd key */
-		pollfd->fd = lua_tointeger(L, -2);
-
-		/* Transfer "events" field from the value */
-		lua_getfield(L, -1, "events");
-		pollfd->events = Ppoll_events_from_table(L, -1);
-		lua_pop(L, 1);
-
-		/* Remove value (but leave the key) */
-		lua_pop(L, 1);
-
-		/* Proceed to next fd */
-		pollfd++;
-	}
-}
-
-static void Ppoll_fd_list_to_table(lua_State           *L,
-				   int                  table,
-				   const struct pollfd *fd_list)
-{
-	const struct pollfd    *pollfd  = fd_list;
-
-	/*
-	 * Assume the table didn't change since
-	 * the call to Ppoll_fd_list_check_table.
-	 */
-
-	/* Convert to absolute index */
-	if (table < 0)
-		table = lua_gettop(L) + table + 1;
-
-	/* Nil key - the one before first */
-	lua_pushnil(L);
-
-	/* Push each key/value pair, popping previous key */
-	while (lua_next(L, 1) != 0)
-	{
-		/* Transfer "revents" field to the value */
-		lua_getfield(L, -1, "revents");
-		if (lua_isnil(L, -1))
-		{
-			lua_pop(L, 1);
-			Ppoll_events_createtable(L);
-			lua_pushvalue(L, -1);
-			lua_setfield(L, -3, "revents");
-		}
-		Ppoll_events_to_table(L, -1, pollfd->revents);
-		lua_pop(L, 1);
-
-		/* Remove value (but leave the key) */
-		lua_pop(L, 1);
-
-		/* Proceed to next fd */
-		pollfd++;
-	}
-}
-
-/***
-Wait for events on multiple file descriptors.
-@function poll
-@param list of file descriptors
-@int timeout optional (default -1)
-@see poll(2)
-@see poll.lua
-@return return code, nil otherwise
-@return error message if failed.
-*/
-static int Ppoll(lua_State *L)
-{
-	struct pollfd   static_fd_list[16];
-	struct pollfd  *fd_list;
-	nfds_t          fd_num;
-	int             timeout;
-	int             result;
-
-	fd_num = Ppoll_fd_list_check_table(L, 1);
-	timeout = luaL_optint(L, 2, -1);
-
-	fd_list = (fd_num <= sizeof(static_fd_list) / sizeof(*static_fd_list))
-					? static_fd_list
-					: lua_newuserdata(L, sizeof(*fd_list) * fd_num);
-
-
-	Ppoll_fd_list_from_table(L, 1, fd_list);
-
-	result = poll(fd_list, fd_num, timeout);
-
-	/* If any of the descriptors changed state */
-	if (result > 0)
-		Ppoll_fd_list_to_table(L, 1, fd_list);
-
-	return pushresult(L, result, NULL);
 }
 
 /***
@@ -1446,113 +2426,6 @@ static int Pnanosleep(lua_State *L)
 	return ret;
 }
 
-/***
-Get a message queue identifier
-@function msgget
-@see msgget(2)
-@int key
-@int flags (optional, default - 0)
-@int mode (optional, default - 0777)
-@return message queue identifier on success
-@return nil and error message if failed
- */
-static int Pmsgget(lua_State *L)
-{
-	mode_t mode;
-	const char *modestr;
-	key_t key = luaL_checkint(L, 1);
-	int msgflg = luaL_optint(L, 2, 0);
-
-	modestr = luaL_optstring(L, 3,"rwxrwxrwx");
-	if (mode_munch(&mode, modestr)) {
-		luaL_argerror(L, 2, "bad mode");
-	}
-	msgflg |= mode;
-
-	return pushresult(L, msgget(key, msgflg), NULL);
-}
-
-/***
-Send message to a message queue
-@function msgsnd
-@see msgsnd(2)
-@int id - message queue identifier returned by msgget
-@int type - message type
-@string message
-@int flags (optional, default - 0)
-@return 0 on success
-@return nil and error message if failed
- */
-static int Pmsgsnd(lua_State *L)
-{
-	void *ud;
-	lua_Alloc lalloc = lua_getallocf(L, &ud);
-	struct {
-		long mtype;
-		char mtext[0];
-	} *msg;
-	size_t len;
-	size_t msgsz;
-	ssize_t res;
-
-	int msgid = luaL_checkint(L, 1);
-	long msgtype = luaL_checklong(L, 2);
-	const char *msgp = luaL_checklstring(L, 3, &len);
-	int msgflg = luaL_optint(L, 4, 0);
-
-	msgsz = sizeof(long) + len;
-
-	if ((msg = lalloc(ud, NULL, 0, msgsz)) == NULL)
-		return pusherror(L, "lalloc");
-
-	msg->mtype = msgtype;
-	memcpy(msg->mtext, msgp, len);
-
-	res = msgsnd(msgid, msg, msgsz, msgflg);
-	lua_pushinteger(L, res);
-
-	lalloc(ud, msg, msgsz, 0);
-
-	return (res == -1 ? pusherror(L, NULL) : 1);
-}
-
-/***
-Receive message from a message queue
-@function msgrcv
-@see msgrcv(2)
-@int id - message queue identifier returned by msgget
-@int size - maximum message size
-@int type - message type (optional, default - 0)
-@int flags (optional, default - 0)
-@return message type and message text on success
-@return nil, nil and error message if failed
- */
-static int Pmsgrcv(lua_State *L)
-{
-	int msgid = luaL_checkint(L, 1);
-	size_t msgsz = luaL_checkint(L, 2);
-	long msgtyp = luaL_optint(L, 3, 0);
-	int msgflg = luaL_optint(L, 4, 0);
-
-	void *ud;
-	lua_Alloc lalloc = lua_getallocf(L, &ud);
-	struct {
-		long mtype;
-		char mtext[0];
-	} *msg;
-
-	if ((msg = lalloc(ud, NULL, 0, msgsz)) == NULL)
-		return pusherror(L, "lalloc");
-
-	int res = msgrcv(msgid, msg, msgsz, msgtyp, msgflg);
-	if (res != -1) {
-		lua_pushinteger(L, msg->mtype);
-		lua_pushlstring(L, msg->mtext, res - sizeof(long));
-	}
-	lalloc(ud, msg, msgsz, 0);
-
-	return (res == -1) ? pusherror(L, NULL) : 2;
-}
 
 /***
 Set an environment variable for this process.
@@ -1618,306 +2491,6 @@ static int Pgetenv(lua_State *L)
 	return 1;
 }
 
-/***
-Set file mode creation mask.
-@function umask
-@see umask(2)
-@see chmod
-@string mode optional file creation mask string (default current mask; see chmod for format)
-@return previous umask
-*/
-static int Pumask(lua_State *L)
-{
-	mode_t mode;
-	umask(mode=umask(0));
-	mode=(~mode)&0777;
-	if (!lua_isnone(L, 1))
-	{
-		if (mode_munch(&mode, luaL_checkstring(L, 1)))
-		{
-			lua_pushnil(L);
-			return 1;
-		}
-		mode&=0777;
-		umask(~mode);
-	}
-	pushmode(L, mode);
-	return 1;
-}
-
-/***
-Open a pseudoterminal.
-@function openpt
-@see posix_openpt(3)
-@int oflags bitwise OR of the values `O_RDWR`,
-and possibly `O_NOCTTY` (all in the library's namespace)
-@return file descriptor on success, nil otherwise
-@return error message if failed.
-@see grantpt
-@see ptsname
-@see unlockpt
-*/
-static int Popenpt(lua_State *L)
-{
-	int flags = luaL_checkint(L, 1);
-	/* The name of the pseudo-device is specified by POSIX */
-	return pushresult(L, open("/dev/ptmx", flags), NULL);
-}
-
-/***
-Grant access to a slave pseudoterminal
-@function grantpt
-@param file descriptor returned by opening /dev/ptmx
-@return 0 on success
-@return nil, error message if failed.
-@see openpt
-@see ptsname
-@see unlockpt
-*/
-static int Pgrantpt(lua_State *L)
-{
-    int fd=luaL_checkint(L, 1);
-    return pushresult(L, grantpt(fd), "grantpt");
-}
-
-/***
-Unlock a pseudoterminal master/slave pair
-@function unlockpt
-@param file descriptor returned by opening /dev/ptmx
-@return 0 on success
-@return nil, error message if failed.
-@see openpt
-@see ptsname
-@see grantpt
-*/
-static int Punlockpt(lua_State *L)
-{
-    int fd=luaL_checkint(L, 1);
-    return pushresult(L, unlockpt(fd), "unlockpt");
-}
-
-/***
-Get the name of a slave pseudo-terminal
-@function ptsname
-@param file descriptor returned by opening /dev/ptmx
-@return path name of the slave terminal device
-@return nil, error message if failed.
-@see openpt
-@see grantpt
-@see unlockpt
-*/
-static int Pptsname(lua_State *L)
-{
-    int fd=luaL_checkint(L, 1);
-    const char* slave = ptsname(fd);
-    if(!slave)
-        return pusherror(L, "getptsname");
-    lua_pushstring(L, slave);
-    return 1;
-}
-
-/***
-Open a file.
-@function open
-@see open(2)
-@see chmod
-@string path
-@int oflags bitwise OR of the values `O_RDONLY`, `O_WRONLY`, `O_RDWR`,
-`O_APPEND`, `O_CREAT`, `O_DSYNC`, `O_EXCL`, `O_NOCTTY`, `O_NONBLOCK`, `O_RSYNC`,
-`O_SYNC`, `O_TRUNC` (all in the library's namespace)
-@string mode (used with `O_CREAT`; see chmod for format)
-@return file descriptor on success, nil otherwise
-@return error message if failed.
-*/
-static int Popen(lua_State *L)
-{
-	const char *path = luaL_checkstring(L, 1);
-	int flags = luaL_checkint(L, 2);
-	mode_t mode;
-	if (flags & O_CREAT) {
-		const char *modestr = luaL_checkstring(L, 3);
-		if (mode_munch(&mode, modestr))
-			luaL_argerror(L, 3, "bad mode");
-	}
-	return pushresult(L, open(path, flags, mode), path);
-}
-
-/***
-Close an open file descriptor.
-@function close
-@see close(2)
-@int fd
-@return 0 on success, nil otherwise
-@return error message if failed.
-*/
-static int Pclose(lua_State *L)
-{
-	int fd = luaL_checkint(L, 1);
-	return pushresult(L, close(fd), NULL);
-}
-
-/***
-Duplicate an open file descriptor.
-@function dup
-@see dup(2)
-@int fd
-@return file descriptor on success, nil otherwise
-@return error message if failed.
-*/
-static int Pdup(lua_State *L)
-{
-	int fd = luaL_checkint(L, 1);
-	return pushresult(L, dup(fd), NULL);
-}
-
-/***
-Duplicate one open file descriptor to another, closing the new one if necessary.
-@function dup2
-@see dup2(2)
-@int oldfd
-@int newfd
-@return new file descriptor on success, nil otherwise
-@return error message if failed.
-*/
-static int Pdup2(lua_State *L)
-{
-	int oldfd = luaL_checkint(L, 1);
-	int newfd = luaL_checkint(L, 2);
-	return pushresult(L, dup2(oldfd, newfd), NULL);
-}
-
-/***
-Creates a pipe.
-@function pipe
-@see pipe(2)
-@return fd read end
-@return fd write end
-@see fork.lua
-*/
-static int Ppipe(lua_State *L)
-{
-	int pipefd[2];
-	int rc = pipe(pipefd);
-	if(rc < 0)
-		return pusherror(L, "pipe");
-	lua_pushinteger(L, pipefd[0]);
-	lua_pushinteger(L, pipefd[1]);
-	return 2;
-}
-
-/***
-Change the mode of the path.
-Modes are specified in one of the following formats:
-
- * "rwxrwxrwx" (e.g. "rw-rw-w--")
- * "ugoa+-=rwx" (e.g. "u+w")
- * "+-=rwx" (e.g. "+w")
-
-@function chmod
-@see chmod(2)
-@string path existing file path
-@string mode
-@return 0 on success, nil otherwise
-@return error message if failed.
-@usage posix.chmod('bin/dof','+x')
-*/
-static int Pchmod(lua_State *L)
-{
-	mode_t mode;
-	struct stat s;
-	const char *path = luaL_checkstring(L, 1);
-	const char *modestr = luaL_checkstring(L, 2);
-	if (stat(path, &s))
-		return pusherror(L, path);
-	mode = s.st_mode;
-	if (mode_munch(&mode, modestr))
-		luaL_argerror(L, 2, "bad mode");
-	return pushresult(L, chmod(path, mode), path);
-}
-
-/***
-Read bytes from a file.
-@function read
-@see read(2)
-@int fd the file descriptor
-@int count number of bytes to read
-@return string with at most `count` bytes, or nil on error
-@return error message if failed
-*/
-static int Pread(lua_State *L)
-{
-	int fd = luaL_checkint(L, 1);
-	int count = luaL_checkint(L, 2), ret;
-	void *ud, *buf;
-	lua_Alloc lalloc = lua_getallocf(L, &ud);
-
-	/* Reset errno in case lalloc doesn't set it */
-	errno = 0;
-	if ((buf = lalloc(ud, NULL, 0, count)) == NULL && count > 0)
-		return pusherror(L, "lalloc");
-
-	ret = read(fd, buf, count);
-	if (ret >= 0)
-		lua_pushlstring(L, buf, ret);
-	lalloc(ud, buf, count, 0);
-	return (ret < 0) ? pusherror(L, NULL) : 1;
-}
-
-/***
-Write bytes to a file.
-@function write
-@see write(2)
-@int fd the file descriptor
-@string buf containing bytes
-@return number of bytes written on success, nil otherwise
-@return error message if failed.
-*/
-static int Pwrite(lua_State *L)
-{
-	int fd = luaL_checkint(L, 1);
-	const char *buf = luaL_checkstring(L, 2);
-	return pushresult(L, write(fd, buf, lua_objlen(L, 2)), NULL);
-}
-
-/***
-Change ownership of a file.
-@function chown
-@see chown(2)
-@string path existing file path
-@param uid (string or number)
-@param gid (string or number)
-@return 0 on success, nil otherwise
-@return error message if failed.
-@usage print(posix.chown("/etc/passwd",100,200)) -- will fail for a normal user, and hence print an error
-*/
-static int Pchown(lua_State *L)
-{
-	const char *path = luaL_checkstring(L, 1);
-	uid_t uid = mygetuid(L, 2);
-	gid_t gid = mygetgid(L, 3);
-	return pushresult(L, chown(path, uid, gid), path);
-}
-
-/***
-Change file last access and modification times.
-@function utime
-@see utime(2)
-@string path existing file path
-@int mtime optional modification time (default current time)
-@int atime optional access time (default current time)
-@return 0 on success, nil otherwise
-@return error message if failed.
-*/
-static int Putime(lua_State *L)
-{
-	struct utimbuf times;
-	time_t currtime = time(NULL);
-	const char *path = luaL_checkstring(L, 1);
-	times.modtime = luaL_optnumber(L, 2, currtime);
-	times.actime  = luaL_optnumber(L, 3, currtime);
-	return pushresult(L, utime(path, &times), path);
-}
-
 
 static void FgetID(lua_State *L, int i, const void *UNUSED (data))
 {
@@ -1964,184 +2537,6 @@ static int Pgetpid(lua_State *L)
 	return doselection(L, 1, SgetID, FgetID, NULL);
 }
 
-/***
-Get host id.
-@function hostid
-@see gethostid(3)
-@return host id
-*/
-static int Phostid(lua_State *L)
-{
-	lua_pushinteger(L, gethostid());
-	return 1;
-}
-
-/***
-Name of a terminal device.
-@function ttyname
-@see ttyname(3)
-@int fd optional file descriptor (default 0)
-@return string name
-*/
-static int Pttyname(lua_State *L)
-{
-	int fd=luaL_optint(L, 1, 0);
-	lua_pushstring(L, ttyname(fd));
-	return 1;
-}
-
-/***
-Name of controlling terminal.
-@function ctermid
-@see ctermid(3)
-@return code
-*/
-static int Pctermid(lua_State *L)
-{
-	char b[L_ctermid];
-	lua_pushstring(L, ctermid(b));
-	return 1;
-}
-
-/***
-Current logged-in user.
-@see getlogin(3)
-@return string name, or nil if login name cannot be determined
-*/
-static int Pgetlogin(lua_State *L)
-{
-	lua_pushstring(L, getlogin());
-	return 1;
-}
-
-static void Fgetpasswd(lua_State *L, int i, const void *data)
-{
-	const struct passwd *p=data;
-	switch (i)
-	{
-	case 0:
-		lua_pushstring(L, p->pw_name);
-		break;
-	case 1:
-		lua_pushinteger(L, p->pw_uid);
-		break;
-	case 2:
-		lua_pushinteger(L, p->pw_gid);
-		break;
-	case 3:
-		lua_pushstring(L, p->pw_dir);
-		break;
-	case 4:
-		lua_pushstring(L, p->pw_shell);
-		break;
-	case 5:
-		lua_pushstring(L, p->pw_passwd);
-		break;
-	}
-}
-
-static const char *const Sgetpasswd[] =
-{
-	"name", "uid", "gid", "dir", "shell", "passwd", NULL
-};
-
-
-/***
-Get the password entry for a user.
-@function getpasswd
-@param user (name or id)
-@string ... field names, each one of "uid", "name", "gid", "passwd", "dir", "shell"
-@return ... values, or table of all fields if no option given
-@usage for a,b in pairs(posix.getpasswd("root")) do print(a,b) end
-@usage print(posix.getpasswd("root", "shell"))
-*/
-static int Pgetpasswd(lua_State *L)
-{
-	struct passwd *p=NULL;
-	if (lua_isnoneornil(L, 1))
-		p = getpwuid(geteuid());
-	else if (lua_isnumber(L, 1))
-		p = getpwuid((uid_t)lua_tonumber(L, 1));
-	else if (lua_isstring(L, 1))
-		p = getpwnam(lua_tostring(L, 1));
-	else
-		luaL_typerror(L, 1, "string or number");
-	if (p==NULL)
-		lua_pushnil(L);
-	else
-		return doselection(L, 2, Sgetpasswd, Fgetpasswd, p);
-	return 1;
-}
-
-/***
-Information about a group.
-@function getgroup
-@param group id or name
-@return table `{name=name,gid=gid,0=member0,1=member1,...}`
-*/
-static int Pgetgroup(lua_State *L)
-{
-	struct group *g = NULL;
-	if (lua_isnumber(L, 1))
-		g = getgrgid((gid_t)lua_tonumber(L, 1));
-	else if (lua_isstring(L, 1))
-		g = getgrnam(lua_tostring(L, 1));
-	else
-		luaL_typerror(L, 1, "string or number");
-	if (g == NULL)
-		lua_pushnil(L);
-	else {
-		int i;
-		lua_newtable(L);
-		lua_pushstring(L, g->gr_name);
-		lua_setfield(L, -2, "name");
-		lua_pushinteger(L, g->gr_gid);
-		lua_setfield(L, -2, "gid");
-		for (i = 0; g->gr_mem[i] != NULL; i++)
-		{
-			lua_pushstring(L, g->gr_mem[i]);
-			lua_rawseti(L, -2, i + 1);
-		}
-	}
-	return 1;
-}
-
-#if _POSIX_VERSION >= 200112L
-/***
-Get list of supplementary group IDs.
-@function getgroups
-@see getgroups(2)
-@return table of group IDs.
-*/
-static int Pgetgroups(lua_State *L)
-{
-	int n_group_slots = getgroups(0, NULL);
-
-	if (n_group_slots < 0)
-		return pusherror(L, NULL);
-	else if (n_group_slots == 0)
-		lua_newtable(L);
-	else {
-		gid_t  *group;
-		int     n_groups;
-		int     i;
-
-		group = lua_newuserdata(L, sizeof(*group) * n_group_slots);
-
-		n_groups = getgroups(n_group_slots, group);
-		if (n_groups < 0)
-			return pusherror(L, NULL);
-
-		lua_createtable(L, n_groups, 0);
-		for (i = 0; i < n_groups; i++) {
-			lua_pushinteger(L, group[i]);
-			lua_rawseti(L, -2, i + 1);
-		}
-	}
-
-	return 1;
-}
-#endif
 
 struct mytimes
 {
@@ -2186,487 +2581,6 @@ static int Ptimes(lua_State *L)
 	return doselection(L, 1, Stimes, Ftimes, &t);
 }
 
-
-static const char *filetype(mode_t m)
-{
-	if (S_ISREG(m))
-		return "regular";
-	else if (S_ISLNK(m))
-		return "link";
-	else if (S_ISDIR(m))
-		return "directory";
-	else if (S_ISCHR(m))
-		return "character device";
-	else if (S_ISBLK(m))
-		return "block device";
-	else if (S_ISFIFO(m))
-		return "fifo";
-	else if (S_ISSOCK(m))
-		return "socket";
-	else
-		return "?";
-}
-
-static void Fstat(lua_State *L, int i, const void *data)
-{
-	const struct stat *s=data;
-	switch (i)
-	{
-	case 0:
-		pushmode(L, s->st_mode);
-		break;
-	case 1:
-		lua_pushinteger(L, s->st_ino);
-		break;
-	case 2:
-		lua_pushinteger(L, s->st_dev);
-		break;
-	case 3:
-		lua_pushinteger(L, s->st_nlink);
-		break;
-	case 4:
-		lua_pushinteger(L, s->st_uid);
-		break;
-	case 5:
-		lua_pushinteger(L, s->st_gid);
-		break;
-	case 6:
-		lua_pushinteger(L, s->st_size);
-		break;
-	case 7:
-		lua_pushinteger(L, s->st_atime);
-		break;
-	case 8:
-		lua_pushinteger(L, s->st_mtime);
-		break;
-	case 9:
-		lua_pushinteger(L, s->st_ctime);
-		break;
-	case 10:
-		lua_pushstring(L, filetype(s->st_mode));
-		break;
-	}
-}
-
-static const char *const Sstat[] =
-{
-	"mode", "ino", "dev", "nlink", "uid", "gid",
-	"size", "atime", "mtime", "ctime", "type",
-	NULL
-};
-
-/***
-Information about an existing file path.
-@function stat
-@see stat(2)
-@string path file path
-@string ... field names, each one of "mode", "ino", "dev", "nlink", "uid", "gid",
-"size", "atime", "mtime", "ctime", "type"
-@return ... values, or table of all fields if no option given
-@usage for a, b in pairs(posix.stat("/etc/")) do print(a, b) end
-*/
-static int Pstat(lua_State *L)
-{
-	struct stat s;
-	const char *path=luaL_checkstring(L, 1);
-	if (lstat(path,&s)==-1)
-		return pusherror(L, path);
-	return doselection(L, 2, Sstat, Fstat, &s);
-}
-
-#if defined HAVE_STATVFS
-static void Fstatvfs(lua_State *L, int i, const void *data)
-{
-	const struct statvfs *s=data;
-	switch (i)
-	{
-	case 0:
-		lua_pushinteger(L, s->f_bsize);
-		break;
-	case 1:
-		lua_pushinteger(L, s->f_frsize);
-		break;
-	case 2:
-		lua_pushnumber(L, s->f_blocks);
-		break;
-	case 3:
-		lua_pushnumber(L, s->f_bfree);
-		break;
-	case 4:
-		lua_pushnumber(L, s->f_bavail);
-		break;
-	case 5:
-		lua_pushnumber(L, s->f_files);
-		break;
-	case 6:
-		lua_pushnumber(L, s->f_ffree);
-		break;
-	case 7:
-		lua_pushnumber(L, s->f_favail);
-		break;
-	case 8:
-		lua_pushinteger(L, s->f_fsid);
-		break;
-	case 9:
-		lua_pushinteger(L, s->f_flag);
-		break;
-	case 10:
-		lua_pushinteger(L, s->f_namemax);
-		break;
-	}
-}
-
-static const char *const Sstatvfs[] =
-{
-	"bsize", "frsize", "blocks", "bfree", "bavail",
-	"files", "ffree", "favail", "fsid", "flag", "namemax",
-	NULL
-};
-
-/***
-Get file system statistics.
-@function statvfs
-@see statvfs(3)
-@string path any path within the mounted file system
-@string ... field names, each one of "bsize", "frsize", "blocks", "bfree", "bavail",
-"files", "ffree", "favail", "fsid", "flag", "namemax"
-@return ... values, or table of all fields if no option given
-*/
-static int Pstatvfs(lua_State *L)
-{
-	struct statvfs s;
-	const char *path=luaL_checkstring(L, 1);
-	if (statvfs(path,&s)==-1)
-		return pusherror(L, path);
-	return doselection(L, 2, Sstatvfs, Fstatvfs, &s);
-}
-#endif
-
-/***
-Manipulate file descriptor.
-@function fcntl
-@see fcntl(2)
-@see lock.lua
-@int fd file descriptor to act on
-@int cmd operation to perform
-@param arg optional (default 0). Type and meaning of this param depends on `cmd`.
-Currently it expects arg to be a table for file lock related `cmd` and a number
-for all the rest. With file lock `cmd` the table should contain fields for flock
-structure (see example). When function returns the fields of the table
-get updated with corresponding values from flock structure (to comply
-with semantics of `F_GETLK`).
-@return integer return value depending on `cmd`, or nil on error
-@return error message if failed
-*/
-static int Pfcntl(lua_State *L)
-{
-	int fd = luaL_optint(L, 1, 0);
-	int cmd = luaL_checkint(L, 2);
-	int arg;
-	struct flock lockinfo;
-	int result;
-	switch (cmd) {
-		case F_SETLK:
-		case F_SETLKW:
-		case F_GETLK:
-			luaL_checktype(L, 3, LUA_TTABLE);
-
-			/* Copy fields to flock struct */
-			lua_getfield(L, 3, "l_type");
-			lockinfo.l_type = (short)lua_tointeger(L, -1);
-			lua_getfield(L, 3, "l_whence");
-			lockinfo.l_whence = (short)lua_tointeger(L, -1);
-			lua_getfield(L, 3, "l_start");
-			lockinfo.l_start = (off_t)lua_tointeger(L, -1);
-			lua_getfield(L, 3, "l_len");
-			lockinfo.l_len = (off_t)lua_tointeger(L, -1);
-
-			/* Lock */
-			result = fcntl(fd, cmd, &lockinfo);
-
-			/* Copy fields from flock struct */
-			lua_pushinteger(L, lockinfo.l_type);
-			lua_setfield(L, 3, "l_type");
-			lua_pushinteger(L, lockinfo.l_whence);
-			lua_setfield(L, 3, "l_whence");
-			lua_pushinteger(L, lockinfo.l_start);
-			lua_setfield(L, 3, "l_start");
-			lua_pushinteger(L, lockinfo.l_len);
-			lua_setfield(L, 3, "l_len");
-			lua_pushinteger(L, lockinfo.l_pid);
-			lua_setfield(L, 3, "l_pid");
-
-			break;
-		default:
-			arg = luaL_optint(L, 3, 0);
-			result = fcntl(fd, cmd, arg);
-			break;
-	}
-	return pushresult(L, result, "fcntl");
-}
-
-/***
-Test whether a file descriptor refers to a terminal.
-@function isatty
-@see isatty(3)
-@int fd file descriptor to test
-@return 1 if fd is an open file descriptor referring to a terminal, or nil otherwise
-@return error message if failed
-*/
-static int Pisatty(lua_State *L)
-{
-	return pushresult(L, isatty(luaL_checkint(L, 1)) == 0 ? -1 : 1, "isatty");
-}
-
-/***
-Return information about this machine.
-@function uname
-@see uname(2)
-@string optional, contains zero or more of:
-
- * %m  machine name
- * %n  node name
- * %r  release
- * %s  sys name
- * %v  version
-
-(default return all information available)
-@return information string on success, nil otherwise
-@return error message if failed
-*/
-static int Puname(lua_State *L)
-{
-	struct utsname u;
-	luaL_Buffer b;
-	const char *s;
-	if (uname(&u)==-1)
-		return pusherror(L, NULL);
-	luaL_buffinit(L, &b);
-	for (s=luaL_optstring(L, 1, "%s %n %r %v %m"); *s; s++)
-		if (*s!='%')
-			luaL_addchar(&b, *s);
-		else switch (*++s)
-		{
-			case '%': luaL_addchar(&b, *s); break;
-			case 'm': luaL_addstring(&b,u.machine); break;
-			case 'n': luaL_addstring(&b,u.nodename); break;
-			case 'r': luaL_addstring(&b,u.release); break;
-			case 's': luaL_addstring(&b,u.sysname); break;
-			case 'v': luaL_addstring(&b,u.version); break;
-			default: badoption(L, 2, "format", *s); break;
-		}
-	luaL_pushresult(&b);
-	return 1;
-}
-
-#define pathconf_map \
-	MENTRY( _LINK_MAX         ) \
-	MENTRY( _MAX_CANON        ) \
-	MENTRY( _MAX_INPUT        ) \
-	MENTRY( _NAME_MAX         ) \
-	MENTRY( _PATH_MAX         ) \
-	MENTRY( _PIPE_BUF         ) \
-	MENTRY( _CHOWN_RESTRICTED ) \
-	MENTRY( _NO_TRUNC         ) \
-	MENTRY( _VDISABLE         )
-
-static const int Kpathconf[] =
-{
-#define MENTRY(_f) LPOSIX_SPLICE(_PC, _f),
-	pathconf_map
-#undef MENTRY
-	-1
-};
-
-static void Fpathconf(lua_State *L, int i, const void *data)
-{
-	const char *path=data;
-	lua_pushinteger(L, pathconf(path, Kpathconf[i]));
-}
-
-static const char *const Spathconf[] =
-{
-#define MENTRY(_f) LPOSIX_STR_1(_f),
-	pathconf_map
-#undef MENTRY
-	NULL
-};
-
-/***
-Get a value for a configuration option for a filename.
-@function pathconf
-@see pathconf(3)
-@string path optional (default ".")
-@string ... field names, each one of "LINK\_MAX", "MAX\_CANON", "NAME\_MAX", "PIPE\_BUF",
-"CHOWN\_RESTRICTED", "NO\_TRUNC", "VDISABLE"
-@return ... values, or table of all fields if no option given
-@usage for a, b in pairs(posix.pathconf("/dev/tty")) do print(a, b) end
-*/
-static int Ppathconf(lua_State *L)
-{
-	const char *path = luaL_optstring(L, 1, ".");
-	return doselection(L, 2, Spathconf, Fpathconf, path);
-}
-
-#define sysconf_map \
-	MENTRY( _ARG_MAX     ) \
-	MENTRY( _CHILD_MAX   ) \
-	MENTRY( _CLK_TCK     ) \
-	MENTRY( _NGROUPS_MAX ) \
-	MENTRY( _STREAM_MAX  ) \
-	MENTRY( _TZNAME_MAX  ) \
-	MENTRY( _OPEN_MAX    ) \
-	MENTRY( _JOB_CONTROL ) \
-	MENTRY( _SAVED_IDS   ) \
-	MENTRY( _VERSION     )
-
-static const int Ksysconf[] =
-{
-#define MENTRY(_f) LPOSIX_SPLICE(_SC, _f),
-	sysconf_map
-#undef MENTRY
-	-1
-};
-
-static void Fsysconf(lua_State *L, int i, const void *UNUSED (data))
-{
-	lua_pushinteger(L, sysconf(Ksysconf[i]));
-}
-
-static const char *const Ssysconf[] =
-{
-#define MENTRY(_f) LPOSIX_STR_1(_f),
-	sysconf_map
-#undef MENTRY
-	NULL
-};
-
-/***
-Get configuration information at runtime.
-@function sysconf
-@see sysconf(3)
-@string ... field names, each one of "ARG\_MAX", "CHILD_MAX", "CLK\_TCK", "NGROUPS_MAX",
-"STREAM\_MAX", "TZNAME\_MAX", "OPEN\_MAX", "JOB\_CONTROL", "VERSION"
-@return ... values, or table of all fields no option
-*/
-static int Psysconf(lua_State *L)
-{
-	return doselection(L, 1, Ssysconf, Fsysconf, NULL);
-}
-
-#if _POSIX_VERSION >= 200112L
-/* syslog funcs */
-
-/***
-Open the system logger.
-@function openlog
-@see syslog(3)
-@string ident all messages will start with this
-@string option optional, any combination of 'c' (directly to system console if an error sending),
-'n' (no delay) or 'p' (show PID)
-@int facility optional (default LOG_USER)
-*/
-static int Popenlog(lua_State *L)
-{
-	const char *ident = luaL_checkstring(L, 1);
-	int option = 0;
-	int facility = luaL_optint(L, 3, LOG_USER);
-	const char *s = luaL_optstring(L, 2, "");
-	while (*s) {
-		switch (*s) {
-			case ' ': break;
-			case 'c': option |= LOG_CONS; break;
-			case 'n': option |= LOG_NDELAY; break;
-			case 'p': option |= LOG_PID; break;
-			default: badoption(L, 2, "option", *s); break;
-		}
-		s++;
-	}
-	openlog(ident, option, facility);
-	return 0;
-}
-
-/***
-Write to the system logger.
-@function syslog
-@see syslog(3)
-@int priority one of these values:
-
- * 1  Alert - immediate action
- * 2  Critcal
- * 3  Error
- * 4  Warning
- * 5  Notice
- * 6  Informational
- * 7  Debug
-
-@string message
-*/
-static int Psyslog(lua_State *L)
-{
-	int priority = luaL_checkint(L, 1);
-	const char *msg = luaL_checkstring(L, 2);
-	syslog(priority, "%s", msg);
-	return 0;
-}
-
-/***
-Close system log.
-@function closelog
-@see syslog(3)
-*/
-static int Pcloselog(lua_State *UNUSED (L))
-{
-	closelog();
-	return 0;
-}
-
-/***
-Set log priority mask.
-@function setlogmask
-@int bitwise OR of values from `LOG_EMERG`, `LOG_ALERT`, `LOG_CRIT`, `LOG_WARNING`, `LOG_NOTICE`, `LOG_INFO`, `LOG_DEBUG`
-@return 0 on success, nil otherwise
-@return error message if failed.
-*/
-static int Psetlogmask(lua_State *L)
-{
-	int argno = lua_gettop(L);
-	int mask = 0;
-	int i;
-
-	for (i=1; i <= argno; i++)
-		mask |= LOG_MASK(luaL_checkint(L,i));
-
-	return pushresult(L, setlogmask(mask),"setlogmask");
-}
-#endif
-
-#if defined HAVE_CRYPT
-/***
-Encrypt a password.
-Not recommended for general encryption purposes.
-@function crypt
-@see crypt(3)
-@string string
-@string salt two-character string from [a-zA-Z0-9./]
-@return encrypted string
-*/
-static int Pcrypt(lua_State *L)
-{
-	const char *str, *salt;
-	char *res;
-
-	str = luaL_checkstring(L, 1);
-	salt = luaL_checkstring(L, 2);
-	if (strlen(salt) < 2)
-		luaL_error(L, "not enough salt");
-
-	res = crypt(str, salt);
-	lua_pushstring(L, res);
-
-	return 1;
-}
-#endif
 
 /* get/setrlimit */
 #define rlimit_map \
@@ -2760,124 +2674,17 @@ static int Pgetrlimit(lua_State *L)
 }
 
 
-/* getopt_long */
 
-/* N.B. We don't need the symbolic constants no_argument,
-   required_argument and optional_argument, since their values are
-   defined as 0, 1 and 2 respectively. */
-static const char *const arg_types[] = {
-	"none", "required", "optional", NULL
-};
 
-static int iter_getopt_long(lua_State *L)
-{
-	int longindex = 0, ret, argc = lua_tointeger(L, lua_upvalueindex(1));
-	char **argv = (char **)lua_touserdata(L, lua_upvalueindex(3));
-	struct option *longopts = (struct option *)lua_touserdata(L, lua_upvalueindex(3 + argc + 1));
-
-	if (argv == NULL) /* If we have already completed, return now. */
-		return 0;
-
-	/* Fetch upvalues to pass to getopt_long. */
-	ret = getopt_long(argc, argv,
-			  lua_tostring(L, lua_upvalueindex(2)),
-			  longopts,
-			  &longindex);
-	if (ret == -1)
-		return 0;
-	else {
-		char c = ret;
-		lua_pushlstring(L, &c, 1);
-		lua_pushstring(L, optarg);
-		lua_pushinteger(L, optind);
-		lua_pushinteger(L, longindex);
-		return 4;
-	}
-}
+/* ================ *
+ * Signal handling. *
+ * ================ */
 
 /***
-Parse command-line options.
-@function getopt
-@see getopt(3)
-@see getopt_long(3)
-@param arg command line arguments
-@string shortopts e.g 'ho:v' (colon means 'receives argument')
-@param longopts e.g. `{{'help','none',2},...}`
-@usage for ret, longindex, optind, optarg in posix.getopt (arg, shortopts[, longopts[, opterr[, optind]]]) do ... end
-@see getopt.lua
+Signal handling.
+@section signalhandling
 */
-static int Pgetopt(lua_State *L)
-{
-	int argc, i, n = 0;
-	const char *shortopts;
-	char **argv;
-	struct option *longopts;
 
-	luaL_checktype(L, 1, LUA_TTABLE);
-	shortopts = luaL_checkstring(L, 2);
-	if(!lua_isnone(L, 3) && !lua_isnil(L, 3)) luaL_checktype(L, 3, LUA_TTABLE);
-	opterr = luaL_optinteger (L, 4, 0);
-	optind = luaL_optinteger (L, 5, 1);
-
-	argc = (int)lua_objlen(L, 1) + 1;
-
-	lua_pushinteger(L, argc);
-
-	lua_pushstring(L, shortopts);
-
-	argv = lua_newuserdata(L, (argc + 1) * sizeof(char *));
-	argv[argc] = NULL;
-	for (i = 0; i < argc; i++) {
-		lua_pushinteger(L, i);
-		lua_gettable(L, 1);
-		argv[i] = (char *)luaL_checkstring(L, -1);
-	}
-
-	if(lua_type(L, 3) == LUA_TTABLE) {
-		n = (int)lua_objlen(L, 3);
-	}
-	longopts = lua_newuserdata(L, (n + 1) * sizeof(struct option));
-	longopts[n].name = NULL;
-	longopts[n].has_arg = 0;
-	longopts[n].flag = NULL;
-	longopts[n].val = 0;
-	for (i = 1; i <= n; i++) {
-		const char *name, *val;
-		int has_arg;
-
-		lua_pushinteger(L, i);
-		lua_gettable(L, 3);
-		luaL_checktype(L, -1, LUA_TTABLE);
-
-		lua_pushinteger(L, 1);
-		lua_gettable(L, -2);
-		name = luaL_checkstring(L, -1);
-
-		lua_pushinteger(L, 2);
-		lua_gettable(L, -3);
-		has_arg = luaL_checkoption(L, -1, NULL, arg_types);
-		lua_pop(L, 1);
-
-		lua_pushinteger(L, 3);
-		lua_gettable(L, -3);
-		val = luaL_checkstring(L, -1);
-		lua_pop(L, 1);
-
-		longopts[i - 1].name = name;
-		longopts[i - 1].has_arg = has_arg;
-		longopts[i - 1].flag = NULL;
-		longopts[i - 1].val = val[0];
-		lua_pop(L, 1);
-	}
-
-	/* Push remaining upvalues, and make and push closure. */
-	lua_pushcclosure(L, iter_getopt_long, 4 + argc + n);
-
-	return 1;
-}
-
-
-/* Signals */
 
 static lua_State *signalL;
 #define SIGNAL_QUEUE_MAX 25
@@ -3029,84 +2836,20 @@ static int Psignal (lua_State *L)
 	return 1;
 }
 
-static int Ptcsetattr(lua_State *L)
-{
-	struct termios t;
-	int i;
-	int fd = luaL_checknumber(L, 1);
-	int act = luaL_checknumber(L, 2);
-	luaL_checktype(L, 3, LUA_TTABLE);
 
-	lua_getfield(L, 3, "iflag"); t.c_iflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
-	lua_getfield(L, 3, "oflag"); t.c_oflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
-	lua_getfield(L, 3, "cflag"); t.c_cflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
-	lua_getfield(L, 3, "lflag"); t.c_lflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
 
-	lua_getfield(L, 3, "cc");
-	for(i=0; i<NCCS; i++) {
-		lua_pushnumber(L, i);
-		lua_gettable(L, -2);
-		t.c_cc[i] = luaL_optint(L, -1, 0);
-		lua_pop(L, 1);
-	}
 
-	return pushresult(L, tcsetattr(fd, act, &t), NULL);
-}
-
-static int Ptcgetattr(lua_State *L)
-{
-	int i;
-	struct termios t;
-	int fd = luaL_checknumber(L, 1);
-
-	int r = tcgetattr(fd, &t);
-	if(r == -1) return pusherror(L, NULL);
-
-	lua_newtable(L);
-	lua_pushnumber(L, t.c_iflag); lua_setfield(L, -2, "iflag");
-	lua_pushnumber(L, t.c_oflag); lua_setfield(L, -2, "oflag");
-	lua_pushnumber(L, t.c_lflag); lua_setfield(L, -2, "lflag");
-	lua_pushnumber(L, t.c_cflag); lua_setfield(L, -2, "cflag");
-
-	lua_newtable(L);
-	for(i=0; i<NCCS; i++) {
-		lua_pushnumber(L, i);
-		lua_pushnumber(L, t.c_cc[i]);
-		lua_settable(L, -3);
-	}
-	lua_setfield(L, -2, "cc");
-
-	return 1;
-}
-
-static int Ptcsendbreak(lua_State *L)
-{
-	int fd = luaL_checknumber(L, 1);
-	int duration = luaL_checknumber(L, 2);
-	return pushresult(L, tcsendbreak(fd, duration), NULL);
-}
-
-static int Ptcdrain(lua_State *L)
-{
-	int fd = luaL_checknumber(L, 1);
-	return pushresult(L, tcdrain(fd), NULL);
-}
-
-static int Ptcflush(lua_State *L)
-{
-	int fd = luaL_checknumber(L, 1);
-	int qs = luaL_checknumber(L, 2);
-	return pushresult(L, tcflush(fd, qs), NULL);
-}
-
-static int Ptcflow(lua_State *L)
-{
-	int fd = luaL_checknumber(L, 1);
-	int action = luaL_checknumber(L, 2);
-	return pushresult(L, tcflow(fd, action), NULL);
-}
+/* ================== *
+ * Socket management. *
+ * ================== */
 
 #if _POSIX_VERSION >= 200112L
+
+/***
+Socket management.
+@section socketmanagement
+*/
+
 
 static int Psocket(lua_State *L)
 {
@@ -3511,81 +3254,314 @@ static int Psetsockopt(lua_State *L)
 }
 #endif
 
-/***
- commit buffer cache to disk
-@function sync
-@see sync(2)
-*/
-static int Psync(lua_State *UNUSED (L))
-{
-  sync();
-  return 0;
-}
 
-/***
- synchronize a file's in-core state with storage device
-@function fsync
-@see fsync(2)
-@int fd
-@return 0 on success, nil otherwise
-@return error message if failed.
-*/
-static int Pfsync(lua_State *L)
-{
-  int fd = luaL_checkint(L, 1);
-  return pushresult(L, fsync(fd), NULL);
-}
+
+
+/* ============= *
+ * syslog funcs. *
+ * ============= */
 
 #if _POSIX_VERSION >= 200112L
+
 /***
- synchronize a file's in-core state with storage device without metadata
-@function fdatasync
-@see fdatasync(2)
-@int fd
+System log.
+@section syslog
+*/
+
+
+/***
+Open the system logger.
+@function openlog
+@see syslog(3)
+@string ident all messages will start with this
+@string option optional, any combination of 'c' (directly to system console if an error sending),
+'n' (no delay) or 'p' (show PID)
+@int facility optional (default LOG_USER)
+*/
+static int Popenlog(lua_State *L)
+{
+	const char *ident = luaL_checkstring(L, 1);
+	int option = 0;
+	int facility = luaL_optint(L, 3, LOG_USER);
+	const char *s = luaL_optstring(L, 2, "");
+	while (*s) {
+		switch (*s) {
+			case ' ': break;
+			case 'c': option |= LOG_CONS; break;
+			case 'n': option |= LOG_NDELAY; break;
+			case 'p': option |= LOG_PID; break;
+			default: badoption(L, 2, "option", *s); break;
+		}
+		s++;
+	}
+	openlog(ident, option, facility);
+	return 0;
+}
+
+/***
+Write to the system logger.
+@function syslog
+@see syslog(3)
+@int priority one of these values:
+
+ * 1  Alert - immediate action
+ * 2  Critcal
+ * 3  Error
+ * 4  Warning
+ * 5  Notice
+ * 6  Informational
+ * 7  Debug
+
+@string message
+*/
+static int Psyslog(lua_State *L)
+{
+	int priority = luaL_checkint(L, 1);
+	const char *msg = luaL_checkstring(L, 2);
+	syslog(priority, "%s", msg);
+	return 0;
+}
+
+/***
+Close system log.
+@function closelog
+@see syslog(3)
+*/
+static int Pcloselog(lua_State *UNUSED (L))
+{
+	closelog();
+	return 0;
+}
+
+/***
+Set log priority mask.
+@function setlogmask
+@int bitwise OR of values from `LOG_EMERG`, `LOG_ALERT`, `LOG_CRIT`, `LOG_WARNING`, `LOG_NOTICE`, `LOG_INFO`, `LOG_DEBUG`
 @return 0 on success, nil otherwise
 @return error message if failed.
 */
-static int Pfdatasync(lua_State *L)
+static int Psetlogmask(lua_State *L)
 {
-  int fd = luaL_checkint(L, 1);
-  return pushresult(L, fdatasync(fd), NULL);
+	int argno = lua_gettop(L);
+	int mask = 0;
+	int i;
+
+	for (i=1; i <= argno; i++)
+		mask |= LOG_MASK(luaL_checkint(L,i));
+
+	return pushresult(L, setlogmask(mask),"setlogmask");
 }
 #endif
 
+
+
+
+/* ================== *
+ * Terminal handling. *
+ * ================== */
+
 /***
-reposition read/write file offset
-@function lseek
-@see lseek(2)
-@int fd
-@int offset
-@int whence one of SEEK_SET, SEEK_CUR or SEEK_END
-@return new offset on success, nil otherwise
-@return error message if failed.
+Terminal handling.
+@section terminalhandling
 */
-static int Plseek(lua_State *L)
+
+/***
+Open a pseudoterminal.
+@function openpt
+@see posix_openpt(3)
+@int oflags bitwise OR of the values `O_RDWR`,
+and possibly `O_NOCTTY` (all in the library's namespace)
+@return file descriptor on success, nil otherwise
+@return error message if failed.
+@see grantpt
+@see ptsname
+@see unlockpt
+*/
+static int Popenpt(lua_State *L)
 {
-  int fd = luaL_checknumber(L, 1);
-  int offset = luaL_checknumber(L, 2);
-  int whence = luaL_checknumber(L, 3);
-  return pushresult(L, lseek(fd, offset, whence), NULL);
+	int flags = luaL_checkint(L, 1);
+	/* The name of the pseudo-device is specified by POSIX */
+	return pushresult(L, open("/dev/ptmx", flags), NULL);
 }
 
 /***
-change process priority
-@function nice
-@see nice(2)
-@int inc adds inc to the nice value for the calling process
-@return new nice value on success, nil otherwise
-@return error message if failed.
+Grant access to a slave pseudoterminal
+@function grantpt
+@param file descriptor returned by opening /dev/ptmx
+@return 0 on success
+@return nil, error message if failed.
+@see openpt
+@see ptsname
+@see unlockpt
 */
-static int Pnice(lua_State *L)
+static int Pgrantpt(lua_State *L)
 {
-  int inc = luaL_checknumber(L, 1);
-  return pushresult(L, nice(inc), NULL);
+    int fd=luaL_checkint(L, 1);
+    return pushresult(L, grantpt(fd), "grantpt");
+}
+
+/***
+Unlock a pseudoterminal master/slave pair
+@function unlockpt
+@param file descriptor returned by opening /dev/ptmx
+@return 0 on success
+@return nil, error message if failed.
+@see openpt
+@see ptsname
+@see grantpt
+*/
+static int Punlockpt(lua_State *L)
+{
+    int fd=luaL_checkint(L, 1);
+    return pushresult(L, unlockpt(fd), "unlockpt");
+}
+
+/***
+Get the name of a slave pseudo-terminal
+@function ptsname
+@param file descriptor returned by opening /dev/ptmx
+@return path name of the slave terminal device
+@return nil, error message if failed.
+@see openpt
+@see grantpt
+@see unlockpt
+*/
+static int Pptsname(lua_State *L)
+{
+    int fd=luaL_checkint(L, 1);
+    const char* slave = ptsname(fd);
+    if(!slave)
+        return pusherror(L, "getptsname");
+    lua_pushstring(L, slave);
+    return 1;
 }
 
 
-/* Time and date */
+/***
+Name of a terminal device.
+@function ttyname
+@see ttyname(3)
+@int fd optional file descriptor (default 0)
+@return string name
+*/
+static int Pttyname(lua_State *L)
+{
+	int fd=luaL_optint(L, 1, 0);
+	lua_pushstring(L, ttyname(fd));
+	return 1;
+}
+
+/***
+Name of controlling terminal.
+@function ctermid
+@see ctermid(3)
+@return code
+*/
+static int Pctermid(lua_State *L)
+{
+	char b[L_ctermid];
+	lua_pushstring(L, ctermid(b));
+	return 1;
+}
+
+
+/***
+Test whether a file descriptor refers to a terminal.
+@function isatty
+@see isatty(3)
+@int fd file descriptor to test
+@return 1 if fd is an open file descriptor referring to a terminal, or nil otherwise
+@return error message if failed
+*/
+static int Pisatty(lua_State *L)
+{
+	return pushresult(L, isatty(luaL_checkint(L, 1)) == 0 ? -1 : 1, "isatty");
+}
+
+
+static int Ptcsetattr(lua_State *L)
+{
+	struct termios t;
+	int i;
+	int fd = luaL_checknumber(L, 1);
+	int act = luaL_checknumber(L, 2);
+	luaL_checktype(L, 3, LUA_TTABLE);
+
+	lua_getfield(L, 3, "iflag"); t.c_iflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
+	lua_getfield(L, 3, "oflag"); t.c_oflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
+	lua_getfield(L, 3, "cflag"); t.c_cflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
+	lua_getfield(L, 3, "lflag"); t.c_lflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
+
+	lua_getfield(L, 3, "cc");
+	for(i=0; i<NCCS; i++) {
+		lua_pushnumber(L, i);
+		lua_gettable(L, -2);
+		t.c_cc[i] = luaL_optint(L, -1, 0);
+		lua_pop(L, 1);
+	}
+
+	return pushresult(L, tcsetattr(fd, act, &t), NULL);
+}
+
+static int Ptcgetattr(lua_State *L)
+{
+	int i;
+	struct termios t;
+	int fd = luaL_checknumber(L, 1);
+
+	int r = tcgetattr(fd, &t);
+	if(r == -1) return pusherror(L, NULL);
+
+	lua_newtable(L);
+	lua_pushnumber(L, t.c_iflag); lua_setfield(L, -2, "iflag");
+	lua_pushnumber(L, t.c_oflag); lua_setfield(L, -2, "oflag");
+	lua_pushnumber(L, t.c_lflag); lua_setfield(L, -2, "lflag");
+	lua_pushnumber(L, t.c_cflag); lua_setfield(L, -2, "cflag");
+
+	lua_newtable(L);
+	for(i=0; i<NCCS; i++) {
+		lua_pushnumber(L, i);
+		lua_pushnumber(L, t.c_cc[i]);
+		lua_settable(L, -3);
+	}
+	lua_setfield(L, -2, "cc");
+
+	return 1;
+}
+
+static int Ptcsendbreak(lua_State *L)
+{
+	int fd = luaL_checknumber(L, 1);
+	int duration = luaL_checknumber(L, 2);
+	return pushresult(L, tcsendbreak(fd, duration), NULL);
+}
+
+static int Ptcdrain(lua_State *L)
+{
+	int fd = luaL_checknumber(L, 1);
+	return pushresult(L, tcdrain(fd), NULL);
+}
+
+static int Ptcflush(lua_State *L)
+{
+	int fd = luaL_checknumber(L, 1);
+	int qs = luaL_checknumber(L, 2);
+	return pushresult(L, tcflush(fd, qs), NULL);
+}
+
+static int Ptcflow(lua_State *L)
+{
+	int fd = luaL_checknumber(L, 1);
+	int action = luaL_checknumber(L, 2);
+	return pushresult(L, tcflow(fd, action), NULL);
+}
+
+
+
+
+/* ============== *
+ * Time and date. *
+ * ============== */
 
 /***
 Time and date.
@@ -3853,10 +3829,190 @@ static int Pmktime(lua_State *L)
 
 
 
+
+/* ================ *
+ * User management. *
+ * ================ */
+
+/***
+User management.
+@section usermanagement
+*/
+
+
+/***
+Current logged-in user.
+@see getlogin(3)
+@return string name, or nil if login name cannot be determined
+*/
+static int Pgetlogin(lua_State *L)
+{
+	lua_pushstring(L, getlogin());
+	return 1;
+}
+
+static void Fgetpasswd(lua_State *L, int i, const void *data)
+{
+	const struct passwd *p=data;
+	switch (i)
+	{
+	case 0:
+		lua_pushstring(L, p->pw_name);
+		break;
+	case 1:
+		lua_pushinteger(L, p->pw_uid);
+		break;
+	case 2:
+		lua_pushinteger(L, p->pw_gid);
+		break;
+	case 3:
+		lua_pushstring(L, p->pw_dir);
+		break;
+	case 4:
+		lua_pushstring(L, p->pw_shell);
+		break;
+	case 5:
+		lua_pushstring(L, p->pw_passwd);
+		break;
+	}
+}
+
+static const char *const Sgetpasswd[] =
+{
+	"name", "uid", "gid", "dir", "shell", "passwd", NULL
+};
+
+
+/***
+Get the password entry for a user.
+@function getpasswd
+@param user (name or id)
+@string ... field names, each one of "uid", "name", "gid", "passwd", "dir", "shell"
+@return ... values, or table of all fields if no option given
+@usage for a,b in pairs(posix.getpasswd("root")) do print(a,b) end
+@usage print(posix.getpasswd("root", "shell"))
+*/
+static int Pgetpasswd(lua_State *L)
+{
+	struct passwd *p=NULL;
+	if (lua_isnoneornil(L, 1))
+		p = getpwuid(geteuid());
+	else if (lua_isnumber(L, 1))
+		p = getpwuid((uid_t)lua_tonumber(L, 1));
+	else if (lua_isstring(L, 1))
+		p = getpwnam(lua_tostring(L, 1));
+	else
+		luaL_typerror(L, 1, "string or number");
+	if (p==NULL)
+		lua_pushnil(L);
+	else
+		return doselection(L, 2, Sgetpasswd, Fgetpasswd, p);
+	return 1;
+}
+
+/***
+Information about a group.
+@function getgroup
+@param group id or name
+@return table `{name=name,gid=gid,0=member0,1=member1,...}`
+*/
+static int Pgetgroup(lua_State *L)
+{
+	struct group *g = NULL;
+	if (lua_isnumber(L, 1))
+		g = getgrgid((gid_t)lua_tonumber(L, 1));
+	else if (lua_isstring(L, 1))
+		g = getgrnam(lua_tostring(L, 1));
+	else
+		luaL_typerror(L, 1, "string or number");
+	if (g == NULL)
+		lua_pushnil(L);
+	else {
+		int i;
+		lua_newtable(L);
+		lua_pushstring(L, g->gr_name);
+		lua_setfield(L, -2, "name");
+		lua_pushinteger(L, g->gr_gid);
+		lua_setfield(L, -2, "gid");
+		for (i = 0; g->gr_mem[i] != NULL; i++)
+		{
+			lua_pushstring(L, g->gr_mem[i]);
+			lua_rawseti(L, -2, i + 1);
+		}
+	}
+	return 1;
+}
+
+#if _POSIX_VERSION >= 200112L
+/***
+Get list of supplementary group IDs.
+@function getgroups
+@see getgroups(2)
+@return table of group IDs.
+*/
+static int Pgetgroups(lua_State *L)
+{
+	int n_group_slots = getgroups(0, NULL);
+
+	if (n_group_slots < 0)
+		return pusherror(L, NULL);
+	else if (n_group_slots == 0)
+		lua_newtable(L);
+	else {
+		gid_t  *group;
+		int     n_groups;
+		int     i;
+
+		group = lua_newuserdata(L, sizeof(*group) * n_group_slots);
+
+		n_groups = getgroups(n_group_slots, group);
+		if (n_groups < 0)
+			return pusherror(L, NULL);
+
+		lua_createtable(L, n_groups, 0);
+		for (i = 0; i < n_groups; i++) {
+			lua_pushinteger(L, group[i]);
+			lua_rawseti(L, -2, i + 1);
+		}
+	}
+
+	return 1;
+}
+#endif
+
+#if defined HAVE_CRYPT
+/***
+Encrypt a password.
+Not recommended for general encryption purposes.
+@function crypt
+@see crypt(3)
+@string string
+@string salt two-character string from [a-zA-Z0-9./]
+@return encrypted string
+*/
+static int Pcrypt(lua_State *L)
+{
+	const char *str, *salt;
+	char *res;
+
+	str = luaL_checkstring(L, 1);
+	salt = luaL_checkstring(L, 2);
+	if (strlen(salt) < 2)
+		luaL_error(L, "not enough salt");
+
+	res = crypt(str, salt);
+	lua_pushstring(L, res);
+
+	return 1;
+}
+#endif
+
+
+
 /* ======================================================== *
  *                     !! IMPORTANT  !!                     *
- * New `Time and Date` functions only go here.  Others must *
- * go above LDoc `section timedate` to avoid going to the   *
+ * When adding new functions, be sure to define then in     *
+ * the correct LDoc `@section` above to avoid going to the  *
  * wrong section of the generated API documentation.        *
  * ======================================================== */
 

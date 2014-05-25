@@ -24,4 +24,4 @@ examples = "../examples"
 
 format = "markdown"
 merge = true
-sort = false
+sort = true

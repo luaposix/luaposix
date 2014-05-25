@@ -7,6 +7,16 @@ local posix = M
 local bit
 if _VERSION == "Lua 5.1" then bit = require "bit" else bit = require "bit32" end
 
+------
+-- Lazy load of available submodules.
+-- @function __index
+-- @string name submodule name
+-- @return the submodule that was loaded to satisfy the missing `name`
+
+
+--- File descriptors.
+-- @section filedescriptors
+
 --- Create a file.
 -- @param file name of file to create
 -- @param mode permissions with which to create file
@@ -14,6 +24,10 @@ if _VERSION == "Lua 5.1" then bit = require "bit" else bit = require "bit32" end
 function M.creat (file, mode)
   return posix.open (file, bit.bor (posix.O_CREAT, posix.O_WRONLY, posix.O_TRUNC), mode)
 end
+
+
+--- Terminal handling.
+-- @section terminalhandling
 
 --- Open a pseudo-terminal.
 -- Based on the glibc function of the same name.
@@ -45,11 +59,8 @@ function M.openpty (term, win)
   return nil, reason
 end
 
+
 return setmetatable (M, {
-  --- Lazy load of available submodules.
-  -- @function __index
-  -- @string name submodule name
-  -- @return the submodule that was loaded to satisfy the missing `name`
   __index = function (self, name)
               local ok, t = pcall (require, "posix." .. name)
 	      if ok then
