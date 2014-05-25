@@ -6,6 +6,12 @@ Stdlib NEWS - User visible changes
 
  - Support for posix.socketpair call and posix.AF_UNIX constant.
 
+ - Previously undocumented spawn, pipeline, pipeline_iterator, pipeline_slurp,
+   euidaccess, timeradd and timersub have been moved from the posix table,
+   which is reserved for strictly POSIX APIs to the posix.sys subtable. The
+   sys submodule automatically loads on first reference, so no need to
+   require it manually if you already have the main posix module loaded.
+
 ** Bug fixes:
 
  - Builds correctly on hosts with no IPV6 capability.
