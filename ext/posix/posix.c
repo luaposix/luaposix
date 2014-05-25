@@ -661,7 +661,7 @@ static int Prpoll(lua_State *L)
 static struct {
 	short       bit;
 	const char *name;
-} Ppoll_event_map[] = {
+} poll_event_map[] = {
 #define MAP(_NAME) \
 	{POLL##_NAME, #_NAME}
 	MAP(IN),
@@ -673,14 +673,14 @@ static struct {
 #undef MAP
 };
 
-#define PPOLL_EVENT_NUM (sizeof(Ppoll_event_map) / sizeof(*Ppoll_event_map))
+#define PPOLL_EVENT_NUM (sizeof(poll_event_map) / sizeof(*poll_event_map))
 
-static void Ppoll_events_createtable(lua_State *L)
+static void poll_events_createtable(lua_State *L)
 {
 	lua_createtable(L, 0, PPOLL_EVENT_NUM);
 }
 
-static short Ppoll_events_from_table(lua_State *L, int table)
+static short poll_events_from_table(lua_State *L, int table)
 {
 	short   events  = 0;
 	size_t  i;
@@ -691,16 +691,16 @@ static short Ppoll_events_from_table(lua_State *L, int table)
 
 	for (i = 0; i < PPOLL_EVENT_NUM; i++)
 	{
-		lua_getfield(L, table, Ppoll_event_map[i].name);
+		lua_getfield(L, table, poll_event_map[i].name);
 		if (lua_toboolean(L, -1))
-			events |= Ppoll_event_map[i].bit;
+			events |= poll_event_map[i].bit;
 		lua_pop(L, 1);
 	}
 
 	return events;
 }
 
-static void Ppoll_events_to_table(lua_State *L, int table, short events)
+static void poll_events_to_table(lua_State *L, int table, short events)
 {
 	size_t  i;
 
@@ -710,13 +710,13 @@ static void Ppoll_events_to_table(lua_State *L, int table, short events)
 
 	for (i = 0; i < PPOLL_EVENT_NUM; i++)
 	{
-		lua_pushboolean(L, events & Ppoll_event_map[i].bit);
-		lua_setfield(L, table, Ppoll_event_map[i].name);
+		lua_pushboolean(L, events & poll_event_map[i].bit);
+		lua_setfield(L, table, poll_event_map[i].name);
 	}
 }
 
-static nfds_t Ppoll_fd_list_check_table(lua_State  *L,
-					int         table)
+static nfds_t poll_fd_list_check_table(lua_State  *L,
+				       int         table)
 {
 	nfds_t          fd_num      = 0;
 
@@ -759,15 +759,15 @@ static nfds_t Ppoll_fd_list_check_table(lua_State  *L,
 	return fd_num;
 }
 
-static void Ppoll_fd_list_from_table(lua_State         *L,
-				     int                table,
-				     struct pollfd     *fd_list)
+static void poll_fd_list_from_table(lua_State         *L,
+				    int                table,
+				    struct pollfd     *fd_list)
 {
 	struct pollfd  *pollfd  = fd_list;
 
 	/*
 	 * Assume the table didn't change since
-	 * the call to Ppoll_fd_list_check_table
+	 * the call to poll_fd_list_check_table
 	 */
 
 	/* Convert to absolute index */
@@ -785,7 +785,7 @@ static void Ppoll_fd_list_from_table(lua_State         *L,
 
 		/* Transfer "events" field from the value */
 		lua_getfield(L, -1, "events");
-		pollfd->events = Ppoll_events_from_table(L, -1);
+		pollfd->events = poll_events_from_table(L, -1);
 		lua_pop(L, 1);
 
 		/* Remove value (but leave the key) */
@@ -796,15 +796,15 @@ static void Ppoll_fd_list_from_table(lua_State         *L,
 	}
 }
 
-static void Ppoll_fd_list_to_table(lua_State           *L,
-				   int                  table,
-				   const struct pollfd *fd_list)
+static void poll_fd_list_to_table(lua_State           *L,
+				  int                  table,
+				  const struct pollfd *fd_list)
 {
 	const struct pollfd    *pollfd  = fd_list;
 
 	/*
 	 * Assume the table didn't change since
-	 * the call to Ppoll_fd_list_check_table.
+	 * the call to poll_fd_list_check_table.
 	 */
 
 	/* Convert to absolute index */
@@ -822,11 +822,11 @@ static void Ppoll_fd_list_to_table(lua_State           *L,
 		if (lua_isnil(L, -1))
 		{
 			lua_pop(L, 1);
-			Ppoll_events_createtable(L);
+			poll_events_createtable(L);
 			lua_pushvalue(L, -1);
 			lua_setfield(L, -3, "revents");
 		}
-		Ppoll_events_to_table(L, -1, pollfd->revents);
+		poll_events_to_table(L, -1, pollfd->revents);
 		lua_pop(L, 1);
 
 		/* Remove value (but leave the key) */
@@ -855,7 +855,7 @@ static int Ppoll(lua_State *L)
 	int             timeout;
 	int             result;
 
-	fd_num = Ppoll_fd_list_check_table(L, 1);
+	fd_num = poll_fd_list_check_table(L, 1);
 	timeout = luaL_optint(L, 2, -1);
 
 	fd_list = (fd_num <= sizeof(static_fd_list) / sizeof(*static_fd_list))
@@ -863,13 +863,13 @@ static int Ppoll(lua_State *L)
 					: lua_newuserdata(L, sizeof(*fd_list) * fd_num);
 
 
-	Ppoll_fd_list_from_table(L, 1, fd_list);
+	poll_fd_list_from_table(L, 1, fd_list);
 
 	result = poll(fd_list, fd_num, timeout);
 
 	/* If any of the descriptors changed state */
 	if (result > 0)
-		Ppoll_fd_list_to_table(L, 1, fd_list);
+		poll_fd_list_to_table(L, 1, fd_list);
 
 	return pushresult(L, result, NULL);
 }
