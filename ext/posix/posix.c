@@ -1111,7 +1111,7 @@ reposition read/write file offset
 @see lseek(2)
 @int fd
 @int offset
-@int whence one of SEEK_SET, SEEK_CUR or SEEK_END
+@int whence one of SEEK\_SET, SEEK\_CUR or SEEK\_END
 @return new offset on success, nil otherwise
 @return error message if failed.
 */
@@ -2851,6 +2851,18 @@ Socket management.
 */
 
 
+
+/***
+Create an endpoint for communication.
+@function socket
+@see socket(2)
+@int domain one of AF\_INET, AF\_INET6, AF\_UNIX or AF\_NETLINK
+@int type one of SOCK\_STREAM, SOCK\_DGRAM or SOCK\_RAW
+@int options usually 0, but some socket types might imlement other protocols.
+@treturn int socket descriptor if successful, nil otherwise
+@treturn string error message if failed
+@usage sockd = posix.socket (posix.AF_INET, posix.SOCK_STREAM, 0)
+*/
 static int Psocket(lua_State *L)
 {
 	int domain = luaL_checknumber(L, 1);
@@ -2859,6 +2871,16 @@ static int Psocket(lua_State *L)
 	return pushresult(L, socket(domain, type, options), NULL);
 }
 
+
+/***
+Create a pair of connected sockets.
+@function socketpair
+@int domain one of AF\_INET, AF\_INET6, AF\_UNIX or AF\_NETLINK
+@int type one of SOCK\_STREAM, SOCK\_DGRAM or SOCK\_RAW
+@int options usually 0, but some socket types might imlement other protocols.
+@return descriptor of one end of the socket pair if successful, nil otherwise
+@return descriptor of the other end of the pair, or error message if failed
+*/
 static int Psocketpair(lua_State *L)
 {
 	int domain = luaL_checknumber(L, 1);
@@ -2990,6 +3012,22 @@ static int sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *s
 	return -1;
 }
 
+
+/***
+Network address and service translation.
+@function getaddrinfo
+@see getaddrinfo(2)
+@string host name of a host
+@string service name of service
+@tparam[opt] table hints with one or more fields from "family", "flags",
+ "socktype", "protocol"
+@return a list of tables with fields "socktype", "canonname" and "protocol"
+ if successful, otherwise nil
+@treturn string error message if failed
+@treturn int error code if failed
+@usage res, errmsg, errcode = posix.getaddrinfo ("www.lua.org", "http",
+ { family = posix.IF_INET, socktype = posix.SOCK_STREAM })
+*/
 static int Pgetaddrinfo(lua_State *L)
 {
 	int r;
@@ -3034,6 +3072,16 @@ static int Pgetaddrinfo(lua_State *L)
 	return 1;
 }
 
+
+/***
+Initiate a connection on a socket.
+@function connect
+@see connect(2)
+@int fd socket descriptor
+@param sockaddr one of the entries from a successful `getaddrinfo` call
+@return true if successful, otherwise nil
+@return error message if failed
+*/
 static int Pconnect(lua_State *L)
 {
 	struct sockaddr_storage sa;
@@ -3050,6 +3098,15 @@ static int Pconnect(lua_State *L)
 	return 1;
 }
 
+
+/***
+@function bind
+@see bind(2)
+@int fd socket descriptor
+@param sockaddr one of the entries from a successful `getaddrinfo` call
+@return true if successful, otherwise nil
+@return error message if failed
+*/
 static int Pbind(lua_State *L)
 {
 	struct sockaddr_storage sa;
@@ -3065,6 +3122,15 @@ static int Pbind(lua_State *L)
 	return 1;
 }
 
+
+/***
+@function listen
+@see listen(2)
+@int fd socket descriptor
+@int backlog maximum length for queue of pending connections
+@return 0 if successful, otherwise nil
+@return error message if failed
+*/
 static int Plisten(lua_State *L)
 {
 	int fd = luaL_checknumber(L, 1);
@@ -3073,6 +3139,15 @@ static int Plisten(lua_State *L)
 	return pushresult(L, listen(fd, backlog), NULL);
 }
 
+
+/***
+Accept a connection on a socket.
+@function accept
+@see accept(2)
+@int fd socket descriptor
+@return connection descriptor if successful, otherwise nil
+@return connection address if successful, otherwise error mesage
+*/
 static int Paccept(lua_State *L)
 {
 	int fd_client;
@@ -3093,6 +3168,16 @@ static int Paccept(lua_State *L)
 	return 2;
 }
 
+
+/***
+Receive a message from a socket.
+@function recv
+@see recv(2)
+@int fd socket descriptor
+@int count number of bytes to receive
+@return received bytes if successful, otherwise nil
+@return error message if failed
+*/
 static int Precv(lua_State *L)
 {
 	int fd = luaL_checkint(L, 1);
@@ -3116,6 +3201,16 @@ static int Precv(lua_State *L)
 	return 1;
 }
 
+
+/***
+Receive a message from a socket.
+@function recvfrom
+@see recvfrom(2)
+@int fd socket descriptor
+@int count number of bytes to receive
+@return received bytes if successful, otherwise nil
+@return address of message source if successful, otherwise error message
+*/
 static int Precvfrom(lua_State *L)
 {
 	void *ud, *buf;
@@ -3145,6 +3240,16 @@ static int Precvfrom(lua_State *L)
 	return 2;
 }
 
+
+/***
+Send a message from a socket.
+@function send
+@see send(2)
+@int fd socket descriptor
+@string buffer message bytes to send
+@return number of bytes sent if successful, otherwise nil
+@return error message if failed
+*/
 static int Psend(lua_State *L)
 {
 	int fd = luaL_checknumber(L, 1);
@@ -3154,6 +3259,17 @@ static int Psend(lua_State *L)
 	return pushresult(L, send(fd, buf, len, 0), NULL);
 }
 
+
+/***
+Send a message from a socket.
+@function sendto
+@see sendto(2)
+@int fd socket descriptor
+@string buffer message bytes to send
+@param address desination address for message
+@return number of bytes sent if successful, otherwise nil
+@return error message if failed
+*/
 static int Psendto(lua_State *L)
 {
 	size_t len;
@@ -3169,6 +3285,17 @@ static int Psendto(lua_State *L)
 	return pushresult(L, r, NULL);
 }
 
+
+/***
+Shut down part of a full-duplex connection.
+@function shutdown
+@see shutdown(2)
+@int fd socket descriptor
+@int how one of SHUT\_RD, SHUT\_WR or SHUT\_RDWR
+@return 0 if successful, otherwise nil
+@return error message if failed
+@usage ok, errmsg = posix.shutdown (sock, posix.SHUT_RDWR)
+*/
 static int Pshutdown(lua_State *L)
 {
 	int fd = luaL_checknumber(L, 1);
@@ -3176,6 +3303,20 @@ static int Pshutdown(lua_State *L)
 	return pushresult(L, shutdown(fd, how), NULL);
 }
 
+
+/***
+Get and set options on sockets.
+@function setsockopt
+@see setsockopt(2)
+@int fd socket descriptor
+@int level one of SOL\_SOCKET, IPPROTO\_IPV6, IPPROTO\_TCP
+@int name option name, varies according to `level` value
+@param value1 option value to set
+@param[opt] value2 some option `name`s need an additional value
+@return 0 if successful, otherwise nil
+@return error message if failed
+@usage ok, errmsg = posix.setsockopt (sock, posix.SOL_SOCKET, posix.SO_SNDTIMEO, 1, 0)
+*/
 static int Psetsockopt(lua_State *L)
 {
 	int fd = luaL_checknumber(L, 1);

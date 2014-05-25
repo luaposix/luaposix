@@ -24,6 +24,10 @@ Stdlib NEWS - User visible changes
 
  - Many fine portability fixes from latest gnulib.
 
+ - Missing docs for accept, bind, connect, getaddrinfo, listen, recv,
+   recvfrom, send, sendto, setsockopt, shutdown, socket and socketpair apis
+   is now provided.
+
  - Docs for apis implemented in Lua are now shown correctly.
 
 
