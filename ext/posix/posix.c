@@ -1,5 +1,5 @@
 /***
-@module lposix
+@module posix
 */
 /*
 *  POSIX library for Lua 5.1/5.2.

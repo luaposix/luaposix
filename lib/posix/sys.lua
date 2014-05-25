@@ -1,3 +1,6 @@
+------
+-- @module posix.sys
+
 local posix = require "posix_c"
 
 -- Additions to the posix.sys module (of luaposix).
@@ -25,11 +28,10 @@ local list = {
 -- end of stdlib code
 
 --- Run a command or function in a sub-process.
--- @param command, a string to be executed as a shell command, or a
+-- @param task, a string to be executed as a shell command, or a
 -- table of arguments to <code>posix.execp</code> or a Lua function
 -- which should read from standard input, write to standard output,
 -- and return an exit code
--- @param task command to run, or Lua function
 -- @param ... positional arguments to the program or function
 -- @return status exit code, or nil if fork or wait fails
 -- @return error message, or exit type if wait succeeds
@@ -57,7 +59,7 @@ end
 M.system = M.spawn -- OBSOLETE alias
 
 --- Perform a series of commands and Lua functions as a pipeline.
--- @param {t1 ...} tasks for <code>posix.spawn</code>
+-- @tparam table t tasks for <code>posix.spawn</code>
 -- @param pipe_fn function returning a paired read and write file
 -- descriptor
 -- (default: <code>posix.pipe</code>)
@@ -215,7 +217,7 @@ function M.euidaccess (file, mode)
   posix.set_errno (EACCESS)
 end
 
--- Add one gettimeofday() returned timeval to another.
+--- Add one gettimeofday() returned timeval to another.
 -- @param x a timeval
 -- @param y another timeval
 -- @return x + y, adjusted for usec overflow

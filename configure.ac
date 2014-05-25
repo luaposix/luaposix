@@ -136,8 +136,7 @@ AC_PATH_PROG([LDOC], [ldoc], [false])
 AM_CONDITIONAL([HAVE_LDOC], [test false != "$LDOC"])
 
 dnl Generate output files
-SPECL_MIN=8
 SS_CONFIG_TRAVIS([ldoc specl])
 AC_CONFIG_HEADER(config.h)
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile build-aux/config.ld])
 AC_OUTPUT

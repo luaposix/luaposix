@@ -1,3 +1,6 @@
+------
+-- @module posix
+
 -- Additions to the posix module (of luaposix).
 local M = require "posix_c"
 local posix = M

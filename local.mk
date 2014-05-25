@@ -37,10 +37,16 @@ update_copyright_env = \
 ## Declarations. ##
 ## ------------- ##
 
+examplesdir		= $(docdir)/examples
+modulesdir		= $(docdir)/modules
+
 dist_data_DATA		=
 dist_doc_DATA		=
+dist_examples_DATA	=
+dist_modules_DATA	=
 
 include specs/specs.mk
+
 
 ## ------ ##
 ## Build. ##
@@ -48,7 +54,17 @@ include specs/specs.mk
 
 EXTRA_LTLIBRARIES	+= ext/curses/curses_c.la
 lib_LTLIBRARIES		+= ext/posix/posix_c.la $(WANTEDLIBS)
-dist_data_DATA		+= lib/posix.lua $(WANTEDLUA)
+
+dist_lua_DATA +=			\
+	lib/posix.lua			\
+	$(WANTEDLUA)			\
+	$(NOTHING_ELSE)
+
+luaposixdir = $(luadir)/posix
+
+dist_luaposix_DATA =			\
+	lib/posix/sys.lua		\
+	$(NOTHING_ELSE)
 
 ext_posix_posix_c_la_SOURCES =		\
 	ext/posix/posix.c		\
@@ -78,10 +94,39 @@ dist_doc_DATA +=			\
 	doc/ldoc.css			\
 	$(NOTHING_ELSE)
 
-examplesdir = $(docdir)/examples
-examples_DATA = $(wildcard examples/*.lua)
+dist_modules_DATA +=			\
+	doc/modules/posix.html		\
+	doc/modules/posix.sys.html	\
+	$(NOTHING_ELSE)
 
-doc: $(dist_doc_DATA)
+dist_examples_DATA +=			\
+	doc/examples/dir.lua.html	\
+	doc/examples/fork.lua.html	\
+	doc/examples/fork2.lua.html	\
+	doc/examples/getopt.lua.html	\
+	doc/examples/glob.lua.html	\
+	doc/examples/limit.lua.html	\
+	doc/examples/lock.lua.html	\
+	doc/examples/netlink-uevent.lua.html	\
+	doc/examples/ping.lua.html	\
+	doc/examples/poll.lua.html	\
+	doc/examples/signal.lua.html	\
+	doc/examples/socket.lua.html	\
+	doc/examples/termios.lua.html	\
+	doc/examples/tree.lua.html	\
+	$(NOTHING_ELSE)
+
+$(dist_doc_DATA): ext/curses/curses.c build-aux/make_lcurses_doc.pl
+	test -d $(builddir)/doc || mkdir $(builddir)/doc
+	$(PERL) build-aux/make_lcurses_doc.pl
+if HAVE_LDOC
+	$(LDOC) -c build-aux/config.ld -d $(abs_srcdir)/doc .
+else
+	$(MKDIR_P) doc
+	touch doc/index.html doc/ldoc.css
+endif
+
+doc: $(dist_doc_DATA) $(dist_examples_DATA) $(dist_modules_DATA)
 
 
 ## ------------- ##
@@ -89,6 +134,7 @@ doc: $(dist_doc_DATA)
 ## ------------- ##
 
 EXTRA_DIST +=				\
+	build-aux/config.ld.in		\
 	build-aux/make_lcurses_doc.pl	\
 	examples/dir.lua		\
 	examples/fork.lua		\
@@ -96,26 +142,21 @@ EXTRA_DIST +=				\
 	examples/getopt.lua		\
 	examples/glob.lua		\
 	examples/limit.lua		\
+	examples/lock.lua		\
+	examples/netlink-uevent.lua	\
+	examples/ping.lua		\
 	examples/poll.lua		\
 	examples/signal.lua		\
 	examples/socket.lua		\
 	examples/termios.lua		\
+	examples/tree.lua		\
 	ext/curses/strlcpy.c		\
 	ext/include/lua52compat.h	\
-	ext/posix/config.ld		\
 	$(NOTHING_ELSE)
-
-$(dist_doc_DATA): ext/curses/curses.c build-aux/make_lcurses_doc.pl
-	test -d $(builddir)/doc || mkdir $(builddir)/doc
-	$(PERL) build-aux/make_lcurses_doc.pl
-if HAVE_LDOC
-	$(LDOC) $(srcdir)/ext/posix
-else
-	$(MKDIR_P) doc
-	touch doc/index.html doc/ldoc.css
-endif
 
 MAINTAINERCLEANFILES +=			\
 	doc/index.html			\
 	doc/ldoc.css			\
+	$(dist_examples_DATA)		\
+	$(dist_modules_DATA)		\
 	$(NOTHING_ELSE)
