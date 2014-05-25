@@ -70,4 +70,5 @@ script:
     make check V=1
 
   # Run sanity checks
+  - echo 'local-checks-to-skip = sc_vulnerable_makefile_CVE-2012-3386' >> build-aux/sanity-cfg.mk
   - make syntax-check
