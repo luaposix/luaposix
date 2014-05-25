@@ -3363,7 +3363,7 @@ static int Psetsockopt(lua_State *L)
 					break;
 			}
 			break;
-#if defined(IPV6_JOIN_GROUP) && defined(IPV6_LEAVE_GROUP)
+#if defined IPV6_JOIN_GROUP && defined IPV6_LEAVE_GROUP
 		case IPPROTO_IPV6:
 			switch(optname) {
 				case IPV6_JOIN_GROUP:
