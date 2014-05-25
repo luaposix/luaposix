@@ -68,3 +68,6 @@ script:
     LUA_CPATH=`pwd`'/ext/?.so;'"${LUA_CPATH-;}"
     LUA_INIT= LUA_INIT_5_2=
     make check V=1
+
+  # Run sanity checks
+  - make syntax-check
