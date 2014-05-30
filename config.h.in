@@ -30,6 +30,9 @@
 /* Define to 1 if you have the <lauxlib.h> header file. */
 #undef HAVE_LAUXLIB_H
 
+/* Define to 1 if you have the <linux/netlink.h> header file. */
+#undef HAVE_LINUX_NETLINK_H
+
 /* Define to 1 if you have the <luaconf.h> header file. */
 #undef HAVE_LUACONF_H
 
@@ -59,6 +62,12 @@
 
 /* Define to 1 if <ncurses.h> is present */
 #undef HAVE_NCURSES_H
+
+/* Define to 1 if you have the <net/if.h> header file. */
+#undef HAVE_NET_IF_H
+
+/* Define to 1 if you have the `posix_fadvise' function. */
+#undef HAVE_POSIX_FADVISE
 
 /* Define to 1 if you have the `resizeterm' function. */
 #undef HAVE_RESIZETERM

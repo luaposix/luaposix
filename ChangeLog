@@ -1,4 +1,333 @@
+2014-05-30  Gary V. Vaughan  <gary@gnu.org>
+
+	Release version 32
+	* NEWS: Record release date.
+
+2014-05-25  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: bump copyright to include 2014.
+	* COPYING: Bump copyright years to include 2014.
+
+	travis: ignore CVE-2012-3386 failure on Ubuntu Precise.
+	Travis runs on Ubuntu 12.04 LTS, which ships an automake old
+	enough to still be vulnerable... but we're running CI checks
+	here, so that shouldn't fail the whole build!
+	* .travis.yml: Skip CVE-2012-3386 check.
+
+	travis: ensure sanity-checks don't back up before a release.
+	* .travis.yml: Append `make syntax-check` to prevent sanity
+	erosion!
+
+	posix: avoid spurious parens in cpp directives.
+	* ext/posix/posix.c: Remove some spurious parentheses in ifdef
+	statements.
+
+	posix: use strlcpy instead of broken strncpy.
+	* ext/curses/strlcpy.c: Move from here...
+	* ext/include/strlcpy.c: ...to here.
+	(strlcpy): Declare static to prevent symbol clashes.
+	* local.mk (ext_curses_curses_c_la_CPPFLAGS): Remove. strlcpy is
+	now in existing header directory.
+	* build-aux/sanity-cfg.mk: Adjust strlcpy path references.
+	* ext/posix/posix.c: Include strlcpy.c.
+	(sockaddr_from_lua, Psetsockopt): Use strlcpy to avoid security
+	and safety problems with strncpy.
+
+	maint: remove spurious trailing blank lines.
+	* examples/netlink-uevent.lua, examples/ping.lua: Remove
+	spurious trailing blank lines.
+
+	configury: exclude ext/posix/posix.c from file_system check.
+	* build-aux/sanity-cfg.mk (sc_file_system): Exclude
+	ext/posix/posix.c.
+
+	doc: add missing termios api LDocs.
+	* ext/posix/posix.c (tcdrain, tcflow, tcflush, tcgetattr)
+	(tcsendbreak, tcsetattr): Add missing LDoc api headers.
+	* NEWS: Update.
+
+	doc: add missing socket api LDocs.
+	* ext/posix/posix.c (accept, bind, connect, getaddrinfo, listen)
+	(recv, recvfrom, send, sendto, setsockopt, shutdown, socket)
+	(socketpair): Add missing LDoc api headers.
+	* NEWS: Update.
+
+	maint: `P` function prefix is for Published APIs exposed to Lua.
+	Naming a C function with a leading `P` indicates that it is
+	published to Lua.  Rename some functions that are not named
+	according to this scheme.
+	* ext/posix/posix.c (Ppoll_event_map)
+	(Ppoll_events_createtable, Ppoll_events_from_table)
+	(Ppoll_events_to_table, Ppoll_fd_list_check_table)
+	(Ppoll_fd_list_from_table, Ppoll_fd_list_to_table): Rename from
+	these...
+	(poll_event_map, poll_events_createtable, poll_events_from_table)
+	(poll_events_to_table, poll_fd_list_check_table)
+	(poll_fd_list_from_table, poll_fd_list_to_table): ...to these.
+	Adjust all callers.
+
+	tests: remove spurious tests-termios.lua.
+	* tests-termios.lua: Remove.  The existing examples/termios.lua
+	demonstrates more functionality.
+
+	docs: reorder posix.c and break into groups of named functions.
+	* build-aux/config.ld.in (sort): Alphabetize documentation within
+	sections.
+	* ext/posix/posix.c: Add section blocks for related functions and
+	move declarations into appropriate sections.
+
+	slingshot: sync with upstream.
+	* slingshot: Sync with upstream, particularly for datarootdir
+	fixes that make docs visible with `luarocks doc luaposix`.
+	* bootstrap.conf (slingshot_files): Remove
+	m4/ax_compare_version.m4.
+	* .gitignore: Update.
+
+	doc: show LDocs for lib/posix.lua and lib/posix/sys.lua.
+	* ext/posix/config.ld: Move from here...
+	* build-aux/config.ld.in: ...to here.
+	(title): Add Package name and version.
+	(file): Add lib/posix.lua and lib/posix/sys.lua.
+	(merge): Set to true to combine LDocs for lib/posix.lua and
+	ext/posix/posix.c into a single document module.
+	(format): Change from discount to markdown.
+	* ext/posix/posix.c (@module): Change to `posix` to merge with
+	lib/posix.lua.
+	* lib/posix.lua: Add `@module posix` declaration.
+	* lib/posix/sys.lua: Add `@module posix.sys` declaration.
+	(euidaccess, spawn, timeradd): Fix LDoc formatting errors.
+	* local.mk (examplesdir, modulesdir): New subdirectory locations
+	for generated documentation to install to.
+	(dist_examples_DATA): List generated examples files explicitly to
+	avoid GNU make dependency on $(wildcard) expansion.
+	(dist_modules_DATA): Add doc/modules/posix.html and
+	doc/modules/posix.sys.html.
+	(dist_data_DATA): Replace this...
+	(dist_lua_DATA): ...with this
+	(luaposixdir): Subdirectory for sys.lua to install to.
+	(dist_luaposix_DATA): Add lib/posix/sys.lua.
+	($(dist_doc_DATA)): Fix LDoc invocation for new config.ld
+	location.
+	(doc): Add $(dist_examples_DATA) and $(dist_modules_DATA)
+	dependencies.
+	(EXTRA_DIST): Add missing examples files.
+	Change location of config.ld.
+	(MAINTAINERCLEANFILES): Add $(dist_examples_data) and
+	$(dist_modules_DATA).
+	* NEWS: Update.
+
+	sys: new submodule for non-POSIX apis.
+	Close #73
+	* lib/posix.lua (list, euidaccess, pipeline, pipeline_iterator)
+	(pipeline_slurp, spawn, timeradd, timersub): Move from here...
+	* lib/posix/sys.lua (list, euidaccess, pipeline)
+	(pipeline_iterator, pipeline_slurp, spawn, timeradd, timersub):
+	New file. ...to here.
+	* lib/posix.lua (__index): Attempt to load a suitably named
+	submodule to satisfy missing keys.
+	* NEWS: Update.
+
+2014-05-24  Gary V. Vaughan  <gary@gnu.org>
+
+	docs: add some formatting consistency.
+	* ext/posix/posix.c: Escape underscores for markdown processing
+	where necessary to avoid spurious italics, and try to be more
+	consistent with string examples in double quotes and constants
+	in fixed width font.
+
+	posix: fix gettimeofday LDocs to match API.
+	Fix #133.
+	* ext/posix/posix.c (Pgettimeofday): Has returned a Lua table
+	with `sec` and `usec` fields for quite some time... make sure
+	the LDocs reflect that!
+
+2014-05-21  Gary V. Vaughan  <gary@gnu.org>
+
+	specs: check fork() child processes in parent process.
+	Close #110.
+	* specs/posix_spec.yaml (fork): Running expect in the forked
+	specl child process has no effect on the state and reporting in
+	the parent.  Write the results from the child into a shared pipe
+	and check them in the parent instead.
+
+	Merge pull request 122 from cathalgarvey/luaposix
+	Almost entirely rewritten to be lighter, correctly formatted, and
+	to work when the host has no posix_advise implementation.
+
+	Merge pull request #122 from cathalgarvey/luaposix
+	Entirely rewritten.
+
+	configury: add back net/if.h accidentally removed in merge conflict.
+	* configure.ac (AC_CHECK_HEADERS): Add back net/if.h.
+
+	examples: predicate ping example on p.SO_BINDTODEVICE.
+	* examples/ping.lua: If either p.SOCK_RAW or p.SO_BINDTODEVICE
+	are not defined, then the underlying OS libraries didn't have
+	the necessary functionality for luaposix to bind to... so skip
+	the example in that case.
+
+	Merge pull request #132 from zevv/ping.
+	posix: add support for netlink sockets with uevent netlink example.
+
+2014-05-21  Gary V. Vaughan  <gary@gnu.org>
+
+	Merge branch 'netlink' of github.com:zevv/luaposix into zevv-netlink
+
+	Conflicts:
+		configure.ac
+		ext/posix/posix.c
+
+2014-05-21  Gary V. Vaughan  <gary@vaughan.pe>
+
+	Merge pull request #131 from zevv/ping
+	posix: add SOCK_RAW, IPPROTO_ICMP and SO_BINDTODEVICE support.
+
+2014-05-21  Ico Doornekamp  <ico@pruts.nl>
+
+	Added support for netlink sockets with small uevent netlink example
+
+	Added SOCK_RAW, IPPROTO_ICMP and SO_BINDTODEVICE; this allows sending and receiving of raw icmp (e.g. ping) packets from lua
+
+2014-05-21  Gary V. Vaughan  <gary@gnu.org>
+
+	posix: add Debug priority to syslog LDocs.
+	* ext/posix/posix.c (syslog): Add Debug priority to LDocs.
+
+	posix: include strings.h for strcasecmp declaration.
+	* configure.ac (AC_CHECK_HEADERS): Add strings.h.
+	* ext/posix/posix.c (strings.h): If the host system is POSIX
+	compliant enough to ship this header, include it for a strcasecmp
+	declaration.
+
+	posix: FreeBSD 10 doesn't define O_DSYNC.
+	* ext/posix/posix.c (O_DSYNC): Set a fallback definition of 0.
+
+2014-05-21  Gary V. Vaughan  <gary@vaughan.pe>
+
+	Merge pull request #128 from ittner/fix-getopt-ldoc-warning
+	doc: Remove ldoc warning for getopt @see
+
+2014-05-21  Gary V. Vaughan  <gary@gnu.org>
+
+	travis: update scripts from slingshot.
+	* .travis.yml: Regenerate with latest slingshot for a slew of
+	improvements.
+
+	NEWS: Update.
+	* NEWS: Update.
+
+	gnulib: sync with upstream.
+	* gnulib: Update to latest master.
+
+	slingshot: sync with upstream.
+	* slingshot: Sync with upstream for grep GNUism fix.
+	* bootstrap: Sync with slingshot/bootstrap.
+	* .travis.yml: Regenerate.
+
+2014-05-11  Alexandre Erwin Ittner  <alexandre@ittner.com.br>
+
+	doc: Remove ldoc warning for getopt @see
+
+2014-03-14  Reuben Thomas  <rrt@sc3d.org>
+
+	openpty: add missing posix. prefix to call of close
+
+2014-01-05  Gary V. Vaughan  <gary@gnu.org>
+
+	slingshot: sync with upstream.
+	Fix the annoying contest.sed file dropping bug.
+	* slingshot: Sync with upstream.
+	* bootstrap: Sync with slingshot.
+
+2014-01-04  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: update copyright notices to include 2014.
+	* .x-update-copyright: New file. Exclude files not owned by this
+	project from update-copyright rules.
+	* build-aux/.gitignore: Add update-copyright.
+	* bootstrap.conf, configure.ac, local.mk: Bump copyright year.
+
+	slingshot: sync with upstream, and simplify accordingly.
+	* slingshot: Sync with upstream.
+	* bootstrap: Update from slingshot.
+	* bootstrap.slingshot: Remove, no longer required.
+	* bootstrap.conf: Remove bootstrap.slingshot source boilerplate.
+	(luaposix_force_readme): Remove. Automated by slingshot now.
+	* .gitignore: Update.
+	* .travis.yml: Until github.com/stevedonovan/LDoc catches up with
+	require fixes for luaposix, use gvvaughan/LDoc on Travis.
+
+2013-12-12  Gary V. Vaughan  <gary@gnu.org>
+
+	doc: add missing LDoc function tag.
+	* ext/posix/posix.c (strptime): Add missing @function tag.
+
+	doc: fix LDoc manual page custom_see_handler pattern.
+	* ext/posix/config.ld (custom_see_handler): Add a missing closing
+	`%)`.
+	(upat): Pull the format string up per LDoc documentation.
+
+2013-12-11  Gary V. Vaughan  <gary@gnu.org>
+
+	slingshot: sync with upstream.
+	* slingshot: Update from latest upstream, particularly for an
+	empty table access fix in mkrockspecs.
+
+	doc: move DateTime functions back to their own LDoc section. (Fix #119)
+	* ext/posix/posix.c: Move Date and Time functions back to the
+	end of the implementation functions to avoid picking up non-
+	datetime related functions in the generated LDoc docs.
+
+	slingshot: sync with upstream.
+	* slingshot: Update to latest upstream revision, particularly
+	to pick up fixes for changes in Travis wrt. libyaml.so location.
+	* .travis.yml: Regenerate.
+
+2013-12-11  Gary V. Vaughan  <gary@vaughan.pe>
+
+	Merge pull request #121 from zevv/socketpair
+	Added socketpair() and AF_UNIX domain
+
+	Merge pull request #120 from craigbarnes/treefix
+	Avoid unnecessary table creation and unpacking in examples/tree.lua
+
+	Merge pull request #118 from craigbarnes/linkfix
+	Fix typo in readme
+
+	Merge pull request #117 from fperrad/master
+	fix without IPv6
+
+2013-11-26  Cathal Garvey  <cathalgarvey@cathalgarvey.me>
+
+	Added Pfadvise and constant advise values. Untested.
+
+2013-11-01  Ico Doornekamp  <ico@pruts.nl>
+
+	Added socketpair() and AF_UNIX domain
+
+2013-09-21  Craig Barnes  <cr@igbarn.es>
+
+	Avoid unnecessary table creation and unpacking in examples/tree.lua
+
+	Fix typo in LuaRocks URL
+
+2013-09-20  Francois Perrad  <francois.perrad@gadz.org>
+
+	fix without IPv6
+
+2013-09-13  Gary V. Vaughan  <gary@gnu.org>
+
+	slingshot: sync with upstream.
+	* slingshot: Update to latest revision, particularly to get the
+	fix for release announcement content.
+
 2013-09-09  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: post-release administrivia.
+	* configure.ac (AC_INIT): Bump revision to 32.
+	* NEWS: Add header line for next release.
+	* .prev-version: Record previous version.
+	* ./local.mk (old_NEWS_hash): Auto-update.
 
 	Release version 31
 	* NEWS: Record release date.

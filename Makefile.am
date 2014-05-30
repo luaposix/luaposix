@@ -1,6 +1,6 @@
 # Non-recursive Make rules.
 #
-# Copyright (C) 2013 Gary V. Vaughan
+# Copyright (C) 2013-2014 Gary V. Vaughan
 # Written by Gary V. Vaughan, 2013
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -49,6 +49,7 @@ bin_SCRIPTS		=
 check_local		=
 dist_bin_SCRIPTS	=
 dist_lua_DATA		=
+doc_DATA		=
 install_exec_hooks	=
 lib_LTLIBRARIES		=
 man_MANS		=

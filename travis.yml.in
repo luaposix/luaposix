@@ -6,17 +6,19 @@ env:
     - PACKAGE=@PACKAGE@
     - ROCKSPEC=$PACKAGE-git-1.rockspec
     - LUAROCKS_CONFIG=build-aux/luarocks-config.lua
-    - LUAROCKS_BASE=luarocks-2.0.13
+    - LUAROCKS_BASE=luarocks-2.1.2
     - LUAROCKS="$LUA $HOME/bin/luarocks"
-    - GENDOC=luarocks/bin/@GENDOC@
-    - SPECL=bin/specl
   matrix:
-    - LUA=lua5.1             LUA_INCDIR=/usr/include/lua5.1
-    - LUA=lua5.2             LUA_INCDIR=/usr/include/lua5.2
-    - LUA=luajit-2.0.0-beta9 LUA_INCDIR=/usr/include/luajit-2.0
+    - LUA=lua5.1             LUA_INCDIR=/usr/include/lua5.1     LUA_SUFFIX=5.1
+    - LUA=lua5.2             LUA_INCDIR=/usr/include/lua5.2     LUA_SUFFIX=5.2
+    - LUA=luajit-2.0.0-beta9 LUA_INCDIR=/usr/include/luajit-2.0 LUA_SUFFIX=5.1
 
 # Tool setup.
 install:
+  # Put back the links for libyaml, which are missing on recent Travis VMs
+  - test -f /usr/lib/libyaml.so ||
+    sudo find /usr/lib -name 'libyaml*' -exec ln -s {} /usr/lib \;
+
   - sudo apt-get install help2man
   - sudo apt-get install luajit
   - sudo apt-get install libluajit-5.1-dev
@@ -24,37 +26,45 @@ install:
   - sudo apt-get install liblua5.1-dev
   - sudo apt-get install lua5.2
   - sudo apt-get install liblua5.2-dev
-  # Luadoc and Ldoc work best on Travis with Lua 5.1.
-  @GENDOC_FALSE@ sudo apt-get install luarocks
-  @GENDOC_FALSE@ sudo luarocks install @GENDOC@
-  @GENDOC_FALSE@ mkdir -p luarocks/bin
-  @GENDOC_FALSE@ sed 's|^exec "[^"]*"|exec lua5.1|' `which @GENDOC@` > $GENDOC
-  @GENDOC_FALSE@ chmod a+rx $GENDOC
   # Install a recent luarocks release locally for everything else.
   - wget http://luarocks.org/releases/$LUAROCKS_BASE.tar.gz
   - tar zxvpf $LUAROCKS_BASE.tar.gz
-  - cd $LUAROCKS_BASE
-  - ./configure
-    --prefix=$HOME --lua-version=5.1 --lua-suffix=5.1
-    --with-lua-include="/usr/include/lua5.1"
-  - make all install
-  - cd ..
+  # LuaRocks configure --with-lua argument is just a prefix!
+  - ( cd $LUAROCKS_BASE;
+      ./configure
+      --prefix=$HOME --with-lua=/usr --lua-version=$LUA_SUFFIX
+      --lua-suffix=$LUA_SUFFIX --with-lua-include=$LUA_INCDIR;
+      make build;
+      make install; )
 
 # Configure and build.
 script:
-  - ./bootstrap
+  # Initial bootstrap to build luarocks-config.lua, before we've
+  # installed our rocks.
+  - ./bootstrap --skip-rock-checks
   - ./configure LUA="$LUA"
   - make $LUAROCKS_CONFIG
     LUA="$LUA" LUA_INCDIR="$LUA_INCDIR" V=1
     || cat $LUAROCKS_CONFIG config.log
+
   # Set Lua and Shell paths up for local luarocks tree.
+  # this package depends on will be installed.
   - eval `$LUAROCKS path`
   - export PATH=`pwd`/luarocks/bin:$PATH
+
+  # Install extra rocks into $LUAROCKS_CONFIG rocks tree.
   @EXTRA_ROCKS@
+
+  # Make git rockspec for this @PACKAGE@
   - make rockspecs LUAROCKS="$LUAROCKS" V=1
     || { $LUAROCKS path; cat $ROCKSPEC; }
-  # LuaRocks make will fail if dependencies are missing.
+
+  # The git rockspec will rerun bootstrap, and check any rock versions
+  # in bootstrap.conf:buildreq this time.
   - $LUAROCKS make $ROCKSPEC LUA="$LUA"
-  # Use bin/specl if we built it, or else the specl rock we just installed.
-  - test -f "$SPECL" || SPECL=luarocks/bin/specl;
-    make check SPECL="$SPECL" V=1
+
+  # Run self-tests in the `luarocks make` build tree.
+  - LUA_PATH=`pwd`'/lib/?.lua;'"${LUA_PATH-;}"
+    LUA_CPATH=`pwd`'/ext/?.so;'"${LUA_CPATH-;}"
+    LUA_INIT= LUA_INIT_5_2=
+    make check V=1

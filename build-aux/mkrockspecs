@@ -6,7 +6,7 @@ SH=--[[                                             # -*- mode: lua; -*-
 ## terms of the MIT license reproduced below.
 
 ## ====================================================================
-## Copyright (C) 2013 Gary V. Vaughan
+## Copyright (C) 2013-2014 Gary V. Vaughan
 ##
 ## Permission is hereby granted, free of charge, to any person
 ## obtaining a copy of this software and associated documentation
@@ -28,6 +28,27 @@ SH=--[[                                             # -*- mode: lua; -*-
 ## WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ## ====================================================================
 
+
+_lua_version_re='"Lua 5."[12]*'
+_lua_binaries='lua lua5.2 lua52 lua5.1 lua51'
+
+export LUA_INIT
+export LUA_INIT_5_2
+export LUA_PATH
+export LUA_CPATH
+
+# Be Bourne compatible
+if test -n "${ZSH_VERSION+set}" && (emulate sh) >/dev/null 2>&1; then
+  emulate sh
+  NULLCMD=:
+  # Zsh 3.x and 4.x performs word splitting on ${1+"$@"}, which
+  # is contrary to our usage.  Disable this feature.
+  alias -g '${1+"$@"}'='"$@"'
+  setopt NO_GLOB_SUBST
+else
+  case `(set -o) 2>/dev/null` in *posix*) set -o posix;; esac
+fi
+
 # If LUA is not set, search PATH for something suitable.
 test -n "$LUA" || {
   # Check that the supplied binary is executable and returns a compatible
@@ -35,15 +56,17 @@ test -n "$LUA" || {
   func_vercheck ()
   {
     test -x "$1" && {
-      case `$1 -e 'print (_VERSION)' 2>/dev/null` in
-        "Lua 5."[12]) LUA=$1 ;;
-      esac
+      eval 'case `'$1' -e "print (_VERSION)" 2>/dev/null` in
+        '"$_lua_version_re"') LUA='$1' ;;
+      esac'
     }
   }
 
+  progname=`echo "$0" |${SED-sed} 's|.*/||'`
+
   save_IFS="$IFS"
   LUA=
-  for x in lua lua5.2 lua5.1; do
+  for x in $_lua_binaries; do
     IFS=:
     for dir in $PATH; do
       IFS="$save_IFS"
@@ -52,8 +75,17 @@ test -n "$LUA" || {
     done
     IFS="$save_IFS"
     test -n "$LUA" && break
+    e="${e+$e\n}$progname: command not found on PATH: $x"
   done
 }
+
+test -n "$LUA" || {
+  printf "${e+$e\n}$progname: retry after 'export LUA=/path/to/lua'\n" >&2
+  exit 1
+}
+
+LUA_INIT=
+LUA_INIT_5_2=
 
 # Reexecute using the interpreter suppiled in LUA, or found above.
 exec "$LUA" "$0" "$@"
@@ -81,6 +113,15 @@ local function opterr (msg)
   os.exit (2)
 end
 
+local function setopt (optname, arglist, i)
+  local opt = arglist[i]
+  if i + 1 > #arglist then
+    opterr ("option '" .. opt .. "' requires an argument")
+  end
+  prog.opts[optname] = arglist[i + 1]
+  return i + 1
+end
+
 local function die (msg)
   msg:gsub ("([^\n]+)\n?",
             function ()
@@ -103,16 +144,18 @@ PACKAGE and VERSION are the package name and version number as defined
 by 'configure.ac' or similar. REVISION is only required for a revised
 rockspec if the default "-1" revision was released with errors.
 
+  -b, --branch=BRANCH    make git rockspec use BRANCH
+  -m, --module-dir=ROOT  directory of lua-files for builtin build type
+  -r, --repository=REPO  set the repository name (default=PACKAGE)
       --help             print this help, then exit
       --version          print version number, then exit
-  -m, --module-dir=ROOT  directory of lua-files for builtin build type
 
 Report bugs to http://github.com/gvvaughan/slingshot/issues.]])
     os.exit (0)
 end
 
 prog["--version"] = function ()
-  print [[mkrockspecs (slingshot) 5
+  print [[mkrockspecs (slingshot) 7
 Written by Gary V. Vaughan <gary@gnu.org>, 2013
 
 Copyright (C) 2013, Gary V. Vaughan
@@ -121,17 +164,14 @@ See source files for individual license conditions.]]
   os.exit (0)
 end
 
-prog["--module-dir"] = function (arglist, i)
-  local opt = arglist[i]
-  if i + 1 > #arglist then
-    opterr ("option '" .. opt .. "' requires an argument")
-  end
+prog["-b"] = function (argl, i) return setopt ("branch", argl, i) end
+prog["--branch"] = prog["-b"]
 
-  prog.opts.module_root = arglist[i + 1]
-  return i + 1
-end
+prog["-m"] = function (argl, i) return setopt ("module_root", argl, i) end
+prog["--module-dir"] = prog["-m"]
 
-prog["-m"] = prog["--module-dir"]
+prog["-r"] = function (argl, i) return setopt ("repository", argl, i) end
+prog["--repository"] = prog["-r"]
 
 local nonopts
 local i = 0
@@ -174,6 +214,11 @@ local package  = arg[1]
 local version  = arg[2]
 local revision = arg[3] or "1"
 local conf     = arg[4] or "rockspec.conf"
+
+-- Unless set explicity, assume the repo is named after the package.
+if prog.opts.repository == nil then
+  prog.opts.repository = package
+end
 
 
 --[[ ================= ]]--
@@ -226,7 +271,7 @@ local function loadmap (root)
   tree (root)
   for _, f in ipairs (files) do
     local m = f:match ("^" .. escape_pattern (root) .. "/(.*)%.lua")
-    map [m:gsub ("/", ".")] = f:gsub ("^%./", "")
+    map [m:gsub ("/", "."):gsub ("%.init$", "")] = f:gsub ("^%./", "")
   end
   return map
 end
@@ -297,31 +342,38 @@ if type (spec.external_dependencies) == "table" then
 end
 
 -- If we have a module root, use the luarocks "builtin" type.
-if prog.opts.module_root ~= nil and version ~= "scm" and version ~= "git" then
-  default.build = {
-    type = "builtin",
-    modules = loadmap (prog.opts.module_root),
-  }
-else
-  default.build = {
-    type = "command",
-    build_command = "./configure " ..
-      "LUA='$(LUA)' LUA_INCLUDE='-I$(LUA_INCDIR)' " .. configure_flags ..
-      "--prefix='$(PREFIX)' --libdir='$(LIBDIR)' --datadir='$(LUADIR)' " ..
-      "&& make clean all",
-    install_command = "make install luadir='$(LUADIR)'",
-    copy_directories = {},
-  }
+if version ~= "scm" and version ~= "git" then
+  if prog.opts.module_root ~= nil then
+    default.build = {
+      type = "builtin",
+      modules = loadmap (prog.opts.module_root),
+    }
+  elseif spec.build ~= nil and spec.build.modules ~= nil then
+    default.build = { type = "builtin" }
+  end
 end
 
--- Additional spec-type dependenent values.
+default.build = default.build or {
+  type = "command",
+  build_command = "./configure " ..
+    "LUA='$(LUA)' LUA_INCLUDE='-I$(LUA_INCDIR)' " .. configure_flags ..
+    "--prefix='$(PREFIX)' --libdir='$(LIBDIR)' --datadir='$(LUADIR)' " ..
+    "--datarootdir='$(PREFIX)' && make clean all",
+  install_command = "make install luadir='$(LUADIR)'",
+  copy_directories = {},
+}
+
+-- Additional spec-type dependent values.
 spec.source = spec.source or {}
+spec.build  = spec.build  or {}
 if version ~= "scm" and version ~= "git" then
   spec.source.url = "http://" .. url .. "/archive/release-v" .. version .. ".zip"
-  spec.source.dir = package .. "-release-v" .. version
+  spec.source.dir = prog.opts.repository .. "-release-v" .. version
 else
   spec.source.url = "git://" .. url .. ".git"
-  default.build.build_command = "./bootstrap && " .. default.build.build_command
+  spec.source.branch = prog.opts.branch
+  spec.build.modules = nil
+  default.build.build_command =  "./bootstrap && " .. default.build.build_command
 end
 
 
@@ -353,18 +405,27 @@ local function format (x, indent)
       return "{}"
     else
       local s = "{\n"
-      for i, v in pairs (x) do
-        if type (i) ~= "number" then
-          s = s .. indent
-          if i:match ("[^_%w]") then
-            -- wrap keys with non-%w chars in square brackets
-            s = s .. '["' .. i .. '"]'
-          else
-            s = s .. i
-          end
-          s = s .. " = " .. format (v, indent .. "  ") .. ",\n"
-        end
+
+      -- Collect and sort non-numeric keys first.
+      keys = {}
+      for k in pairs (x) do
+        if type (k) ~= "number" then table.insert (keys, k) end
       end
+      table.sort (keys, function (a, b) return tostring (a) < tostring (b) end)
+
+      -- Display non-numeric key pairs in sort order.
+      for _, k in ipairs (keys) do
+        s = s .. indent
+        if k:match ("[^_%w]") then
+          -- wrap keys with non-%w chars in square brackets
+          s = s .. '["' .. k .. '"]'
+        else
+          s = s .. k
+        end
+        s = s .. " = " .. format (x[k], indent .. "  ") .. ",\n"
+      end
+
+      -- And numeric key pairs last.
       for i, v in ipairs (x) do
         s = s .. indent .. format (v, indent .. "  ") .. ",\n"
       end

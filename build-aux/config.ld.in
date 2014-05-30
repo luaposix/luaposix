@@ -1,0 +1,27 @@
+-- -*- lua -*-
+title = "@PACKAGE@ @VERSION@ Reference"
+project = "luaposix"
+description = "POSIX bindings for Lua"
+
+tparam_alias "string"
+tparam_alias "int"
+tparam_alias "bool"
+
+local upat = "http://www.kernel.org/doc/man-pages/online/pages/man%s/%s.%s.html"
+custom_see_handler("^([%w_]+)%((%d)%)$",function(name,section)
+    local url = upat:format(section,name,section)
+    local name = name .. "(" .. section .. ")"
+    return name, url
+end)
+
+dir = "."
+file = {
+  "../ext/posix/posix.c",
+  "../lib/posix.lua",
+  "../lib/posix/sys.lua",
+}
+examples = "../examples"
+
+format = "markdown"
+merge = true
+sort = true

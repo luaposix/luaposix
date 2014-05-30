@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luaposix 32 Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>luaposix</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/dir.lua.html">dir.lua</a></li>
+  <li><a href="../examples/fork.lua.html">fork.lua</a></li>
+  <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
+  <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
+  <li><a href="../examples/glob.lua.html">glob.lua</a></li>
+  <li><a href="../examples/limit.lua.html">limit.lua</a></li>
+  <li><a href="../examples/lock.lua.html">lock.lua</a></li>
+  <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><a href="../examples/ping.lua.html">ping.lua</a></li>
+  <li><a href="../examples/poll.lua.html">poll.lua</a></li>
+  <li><a href="../examples/signal.lua.html">signal.lua</a></li>
+  <li><strong>socket.lua</strong></li>
+  <li><a href="../examples/termios.lua.html">termios.lua</a></li>
+  <li><a href="../examples/tree.lua.html">tree.lua</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/posix.html">posix</a></li>
+  <li><a href="../modules/posix.sys.html">posix.sys</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <pre>
+<span class="keyword">local</span> p = <span class="global">require</span> <span class="string">"posix"</span>
+<span class="keyword">local</span> b = bit32 <span class="keyword">or</span> <span class="global">require</span> <span class="string">"bit"</span>
+
+p.signal(p.SIGPIPE, <span class="keyword">function</span>() <span class="global">print</span>(<span class="string">"pipe"</span>) <span class="keyword">end</span>)
+
+<span class="comment">-- Get Lua web site title
+</span>
+<span class="keyword">local</span> res, err = p.getaddrinfo(<span class="string">"www.lua.org"</span>, <span class="string">"http"</span>, { family = p.AF_INET, socktype = p.SOCK_STREAM })
+<span class="keyword">if</span> <span class="keyword">not</span> res <span class="keyword">then</span> error(err) <span class="keyword">end</span>
+
+<span class="keyword">local</span> fd = p.socket(p.AF_INET, p.SOCK_STREAM, <span class="number">0</span>)
+<span class="keyword">local</span> ok, err, e = p.connect(fd, res[<span class="number">1</span>])
+<span class="keyword">if</span> err <span class="keyword">then</span> error(err) <span class="keyword">end</span>
+p.send(fd, <span class="string">"GET / HTTP/1.0\r\nHost: www.lua.org\r\n\r\n"</span>)
+<span class="keyword">local</span> data = {}
+<span class="keyword">while</span> <span class="keyword">true</span> <span class="keyword">do</span>
+	<span class="keyword">local</span> b = p.recv(fd, <span class="number">1024</span>)
+	<span class="keyword">if</span> <span class="keyword">not</span> b <span class="keyword">or</span> #b == <span class="number">0</span> <span class="keyword">then</span>
+		<span class="keyword">break</span>
+	<span class="keyword">end</span>
+	<span class="global">table</span>.insert(data, b)
+<span class="keyword">end</span>
+p.close(fd)
+data = <span class="global">table</span>.concat(data)
+<span class="global">print</span>(data:match(<span class="string">"&lt;TITLE&gt;(.+)&lt;/TITLE&gt;"</span>))
+
+<span class="comment">-- Loopback UDP test, IPV4 and IPV6
+</span>
+<span class="keyword">local</span> fd = p.socket(p.AF_INET6, p.SOCK_DGRAM, <span class="number">0</span>)
+p.bind(fd, { family = p.AF_INET6, addr = <span class="string">"::"</span>, port = <span class="number">9999</span> })
+p.sendto(fd, <span class="string">"Test ipv4"</span>, { family = p.AF_INET, addr = <span class="string">"127.0.0.1"</span>, port = <span class="number">9999</span> })
+p.sendto(fd, <span class="string">"Test ipv6"</span>, { family = p.AF_INET6, addr = <span class="string">"::"</span>, port = <span class="number">9999</span> })
+<span class="keyword">for</span> i = <span class="number">1</span>, <span class="number">2</span> <span class="keyword">do</span>
+	<span class="keyword">local</span> ok, r = p.recvfrom(fd, <span class="number">1024</span>)
+	<span class="keyword">if</span> ok <span class="keyword">then</span>
+		<span class="global">print</span>(ok, r.addr, r.port)
+	<span class="keyword">else</span>
+		<span class="global">print</span>(ok, r)
+	<span class="keyword">end</span>
+<span class="keyword">end</span>
+p.close(fd)</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

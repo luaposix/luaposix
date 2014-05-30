@@ -1,6 +1,12 @@
-dnl Process this file with autoconf to produce a configure script
+dnl configure.ac
+dnl Written by Gary V. Vaughan, 2012
 
-AC_INIT([luaposix], [31], [http://github.com/luaposix/luaposix/issues])
+dnl Copyright (c) 2012-2014 Gary V. Vaughan
+
+dnl This file is part of luaposix.
+dnl See README for license.
+
+AC_INIT([luaposix], [32], [http://github.com/luaposix/luaposix/issues])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -80,14 +86,14 @@ gl_INIT
 
 dnl Check for header files
 AC_HEADER_STDC
-AC_CHECK_HEADERS([crypt.h sys/statvfs.h])
+AC_CHECK_HEADERS([crypt.h strings.h sys/statvfs.h net/if.h linux/netlink.h])
 
 dnl Search libs
 AC_SEARCH_LIBS([crypt], [crypt],
   [AC_DEFINE([HAVE_CRYPT], [], [Define this if your system has a crypt() function])])
 
 dnl Check for functions
-AC_CHECK_FUNCS([strlcpy statvfs])
+AC_CHECK_FUNCS([strlcpy statvfs posix_fadvise])
 
 dnl Compiler flags for POSIX
 dnl Get this from autotools/gnulib
@@ -130,8 +136,7 @@ AC_PATH_PROG([LDOC], [ldoc], [false])
 AM_CONDITIONAL([HAVE_LDOC], [test false != "$LDOC"])
 
 dnl Generate output files
-SPECL_MIN=8
 SS_CONFIG_TRAVIS([ldoc specl])
 AC_CONFIG_HEADER(config.h)
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile build-aux/config.ld])
 AC_OUTPUT

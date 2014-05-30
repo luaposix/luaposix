@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luaposix 32 Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>luaposix</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/dir.lua.html">dir.lua</a></li>
+  <li><a href="../examples/fork.lua.html">fork.lua</a></li>
+  <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
+  <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
+  <li><a href="../examples/glob.lua.html">glob.lua</a></li>
+  <li><a href="../examples/limit.lua.html">limit.lua</a></li>
+  <li><a href="../examples/lock.lua.html">lock.lua</a></li>
+  <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><a href="../examples/ping.lua.html">ping.lua</a></li>
+  <li><a href="../examples/poll.lua.html">poll.lua</a></li>
+  <li><a href="../examples/signal.lua.html">signal.lua</a></li>
+  <li><a href="../examples/socket.lua.html">socket.lua</a></li>
+  <li><strong>termios.lua</strong></li>
+  <li><a href="../examples/tree.lua.html">tree.lua</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/posix.html">posix</a></li>
+  <li><a href="../modules/posix.sys.html">posix.sys</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <pre>
+<span class="keyword">local</span> p = <span class="global">require</span> <span class="string">"posix"</span>
+<span class="keyword">local</span> dev = arg[<span class="number">1</span>] <span class="keyword">or</span> <span class="string">"/dev/ttyUSB0"</span>
+
+<span class="comment">-- Open serial port and do settings
+</span>
+<span class="keyword">local</span> fds, err = p.open(dev, p.O_RDWR + p.O_NONBLOCK);
+<span class="keyword">if</span> <span class="keyword">not</span> fds <span class="keyword">then</span>
+	<span class="global">print</span>(<span class="string">"Could not open serial port "</span> .. dev .. <span class="string">":"</span>, err)
+	<span class="global">os</span>.exit(<span class="number">1</span>)
+<span class="keyword">end</span>
+
+p.tcsetattr(fds, <span class="number">0</span>, {
+	cflag = p.B115200 + p.CS8 + p.CLOCAL + p.CREAD,
+	iflag = p.IGNPAR,
+	oflag = p.OPOST,
+	cc = {
+		[p.VTIME] = <span class="number">0</span>,
+		[p.VMIN] = <span class="number">1</span>
+	}
+})
+
+<span class="comment">-- Set stdin to non canonical mode. Save current settings
+</span>
+<span class="keyword">local</span> save = p.tcgetattr(<span class="number">0</span>)
+p.tcsetattr(<span class="number">0</span>, <span class="number">0</span>, {
+	cc = {
+		[p.VTIME] = <span class="number">0</span>,
+		[p.VMIN] = <span class="number">1</span>
+	}
+})
+
+<span class="comment">-- Loop, reading and writing between ports. ^C stops
+</span>
+<span class="keyword">local</span> set = {
+	[<span class="number">0</span>] = { events = { IN = <span class="keyword">true</span> } },
+	[fds] = { events = { IN = <span class="keyword">true</span> } },
+}
+
+p.write(<span class="number">1</span>, <span class="string">"Starting terminal, hit ^C to exit\r\n"</span>)
+
+<span class="keyword">local</span> <span class="keyword">function</span> exit(msg)
+	p.tcsetattr(<span class="number">0</span>, <span class="number">0</span>, save)
+	<span class="global">print</span>(<span class="string">"\n"</span>)
+	<span class="global">print</span>(msg)
+	<span class="global">os</span>.exit(<span class="number">0</span>)
+<span class="keyword">end</span>
+
+<span class="keyword">while</span> <span class="keyword">true</span> <span class="keyword">do</span>
+	<span class="keyword">local</span> r = p.poll(set, -<span class="number">1</span>)
+	<span class="keyword">for</span> fd, d <span class="keyword">in</span> <span class="global">pairs</span>(set) <span class="keyword">do</span>
+		<span class="keyword">if</span> d.revents <span class="keyword">and</span> d.revents.IN <span class="keyword">then</span>
+			<span class="keyword">if</span> fd == <span class="number">0</span> <span class="keyword">then</span>
+				<span class="keyword">local</span> d, err = p.read(<span class="number">0</span>, <span class="number">1024</span>)
+				<span class="keyword">if</span> <span class="keyword">not</span> d <span class="keyword">then</span> exit(err) <span class="keyword">end</span>
+				<span class="keyword">if</span> d == <span class="global">string</span>.char(<span class="number">3</span>) <span class="keyword">then</span> exit(<span class="string">"Bye"</span>) <span class="keyword">end</span>
+				<span class="keyword">local</span> ok, err = p.write(fds, d)
+				<span class="keyword">if</span> <span class="keyword">not</span> ok <span class="keyword">then</span> exit(err) <span class="keyword">end</span>
+			<span class="keyword">end</span>
+			<span class="keyword">if</span> fd == fds <span class="keyword">then</span>
+				<span class="keyword">local</span> d, err = p.read(fds, <span class="number">1024</span>)
+				<span class="keyword">if</span> <span class="keyword">not</span> d <span class="keyword">then</span> exit(err) <span class="keyword">end</span>
+				<span class="keyword">local</span> ok, err = p.write(<span class="number">1</span>, d)
+				<span class="keyword">if</span> <span class="keyword">not</span> ok <span class="keyword">then</span> exit(err) <span class="keyword">end</span>
+			<span class="keyword">end</span>
+		<span class="keyword">end</span>
+	<span class="keyword">end</span>
+<span class="keyword">end</span></pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

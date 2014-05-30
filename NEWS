@@ -1,5 +1,41 @@
 Stdlib NEWS - User visible changes
 
+* Noteworthy changes in release 32 (2014-05-30) [stable]
+
+** New features:
+
+ - Support for posix.socketpair call and posix.AF_UNIX constant.
+
+ - Previously undocumented spawn, pipeline, pipeline_iterator, pipeline_slurp,
+   euidaccess, timeradd, timercmp and timersub have been moved from the posix
+   table, which is reserved for strictly POSIX APIs to the posix.sys subtable.
+   The sys submodule automatically loads on first reference, so no need to
+   require it manually if you already have the main posix module loaded.
+
+ - posix api documentation is separated into groups for better discovery.
+
+** Bug fixes:
+
+ - Builds correctly on hosts with no IPV6 capability.
+
+ - Small improvements in organisation of generated html docs.
+
+ - posix.openpty doesn't crash.
+
+ - configure now detects Lua correctly with busybox grep.
+
+ - Many fine portability fixes from latest gnulib.
+
+ - Missing docs for accept, bind, connect, getaddrinfo, listen, recv,
+   recvfrom, send, sendto, setsockopt, shutdown, socket and socketpair apis
+   is now provided.
+
+ - Missng docs for tcdrain, tcflow, tcflush, tcgetattr, tcsendbreak and
+   tcsetattr terminal apis are now provided.
+
+ - Docs for apis implemented in Lua are now shown correctly.
+
+
 * Noteworthy changes in release 31 (2013-09-09) [stable]
 
 ** New features:

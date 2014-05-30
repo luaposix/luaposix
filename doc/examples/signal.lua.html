@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luaposix 32 Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>luaposix</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/dir.lua.html">dir.lua</a></li>
+  <li><a href="../examples/fork.lua.html">fork.lua</a></li>
+  <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
+  <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
+  <li><a href="../examples/glob.lua.html">glob.lua</a></li>
+  <li><a href="../examples/limit.lua.html">limit.lua</a></li>
+  <li><a href="../examples/lock.lua.html">lock.lua</a></li>
+  <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><a href="../examples/ping.lua.html">ping.lua</a></li>
+  <li><a href="../examples/poll.lua.html">poll.lua</a></li>
+  <li><strong>signal.lua</strong></li>
+  <li><a href="../examples/socket.lua.html">socket.lua</a></li>
+  <li><a href="../examples/termios.lua.html">termios.lua</a></li>
+  <li><a href="../examples/tree.lua.html">tree.lua</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/posix.html">posix</a></li>
+  <li><a href="../modules/posix.sys.html">posix.sys</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <pre>
+<span class="keyword">local</span> P = <span class="global">require</span> <span class="string">'posix'</span>
+<span class="keyword">for</span> k,v <span class="keyword">in</span> <span class="global">pairs</span>(P) <span class="keyword">do</span> _G[k] = v <span class="keyword">end</span>
+
+<span class="keyword">function</span> go(fn,...)
+  <span class="keyword">local</span> cpid = P.fork()
+  <span class="keyword">if</span> cpid == <span class="number">0</span> <span class="keyword">then</span> <span class="comment">-- run function as child
+</span>    <span class="keyword">local</span> res = fn(...)
+    P._exit(res <span class="keyword">or</span> <span class="number">0</span>)
+  <span class="keyword">else</span>
+    <span class="keyword">return</span> cpid
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">local</span> verbose = #arg &gt; <span class="number">0</span>
+
+<span class="keyword">function</span> sleepx(secs)
+  <span class="keyword">while</span> <span class="keyword">true</span> <span class="keyword">do</span>
+    secs = sleep(secs)
+    <span class="keyword">if</span> verbose <span class="keyword">then</span> <span class="global">print</span>(<span class="string">'sleep'</span>,secs) <span class="keyword">end</span>
+    <span class="keyword">if</span> secs == <span class="number">0</span> <span class="keyword">then</span> <span class="keyword">return</span> <span class="keyword">end</span>
+  <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">local</span> nchild, nsig = <span class="number">0</span>,<span class="number">0</span>
+
+signal(SIGCHLD,<span class="keyword">function</span>()
+         <span class="keyword">local</span>  pid,status,code = wait(-<span class="number">1</span>,WNOHANG)
+         <span class="keyword">while</span> pid <span class="keyword">do</span>
+           <span class="keyword">if</span> pid ~= <span class="number">0</span> <span class="keyword">then</span>
+             <span class="keyword">if</span> verbose <span class="keyword">then</span> <span class="global">print</span>(<span class="string">'wait'</span>,pid,status,code) <span class="keyword">end</span>
+             nchild = nchild + <span class="number">1</span>
+           <span class="keyword">end</span>
+           pid,status,code = wait(-<span class="number">1</span>,WNOHANG)
+         <span class="keyword">end</span>
+               <span class="keyword">end</span>)
+
+<span class="keyword">function</span> handler(signo)
+  <span class="keyword">if</span> verbose <span class="keyword">then</span> <span class="global">print</span>(<span class="string">'handled'</span>,signo) <span class="keyword">end</span>
+  nsig = nsig + <span class="number">1</span>
+<span class="keyword">end</span>
+
+signal(SIGUSR1,handler)
+signal(SIGUSR2,handler)
+signal(<span class="number">60</span>,handler)
+
+<span class="keyword">function</span> killp(nsig) kill(getpid <span class="string">'ppid'</span>,nsig) <span class="keyword">end</span>
+
+c1 = go(<span class="keyword">function</span>() sleep(<span class="number">1</span>); killp(SIGUSR1); killp(SIGUSR2) <span class="keyword">end</span>)
+c2 = go(<span class="keyword">function</span>() sleep(<span class="number">2</span>); killp(SIGUSR2); <span class="keyword">end</span>)
+c3 = go(<span class="keyword">function</span>() sleep(<span class="number">2</span>); killp(SIGUSR1) <span class="keyword">end</span>)
+
+sleepx(<span class="number">3</span>)
+
+<span class="keyword">if</span> verbose <span class="keyword">then</span> <span class="global">print</span>(<span class="string">'children'</span>,nchild,<span class="string">'signals'</span>,nsig)
+<span class="keyword">else</span>
+  <span class="global">assert</span> (nchild == <span class="number">3</span>)
+  <span class="global">assert</span> (nsig ==  <span class="number">4</span>)
+  <span class="global">print</span> <span class="string">'+++ tests OK +++'</span>
+<span class="keyword">end</span></pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
