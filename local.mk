@@ -25,7 +25,7 @@ LUA_ENV   = LUA_PATH="$(std_path)" LUA_CPATH="$(std_cpath)"
 
 AM_CPPFLAGS  += -I $(srcdir)/ext/include
 AM_CFLAGS     = $(WERROR_CFLAGS) $(WARN_CFLAGS)
-old_NEWS_hash = 0892063d70673912ae06083cb59215a5
+old_NEWS_hash = 7416f7c2db8d17f396b49cf2386f93a6
 
 update_copyright_env = \
 	UPDATE_COPYRIGHT_HOLDER='(Gary V. Vaughan|Reuben Thomas|luaposix authors)' \
