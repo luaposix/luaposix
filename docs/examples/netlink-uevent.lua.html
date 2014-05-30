@@ -38,10 +38,10 @@
   <li><a href="../examples/fork.lua.html">fork.lua</a></li>
   <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
   <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
-  <li><strong>glob.lua</strong></li>
+  <li><a href="../examples/glob.lua.html">glob.lua</a></li>
   <li><a href="../examples/limit.lua.html">limit.lua</a></li>
   <li><a href="../examples/lock.lua.html">lock.lua</a></li>
-  <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><strong>netlink-uevent.lua</strong></li>
   <li><a href="../examples/ping.lua.html">ping.lua</a></li>
   <li><a href="../examples/poll.lua.html">poll.lua</a></li>
   <li><a href="../examples/signal.lua.html">signal.lua</a></li>
@@ -60,10 +60,23 @@
 <div id="content">
 
     <pre>
-<span class="keyword">local</span> posix = <span class="global">require</span> <span class="string">"posix"</span>
+p = <span class="global">require</span> <span class="string">"posix"</span>
 
-<span class="keyword">for</span> i, j <span class="keyword">in</span> <span class="global">pairs</span> (posix.glob (<span class="string">"/proc/[0-9]*/exe"</span>)) <span class="keyword">do</span>
-  <span class="global">print</span>(j)
+<span class="keyword">if</span> p.AF_NETLINK ~= <span class="keyword">nil</span> <span class="keyword">then</span>
+	<span class="keyword">local</span> fd, err = p.socket(p.AF_NETLINK, p.SOCK_DGRAM, p.NETLINK_KOBJECT_UEVENT)
+	<span class="global">assert</span>(fd, err)
+
+	<span class="keyword">local</span> ok, err = p.bind(fd, { family = p.AF_NETLINK, pid = p.getpid(<span class="string">"pid"</span>), groups = -<span class="number">1</span> })
+	<span class="global">assert</span>(ok, err)
+
+	<span class="keyword">while</span> <span class="keyword">true</span> <span class="keyword">do</span>
+		<span class="keyword">local</span> data, err = p.recv(fd, <span class="number">16384</span>)
+		<span class="global">assert</span>(data, err)
+		<span class="keyword">for</span> k, v <span class="keyword">in</span> data:gmatch(<span class="string">"%z(%u+)=([^%z]+)"</span>) <span class="keyword">do</span>
+			<span class="global">print</span>(k, v)
+		<span class="keyword">end</span>
+		<span class="global">print</span>(<span class="string">"\n"</span>)
+	<span class="keyword">end</span>
 <span class="keyword">end</span></pre>
 
 

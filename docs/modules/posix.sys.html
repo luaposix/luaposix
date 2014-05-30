@@ -1,0 +1,333 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luaposix 32 Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>luaposix</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../modules/posix.html">posix</a></li>
+  <li><strong>posix.sys</strong></li>
+</ul>
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/dir.lua.html">dir.lua</a></li>
+  <li><a href="../examples/fork.lua.html">fork.lua</a></li>
+  <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
+  <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
+  <li><a href="../examples/glob.lua.html">glob.lua</a></li>
+  <li><a href="../examples/limit.lua.html">limit.lua</a></li>
+  <li><a href="../examples/lock.lua.html">lock.lua</a></li>
+  <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><a href="../examples/ping.lua.html">ping.lua</a></li>
+  <li><a href="../examples/poll.lua.html">poll.lua</a></li>
+  <li><a href="../examples/signal.lua.html">signal.lua</a></li>
+  <li><a href="../examples/socket.lua.html">socket.lua</a></li>
+  <li><a href="../examples/termios.lua.html">termios.lua</a></li>
+  <li><a href="../examples/tree.lua.html">tree.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>posix.sys</code></h1>
+<p>
+
+</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#euidaccess">euidaccess (file, mode)</a></td>
+	<td class="summary">Check permissions like <code>access</code>, but for euid.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pipeline_iterator">pipeline_iterator (t, pipe_fn)</a></td>
+	<td class="summary">Perform a series of commands and Lua functions as a pipeline,
+ returning the output of the last stage's <code>stdout</code> as
+ the values of an iterator.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pipeline_slurp">pipeline_slurp (t, pipe_fn)</a></td>
+	<td class="summary">Perform a series of commands and Lua functions as a pipeline,
+ returning the output of the last stage's <code>stdout</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#spawn">spawn (task, ...)</a></td>
+	<td class="summary">Run a command or function in a sub-process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#timeradd">timeradd (x, y)</a></td>
+	<td class="summary">Add one gettimeofday() returned timeval to another.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#timercmp">timercmp (x, y)</a></td>
+	<td class="summary">Compare one gettimeofday() returned timeval with another</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#timersub">timersub (x, y)</a></td>
+	<td class="summary">Subtract one gettimeofday() returned timeval from another.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+    <dl class="function">
+    <dt>
+    <a name = "euidaccess"></a>
+    <strong>euidaccess (file, mode)</strong>
+    </dt>
+    <dd>
+    Check permissions like <code>access</code>, but for euid.
+ Based on the glibc function of the same name. Does not always check
+ for read-only file system, text busy, etc., and does not work with
+ ACLs &amp;c.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">file</span>
+         file to check
+        </li>
+        <li><span class="parameter">mode</span>
+         checks to perform (as for access)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        0 if access allowed; <code>nil</code> otherwise (and errno is set)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pipeline_iterator"></a>
+    <strong>pipeline_iterator (t, pipe_fn)</strong>
+    </dt>
+    <dd>
+    Perform a series of commands and Lua functions as a pipeline,
+ returning the output of the last stage's <code>stdout</code> as
+ the values of an iterator.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+         as for <code>posix.pipeline</code>
+        </li>
+        <li><span class="parameter">pipe_fn</span>
+         as for <code>posix.pipeline</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        iterator function returning a chunk of output on each call
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pipeline_slurp"></a>
+    <strong>pipeline_slurp (t, pipe_fn)</strong>
+    </dt>
+    <dd>
+    Perform a series of commands and Lua functions as a pipeline,
+ returning the output of the last stage's <code>stdout</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+         as for <code>posix.pipeline</code>
+        </li>
+        <li><span class="parameter">pipe_fn</span>
+         as for <code>posix.pipeline</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        output of the pipeline
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "spawn"></a>
+    <strong>spawn (task, ...)</strong>
+    </dt>
+    <dd>
+    Run a command or function in a sub-process.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">task</span>
+        , a string to be executed as a shell command, or a
+ table of arguments to <code>posix.execp</code> or a Lua function
+ which should read from standard input, write to standard output,
+ and return an exit code
+        </li>
+        <li><span class="parameter">...</span>
+         positional arguments to the program or function
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        status exit code, or nil if fork or wait fails</li>
+        <li>
+        error message, or exit type if wait succeeds</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "timeradd"></a>
+    <strong>timeradd (x, y)</strong>
+    </dt>
+    <dd>
+    Add one gettimeofday() returned timeval to another.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         a timeval
+        </li>
+        <li><span class="parameter">y</span>
+         another timeval
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        x + y, adjusted for usec overflow
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "timercmp"></a>
+    <strong>timercmp (x, y)</strong>
+    </dt>
+    <dd>
+    Compare one gettimeofday() returned timeval with another
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         a timeval
+        </li>
+        <li><span class="parameter">y</span>
+         another timeval
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        0 if x and y are equal, >0 if x is newer, &lt;0 if y is newer
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "timersub"></a>
+    <strong>timersub (x, y)</strong>
+    </dt>
+    <dd>
+    Subtract one gettimeofday() returned timeval from another.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         a timeval
+        </li>
+        <li><span class="parameter">y</span>
+         another timeval
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        x - y, adjusted for usec underflow
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.2</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
