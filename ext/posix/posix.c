@@ -1769,15 +1769,38 @@ static const char *const Sstat[] =
 
 /***
 Information about an existing file path.
+If file is a symbolic link return information about the file the link points to.
 @function stat
-@see stat(2)
 @string path file path
 @string ... field names, each one of "mode", "ino", "dev", "nlink", "uid", "gid",
 "size", "atime", "mtime", "ctime", "type"
 @return ... values, or table of all fields if no option given
 @usage for a, b in pairs(posix.stat("/etc/")) do print(a, b) end
+@see lstat
+@see stat(2)
 */
 static int Pstat(lua_State *L)
+{
+	struct stat s;
+	const char *path=luaL_checkstring(L, 1);
+	if (stat(path,&s)==-1)
+		return pusherror(L, path);
+	return doselection(L, 2, Sstat, Fstat, &s);
+}
+
+/***
+Information about an existing file path.
+If file is a symbolic link return information about the link itself.
+@function lstat
+@string path file path
+@string ... field names, each one of "mode", "ino", "dev", "nlink", "uid", "gid",
+"size", "atime", "mtime", "ctime", "type"
+@return ... values, or table of all fields if no option given
+@usage for a, b in pairs(posix.lstat("/etc/")) do print(a, b) end
+@see stat
+@see lstat(2)
+*/
+static int Plstat(lua_State *L)
 {
 	struct stat s;
 	const char *path=luaL_checkstring(L, 1);
@@ -4318,6 +4341,7 @@ static const luaL_Reg R[] =
 	MENTRY( Pmsgsnd ),
 	MENTRY( Pmsgrcv ),
 	MENTRY( Pstat		),
+	MENTRY( Plstat		),
 	MENTRY( Pstrftime	),
 	MENTRY( Pstrptime	),
 	MENTRY( Psync		),

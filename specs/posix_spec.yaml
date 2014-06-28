@@ -298,6 +298,55 @@ specify lposix:
         table.sort (t)
         expect (t).should_equal {".", "..", "file", "hard", "soft", "subdir"}
 
+  - describe lstat:
+    - before:
+        # choose a format without seconds, that won't cause a race condition
+        fmt = "%b %d %H:%M"
+        getpid, lstat = posix.getpid, posix.lstat
+    - it fetches the file inode:
+        expect (lstat (dir .. "/hard").ino).should_be (lstat (dir .. "/file").ino)
+    - it fetches the file type:
+        expect (lstat (dir).type).should_be "directory"
+        expect (lstat (dir .. "/file", "type")).should_be "regular"
+        expect (lstat (dir .. "/soft", "type")).should_be "link"
+        expect (lstat (dir .. "/hard", "type")).should_be "regular"
+    - it fetches the file size:
+        # skip directory size, which is system dependent
+        expect (lstat (dir .. "/file").size).should_be (0)
+        expect (lstat (dir .. "/soft", "size")).should_be (string.len ("subdir"))
+        expect (lstat (dir .. "/hard", "size")).
+          should_be (lstat (dir .. "/file", "size"))
+    - it fetches the file access time:
+        expect (os.date (fmt, lstat (dir .. "/file", "atime"))).
+          should_be (os.date (fmt))
+    - it fetches the file modification time:
+        expect (os.date (fmt, lstat (dir .. "/file", "mtime"))).
+          should_be (os.date (fmt))
+    - it fetches the file creation time:
+        expect (os.date (fmt, lstat (dir .. "/file", "ctime"))).
+          should_be (os.date (fmt))
+    - it fetches the file access mode:
+        expect (lstat (dir .. "/file").mode).should_match ("^[-rwx]+$")
+        expect (lstat (dir .. "/subdir", "mode")).should_match ("^[-rwx]+$")
+    - it fetches the number of links:
+        expect (lstat (dir .. "/file").nlink).should_be (2)
+        expect (lstat (dir .. "/soft", "nlink")).should_be (1)
+        expect (lstat (dir .. "/hard", "nlink")).
+          should_be (lstat (dir .. "/file", "nlink"))
+        expect (lstat (dir .. "/subdir", "nlink")).should_be (2)
+    - it fetches the owner id:
+        expect (lstat (dir .. "/file").uid).should_be (getpid "euid")
+        expect (lstat (dir .. "/subdir", "uid")).should_be (getpid "euid")
+    - it fetches the owner group id:
+    - it fetches a subtable of named fields:
+        expect ({lstat (dir .. "/file", "type", "mtime", "nlink")}).
+          should_equal {"regular", posix.time (), 2}
+    - it fetches everything without an argument:
+        t = lstat (dir .. "/file")
+        for k, v in pairs (t) do
+          expect (t[k]).should_be (lstat (dir .. "/file", k))
+        end
+
   - describe stat:
     - before:
         # choose a format without seconds, that won't cause a race condition
@@ -308,12 +357,12 @@ specify lposix:
     - it fetches the file type:
         expect (stat (dir).type).should_be "directory"
         expect (stat (dir .. "/file", "type")).should_be "regular"
-        expect (stat (dir .. "/soft", "type")).should_be "link"
+        expect (stat (dir .. "/soft", "type")).should_be "directory"
         expect (stat (dir .. "/hard", "type")).should_be "regular"
     - it fetches the file size:
         # skip directory size, which is system dependent
         expect (stat (dir .. "/file").size).should_be (0)
-        expect (stat (dir .. "/soft", "size")).should_be (string.len ("subdir"))
+        expect (stat (dir .. "/soft", "size")).should_be (stat (dir .. "/subdir", "size"))
         expect (stat (dir .. "/hard", "size")).
           should_be (stat (dir .. "/file", "size"))
     - it fetches the file access time:
@@ -330,7 +379,7 @@ specify lposix:
         expect (stat (dir .. "/subdir", "mode")).should_match ("^[-rwx]+$")
     - it fetches the number of links:
         expect (stat (dir .. "/file").nlink).should_be (2)
-        expect (stat (dir .. "/soft", "nlink")).should_be (1)
+        expect (stat (dir .. "/soft", "nlink")).should_be (2)
         expect (stat (dir .. "/hard", "nlink")).
           should_be (stat (dir .. "/file", "nlink"))
         expect (stat (dir .. "/subdir", "nlink")).should_be (2)
@@ -436,17 +485,17 @@ specify lposix:
 
   - describe link:
     - before:
-        link, stat = posix.link, posix.stat
+        link, lstat = posix.link, posix.lstat
         touch "xxx"
     - after:
         os.remove "xxx"
     - it creates hard links:
         expect (Emsg (link ("xxx", "xxx-hard"))).should_be ""
-        expect (stat ("xxx-hard", "ino")).should_be (stat ("xxx", "ino"))
+        expect (lstat ("xxx-hard", "ino")).should_be (stat ("xxx", "ino"))
         os.remove "xxx-hard"
     - it creates soft links:
         expect (Emsg (link ("xxx", "xxx-soft", true))).should_be ""
-        expect (stat ("xxx-soft", "type")).should_be "link"
+        expect (lstat ("xxx-soft", "type")).should_be "link"
         os.remove "xxx-soft"
 
   - describe lseek:

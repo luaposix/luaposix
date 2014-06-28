@@ -2,6 +2,21 @@ Stdlib NEWS - User visible changes
 
 * Noteworthy changes in release ?.? (????-??-??) [?]
 
+** New features:
+
+ - Adds posix.lstat.
+
+** Bug fixes:
+
+ - posix.stat really does call stat(2) now.
+
+** Incompatible changes:
+
+ - Calling posix.stat on a symbolic link now returns information about
+   the file pointed to by the link, just like stat(2).  Previous
+   releases erroneously called lstat(2) internally instead, and return
+   information about the link itself.
+
 
 * Noteworthy changes in release 32 (2014-05-30) [stable]
 
