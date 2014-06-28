@@ -266,6 +266,7 @@ specify lposix:
       link ("subdir", dir .. "/soft", true)
       touch (dir .. "/file")
       link (dir .. "/file", dir .. "/hard")
+      link ("no such destination", dir .. "/dangling", true)
   - after:
       rmtmp (dir)
 
@@ -296,7 +297,7 @@ specify lposix:
           table.insert (t, f)
         end
         table.sort (t)
-        expect (t).should_equal {".", "..", "file", "hard", "soft", "subdir"}
+        expect (t).should_equal {".", "..", "dangling", "file", "hard", "soft", "subdir"}
 
   - describe lstat:
     - before:
@@ -395,6 +396,23 @@ specify lposix:
         for k, v in pairs (t) do
           expect (t[k]).should_be (stat (dir .. "/file", k))
         end
+
+  - describe readlink:
+    - before:
+        readlink = posix.readlink
+    - it diagnoses missing file: |
+        _, err, code = readlink "does not exist!"
+        expect (err).should_match "^does not exist!: "
+        expect (code).should_be (posix.ENOENT)
+    - it diagnoses non-symbolic link: |
+        _, err, code = readlink (dir .. "/file")
+        expect (err).should_be (dir .. "/file: not a symbolic link")
+        expect (code).should_be (posix.EINVAL)
+    - it reads the contents of a symbolic link:
+        expect (readlink (dir .. "/soft")).should_be "subdir"
+    - it reads the contents of a dangling symbolic link:
+        expect (readlink (dir .. "/dangling")).should_be "no such destination"
+
 
   - describe statvfs:
     - before:

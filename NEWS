@@ -10,6 +10,8 @@ Stdlib NEWS - User visible changes
 
  - posix.stat really does call stat(2) now.
 
+ - posix.readlink is much more robust, and reports errors accurately.
+
 ** Incompatible changes:
 
  - Calling posix.stat on a symbolic link now returns information about
