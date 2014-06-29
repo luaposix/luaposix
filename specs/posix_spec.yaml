@@ -7,45 +7,9 @@
 # If you get a series of failed expectations, fixing the earliest failures
 # first will often clear up later failures automatically!
 
-before:
-  hell = require "specl.shell"
-
-specify lposix:
-- before: |
+specify posix:
+- before:
     posix = require "posix_c"
-    files, getenv, stat = posix.files, posix.getenv, posix.stat
-
-    bit = bit32 or require "bit"
-    band, bnot, bor = bit.band, bit.bnot, bit.bor
-
-    -- Use a consistent template for all temporary files.
-    TMPDIR = getenv ("TMPDIR") or "/tmp"
-    template = TMPDIR .. "/luaposix-test-XXXXXX"
-
-    -- Allow comparison against the error message of a function call result.
-    function Emsg (_, msg) return msg or "" end
-
-    -- Collect stdout from a shell command, and strip surrounding whitespace.
-    function cmd_output (cmd)
-      return hell.spawn (cmd).output:gsub ("^%s+", ""):gsub ("%s+$", "")
-    end
-
-    -- Recursively remove a temporary directory.
-    function rmtmp (dir)
-      for f in files (dir) do
-        if f ~= "." and f ~= ".." then
-          path = dir .. "/" .. f
-          if stat (path, "type") == "directory" then
-            rmtmp (path)
-          else
-            os.remove (path)
-          end
-        end
-      end
-    end
-
-    -- Create an empty file at PATH.
-    function touch (path) io.open (path, "w+"):close () end
 
 - describe version:
   - before:
@@ -230,8 +194,9 @@ specify lposix:
 
   - describe mkstemp:
     - before:
-        close, isatty, open, read, write, O_RDONLY =
-          posix.close, posix.isatty, posix.open, posix.read, posix.write, posix.O_RDONLY
+        close, isatty, open, read, stat, write =
+          posix.close, posix.isatty, posix.open, posix.read, posix.stat, posix.write
+        O_RDONLY = posix.O_RDONLY
         fd, path = mkstemp (template)
     - after:
         close (fd)
@@ -435,7 +400,7 @@ specify lposix:
 
   - describe umask:
     - before:
-        umask = posix.umask
+        stat, umask = posix.stat, posix.umask
         saved = umask ()
         umask "rwxr-x---"
     - after:
@@ -503,7 +468,7 @@ specify lposix:
 
   - describe link:
     - before:
-        link, lstat = posix.link, posix.lstat
+        link, lstat, stat = posix.link, posix.lstat, posix.stat
         touch "xxx"
     - after:
         os.remove "xxx"

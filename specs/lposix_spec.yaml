@@ -1,11 +1,7 @@
-describe posix:
+describe lposix:
 - before: |
-    posix = require "posix"
     fcntl, fileno = posix.fcntl, posix.fileno
     O_NONBLOCK = posix.O_NONBLOCK
-
-    bit = bit32 or require "bit"
-    band, bnot, bor = bit.band, bit.bnot, bit.bor
 
 - context with fcntl F_GETFL:
   - before: |
