@@ -6,6 +6,10 @@ Stdlib NEWS - User visible changes
 
  - Adds posix.lstat.
 
+ - Implementation of posix.creat is now in ext/posix/posix.c to better
+   support projects that copy posix.c into their own tree and compile
+   directly.
+
 ** Bug fixes:
 
  - posix.stat really does call stat(2) now.

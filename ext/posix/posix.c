@@ -882,8 +882,6 @@ static int Ppoll(lua_State *L)
 /***
 Open a file.
 @function open
-@see open(2)
-@see chmod
 @string path
 @int oflags bitwise OR of the values `O_RDONLY`, `O_WRONLY`, `O_RDWR`,
 `O_APPEND`, `O_CREAT`, `O_DSYNC`, `O_EXCL`, `O_NOCTTY`, `O_NONBLOCK`, `O_RSYNC`,
@@ -891,6 +889,8 @@ Open a file.
 @string mode (used with `O_CREAT`; see chmod for format)
 @return file descriptor on success, nil otherwise
 @return error message if failed.
+@see open(2)
+@see chmod
 */
 static int Popen(lua_State *L)
 {
@@ -903,6 +903,27 @@ static int Popen(lua_State *L)
 			luaL_argerror(L, 3, "bad mode");
 	}
 	return pushresult(L, open(path, flags, mode), path);
+}
+
+/***
+Create a file.
+@function creat
+@string path name of file to create
+@string mode permissions with which to create file
+@return file descriptor on success, nil otherwise
+@return error message if failed
+@see creat(2)
+@see chmod
+@see open
+*/
+static int Pcreat(lua_State *L)
+{
+	const char *path = luaL_checkstring(L, 1);
+	const char *modestr = luaL_checkstring(L, 2);
+	mode_t mode;
+	if (mode_munch(&mode, modestr))
+		luaL_argerror(L, 2, "bad mode");
+	return pushresult(L, open(path, O_CREAT|O_WRONLY|O_TRUNC, mode), path);
 }
 
 /***
@@ -4298,6 +4319,7 @@ static const luaL_Reg R[] =
 	MENTRY( Pclock_gettime	),
 #endif
 	MENTRY( Pclose		),
+	MENTRY( Pcreat		),
 #if defined HAVE_CRYPT
 	MENTRY( Pcrypt		),
 #endif

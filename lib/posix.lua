@@ -14,18 +14,6 @@ if _VERSION == "Lua 5.1" then bit = require "bit" else bit = require "bit32" end
 -- @return the submodule that was loaded to satisfy the missing `name`
 
 
---- File descriptors.
--- @section filedescriptors
-
---- Create a file.
--- @param file name of file to create
--- @param mode permissions with which to create file
--- @return file descriptor, or -1 on error
-function M.creat (file, mode)
-  return posix.open (file, bit.bor (posix.O_CREAT, posix.O_WRONLY, posix.O_TRUNC), mode)
-end
-
-
 --- Terminal handling.
 -- @section terminalhandling
 
