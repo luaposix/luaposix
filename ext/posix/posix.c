@@ -53,6 +53,7 @@
 #include <netinet/udp.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <sched.h>
 #endif
 #if HAVE_CRYPT_H
 #  include <crypt.h>
@@ -2755,6 +2756,43 @@ static int Pgetrlimit(lua_State *L)
 	return 2;
 }
 
+#if _POSIX_VERSION >= 200112L
+
+/***
+set scheduling policy/priority
+@function sched_setscheduler
+@see sched_setscheduler(2)
+@int pid default 0 = own process
+@int policy  `SCHED_FIFO` | `SCHED_RR` | `SCHED_OTHER`, default `SCHED_OTHER`
+@int priority  default 0 = normal priority
+@return 0 on success, nil otherwise
+@return error message if failed.
+*/
+static int Psched_setscheduler(lua_State *L)
+{
+	struct sched_param sched_param  = {0};
+	pid_t pid = luaL_optint(L, 1, 0);
+	int policy = luaL_optint(L, 2, SCHED_OTHER);
+	sched_param.sched_priority =  luaL_optint (L, 3, 0);
+	return pushresult(L, sched_setscheduler(pid, policy, &sched_param), NULL);
+}
+
+/***
+get scheduling policy
+@function sched_getscheduler
+@see sched_getscheduler(2)
+@int pid default 0 = own process
+@return scheduling policy `SCHED_FIFO` | `SCHED_RR` | `SCHED_OTHER`, nil if failed
+@return error message if failed.
+*/
+static int Psched_getscheduler(lua_State *L)
+{
+	struct sched_param sched_param  = {0};
+	pid_t pid = luaL_optint(L, 1, 0);
+	return pushresult(L, sched_getscheduler(pid), NULL);
+}
+
+#endif
 
 
 
@@ -4354,6 +4392,10 @@ static const luaL_Reg R[] =
 	MENTRY( Pgetpasswd	),
 	MENTRY( Pgetpid		),
 	MENTRY( Pgetrlimit	),
+#if _POSIX_VERSION >= 200112L
+	MENTRY( Psched_setscheduler	),
+	MENTRY( Psched_getscheduler	),
+#endif
 	MENTRY( Pgettimeofday	),
 	MENTRY( Pglob		),
 	MENTRY( Pgmtime		),
@@ -4825,6 +4867,17 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 #endif
 #ifdef POSIX_FADV_DONTNEED
 	MENTRY( POSIX_FADV_DONTNEED	);
+#endif
+
+/* Psched_setscheduler flags */
+#ifdef SCHED_FIFO
+	MENTRY( SCHED_FIFO	);
+#endif
+#ifdef SCHED_RR
+	MENTRY( SCHED_RR	);
+#endif
+#ifdef SCHED_OTHER
+	MENTRY( SCHED_OTHER	);
 #endif
 
 #if _POSIX_VERSION >= 200112L
