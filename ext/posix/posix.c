@@ -4882,6 +4882,7 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( IPC_CREAT	);
 	MENTRY( IPC_EXCL	);
 	MENTRY( IPC_PRIVATE	);
+	MENTRY( IPC_NOWAIT	);
 
 	/* Miscellaneous */
 	MENTRY( WNOHANG		);
