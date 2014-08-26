@@ -93,7 +93,7 @@ AC_SEARCH_LIBS([crypt], [crypt],
   [AC_DEFINE([HAVE_CRYPT], [], [Define this if your system has a crypt() function])])
 
 dnl Check for functions
-AC_CHECK_FUNCS([strlcpy statvfs posix_fadvise])
+AC_CHECK_FUNCS([strlcpy statvfs posix_fadvise sched_getsheduler sched_setscheduler])
 
 dnl Compiler flags for POSIX
 dnl Get this from autotools/gnulib
