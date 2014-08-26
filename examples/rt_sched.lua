@@ -32,7 +32,7 @@ do -- Tests on own process
 	assert(rtprio== '-')
 
 
-	-- set realtime priority on own process : SCHED_FIFO 
+	-- set realtime priority on own process : SCHED_FIFO
 	local res, err = p.sched_setscheduler(0, p.SCHED_FIFO, 10 )
 	assert(res, err)
 
@@ -71,9 +71,9 @@ end
 
 -- fork a child to check sched_setscheduler on other process
 do
-	local r,w = p.pipe() 
+	local r,w = p.pipe()
 	local cpid = p.fork()
-	if cpid == 0 then 
+	if cpid == 0 then
 		-- child: block on pipe until parent is finshed
 		p.close(w)  -- close unused write end
 		local b = p.read(r,1)
@@ -85,7 +85,7 @@ do
 	
 	do -- do tests
 		-- get scheduler policy for child process
-		local res, err = p.sched_getscheduler(cpid) 
+		local res, err = p.sched_getscheduler(cpid)
 		assert(res == p.SCHED_OTHER)
 
 		local policy, rtprio = get_ps_sched(cpid)
@@ -93,7 +93,7 @@ do
 		assert(rtprio== '-')
 
 
-		-- set realtime priority on child process : SCHED_FIFO 
+		-- set realtime priority on child process : SCHED_FIFO
 		local res, err = p.sched_setscheduler(cpid, p.SCHED_FIFO, 10 )
 		assert(res, err)
 
