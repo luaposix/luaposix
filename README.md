@@ -24,7 +24,7 @@ Installation
 The simplest way to install luaposix is with [LuaRocks]. To install the
 latest release (recommended):
 
-    luarocks install luaposix
+    luarocks --server=http://rocks.moonscript.org install luaposix
 
 To install current git master (for testing):
 

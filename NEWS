@@ -10,6 +10,8 @@ Stdlib NEWS - User visible changes
    support projects that copy posix.c into their own tree and compile
    directly.
 
+ - Adds posix.IPC_NOWAIT constant for message queues.
+
 ** Bug fixes:
 
  - posix.stat really does call stat(2) now.
