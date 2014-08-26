@@ -53,6 +53,8 @@
 #include <netinet/udp.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#endif
+#ifdef _POSIX_PRIORITY_SCHEDULING
 #include <sched.h>
 #endif
 #if HAVE_CRYPT_H
@@ -2756,7 +2758,7 @@ static int Pgetrlimit(lua_State *L)
 	return 2;
 }
 
-#if _POSIX_VERSION >= 200112L
+#ifdef _POSIX_PRIORITY_SCHEDULING
 
 /***
 set scheduling policy/priority
@@ -4392,7 +4394,7 @@ static const luaL_Reg R[] =
 	MENTRY( Pgetpasswd	),
 	MENTRY( Pgetpid		),
 	MENTRY( Pgetrlimit	),
-#if _POSIX_VERSION >= 200112L
+#ifdef _POSIX_PRIORITY_SCHEDULING
 	MENTRY( Psched_setscheduler	),
 	MENTRY( Psched_getscheduler	),
 #endif
