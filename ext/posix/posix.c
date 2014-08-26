@@ -2758,7 +2758,7 @@ static int Pgetrlimit(lua_State *L)
 	return 2;
 }
 
-#ifdef _POSIX_PRIORITY_SCHEDULING
+#if defined _POSIX_PRIORITY_SCHEDULING && HAVE_SCHED_SETSCHEDULER && HAVE_SCHED_GETSCHEDULER
 
 /***
 set scheduling policy/priority
@@ -4394,7 +4394,7 @@ static const luaL_Reg R[] =
 	MENTRY( Pgetpasswd	),
 	MENTRY( Pgetpid		),
 	MENTRY( Pgetrlimit	),
-#ifdef _POSIX_PRIORITY_SCHEDULING
+#if defined _POSIX_PRIORITY_SCHEDULING && HAVE_SCHED_SETSCHEDULER && HAVE_SCHED_GETSCHEDULER
 	MENTRY( Psched_setscheduler	),
 	MENTRY( Psched_getscheduler	),
 #endif

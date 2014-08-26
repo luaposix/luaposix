@@ -79,10 +79,10 @@ do
 		local b = p.read(r,1)
 		p._exit(0)
 	end
-	
+
 	-- parent:
 	p.close(r)
-	
+
 	do -- do tests
 		-- get scheduler policy for child process
 		local res, err = p.sched_getscheduler(cpid)
@@ -128,7 +128,7 @@ do
 		local res, err = p.sched_getscheduler(cpid)
 		assert(res == p.SCHED_OTHER)
 	end
-	
+
 	-- stop child
 	p.write(w,"stop")
 	p.close(w)
