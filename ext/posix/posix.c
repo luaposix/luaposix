@@ -405,6 +405,22 @@ static gid_t mygetgid(lua_State *L, int i)
 
 
 
+/* Try a lua_getfield from the table on the given index. On success the field
+ * is pushed and 0 is returned, on failure nil and an error message is pushed and 2
+ * is returned */
+
+int try_getfield(lua_State *L, int index, const char *k, int need_type)
+{
+	lua_getfield(L, index, k);
+	int type = lua_type(L, -1);
+	if(type == need_type) return 0;
+	lua_pop(L, 1);
+	lua_pushnil(L);
+	lua_pushfstring(L, "got %s for field '%s' in sockaddr argument, expected type %s",
+		lua_typename(L, type), k, lua_typename(L, need_type));
+	return 2;
+}
+
 /* ============== *
  * API functions. *
  * ============== */
@@ -3082,13 +3098,19 @@ static int sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *s
 	memset(sa, 0, sizeof *sa);
 
 	luaL_checktype(L, index, LUA_TTABLE);
-	lua_getfield(L, index, "family"); family = luaL_checknumber(L, -1); lua_pop(L, 1);
+	r = try_getfield(L, index, "family", LUA_TNUMBER);
+	if(r != 0) return r;
+	family = lua_tonumber(L, -1); lua_pop(L, 1);
 
 	switch(family) {
 		case AF_INET:
 			sa4 = (struct sockaddr_in *)sa;
-			lua_getfield(L, index, "port"); port = luaL_checknumber(L, -1); lua_pop(L, 1);
-			lua_getfield(L, index, "addr"); addr = luaL_checkstring(L, -1); lua_pop(L, 1);
+			r = try_getfield(L, index, "port", LUA_TNUMBER);
+			if(r != 0) return r;
+			port = lua_tonumber(L, -1); lua_pop(L, 1);
+			r = try_getfield(L, index, "addr", LUA_TSTRING);
+			if(r != 0) return r;
+			addr = lua_tostring(L, -1); lua_pop(L, 1);
 			r = inet_pton(AF_INET, addr, &sa4->sin_addr);
 			if(r == 1) {
 				sa4->sin_family = family;
@@ -3099,8 +3121,12 @@ static int sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *s
 			break;
 		case AF_INET6:
 			sa6 = (struct sockaddr_in6 *)sa;
-			lua_getfield(L, index, "port"); port = luaL_checknumber(L, -1); lua_pop(L, 1);
-			lua_getfield(L, index, "addr"); addr = luaL_checkstring(L, -1); lua_pop(L, 1);
+			r = try_getfield(L, index, "port", LUA_TNUMBER);
+			if(r != 0) return r;
+			port = lua_tonumber(L, -1); lua_pop(L, 1);
+			r = try_getfield(L, index, "addr", LUA_TSTRING);
+			if(r != 0) return r;
+			addr = lua_tostring(L, -1); lua_pop(L, 1);
 			r = inet_pton(AF_INET6, addr, &sa6->sin6_addr);
 			if(r == 1) {
 				sa6->sin6_family = family;
@@ -3110,7 +3136,9 @@ static int sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *s
 			}
 			break;
 		case AF_UNIX:
-			lua_getfield(L, index, "path"); path = luaL_checkstring(L, -1); lua_pop(L, 1);
+			r = try_getfield(L, index, "path", LUA_TSTRING);
+			if(r != 0) return r;
+			path = lua_tostring(L, -1); lua_pop(L, 1);
 			sau = (struct sockaddr_un *)sa;
 			sau->sun_family = family;
 			strlcpy(sau->sun_path, path, sizeof(sau->sun_path));
@@ -3121,8 +3149,12 @@ static int sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *s
 #if HAVE_LINUX_NETLINK_H
 		case AF_NETLINK:
 			san = (struct sockaddr_nl *)sa;
-			lua_getfield(L, index, "pid"); pid = luaL_checknumber(L, -1); lua_pop(L, 1);
-			lua_getfield(L, index, "groups"); groups = luaL_checknumber(L, -1); lua_pop(L, 1);
+			r = try_getfield(L, index, "pid", LUA_TNUMBER);
+			if(r != 0) return r;
+			pid = lua_tonumber(L, -1); lua_pop(L, 1);
+			r = try_getfield(L, index, "groups", LUA_TNUMBER);
+			if(r != 0) return r;
+			groups = lua_tonumber(L, -1); lua_pop(L, 1);
 			san->nl_family = family;
 			san->nl_pid = pid;
 			san->nl_groups = groups;
@@ -3131,6 +3163,7 @@ static int sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *s
 			break;
 #endif
 	}
+#undef try_getfield
 	return -1;
 }
 
@@ -3211,7 +3244,7 @@ static int Pconnect(lua_State *L)
 	int r;
 	int fd = luaL_checknumber(L, 1);
 	r = sockaddr_from_lua(L, 2, &sa, &salen);
-	if(r == -1) return pusherror(L, "not a valid IPv4 dotted-decimal or IPv6 address string");
+	if(r != 0) return r;
 
 	r = connect(fd, (struct sockaddr *)&sa, salen);
 	if(r < 0 && errno != EINPROGRESS) return pusherror(L, NULL);
@@ -3236,7 +3269,7 @@ static int Pbind(lua_State *L)
 	int r;
 	int fd = luaL_checknumber(L, 1);
 	r = sockaddr_from_lua(L, 2, &sa, &salen);
-	if(r == -1) return pusherror(L, "not a valid IPv4 dotted-decimal or IPv6 address string");
+	if(r != 0) return r;
 
 	r = bind(fd, (struct sockaddr *)&sa, salen);
 	if(r < 0) return pusherror(L, NULL);
@@ -3401,7 +3434,7 @@ static int Psendto(lua_State *L)
 	int fd = luaL_checknumber(L, 1);
 	const char *buf = luaL_checklstring(L, 2, &len);
 	r = sockaddr_from_lua(L, 3, &sa, &salen);
-	if(r == -1) return pusherror(L, "not a valid IPv4 dotted-decimal or IPv6 address string");
+	if(r != 0) return r;
 
 	r = sendto(fd, buf, len, 0, (struct sockaddr *)&sa, salen);
 	return pushresult(L, r, NULL);
