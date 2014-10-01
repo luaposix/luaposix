@@ -553,7 +553,9 @@ Parse command-line options.
 @see getopt_long(3)
 @param arg command line arguments
 @string shortopts e.g 'ho:v' (colon means 'receives argument')
-@param longopts e.g. `{{'help','none',2},...}`
+@tparam[opt] longopts e.g. `{{'help','none',2},...}`
+@int[opt=1] opterr index of the option with an error
+@int[opt=1] optind index of the next unprocessed option
 @usage for ret, longindex, optind, optarg in posix.getopt (arg, shortopts[, longopts[, opterr[, optind]]]) do ... end
 @see getopt.lua
 */
@@ -871,8 +873,8 @@ static void poll_fd_list_to_table(lua_State           *L,
 /***
 Wait for events on multiple file descriptors.
 @function poll
-@param list of file descriptors
-@int timeout optional (default -1)
+@tparam table fds list of file descriptors
+@int[opt=-1] timeout maximum timeout in milliseconds, or -1 to block indefinitely
 @see poll(2)
 @see poll.lua
 @return return code, nil otherwise
@@ -1069,12 +1071,12 @@ Manipulate file descriptor.
 @see lock.lua
 @int fd file descriptor to act on
 @int cmd operation to perform
-@param arg optional (default 0). Type and meaning of this param depends on `cmd`.
-Currently it expects arg to be a table for file lock related `cmd` and a number
-for all the rest. With file lock `cmd` the table should contain fields for flock
-structure (see example). When function returns the fields of the table
-get updated with corresponding values from flock structure (to comply
-with semantics of `F_GETLK`).
+@param[opt=0] arg optional. Type and meaning of this param depends on `cmd`.
+  Currently it expects arg to be a table for file lock related `cmd` and a
+  number for all the rest. With file lock `cmd` the table should contain
+  fields for flock structure (see example). When function returns the fields
+  of the table get updated with corresponding values from flock structure
+  (to comply with semantics of `F_GETLK`).
 @return integer return value depending on `cmd`, or nil on error
 @return error message if failed
 */
@@ -1266,7 +1268,7 @@ static int Pdirname(lua_State *L)
 /***
 Contents of directory.
 @function dir
-@string path optional (default .)
+@string[opt="."] path
 @return contents as table
 @see dir.lua
 */
@@ -1298,7 +1300,7 @@ Match a filename against a shell pattern.
 @see fnmatch(3)
 @string pat shell pattern
 @string name filename
-@int flags optional (default 0)
+@int[opt=0] flags optional
 @return true or false
 @raise error if fnmatch failed
 */
@@ -1325,7 +1327,7 @@ Find all files in this directory matching a shell pattern.
 @function glob
 @see glob(3)
 @see glob.lua
-@string pat shell pattern
+@string[opt="*"] pat shell pattern
 @return table of matching filenames
 */
 static int Pglob(lua_State *L)
@@ -1500,7 +1502,7 @@ Create a link.
 @see symlink(2)
 @string target name
 @string link name
-@bool soft link
+@bool[opt=false] soft link
 @return 0 on success, nil otherwise
 @return error message if failed.
 */
@@ -1576,7 +1578,7 @@ Check real user's permissions for a file.
 @function access
 @see access(2)
 @string path
-@string mode optional, can contain 'r','w','x' and 'f' (default 'f')
+@string[opt="f"] mode can contain 'r','w','x' and 'f'
 @return 0 on success, nil otherwise
 @return error message if failed.
 @usage status, errstr, errno = posix.access("/etc/passwd", "rw")
@@ -1603,7 +1605,11 @@ static int Paccess(lua_State *L)
 /***
 Instruct kernel on appropriate cache behaviour for a file or file segment.
 @function fadvise
+@see posix_fadvise(2)
 @param file Lua file object
+@int offset
+@int len
+@int advice
 @return 0 on success, nil otherwise
 @return error message if failed.
 */
@@ -1684,7 +1690,7 @@ Set file mode creation mask.
 @function umask
 @see umask(2)
 @see chmod
-@string mode optional file creation mask string (default current mask; see chmod for format)
+@string[opt] mode file creation mask string (see chmod for format)
 @return previous umask
 */
 static int Pumask(lua_State *L)
@@ -1763,8 +1769,8 @@ Change file last access and modification times.
 @function utime
 @see utime(2)
 @string path existing file path
-@int mtime optional modification time (default current time)
-@int atime optional access time (default current time)
+@int[opt=now] mtime modification time
+@int[opt=now] atime access time
 @return 0 on success, nil otherwise
 @return error message if failed.
 */
@@ -2381,7 +2387,8 @@ static int P_exit(lua_State *L)
 Wait for the given process.
 @function wait
 @see waitpid(2)
-@int pid optional (default -1 (any child process))
+@int[opt=-1] pid child process id, or -1 for any child process
+@int[opt] options bitwise-or of options
 @return pid of terminated child, nil on error
 @return how child ended ("exited", "killed" or "stopped"), or error message
  on error.
@@ -3639,7 +3646,7 @@ static int Pcloselog(lua_State *UNUSED (L))
 /***
 Set log priority mask.
 @function setlogmask
-@int bitwise OR of values from `LOG_EMERG`, `LOG_ALERT`, `LOG_CRIT`, `LOG_WARNING`, `LOG_NOTICE`, `LOG_INFO`, `LOG_DEBUG`
+@int ...  values from `LOG_EMERG`, `LOG_ALERT`, `LOG_CRIT`, `LOG_WARNING`, `LOG_NOTICE`, `LOG_INFO`, `LOG_DEBUG`
 @return 0 on success, nil otherwise
 @return error message if failed.
 */
