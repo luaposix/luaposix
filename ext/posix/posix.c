@@ -791,7 +791,7 @@ static nfds_t poll_fd_list_check_table(lua_State *L, int table)
 	return fd_num;
 }
 
-static void poll_fd_list_from_table(lua_Stat *L, int table, struct pollfd *fd_list)
+static void poll_fd_list_from_table(lua_State *L, int table, struct pollfd *fd_list)
 {
 	struct pollfd  *pollfd  = fd_list;
 
