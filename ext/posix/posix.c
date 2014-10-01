@@ -1124,6 +1124,48 @@ static int Pfcntl(lua_State *L)
 
 
 /***
+reposition read/write file offset
+@function lseek
+@see lseek(2)
+@int fd
+@int offset
+@int whence one of SEEK\_SET, SEEK\_CUR or SEEK\_END
+@return new offset on success, nil otherwise
+@return error message if failed.
+*/
+static int Plseek(lua_State *L)
+{
+	int fd = luaL_checknumber(L, 1);
+	int offset = luaL_checknumber(L, 2);
+	int whence = luaL_checknumber(L, 3);
+	return pushresult(L, lseek(fd, offset, whence), NULL);
+}
+
+
+
+/* ============ *
+ * File system. *
+ * ============ */
+
+/***
+File system.
+@section filesystem
+*/
+
+
+/***
+ commit buffer cache to disk
+@function sync
+@see fsync
+@see sync(2)
+*/
+static int Psync(lua_State *L)
+{
+	sync();
+	return 0;
+}
+
+/***
  synchronize a file's in-core state with storage device
 @function fsync
 @see sync
@@ -1150,53 +1192,10 @@ static int Pfsync(lua_State *L)
 static int Pfdatasync(lua_State *L)
 {
   int fd = luaL_checkint(L, 1);
+  checknargs(L, 1);
   return pushresult(L, fdatasync(fd), NULL);
 }
 #endif
-
-/***
-reposition read/write file offset
-@function lseek
-@see lseek(2)
-@int fd
-@int offset
-@int whence one of SEEK\_SET, SEEK\_CUR or SEEK\_END
-@return new offset on success, nil otherwise
-@return error message if failed.
-*/
-static int Plseek(lua_State *L)
-{
-  int fd = luaL_checknumber(L, 1);
-  int offset = luaL_checknumber(L, 2);
-  int whence = luaL_checknumber(L, 3);
-  return pushresult(L, lseek(fd, offset, whence), NULL);
-}
-
-/***
-change process priority
-@function nice
-@see nice(2)
-@int inc adds inc to the nice value for the calling process
-@return new nice value on success, nil otherwise
-@return error message if failed.
-*/
-static int Pnice(lua_State *L)
-{
-  int inc = luaL_checknumber(L, 1);
-  return pushresult(L, nice(inc), NULL);
-}
-
-
-
-
-/* ============ *
- * File system. *
- * ============ */
-
-/***
-File system.
-@section filesystem
-*/
 
 /***
 Find canonicalized absolute pathname.
@@ -2009,19 +2008,6 @@ static int Ppathconf(lua_State *L)
 }
 
 
-/***
- commit buffer cache to disk
-@function sync
-@see fsync
-@see sync(2)
-*/
-static int Psync(lua_State *UNUSED (L))
-{
-  sync();
-  return 0;
-}
-
-
 
 
 /* ================ *
@@ -2265,6 +2251,21 @@ static int Pmsgrcv(lua_State *L)
 Process management.
 @section processmanagement
 */
+
+/***
+change process priority
+@function nice
+@see nice(2)
+@int inc adds inc to the nice value for the calling process
+@return new nice value on success, nil otherwise
+@return error message if failed.
+*/
+static int Pnice(lua_State *L)
+{
+	int inc = luaL_checknumber(L, 1);
+	return pushresult(L, nice(inc), NULL);
+}
+
 
 /***
 Raise a signal on this process.
