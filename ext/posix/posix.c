@@ -460,7 +460,7 @@ static int bind_ctype(lua_State *L, int (*cb)(int))
 /***
 Check for any printable character except space.
 @function isgraph
-@see isprint(3)
+@see isgraph(3)
 @string character to check
 @return true if character is in the class
 */
@@ -472,7 +472,7 @@ static int Pisgraph(lua_State *L)
 /***
 Check for any printable character including space.
 @function isprint
-@see isgraph(3)
+@see isprint(3)
 @string character to check
 @return true if character is in the class
 */
