@@ -688,7 +688,7 @@ static int Prpoll(lua_State *L)
 	int timeout = luaL_checkint(L,2);
 	fds.fd = file;
 	fds.events = POLLIN;
-	return pushresult(L, poll(&fds,1,timeout), NULL);
+	return pushresult(L, poll(&fds, 1, timeout), NULL);
 }
 
 static struct {
@@ -748,10 +748,9 @@ static void poll_events_to_table(lua_State *L, int table, short events)
 	}
 }
 
-static nfds_t poll_fd_list_check_table(lua_State  *L,
-				       int         table)
+static nfds_t poll_fd_list_check_table(lua_State *L, int table)
 {
-	nfds_t          fd_num      = 0;
+	nfds_t fd_num = 0;
 
 	/*
 	 * Assume table is an argument number.
@@ -792,9 +791,7 @@ static nfds_t poll_fd_list_check_table(lua_State  *L,
 	return fd_num;
 }
 
-static void poll_fd_list_from_table(lua_State         *L,
-				    int                table,
-				    struct pollfd     *fd_list)
+static void poll_fd_list_from_table(lua_Stat *L, int table, struct pollfd *fd_list)
 {
 	struct pollfd  *pollfd  = fd_list;
 
@@ -829,9 +826,7 @@ static void poll_fd_list_from_table(lua_State         *L,
 	}
 }
 
-static void poll_fd_list_to_table(lua_State           *L,
-				  int                  table,
-				  const struct pollfd *fd_list)
+static void poll_fd_list_to_table(lua_State *L, int table, const struct pollfd *fd_list)
 {
 	const struct pollfd    *pollfd  = fd_list;
 
@@ -2590,15 +2585,15 @@ static int Pgetenv(lua_State *L)
 			char *eq=strchr(s, '=');
 			if (eq==NULL)		/* will this ever happen? */
 			{
-				lua_pushstring(L,s);
-				lua_pushboolean(L,1);
+				lua_pushstring(L, s);
+				lua_pushboolean(L, 1);
 			}
 			else
 			{
-				lua_pushlstring(L,s,eq-s);
-				lua_pushstring(L,eq+1);
+				lua_pushlstring(L, s, eq-s);
+				lua_pushstring(L, eq+1);
 			}
-			lua_settable(L,-3);
+			lua_settable(L, -3);
 		}
 	}
 	else
@@ -2655,26 +2650,26 @@ static int Pgetpid(lua_State *L)
 
 struct mytimes
 {
- struct tms t;
- clock_t elapsed;
+	struct tms t;
+	clock_t elapsed;
 };
 
 #define pushtime(L,x)	lua_pushnumber(L, ((lua_Number)x)/clk_tck)
 
 static void Ftimes(lua_State *L, int i, const void *data)
 {
-    static long clk_tck = 0;
+	static long clk_tck = 0;
 	const struct mytimes *t=data;
 
-    if( !clk_tck){ clk_tck= sysconf(_SC_CLK_TCK);}
-	switch (i)
-	{
-		case 0: pushtime(L, t->t.tms_utime); break;
-		case 1: pushtime(L, t->t.tms_stime); break;
-		case 2: pushtime(L, t->t.tms_cutime); break;
-		case 3: pushtime(L, t->t.tms_cstime); break;
-		case 4: pushtime(L, t->elapsed); break;
-	}
+	if( !clk_tck){ clk_tck= sysconf(_SC_CLK_TCK);}
+		switch (i)
+		{
+			case 0: pushtime(L, t->t.tms_utime); break;
+			case 1: pushtime(L, t->t.tms_stime); break;
+			case 2: pushtime(L, t->t.tms_cutime); break;
+			case 3: pushtime(L, t->t.tms_cstime); break;
+			case 4: pushtime(L, t->elapsed); break;
+		}
 }
 
 static const char *const Stimes[] =
@@ -2897,21 +2892,21 @@ static void sig_handle (lua_State *L, lua_Debug *ar) {
 }
 
 static void sig_postpone (int i) {
-    if (defer_signal) {
-        signal_pending = i;
-        return;
-    }
-    if (signal_count == SIGNAL_QUEUE_MAX)
-        return;
-    defer_signal++;
-    /* Queue signals */
-    signals[signal_count] = i;
-    signal_count ++;
+	if (defer_signal) {
+		signal_pending = i;
+		return;
+	}
+	if (signal_count == SIGNAL_QUEUE_MAX)
+		return;
+	defer_signal++;
+	/* Queue signals */
+	signals[signal_count] = i;
+	signal_count ++;
 	lua_sethook(signalL, sig_handle, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
-    defer_signal--;
-    /* re-raise any pending signals */
-    if (defer_signal == 0 && signal_pending != 0)
-        raise (signal_pending);
+	defer_signal--;
+	/* re-raise any pending signals */
+	if (defer_signal == 0 && signal_pending != 0)
+		raise (signal_pending);
 }
 
 static int sig_handler_wrap (lua_State *L) {
@@ -3706,8 +3701,8 @@ Grant access to a slave pseudoterminal
 */
 static int Pgrantpt(lua_State *L)
 {
-    int fd=luaL_checkint(L, 1);
-    return pushresult(L, grantpt(fd), "grantpt");
+	int fd=luaL_checkint(L, 1);
+	return pushresult(L, grantpt(fd), "grantpt");
 }
 
 /***
@@ -3722,8 +3717,8 @@ Unlock a pseudoterminal master/slave pair
 */
 static int Punlockpt(lua_State *L)
 {
-    int fd=luaL_checkint(L, 1);
-    return pushresult(L, unlockpt(fd), "unlockpt");
+	int fd=luaL_checkint(L, 1);
+	return pushresult(L, unlockpt(fd), "unlockpt");
 }
 
 /***
@@ -3738,12 +3733,12 @@ Get the name of a slave pseudo-terminal
 */
 static int Pptsname(lua_State *L)
 {
-    int fd=luaL_checkint(L, 1);
-    const char* slave = ptsname(fd);
-    if(!slave)
-        return pusherror(L, "getptsname");
-    lua_pushstring(L, slave);
-    return 1;
+	int fd=luaL_checkint(L, 1);
+	const char* slave = ptsname(fd);
+	if(!slave)
+		return pusherror(L, "getptsname");
+	lua_pushstring(L, slave);
+	return 1;
 }
 
 
@@ -4448,7 +4443,7 @@ static const luaL_Reg R[] =
 	MENTRY( Pgettimeofday	),
 	MENTRY( Pglob		),
 	MENTRY( Pgmtime		),
-	MENTRY( Pgrantpt        ),
+	MENTRY( Pgrantpt	),
 	MENTRY( Phostid		),
 	MENTRY( Pisatty		),
 	MENTRY( Pisgraph	),
@@ -4475,7 +4470,7 @@ static const luaL_Reg R[] =
 	MENTRY( Prmdir		),
 	MENTRY( Prpoll		),
 	MENTRY( Ppoll		),
-	MENTRY( Pptsname        ),
+	MENTRY( Pptsname	),
 	MENTRY( Pset_errno	),
 	MENTRY( Psetenv		),
 	MENTRY( Psetpid		),
@@ -4483,9 +4478,9 @@ static const luaL_Reg R[] =
 	MENTRY( Psignal		),
 	MENTRY( Psleep		),
 	MENTRY( Pnanosleep	),
-	MENTRY( Pmsgget ),
-	MENTRY( Pmsgsnd ),
-	MENTRY( Pmsgrcv ),
+	MENTRY( Pmsgget		),
+	MENTRY( Pmsgsnd		),
+	MENTRY( Pmsgrcv		),
 	MENTRY( Pstat		),
 	MENTRY( Plstat		),
 	MENTRY( Pstrftime	),
@@ -5426,24 +5421,24 @@ LUALIB_API int luaopen_posix_c (lua_State *L)
 	MENTRY( IPV6_V6ONLY		);
 #endif
 #if HAVE_LINUX_NETLINK_H
-	MENTRY( NETLINK_ROUTE          );
-	MENTRY( NETLINK_UNUSED         );
-	MENTRY( NETLINK_USERSOCK       );
-	MENTRY( NETLINK_FIREWALL       );
-	MENTRY( NETLINK_NFLOG          );
-	MENTRY( NETLINK_XFRM           );
-	MENTRY( NETLINK_SELINUX        );
-	MENTRY( NETLINK_ISCSI          );
-	MENTRY( NETLINK_AUDIT          );
-	MENTRY( NETLINK_FIB_LOOKUP     );
-	MENTRY( NETLINK_CONNECTOR      );
-	MENTRY( NETLINK_NETFILTER      );
-	MENTRY( NETLINK_IP6_FW         );
-	MENTRY( NETLINK_DNRTMSG        );
-	MENTRY( NETLINK_KOBJECT_UEVENT );
-	MENTRY( NETLINK_GENERIC        );
-	MENTRY( NETLINK_SCSITRANSPORT  );
-	MENTRY( NETLINK_ECRYPTFS       );
+	MENTRY( NETLINK_ROUTE		);
+	MENTRY( NETLINK_UNUSED		);
+	MENTRY( NETLINK_USERSOCK	);
+	MENTRY( NETLINK_FIREWALL	);
+	MENTRY( NETLINK_NFLOG		);
+	MENTRY( NETLINK_XFRM		);
+	MENTRY( NETLINK_SELINUX		);
+	MENTRY( NETLINK_ISCSI		);
+	MENTRY( NETLINK_AUDIT		);
+	MENTRY( NETLINK_FIB_LOOKUP	);
+	MENTRY( NETLINK_CONNECTOR	);
+	MENTRY( NETLINK_NETFILTER	);
+	MENTRY( NETLINK_IP6_FW		);
+	MENTRY( NETLINK_DNRTMSG		);
+	MENTRY( NETLINK_KOBJECT_UEVENT	);
+	MENTRY( NETLINK_GENERIC		);
+	MENTRY( NETLINK_SCSITRANSPORT	);
+	MENTRY( NETLINK_ECRYPTFS	);
 #endif
 
 #undef MENTRY
