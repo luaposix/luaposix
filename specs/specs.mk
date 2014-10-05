@@ -5,7 +5,13 @@
 ## Environment. ##
 ## ------------ ##
 
-SPECL_ENV = $(LUA_ENV)
+SPECL_ENV +=					\
+	LUA='$(LUA)'				\
+	abs_top_builddir='$(abs_top_builddir)'	\
+	abs_top_srcdir='$(abs_top_srcdir)'	\
+	top_builddir='$(top_builddir)'		\
+	top_srcdir='$(top_srcdir)'		\
+	$(NOTHING_ELSE)
 
 
 ## ------ ##

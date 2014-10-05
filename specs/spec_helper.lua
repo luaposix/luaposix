@@ -2,15 +2,31 @@ local std     = require "specl.std"
 
 badargs = require "specl.badargs"
 hell    = require "specl.shell"
-bit     = bit32 or require "bit"
 
-band, bnot, bor = bit.band, bit.bnot, bit.bor
+local top_srcdir = os.getenv "top_srcdir" or "."
+local top_builddir = os.getenv "top_builddir" or "."
 
-package.path  = std.package.normalize ("lib/?.lua", package.path)
-package.cpath = std.package.normalize ("ext/curses/.libs/?.so",
-			"ext/posix/.libs/?.so", package.cpath)
+package.path  = std.package.normalize (
+		  top_builddir .. "/lib/?.lua",
+		  top_srcdir .. "/lib/?.lua",
+		  top_builddir .. "/lib/?/init.lua",
+		  top_srcdir .. "/lib/?/init.lua",
+		  package.path)
+package.cpath = std.package.normalize (
+		  top_builddir .. "/ext/curses/.libs/?.so",
+		  top_srcdir .. "/ext/curses/.libs/?.so",
+		  top_builddir .. "/ext/curses/_libs/?.dll",
+		  top_srcdir .. "/ext/curses/_libs/?.dll",
+		  top_builddir .. "/ext/posix/.libs/?.so",
+		  top_srcdir .. "/ext/posix/.libs/?.so",
+		  top_builddir .. "/ext/posix/_libs/?.dll",
+		  top_srcdir .. "/ext/posix/_libs/?.dll",
+		  package.cpath)
 
 posix = require "posix"
+bit   = bit32 or require "bit"
+
+band, bnot, bor = bit.band, bit.bnot, bit.bor
 
 
 -- Allow user override of LUA binary used by hell.spawn, falling
