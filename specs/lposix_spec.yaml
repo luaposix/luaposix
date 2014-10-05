@@ -28,4 +28,4 @@ describe lposix:
       ret, msg, errno = fcntl (666, F_GETFL)
       expect (ret).should_be (nil)
   - it diagnoses incorrect userdata argument:
-      expect (fcntl ("foobar", F_GETFL)).should_error "number expected"
+      expect (fcntl ("foobar", F_GETFL)).should_error "int expected"

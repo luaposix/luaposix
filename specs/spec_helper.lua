@@ -1,7 +1,8 @@
-local std = require "specl.std"
+local std     = require "specl.std"
 
-hell = require "specl.shell"
-bit  = bit32 or require "bit"
+badargs = require "specl.badargs"
+hell    = require "specl.shell"
+bit     = bit32 or require "bit"
 
 band, bnot, bor = bit.band, bit.bnot, bit.bor
 
@@ -12,60 +13,43 @@ package.cpath = std.package.normalize ("ext/curses/.libs/?.so",
 posix = require "posix"
 
 
--- Error message specifications use this to shorten argument lists.
-local function bind (f, fix)
-  return function (...)
-	   local arg = {}
-	   for i, v in ipairs (fix) do
-	     arg[i] = v
-	   end
-	   local i = 1
-	   for _, v in pairs {...} do
-	     while arg[i] ~= nil do i = i + 1 end
-	     arg[i] = v
-	   end
-	   return f (unpack (arg))
-	 end
+-- Allow user override of LUA binary used by hell.spawn, falling
+-- back to environment PATH search for "lua" if nothing else works.
+local LUA = os.getenv "LUA" or "lua"
+
+
+local function mkscript (code)
+  local f = os.tmpname ()
+  local h = io.open (f, "w")
+  h:write (code)
+  h:close ()
+  return f
 end
 
 
---- Return a formatted bad argument string.
--- @tparam table M module table
--- @string fname base-name of the erroring function
--- @int i argument number
--- @string want expected argument type
--- @string[opt] field name of field being type checked
--- @string[opt="no value"] got actual argument type
--- @usage
---   expect (f ()).to_error (badarg (fname, mname, 1, "function"))
-local function badarg (mname, fname, i, want, field, got)
-  if got == nil then field, got = nil, field end  -- field is optional
-  if want == nil then i, want = i - 1, i end      -- numbers only for narg error
-
-  local fqfname = (mname .. "." .. fname):gsub ("^%.", "")
-
-  if got == nil and type (want) == "number" then
-    local s = "bad argument #%d to '%s' (no more than %d arguments expected, got %d)"
-    return s:format (i + 1, fqfname, i, want)
-  elseif field ~= nil then
-    local s = "bad argument #%d to '%s' (%s expected for field '%s', got %s)"
-    return s:format (i, fqfname, want, field, got or "no value")
-  end
-  return string.format ("bad argument #%d to '%s' (%s expected, got %s)",
-                        i, fqfname, want, got or "no value")
-end
-
-
---- Initialise custom function and argument error handlers.
--- @tparam table M module table
--- @string fname function name to bind
--- @treturn string *fname*
--- @treturn function badarg with *M* and *fname* prebound
--- @treturn function toomanyarg with *M* and *fname* prebound
--- @usage
---   f, badarg, toomanyarg = init (M, "posix", "bind")
-function init (M, mname, fname)
-  return M[fname], bind (badarg, {mname, fname})
+--- Run some Lua code with the given arguments and input.
+-- @string code valid Lua code
+-- @tparam[opt={}] string|table arg single argument, or table of
+--   arguments for the script invocation
+-- @string[opt] stdin standard input contents for the script process
+-- @treturn specl.shell.Process|nil status of resulting process if
+--   execution was successful, otherwise nil
+function luaproc (code, arg, stdin)
+  local f = mkscript (code)
+  if type (arg) ~= "table" then arg = {arg} end
+  local cmd = {LUA, f, unpack (arg)}
+  -- inject env and stdin keys separately to avoid truncating `...` in
+  -- cmd constructor
+  cmd.stdin = stdin
+  cmd.env = {
+    LUA_CPATH    = package.cpath,
+    LUA_PATH     = package.path,
+    LUA_INIT     = "",
+    LUA_INIT_5_2 = ""
+  }
+  local proc = hell.spawn (cmd)
+  os.remove (f)
+  return proc
 end
 
 
