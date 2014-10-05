@@ -1917,9 +1917,9 @@ static int
 Pfadvise(lua_State *L)
 {
 	FILE *f = *(FILE**) luaL_checkudata(L, 1, LUA_FILEHANDLE);
-	const lua_Integer offset = luaL_checkinteger(L, 2);
-	const lua_Integer len    = luaL_checkinteger(L, 3);
-	const lua_Integer advice = luaL_checkinteger(L, 4);
+	const lua_Integer offset = checkint(L, 2);
+	const lua_Integer len    = checkint(L, 3);
+	const lua_Integer advice = checkint(L, 4);
 	int res;
 	checknargs(L, 4);
 	res = posix_fadvise(fileno (f), offset, len, advice);
@@ -4060,7 +4060,7 @@ Psetsockopt(lua_State *L)
 
 	if (val == NULL)
 	{
-		vint = luaL_checknumber(L, 4);
+		vint = checkint(L, 4);
 		val = &vint;
 		len = sizeof(vint);
 	}
