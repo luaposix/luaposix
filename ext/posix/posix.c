@@ -763,8 +763,8 @@ Parse command-line options.
 @see getopt_long(3)
 @param arg command line arguments
 @string shortopts e.g 'ho:v' (colon means 'receives argument')
-@tparam[opt] longopts e.g. `{{'help','none',2},...}`
-@int[opt=1] opterr index of the option with an error
+@tparam[opt] table longopts e.g. `{{'help','none',2},...}`
+@int[opt=0] opterr index of the option with an error
 @int[opt=1] optind index of the next unprocessed option
 @usage for ret, longindex, optind, optarg in posix.getopt (arg, shortopts[, longopts[, opterr[, optind]]]) do ... end
 @see getopt.lua
@@ -1657,7 +1657,7 @@ dir_gc (lua_State *L)
 /***
 Iterator over all files in this directory.
 @function files
-@string path optional (default .)
+@string[opt="."] path directory to iterate over
 @return an iterator
 */
 static int
@@ -2923,7 +2923,7 @@ Set an environment variable for this process.
 @function setenv
 @see setenv(3)
 @string name
-@string value (maybe nil, meaning 'unset')
+@string[opt] value (maybe nil, meaning 'unset')
 @param over non-nil prevents overwriting a variable
 @return 0 on success, nil otherwise
 @return error message if failed.
@@ -2950,7 +2950,7 @@ Psetenv(lua_State *L)
 Get value of environment variable, or _all_ variables.
 @function getenv
 @see getenv(3)
-@string name if nil, get all
+@string[opt] name if nil, get all
 @return value if name given, otherwise a name-indexed table of values.
 @usage for a,b in pairs(posix.getenv()) do print(a, b) end
 */
@@ -3186,9 +3186,9 @@ Pgetrlimit(lua_State *L)
 set scheduling policy/priority
 @function sched_setscheduler
 @see sched_setscheduler(2)
-@int pid default 0 = own process
-@int policy  `SCHED_FIFO` | `SCHED_RR` | `SCHED_OTHER`, default `SCHED_OTHER`
-@int priority  default 0 = normal priority
+@int[opt=0] pid, 0 = own process
+@int[opt=`SCHED_OTHER` policy  `SCHED_FIFO` | `SCHED_RR` | `SCHED_OTHER`
+@int[opt=0] priority. 0 = normal priority
 @return 0 on success, nil otherwise
 @return error message if failed.
 */
@@ -3207,7 +3207,7 @@ Psched_setscheduler(lua_State *L)
 get scheduling policy
 @function sched_getscheduler
 @see sched_getscheduler(2)
-@int pid default 0 = own process
+@int[opt=0] pid, 0 = own process
 @return scheduling policy `SCHED_FIFO` | `SCHED_RR` | `SCHED_OTHER`, nil if failed
 @return error message if failed.
 */
@@ -3332,8 +3332,8 @@ N.B. Although this is the same API as signal(2), it uses sigaction for guarantee
 @see sigaction(2)
 @see signal.lua
 @int signum
-@param handler function
-@param flags optional the `sa_flags` element of `struct sigaction`
+@tparam[opt="SIG_DFL"] function|string handler function, "SIG_IGN" or "SIG_DFL"
+@param[opt] flags the `sa_flags` element of `struct sigaction`
 @return previous handler function
 */
 static int
@@ -3920,7 +3920,7 @@ Send a message from a socket.
 @see sendto(2)
 @int fd socket descriptor
 @string buffer message bytes to send
-@param address desination address for message
+@param sockaddr one of the entries from a successful `getaddrinfo` call
 @return number of bytes sent if successful, otherwise nil
 @return error message if failed
 */
@@ -4214,7 +4214,8 @@ Popenpt(lua_State *L)
 /***
 Grant access to a slave pseudoterminal
 @function grantpt
-@param file descriptor returned by opening /dev/ptmx
+@see grantpt(3)
+@int fd descriptor returned by openpt
 @return 0 on success
 @return nil, error message if failed.
 @see openpt
@@ -4232,7 +4233,8 @@ Pgrantpt(lua_State *L)
 /***
 Unlock a pseudoterminal master/slave pair
 @function unlockpt
-@param file descriptor returned by opening /dev/ptmx
+@see unlockpt(3)
+@int fd descriptor returned by openpt
 @return 0 on success
 @return nil, error message if failed.
 @see openpt
@@ -4250,7 +4252,8 @@ Punlockpt(lua_State *L)
 /***
 Get the name of a slave pseudo-terminal
 @function ptsname
-@param file descriptor returned by opening /dev/ptmx
+@see ptsname(3)
+@int fd descriptor returned by openpt
 @return path name of the slave terminal device
 @return nil, error message if failed.
 @see openpt
@@ -4275,7 +4278,7 @@ Pptsname(lua_State *L)
 Name of a terminal device.
 @function ttyname
 @see ttyname(3)
-@int fd optional file descriptor (default 0)
+@int[opt=0] fd file descriptor to process
 @return string name
 */
 static int
@@ -4513,6 +4516,7 @@ Pgettimeofday(lua_State *L)
 /***
 Get current time.
 @function time
+@see time(3)
 @return time in seconds since epoch
 */
 static int
@@ -4555,7 +4559,8 @@ pushtm(lua_State *L, struct tm t)
 /***
 Convert time in seconds to table.
 @function localtime
-@param t time in seconds since epoch (default now)
+@see localtime(3)
+@int[default=now] t time in seconds since epoch
 @return time table: contains "is_dst","yearday","hour","min","year","month",
  "sec","weekday","monthday", "day" (the same as "monthday")
 */
@@ -4574,7 +4579,8 @@ Plocaltime(lua_State *L)
 /***
 Convert UTC time in seconds to table.
 @function gmtime
-@param t time in seconds since epoch (default now)
+@see gmtime(3)
+@int[opt=now] t time in seconds since epoch
 @return time table as in `localtime`
 */
 static int
@@ -4609,6 +4615,7 @@ get_clk_id_const(const char *str)
 /***
 Find the precision of a clock.
 @function clock_getres
+@see clock_getres(3)
 @string name of clock, one of "monotonic", "process\_cputime\_id", or
 "thread\_cputime\_id", or nil for realtime clock.
 @return seconds, or nil on error
@@ -4630,6 +4637,7 @@ Pclock_getres(lua_State *L)
 /***
 Read a clock.
 @function clock_gettime
+@see clock_gettime(3)
 @string name of clock, one of "monotonic", "process\_cputime\_id", or
 "thread\_cputime\_id", or nil for realtime clock.
 @return seconds, or nil on error
@@ -4829,7 +4837,7 @@ static const char *const Sgetpasswd[] =
 /***
 Get the password entry for a user.
 @function getpasswd
-@param user (name or id)
+@tparam[opt] string|int user name or id
 @string ... field names, each one of "uid", "name", "gid", "passwd", "dir", "shell"
 @return ... values, or table of all fields if no option given
 @usage for a,b in pairs(posix.getpasswd("root")) do print(a,b) end
