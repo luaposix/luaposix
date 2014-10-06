@@ -4625,7 +4625,7 @@ static int
 Pclock_getres(lua_State *L)
 {
 	struct timespec res;
-	const char *str = lua_tostring(L, 1);
+	const char *str = luaL_checkstring(L, 1);
 	checknargs(L, 1);
 	if (clock_getres(get_clk_id_const(str), &res) == -1)
 		return pusherror(L, "clock_getres");
@@ -4647,7 +4647,7 @@ static int
 Pclock_gettime(lua_State *L)
 {
 	struct timespec res;
-	const char *str = lua_tostring(L, 1);
+	const char *str = luaL_checkstring(L, 1);
 	checknargs(L, 1);
 	if (clock_gettime(get_clk_id_const(str), &res) == -1)
 		return pusherror(L, "clock_gettime");
