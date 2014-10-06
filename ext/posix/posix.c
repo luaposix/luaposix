@@ -125,11 +125,8 @@ static int
 argtypeerror(lua_State *L, int narg, const char *expected)
 {
 	const char *got = luaL_typename(L, narg);
-	const char *msg;
-	if (lua_type(L, narg) == LUA_TLIGHTUSERDATA)
-		got = "light userdata";
-	msg = lua_pushfstring(L, "%s expected, got %s", expected, got);
-	return luaL_argerror(L, narg, msg);
+	return luaL_argerror(L, narg,
+		lua_pushfstring(L, "%s expected, got %s", expected, got));
 }
 
 static void
@@ -139,22 +136,12 @@ checktype(lua_State *L, int narg, int t, const char *expected)
 		argtypeerror (L, narg, expected);
 }
 
-static void
-interror(lua_State *L, int narg, const char *expected)
-{
-	if (lua_isnumber(L, narg))
-		luaL_argerror(L, narg, "number has no integer representation");
-	else
-		argtypeerror(L, narg, expected);
-}
-
 static lua_Integer
 checkinteger(lua_State *L, int narg, const char *expected)
 {
-	int isnum;
-	lua_Integer d = lua_tointegerx(L, narg, &isnum);
-	if (!isnum)
-		interror(L, narg, expected);
+	lua_Integer d = lua_tointeger(L, narg);
+	if (d == 0 && !lua_isnumber(L, narg))
+		argtypeerror(L, narg, expected);
 	return d;
 }
 
