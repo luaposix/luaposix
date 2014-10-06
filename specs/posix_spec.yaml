@@ -785,8 +785,8 @@ specify posix:
         expect (stat (dir .. "/file").gid).to_be (getpid "egid")
         expect (stat (dir .. "/subdir", "gid")).to_be (getpid "egid")
     - it fetches a subtable of named fields:
-        expect ({stat (dir .. "/file", "type", "mtime", "nlink")}).
-          to_equal {"regular", posix.time (), 2}
+        expect ({stat (dir .. "/file", "type", "size", "nlink")}).
+          to_equal {"regular", 0, 2}
     - it fetches everything without an argument:
         t = stat (dir .. "/file")
         for k, v in pairs (t) do
@@ -861,8 +861,8 @@ specify posix:
         expect (lstat (dir .. "/file").gid).to_be (getpid "egid")
         expect (lstat (dir .. "/subdir", "gid")).to_be (getpid "egid")
     - it fetches a subtable of named fields:
-        expect ({lstat (dir .. "/file", "type", "mtime", "nlink")}).
-          to_equal {"regular", posix.time (), 2}
+        expect ({lstat (dir .. "/file", "type", "size", "nlink")}).
+          to_equal {"regular", 0, 2}
     - it fetches everything without an argument:
         t = lstat (dir .. "/file")
         for k, v in pairs (t) do
