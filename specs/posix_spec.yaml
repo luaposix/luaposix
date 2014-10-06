@@ -1942,7 +1942,7 @@ specify posix:
         badargs.diagnose (posix.ttyname, "(?int)")
 
     - it takes a file descriptor argument:
-        expect (ttyname (2)).to_contain.any_of {"pts", "tty"}
+        expect (ttyname (2)).to_contain.any_of {"console", "pts", "tty"}
     - it returns a string:
         expect (type (ttyname (1))).to_be "string"
     - it defaults the first argument to 0:
