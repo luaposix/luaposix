@@ -62,6 +62,10 @@ dist_lua_DATA +=			\
 
 luaposixdir = $(luadir)/posix
 
+noinst_HEADERS =			\
+	ext/posix/_helpers.h		\
+	$(NOTHING_ELSE)
+
 dist_luaposix_DATA =			\
 	lib/posix/sys.lua		\
 	$(NOTHING_ELSE)
@@ -69,6 +73,40 @@ dist_luaposix_DATA =			\
 ext_posix_posix_c_la_SOURCES =		\
 	ext/posix/posix.c		\
 	$(NOTHING_ELSE)
+EXTRA_ext_posix_posix_c_la_SOURCES =	\
+	ext/posix/_helpers.c		\
+	ext/posix/ctype.c		\
+	ext/posix/dirent.c		\
+	ext/posix/errno.c		\
+	ext/posix/fcntl.c		\
+	ext/posix/fnmatch.c		\
+	ext/posix/getopt.c		\
+	ext/posix/glob.c		\
+	ext/posix/grp.c			\
+	ext/posix/libgen.c		\
+	ext/posix/poll.c		\
+	ext/posix/pwd.c			\
+	ext/posix/sched.c		\
+	ext/posix/signal.c		\
+	ext/posix/stdio.c		\
+	ext/posix/stdlib.c		\
+	ext/posix/sys/msg.c		\
+	ext/posix/sys/resource.c	\
+	ext/posix/sys/socket.c		\
+	ext/posix/sys/stat.c		\
+	ext/posix/sys/statvfs.c		\
+	ext/posix/sys/time.c		\
+	ext/posix/sys/times.c		\
+	ext/posix/sys/utsname.c		\
+	ext/posix/sys/wait.c		\
+	ext/posix/syslog.c		\
+	ext/posix/termio.c		\
+	ext/posix/time.c		\
+	ext/posix/unistd.c		\
+	ext/posix/utime.c		\
+	$(NOTHING_ELSE)
+ext_posix_posix_c_la_CPPFLAGS =		\
+	-I $(srcdir)/ext/posix $(AM_CPPFLAGS)
 ext_posix_posix_c_la_CFLAGS  =		\
 	$(POSIX_EXTRA_CFLAGS)
 ext_posix_posix_c_la_LDFLAGS =		\

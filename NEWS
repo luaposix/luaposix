@@ -13,9 +13,14 @@ Stdlib NEWS - User visible changes
  - All posix APIs now fully and correctly diagnose extraneous and wrong
    type arguments with an error.
 
- - Add posix.IPC_NOWAIT constant for message queues.
+ - Add posix.IPC_NOWAIT, posix.MSG_EXCEPT and posix.MSG_NOERROR
+   constants for message queues.
 
  - Add posix.IPPROTO_UDP for socket programming.
+
+ - Add posix.AI_NUMERICSERV for posix.getaddrinfo hints flags.
+
+ - Add posix.WUNTRACED for posix.wait flags.
 
 ** Bug fixes:
 

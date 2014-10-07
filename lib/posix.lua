@@ -7,6 +7,10 @@ local posix = M
 local bit
 if _VERSION == "Lua 5.1" then bit = require "bit" else bit = require "bit32" end
 
+
+--- Metamethods
+-- @section metamethods
+
 ------
 -- Lazy load of available submodules.
 -- @function __index
@@ -14,8 +18,8 @@ if _VERSION == "Lua 5.1" then bit = require "bit" else bit = require "bit32" end
 -- @return the submodule that was loaded to satisfy the missing `name`
 
 
---- Terminal handling.
--- @section terminalhandling
+--- Tty Utility Functions.
+-- @section util
 
 --- Open a pseudo-terminal.
 -- Based on the glibc function of the same name.

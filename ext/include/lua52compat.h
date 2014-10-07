@@ -6,6 +6,9 @@
  * Include this file after Lua headers
 */
 
+#ifndef LUA52COMPAT_H
+#define LUA52COMPAT_H 1
+
 #if LUA_VERSION_NUM == 502
 static int luaL_typerror(lua_State *L, int narg, const char *tname)
 {
@@ -17,4 +20,6 @@ static int luaL_typerror(lua_State *L, int narg, const char *tname)
 #define lua_strlen lua_rawlen
 #define luaL_openlib(L,n,l,nup) luaL_setfuncs((L),(l),(nup))
 #define luaL_register(L,n,l) (luaL_newlib(L,l))
+#endif
+
 #endif
