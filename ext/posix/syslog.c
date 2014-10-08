@@ -19,11 +19,13 @@
 #include <unistd.h>	/* for _POSIX_VERSION */
 
 #if _POSIX_VERSION >= 200112L
-
 #include <syslog.h>
+#endif
 
 #include "_helpers.c"
 
+
+#if _POSIX_VERSION >= 200112L
 
 /***
 Open the system logger.
@@ -121,14 +123,17 @@ Psetlogmask(lua_State *L)
 
 	return pushresult(L, setlogmask(mask),"setlogmask");
 }
+#endif
 
 
 static const luaL_Reg posix_syslog_fns[] =
 {
+#if _POSIX_VERSION >= 200112L
 	LPOSIX_FUNC( Popenlog		),
 	LPOSIX_FUNC( Psyslog		),
 	LPOSIX_FUNC( Pcloselog		),
 	LPOSIX_FUNC( Psetlogmask	),
+#endif
 	{NULL, NULL}
 };
 
@@ -140,6 +145,7 @@ luaopen_posix_syslog(lua_State *L)
 	lua_pushliteral(L, "posix.syslog for " LUA_VERSION " / " PACKAGE_STRING);
 	lua_setfield(L, -2, "version");
 
+#if _POSIX_VERSION >= 200112L
 	LPOSIX_CONST( LOG_AUTH		);
 	LPOSIX_CONST( LOG_AUTHPRIV	);
 	LPOSIX_CONST( LOG_CRON		);
@@ -169,8 +175,7 @@ luaopen_posix_syslog(lua_State *L)
 	LPOSIX_CONST( LOG_NOTICE	);
 	LPOSIX_CONST( LOG_INFO		);
 	LPOSIX_CONST( LOG_DEBUG		);
+#endif
 
 	return 1;
 }
-
-#endif

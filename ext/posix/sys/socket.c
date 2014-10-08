@@ -19,7 +19,6 @@
 #include <unistd.h>	/* for _POSIX_VERSION */
 
 #if _POSIX_VERSION >= 200112L
-
 #include <arpa/inet.h>
 #if HAVE_LINUX_NETLINK_H
 #include <linux/netlink.h>
@@ -34,9 +33,12 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/types.h>
+#endif
 
 #include "_helpers.c"
 
+
+#if _POSIX_VERSION >= 200112L
 
 /***
 Socket address.
@@ -727,10 +729,12 @@ Psetsockopt(lua_State *L)
 
 	return pushresult(L, setsockopt(fd, level, optname, val, len), NULL);
 }
+#endif
 
 
 static const luaL_Reg posix_sys_socket_fns[] =
 {
+#if _POSIX_VERSION >= 200112L
 	LPOSIX_FUNC( Psocket		),
 	LPOSIX_FUNC( Psocketpair	),
 	LPOSIX_FUNC( Pgetaddrinfo	),
@@ -744,6 +748,7 @@ static const luaL_Reg posix_sys_socket_fns[] =
 	LPOSIX_FUNC( Psendto		),
 	LPOSIX_FUNC( Pshutdown		),
 	LPOSIX_FUNC( Psetsockopt	),
+#endif
 	{NULL, NULL}
 };
 
@@ -755,27 +760,28 @@ luaopen_posix_sys_socket(lua_State *L)
 	lua_pushliteral(L, "posix.sys.socket for " LUA_VERSION " / " PACKAGE_STRING);
 	lua_setfield(L, -2, "version");
 
+#if _POSIX_VERSION >= 200112L
 	LPOSIX_CONST( SOMAXCONN		);
 	LPOSIX_CONST( AF_UNSPEC		);
 	LPOSIX_CONST( AF_INET		);
 	LPOSIX_CONST( AF_INET6		);
 	LPOSIX_CONST( AF_UNIX		);
-#if HAVE_LINUX_NETLINK_H
+# if HAVE_LINUX_NETLINK_H
 	LPOSIX_CONST( AF_NETLINK	);
-#endif
+# endif
 	LPOSIX_CONST( SOL_SOCKET	);
 	LPOSIX_CONST( IPPROTO_TCP	);
 	LPOSIX_CONST(	IPPROTO_UDP	);
 	LPOSIX_CONST( IPPROTO_IP	);
 	LPOSIX_CONST( IPPROTO_IPV6	);
-#ifdef IPPROTO_ICMP
+# ifdef IPPROTO_ICMP
 	LPOSIX_CONST( IPPROTO_ICMP	);
-#endif
+# endif
 	LPOSIX_CONST( SOCK_STREAM	);
 	LPOSIX_CONST( SOCK_DGRAM	);
-#ifdef SOCK_RAW
+# ifdef SOCK_RAW
 	LPOSIX_CONST( SOCK_RAW		);
-#endif
+# endif
 	LPOSIX_CONST( SHUT_RD		);
 	LPOSIX_CONST( SHUT_WR		);
 	LPOSIX_CONST( SHUT_RDWR		);
@@ -785,9 +791,9 @@ luaopen_posix_sys_socket(lua_State *L)
 	LPOSIX_CONST( SO_LINGER	);
 	LPOSIX_CONST( SO_RCVTIMEO	);
 	LPOSIX_CONST( SO_SNDTIMEO	);
-#ifdef SO_BINDTODEVICE
+# ifdef SO_BINDTODEVICE
 	LPOSIX_CONST( SO_BINDTODEVICE	);
-#endif
+# endif
 	LPOSIX_CONST( SO_DEBUG	);
 	LPOSIX_CONST( SO_DONTROUTE	);
 	LPOSIX_CONST( SO_ERROR	);
@@ -810,28 +816,28 @@ luaopen_posix_sys_socket(lua_State *L)
 	LPOSIX_CONST( AI_PASSIVE	);
 	LPOSIX_CONST( AI_V4MAPPED	);
 
-#ifdef IPV6_JOIN_GROUP
+# ifdef IPV6_JOIN_GROUP
 	LPOSIX_CONST( IPV6_JOIN_GROUP		);
-#endif
-#ifdef IPV6_LEAVE_GROUP
+# endif
+# ifdef IPV6_LEAVE_GROUP
 	LPOSIX_CONST( IPV6_LEAVE_GROUP		);
-#endif
-#ifdef IPV6_MULTICAST_HOPS
+# endif
+# ifdef IPV6_MULTICAST_HOPS
 	LPOSIX_CONST( IPV6_MULTICAST_HOPS	);
-#endif
-#ifdef IPV6_MULTICAST_IF
+# endif
+# ifdef IPV6_MULTICAST_IF
 	LPOSIX_CONST( IPV6_MULTICAST_IF		);
-#endif
-#ifdef IPV6_MULTICAST_LOOP
+# endif
+# ifdef IPV6_MULTICAST_LOOP
 	LPOSIX_CONST( IPV6_MULTICAST_LOOP	);
-#endif
-#ifdef IPV6_UNICAST_HOPS
+# endif
+# ifdef IPV6_UNICAST_HOPS
 	LPOSIX_CONST( IPV6_UNICAST_HOPS		);
-#endif
-#ifdef IPV6_V6ONLY
+# endif
+# ifdef IPV6_V6ONLY
 	LPOSIX_CONST( IPV6_V6ONLY		);
-#endif
-#if HAVE_LINUX_NETLINK_H
+# endif
+# if HAVE_LINUX_NETLINK_H
 	LPOSIX_CONST( NETLINK_ROUTE		);
 	LPOSIX_CONST( NETLINK_UNUSED		);
 	LPOSIX_CONST( NETLINK_USERSOCK		);
@@ -850,8 +856,8 @@ luaopen_posix_sys_socket(lua_State *L)
 	LPOSIX_CONST( NETLINK_GENERIC		);
 	LPOSIX_CONST( NETLINK_SCSITRANSPORT	);
 	LPOSIX_CONST( NETLINK_ECRYPTFS		);
+# endif
 #endif
 
 	return 1;
 }
-#endif

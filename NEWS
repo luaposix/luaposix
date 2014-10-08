@@ -26,6 +26,13 @@ Stdlib NEWS - User visible changes
    so you shouldn't rely on the submodule APIs for anything you don't want to
    keep updating in the face of the thinning submodule wrappers!!!
 
+ - Each of the newly separated submodules is self-contained, and can be copied
+   to another project for compiling and/or loading in a custom Lua runtime. If
+   you want to make use of this, in addition to the source for the modules you
+   copy, you'll also need at least the files `ext/posix/_helpers.c` and
+   `ext/include/lua52compat.c`, and also `ext/include/strlcat.c` for one or
+   two of them.
+
  - Adds posix.lstat.
 
  - Implementation of posix.creat is now in ext/posix/posix.c to better

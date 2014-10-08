@@ -17,6 +17,7 @@
 
 #include <fcntl.h>	/* for open(2) */
 #include <stdlib.h>
+#include <unistd.h>	/* Darwin hides mkdtemp/mkstemp here :( */
 
 #include "_helpers.c"
 

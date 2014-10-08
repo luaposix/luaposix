@@ -18,13 +18,15 @@
 #include <unistd.h>	/* for _POSIX_VERSION */
 
 #if _POSIX_VERSION >= 200112L
-
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#endif
 #include <sys/types.h>
 
 #include "_helpers.c"
 
+
+#if _POSIX_VERSION >= 200112L
 
 /***
 Get a message queue identifier
@@ -149,13 +151,16 @@ Pmsgrcv(lua_State *L)
 
 	return (res == -1) ? pusherror(L, NULL) : 2;
 }
+#endif
 
 
 static const luaL_Reg posix_sys_msg_fns[] =
 {
+#if _POSIX_VERSION >= 200112L
 	LPOSIX_FUNC( Pmsgget		),
 	LPOSIX_FUNC( Pmsgsnd		),
 	LPOSIX_FUNC( Pmsgrcv		),
+#endif
 	{NULL, NULL}
 };
 
@@ -167,10 +172,12 @@ luaopen_posix_sys_msg(lua_State *L)
 	lua_pushliteral(L, "posix.sys.msg for " LUA_VERSION " / " PACKAGE_STRING);
 	lua_setfield(L, -2, "version");
 
+#if _POSIX_VERSION >= 200112L
 	LPOSIX_CONST( IPC_CREAT		);
 	LPOSIX_CONST( IPC_EXCL		);
 	LPOSIX_CONST( IPC_PRIVATE	);
 	LPOSIX_CONST( IPC_NOWAIT	);
+#endif
 
 #ifdef MSG_EXCEPT
 	LPOSIX_CONST( MSG_EXCEPT	);
@@ -181,5 +188,3 @@ luaopen_posix_sys_msg(lua_State *L)
 
 	return 1;
 }
-
-#endif

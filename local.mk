@@ -23,8 +23,10 @@ LUA_ENV   = LUA_PATH="$(std_path)" LUA_CPATH="$(std_cpath)"
 ## Bootstrap. ##
 ## ---------- ##
 
-AM_CPPFLAGS  += -I $(srcdir)/ext/include
+AM_CPPFLAGS  += -I $(srcdir)/ext/include -I $(srcdir)/ext/posix
 AM_CFLAGS     = $(WERROR_CFLAGS) $(WARN_CFLAGS)
+AM_LDFLAGS    = -module -avoid-version
+
 old_NEWS_hash = 7416f7c2db8d17f396b49cf2386f93a6
 
 update_copyright_env = \
@@ -102,19 +104,55 @@ EXTRA_ext_posix_posix_la_SOURCES =	\
 	ext/posix/unistd.c		\
 	ext/posix/utime.c		\
 	$(NOTHING_ELSE)
-ext_posix_posix_la_CPPFLAGS =		\
-	-I $(srcdir)/ext/posix $(AM_CPPFLAGS)
-ext_posix_posix_la_CFLAGS  =		\
-	$(POSIX_EXTRA_CFLAGS)
-ext_posix_posix_la_LDFLAGS =		\
-	-module -avoid-version $(POSIX_EXTRA_LDFLAGS)
+ext_posix_posix_la_CFLAGS  = $(AM_CFLAGS) $(POSIX_EXTRA_CFLAGS)
+ext_posix_posix_la_LDFLAGS = $(AM_LDFLAGS) $(POSIX_EXTRA_LDFLAGS)
 
 ext_curses_curses_c_la_SOURCES =	\
 	ext/curses/curses.c		\
 	$(NOTHING_ELSE)
 ext_curses_curses_c_la_LDFLAGS =	\
-	-module -avoid-version $(CURSES_LIB) -rpath '$(libdir)'
+	$(AM_LDFLAGS) $(CURSES_LIB) -rpath '$(libdir)'
 
+
+## ---------------------- ##
+## Standalone Submodules. ##
+## ---------------------- ##
+
+# We don't install these, but we do need to make sure they compile
+# for people who want to copy some of the sources into their own
+# projects for custom interpreters/libraries.
+
+check_LTLIBRARIES =			\
+	ext/posix/ctype.la		\
+	ext/posix/dirent.la		\
+	ext/posix/errno.la		\
+	ext/posix/fcntl.la		\
+	ext/posix/fnmatch.la		\
+	ext/posix/getopt.la		\
+	ext/posix/glob.la		\
+	ext/posix/grp.la		\
+	ext/posix/libgen.la		\
+	ext/posix/poll.la		\
+	ext/posix/pwd.la		\
+	ext/posix/sched.la		\
+	ext/posix/signal.la		\
+	ext/posix/stdio.la		\
+	ext/posix/stdlib.la		\
+	ext/posix/sys/msg.la		\
+	ext/posix/sys/resource.la	\
+	ext/posix/sys/socket.la		\
+	ext/posix/sys/stat.la		\
+	ext/posix/sys/statvfs.la	\
+	ext/posix/sys/time.la		\
+	ext/posix/sys/times.la		\
+	ext/posix/sys/utsname.la	\
+	ext/posix/sys/wait.la		\
+	ext/posix/syslog.la		\
+	ext/posix/termio.la		\
+	ext/posix/time.la		\
+	ext/posix/unistd.la		\
+	ext/posix/utime.la		\
+	$(NOTHING_ELSE)
 
 ## -------------- ##
 ## Documentation. ##
