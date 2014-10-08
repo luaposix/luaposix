@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.sys.msg
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -23,13 +23,7 @@
 #include <sys/msg.h>
 #include <sys/types.h>
 
-#include "_helpers.h"
-
-
-/***
-System Message Functions.
-@section sysmsg
-*/
+#include "_helpers.c"
 
 
 /***
@@ -37,7 +31,8 @@ Get a message queue identifier
 @function msgget
 @int key message queue id, or `IPC_PRIVATE` for a new queue
 @int[opt=0] flags bitwise or of `IPC_CREAT` and `IPC_EXCL`
-@string[opt="rw-rw-rw-"] mode execute bits are ignored, otherwise see @{chmod} for format.
+@string[opt="rw-rw-rw-"] mode execute bits are ignored, otherwise see
+  @{posix.sys.stat.chmod} for format.
 @treturn[1] int message queue identifier, if successful
 @return[2] nil
 @treturn[2] string error message
@@ -156,20 +151,35 @@ Pmsgrcv(lua_State *L)
 }
 
 
-void
-sysmsg_setconst (lua_State *L)
+static const luaL_Reg posix_sys_msg_fns[] =
 {
-	PCONST( IPC_CREAT	);
-	PCONST( IPC_EXCL	);
-	PCONST( IPC_PRIVATE	);
-	PCONST( IPC_NOWAIT	);
+	LPOSIX_FUNC( Pmsgget		),
+	LPOSIX_FUNC( Pmsgsnd		),
+	LPOSIX_FUNC( Pmsgrcv		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_sys_msg(lua_State *L)
+{
+	luaL_register(L, "posix.sys.msg", posix_sys_msg_fns);
+	lua_pushliteral(L, "posix.sys.msg for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
+	LPOSIX_CONST( IPC_CREAT		);
+	LPOSIX_CONST( IPC_EXCL		);
+	LPOSIX_CONST( IPC_PRIVATE	);
+	LPOSIX_CONST( IPC_NOWAIT	);
 
 #ifdef MSG_EXCEPT
-	PCONST( MSG_EXCEPT	);
+	LPOSIX_CONST( MSG_EXCEPT	);
 #endif
 #ifdef MSG_NOERROR
-	PCONST( MSG_NOERROR	);
+	LPOSIX_CONST( MSG_NOERROR	);
 #endif
+
+	return 1;
 }
 
 #endif

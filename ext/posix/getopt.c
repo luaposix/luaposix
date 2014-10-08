@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.getopt
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -17,13 +17,7 @@
 
 #include <getopt.h>
 
-#include "_helpers.h"
-
-
-/***
-Getopt Functions.
-@section getopt
-*/
+#include "_helpers.c"
 
 
 /* getopt_long */
@@ -159,6 +153,23 @@ Pgetopt(lua_State *L)
 
 	/* Push remaining upvalues, and make and push closure. */
 	lua_pushcclosure(L, iter_getopt_long, 4 + argc + n);
+
+	return 1;
+}
+
+static const luaL_Reg posix_getopt_fns[] =
+{
+	LPOSIX_FUNC( Pgetopt		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_getopt(lua_State *L)
+{
+	luaL_register(L, "posix.getopt", posix_getopt_fns);
+	lua_pushliteral(L, "posix.getopt for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
 
 	return 1;
 }

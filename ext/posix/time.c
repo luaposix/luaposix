@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.time
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -19,13 +19,7 @@
 #include <sys/time.h>
 #include <time.h>
 
-#include "_helpers.h"
-
-
-/***
-Time Functions.
-@section time
-*/
+#include "_helpers.c"
 
 
 #if defined _XOPEN_REALTIME && _XOPEN_REALTIME != -1
@@ -238,7 +232,7 @@ Sleep with nanosecond precision.
 @treturn[2] int unslept seconds remaining, if interrupted
 @treturn[2] int unslept nanoseconds remaining, if interrupted
 @see nanosleep(2)
-@see sleep
+@see posix.unistd.sleep
 */
 static int
 Pnanosleep(lua_State *L)
@@ -332,5 +326,33 @@ Ptime(lua_State *L)
 	if ((time_t)-1 == t)
 		return pusherror(L, "time");
 	lua_pushinteger(L, t);
+	return 1;
+}
+
+
+static const luaL_Reg posix_time_fns[] =
+{
+#if defined _XOPEN_REALTIME && _XOPEN_REALTIME != -1
+	LPOSIX_FUNC( Pclock_getres	),
+	LPOSIX_FUNC( Pclock_gettime	),
+#endif
+	LPOSIX_FUNC( Pgmtime		),
+	LPOSIX_FUNC( Plocaltime		),
+	LPOSIX_FUNC( Pmktime		),
+	LPOSIX_FUNC( Pnanosleep		),
+	LPOSIX_FUNC( Pstrftime		),
+	LPOSIX_FUNC( Pstrptime		),
+	LPOSIX_FUNC( Ptime		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_time(lua_State *L)
+{
+	luaL_register(L, "posix.time", posix_time_fns);
+	lua_pushliteral(L, "posix.time for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
 	return 1;
 }

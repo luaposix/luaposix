@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.sys.statvfs
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -19,13 +19,7 @@
 
 #include <sys/statvfs.h>
 
-#include "_helpers.h"
-
-
-/***
-File System Statistics Functions.
-@section sysstatvfs
-*/
+#include "_helpers.c"
 
 
 static void
@@ -96,5 +90,23 @@ Pstatvfs(lua_State *L)
 	if (statvfs(path,&s)==-1)
 		return pusherror(L, path);
 	return doselection(L, 2, Sstatvfs, Fstatvfs, &s);
+}
+
+
+static const luaL_Reg posix_sys_statvfs_fns[] =
+{
+	LPOSIX_FUNC( Pstatvfs		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_sys_statvfs(lua_State *L)
+{
+	luaL_register(L, "posix.sys.statvfs", posix_sys_statvfs_fns);
+	lua_pushliteral(L, "posix.sys.statvfs for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
+	return 1;
 }
 #endif

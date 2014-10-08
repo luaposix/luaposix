@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.sys.times
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -18,13 +18,7 @@
 #include <sys/times.h>
 #include <unistd.h>	/* for sysconf(3) */
 
-#include "_helpers.h"
-
-
-/***
-System Times Functions.
-@section systimes
-*/
+#include "_helpers.c"
 
 
 struct mytimes
@@ -74,4 +68,22 @@ Ptimes(lua_State *L)
 	struct mytimes t;
 	t.elapsed = times(&t.t);
 	return doselection(L, 1, Stimes, Ftimes, &t);
+}
+
+
+static const luaL_Reg posix_sys_times_fns[] =
+{
+	LPOSIX_FUNC( Ptimes		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_sys_times(lua_State *L)
+{
+	luaL_register(L, "posix.sys.times", posix_sys_times_fns);
+	lua_pushliteral(L, "posix.sys.times for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
+	return 1;
 }

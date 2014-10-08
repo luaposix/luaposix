@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.sys.stat
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -17,13 +17,7 @@
 
 #include <sys/stat.h>
 
-#include "_helpers.h"
-
-
-/***
-System Status Functions.
-@section sysstat
-*/
+#include "_helpers.c"
 
 
 /***
@@ -118,5 +112,26 @@ Pumask(lua_State *L)
 		umask(~mode);
 	}
 	pushmode(L, mode);
+	return 1;
+}
+
+
+static const luaL_Reg posix_sys_stat_fns[] =
+{
+	LPOSIX_FUNC( Pchmod		),
+	LPOSIX_FUNC( Pmkdir		),
+	LPOSIX_FUNC( Pmkfifo		),
+	LPOSIX_FUNC( Pumask		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_sys_stat(lua_State *L)
+{
+	luaL_register(L, "posix.sys.stat", posix_sys_stat_fns);
+	lua_pushliteral(L, "posix.sys.stat for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
 	return 1;
 }

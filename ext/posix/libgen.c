@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.libgen
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -17,13 +17,7 @@
 
 #include <libgen.h>
 
-#include "_helpers.h"
-
-
-/***
-General Library Functions.
-@section libgen
-*/
+#include "_helpers.c"
 
 
 /***
@@ -76,5 +70,24 @@ Pdirname(lua_State *L)
 		return pusherror(L, "lalloc");
 	lua_pushstring(L, dirname(strcpy(b,path)));
 	lalloc(ud, b, path_len, 0);
+	return 1;
+}
+
+
+static const luaL_Reg posix_libgen_fns[] =
+{
+	LPOSIX_FUNC( Pbasename		),
+	LPOSIX_FUNC( Pdirname		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_libgen(lua_State *L)
+{
+	luaL_register(L, "posix.libgen", posix_libgen_fns);
+	lua_pushliteral(L, "posix.libgen for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
 	return 1;
 }

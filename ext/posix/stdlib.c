@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.stdlib
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -18,13 +18,7 @@
 #include <fcntl.h>	/* for open(2) */
 #include <stdlib.h>
 
-#include "_helpers.h"
-
-
-/***
-Standard Library Functions.
-@section stdlib
-*/
+#include "_helpers.c"
 
 
 /***
@@ -293,4 +287,31 @@ Punlockpt(lua_State *L)
 	int fd=checkint(L, 1);
 	checknargs(L, 1);
 	return pushresult(L, unlockpt(fd), "unlockpt");
+}
+
+
+static const luaL_Reg posix_stdlib_fns[] =
+{
+	LPOSIX_FUNC( Pabort		),
+	LPOSIX_FUNC( Pgetenv		),
+	LPOSIX_FUNC( Pgrantpt		),
+	LPOSIX_FUNC( Pmkdtemp		),
+	LPOSIX_FUNC( Pmkstemp		),
+	LPOSIX_FUNC( Popenpt		),
+	LPOSIX_FUNC( Pptsname		),
+	LPOSIX_FUNC( Prealpath		),
+	LPOSIX_FUNC( Psetenv		),
+	LPOSIX_FUNC( Punlockpt		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_stdlib(lua_State *L)
+{
+	luaL_register(L, "posix.stdlib", posix_stdlib_fns);
+	lua_pushliteral(L, "posix.stdlib for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
+	return 1;
 }

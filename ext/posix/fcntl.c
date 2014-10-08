@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.fcntl
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -17,7 +17,7 @@
 
 #include <fcntl.h>
 
-#include "_helpers.h"
+#include "_helpers.c"
 
 
 /* Darwin fails to define O_RSYNC. */
@@ -32,29 +32,6 @@
 
 
 /***
-Fcntl Tables.
-@section fcntltables
-*/
-
-/***
-Advisory file locks.
-Passed as *arg* to @{fcntl} when *cmd* is `F_GETLK`, `F_SETLK` or `F_SETLKW`.
-@table flock
-@int l_start starting offset
-@int l_len len = 0 means until end of file
-@int l_pid lock owner
-@int l_type lock type
-@int l_whence one of `SEEK_SET`, `SEEK_CUR` or `SEEK_END`
-*/
-
-
-/***
-Fcntl Functions.
-@section fcntl
-*/
-
-
-/***
 Create a file.
 @function creat
 @string path name of file to create
@@ -63,7 +40,7 @@ Create a file.
 @return[2] nil
 @treturn[2] string error message
 @see creat(2)
-@see chmod
+@see posix.sys.stat.chmod
 @see open
 @usage
 fd = P.creat ("data", "rw-r-----")
@@ -185,7 +162,7 @@ Open a file.
 @int oflags bitwise OR of zero or more of `O_RDONLY`, `O_WRONLY`, `O_RDWR`,
   `O_APPEND`, `O_CREAT`, `O_DSYNC`, `O_EXCL`, `O_NOCTTY`, `O_NONBLOCK`,
   `O_RSYNC`, `O_SYNC`, `O_TRUNC`
-@string mode (used with `O_CREAT`; see @{chmod} for format)
+@string mode (used with `O_CREAT`; see @{posix.sys.stat.chmod} for format)
 @treturn[1] int file descriptor for *path*, if successful
 @return[2] nil
 @treturn[2] string error message
@@ -212,55 +189,90 @@ Popen(lua_State *L)
 }
 
 
-static void
-fcntl_setconst(lua_State *L)
+static const luaL_Reg posix_fcntl_fns[] =
 {
+	LPOSIX_FUNC( Pcreat		),
+#if HAVE_POSIX_FADVISE
+	LPOSIX_FUNC( Pfadvise		),
+#endif
+	LPOSIX_FUNC( Pfcntl		),
+	LPOSIX_FUNC( Popen		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_fcntl(lua_State *L)
+{
+	luaL_register(L, "posix.fcntl", posix_fcntl_fns);
+	lua_pushliteral(L, "posix.fcntl for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
 	/* fcntl flags */
-	PCONST( F_DUPFD		);
-	PCONST( F_GETFD		);
-	PCONST( F_SETFD		);
-	PCONST( F_GETFL		);
-	PCONST( F_SETFL		);
-	PCONST( F_GETLK		);
-	PCONST( F_SETLK		);
-	PCONST( F_SETLKW	);
-	PCONST( F_GETOWN	);
-	PCONST( F_SETOWN	);
-	PCONST( F_RDLCK		);
-	PCONST( F_WRLCK		);
-	PCONST( F_UNLCK		);
+	LPOSIX_CONST( F_DUPFD		);
+	LPOSIX_CONST( F_GETFD		);
+	LPOSIX_CONST( F_SETFD		);
+	LPOSIX_CONST( F_GETFL		);
+	LPOSIX_CONST( F_SETFL		);
+	LPOSIX_CONST( F_GETLK		);
+	LPOSIX_CONST( F_SETLK		);
+	LPOSIX_CONST( F_SETLKW		);
+	LPOSIX_CONST( F_GETOWN		);
+	LPOSIX_CONST( F_SETOWN		);
+	LPOSIX_CONST( F_RDLCK		);
+	LPOSIX_CONST( F_WRLCK		);
+	LPOSIX_CONST( F_UNLCK		);
 
 	/* file creation & status flags */
-	PCONST( O_RDONLY	);
-	PCONST( O_WRONLY	);
-	PCONST( O_RDWR		);
-	PCONST( O_APPEND	);
-	PCONST( O_CREAT		);
-	PCONST( O_DSYNC		);
-	PCONST( O_EXCL		);
-	PCONST( O_NOCTTY	);
-	PCONST( O_NONBLOCK	);
-	PCONST( O_RSYNC		);
-	PCONST( O_SYNC		);
-	PCONST( O_TRUNC		);
+	LPOSIX_CONST( O_RDONLY		);
+	LPOSIX_CONST( O_WRONLY		);
+	LPOSIX_CONST( O_RDWR		);
+	LPOSIX_CONST( O_APPEND		);
+	LPOSIX_CONST( O_CREAT		);
+	LPOSIX_CONST( O_DSYNC		);
+	LPOSIX_CONST( O_EXCL		);
+	LPOSIX_CONST( O_NOCTTY		);
+	LPOSIX_CONST( O_NONBLOCK	);
+	LPOSIX_CONST( O_RSYNC		);
+	LPOSIX_CONST( O_SYNC		);
+	LPOSIX_CONST( O_TRUNC		);
 
 	/* posix_fadvise flags */
 #ifdef POSIX_FADV_NORMAL
-	PCONST( POSIX_FADV_NORMAL	);
+	LPOSIX_CONST( POSIX_FADV_NORMAL		);
 #endif
 #ifdef POSIX_FADV_SEQUENTIAL
-	PCONST( POSIX_FADV_SEQUENTIAL	);
+	LPOSIX_CONST( POSIX_FADV_SEQUENTIAL	);
 #endif
 #ifdef POSIX_FADV_RANDOM
-	PCONST( POSIX_FADV_RANDOM	);
+	LPOSIX_CONST( POSIX_FADV_RANDOM		);
 #endif
 #ifdef POSIX_FADV_NOREUSE
-	PCONST( POSIX_FADV_NOREUSE	);
+	LPOSIX_CONST( POSIX_FADV_NOREUSE	);
 #endif
 #ifdef POSIX_FADV_WILLNEED
-	PCONST( POSIX_FADV_WILLNEED	);
+	LPOSIX_CONST( POSIX_FADV_WILLNEED	);
 #endif
 #ifdef POSIX_FADV_DONTNEED
-	PCONST( POSIX_FADV_DONTNEED	);
+	LPOSIX_CONST( POSIX_FADV_DONTNEED	);
 #endif
+
+	return 1;
 }
+
+
+/***
+Tables.
+@section tables
+*/
+
+/***
+Advisory file locks.
+Passed as *arg* to @{fcntl} when *cmd* is `F_GETLK`, `F_SETLK` or `F_SETLKW`.
+@table flock
+@int l_start starting offset
+@int l_len len = 0 means until end of file
+@int l_pid lock owner
+@int l_type lock type
+@int l_whence one of `SEEK_SET`, `SEEK_CUR` or `SEEK_END`
+*/

@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.sys.time
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -18,13 +18,8 @@
 
 #include <sys/time.h>
 
-#include "_helpers.h"
+#include "_helpers.c"
 
-
-/***
-System Time Tables
-@section timetables
-*/
 
 /***
 Time value.
@@ -33,12 +28,6 @@ Time value.
 @int usec remainder in microseconds
 */
 
-
-
-/***
-System Time Functions.
-@section systime
-*/
 
 /***
 Get time of day.
@@ -61,5 +50,23 @@ Pgettimeofday(lua_State *L)
 	lua_pushstring(L, "usec");
 	lua_pushinteger(L, tv.tv_usec);
 	lua_settable(L, -3);
+	return 1;
+}
+
+
+static const luaL_Reg posix_sys_time_fns[] =
+{
+	LPOSIX_FUNC( Pgettimeofday	),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_sys_time(lua_State *L)
+{
+	luaL_register(L, "posix.sys.time", posix_sys_time_fns);
+	lua_pushliteral(L, "posix.sys.time for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
 	return 1;
 }

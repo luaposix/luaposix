@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.unistd
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -22,13 +22,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "_helpers.h"
-
-
-/***
-Unistd Functions.
-@section unistd
-*/
+#include "_helpers.c"
 
 
 /***
@@ -471,7 +465,7 @@ Pgetlogin(lua_State *L)
 
 
 static void
-FgetID(lua_State *L, int i, const void *UNUSED (data))
+FgetID(lua_State *L, int i, const void *LPOSIX_UNUSED (data))
 {
 	switch (i)
 	{
@@ -960,7 +954,7 @@ Sleep for a number of seconds.
 @treturn[1] int `0` if the requested time has elapsed
 @treturn[2] int unslept seconds remaining, if interrupted
 @see sleep(3)
-@see nanosleep
+@see posix.time.nanosleep
 */
 static int
 Psleep(lua_State *L)
@@ -1031,7 +1025,7 @@ static const int Ksysconf[] =
 };
 
 static void
-Fsysconf(lua_State *L, int i, const void *UNUSED (data))
+Fsysconf(lua_State *L, int i, const void *LPOSIX_UNUSED (data))
 {
 	lua_pushinteger(L, sysconf(Ksysconf[i]));
 }
@@ -1114,16 +1108,71 @@ Pwrite(lua_State *L)
 }
 
 
-static void
-unistd_setconst(lua_State *L)
+static const luaL_Reg posix_unistd_fns[] =
 {
+	LPOSIX_FUNC( P_exit		),
+	LPOSIX_FUNC( Paccess		),
+	LPOSIX_FUNC( Pchdir		),
+	LPOSIX_FUNC( Pchown		),
+	LPOSIX_FUNC( Pclose		),
+#if defined HAVE_CRYPT
+	LPOSIX_FUNC( Pcrypt		),
+#endif
+	LPOSIX_FUNC( Pdup		),
+	LPOSIX_FUNC( Pdup2		),
+	LPOSIX_FUNC( Pexec		),
+	LPOSIX_FUNC( Pexecp		),
+#if _POSIX_VERSION >= 200112L
+	LPOSIX_FUNC( Pfdatasync		),
+#endif
+	LPOSIX_FUNC( Pfork		),
+	LPOSIX_FUNC( Pfsync		),
+	LPOSIX_FUNC( Pgetcwd		),
+#if _POSIX_VERSION >= 200112L
+	LPOSIX_FUNC( Pgetgroups		),
+#endif
+	LPOSIX_FUNC( Pgetgroups		),
+	LPOSIX_FUNC( Pgetlogin		),
+	LPOSIX_FUNC( Pgetpid		),
+	LPOSIX_FUNC( Phostid		),
+	LPOSIX_FUNC( Pisatty		),
+	LPOSIX_FUNC( Plink		),
+	LPOSIX_FUNC( Plseek		),
+	LPOSIX_FUNC( Plstat		),
+	LPOSIX_FUNC( Pnice		),
+	LPOSIX_FUNC( Ppathconf		),
+	LPOSIX_FUNC( Ppipe		),
+	LPOSIX_FUNC( Pread		),
+	LPOSIX_FUNC( Preadlink		),
+	LPOSIX_FUNC( Prmdir		),
+	LPOSIX_FUNC( Psetpid		),
+	LPOSIX_FUNC( Psleep		),
+	LPOSIX_FUNC( Pstat		),
+	LPOSIX_FUNC( Psync		),
+	LPOSIX_FUNC( Psysconf		),
+	LPOSIX_FUNC( Pttyname		),
+	LPOSIX_FUNC( Punlink		),
+	LPOSIX_FUNC( Pwrite		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_unistd(lua_State *L)
+{
+	luaL_register(L, "posix.unistd", posix_unistd_fns);
+	lua_pushliteral(L, "posix.unistd for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
 	/* Miscellaneous */
-	PCONST( STDIN_FILENO	);
-	PCONST( STDOUT_FILENO	);
-	PCONST( STDERR_FILENO	);
+	LPOSIX_CONST( STDIN_FILENO	);
+	LPOSIX_CONST( STDOUT_FILENO	);
+	LPOSIX_CONST( STDERR_FILENO	);
 
 	/* lseek arguments */
-	PCONST( SEEK_SET	);
-	PCONST( SEEK_CUR	);
-	PCONST( SEEK_END	);
+	LPOSIX_CONST( SEEK_SET		);
+	LPOSIX_CONST( SEEK_CUR		);
+	LPOSIX_CONST( SEEK_END		);
+
+	return 1;
 }

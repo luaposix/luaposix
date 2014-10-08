@@ -10,6 +10,9 @@
  * With documentation from Steve Donovan 2012
  */
 
+#ifndef LUAPOSIX__HELPERS_C
+#define LUAPOSIX__HELPERS_C 1
+
 #include <config.h>
 
 #include <errno.h>
@@ -20,12 +23,45 @@
 #include <sys/stat.h>
 
 #if HAVE_STRINGS_H
-/* POSIX declares strcasecmp in string.h, but not everywhere is
- * compliant yet :( */
-#  include <strings.h>
+#  include <strings.h> /* for strcasecmp() */
 #endif
 
-#include "_helpers.h"
+#include "lua.h"
+#include "lualib.h"
+#include "lauxlib.h"
+#include "lua52compat.h"
+
+#ifndef STREQ
+#  define STREQ(a, b)     (strcmp (a, b) == 0)
+#endif
+
+/* Mark unused parameters required only to match a function type
+   specification. */
+#ifdef __GNUC__
+#  define LPOSIX_UNUSED(x) UNUSED_ ## x __attribute__((__unused__))
+#else
+#  define LPOSIX_UNUSED(x) UNUSED_ ## x
+#endif
+
+
+/* The extra indirection to these macros is required so that if the
+   arguments are themselves macros, they will get expanded too.  */
+#define LPOSIX__SPLICE(_s, _t)	_s##_t
+#define LPOSIX_SPLICE(_s, _t)	LPOSIX__SPLICE(_s, _t)
+
+#define LPOSIX__STR(_s)		#_s
+#define LPOSIX_STR(_s)		LPOSIX__STR(_s)
+
+/* The +1 is to step over the leading '_' that is required to prevent
+   premature expansion of MENTRY arguments if we didn't add it.  */
+#define LPOSIX__STR_1(_s)	(#_s + 1)
+#define LPOSIX_STR_1(_s)	LPOSIX__STR_1(_s)
+
+#define LPOSIX_CONST(_f)	\
+	lua_pushinteger(L, _f);	\
+	lua_setfield(L, -2, #_f)
+
+#define LPOSIX_FUNC(_s)		{LPOSIX_STR_1(_s), (_s)}
 
 #ifndef errno
 extern int errno;
@@ -526,3 +562,5 @@ mygetgid(lua_State *L, int i)
 	else
 		return argtypeerror(L, i, "string, int or nil");
 }
+
+#endif /*LUAPOSIX__HELPERS_C*/

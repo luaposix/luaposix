@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.termio
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -17,13 +17,7 @@
 
 #include <termios.h>
 
-#include "_helpers.h"
-
-
-/***
-Terminal Handling Tables.
-@section terminaltables
-*/
+#include "_helpers.c"
 
 
 /***
@@ -62,11 +56,6 @@ Terminal attributes.
   `OXTABS`, `ONOEOT`, `OCRNL`, `ONOCR`, `ONLRET`, `OFILL`, `NLDLY`,
   `TABDLY`, `CRDLY`, `FFDLY`, `BSDLY`, `VTDLY`, `OFDEL`
 @tfield ccs cc array of terminal control characters
-*/
-
-/***
-Terminal Handling Functions.
-@section terminalhandling
 */
 
 
@@ -231,363 +220,381 @@ Ptcsetattr(lua_State *L)
 }
 
 
-static void
-termio_setconst(lua_State *L)
+static const luaL_Reg posix_termio_fns[] =
 {
+	LPOSIX_FUNC( Ptcdrain		),
+	LPOSIX_FUNC( Ptcflow		),
+	LPOSIX_FUNC( Ptcflush		),
+	LPOSIX_FUNC( Ptcgetattr		),
+	LPOSIX_FUNC( Ptcsendbreak	),
+	LPOSIX_FUNC( Ptcsetattr		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_termio(lua_State *L)
+{
+	luaL_register(L, "posix.termio", posix_termio_fns);
+	lua_pushliteral(L, "posix.termio for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
 	/* tcsetattr */
-	PCONST( TCSANOW		);
-	PCONST( TCSADRAIN	);
-	PCONST( TCSAFLUSH	);
+	LPOSIX_CONST( TCSANOW		);
+	LPOSIX_CONST( TCSADRAIN		);
+	LPOSIX_CONST( TCSAFLUSH		);
 
 	/* tcflush */
-	PCONST( TCIFLUSH	);
-	PCONST( TCOFLUSH	);
-	PCONST( TCIOFLUSH	);
+	LPOSIX_CONST( TCIFLUSH		);
+	LPOSIX_CONST( TCOFLUSH		);
+	LPOSIX_CONST( TCIOFLUSH		);
 
 	/* tcflow() */
-	PCONST( TCOOFF		);
-	PCONST( TCOON		);
-	PCONST( TCIOFF		);
-	PCONST( TCION		);
+	LPOSIX_CONST( TCOOFF		);
+	LPOSIX_CONST( TCOON		);
+	LPOSIX_CONST( TCIOFF		);
+	LPOSIX_CONST( TCION		);
 
 	/* cflag */
 #ifdef B0
-	PCONST( B0		);
+	LPOSIX_CONST( B0		);
 #endif
 #ifdef B50
-	PCONST( B50		);
+	LPOSIX_CONST( B50		);
 #endif
 #ifdef B75
-	PCONST( B75		);
+	LPOSIX_CONST( B75		);
 #endif
 #ifdef B110
-	PCONST( B110		);
+	LPOSIX_CONST( B110		);
 #endif
 #ifdef B134
-	PCONST( B134		);
+	LPOSIX_CONST( B134		);
 #endif
 #ifdef B150
-	PCONST( B150		);
+	LPOSIX_CONST( B150		);
 #endif
 #ifdef B200
-	PCONST( B200		);
+	LPOSIX_CONST( B200		);
 #endif
 #ifdef B300
-	PCONST( B300		);
+	LPOSIX_CONST( B300		);
 #endif
 #ifdef B600
-	PCONST( B600		);
+	LPOSIX_CONST( B600		);
 #endif
 #ifdef B1200
-	PCONST( B1200		);
+	LPOSIX_CONST( B1200		);
 #endif
 #ifdef B1800
-	PCONST( B1800		);
+	LPOSIX_CONST( B1800		);
 #endif
 #ifdef B2400
-	PCONST( B2400		);
+	LPOSIX_CONST( B2400		);
 #endif
 #ifdef B4800
-	PCONST( B4800		);
+	LPOSIX_CONST( B4800		);
 #endif
 #ifdef B9600
-	PCONST( B9600		);
+	LPOSIX_CONST( B9600		);
 #endif
 #ifdef B19200
-	PCONST( B19200		);
+	LPOSIX_CONST( B19200		);
 #endif
 #ifdef B38400
-	PCONST( B38400		);
+	LPOSIX_CONST( B38400		);
 #endif
 #ifdef B57600
-	PCONST( B57600		);
+	LPOSIX_CONST( B57600		);
 #endif
 #ifdef B115200
-	PCONST( B115200		);
+	LPOSIX_CONST( B115200		);
 #endif
 #ifdef CSIZE
-	PCONST( CSIZE		);
+	LPOSIX_CONST( CSIZE		);
 #endif
 #ifdef BS5
-	PCONST( CS5		);
+	LPOSIX_CONST( CS5		);
 #endif
 #ifdef CS6
-	PCONST( CS6		);
+	LPOSIX_CONST( CS6		);
 #endif
 #ifdef CS7
-	PCONST( CS7		);
+	LPOSIX_CONST( CS7		);
 #endif
 #ifdef CS8
-	PCONST( CS8		);
+	LPOSIX_CONST( CS8		);
 #endif
 #ifdef CSTOPB
-	PCONST( CSTOPB		);
+	LPOSIX_CONST( CSTOPB		);
 #endif
 #ifdef CREAD
-	PCONST( CREAD		);
+	LPOSIX_CONST( CREAD		);
 #endif
 #ifdef PARENB
-	PCONST( PARENB		);
+	LPOSIX_CONST( PARENB		);
 #endif
 #ifdef PARODD
-	PCONST( PARODD		);
+	LPOSIX_CONST( PARODD		);
 #endif
 #ifdef HUPCL
-	PCONST( HUPCL		);
+	LPOSIX_CONST( HUPCL		);
 #endif
 #ifdef CLOCAL
-	PCONST( CLOCAL		);
+	LPOSIX_CONST( CLOCAL		);
 #endif
 #ifdef CRTSCTS
-	PCONST( CRTSCTS		);
+	LPOSIX_CONST( CRTSCTS		);
 #endif
 
 	/* lflag */
 #ifdef ISIG
-	PCONST( ISIG		);
+	LPOSIX_CONST( ISIG		);
 #endif
 #ifdef ICANON
-	PCONST( ICANON		);
+	LPOSIX_CONST( ICANON		);
 #endif
 #ifdef ECHO
-	PCONST( ECHO		);
+	LPOSIX_CONST( ECHO		);
 #endif
 #ifdef ECHOE
-	PCONST( ECHOE		);
+	LPOSIX_CONST( ECHOE		);
 #endif
 #ifdef ECHOK
-	PCONST( ECHOK		);
+	LPOSIX_CONST( ECHOK		);
 #endif
 #ifdef ECHONL
-	PCONST( ECHONL		);
+	LPOSIX_CONST( ECHONL		);
 #endif
 #ifdef NOFLSH
-	PCONST( NOFLSH		);
+	LPOSIX_CONST( NOFLSH		);
 #endif
 #ifdef IEXTEN
-	PCONST( IEXTEN		);
+	LPOSIX_CONST( IEXTEN		);
 #endif
 #ifdef TOSTOP
-	PCONST( TOSTOP		);
+	LPOSIX_CONST( TOSTOP		);
 #endif
 
 	/* iflag */
 #ifdef INPCK
-	PCONST( INPCK		);
+	LPOSIX_CONST( INPCK		);
 #endif
 #ifdef IGNPAR
-	PCONST( IGNPAR		);
+	LPOSIX_CONST( IGNPAR		);
 #endif
 #ifdef PARMRK
-	PCONST( PARMRK		);
+	LPOSIX_CONST( PARMRK		);
 #endif
 #ifdef ISTRIP
-	PCONST( ISTRIP		);
+	LPOSIX_CONST( ISTRIP		);
 #endif
 #ifdef IXON
-	PCONST( IXON		);
+	LPOSIX_CONST( IXON		);
 #endif
 #ifdef IXOFF
-	PCONST( IXOFF		);
+	LPOSIX_CONST( IXOFF		);
 #endif
 #ifdef IXANY
-	PCONST( IXANY		);
+	LPOSIX_CONST( IXANY		);
 #endif
 #ifdef IGNBRK
-	PCONST( IGNBRK		);
+	LPOSIX_CONST( IGNBRK		);
 #endif
 #ifdef BRKINT
-	PCONST( BRKINT		);
+	LPOSIX_CONST( BRKINT		);
 #endif
 #ifdef INLCR
-	PCONST( INLCR		);
+	LPOSIX_CONST( INLCR		);
 #endif
 #ifdef IGNCR
-	PCONST( IGNCR		);
+	LPOSIX_CONST( IGNCR		);
 #endif
 #ifdef ICRNL
-	PCONST( ICRNL		);
+	LPOSIX_CONST( ICRNL		);
 #endif
 #ifdef IMAXBEL
-	PCONST( IMAXBEL		);
+	LPOSIX_CONST( IMAXBEL		);
 #endif
 
 	/* oflag */
 #ifdef OPOST
-	PCONST( OPOST		);
+	LPOSIX_CONST( OPOST		);
 #endif
 #ifdef ONLCR
-	PCONST( ONLCR		);
+	LPOSIX_CONST( ONLCR		);
 #endif
 #ifdef OCRNL
-	PCONST( OCRNL		);
+	LPOSIX_CONST( OCRNL		);
 #endif
 #ifdef ONLRET
-	PCONST( ONLRET		);
+	LPOSIX_CONST( ONLRET		);
 #endif
 #ifdef OFILL
-	PCONST( OFILL		);
+	LPOSIX_CONST( OFILL		);
 #endif
 #ifdef OFDEL
-	PCONST( OFDEL		);
+	LPOSIX_CONST( OFDEL		);
 #endif
 #ifdef NLDLY
-	PCONST( NLDLY		);
+	LPOSIX_CONST( NLDLY		);
 #endif
 #ifdef NL0
-	PCONST( NL0		);
+	LPOSIX_CONST( NL0		);
 #endif
 #ifdef NL1
-	PCONST( NL1		);
+	LPOSIX_CONST( NL1		);
 #endif
 #ifdef CRDLY
-	PCONST( CRDLY		);
+	LPOSIX_CONST( CRDLY		);
 #endif
 #ifdef CR0
-	PCONST( CR0		);
+	LPOSIX_CONST( CR0		);
 #endif
 #ifdef CR1
-	PCONST( CR1		);
+	LPOSIX_CONST( CR1		);
 #endif
 #ifdef CR2
-	PCONST( CR2		);
+	LPOSIX_CONST( CR2		);
 #endif
 #ifdef CR3
-	PCONST( CR3		);
+	LPOSIX_CONST( CR3		);
 #endif
 #ifdef TABDLY
-	PCONST( TABDLY		);
+	LPOSIX_CONST( TABDLY		);
 #endif
 #ifdef TAB0
-	PCONST( TAB0		);
+	LPOSIX_CONST( TAB0		);
 #endif
 #ifdef TAB1
-	PCONST( TAB1		);
+	LPOSIX_CONST( TAB1		);
 #endif
 #ifdef TAB2
-	PCONST( TAB2		);
+	LPOSIX_CONST( TAB2		);
 #endif
 #ifdef TAB3
-	PCONST( TAB3		);
+	LPOSIX_CONST( TAB3		);
 #endif
 #ifdef BSDLY
-	PCONST( BSDLY		);
+	LPOSIX_CONST( BSDLY		);
 #endif
 #ifdef BS0
-	PCONST( BS0		);
+	LPOSIX_CONST( BS0		);
 #endif
 #ifdef BS1
-	PCONST( BS1		);
+	LPOSIX_CONST( BS1		);
 #endif
 #ifdef VTDLY
-	PCONST( VTDLY		);
+	LPOSIX_CONST( VTDLY		);
 #endif
 #ifdef VT0
-	PCONST( VT0		);
+	LPOSIX_CONST( VT0		);
 #endif
 #ifdef VT1
-	PCONST( VT1		);
+	LPOSIX_CONST( VT1		);
 #endif
 #ifdef FFDLY
-	PCONST( FFDLY		);
+	LPOSIX_CONST( FFDLY		);
 #endif
 #ifdef FF0
-	PCONST( FF0		);
+	LPOSIX_CONST( FF0		);
 #endif
 #ifdef FF1
-	PCONST( FF1		);
+	LPOSIX_CONST( FF1		);
 #endif
 
 	/* cc */
 #ifdef VINTR
-	PCONST( VINTR		);
+	LPOSIX_CONST( VINTR		);
 #endif
 #ifdef VQUIT
-	PCONST( VQUIT		);
+	LPOSIX_CONST( VQUIT		);
 #endif
 #ifdef VERASE
-	PCONST( VERASE		);
+	LPOSIX_CONST( VERASE		);
 #endif
 #ifdef VKILL
-	PCONST( VKILL		);
+	LPOSIX_CONST( VKILL		);
 #endif
 #ifdef VEOF
-	PCONST( VEOF		);
+	LPOSIX_CONST( VEOF		);
 #endif
 #ifdef VEOL
-	PCONST( VEOL		);
+	LPOSIX_CONST( VEOL		);
 #endif
 #ifdef VEOL2
-	PCONST( VEOL2		);
+	LPOSIX_CONST( VEOL2		);
 #endif
 #ifdef VMIN
-	PCONST( VMIN		);
+	LPOSIX_CONST( VMIN		);
 #endif
 #ifdef VTIME
-	PCONST( VTIME		);
+	LPOSIX_CONST( VTIME		);
 #endif
 #ifdef VSTART
-	PCONST( VSTART		);
+	LPOSIX_CONST( VSTART		);
 #endif
 #ifdef VSTOP
-	PCONST( VSTOP		);
+	LPOSIX_CONST( VSTOP		);
 #endif
 #ifdef VSUSP
-	PCONST( VSUSP		);
+	LPOSIX_CONST( VSUSP		);
 #endif
 
 	/* XSI extensions - don't use these if you care about portability
 	 * to strict POSIX conforming machines, such as Mac OS X.
 	 */
 #ifdef CBAUD
-	PCONST( CBAUD		);
+	LPOSIX_CONST( CBAUD		);
 #endif
 #ifdef EXTA
-	PCONST( EXTA		);
+	LPOSIX_CONST( EXTA		);
 #endif
 #ifdef EXTB
-	PCONST( EXTB		);
+	LPOSIX_CONST( EXTB		);
 #endif
 #ifdef DEFECHO
-	PCONST( DEFECHO		);
+	LPOSIX_CONST( DEFECHO		);
 #endif
 #ifdef ECHOCTL
-	PCONST( ECHOCTL		);
+	LPOSIX_CONST( ECHOCTL		);
 #endif
 #ifdef ECHOPRT
-	PCONST( ECHOPRT		);
+	LPOSIX_CONST( ECHOPRT		);
 #endif
 #ifdef ECHOKE
-	PCONST( ECHOKE		);
+	LPOSIX_CONST( ECHOKE		);
 #endif
 #ifdef FLUSHO
-	PCONST( FLUSHO		);
+	LPOSIX_CONST( FLUSHO		);
 #endif
 #ifdef PENDIN
-	PCONST( PENDIN		);
+	LPOSIX_CONST( PENDIN		);
 #endif
 #ifdef LOBLK
-	PCONST( LOBLK		);
+	LPOSIX_CONST( LOBLK		);
 #endif
 #ifdef SWTCH
-	PCONST( SWTCH		);
+	LPOSIX_CONST( SWTCH		);
 #endif
 #ifdef VDISCARD
-	PCONST( VDISCARD	);
+	LPOSIX_CONST( VDISCARD		);
 #endif
 #ifdef VDSUSP
-	PCONST( VDSUSP		);
+	LPOSIX_CONST( VDSUSP		);
 #endif
 #ifdef VLNEXT
-	PCONST( VLNEXT		);
+	LPOSIX_CONST( VLNEXT		);
 #endif
 #ifdef VREPRINT
-	PCONST( VREPRINT	);
+	LPOSIX_CONST( VREPRINT		);
 #endif
 #ifdef VSTATUS
-	PCONST( VSTATUS		);
+	LPOSIX_CONST( VSTATUS		);
 #endif
 #ifdef VWERASE
-	PCONST( VWERASE		);
+	LPOSIX_CONST( VWERASE		);
 #endif
+
+	return 1;
 }

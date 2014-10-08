@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.sys.socket
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -35,13 +35,8 @@
 #include <sys/un.h>
 #include <sys/types.h>
 
-#include "_helpers.h"
+#include "_helpers.c"
 
-
-/***
-Socket Management Tables
-@section sockettables
-*/
 
 /***
 Socket address.
@@ -50,6 +45,7 @@ Socket address.
 @string canonname canonical name for service location
 @int protocol one of `IPPROTO_TCP` or `IPPROTO_UDP`
 */
+
 
 /***
 Address information hints.
@@ -60,12 +56,6 @@ Address information hints.
   `AI_V4MAPPED`
 @int socktype one of `SOCK_STREAM`, `SOCK_DGRAM` or `SOCK_RAW`
 @int protocol one of `IPPROTO_TCP` or `IPPROTO_UDP`
-*/
-
-
-/***
-Socket Management Functions.
-@section socketmanagement
 */
 
 
@@ -392,6 +382,7 @@ Pconnect(lua_State *L)
 
 
 /***
+Bind an address to a socket.
 @function bind
 @int fd socket descriptor to act on
 @tparam sockaddr addr socket address
@@ -420,6 +411,7 @@ Pbind(lua_State *L)
 
 
 /***
+Listen for connections on a socket.
 @function listen
 @int fd socket descriptor to act on
 @int backlog maximum length for queue of pending connections
@@ -735,108 +727,131 @@ Psetsockopt(lua_State *L)
 
 	return pushresult(L, setsockopt(fd, level, optname, val, len), NULL);
 }
-#endif
 
 
-static void
-syssocket_setconst(lua_State *L)
+static const luaL_Reg posix_sys_socket_fns[] =
 {
-#if _POSIX_VERSION >= 200112L
-	PCONST( SOMAXCONN	);
-	PCONST( AF_UNSPEC	);
-	PCONST( AF_INET		);
-	PCONST( AF_INET6	);
-	PCONST( AF_UNIX		);
-# if HAVE_LINUX_NETLINK_H
-	PCONST( AF_NETLINK	);
-# endif
-	PCONST( SOL_SOCKET	);
-	PCONST( IPPROTO_TCP	);
-	PCONST(	IPPROTO_UDP	);
-	PCONST( IPPROTO_IP	);
-	PCONST( IPPROTO_IPV6	);
-# ifdef IPPROTO_ICMP
-	PCONST( IPPROTO_ICMP	);
-# endif
-	PCONST( SOCK_STREAM	);
-	PCONST( SOCK_DGRAM	);
-# ifdef SOCK_RAW
-	PCONST( SOCK_RAW	);
-# endif
-	PCONST( SHUT_RD		);
-	PCONST( SHUT_WR		);
-	PCONST( SHUT_RDWR	);
+	LPOSIX_FUNC( Psocket		),
+	LPOSIX_FUNC( Psocketpair	),
+	LPOSIX_FUNC( Pgetaddrinfo	),
+	LPOSIX_FUNC( Pconnect		),
+	LPOSIX_FUNC( Pbind		),
+	LPOSIX_FUNC( Plisten		),
+	LPOSIX_FUNC( Paccept		),
+	LPOSIX_FUNC( Precv		),
+	LPOSIX_FUNC( Precvfrom		),
+	LPOSIX_FUNC( Psend		),
+	LPOSIX_FUNC( Psendto		),
+	LPOSIX_FUNC( Pshutdown		),
+	LPOSIX_FUNC( Psetsockopt	),
+	{NULL, NULL}
+};
 
-	PCONST( SO_ACCEPTCONN	);
-	PCONST( SO_BROADCAST	);
-	PCONST( SO_LINGER	);
-	PCONST( SO_RCVTIMEO	);
-	PCONST( SO_SNDTIMEO	);
-# ifdef SO_BINDTODEVICE
-	PCONST( SO_BINDTODEVICE	);
-# endif
-	PCONST( SO_DEBUG	);
-	PCONST( SO_DONTROUTE	);
-	PCONST( SO_ERROR	);
-	PCONST( SO_KEEPALIVE	);
-	PCONST( SO_OOBINLINE	);
-	PCONST( SO_RCVBUF	);
-	PCONST( SO_RCVLOWAT	);
-	PCONST( SO_REUSEADDR	);
-	PCONST( SO_SNDBUF	);
-	PCONST( SO_SNDLOWAT	);
-	PCONST( SO_TYPE		);
 
-	PCONST( TCP_NODELAY	);
+LUALIB_API int
+luaopen_posix_sys_socket(lua_State *L)
+{
+	luaL_register(L, "posix.sys.socket", posix_sys_socket_fns);
+	lua_pushliteral(L, "posix.sys.socket for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
 
-	PCONST( AI_ADDRCONFIG	);
-	PCONST( AI_ALL		);
-	PCONST( AI_CANONNAME	);
-	PCONST( AI_NUMERICHOST	);
-	PCONST( AI_NUMERICSERV	);
-	PCONST( AI_PASSIVE	);
-	PCONST( AI_V4MAPPED	);
-
-# ifdef IPV6_JOIN_GROUP
-	PCONST( IPV6_JOIN_GROUP		);
-# endif
-# ifdef IPV6_LEAVE_GROUP
-	PCONST( IPV6_LEAVE_GROUP	);
-# endif
-# ifdef IPV6_MULTICAST_HOPS
-	PCONST( IPV6_MULTICAST_HOPS	);
-# endif
-# ifdef IPV6_MULTICAST_IF
-	PCONST( IPV6_MULTICAST_IF	);
-# endif
-# ifdef IPV6_MULTICAST_LOOP
-	PCONST( IPV6_MULTICAST_LOOP	);
-# endif
-# ifdef IPV6_UNICAST_HOPS
-	PCONST( IPV6_UNICAST_HOPS	);
-# endif
-# ifdef IPV6_V6ONLY
-	PCONST( IPV6_V6ONLY		);
-# endif
-# if HAVE_LINUX_NETLINK_H
-	PCONST( NETLINK_ROUTE		);
-	PCONST( NETLINK_UNUSED		);
-	PCONST( NETLINK_USERSOCK	);
-	PCONST( NETLINK_FIREWALL	);
-	PCONST( NETLINK_NFLOG		);
-	PCONST( NETLINK_XFRM		);
-	PCONST( NETLINK_SELINUX		);
-	PCONST( NETLINK_ISCSI		);
-	PCONST( NETLINK_AUDIT		);
-	PCONST( NETLINK_FIB_LOOKUP	);
-	PCONST( NETLINK_CONNECTOR	);
-	PCONST( NETLINK_NETFILTER	);
-	PCONST( NETLINK_IP6_FW		);
-	PCONST( NETLINK_DNRTMSG		);
-	PCONST( NETLINK_KOBJECT_UEVENT	);
-	PCONST( NETLINK_GENERIC		);
-	PCONST( NETLINK_SCSITRANSPORT	);
-	PCONST( NETLINK_ECRYPTFS	);
-# endif
+	LPOSIX_CONST( SOMAXCONN		);
+	LPOSIX_CONST( AF_UNSPEC		);
+	LPOSIX_CONST( AF_INET		);
+	LPOSIX_CONST( AF_INET6		);
+	LPOSIX_CONST( AF_UNIX		);
+#if HAVE_LINUX_NETLINK_H
+	LPOSIX_CONST( AF_NETLINK	);
 #endif
+	LPOSIX_CONST( SOL_SOCKET	);
+	LPOSIX_CONST( IPPROTO_TCP	);
+	LPOSIX_CONST(	IPPROTO_UDP	);
+	LPOSIX_CONST( IPPROTO_IP	);
+	LPOSIX_CONST( IPPROTO_IPV6	);
+#ifdef IPPROTO_ICMP
+	LPOSIX_CONST( IPPROTO_ICMP	);
+#endif
+	LPOSIX_CONST( SOCK_STREAM	);
+	LPOSIX_CONST( SOCK_DGRAM	);
+#ifdef SOCK_RAW
+	LPOSIX_CONST( SOCK_RAW		);
+#endif
+	LPOSIX_CONST( SHUT_RD		);
+	LPOSIX_CONST( SHUT_WR		);
+	LPOSIX_CONST( SHUT_RDWR		);
+
+	LPOSIX_CONST( SO_ACCEPTCONN	);
+	LPOSIX_CONST( SO_BROADCAST	);
+	LPOSIX_CONST( SO_LINGER	);
+	LPOSIX_CONST( SO_RCVTIMEO	);
+	LPOSIX_CONST( SO_SNDTIMEO	);
+#ifdef SO_BINDTODEVICE
+	LPOSIX_CONST( SO_BINDTODEVICE	);
+#endif
+	LPOSIX_CONST( SO_DEBUG	);
+	LPOSIX_CONST( SO_DONTROUTE	);
+	LPOSIX_CONST( SO_ERROR	);
+	LPOSIX_CONST( SO_KEEPALIVE	);
+	LPOSIX_CONST( SO_OOBINLINE	);
+	LPOSIX_CONST( SO_RCVBUF	);
+	LPOSIX_CONST( SO_RCVLOWAT	);
+	LPOSIX_CONST( SO_REUSEADDR	);
+	LPOSIX_CONST( SO_SNDBUF	);
+	LPOSIX_CONST( SO_SNDLOWAT	);
+	LPOSIX_CONST( SO_TYPE		);
+
+	LPOSIX_CONST( TCP_NODELAY	);
+
+	LPOSIX_CONST( AI_ADDRCONFIG	);
+	LPOSIX_CONST( AI_ALL		);
+	LPOSIX_CONST( AI_CANONNAME	);
+	LPOSIX_CONST( AI_NUMERICHOST	);
+	LPOSIX_CONST( AI_NUMERICSERV	);
+	LPOSIX_CONST( AI_PASSIVE	);
+	LPOSIX_CONST( AI_V4MAPPED	);
+
+#ifdef IPV6_JOIN_GROUP
+	LPOSIX_CONST( IPV6_JOIN_GROUP		);
+#endif
+#ifdef IPV6_LEAVE_GROUP
+	LPOSIX_CONST( IPV6_LEAVE_GROUP		);
+#endif
+#ifdef IPV6_MULTICAST_HOPS
+	LPOSIX_CONST( IPV6_MULTICAST_HOPS	);
+#endif
+#ifdef IPV6_MULTICAST_IF
+	LPOSIX_CONST( IPV6_MULTICAST_IF		);
+#endif
+#ifdef IPV6_MULTICAST_LOOP
+	LPOSIX_CONST( IPV6_MULTICAST_LOOP	);
+#endif
+#ifdef IPV6_UNICAST_HOPS
+	LPOSIX_CONST( IPV6_UNICAST_HOPS		);
+#endif
+#ifdef IPV6_V6ONLY
+	LPOSIX_CONST( IPV6_V6ONLY		);
+#endif
+#if HAVE_LINUX_NETLINK_H
+	LPOSIX_CONST( NETLINK_ROUTE		);
+	LPOSIX_CONST( NETLINK_UNUSED		);
+	LPOSIX_CONST( NETLINK_USERSOCK		);
+	LPOSIX_CONST( NETLINK_FIREWALL		);
+	LPOSIX_CONST( NETLINK_NFLOG		);
+	LPOSIX_CONST( NETLINK_XFRM		);
+	LPOSIX_CONST( NETLINK_SELINUX		);
+	LPOSIX_CONST( NETLINK_ISCSI		);
+	LPOSIX_CONST( NETLINK_AUDIT		);
+	LPOSIX_CONST( NETLINK_FIB_LOOKUP	);
+	LPOSIX_CONST( NETLINK_CONNECTOR		);
+	LPOSIX_CONST( NETLINK_NETFILTER		);
+	LPOSIX_CONST( NETLINK_IP6_FW		);
+	LPOSIX_CONST( NETLINK_DNRTMSG		);
+	LPOSIX_CONST( NETLINK_KOBJECT_UEVENT	);
+	LPOSIX_CONST( NETLINK_GENERIC		);
+	LPOSIX_CONST( NETLINK_SCSITRANSPORT	);
+	LPOSIX_CONST( NETLINK_ECRYPTFS		);
+#endif
+
+	return 1;
 }
+#endif

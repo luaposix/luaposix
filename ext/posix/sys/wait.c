@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.sys.wait
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -17,13 +17,7 @@
 
 #include <sys/wait.h>
 
-#include "_helpers.h"
-
-
-/***
-System Wait Functions.
-@section syswait
-*/
+#include "_helpers.c"
 
 
 /***
@@ -37,7 +31,7 @@ Wait for child process to terminate.
 @return[2] nil
 @treturn[2] string error message
 @see waitpid(2)
-@see fork
+@see posix.unistd.fork
 */
 static int
 Pwait(lua_State *L)
@@ -73,9 +67,22 @@ Pwait(lua_State *L)
 }
 
 
-static void
-syswait_setconst(lua_State *L)
+static const luaL_Reg posix_sys_wait_fns[] =
 {
-	PCONST( WNOHANG		);
-	PCONST( WUNTRACED	);
+	LPOSIX_FUNC( Pwait		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_sys_wait(lua_State *L)
+{
+	luaL_register(L, "posix.sys.wait", posix_sys_wait_fns);
+	lua_pushliteral(L, "posix.sys.wait for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
+	LPOSIX_CONST( WNOHANG		);
+	LPOSIX_CONST( WUNTRACED		);
+
+	return 1;
 }

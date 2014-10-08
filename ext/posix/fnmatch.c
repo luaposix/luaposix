@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.fnmatch
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -17,13 +17,7 @@
 
 #include <fnmatch.h>
 
-#include "_helpers.h"
-
-
-/***
-Filename Match Functions.
-@section fnmatch
-*/
+#include "_helpers.c"
 
 
 /***
@@ -58,11 +52,24 @@ Pfnmatch(lua_State *L)
 }
 
 
-static void
-fnmatch_setconst(lua_State *L)
+static const luaL_Reg posix_fnmatch_fns[] =
 {
+	LPOSIX_FUNC( Pfnmatch		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_fnmatch(lua_State *L)
+{
+	luaL_register(L, "posix.fnmatch", posix_fnmatch_fns);
+	lua_pushliteral(L, "posix.fnmatch for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
 	/* from fnmatch.h */
-	PCONST( FNM_PATHNAME	);
-	PCONST( FNM_NOESCAPE	);
-	PCONST( FNM_PERIOD	);
+	LPOSIX_CONST( FNM_PATHNAME	);
+	LPOSIX_CONST( FNM_NOESCAPE	);
+	LPOSIX_CONST( FNM_PERIOD	);
+
+	return 1;
 }

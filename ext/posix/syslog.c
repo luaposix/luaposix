@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.syslog
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -22,22 +22,19 @@
 
 #include <syslog.h>
 
-#include "_helpers.h"
-
-
-/***
-System Log Functions.
-@section syslog
-*/
+#include "_helpers.c"
 
 
 /***
 Open the system logger.
 @function openlog
 @string ident all messages will start with this
-@string[opt] option any combination of 'c' (directly to system console if an error sending),
-'n' (no delay) or 'p' (show PID)
-@int[opt=`LOG_USER`] facility one of `LOG_AUTH`, `LOG_AUTHPRIV`, `LOG_CRON`, `LOG_DAEMON`, `LOG_FTP`, `LOG_KERN`, `LOG_LPR`, `LOG_MAIL`, `LOG_NEWS`, `LOG_SECURITY`, `LOG_SYSLOG`, 'LOG_USER`, `LOG_UUCP` or `LOG_LOCAL0` through `LOG_LOCAL7`
+@string[opt] option any combination of 'c' (directly to system console
+  if an error sending), 'n' (no delay) or 'p' (show PID)
+@int[opt=`LOG_USER`] facility one of `LOG_AUTH`, `LOG_AUTHPRIV`, `LOG_CRON`,
+  `LOG_DAEMON`, `LOG_FTP`, `LOG_KERN`, `LOG_LPR`, `LOG_MAIL`, `LOG_NEWS`,
+  `LOG_SECURITY`, `LOG_SYSLOG`, 'LOG_USER`, `LOG_UUCP` or `LOG_LOCAL0`
+  through `LOG_LOCAL7`
 @see syslog(3)
 */
 static int
@@ -126,38 +123,54 @@ Psetlogmask(lua_State *L)
 }
 
 
-static void
-syslog_setconst(lua_State *L)
+static const luaL_Reg posix_syslog_fns[] =
 {
-	PCONST( LOG_AUTH	);
-	PCONST( LOG_AUTHPRIV	);
-	PCONST( LOG_CRON	);
-	PCONST( LOG_DAEMON	);
-	PCONST( LOG_FTP		);
-	PCONST( LOG_KERN	);
-	PCONST( LOG_LOCAL0	);
-	PCONST( LOG_LOCAL1	);
-	PCONST( LOG_LOCAL2	);
-	PCONST( LOG_LOCAL3	);
-	PCONST( LOG_LOCAL4	);
-	PCONST( LOG_LOCAL5	);
-	PCONST( LOG_LOCAL6	);
-	PCONST( LOG_LOCAL7	);
-	PCONST( LOG_LPR		);
-	PCONST( LOG_MAIL	);
-	PCONST( LOG_NEWS	);
-	PCONST( LOG_SYSLOG	);
-	PCONST( LOG_USER	);
-	PCONST( LOG_UUCP	);
+	LPOSIX_FUNC( Popenlog		),
+	LPOSIX_FUNC( Psyslog		),
+	LPOSIX_FUNC( Pcloselog		),
+	LPOSIX_FUNC( Psetlogmask	),
+	{NULL, NULL}
+};
 
-	PCONST( LOG_EMERG	);
-	PCONST( LOG_ALERT	);
-	PCONST( LOG_CRIT	);
-	PCONST( LOG_ERR		);
-	PCONST( LOG_WARNING	);
-	PCONST( LOG_NOTICE	);
-	PCONST( LOG_INFO	);
-	PCONST( LOG_DEBUG	);
+
+LUALIB_API int
+luaopen_posix_syslog(lua_State *L)
+{
+	luaL_register(L, "posix.syslog", posix_syslog_fns);
+	lua_pushliteral(L, "posix.syslog for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
+	LPOSIX_CONST( LOG_AUTH		);
+	LPOSIX_CONST( LOG_AUTHPRIV	);
+	LPOSIX_CONST( LOG_CRON		);
+	LPOSIX_CONST( LOG_DAEMON	);
+	LPOSIX_CONST( LOG_FTP		);
+	LPOSIX_CONST( LOG_KERN		);
+	LPOSIX_CONST( LOG_LOCAL0	);
+	LPOSIX_CONST( LOG_LOCAL1	);
+	LPOSIX_CONST( LOG_LOCAL2	);
+	LPOSIX_CONST( LOG_LOCAL3	);
+	LPOSIX_CONST( LOG_LOCAL4	);
+	LPOSIX_CONST( LOG_LOCAL5	);
+	LPOSIX_CONST( LOG_LOCAL6	);
+	LPOSIX_CONST( LOG_LOCAL7	);
+	LPOSIX_CONST( LOG_LPR		);
+	LPOSIX_CONST( LOG_MAIL		);
+	LPOSIX_CONST( LOG_NEWS		);
+	LPOSIX_CONST( LOG_SYSLOG	);
+	LPOSIX_CONST( LOG_USER		);
+	LPOSIX_CONST( LOG_UUCP		);
+
+	LPOSIX_CONST( LOG_EMERG		);
+	LPOSIX_CONST( LOG_ALERT		);
+	LPOSIX_CONST( LOG_CRIT		);
+	LPOSIX_CONST( LOG_ERR		);
+	LPOSIX_CONST( LOG_WARNING	);
+	LPOSIX_CONST( LOG_NOTICE	);
+	LPOSIX_CONST( LOG_INFO		);
+	LPOSIX_CONST( LOG_DEBUG		);
+
+	return 1;
 }
 
 #endif

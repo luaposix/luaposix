@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.errno
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -19,17 +19,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "_helpers.h"
+#include "_helpers.c"
 
 #ifndef errno
 extern int errno;
 #endif
-
-
-/***
-Error Handling Functions.
-@section errorhandling
-*/
 
 
 /***
@@ -71,222 +65,235 @@ Pset_errno(lua_State *L)
 }
 
 
-static void
-errno_setconst(lua_State *L)
+static const luaL_Reg posix_errno_fns[] =
 {
+	LPOSIX_FUNC( Perrno		),
+	LPOSIX_FUNC( Pset_errno		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_errno(lua_State *L)
+{
+	luaL_register(L, "posix.errno", posix_errno_fns);
+	lua_pushliteral(L, "posix.errno for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
 	/* errno values */
 #ifdef E2BIG
-	PCONST( E2BIG		);
+	LPOSIX_CONST( E2BIG		);
 #endif
 #ifdef EACCES
-	PCONST( EACCES		);
+	LPOSIX_CONST( EACCES		);
 #endif
 #ifdef EADDRINUSE
-	PCONST( EADDRINUSE	);
+	LPOSIX_CONST( EADDRINUSE	);
 #endif
 #ifdef EADDRNOTAVAIL
-	PCONST( EADDRNOTAVAIL	);
+	LPOSIX_CONST( EADDRNOTAVAIL	);
 #endif
 #ifdef EAFNOSUPPORT
-	PCONST( EAFNOSUPPORT	);
+	LPOSIX_CONST( EAFNOSUPPORT	);
 #endif
 #ifdef EAGAIN
-	PCONST( EAGAIN		);
+	LPOSIX_CONST( EAGAIN		);
 #endif
 #ifdef EALREADY
-	PCONST( EALREADY	);
+	LPOSIX_CONST( EALREADY		);
 #endif
 #ifdef EBADF
-	PCONST( EBADF		);
+	LPOSIX_CONST( EBADF		);
 #endif
 #ifdef EBADMSG
-	PCONST( EBADMSG		);
+	LPOSIX_CONST( EBADMSG		);
 #endif
 #ifdef EBUSY
-	PCONST( EBUSY		);
+	LPOSIX_CONST( EBUSY		);
 #endif
 #ifdef ECANCELED
-	PCONST( ECANCELED	);
+	LPOSIX_CONST( ECANCELED		);
 #endif
 #ifdef ECHILD
-	PCONST( ECHILD		);
+	LPOSIX_CONST( ECHILD		);
 #endif
 #ifdef ECONNABORTED
-	PCONST( ECONNABORTED	);
+	LPOSIX_CONST( ECONNABORTED	);
 #endif
 #ifdef ECONNREFUSED
-	PCONST( ECONNREFUSED	);
+	LPOSIX_CONST( ECONNREFUSED	);
 #endif
 #ifdef ECONNRESET
-	PCONST( ECONNRESET	);
+	LPOSIX_CONST( ECONNRESET	);
 #endif
 #ifdef EDEADLK
-	PCONST( EDEADLK		);
+	LPOSIX_CONST( EDEADLK		);
 #endif
 #ifdef EDESTADDRREQ
-	PCONST( EDESTADDRREQ	);
+	LPOSIX_CONST( EDESTADDRREQ	);
 #endif
 #ifdef EDOM
-	PCONST( EDOM		);
+	LPOSIX_CONST( EDOM		);
 #endif
 #ifdef EEXIST
-	PCONST( EEXIST		);
+	LPOSIX_CONST( EEXIST		);
 #endif
 #ifdef EFAULT
-	PCONST( EFAULT		);
+	LPOSIX_CONST( EFAULT		);
 #endif
 #ifdef EFBIG
-	PCONST( EFBIG		);
+	LPOSIX_CONST( EFBIG		);
 #endif
 #ifdef EHOSTUNREACH
-	PCONST( EHOSTUNREACH	);
+	LPOSIX_CONST( EHOSTUNREACH	);
 #endif
 #ifdef EIDRM
-	PCONST( EIDRM		);
+	LPOSIX_CONST( EIDRM		);
 #endif
 #ifdef EILSEQ
-	PCONST( EILSEQ		);
+	LPOSIX_CONST( EILSEQ		);
 #endif
 #ifdef EINPROGRESS
-	PCONST( EINPROGRESS	);
+	LPOSIX_CONST( EINPROGRESS	);
 #endif
 #ifdef EINTR
-	PCONST( EINTR		);
+	LPOSIX_CONST( EINTR		);
 #endif
 #ifdef EINVAL
-	PCONST( EINVAL		);
+	LPOSIX_CONST( EINVAL		);
 #endif
 #ifdef EIO
-	PCONST( EIO		);
+	LPOSIX_CONST( EIO		);
 #endif
 #ifdef EISCONN
-	PCONST( EISCONN		);
+	LPOSIX_CONST( EISCONN		);
 #endif
 #ifdef EISDIR
-	PCONST( EISDIR		);
+	LPOSIX_CONST( EISDIR		);
 #endif
 #ifdef ELOOP
-	PCONST( ELOOP		);
+	LPOSIX_CONST( ELOOP		);
 #endif
 #ifdef EMFILE
-	PCONST( EMFILE		);
+	LPOSIX_CONST( EMFILE		);
 #endif
 #ifdef EMLINK
-	PCONST( EMLINK		);
+	LPOSIX_CONST( EMLINK		);
 #endif
 #ifdef EMSGSIZE
-	PCONST( EMSGSIZE	);
+	LPOSIX_CONST( EMSGSIZE		);
 #endif
 #ifdef ENAMETOOLONG
-	PCONST( ENAMETOOLONG	);
+	LPOSIX_CONST( ENAMETOOLONG	);
 #endif
 #ifdef ENETDOWN
-	PCONST( ENETDOWN	);
+	LPOSIX_CONST( ENETDOWN		);
 #endif
 #ifdef ENETRESET
-	PCONST( ENETRESET	);
+	LPOSIX_CONST( ENETRESET		);
 #endif
 #ifdef ENETUNREACH
-	PCONST( ENETUNREACH	);
+	LPOSIX_CONST( ENETUNREACH	);
 #endif
 #ifdef ENFILE
-	PCONST( ENFILE		);
+	LPOSIX_CONST( ENFILE		);
 #endif
 #ifdef ENOBUFS
-	PCONST( ENOBUFS		);
+	LPOSIX_CONST( ENOBUFS		);
 #endif
 #ifdef ENODEV
-	PCONST( ENODEV		);
+	LPOSIX_CONST( ENODEV		);
 #endif
 #ifdef ENOENT
-	PCONST( ENOENT		);
+	LPOSIX_CONST( ENOENT		);
 #endif
 #ifdef ENOEXEC
-	PCONST( ENOEXEC		);
+	LPOSIX_CONST( ENOEXEC		);
 #endif
 #ifdef ENOLCK
-	PCONST( ENOLCK		);
+	LPOSIX_CONST( ENOLCK		);
 #endif
 #ifdef ENOMEM
-	PCONST( ENOMEM		);
+	LPOSIX_CONST( ENOMEM		);
 #endif
 #ifdef ENOMSG
-	PCONST( ENOMSG		);
+	LPOSIX_CONST( ENOMSG		);
 #endif
 #ifdef ENOPROTOOPT
-	PCONST( ENOPROTOOPT	);
+	LPOSIX_CONST( ENOPROTOOPT	);
 #endif
 #ifdef ENOSPC
-	PCONST( ENOSPC		);
+	LPOSIX_CONST( ENOSPC		);
 #endif
 #ifdef ENOSYS
-	PCONST( ENOSYS		);
+	LPOSIX_CONST( ENOSYS		);
 #endif
 #ifdef ENOTCONN
-	PCONST( ENOTCONN	);
+	LPOSIX_CONST( ENOTCONN		);
 #endif
 #ifdef ENOTDIR
-	PCONST( ENOTDIR		);
+	LPOSIX_CONST( ENOTDIR		);
 #endif
 #ifdef ENOTEMPTY
-	PCONST( ENOTEMPTY	);
+	LPOSIX_CONST( ENOTEMPTY		);
 #endif
 #ifdef ENOTSOCK
-	PCONST( ENOTSOCK	);
+	LPOSIX_CONST( ENOTSOCK		);
 #endif
 #ifdef ENOTSUP
-	PCONST( ENOTSUP		);
+	LPOSIX_CONST( ENOTSUP		);
 #endif
 #ifdef ENOTTY
-	PCONST( ENOTTY		);
+	LPOSIX_CONST( ENOTTY		);
 #endif
 #ifdef ENXIO
-	PCONST( ENXIO		);
+	LPOSIX_CONST( ENXIO		);
 #endif
 #ifdef EOPNOTSUPP
-	PCONST( EOPNOTSUPP	);
+	LPOSIX_CONST( EOPNOTSUPP	);
 #endif
 #ifdef EOVERFLOW
-	PCONST( EOVERFLOW	);
+	LPOSIX_CONST( EOVERFLOW		);
 #endif
 #ifdef EPERM
-	PCONST( EPERM		);
+	LPOSIX_CONST( EPERM		);
 #endif
 #ifdef EPIPE
-	PCONST( EPIPE		);
+	LPOSIX_CONST( EPIPE		);
 #endif
 #ifdef EPROTO
-	PCONST( EPROTO		);
+	LPOSIX_CONST( EPROTO		);
 #endif
 #ifdef EPROTONOSUPPORT
-	PCONST( EPROTONOSUPPORT	);
+	LPOSIX_CONST( EPROTONOSUPPORT	);
 #endif
 #ifdef EPROTOTYPE
-	PCONST( EPROTOTYPE	);
+	LPOSIX_CONST( EPROTOTYPE	);
 #endif
 #ifdef ERANGE
-	PCONST( ERANGE		);
+	LPOSIX_CONST( ERANGE		);
 #endif
 #ifdef EROFS
-	PCONST( EROFS		);
+	LPOSIX_CONST( EROFS		);
 #endif
 #ifdef ESPIPE
-	PCONST( ESPIPE		);
+	LPOSIX_CONST( ESPIPE		);
 #endif
 #ifdef ESRCH
-	PCONST( ESRCH		);
+	LPOSIX_CONST( ESRCH		);
 #endif
 #ifdef ETIMEDOUT
-	PCONST( ETIMEDOUT	);
+	LPOSIX_CONST( ETIMEDOUT		);
 #endif
 #ifdef ETXTBSY
-	PCONST( ETXTBSY		);
+	LPOSIX_CONST( ETXTBSY		);
 #endif
 #ifdef EWOULDBLOCK
-	PCONST( EWOULDBLOCK	);
+	LPOSIX_CONST( EWOULDBLOCK	);
 #endif
 #ifdef EXDEV
-	PCONST( EXDEV		);
+	LPOSIX_CONST( EXDEV		);
 #endif
 
+	return 1;
 }

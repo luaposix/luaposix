@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.sys.resource
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -17,13 +17,7 @@
 
 #include <sys/resource.h>
 
-#include "_helpers.h"
-
-
-/***
-System Resource Functions.
-@section sysresource
-*/
+#include "_helpers.c"
 
 
 /* get/setrlimit */
@@ -129,4 +123,23 @@ Psetrlimit(lua_State *L)
 	else lim.rlim_max = hardlimit;
 
 	return pushresult(L, setrlimit(rid, &lim), "setrlimit");
+}
+
+
+static const luaL_Reg posix_sys_resource_fns[] =
+{
+	LPOSIX_FUNC( Pgetrlimit		),
+	LPOSIX_FUNC( Psetrlimit		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_sys_resource(lua_State *L)
+{
+	luaL_register(L, "posix.sys.resource", posix_sys_resource_fns);
+	lua_pushliteral(L, "posix.sys.resource for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
+	return 1;
 }

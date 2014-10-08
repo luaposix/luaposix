@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.utime
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -15,14 +15,10 @@
 
 #include <config.h>
 
+#include <time.h>
 #include <utime.h>
 
-#include "_helpers.h"
-
-/***
-Utime Functions.
-@section sysutime
-*/
+#include "_helpers.c"
 
 
 /***
@@ -46,4 +42,22 @@ Putime(lua_State *L)
 	times.actime  = optint(L, 3, currtime);
 	checknargs(L, 3);
 	return pushresult(L, utime(path, &times), path);
+}
+
+
+static const luaL_Reg posix_utime_fns[] =
+{
+	LPOSIX_FUNC( Putime		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_utime(lua_State *L)
+{
+	luaL_register(L, "posix.utime", posix_utime_fns);
+	lua_pushliteral(L, "posix.utime for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
+	return 1;
 }

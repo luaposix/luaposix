@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.sys.utsname
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -18,13 +18,7 @@
 
 #include <sys/utsname.h>
 
-#include "_helpers.h"
-
-
-/***
-System Utsname Functions.
-@section sysutsname
-*/
+#include "_helpers.c"
 
 
 /***
@@ -67,5 +61,23 @@ Puname(lua_State *L)
 			default:	badoption(L, 2, "format", *s); break;
 		}
 	luaL_pushresult(&b);
+	return 1;
+}
+
+
+static const luaL_Reg posix_sys_utsname_fns[] =
+{
+	LPOSIX_FUNC( Puname		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_sys_utsname(lua_State *L)
+{
+	luaL_register(L, "posix.sys.utsname", posix_sys_utsname_fns);
+	lua_pushliteral(L, "posix.sys.utsname for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
 	return 1;
 }

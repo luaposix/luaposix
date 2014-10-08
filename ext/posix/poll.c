@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.poll
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -17,13 +17,7 @@
 
 #include <poll.h>
 
-#include "_helpers.h"
-
-
-/***
-Poll Functions.
-@section poll
-*/
+#include "_helpers.c"
 
 
 static struct {
@@ -278,4 +272,23 @@ Prpoll(lua_State *L)
 	fds.fd = file;
 	fds.events = POLLIN;
 	return pushresult(L, poll(&fds, 1, timeout), NULL);
+}
+
+
+static const luaL_Reg posix_poll_fns[] =
+{
+	LPOSIX_FUNC( Ppoll		),
+	LPOSIX_FUNC( Prpoll		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_poll(lua_State *L)
+{
+	luaL_register(L, "posix.poll", posix_poll_fns);
+	lua_pushliteral(L, "posix.poll for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
+	return 1;
 }

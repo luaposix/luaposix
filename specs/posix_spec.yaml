@@ -9,8 +9,6 @@
 
 specify posix:
 - before:
-    posix = require "posix_c"
-
     init = function (M, fname)
       return M[fname], function (...) return badargs.format (fname, ...) end
     end

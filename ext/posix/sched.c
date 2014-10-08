@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.sched
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -20,21 +20,32 @@
 #ifdef _POSIX_PRIORITY_SCHEDULING
 #include <sched.h>
 #endif
-#include <stdlib.h>
-#include <sys/resource.h>
-#include <sys/times.h>
-#include <sys/wait.h>
 
-#include "_helpers.h"
+#include "_helpers.c"
 
 
 /***
-Scheduler Functions.
-@section sched
+get scheduling policy
+@function sched_getscheduler
+@int[opt=0] pid process to act on, or `0` for caller process
+@treturn[1] int scheduling policy `SCHED_FIFO`, `SCHED_RR`, `SCHED_OTHER`,
+  if successful
+@return[2] nil
+@treturn[2] string error message
+@see sched_getscheduler(2)
 */
+#if HAVE_SCHED_GETSCHEDULER
+static int
+Psched_getscheduler(lua_State *L)
+{
+	struct sched_param sched_param  = {0};
+	pid_t pid = luaL_optint(L, 1, 0);
+	checknargs(L, 1);
+	return pushresult(L, sched_getscheduler(pid), NULL);
+}
+#endif
 
 
-#if defined _POSIX_PRIORITY_SCHEDULING && HAVE_SCHED_SETSCHEDULER && HAVE_SCHED_GETSCHEDULER
 /***
 set scheduling policy/priority
 @function sched_setscheduler
@@ -48,6 +59,7 @@ set scheduling policy/priority
 @return[2] nil
 @treturn[2] string error message
 */
+#if HAVE_SCHED_SETSCHEDULER
 static int
 Psched_setscheduler(lua_State *L)
 {
@@ -58,39 +70,38 @@ Psched_setscheduler(lua_State *L)
 	checknargs(L, 3);
 	return pushresult(L, sched_setscheduler(pid, policy, &sched_param), NULL);
 }
-
-/***
-get scheduling policy
-@function sched_getscheduler
-@int[opt=0] pid process to act on, or `0` for caller process
-@treturn[1] int scheduling policy `SCHED_FIFO`, `SCHED_RR`, `SCHED_OTHER`,
-  if successful
-@return[2] nil
-@treturn[2] string error message
-@see sched_getscheduler(2)
-*/
-static int
-Psched_getscheduler(lua_State *L)
-{
-	struct sched_param sched_param  = {0};
-	pid_t pid = luaL_optint(L, 1, 0);
-	checknargs(L, 1);
-	return pushresult(L, sched_getscheduler(pid), NULL);
-}
 #endif
 
 
-static void
-sched_setconst(lua_State *L)
+static const luaL_Reg posix_sched_fns[] =
 {
+#if HAVE_SCHED_GETSCHEDULER
+	LPOSIX_FUNC( Psched_getscheduler	),
+#endif
+#if HAVE_SCHED_SETSCHEDULER
+	LPOSIX_FUNC( Psched_setscheduler	),
+#endif
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_sched(lua_State *L)
+{
+	luaL_register(L, "posix.sched", posix_sched_fns);
+	lua_pushliteral(L, "posix.sched for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
 	/* Psched_setscheduler flags */
 #ifdef SCHED_FIFO
-	PCONST( SCHED_FIFO	);
+	LPOSIX_CONST( SCHED_FIFO	);
 #endif
 #ifdef SCHED_RR
-	PCONST( SCHED_RR	);
+	LPOSIX_CONST( SCHED_RR		);
 #endif
 #ifdef SCHED_OTHER
-	PCONST( SCHED_OTHER	);
+	LPOSIX_CONST( SCHED_OTHER	);
 #endif
+
+	return 1;
 }

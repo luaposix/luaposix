@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.signal
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -18,13 +18,7 @@
 
 #include <signal.h>
 
-#include "_helpers.h"
-
-
-/***
-Signal Handling Functions.
-@section signalhandling
-*/
+#include "_helpers.c"
 
 
 /***
@@ -116,7 +110,7 @@ static void (*Fsigmacros[])(int) =
 
 
 static void
-sig_handle (lua_State *L, lua_Debug *UNUSED (ar))
+sig_handle (lua_State *L, lua_Debug *LPOSIX_UNUSED (ar))
 {
 	/* Block all signals until we have run the Lua signal handler */
 	sigset_t mask, oldmask;
@@ -261,102 +255,22 @@ Psignal (lua_State *L)
 }
 
 
-static void
-signal_setconst(lua_State *L)
+static const luaL_Reg posix_signal_fns[] =
 {
-	/* Signals */
-#ifdef SIGABRT
-	PCONST( SIGABRT		);
-#endif
-#ifdef SIGALRM
-	PCONST( SIGALRM		);
-#endif
-#ifdef SIGBUS
-	PCONST( SIGBUS		);
-#endif
-#ifdef SIGCHLD
-	PCONST( SIGCHLD		);
-#endif
-#ifdef SIGCONT
-	PCONST( SIGCONT		);
-#endif
-#ifdef SIGFPE
-	PCONST( SIGFPE		);
-#endif
-#ifdef SIGHUP
-	PCONST( SIGHUP		);
-#endif
-#ifdef SIGILL
-	PCONST( SIGILL		);
-#endif
-#ifdef SIGINT
-	PCONST( SIGINT		);
-#endif
-#ifdef SIGKILL
-	PCONST( SIGKILL		);
-#endif
-#ifdef SIGPIPE
-	PCONST( SIGPIPE		);
-#endif
-#ifdef SIGQUIT
-	PCONST( SIGQUIT		);
-#endif
-#ifdef SIGSEGV
-	PCONST( SIGSEGV		);
-#endif
-#ifdef SIGSTOP
-	PCONST( SIGSTOP		);
-#endif
-#ifdef SIGTERM
-	PCONST( SIGTERM		);
-#endif
-#ifdef SIGTSTP
-	PCONST( SIGTSTP		);
-#endif
-#ifdef SIGTTIN
-	PCONST( SIGTTIN		);
-#endif
-#ifdef SIGTTOU
-	PCONST( SIGTTOU		);
-#endif
-#ifdef SIGUSR1
-	PCONST( SIGUSR1		);
-#endif
-#ifdef SIGUSR2
-	PCONST( SIGUSR2		);
-#endif
-#ifdef SIGSYS
-	PCONST( SIGSYS		);
-#endif
-#ifdef SIGTRAP
-	PCONST( SIGTRAP		);
-#endif
-#ifdef SIGURG
-	PCONST( SIGURG		);
-#endif
-#ifdef SIGVTALRM
-	PCONST( SIGVTALRM	);
-#endif
-#ifdef SIGXCPU
-	PCONST( SIGXCPU		);
-#endif
-#ifdef SIGXFSZ
-	PCONST( SIGXFSZ		);
-#endif
+	LPOSIX_FUNC( Pkill		),
+	LPOSIX_FUNC( Pkillpg		),
+	LPOSIX_FUNC( Praise		),
+	LPOSIX_FUNC( Psignal		),
+	{NULL, NULL}
+};
 
-	/* Signal flags */
-#ifdef SA_NOCLDSTOP
-	PCONST( SA_NOCLDSTOP	);
-#endif
-#ifdef SA_NOCLDWAIT
-	PCONST( SA_NOCLDWAIT	);
-#endif
-#ifdef SA_RESETHAND
-	PCONST( SA_RESETHAND	);
-#endif
-#ifdef SA_NODEFER
-	PCONST( SA_NODEFER	);
-#endif
+
+LUALIB_API int
+luaopen_posix_signal(lua_State *L)
+{
+	luaL_register(L, "posix.signal", posix_signal_fns);
+	lua_pushliteral(L, "posix.signal for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
 
 	/* Signals table stored in registry for Psignal and sig_handle */
 	lua_pushlightuserdata(L, &signalL);
@@ -364,4 +278,100 @@ signal_setconst(lua_State *L)
 	lua_rawset(L, LUA_REGISTRYINDEX);
 
 	signalL = L; /* For sig_postpone */
+
+	/* Signals */
+#ifdef SIGABRT
+	LPOSIX_CONST( SIGABRT		);
+#endif
+#ifdef SIGALRM
+	LPOSIX_CONST( SIGALRM		);
+#endif
+#ifdef SIGBUS
+	LPOSIX_CONST( SIGBUS		);
+#endif
+#ifdef SIGCHLD
+	LPOSIX_CONST( SIGCHLD		);
+#endif
+#ifdef SIGCONT
+	LPOSIX_CONST( SIGCONT		);
+#endif
+#ifdef SIGFPE
+	LPOSIX_CONST( SIGFPE		);
+#endif
+#ifdef SIGHUP
+	LPOSIX_CONST( SIGHUP		);
+#endif
+#ifdef SIGILL
+	LPOSIX_CONST( SIGILL		);
+#endif
+#ifdef SIGINT
+	LPOSIX_CONST( SIGINT		);
+#endif
+#ifdef SIGKILL
+	LPOSIX_CONST( SIGKILL		);
+#endif
+#ifdef SIGPIPE
+	LPOSIX_CONST( SIGPIPE		);
+#endif
+#ifdef SIGQUIT
+	LPOSIX_CONST( SIGQUIT		);
+#endif
+#ifdef SIGSEGV
+	LPOSIX_CONST( SIGSEGV		);
+#endif
+#ifdef SIGSTOP
+	LPOSIX_CONST( SIGSTOP		);
+#endif
+#ifdef SIGTERM
+	LPOSIX_CONST( SIGTERM		);
+#endif
+#ifdef SIGTSTP
+	LPOSIX_CONST( SIGTSTP		);
+#endif
+#ifdef SIGTTIN
+	LPOSIX_CONST( SIGTTIN		);
+#endif
+#ifdef SIGTTOU
+	LPOSIX_CONST( SIGTTOU		);
+#endif
+#ifdef SIGUSR1
+	LPOSIX_CONST( SIGUSR1		);
+#endif
+#ifdef SIGUSR2
+	LPOSIX_CONST( SIGUSR2		);
+#endif
+#ifdef SIGSYS
+	LPOSIX_CONST( SIGSYS		);
+#endif
+#ifdef SIGTRAP
+	LPOSIX_CONST( SIGTRAP		);
+#endif
+#ifdef SIGURG
+	LPOSIX_CONST( SIGURG		);
+#endif
+#ifdef SIGVTALRM
+	LPOSIX_CONST( SIGVTALRM	);
+#endif
+#ifdef SIGXCPU
+	LPOSIX_CONST( SIGXCPU		);
+#endif
+#ifdef SIGXFSZ
+	LPOSIX_CONST( SIGXFSZ		);
+#endif
+
+	/* Signal flags */
+#ifdef SA_NOCLDSTOP
+	LPOSIX_CONST( SA_NOCLDSTOP	);
+#endif
+#ifdef SA_NOCLDWAIT
+	LPOSIX_CONST( SA_NOCLDWAIT	);
+#endif
+#ifdef SA_RESETHAND
+	LPOSIX_CONST( SA_RESETHAND	);
+#endif
+#ifdef SA_NODEFER
+	LPOSIX_CONST( SA_NODEFER	);
+#endif
+
+	return 1;
 }

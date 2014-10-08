@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.grp
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -17,13 +17,7 @@
 
 #include <grp.h>
 
-#include "_helpers.h"
-
-
-/***
-Group Functions.
-@section grp
-*/
+#include "_helpers.c"
 
 
 /***
@@ -61,5 +55,23 @@ Pgetgroup(lua_State *L)
 			lua_rawseti(L, -2, i + 1);
 		}
 	}
+	return 1;
+}
+
+
+static const luaL_Reg posix_grp_fns[] =
+{
+	LPOSIX_FUNC( Pgetgroup		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_grp(lua_State *L)
+{
+	luaL_register(L, "posix.grp", posix_grp_fns);
+	lua_pushliteral(L, "posix.grp for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
 	return 1;
 }

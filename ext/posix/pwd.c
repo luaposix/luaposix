@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.pwd
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -19,13 +19,7 @@
 #include <sys/types.h>
 #include <unistd.h>	/* for geteuid(2) */
 
-#include "_helpers.h"
-
-
-/***
-Password Database Functions.
-@section pwd
-*/
+#include "_helpers.c"
 
 
 static void
@@ -86,5 +80,23 @@ Pgetpasswd(lua_State *L)
 		lua_pushnil(L);
 	else
 		return doselection(L, 2, Sgetpasswd, Fgetpasswd, p);
+	return 1;
+}
+
+
+static const luaL_Reg posix_pwd_fns[] =
+{
+	LPOSIX_FUNC( Pgetpasswd		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_pwd(lua_State *L)
+{
+	luaL_register(L, "posix.pwd", posix_pwd_fns);
+	lua_pushliteral(L, "posix.pwd for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
 	return 1;
 }

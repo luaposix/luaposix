@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.stdio
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -15,19 +15,9 @@
 
 #include <config.h>
 
-#include <stdlib.h>
-#if HAVE_SYS_STATVFS_H
-#  include <sys/statvfs.h>
-#endif
-#include <sys/time.h>
+#include <stdio.h>
 
-#include "_helpers.h"
-
-
-/***
-Standard IO Functions.
-@section stdio
-*/
+#include "_helpers.c"
 
 
 /***
@@ -65,17 +55,30 @@ Pfileno(lua_State *L)
 }
 
 
-
-static void
-stdio_setconst(lua_State *L)
+static const luaL_Reg posix_stdio_fns[] =
 {
+	LPOSIX_FUNC( Pctermid		),
+	LPOSIX_FUNC( Pfileno		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_stdio(lua_State *L)
+{
+	luaL_register(L, "posix.stdio", posix_stdio_fns);
+	lua_pushliteral(L, "posix.stdio for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
 	/* stdio.h constants */
 	/* Those that are omitted already have a Lua interface, or alternative. */
-	PCONST( _IOFBF		);
-	PCONST( _IOLBF		);
-	PCONST( _IONBF		);
-	PCONST( BUFSIZ		);
-	PCONST( EOF		);
-	PCONST( FOPEN_MAX	);
-	PCONST( FILENAME_MAX	);
+	LPOSIX_CONST( _IOFBF		);
+	LPOSIX_CONST( _IOLBF		);
+	LPOSIX_CONST( _IONBF		);
+	LPOSIX_CONST( BUFSIZ		);
+	LPOSIX_CONST( EOF		);
+	LPOSIX_CONST( FOPEN_MAX		);
+	LPOSIX_CONST( FILENAME_MAX	);
+
+	return 1;
 }

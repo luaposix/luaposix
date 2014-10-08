@@ -53,7 +53,7 @@ include specs/specs.mk
 ## ------ ##
 
 EXTRA_LTLIBRARIES	+= ext/curses/curses_c.la
-lib_LTLIBRARIES		+= ext/posix/posix_c.la $(WANTEDLIBS)
+lib_LTLIBRARIES		+= ext/posix/posix.la $(WANTEDLIBS)
 
 dist_lua_DATA +=			\
 	lib/posix.lua			\
@@ -62,18 +62,15 @@ dist_lua_DATA +=			\
 
 luaposixdir = $(luadir)/posix
 
-noinst_HEADERS =			\
-	ext/posix/_helpers.h		\
-	$(NOTHING_ELSE)
-
 dist_luaposix_DATA =			\
 	lib/posix/sys.lua		\
+	lib/posix/util.lua		\
 	$(NOTHING_ELSE)
 
-ext_posix_posix_c_la_SOURCES =		\
+ext_posix_posix_la_SOURCES =		\
 	ext/posix/posix.c		\
 	$(NOTHING_ELSE)
-EXTRA_ext_posix_posix_c_la_SOURCES =	\
+EXTRA_ext_posix_posix_la_SOURCES =	\
 	ext/posix/_helpers.c		\
 	ext/posix/ctype.c		\
 	ext/posix/dirent.c		\
@@ -105,11 +102,11 @@ EXTRA_ext_posix_posix_c_la_SOURCES =	\
 	ext/posix/unistd.c		\
 	ext/posix/utime.c		\
 	$(NOTHING_ELSE)
-ext_posix_posix_c_la_CPPFLAGS =		\
+ext_posix_posix_la_CPPFLAGS =		\
 	-I $(srcdir)/ext/posix $(AM_CPPFLAGS)
-ext_posix_posix_c_la_CFLAGS  =		\
+ext_posix_posix_la_CFLAGS  =		\
 	$(POSIX_EXTRA_CFLAGS)
-ext_posix_posix_c_la_LDFLAGS =		\
+ext_posix_posix_la_LDFLAGS =		\
 	-module -avoid-version $(POSIX_EXTRA_LDFLAGS)
 
 ext_curses_curses_c_la_SOURCES =	\
@@ -130,9 +127,38 @@ dist_doc_DATA +=			\
 	doc/ldoc.css			\
 	$(NOTHING_ELSE)
 
-dist_modules_DATA +=			\
-	doc/modules/posix.html		\
-	doc/modules/posix.sys.html	\
+dist_modules_DATA +=				\
+	doc/modules/posix.ctype.html		\
+	doc/modules/posix.dirent.html		\
+	doc/modules/posix.errno.html		\
+	doc/modules/posix.fcntl.html		\
+	doc/modules/posix.fnmatch.html		\
+	doc/modules/posix.getopt.html		\
+	doc/modules/posix.glob.html		\
+	doc/modules/posix.grp.html		\
+	doc/modules/posix.html			\
+	doc/modules/posix.libgen.html		\
+	doc/modules/posix.poll.html		\
+	doc/modules/posix.pwd.html		\
+	doc/modules/posix.sched.html		\
+	doc/modules/posix.signal.html		\
+	doc/modules/posix.stdio.html		\
+	doc/modules/posix.stdlib.html		\
+	doc/modules/posix.sys.msg.html		\
+	doc/modules/posix.sys.resource.html	\
+	doc/modules/posix.sys.socket.html	\
+	doc/modules/posix.sys.stat.html		\
+	doc/modules/posix.sys.statvfs.html	\
+	doc/modules/posix.sys.time.html		\
+	doc/modules/posix.sys.times.html	\
+	doc/modules/posix.sys.utsname.html	\
+	doc/modules/posix.sys.wait.html		\
+	doc/modules/posix.syslog.html		\
+	doc/modules/posix.termio.html		\
+	doc/modules/posix.time.html		\
+	doc/modules/posix.unistd.html		\
+	doc/modules/posix.util.html		\
+	doc/modules/posix.utime.html		\
 	$(NOTHING_ELSE)
 
 dist_examples_DATA +=			\

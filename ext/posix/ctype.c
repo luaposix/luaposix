@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.ctype
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -17,13 +17,7 @@
 
 #include <ctype.h>
 
-#include "_helpers.h"
-
-
-/***
-Character Type Functions.
-@section ctype
-*/
+#include "_helpers.c"
 
 
 static int
@@ -63,4 +57,23 @@ static int
 Pisprint(lua_State *L)
 {
 	return bind_ctype(L, &isprint);
+}
+
+
+static const luaL_Reg posix_ctype_fns[] =
+{
+	LPOSIX_FUNC( Pisgraph		),
+	LPOSIX_FUNC( Pisprint		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_ctype(lua_State *L)
+{
+	luaL_register(L, "posix.ctype", posix_ctype_fns);
+	lua_pushliteral(L, "posix.ctype for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
+	return 1;
 }

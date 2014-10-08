@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.glob
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -17,13 +17,7 @@
 
 #include <glob.h>
 
-#include "_helpers.h"
-
-
-/***
-File Glob Functions.
-@section glob
-*/
+#include "_helpers.c"
 
 
 /***
@@ -55,4 +49,22 @@ Pglob(lua_State *L)
 		globfree(&globres);
 		return 1;
 	}
+}
+
+
+static const luaL_Reg posix_glob_fns[] =
+{
+	LPOSIX_FUNC( Pglob		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_glob(lua_State *L)
+{
+	luaL_register(L, "posix.glob", posix_glob_fns);
+	lua_pushliteral(L, "posix.glob for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
+	return 1;
 }

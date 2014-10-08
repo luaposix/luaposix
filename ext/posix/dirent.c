@@ -1,5 +1,5 @@
 /***
-@module posix
+@module posix.dirent
 */
 /*
  * POSIX library for Lua 5.1/5.2.
@@ -17,13 +17,7 @@
 
 #include <dirent.h>
 
-#include "_helpers.h"
-
-
-/***
-Directory Functions.
-@section dirent
-*/
+#include "_helpers.c"
 
 
 /***
@@ -115,5 +109,24 @@ Pfiles(lua_State *L)
 	if (*d == NULL)
 		return pusherror(L, path);
 	lua_pushcclosure(L, aux_files, 1);
+	return 1;
+}
+
+
+static const luaL_Reg posix_dirent_fns[] =
+{
+	LPOSIX_FUNC( Pdir		),
+	LPOSIX_FUNC( Pfiles		),
+	{NULL, NULL}
+};
+
+
+LUALIB_API int
+luaopen_posix_dirent(lua_State *L)
+{
+	luaL_register(L, "posix.dirent", posix_dirent_fns);
+	lua_pushliteral(L, "posix.dirent for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
 	return 1;
 }
