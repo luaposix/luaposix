@@ -4481,7 +4481,7 @@ Get time of day.
 @function gettimeofday
 @see gettimeofday(2)
 @return epoch table: contains fields "sec" (the number of seconds elapsed
- since the epoch), and "usec" (remainder in nanoseconds)
+ since the epoch), and "usec" (remainder in microseconds)
 */
 static int
 Pgettimeofday(lua_State *L)
