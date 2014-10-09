@@ -301,6 +301,11 @@ Pexecp(lua_State *L)
 
 
 #if _POSIX_VERSION >= 200112L
+
+#if !HAVE_DECL_FDATASYNC
+extern int fdatasync ();
+#endif
+
 /***
 Synchronize a file's in-core state with storage device without metadata.
 @function fdatasync
