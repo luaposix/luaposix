@@ -89,8 +89,12 @@ AC_HEADER_STDC
 AC_CHECK_HEADERS([crypt.h strings.h sys/statvfs.h net/if.h linux/netlink.h])
 
 dnl Search libs
+save_LIBS=$LIBS
+LIBS=
 AC_SEARCH_LIBS([crypt], [crypt],
   [AC_DEFINE([HAVE_CRYPT], [], [Define this if your system has a crypt() function])])
+AC_SUBST([LIBCRYPT], [$LIBS])
+LIBS=$save_LIBS
 
 dnl Check for functions
 AC_CHECK_FUNCS([strlcpy statvfs posix_fadvise sched_getsheduler sched_setscheduler])
@@ -99,21 +103,17 @@ dnl Compiler flags for POSIX
 dnl Get this from autotools/gnulib
 if test Darwin != `uname`; then
   # FIXME: Make -lrt conditional on _XOPEN_REALTIME
-  POSIX_EXTRA_CFLAGS=-D_XOPEN_SOURCE=700
-  POSIX_EXTRA_LDFLAGS=-lrt
+  AC_SUBST([POSIX_EXTRA_CFLAGS], [-D_XOPEN_SOURCE=700])
+  AC_SUBST([LIBRT], [-lrt])
 fi
-AC_SUBST(POSIX_EXTRA_CFLAGS)
-AC_SUBST(POSIX_EXTRA_LDFLAGS)
 
 dnl Curses
 AX_WITH_CURSES
 if test "$ax_cv_curses" = "yes"; then
-  WANTEDLIBS=ext/curses/curses_c.la
-  WANTEDLUA=lib/curses.lua
+  AC_SUBST([WANTEDLIBS], [ext/curses/curses_c.la])
+  AC_SUBST([WANTEDLUA], [lib/curses.lua])
 fi
 AC_ARG_VAR(CURSES_LIB, [linker flags for curses library])
-AC_SUBST(WANTEDLIBS)
-AC_SUBST(WANTEDLUA)
 
 save_LIBS=$LIBS
 LIBS="$CURSES_LIB $LIBS"

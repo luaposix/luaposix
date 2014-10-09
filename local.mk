@@ -54,9 +54,6 @@ include specs/specs.mk
 ## Build. ##
 ## ------ ##
 
-EXTRA_LTLIBRARIES	+= ext/curses/curses_c.la
-lib_LTLIBRARIES		+= ext/posix/posix.la $(WANTEDLIBS)
-
 dist_lua_DATA +=			\
 	lib/posix.lua			\
 	$(WANTEDLUA)			\
@@ -68,6 +65,8 @@ dist_luaposix_DATA =			\
 	lib/posix/sys.lua		\
 	lib/posix/util.lua		\
 	$(NOTHING_ELSE)
+
+luaexec_LTLIBRARIES	 = ext/posix/posix.la $(WANTEDLIBS)
 
 ext_posix_posix_la_SOURCES =		\
 	ext/posix/posix.c		\
@@ -104,25 +103,37 @@ EXTRA_ext_posix_posix_la_SOURCES =	\
 	ext/posix/unistd.c		\
 	ext/posix/utime.c		\
 	$(NOTHING_ELSE)
-ext_posix_posix_la_CFLAGS  = $(AM_CFLAGS) $(POSIX_EXTRA_CFLAGS)
-ext_posix_posix_la_LDFLAGS = $(AM_LDFLAGS) $(POSIX_EXTRA_LDFLAGS)
 
-ext_curses_curses_c_la_SOURCES =	\
-	ext/curses/curses.c		\
+ext_posix_posix_la_CFLAGS  = $(AM_CFLAGS) $(POSIX_EXTRA_CFLAGS)
+ext_posix_posix_la_LDFLAGS = $(AM_LDFLAGS) $(LIBCRYPT) $(LIBRT)
+
+EXTRA_LTLIBRARIES +=			\
+	ext/curses/curses_c.la		\
 	$(NOTHING_ELSE)
-ext_curses_curses_c_la_LDFLAGS =	\
-	$(AM_LDFLAGS) $(CURSES_LIB) -rpath '$(libdir)'
+
+luaexecposixdir = $(luaexecdir)/posix
+luaexecposixsysdir = $(luaexecposixdir)/sys
+
+# EXTRA_LTLIBRARIES don't have an RPATH by default.
+luaexec_LDFLAGS = $(AM_LDFLAGS) -rpath '$(luaexecdir)'
+luaexecposix_LDFLAGS = $(AM_LDFLAGS) -rpath '$(luaexecposixdir)'
+luaexecposixsys_LDFLAGS = $(AM_LDFLAGS) -rpath '$(luaexecposixsysdir)'
+
+ext_curses_curses_c_la_SOURCES = ext/curses/curses.c
+ext_curses_curses_c_la_LDFLAGS = $(luaexec_LDFLAGS) $(CURSES_LIB)
+
 
 
 ## ---------------------- ##
 ## Standalone Submodules. ##
 ## ---------------------- ##
 
+
 # We don't install these, but we do need to make sure they compile
 # for people who want to copy some of the sources into their own
 # projects for custom interpreters/libraries.
 
-check_LTLIBRARIES =			\
+posix_submodules =			\
 	ext/posix/ctype.la		\
 	ext/posix/dirent.la		\
 	ext/posix/errno.la		\
@@ -153,6 +164,45 @@ check_LTLIBRARIES =			\
 	ext/posix/unistd.la		\
 	ext/posix/utime.la		\
 	$(NOTHING_ELSE)
+
+EXTRA_LTLIBRARIES += $(posix_submodules)
+check_local += $(posix_submodules)
+
+ext_posix_ctype_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_dirent_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_errno_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_fcntl_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_fnmatch_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_getopt_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_glob_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_grp_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_libgen_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_poll_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_pwd_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_sched_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_signal_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_stdio_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_stdlib_la_LDFLAGS = $(luaexecposix_LDFLAGS) $(LIBCRYPT)
+ext_posix_syslog_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_termio_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_time_la_LDFLAGS = $(luaexecposix_LDFLAGS) $(LIBRT)
+ext_posix_unistd_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_utime_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+
+ext_posix_sys_msg_la_LDFLAGS = $(luaexecposixsys_LDFLAGS)
+ext_posix_sys_resource_la_LDFLAGS = $(luaexecposixsys_LDFLAGS)
+ext_posix_sys_socket_la_LDFLAGS = $(luaexecposixsys_LDFLAGS)
+ext_posix_sys_stat_la_LDFLAGS = $(luaexecposixsys_LDFLAGS)
+ext_posix_sys_statvfs_la_LDFLAGS = $(luaexecposixsys_LDFLAGS)
+ext_posix_sys_time_la_LDFLAGS = $(luaexecposixsys_LDFLAGS)
+ext_posix_sys_times_la_LDFLAGS = $(luaexecposixsys_LDFLAGS)
+ext_posix_sys_utsname_la_LDFLAGS = $(luaexecposixsys_LDFLAGS)
+ext_posix_sys_wait_la_LDFLAGS = $(luaexecposixsys_LDFLAGS)
+
+
+clean-local:
+	rm -f $(posix_submodules)
+
 
 ## -------------- ##
 ## Documentation. ##

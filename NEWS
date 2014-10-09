@@ -57,6 +57,9 @@ Stdlib NEWS - User visible changes
 
  - posix.readlink is much more robust, and reports errors accurately.
 
+ - configured installation installs `posix.so` into the lua cpath directory
+   correctly.
+
 ** Incompatible changes:
 
  - Calling posix.stat on a symbolic link now returns information about
