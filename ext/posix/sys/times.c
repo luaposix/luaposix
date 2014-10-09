@@ -16,6 +16,7 @@
 #include <config.h>
 
 #include <sys/times.h>
+#include <unistd.h>	/* for sysconf(3) */
 
 #include "_helpers.h"
 

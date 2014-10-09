@@ -13,9 +13,11 @@
  * With documentation from Steve Donovan 2012
  */
 
-#if _POSIX_VERSION >= 200112L
-
 #include <config.h>
+
+#include <unistd.h>	/* for _POSIX_VERSION */
+
+#if _POSIX_VERSION >= 200112L
 
 #include <sys/ipc.h>
 #include <sys/msg.h>

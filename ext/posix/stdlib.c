@@ -15,6 +15,7 @@
 
 #include <config.h>
 
+#include <fcntl.h>	/* for open(2) */
 #include <stdlib.h>
 
 #include "_helpers.h"

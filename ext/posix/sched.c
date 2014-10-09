@@ -15,6 +15,8 @@
 
 #include <config.h>
 
+#include <unistd.h>	/* for _POSIX_PRIORITY_SCHEDULING */
+
 #ifdef _POSIX_PRIORITY_SCHEDULING
 #include <sched.h>
 #endif
@@ -22,7 +24,6 @@
 #include <sys/resource.h>
 #include <sys/times.h>
 #include <sys/wait.h>
-#include <unistd.h>
 
 #include "_helpers.h"
 

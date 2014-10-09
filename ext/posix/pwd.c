@@ -17,6 +17,7 @@
 
 #include <pwd.h>
 #include <sys/types.h>
+#include <unistd.h>	/* for geteuid(2) */
 
 #include "_helpers.h"
 

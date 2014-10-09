@@ -14,9 +14,11 @@
  */
 
 
-#if _POSIX_VERSION >= 200112L
-
 #include <config.h>
+
+#include <unistd.h>	/* for _POSIX_VERSION */
+
+#if _POSIX_VERSION >= 200112L
 
 #include <syslog.h>
 
