@@ -300,6 +300,6 @@ for _, sub in ipairs {
 end
 
 
-M.version = "posix for " .. _VERSION .. " / luaposix 33"
+M.version = "posix for " .. _VERSION .. " / @PACKAGE_STRING@"
 
 return M

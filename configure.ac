@@ -140,5 +140,5 @@ AM_CONDITIONAL([HAVE_LDOC], [test false != "$LDOC"])
 dnl Generate output files
 SS_CONFIG_TRAVIS([ldoc specl])
 AC_CONFIG_HEADER(config.h)
-AC_CONFIG_FILES([Makefile build-aux/config.ld])
+AC_CONFIG_FILES([Makefile build-aux/config.ld lib/posix.lua])
 AC_OUTPUT

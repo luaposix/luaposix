@@ -27,6 +27,7 @@
 /config.lt
 /config.status
 /configure
+/lib/posix.lua
 /libtool
 /luaposix-*.tar.gz
 /stamp-h1
