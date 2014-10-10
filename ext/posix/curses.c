@@ -50,90 +50,82 @@
 #include "strlcpy.c"
 
 
-/*
-** =======================================================
-** defines
-** =======================================================
-*/
-static const char *STDSCR_REGISTRY     = "curses:stdscr";
-static const char *WINDOWMETA          = "curses:window";
-static const char *CHSTRMETA           = "curses:chstr";
-static const char *RIPOFF_TABLE        = "curses:ripoffline";
-
-#define B(v) ((((int) (v)) == OK))
-
+#define B(v)		((((int) (v)) == OK))
 #define pushokresult(b)	pushboolresult(B(b))
 
 
-/*
-** =======================================================
-** privates
-** =======================================================
-*/
-static void lc_newwin(lua_State *L, WINDOW *nw)
+static const char *STDSCR_REGISTRY	= "curses:stdscr";
+static const char *WINDOWMETA		= "curses:window";
+static const char *CHSTRMETA		= "curses:chstr";
+static const char *RIPOFF_TABLE		= "curses:ripoffline";
+
+
+static void
+lc_newwin(lua_State *L, WINDOW *nw)
 {
-    if (nw)
-    {
-        WINDOW **w = lua_newuserdata(L, sizeof(WINDOW*));
-        luaL_getmetatable(L, WINDOWMETA);
-        lua_setmetatable(L, -2);
-        *w = nw;
-    }
-    else
-    {
-        lua_pushliteral(L, "failed to create window");
-        lua_error(L);
-    }
+	if (nw)
+	{
+		WINDOW **w = lua_newuserdata(L, sizeof(WINDOW*));
+		luaL_getmetatable(L, WINDOWMETA);
+		lua_setmetatable(L, -2);
+		*w = nw;
+	}
+	else
+	{
+		lua_pushliteral(L, "failed to create window");
+		lua_error(L);
+	}
 }
+
 
 static WINDOW **lc_getwin(lua_State *L, int offset)
 {
-    WINDOW **w = (WINDOW**)luaL_checkudata(L, offset, WINDOWMETA);
-    if (w == NULL) luaL_argerror(L, offset, "bad curses window");
-    return w;
+	WINDOW **w = (WINDOW**)luaL_checkudata(L, offset, WINDOWMETA);
+	if (w == NULL)
+		luaL_argerror(L, offset, "bad curses window");
+	return w;
 }
+
 
 static WINDOW *checkwin(lua_State *L, int offset)
 {
-    WINDOW **w = lc_getwin(L, offset);
-    if (*w == NULL) luaL_argerror(L, offset, "attempt to use closed curses window");
-    return *w;
+	WINDOW **w = lc_getwin(L, offset);
+	if (*w == NULL)
+		luaL_argerror(L, offset, "attempt to use closed curses window");
+	return *w;
 }
 
-static int W__tostring(lua_State *L)
+
+static int
+W__tostring(lua_State *L)
 {
-    WINDOW **w = lc_getwin(L, 1);
-    char buff[34];
-    if (*w == NULL)
-        strcpy(buff, "closed");
-    else
-        sprintf(buff, "%p", lua_touserdata(L, 1));
-    lua_pushfstring(L, "curses window (%s)", buff);
-    return 1;
+	WINDOW **w = lc_getwin(L, 1);
+	char buff[34];
+	if (*w == NULL)
+		strcpy(buff, "closed");
+	else
+		sprintf(buff, "%p", lua_touserdata(L, 1));
+	lua_pushfstring(L, "curses window (%s)", buff);
+	return 1;
 }
 
-/*
-** =======================================================
-** chtype handling
-** =======================================================
-*/
+
 static chtype checkch(lua_State *L, int offset)
 {
-    if (lua_type(L, offset) == LUA_TNUMBER)
-        return luaL_checknumber(L, offset);
-    if (lua_type(L, offset) == LUA_TSTRING)
-        return *lua_tostring(L, offset);
+	if (lua_type(L, offset) == LUA_TNUMBER)
+		return luaL_checknumber(L, offset);
+	if (lua_type(L, offset) == LUA_TSTRING)
+		return *lua_tostring(L, offset);
 
-    luaL_typerror(L, offset, "chtype");
-    /* never executes */
-    return 0;
+	return luaL_typerror(L, offset, "chtype");
 }
+
 
 static chtype optch(lua_State *L, int offset, chtype def)
 {
-    if (lua_isnoneornil(L, offset))
-        return def;
-    return checkch(L, offset);
+	if (lua_isnoneornil(L, offset))
+		return def;
+	return checkch(L, offset);
 }
 
 /****c* classes/chstr
@@ -146,37 +138,40 @@ static chtype optch(lua_State *L, int offset, chtype def)
 
 typedef struct
 {
-    unsigned int len;
-    chtype str[1];
+	unsigned int len;
+	chtype str[1];
 } chstr;
 #define CHSTR_SIZE(len) (sizeof(chstr) + len * sizeof(chtype))
 
 
 /* create new chstr object and leave it in the lua stack */
+
 static chstr* chstr_new(lua_State *L, int len)
 {
-    if (len < 1)
-    {
-        lua_pushliteral(L, "invalid chstr length");
-        lua_error(L);
-    }
-    {
-        chstr *cs = lua_newuserdata(L, CHSTR_SIZE(len));
-        luaL_getmetatable(L, CHSTRMETA);
-        lua_setmetatable(L, -2);
-        cs->len = len;
-        return cs;
-    }
+	if (len < 1)
+	{
+		lua_pushliteral(L, "invalid chstr length");
+		lua_error(L);
+	}
+	{
+		chstr *cs = lua_newuserdata(L, CHSTR_SIZE(len));
+		luaL_getmetatable(L, CHSTRMETA);
+		lua_setmetatable(L, -2);
+		cs->len = len;
+		return cs;
+	}
 }
 
 /* get chstr from lua (convert if needed) */
+
 static chstr* checkchstr(lua_State *L, int offset)
 {
-    chstr *cs = (chstr*)luaL_checkudata(L, offset, CHSTRMETA);
-    if (cs) return cs;
+	chstr *cs = (chstr*)luaL_checkudata(L, offset, CHSTRMETA);
+	if (cs)
+		return cs;
 
-    luaL_argerror(L, offset, "bad curses chstr");
-    return NULL;
+	luaL_argerror(L, offset, "bad curses chstr");
+	return NULL;
 }
 
 /****f* curses/curses.new_chstr
@@ -186,39 +181,43 @@ static chstr* checkchstr(lua_State *L, int offset)
  * SEE ALSO
  *   chstr
  ****/
-static int Cnew_chstr(lua_State *L)
+
+static int
+Cnew_chstr(lua_State *L)
 {
-    int len = luaL_checkint(L, 1);
-    chstr* ncs = chstr_new(L, len);
-    memset(ncs->str, ' ', len*sizeof(chtype));
-    return 1;
+	int len = luaL_checkint(L, 1);
+	chstr* ncs = chstr_new(L, len);
+	memset(ncs->str, ' ', len*sizeof(chtype));
+	return 1;
 }
 
 /* change the contents of the chstr */
-static int chstr_set_str(lua_State *L)
+
+static int
+chstr_set_str(lua_State *L)
 {
-    chstr *cs = checkchstr(L, 1);
-    int offset = luaL_checkint(L, 2);
-    const char *str = luaL_checkstring(L, 3);
-    int len = lua_strlen(L, 3);
-    int attr = luaL_optnumber(L, 4, A_NORMAL);
-    int rep = luaL_optint(L, 5, 1);
-    int i;
+	chstr *cs = checkchstr(L, 1);
+	int offset = luaL_checkint(L, 2);
+	const char *str = luaL_checkstring(L, 3);
+	int len = lua_strlen(L, 3);
+	int attr = luaL_optnumber(L, 4, A_NORMAL);
+	int rep = luaL_optint(L, 5, 1);
+	int i;
 
-    if (offset < 0)
-        return 0;
+	if (offset < 0)
+		return 0;
 
-    while (rep-- > 0 && offset <= (int)cs->len)
-    {
-        if (offset + len - 1 > (int)cs->len)
-            len = cs->len - offset + 1;
+	while (rep-- > 0 && offset <= (int)cs->len)
+	{
+		if (offset + len - 1 > (int)cs->len)
+			len = cs->len - offset + 1;
 
-        for (i = 0; i < len; ++i)
-            cs->str[offset + i] = str[i] | attr;
-        offset += len;
-    }
+		for (i = 0; i < len; ++i)
+			cs->str[offset + i] = str[i] | attr;
+		offset += len;
+	}
 
-    return 0;
+	return 0;
 }
 
 
@@ -232,79 +231,82 @@ static int chstr_set_str(lua_State *L)
  * EXAMPLE
  *   Set the buffer with 'a's where the first one is capitalized
  *   and has bold.
- *       size = 10
- *       str = curses.new_chstr(10)
- *       str:set_ch(0, 'A', curses.A_BOLD)
- *       str:set_ch(1, 'a', curses.A_NORMAL, size - 1)
+ *	   size = 10
+ *	   str = curses.new_chstr(10)
+ *	   str:set_ch(0, 'A', curses.A_BOLD)
+ *	   str:set_ch(1, 'a', curses.A_NORMAL, size - 1)
  ****/
-static int chstr_set_ch(lua_State *L)
+
+static int
+chstr_set_ch(lua_State *L)
 {
-    chstr* cs = checkchstr(L, 1);
-    int offset = luaL_checkint(L, 2);
-    chtype ch = checkch(L, 3);
-    int attr = luaL_optnumber(L, 4, A_NORMAL);
-    int rep = luaL_optint(L, 5, 1);
+	chstr* cs = checkchstr(L, 1);
+	int offset = luaL_checkint(L, 2);
+	chtype ch = checkch(L, 3);
+	int attr = luaL_optnumber(L, 4, A_NORMAL);
+	int rep = luaL_optint(L, 5, 1);
 
-    while (rep-- > 0)
-    {
-        if (offset < 0 || offset >= (int) cs->len)
-            return 0;
+	while (rep-- > 0)
+	{
+		if (offset < 0 || offset >= (int) cs->len)
+			return 0;
 
-        cs->str[offset] = ch | attr;
+		cs->str[offset] = ch | attr;
 
-        ++offset;
-    }
-    return 0;
+		++offset;
+	}
+	return 0;
 }
 
 /* get information from the chstr */
-static int chstr_get(lua_State *L)
+
+static int
+chstr_get(lua_State *L)
 {
-    chstr* cs = checkchstr(L, 1);
-    int offset = luaL_checkint(L, 2);
-    chtype ch;
+	chstr* cs = checkchstr(L, 1);
+	int offset = luaL_checkint(L, 2);
+	chtype ch;
 
-    if (offset < 0 || offset >= (int) cs->len)
-        return 0;
+	if (offset < 0 || offset >= (int) cs->len)
+		return 0;
 
-    ch = cs->str[offset];
+	ch = cs->str[offset];
 
-    lua_pushinteger(L, ch & A_CHARTEXT);
-    lua_pushinteger(L, ch & A_ATTRIBUTES);
-    lua_pushinteger(L, ch & A_COLOR);
-    return 3;
+	lua_pushinteger(L, ch & A_CHARTEXT);
+	lua_pushinteger(L, ch & A_ATTRIBUTES);
+	lua_pushinteger(L, ch & A_COLOR);
+	return 3;
 }
 
 /* retrieve chstr length */
-static int chstr_len(lua_State *L)
+
+static int
+chstr_len(lua_State *L)
 {
-    chstr *cs = checkchstr(L, 1);
-    return pushintresult(cs->len);
+	chstr *cs = checkchstr(L, 1);
+	return pushintresult(cs->len);
 }
 
 /* duplicate chstr */
-static int chstr_dup(lua_State *L)
-{
-    chstr *cs = checkchstr(L, 1);
-    chstr *ncs = chstr_new(L, cs->len);
 
-    memcpy(ncs->str, cs->str, CHSTR_SIZE(cs->len));
-    return 1;
+static int
+chstr_dup(lua_State *L)
+{
+	chstr *cs = checkchstr(L, 1);
+	chstr *ncs = chstr_new(L, cs->len);
+
+	memcpy(ncs->str, cs->str, CHSTR_SIZE(cs->len));
+	return 1;
 }
 
-/*
-** =======================================================
-** initscr
-** =======================================================
-*/
 
-#define CCR(n, v)                       \
-    lua_pushstring(L, n);               \
-    lua_pushinteger(L, v);              \
-    lua_settable(L, lua_upvalueindex(1));
+#define CCR(n, v)				\
+	lua_pushstring(L, n);			\
+	lua_pushinteger(L, v);			\
+	lua_settable(L, lua_upvalueindex(1));
 
-#define CC(s)       CCR(#s, s)
-#define CF(i)       CCR(LPOSIX_STR(LPOSIX_SPLICE(KEY_F, i)), KEY_F(i))
+#define CC(s)	   CCR(#s, s)
+#define CF(i)	   CCR(LPOSIX_STR(LPOSIX_SPLICE(KEY_F, i)), KEY_F(i))
 
 /*
 ** these values may be fixed only after initialization, so this is
@@ -317,83 +319,85 @@ static int chstr_dup(lua_State *L)
 ** some of these values are not constant so need to register
 ** them directly instead of using a table
 */
-static void register_curses_constants(lua_State *L)
+
+static void
+register_curses_constants(lua_State *L)
 {
-    /* colors */
-    CC(COLOR_BLACK)     CC(COLOR_RED)       CC(COLOR_GREEN)
-    CC(COLOR_YELLOW)    CC(COLOR_BLUE)      CC(COLOR_MAGENTA)
-    CC(COLOR_CYAN)      CC(COLOR_WHITE)
+	/* colors */
+	CC(COLOR_BLACK)		CC(COLOR_RED)		CC(COLOR_GREEN)
+	CC(COLOR_YELLOW)	CC(COLOR_BLUE)		CC(COLOR_MAGENTA)
+	CC(COLOR_CYAN)		CC(COLOR_WHITE)
 
-    /* alternate character set */
-    CC(ACS_BLOCK)       CC(ACS_BOARD)
+	/* alternate character set */
+	CC(ACS_BLOCK)		CC(ACS_BOARD)
 
-    CC(ACS_BTEE)        CC(ACS_TTEE)
-    CC(ACS_LTEE)        CC(ACS_RTEE)
-    CC(ACS_LLCORNER)    CC(ACS_LRCORNER)
-    CC(ACS_URCORNER)    CC(ACS_ULCORNER)
+	CC(ACS_BTEE)		CC(ACS_TTEE)
+	CC(ACS_LTEE)		CC(ACS_RTEE)
+	CC(ACS_LLCORNER)	CC(ACS_LRCORNER)
+	CC(ACS_URCORNER)	CC(ACS_ULCORNER)
 
-    CC(ACS_LARROW)      CC(ACS_RARROW)
-    CC(ACS_UARROW)      CC(ACS_DARROW)
+	CC(ACS_LARROW)		CC(ACS_RARROW)
+	CC(ACS_UARROW)		CC(ACS_DARROW)
 
-    CC(ACS_HLINE)       CC(ACS_VLINE)
+	CC(ACS_HLINE)		CC(ACS_VLINE)
 
-    CC(ACS_BULLET)      CC(ACS_CKBOARD)     CC(ACS_LANTERN)
-    CC(ACS_DEGREE)      CC(ACS_DIAMOND)
+	CC(ACS_BULLET)		CC(ACS_CKBOARD)		CC(ACS_LANTERN)
+	CC(ACS_DEGREE)		CC(ACS_DIAMOND)
 
-    CC(ACS_PLMINUS)     CC(ACS_PLUS)
-    CC(ACS_S1)          CC(ACS_S9)
+	CC(ACS_PLMINUS)		CC(ACS_PLUS)
+	CC(ACS_S1)		CC(ACS_S9)
 
-    /* attributes */
-    CC(A_NORMAL)        CC(A_STANDOUT)      CC(A_UNDERLINE)
-    CC(A_REVERSE)       CC(A_BLINK)         CC(A_DIM)
-    CC(A_BOLD)          CC(A_PROTECT)       CC(A_INVIS)
-    CC(A_ALTCHARSET)    CC(A_CHARTEXT)
-    CC(A_ATTRIBUTES)
+	/* attributes */
+	CC(A_NORMAL)		CC(A_STANDOUT)		CC(A_UNDERLINE)
+	CC(A_REVERSE)		CC(A_BLINK)		CC(A_DIM)
+	CC(A_BOLD)		CC(A_PROTECT)		CC(A_INVIS)
+	CC(A_ALTCHARSET)	CC(A_CHARTEXT)
+	CC(A_ATTRIBUTES)
 
-    /* key functions */
-    CC(KEY_BREAK)       CC(KEY_DOWN)        CC(KEY_UP)
-    CC(KEY_LEFT)        CC(KEY_RIGHT)       CC(KEY_HOME)
-    CC(KEY_BACKSPACE)
+	/* key functions */
+	CC(KEY_BREAK)		CC(KEY_DOWN)		CC(KEY_UP)
+	CC(KEY_LEFT)		CC(KEY_RIGHT)		CC(KEY_HOME)
+	CC(KEY_BACKSPACE)
 
-    CC(KEY_DL)          CC(KEY_IL)          CC(KEY_DC)
-    CC(KEY_IC)          CC(KEY_EIC)         CC(KEY_CLEAR)
-    CC(KEY_EOS)         CC(KEY_EOL)         CC(KEY_SF)
-    CC(KEY_SR)          CC(KEY_NPAGE)       CC(KEY_PPAGE)
-    CC(KEY_STAB)        CC(KEY_CTAB)        CC(KEY_CATAB)
-    CC(KEY_ENTER)       CC(KEY_SRESET)      CC(KEY_RESET)
-    CC(KEY_PRINT)       CC(KEY_LL)          CC(KEY_A1)
-    CC(KEY_A3)          CC(KEY_B2)          CC(KEY_C1)
-    CC(KEY_C3)          CC(KEY_BTAB)        CC(KEY_BEG)
-    CC(KEY_CANCEL)      CC(KEY_CLOSE)       CC(KEY_COMMAND)
-    CC(KEY_COPY)        CC(KEY_CREATE)      CC(KEY_END)
-    CC(KEY_EXIT)        CC(KEY_FIND)        CC(KEY_HELP)
-    CC(KEY_MARK)        CC(KEY_MESSAGE)     CC(KEY_MOUSE)
-    CC(KEY_MOVE)        CC(KEY_NEXT)        CC(KEY_OPEN)
-    CC(KEY_OPTIONS)     CC(KEY_PREVIOUS)    CC(KEY_REDO)
-    CC(KEY_REFERENCE)   CC(KEY_REFRESH)     CC(KEY_REPLACE)
-    CC(KEY_RESIZE)      CC(KEY_RESTART)     CC(KEY_RESUME)
-    CC(KEY_SAVE)        CC(KEY_SBEG)        CC(KEY_SCANCEL)
-    CC(KEY_SCOMMAND)    CC(KEY_SCOPY)       CC(KEY_SCREATE)
-    CC(KEY_SDC)         CC(KEY_SDL)         CC(KEY_SELECT)
-    CC(KEY_SEND)        CC(KEY_SEOL)        CC(KEY_SEXIT)
-    CC(KEY_SFIND)       CC(KEY_SHELP)       CC(KEY_SHOME)
-    CC(KEY_SIC)         CC(KEY_SLEFT)       CC(KEY_SMESSAGE)
-    CC(KEY_SMOVE)       CC(KEY_SNEXT)       CC(KEY_SOPTIONS)
-    CC(KEY_SPREVIOUS)   CC(KEY_SPRINT)      CC(KEY_SREDO)
-    CC(KEY_SREPLACE)    CC(KEY_SRIGHT)      CC(KEY_SRSUME)
-    CC(KEY_SSAVE)       CC(KEY_SSUSPEND)    CC(KEY_SUNDO)
-    CC(KEY_SUSPEND)     CC(KEY_UNDO)
+	CC(KEY_DL)		CC(KEY_IL)		CC(KEY_DC)
+	CC(KEY_IC)		CC(KEY_EIC)		CC(KEY_CLEAR)
+	CC(KEY_EOS)		CC(KEY_EOL)		CC(KEY_SF)
+	CC(KEY_SR)		CC(KEY_NPAGE)		CC(KEY_PPAGE)
+	CC(KEY_STAB)		CC(KEY_CTAB)		CC(KEY_CATAB)
+	CC(KEY_ENTER)		CC(KEY_SRESET)		CC(KEY_RESET)
+	CC(KEY_PRINT)		CC(KEY_LL)		CC(KEY_A1)
+	CC(KEY_A3)		CC(KEY_B2)		CC(KEY_C1)
+	CC(KEY_C3)		CC(KEY_BTAB)		CC(KEY_BEG)
+	CC(KEY_CANCEL)		CC(KEY_CLOSE)		CC(KEY_COMMAND)
+	CC(KEY_COPY)		CC(KEY_CREATE)		CC(KEY_END)
+	CC(KEY_EXIT)		CC(KEY_FIND)		CC(KEY_HELP)
+	CC(KEY_MARK)		CC(KEY_MESSAGE)		CC(KEY_MOUSE)
+	CC(KEY_MOVE)		CC(KEY_NEXT)		CC(KEY_OPEN)
+	CC(KEY_OPTIONS)		CC(KEY_PREVIOUS)	CC(KEY_REDO)
+	CC(KEY_REFERENCE)	CC(KEY_REFRESH)		CC(KEY_REPLACE)
+	CC(KEY_RESIZE)		CC(KEY_RESTART)		CC(KEY_RESUME)
+	CC(KEY_SAVE)		CC(KEY_SBEG)		CC(KEY_SCANCEL)
+	CC(KEY_SCOMMAND)	CC(KEY_SCOPY)		CC(KEY_SCREATE)
+	CC(KEY_SDC)		CC(KEY_SDL)		CC(KEY_SELECT)
+	CC(KEY_SEND)		CC(KEY_SEOL)		CC(KEY_SEXIT)
+	CC(KEY_SFIND)		CC(KEY_SHELP)		CC(KEY_SHOME)
+	CC(KEY_SIC)		CC(KEY_SLEFT)		CC(KEY_SMESSAGE)
+	CC(KEY_SMOVE)		CC(KEY_SNEXT)		CC(KEY_SOPTIONS)
+	CC(KEY_SPREVIOUS)	CC(KEY_SPRINT)		CC(KEY_SREDO)
+	CC(KEY_SREPLACE)	CC(KEY_SRIGHT)		CC(KEY_SRSUME)
+	CC(KEY_SSAVE)		CC(KEY_SSUSPEND)	CC(KEY_SUNDO)
+	CC(KEY_SUSPEND)		CC(KEY_UNDO)
 
-    /* KEY_Fx  0 <= x <= 63 */
-    CC(KEY_F0)
-    CF(1)  CF(2)  CF(3)  CF(4)  CF(5)  CF(6)  CF(7)  CF(8)
-    CF(9)  CF(10) CF(11) CF(12) CF(13) CF(14) CF(15) CF(16)
-    CF(17) CF(18) CF(19) CF(20) CF(21) CF(22) CF(23) CF(24)
-    CF(25) CF(26) CF(27) CF(28) CF(29) CF(30) CF(21) CF(32)
-    CF(33) CF(34) CF(35) CF(36) CF(37) CF(38) CF(39) CF(40)
-    CF(41) CF(42) CF(43) CF(44) CF(45) CF(46) CF(47) CF(48)
-    CF(49) CF(50) CF(51) CF(52) CF(53) CF(54) CF(55) CF(56)
-    CF(57) CF(58) CF(59) CF(60) CF(61) CF(62) CF(63)
+	/* KEY_Fx  0 <= x <= 63 */
+	CC(KEY_F0)
+	CF(1)  CF(2)  CF(3)  CF(4)  CF(5)  CF(6)  CF(7)  CF(8)
+	CF(9)  CF(10) CF(11) CF(12) CF(13) CF(14) CF(15) CF(16)
+	CF(17) CF(18) CF(19) CF(20) CF(21) CF(22) CF(23) CF(24)
+	CF(25) CF(26) CF(27) CF(28) CF(29) CF(30) CF(21) CF(32)
+	CF(33) CF(34) CF(35) CF(36) CF(37) CF(38) CF(39) CF(40)
+	CF(41) CF(42) CF(43) CF(44) CF(45) CF(46) CF(47) CF(48)
+	CF(49) CF(50) CF(51) CF(52) CF(53) CF(54) CF(55) CF(56)
+	CF(57) CF(58) CF(59) CF(60) CF(61) CF(62) CF(63)
 }
 
 /*
@@ -401,1666 +405,1746 @@ static void register_curses_constants(lua_State *L)
 ** (for the situations where program is aborted without a
 ** proper cleanup)
 */
-static void cleanup(void)
+
+static void
+cleanup(void)
 {
-    if (!isendwin())
-    {
-        wclear(stdscr);
-        wrefresh(stdscr);
-        endwin();
-    }
+	if (!isendwin())
+	{
+		wclear(stdscr);
+		wrefresh(stdscr);
+		endwin();
+	}
 }
 
-static int Cinitscr(lua_State *L)
+
+static int
+Cinitscr(lua_State *L)
 {
-    WINDOW *w;
+	WINDOW *w;
 
-    /* initialize curses */
-    w = initscr();
+	/* initialize curses */
+	w = initscr();
 
-    /* no longer used, so clean it up */
-    lua_pushstring(L, RIPOFF_TABLE);
-    lua_pushnil(L);
-    lua_settable(L, LUA_REGISTRYINDEX);
+	/* no longer used, so clean it up */
+	lua_pushstring(L, RIPOFF_TABLE);
+	lua_pushnil(L);
+	lua_settable(L, LUA_REGISTRYINDEX);
 
-    /* failed to initialize */
-    if (w == NULL)
-        return 0;
+	/* failed to initialize */
+	if (w == NULL)
+		return 0;
 
-    /* return stdscr - main window */
-    lc_newwin(L, w);
+	/* return stdscr - main window */
+	lc_newwin(L, w);
 
-    /* save main window on registry */
-    lua_pushstring(L, STDSCR_REGISTRY);
-    lua_pushvalue(L, -2);
-    lua_rawset(L, LUA_REGISTRYINDEX);
+	/* save main window on registry */
+	lua_pushstring(L, STDSCR_REGISTRY);
+	lua_pushvalue(L, -2);
+	lua_rawset(L, LUA_REGISTRYINDEX);
 
-    /* setup curses constants - curses.xxx numbers */
-    register_curses_constants(L);
+	/* setup curses constants - curses.xxx numbers */
+	register_curses_constants(L);
 
-    /* install cleanup handler to help in debugging and screen trashing */
-    atexit(cleanup);
+	/* install cleanup handler to help in debugging and screen trashing */
+	atexit(cleanup);
 
-    return 1;
+	return 1;
 }
 
 /* FIXME: Avoid cast to void. */
-static int Cendwin(lua_State *L)
+
+static int
+Cendwin(lua_State *L)
 {
-    (void) L;
-    endwin();
-    return 0;
+	(void) L;
+	endwin();
+	return 0;
 }
 
-static int Cisendwin(lua_State *L)
+
+static int
+Cisendwin(lua_State *L)
 {
-    return pushboolresult(isendwin());
+	return pushboolresult(isendwin());
 }
 
-static int Cstdscr(lua_State *L)
+
+static int
+Cstdscr(lua_State *L)
 {
-    lua_pushstring(L, STDSCR_REGISTRY);
-    lua_rawget(L, LUA_REGISTRYINDEX);
-    return 1;
+	lua_pushstring(L, STDSCR_REGISTRY);
+	lua_rawget(L, LUA_REGISTRYINDEX);
+	return 1;
 }
 
-static int Ccols(lua_State *L)
+
+static int
+Ccols(lua_State *L)
 {
-    return pushintresult(COLS);
+	return pushintresult(COLS);
 }
 
-static int Clines(lua_State *L)
+
+static int
+Clines(lua_State *L)
 {
-    return pushintresult(LINES);
+	return pushintresult(LINES);
 }
 
-/*
-** =======================================================
-** color
-** =======================================================
-*/
 
-static int Cstart_color(lua_State *L)
+static int
+Cstart_color(lua_State *L)
 {
-    return pushokresult(start_color());
+	return pushokresult(start_color());
 }
 
-static int Chas_colors(lua_State *L)
+
+static int
+Chas_colors(lua_State *L)
 {
-    return pushboolresult(has_colors());
+	return pushboolresult(has_colors());
 }
 
-static int Cuse_default_colors(lua_State *L)
+
+static int
+Cuse_default_colors(lua_State *L)
 {
-    return pushokresult(use_default_colors());
+	return pushokresult(use_default_colors());
 }
 
-static int Cinit_pair(lua_State *L)
+
+static int
+Cinit_pair(lua_State *L)
 {
-    short pair = luaL_checkint(L, 1);
-    short f = luaL_checkint(L, 2);
-    short b = luaL_checkint(L, 3);
-    return pushokresult(init_pair(pair, f, b));
+	short pair = luaL_checkint(L, 1);
+	short f = luaL_checkint(L, 2);
+	short b = luaL_checkint(L, 3);
+	return pushokresult(init_pair(pair, f, b));
 }
 
-static int Cpair_content(lua_State *L)
+
+static int
+Cpair_content(lua_State *L)
 {
-    short pair = luaL_checkint(L, 1);
-    short f;
-    short b;
-    int ret = pair_content(pair, &f, &b);
+	short pair = luaL_checkint(L, 1);
+	short f;
+	short b;
+	int ret = pair_content(pair, &f, &b);
 
-    if (ret == ERR)
-        return 0;
+	if (ret == ERR)
+		return 0;
 
-    lua_pushinteger(L, f);
-    lua_pushinteger(L, b);
-    return 2;
+	lua_pushinteger(L, f);
+	lua_pushinteger(L, b);
+	return 2;
 }
 
-static int Ccolors(lua_State *L)
+
+static int
+Ccolors(lua_State *L)
 {
-    return pushintresult(COLORS);
+	return pushintresult(COLORS);
 }
 
-static int Ccolor_pairs(lua_State *L)
+
+static int
+Ccolor_pairs(lua_State *L)
 {
-    return pushintresult(COLOR_PAIRS);
+	return pushintresult(COLOR_PAIRS);
 }
 
-static int Ccolor_pair(lua_State *L)
+
+static int
+Ccolor_pair(lua_State *L)
 {
-    int n = luaL_checkint(L, 1);
-    return pushintresult(COLOR_PAIR(n));
+	int n = luaL_checkint(L, 1);
+	return pushintresult(COLOR_PAIR(n));
 }
 
-/*
-** =======================================================
-** termattrs
-** =======================================================
-*/
 
-static int Cbaudrate(lua_State *L)
+static int
+Cbaudrate(lua_State *L)
 {
-    return pushintresult(baudrate());
+	return pushintresult(baudrate());
 }
 
-static int Cerasechar(lua_State *L)
+
+static int
+Cerasechar(lua_State *L)
 {
-    return pushintresult(erasechar());
+	return pushintresult(erasechar());
 }
 
-static int Chas_ic(lua_State *L)
+
+static int
+Chas_ic(lua_State *L)
 {
-    return pushboolresult(has_ic());
+	return pushboolresult(has_ic());
 }
 
-static int Chas_il(lua_State *L)
+
+static int
+Chas_il(lua_State *L)
 {
-    return pushboolresult(has_il());
+	return pushboolresult(has_il());
 }
 
-static int Ckillchar(lua_State *L)
+
+static int
+Ckillchar(lua_State *L)
 {
-    return pushintresult(killchar());
+	return pushintresult(killchar());
 }
 
-static int Ctermattrs(lua_State *L)
+
+static int
+Ctermattrs(lua_State *L)
 {
-    if (lua_gettop(L) > 0)
-    {
-        int a = luaL_checkint(L, 1);
-        return pushboolresult(termattrs() & a);
-    }
-    return pushintresult(termattrs());
+	if (lua_gettop(L) > 0)
+	{
+		int a = luaL_checkint(L, 1);
+		return pushboolresult(termattrs() & a);
+	}
+	return pushintresult(termattrs());
 }
 
-static int Ctermname(lua_State *L)
+
+static int
+Ctermname(lua_State *L)
 {
-    return pushstringresult(termname());
+	return pushstringresult(termname());
 }
 
-static int Clongname(lua_State *L)
+
+static int
+Clongname(lua_State *L)
 {
-    return pushstringresult(longname());
+	return pushstringresult(longname());
 }
 
-/*
-** =======================================================
-** kernel
-** =======================================================
-*/
 
 /* there is no easy way to implement this... */
+
 static lua_State *rip_L = NULL;
-static int ripoffline_cb(WINDOW* w, int cols)
+
+static int
+ripoffline_cb(WINDOW* w, int cols)
 {
-    static int line = 0;
-    int top = lua_gettop(rip_L);
+	static int line = 0;
+	int top = lua_gettop(rip_L);
 
-    /* better be safe */
-    if (!lua_checkstack(rip_L, 5))
-        return 0;
+	/* better be safe */
+	if (!lua_checkstack(rip_L, 5))
+		return 0;
 
-    /* get the table from the registry */
-    lua_pushstring(rip_L, RIPOFF_TABLE);
-    lua_gettable(rip_L, LUA_REGISTRYINDEX);
+	/* get the table from the registry */
+	lua_pushstring(rip_L, RIPOFF_TABLE);
+	lua_gettable(rip_L, LUA_REGISTRYINDEX);
 
-    /* get user callback function */
-    if (lua_isnil(rip_L, -1)) {
-        lua_pop(rip_L, 1);
-        return 0;
-    }
+	/* get user callback function */
+	if (lua_isnil(rip_L, -1)) {
+		lua_pop(rip_L, 1);
+		return 0;
+	}
 
-    lua_rawgeti(rip_L, -1, ++line); /* function to be called */
-    lc_newwin(rip_L, w);            /* create window object */
-    lua_pushinteger(rip_L, cols);   /* push number of columns */
+	lua_rawgeti(rip_L, -1, ++line);	/* function to be called */
+	lc_newwin(rip_L, w);		/* create window object */
+	lua_pushinteger(rip_L, cols);   /* push number of columns */
 
-    lua_pcall(rip_L, 2,  0, 0);     /* call the lua function */
+	lua_pcall(rip_L, 2,  0, 0);	/* call the lua function */
 
-    lua_settop(rip_L, top);
-    return 1;
+	lua_settop(rip_L, top);
+	return 1;
 }
 
-static int Cripoffline(lua_State *L)
+
+static int
+Cripoffline(lua_State *L)
 {
-    static int rip = 0;
-    int top_line = lua_toboolean(L, 1);
+	static int rip = 0;
+	int top_line = lua_toboolean(L, 1);
 
-    if (!lua_isfunction(L, 2))
-    {
-        lua_pushliteral(L, "invalid callback passed as second parameter");
-        lua_error(L);
-    }
+	if (!lua_isfunction(L, 2))
+	{
+		lua_pushliteral(L, "invalid callback passed as second parameter");
+		lua_error(L);
+	}
 
-    /* need to save the lua state somewhere... */
-    rip_L = L;
+	/* need to save the lua state somewhere... */
+	rip_L = L;
 
-    /* get the table where we are going to save the callbacks */
-    lua_pushstring(L, RIPOFF_TABLE);
-    lua_gettable(L, LUA_REGISTRYINDEX);
+	/* get the table where we are going to save the callbacks */
+	lua_pushstring(L, RIPOFF_TABLE);
+	lua_gettable(L, LUA_REGISTRYINDEX);
 
-    if (lua_isnil(L, -1))
-    {
-        lua_pop(L, 1);
-        lua_newtable(L);
+	if (lua_isnil(L, -1))
+	{
+		lua_pop(L, 1);
+		lua_newtable(L);
 
-        lua_pushstring(L, RIPOFF_TABLE);
-        lua_pushvalue(L, -2);
-        lua_settable(L, LUA_REGISTRYINDEX);
-    }
+		lua_pushstring(L, RIPOFF_TABLE);
+		lua_pushvalue(L, -2);
+		lua_settable(L, LUA_REGISTRYINDEX);
+	}
 
-    /* save function callback in registry table */
-    lua_pushvalue(L, 2);
-    lua_rawseti(L, -2, ++rip);
+	/* save function callback in registry table */
+	lua_pushvalue(L, 2);
+	lua_rawseti(L, -2, ++rip);
 
-    /* and tell curses we are going to take the line */
-    return pushokresult(ripoffline(top_line ? 1 : -1, ripoffline_cb));
+	/* and tell curses we are going to take the line */
+	return pushokresult(ripoffline(top_line ? 1 : -1, ripoffline_cb));
 }
 
-static int Ccurs_set(lua_State *L)
-{
-    int vis = luaL_checkint(L, 1);
-    int state = curs_set(vis);
-    if (state == ERR)
-        return 0;
 
-    return pushintresult(state);
+static int
+Ccurs_set(lua_State *L)
+{
+	int vis = luaL_checkint(L, 1);
+	int state = curs_set(vis);
+	if (state == ERR)
+		return 0;
+
+	return pushintresult(state);
 }
 
-static int Cnapms(lua_State *L)
+
+static int
+Cnapms(lua_State *L)
 {
-    int ms = luaL_checkint(L, 1);
-    return pushokresult(napms(ms));
+	int ms = luaL_checkint(L, 1);
+	return pushokresult(napms(ms));
 }
 
-/*
-** =======================================================
-** resizeterm
-** =======================================================
-*/
 
-static int Cresizeterm(lua_State *L)
+static int
+Cresizeterm(lua_State *L)
 {
-    int nlines  = luaL_checkint(L, 1);
-    int ncols   = luaL_checkint(L, 2);
+	int nlines  = luaL_checkint(L, 1);
+	int ncols   = luaL_checkint(L, 2);
 #if HAVE_RESIZETERM
-    return pushokresult(resizeterm (nlines, ncols));
+	return pushokresult(resizeterm (nlines, ncols));
 #else
-    return luaL_error (L, "'resizeterm' is not implemented by your curses library");
+	return luaL_error (L, "'resizeterm' is not implemented by your curses library");
 #endif
 }
 
-/*
-** =======================================================
-** beep
-** =======================================================
-*/
 
-static int Cbeep(lua_State *L)
+static int
+Cbeep(lua_State *L)
 {
-    return pushokresult(beep());
+	return pushokresult(beep());
 }
 
-static int Cflash(lua_State *L)
+
+static int
+Cflash(lua_State *L)
 {
-    return pushokresult(flash());
+	return pushokresult(flash());
 }
-
 
-/*
-** =======================================================
-** window
-** =======================================================
-*/
 
-static int Cnewwin(lua_State *L)
+static int
+Cnewwin(lua_State *L)
 {
-    int nlines  = luaL_checkint(L, 1);
-    int ncols   = luaL_checkint(L, 2);
-    int begin_y = luaL_checkint(L, 3);
-    int begin_x = luaL_checkint(L, 4);
+	int nlines  = luaL_checkint(L, 1);
+	int ncols   = luaL_checkint(L, 2);
+	int begin_y = luaL_checkint(L, 3);
+	int begin_x = luaL_checkint(L, 4);
 
-    lc_newwin(L, newwin(nlines, ncols, begin_y, begin_x));
-    return 1;
+	lc_newwin(L, newwin(nlines, ncols, begin_y, begin_x));
+	return 1;
 }
 
-static int Wclose(lua_State *L)
+
+static int
+Wclose(lua_State *L)
 {
-    WINDOW **w = lc_getwin(L, 1);
-    if (*w != NULL && *w != stdscr)
-    {
-        delwin(*w);
-        *w = NULL;
-    }
-    return 0;
+	WINDOW **w = lc_getwin(L, 1);
+	if (*w != NULL && *w != stdscr)
+	{
+		delwin(*w);
+		*w = NULL;
+	}
+	return 0;
 }
 
-static int Wmove_window(lua_State *L)
+
+static int
+Wmove_window(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int y = luaL_checkint(L, 2);
-    int x = luaL_checkint(L, 3);
-    return pushokresult(mvwin(w, y, x));
+	WINDOW *w = checkwin(L, 1);
+	int y = luaL_checkint(L, 2);
+	int x = luaL_checkint(L, 3);
+	return pushokresult(mvwin(w, y, x));
 }
+
 
-static int Wsub(lua_State *L)
+static int
+Wsub(lua_State *L)
 {
-    WINDOW *orig = checkwin(L, 1);
-    int nlines  = luaL_checkint(L, 2);
-    int ncols   = luaL_checkint(L, 3);
-    int begin_y = luaL_checkint(L, 4);
-    int begin_x = luaL_checkint(L, 5);
+	WINDOW *orig = checkwin(L, 1);
+	int nlines  = luaL_checkint(L, 2);
+	int ncols   = luaL_checkint(L, 3);
+	int begin_y = luaL_checkint(L, 4);
+	int begin_x = luaL_checkint(L, 5);
 
-    lc_newwin(L, subwin(orig, nlines, ncols, begin_y, begin_x));
-    return 1;
+	lc_newwin(L, subwin(orig, nlines, ncols, begin_y, begin_x));
+	return 1;
 }
 
-static int Wderive(lua_State *L)
+
+static int
+Wderive(lua_State *L)
 {
-    WINDOW *orig = checkwin(L, 1);
-    int nlines  = luaL_checkint(L, 2);
-    int ncols   = luaL_checkint(L, 3);
-    int begin_y = luaL_checkint(L, 4);
-    int begin_x = luaL_checkint(L, 5);
+	WINDOW *orig = checkwin(L, 1);
+	int nlines  = luaL_checkint(L, 2);
+	int ncols   = luaL_checkint(L, 3);
+	int begin_y = luaL_checkint(L, 4);
+	int begin_x = luaL_checkint(L, 5);
 
-    lc_newwin(L, derwin(orig, nlines, ncols, begin_y, begin_x));
-    return 1;
+	lc_newwin(L, derwin(orig, nlines, ncols, begin_y, begin_x));
+	return 1;
 }
 
-static int Wmove_derived(lua_State *L)
+
+static int
+Wmove_derived(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int par_y = luaL_checkint(L, 2);
-    int par_x = luaL_checkint(L, 3);
-    return pushokresult(mvderwin(w, par_y, par_x));
+	WINDOW *w = checkwin(L, 1);
+	int par_y = luaL_checkint(L, 2);
+	int par_x = luaL_checkint(L, 3);
+	return pushokresult(mvderwin(w, par_y, par_x));
 }
+
 
-static int Wresize(lua_State *L)
+static int
+Wresize(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int height = luaL_checkint(L, 2);
-    int width = luaL_checkint(L, 3);
+	WINDOW *w = checkwin(L, 1);
+	int height = luaL_checkint(L, 2);
+	int width = luaL_checkint(L, 3);
 
-    int c = wresize(w, height, width);
-    if (c == ERR) return 0;
+	int c = wresize(w, height, width);
+	if (c == ERR) return 0;
 
-    return pushokresult(true);
+	return pushokresult(true);
 }
 
-static int Wclone(lua_State *L)
+
+static int
+Wclone(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    lc_newwin(L, dupwin(w));
-    return 1;
+	WINDOW *w = checkwin(L, 1);
+	lc_newwin(L, dupwin(w));
+	return 1;
 }
 
-static int Wsyncup(lua_State *L)
+
+static int
+Wsyncup(lua_State *L)
 {
-    wsyncup(checkwin(L, 1));
-    return 0;
+	wsyncup(checkwin(L, 1));
+	return 0;
 }
+
 
-static int Wsyncok(lua_State *L)
+static int
+Wsyncok(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int bf = lua_toboolean(L, 2);
-    lua_pushboolean(L, B(syncok(w, bf)));
-    return 1;
+	WINDOW *w = checkwin(L, 1);
+	int bf = lua_toboolean(L, 2);
+	lua_pushboolean(L, B(syncok(w, bf)));
+	return 1;
 }
 
-static int Wcursyncup(lua_State *L)
+
+static int
+Wcursyncup(lua_State *L)
 {
-    wcursyncup(checkwin(L, 1));
-    return 0;
+	wcursyncup(checkwin(L, 1));
+	return 0;
 }
+
 
-static int Wsyncdown(lua_State *L)
+static int
+Wsyncdown(lua_State *L)
 {
-    wsyncdown(checkwin(L, 1));
-    return 0;
+	wsyncdown(checkwin(L, 1));
+	return 0;
 }
 
 
-/*
-** =======================================================
-** refresh
-** =======================================================
-*/
-
-static int Wrefresh(lua_State *L)
+static int
+Wrefresh(lua_State *L)
 {
-    return pushokresult(wrefresh(checkwin(L, 1)));
+	return pushokresult(wrefresh(checkwin(L, 1)));
 }
 
-static int Wnoutrefresh(lua_State *L)
+
+static int
+Wnoutrefresh(lua_State *L)
 {
-    return pushokresult(wnoutrefresh(checkwin(L, 1)));
+	return pushokresult(wnoutrefresh(checkwin(L, 1)));
 }
+
 
-static int Wredrawwin(lua_State *L)
+static int
+Wredrawwin(lua_State *L)
 {
-    return pushokresult(redrawwin(checkwin(L, 1)));
+	return pushokresult(redrawwin(checkwin(L, 1)));
 }
 
-static int Wredrawln(lua_State *L)
+
+static int
+Wredrawln(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int beg_line = luaL_checkint(L, 2);
-    int num_lines = luaL_checkint(L, 3);
-    return pushokresult(wredrawln(w, beg_line, num_lines));
+	WINDOW *w = checkwin(L, 1);
+	int beg_line = luaL_checkint(L, 2);
+	int num_lines = luaL_checkint(L, 3);
+	return pushokresult(wredrawln(w, beg_line, num_lines));
 }
 
-static int Cdoupdate(lua_State *L)
+
+static int
+Cdoupdate(lua_State *L)
 {
-    return pushokresult(doupdate());
+	return pushokresult(doupdate());
 }
 
-/*
-** =======================================================
-** move
-** =======================================================
-*/
 
-static int Wmove(lua_State *L)
+static int
+Wmove(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int y = luaL_checkint(L, 2);
-    int x = luaL_checkint(L, 3);
-    return pushokresult(wmove(w, y, x));
+	WINDOW *w = checkwin(L, 1);
+	int y = luaL_checkint(L, 2);
+	int x = luaL_checkint(L, 3);
+	return pushokresult(wmove(w, y, x));
 }
 
-/*
-** =======================================================
-** scroll
-** =======================================================
-*/
 
-static int Wscrl(lua_State *L)
+static int
+Wscrl(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int n = luaL_checkint(L, 2);
-    return pushokresult(wscrl(w, n));
+	WINDOW *w = checkwin(L, 1);
+	int n = luaL_checkint(L, 2);
+	return pushokresult(wscrl(w, n));
 }
 
-/*
-** =======================================================
-** touch
-** =======================================================
-*/
 
-static int Wtouch(lua_State *L)
+static int
+Wtouch(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int changed;
-    if (lua_isnoneornil(L, 2))
-        changed = TRUE;
-    else
-        changed = lua_toboolean(L, 2);
+	WINDOW *w = checkwin(L, 1);
+	int changed;
+	if (lua_isnoneornil(L, 2))
+		changed = TRUE;
+	else
+		changed = lua_toboolean(L, 2);
 
-    if (changed)
-        return pushokresult(touchwin(w));
-    return pushokresult(untouchwin(w));
+	if (changed)
+		return pushokresult(touchwin(w));
+	return pushokresult(untouchwin(w));
 }
+
 
-static int Wtouchline(lua_State *L)
+static int
+Wtouchline(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int y = luaL_checkint(L, 2);
-    int n = luaL_checkint(L, 3);
-    int changed;
-    if (lua_isnoneornil(L, 4))
-        changed = TRUE;
-    else
-        changed = lua_toboolean(L, 4);
-    return pushokresult(wtouchln(w, y, n, changed));
+	WINDOW *w = checkwin(L, 1);
+	int y = luaL_checkint(L, 2);
+	int n = luaL_checkint(L, 3);
+	int changed;
+	if (lua_isnoneornil(L, 4))
+		changed = TRUE;
+	else
+		changed = lua_toboolean(L, 4);
+	return pushokresult(wtouchln(w, y, n, changed));
 }
 
-static int Wis_linetouched(lua_State *L)
+
+static int
+Wis_linetouched(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int line = luaL_checkint(L, 2);
-    return pushboolresult(is_linetouched(w, line));
+	WINDOW *w = checkwin(L, 1);
+	int line = luaL_checkint(L, 2);
+	return pushboolresult(is_linetouched(w, line));
 }
 
-static int Wis_wintouched(lua_State *L)
+
+static int
+Wis_wintouched(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    return pushboolresult(is_wintouched(w));
+	WINDOW *w = checkwin(L, 1);
+	return pushboolresult(is_wintouched(w));
 }
 
-/*
-** =======================================================
-** getyx
-** =======================================================
-*/
 
-static int Wgetyx(lua_State *L)
+static int
+Wgetyx(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int y, x;
-    getyx(w, y, x);
-    lua_pushinteger(L, y);
-    lua_pushinteger(L, x);
-    return 2;
+	WINDOW *w = checkwin(L, 1);
+	int y, x;
+	getyx(w, y, x);
+	lua_pushinteger(L, y);
+	lua_pushinteger(L, x);
+	return 2;
 }
+
 
-static int Wgetparyx(lua_State *L)
+static int
+Wgetparyx(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int y, x;
-    getparyx(w, y, x);
-    lua_pushinteger(L, y);
-    lua_pushinteger(L, x);
-    return 2;
+	WINDOW *w = checkwin(L, 1);
+	int y, x;
+	getparyx(w, y, x);
+	lua_pushinteger(L, y);
+	lua_pushinteger(L, x);
+	return 2;
 }
 
 
-static int Wgetbegyx(lua_State *L)
+static int
+Wgetbegyx(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int y, x;
-    getbegyx(w, y, x);
-    lua_pushinteger(L, y);
-    lua_pushinteger(L, x);
-    return 2;
+	WINDOW *w = checkwin(L, 1);
+	int y, x;
+	getbegyx(w, y, x);
+	lua_pushinteger(L, y);
+	lua_pushinteger(L, x);
+	return 2;
 }
 
 
-static int Wgetmaxyx(lua_State *L)
+static int
+Wgetmaxyx(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int y, x;
-    getmaxyx(w, y, x);
-    lua_pushinteger(L, y);
-    lua_pushinteger(L, x);
-    return 2;
+	WINDOW *w = checkwin(L, 1);
+	int y, x;
+	getmaxyx(w, y, x);
+	lua_pushinteger(L, y);
+	lua_pushinteger(L, x);
+	return 2;
 }
 
 
-/*
-** =======================================================
-** border
-** =======================================================
-*/
-
-static int Wborder(lua_State *L)
+static int
+Wborder(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    chtype ls = optch(L, 2, 0);
-    chtype rs = optch(L, 3, 0);
-    chtype ts = optch(L, 4, 0);
-    chtype bs = optch(L, 5, 0);
-    chtype tl = optch(L, 6, 0);
-    chtype tr = optch(L, 7, 0);
-    chtype bl = optch(L, 8, 0);
-    chtype br = optch(L, 9, 0);
+	WINDOW *w = checkwin(L, 1);
+	chtype ls = optch(L, 2, 0);
+	chtype rs = optch(L, 3, 0);
+	chtype ts = optch(L, 4, 0);
+	chtype bs = optch(L, 5, 0);
+	chtype tl = optch(L, 6, 0);
+	chtype tr = optch(L, 7, 0);
+	chtype bl = optch(L, 8, 0);
+	chtype br = optch(L, 9, 0);
 
-    return pushintresult(B(wborder(w, ls, rs, ts, bs, tl, tr, bl, br)));
+	return pushintresult(B(wborder(w, ls, rs, ts, bs, tl, tr, bl, br)));
 }
+
 
-static int Wbox(lua_State *L)
+static int
+Wbox(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    chtype verch = checkch(L, 2);
-    chtype horch = checkch(L, 3);
+	WINDOW *w = checkwin(L, 1);
+	chtype verch = checkch(L, 2);
+	chtype horch = checkch(L, 3);
 
-    return pushintresult(B(box(w, verch, horch)));
+	return pushintresult(B(box(w, verch, horch)));
 }
 
-static int Whline(lua_State *L)
+
+static int
+Whline(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    chtype ch = checkch(L, 2);
-    int n = luaL_checkint(L, 3);
+	WINDOW *w = checkwin(L, 1);
+	chtype ch = checkch(L, 2);
+	int n = luaL_checkint(L, 3);
 
-    return pushokresult(whline(w, ch, n));
+	return pushokresult(whline(w, ch, n));
 }
 
-static int Wvline(lua_State *L)
+
+static int
+Wvline(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    chtype ch = checkch(L, 2);
-    int n = luaL_checkint(L, 3);
+	WINDOW *w = checkwin(L, 1);
+	chtype ch = checkch(L, 2);
+	int n = luaL_checkint(L, 3);
 
-    return pushokresult(wvline(w, ch, n));
+	return pushokresult(wvline(w, ch, n));
 }
 
 
-static int Wmvhline(lua_State *L)
+static int
+Wmvhline(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int y = luaL_checkint(L, 2);
-    int x = luaL_checkint(L, 3);
-    chtype ch = checkch(L, 4);
-    int n = luaL_checkint(L, 5);
+	WINDOW *w = checkwin(L, 1);
+	int y = luaL_checkint(L, 2);
+	int x = luaL_checkint(L, 3);
+	chtype ch = checkch(L, 4);
+	int n = luaL_checkint(L, 5);
 
-    return pushokresult(mvwhline(w, y, x, ch, n));
+	return pushokresult(mvwhline(w, y, x, ch, n));
 }
+
 
-static int Wmvvline(lua_State *L)
+static int
+Wmvvline(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int y = luaL_checkint(L, 2);
-    int x = luaL_checkint(L, 3);
-    chtype ch = checkch(L, 4);
-    int n = luaL_checkint(L, 5);
+	WINDOW *w = checkwin(L, 1);
+	int y = luaL_checkint(L, 2);
+	int x = luaL_checkint(L, 3);
+	chtype ch = checkch(L, 4);
+	int n = luaL_checkint(L, 5);
 
-    return pushokresult(mvwvline(w, y, x, ch, n));
+	return pushokresult(mvwvline(w, y, x, ch, n));
 }
 
-/*
-** =======================================================
-** clear
-** =======================================================
-*/
 
-
-static int Werase(lua_State *L)
+static int
+Werase(lua_State *L)
 {
-    return pushokresult(werase(checkwin(L, 1)));
+	return pushokresult(werase(checkwin(L, 1)));
 }
 
-static int Wclear(lua_State *L)
+
+static int
+Wclear(lua_State *L)
 {
-    return pushokresult(wclear(checkwin(L, 1)));
+	return pushokresult(wclear(checkwin(L, 1)));
 }
+
 
-static int Wclrtobot(lua_State *L)
+static int
+Wclrtobot(lua_State *L)
 {
-    return pushokresult(wclrtobot(checkwin(L, 1)));
+	return pushokresult(wclrtobot(checkwin(L, 1)));
 }
 
-static int Wclrtoeol(lua_State *L)
+
+static int
+Wclrtoeol(lua_State *L)
 {
-    return pushokresult(wclrtoeol(checkwin(L, 1)));
+	return pushokresult(wclrtoeol(checkwin(L, 1)));
 }
 
-/*
-** =======================================================
-** slk
-** =======================================================
-*/
-static int Cslk_init(lua_State *L)
+
+static int
+Cslk_init(lua_State *L)
 {
-    int fmt = luaL_checkint(L, 1);
-    return pushokresult(slk_init(fmt));
+	int fmt = luaL_checkint(L, 1);
+	return pushokresult(slk_init(fmt));
 }
+
 
-static int Cslk_set(lua_State *L)
+static int
+Cslk_set(lua_State *L)
 {
-    int labnum = luaL_checkint(L, 1);
-    const char* label = luaL_checkstring(L, 2);
-    int fmt = luaL_checkint(L, 3);
-    return pushokresult(slk_set(labnum, label, fmt));
+	int labnum = luaL_checkint(L, 1);
+	const char* label = luaL_checkstring(L, 2);
+	int fmt = luaL_checkint(L, 3);
+	return pushokresult(slk_set(labnum, label, fmt));
 }
 
-static int Cslk_refresh(lua_State *L)
+
+static int
+Cslk_refresh(lua_State *L)
 {
-    return pushokresult(slk_refresh());
+	return pushokresult(slk_refresh());
 }
+
 
-static int Cslk_noutrefresh(lua_State *L)
+static int
+Cslk_noutrefresh(lua_State *L)
 {
-    return pushokresult(slk_noutrefresh());
+	return pushokresult(slk_noutrefresh());
 }
 
-static int Cslk_label(lua_State *L)
+
+static int
+Cslk_label(lua_State *L)
 {
-    int labnum = luaL_checkint(L, 1);
-    return pushstringresult(slk_label(labnum));
+	int labnum = luaL_checkint(L, 1);
+	return pushstringresult(slk_label(labnum));
 }
 
-static int Cslk_clear(lua_State *L)
+
+static int
+Cslk_clear(lua_State *L)
 {
-    return pushokresult(slk_clear());
+	return pushokresult(slk_clear());
 }
+
 
-static int Cslk_restore(lua_State *L)
+static int
+Cslk_restore(lua_State *L)
 {
-    return pushokresult(slk_restore());
+	return pushokresult(slk_restore());
 }
 
-static int Cslk_touch(lua_State *L)
+
+static int
+Cslk_touch(lua_State *L)
 {
-    return pushokresult(slk_touch());
+	return pushokresult(slk_touch());
 }
 
-static int Cslk_attron(lua_State *L)
+
+static int
+Cslk_attron(lua_State *L)
 {
-    chtype attrs = checkch(L, 1);
-    return pushokresult(slk_attron(attrs));
+	chtype attrs = checkch(L, 1);
+	return pushokresult(slk_attron(attrs));
 }
+
 
-static int Cslk_attroff(lua_State *L)
+static int
+Cslk_attroff(lua_State *L)
 {
-    chtype attrs = checkch(L, 1);
-    return pushokresult(slk_attroff(attrs));
+	chtype attrs = checkch(L, 1);
+	return pushokresult(slk_attroff(attrs));
 }
 
-static int Cslk_attrset(lua_State *L)
+
+static int
+Cslk_attrset(lua_State *L)
 {
-    chtype attrs = checkch(L, 1);
-    return pushokresult(slk_attrset(attrs));
+	chtype attrs = checkch(L, 1);
+	return pushokresult(slk_attrset(attrs));
 }
 
 
-/*
-** =======================================================
-** addch
-** =======================================================
-*/
-
-static int Waddch(lua_State *L)
+static int
+Waddch(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    chtype ch = checkch(L, 2);
-    return pushokresult(waddch(w, ch));
+	WINDOW *w = checkwin(L, 1);
+	chtype ch = checkch(L, 2);
+	return pushokresult(waddch(w, ch));
 }
 
-static int Wmvaddch(lua_State *L)
-{
-    WINDOW *w = checkwin(L, 1);
-    int y = luaL_checkint(L, 2);
-    int x = luaL_checkint(L, 3);
-    chtype ch = checkch(L, 4);
 
-    return pushokresult(mvwaddch(w, y, x, ch));
+static int
+Wmvaddch(lua_State *L)
+{
+	WINDOW *w = checkwin(L, 1);
+	int y = luaL_checkint(L, 2);
+	int x = luaL_checkint(L, 3);
+	chtype ch = checkch(L, 4);
+	return pushokresult(mvwaddch(w, y, x, ch));
 }
 
-static int Wechoch(lua_State *L)
-{
-    WINDOW *w = checkwin(L, 1);
-    chtype ch = checkch(L, 2);
 
-    return pushokresult(wechochar(w, ch));
+static int
+Wechoch(lua_State *L)
+{
+	WINDOW *w = checkwin(L, 1);
+	chtype ch = checkch(L, 2);
+	return pushokresult(wechochar(w, ch));
 }
 
-/*
-** =======================================================
-** addchstr
-** =======================================================
-*/
 
-static int Waddchstr(lua_State *L)
+static int
+Waddchstr(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int n = luaL_optint(L, 3, -1);
-    chstr *cs = checkchstr(L, 2);
+	WINDOW *w = checkwin(L, 1);
+	int n = luaL_optint(L, 3, -1);
+	chstr *cs = checkchstr(L, 2);
 
-    if (n < 0 || n > (int) cs->len)
-        n = cs->len;
+	if (n < 0 || n > (int) cs->len)
+		n = cs->len;
 
-    return pushokresult(waddchnstr(w, cs->str, n));
+	return pushokresult(waddchnstr(w, cs->str, n));
 }
 
-static int Wmvaddchstr(lua_State *L)
+
+static int
+Wmvaddchstr(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int y = luaL_checkint(L, 2);
-    int x = luaL_checkint(L, 3);
-    int n = luaL_optint(L, 5, -1);
-    chstr *cs = checkchstr(L, 4);
+	WINDOW *w = checkwin(L, 1);
+	int y = luaL_checkint(L, 2);
+	int x = luaL_checkint(L, 3);
+	int n = luaL_optint(L, 5, -1);
+	chstr *cs = checkchstr(L, 4);
 
-    if (n < 0 || n > (int) cs->len)
-        n = cs->len;
+	if (n < 0 || n > (int) cs->len)
+		n = cs->len;
 
-    return pushokresult(mvwaddchnstr(w, y, x, cs->str, n));
+	return pushokresult(mvwaddchnstr(w, y, x, cs->str, n));
 }
 
-/*
-** =======================================================
-** addstr
-** =======================================================
-*/
 
-static int Waddstr(lua_State *L)
+static int
+Waddstr(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    const char *str = luaL_checkstring(L, 2);
-    int n = luaL_optint(L, 3, -1);
-    return pushokresult(waddnstr(w, str, n));
+	WINDOW *w = checkwin(L, 1);
+	const char *str = luaL_checkstring(L, 2);
+	int n = luaL_optint(L, 3, -1);
+	return pushokresult(waddnstr(w, str, n));
 }
+
 
-static int Wmvaddstr(lua_State *L)
+static int
+Wmvaddstr(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int y = luaL_checkint(L, 2);
-    int x = luaL_checkint(L, 3);
-    const char *str = luaL_checkstring(L, 4);
-    int n = luaL_optint(L, 5, -1);
-    return pushokresult(mvwaddnstr(w, y, x, str, n));
+	WINDOW *w = checkwin(L, 1);
+	int y = luaL_checkint(L, 2);
+	int x = luaL_checkint(L, 3);
+	const char *str = luaL_checkstring(L, 4);
+	int n = luaL_optint(L, 5, -1);
+	return pushokresult(mvwaddnstr(w, y, x, str, n));
 }
 
-/*
-** =======================================================
-** bkgd
-** =======================================================
-*/
 
-static int Wwbkgdset(lua_State *L)
+static int
+Wwbkgdset(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    chtype ch = checkch(L, 2);
-    wbkgdset(w, ch);
-    return 0;
+	WINDOW *w = checkwin(L, 1);
+	chtype ch = checkch(L, 2);
+	wbkgdset(w, ch);
+	return 0;
 }
 
-static int Wwbkgd(lua_State *L)
+
+static int
+Wwbkgd(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    chtype ch = checkch(L, 2);
-    return pushokresult(wbkgd(w, ch));
+	WINDOW *w = checkwin(L, 1);
+	chtype ch = checkch(L, 2);
+	return pushokresult(wbkgd(w, ch));
 }
 
-static int Wgetbkgd(lua_State *L)
+
+static int
+Wgetbkgd(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    return pushokresult(getbkgd(w));
+	WINDOW *w = checkwin(L, 1);
+	return pushokresult(getbkgd(w));
 }
 
-/*
-** =======================================================
-** inopts
-** =======================================================
-*/
 
-static int Ccbreak(lua_State *L)
+static int
+Ccbreak(lua_State *L)
 {
-    if (lua_isnoneornil(L, 1) || lua_toboolean(L, 1))
-        return pushokresult(cbreak());
-    return pushokresult(nocbreak());
+	if (lua_isnoneornil(L, 1) || lua_toboolean(L, 1))
+		return pushokresult(cbreak());
+	return pushokresult(nocbreak());
 }
+
 
-static int Cecho(lua_State *L)
+static int
+Cecho(lua_State *L)
 {
-    if (lua_isnoneornil(L, 1) || lua_toboolean(L, 1))
-        return pushokresult(echo());
-    return pushokresult(noecho());
+	if (lua_isnoneornil(L, 1) || lua_toboolean(L, 1))
+		return pushokresult(echo());
+	return pushokresult(noecho());
 }
 
-static int Craw(lua_State *L)
+
+static int
+Craw(lua_State *L)
 {
-    if (lua_isnoneornil(L, 1) || lua_toboolean(L, 1))
-        return pushokresult(raw());
-    return pushokresult(noraw());
+	if (lua_isnoneornil(L, 1) || lua_toboolean(L, 1))
+		return pushokresult(raw());
+	return pushokresult(noraw());
 }
 
-static int Chalfdelay(lua_State *L)
+
+static int
+Chalfdelay(lua_State *L)
 {
-    int tenths = luaL_checkint(L, 1);
-    return pushokresult(halfdelay(tenths));
+	int tenths = luaL_checkint(L, 1);
+	return pushokresult(halfdelay(tenths));
 }
+
 
-static int Wintrflush(lua_State *L)
+static int
+Wintrflush(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int bf = lua_toboolean(L, 2);
-    return pushokresult(intrflush(w, bf));
+	WINDOW *w = checkwin(L, 1);
+	int bf = lua_toboolean(L, 2);
+	return pushokresult(intrflush(w, bf));
 }
 
-static int Wkeypad(lua_State *L)
+
+static int
+Wkeypad(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int bf = lua_isnoneornil(L, 2) ? 1 : lua_toboolean(L, 2);
-    return pushokresult(keypad(w, bf));
+	WINDOW *w = checkwin(L, 1);
+	int bf = lua_isnoneornil(L, 2) ? 1 : lua_toboolean(L, 2);
+	return pushokresult(keypad(w, bf));
 }
 
 
-static int Wmeta(lua_State *L)
+static int
+Wmeta(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int bf = lua_toboolean(L, 2);
-    return pushokresult(meta(w, bf));
+	WINDOW *w = checkwin(L, 1);
+	int bf = lua_toboolean(L, 2);
+	return pushokresult(meta(w, bf));
 }
 
 
-static int Wnodelay(lua_State *L)
+static int
+Wnodelay(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int bf = lua_toboolean(L, 2);
-    return pushokresult(nodelay(w, bf));
+	WINDOW *w = checkwin(L, 1);
+	int bf = lua_toboolean(L, 2);
+	return pushokresult(nodelay(w, bf));
 }
 
 
-static int Wtimeout(lua_State *L)
+static int
+Wtimeout(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int delay = luaL_checkint(L, 2);
-    wtimeout(w, delay);
-    return 0;
+	WINDOW *w = checkwin(L, 1);
+	int delay = luaL_checkint(L, 2);
+	wtimeout(w, delay);
+	return 0;
 }
+
 
-static int Wnotimeout(lua_State *L)
+static int
+Wnotimeout(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int bf = lua_toboolean(L, 2);
-    return pushokresult(notimeout(w, bf));
+	WINDOW *w = checkwin(L, 1);
+	int bf = lua_toboolean(L, 2);
+	return pushokresult(notimeout(w, bf));
 }
 
-/*
-** =======================================================
-** outopts
-** =======================================================
-*/
 
-static int Cnl(lua_State *L)
+static int
+Cnl(lua_State *L)
 {
-    if (lua_isnoneornil(L, 1) || lua_toboolean(L, 1))
-        return pushokresult(nl());
-    return pushokresult(nonl());
+	if (lua_isnoneornil(L, 1) || lua_toboolean(L, 1))
+		return pushokresult(nl());
+	return pushokresult(nonl());
 }
 
 
-static int Wclearok(lua_State *L)
+static int
+Wclearok(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int bf = lua_toboolean(L, 2);
-    return pushokresult(clearok(w, bf));
+	WINDOW *w = checkwin(L, 1);
+	int bf = lua_toboolean(L, 2);
+	return pushokresult(clearok(w, bf));
 }
 
-static int Widlok(lua_State *L)
+
+static int
+Widlok(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int bf = lua_toboolean(L, 2);
-    return pushokresult(idlok(w, bf));
+	WINDOW *w = checkwin(L, 1);
+	int bf = lua_toboolean(L, 2);
+	return pushokresult(idlok(w, bf));
 }
 
-static int Wleaveok(lua_State *L)
+
+static int
+Wleaveok(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int bf = lua_toboolean(L, 2);
-    return pushokresult(leaveok(w, bf));
+	WINDOW *w = checkwin(L, 1);
+	int bf = lua_toboolean(L, 2);
+	return pushokresult(leaveok(w, bf));
 }
+
 
-static int Wscrollok(lua_State *L)
+static int
+Wscrollok(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int bf = lua_toboolean(L, 2);
-    return pushokresult(scrollok(w, bf));
+	WINDOW *w = checkwin(L, 1);
+	int bf = lua_toboolean(L, 2);
+	return pushokresult(scrollok(w, bf));
 }
 
-static int Widcok(lua_State *L)
+
+static int
+Widcok(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int bf = lua_toboolean(L, 2);
-    idcok(w, bf);
-    return 0;
+	WINDOW *w = checkwin(L, 1);
+	int bf = lua_toboolean(L, 2);
+	idcok(w, bf);
+	return 0;
 }
 
-static int Wimmedok(lua_State *L)
+
+static int
+Wimmedok(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int bf = lua_toboolean(L, 2);
-    immedok(w, bf);
-    return 0;
+	WINDOW *w = checkwin(L, 1);
+	int bf = lua_toboolean(L, 2);
+	immedok(w, bf);
+	return 0;
 }
+
 
-static int Wwsetscrreg(lua_State *L)
+static int
+Wwsetscrreg(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int top = luaL_checkint(L, 2);
-    int bot = luaL_checkint(L, 3);
-    return pushokresult(wsetscrreg(w, top, bot));
+	WINDOW *w = checkwin(L, 1);
+	int top = luaL_checkint(L, 2);
+	int bot = luaL_checkint(L, 3);
+	return pushokresult(wsetscrreg(w, top, bot));
 }
 
-/*
-** =======================================================
-** overlay
-** =======================================================
-*/
 
-static int Woverlay(lua_State *L)
+static int
+Woverlay(lua_State *L)
 {
-    WINDOW *srcwin = checkwin(L, 1);
-    WINDOW *dstwin = checkwin(L, 2);
-    return pushokresult(overlay(srcwin, dstwin));
+	WINDOW *srcwin = checkwin(L, 1);
+	WINDOW *dstwin = checkwin(L, 2);
+	return pushokresult(overlay(srcwin, dstwin));
 }
 
-static int Woverwrite(lua_State *L)
+
+static int
+Woverwrite(lua_State *L)
 {
-    WINDOW *srcwin = checkwin(L, 1);
-    WINDOW *dstwin = checkwin(L, 2);
-    return pushokresult(overwrite(srcwin, dstwin));
+	WINDOW *srcwin = checkwin(L, 1);
+	WINDOW *dstwin = checkwin(L, 2);
+	return pushokresult(overwrite(srcwin, dstwin));
 }
 
-static int Wcopywin(lua_State *L)
+
+static int
+Wcopywin(lua_State *L)
 {
-    WINDOW *srcwin = checkwin(L, 1);
-    WINDOW *dstwin = checkwin(L, 2);
-    int sminrow = luaL_checkint(L, 3);
-    int smincol = luaL_checkint(L, 4);
-    int dminrow = luaL_checkint(L, 5);
-    int dmincol = luaL_checkint(L, 6);
-    int dmaxrow = luaL_checkint(L, 7);
-    int dmaxcol = luaL_checkint(L, 8);
-    int woverlay = lua_toboolean(L, 9);
-    return pushokresult(copywin(srcwin, dstwin, sminrow,
-        smincol, dminrow, dmincol, dmaxrow, dmaxcol, woverlay));
+	WINDOW *srcwin = checkwin(L, 1);
+	WINDOW *dstwin = checkwin(L, 2);
+	int sminrow = luaL_checkint(L, 3);
+	int smincol = luaL_checkint(L, 4);
+	int dminrow = luaL_checkint(L, 5);
+	int dmincol = luaL_checkint(L, 6);
+	int dmaxrow = luaL_checkint(L, 7);
+	int dmaxcol = luaL_checkint(L, 8);
+	int woverlay = lua_toboolean(L, 9);
+	return pushokresult(copywin(srcwin, dstwin, sminrow,
+		smincol, dminrow, dmincol, dmaxrow, dmaxcol, woverlay));
 }
 
-/*
-** =======================================================
-** util
-** =======================================================
-*/
 
-static int Cunctrl(lua_State *L)
+static int
+Cunctrl(lua_State *L)
 {
-    chtype c = luaL_checknumber(L, 1);
-    return pushstringresult(unctrl(c));
+	chtype c = luaL_checknumber(L, 1);
+	return pushstringresult(unctrl(c));
 }
+
 
-static int Ckeyname(lua_State *L)
+static int
+Ckeyname(lua_State *L)
 {
-    int c = luaL_checkint(L, 1);
-    return pushstringresult(keyname(c));
+	int c = luaL_checkint(L, 1);
+	return pushstringresult(keyname(c));
 }
 
-static int Cdelay_output(lua_State *L)
+
+static int
+Cdelay_output(lua_State *L)
 {
-    int ms = luaL_checkint(L, 1);
-    return pushokresult(delay_output(ms));
+	int ms = luaL_checkint(L, 1);
+	return pushokresult(delay_output(ms));
 }
+
 
-static int Cflushinp(lua_State *L)
+static int
+Cflushinp(lua_State *L)
 {
-    return pushboolresult(flushinp());
+	return pushboolresult(flushinp());
 }
 
-/*
-** =======================================================
-** delch
-** =======================================================
-*/
 
-static int Wdelch(lua_State *L)
+static int
+Wdelch(lua_State *L)
 {
-    return pushokresult(wdelch(checkwin(L, 1)));
+	return pushokresult(wdelch(checkwin(L, 1)));
 }
 
-static int Wmvdelch(lua_State *L)
+
+static int
+Wmvdelch(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int y = luaL_checkint(L, 2);
-    int x = luaL_checkint(L, 3);
-    return pushokresult(mvwdelch(w, y, x));
+	WINDOW *w = checkwin(L, 1);
+	int y = luaL_checkint(L, 2);
+	int x = luaL_checkint(L, 3);
+	return pushokresult(mvwdelch(w, y, x));
 }
 
-/*
-** =======================================================
-** deleteln
-** =======================================================
-*/
 
-static int Wdeleteln(lua_State *L)
+static int
+Wdeleteln(lua_State *L)
 {
-    return pushokresult(wdeleteln(checkwin(L, 1)));
+	return pushokresult(wdeleteln(checkwin(L, 1)));
 }
 
-static int Winsertln(lua_State *L)
+
+static int
+Winsertln(lua_State *L)
 {
-    return pushokresult(winsertln(checkwin(L, 1)));
+	return pushokresult(winsertln(checkwin(L, 1)));
 }
+
 
-static int Wwinsdelln(lua_State *L)
+static int
+Wwinsdelln(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int n = luaL_checkint(L, 2);
-    return pushokresult(winsdelln(w, n));
+	WINDOW *w = checkwin(L, 1);
+	int n = luaL_checkint(L, 2);
+	return pushokresult(winsdelln(w, n));
 }
 
-/*
-** =======================================================
-** getch
-** =======================================================
-*/
 
-static int Wgetch(lua_State *L)
+static int
+Wgetch(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int c = wgetch(w);
+	WINDOW *w = checkwin(L, 1);
+	int c = wgetch(w);
 
-    if (c == ERR) return 0;
+	if (c == ERR)
+		return 0;
 
-    return pushintresult(c);
+	return pushintresult(c);
 }
 
-static int Wmvgetch(lua_State *L)
+
+static int
+Wmvgetch(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int y = luaL_checkint(L, 2);
-    int x = luaL_checkint(L, 3);
-    int c;
+	WINDOW *w = checkwin(L, 1);
+	int y = luaL_checkint(L, 2);
+	int x = luaL_checkint(L, 3);
+	int c;
 
-    if (wmove(w, y, x) == ERR) return 0;
+	if (wmove(w, y, x) == ERR)
+		return 0;
 
-    c = wgetch(w);
+	c = wgetch(w);
 
-    if (c == ERR) return 0;
+	if (c == ERR)
+		return 0;
 
-    return pushintresult(c);
+	return pushintresult(c);
 }
 
-static int Cungetch(lua_State *L)
+
+static int
+Cungetch(lua_State *L)
 {
-    int c = luaL_checkint(L, 1);
-    return pushokresult(ungetch(c));
+	int c = luaL_checkint(L, 1);
+	return pushokresult(ungetch(c));
 }
 
-/*
-** =======================================================
-** getstr
-** =======================================================
-*/
 
-static int Wgetstr(lua_State *L)
+static int
+Wgetstr(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int n = luaL_optint(L, 2, 0);
-    char buf[LUAL_BUFFERSIZE];
+	WINDOW *w = checkwin(L, 1);
+	int n = luaL_optint(L, 2, 0);
+	char buf[LUAL_BUFFERSIZE];
 
-    if (n == 0 || n >= LUAL_BUFFERSIZE) n = LUAL_BUFFERSIZE - 1;
-    if (wgetnstr(w, buf, n) == ERR)
-        return 0;
+	if (n == 0 || n >= LUAL_BUFFERSIZE)
+		n = LUAL_BUFFERSIZE - 1;
+	if (wgetnstr(w, buf, n) == ERR)
+		return 0;
 
-    return pushstringresult(buf);
+	return pushstringresult(buf);
 }
+
 
-static int Wmvgetstr(lua_State *L)
+static int
+Wmvgetstr(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int y = luaL_checkint(L, 2);
-    int x = luaL_checkint(L, 3);
-    int n = luaL_optint(L, 4, -1);
-    char buf[LUAL_BUFFERSIZE];
+	WINDOW *w = checkwin(L, 1);
+	int y = luaL_checkint(L, 2);
+	int x = luaL_checkint(L, 3);
+	int n = luaL_optint(L, 4, -1);
+	char buf[LUAL_BUFFERSIZE];
 
-    if (n == 0 || n >= LUAL_BUFFERSIZE) n = LUAL_BUFFERSIZE - 1;
-    if (mvwgetnstr(w, y, x, buf, n) == ERR)
-        return 0;
+	if (n == 0 || n >= LUAL_BUFFERSIZE)
+		n = LUAL_BUFFERSIZE - 1;
+	if (mvwgetnstr(w, y, x, buf, n) == ERR)
+		return 0;
 
-    return pushstringresult(buf);
+	return pushstringresult(buf);
 }
 
-/*
-** =======================================================
-** inch
-** =======================================================
-*/
 
-static int Wwinch(lua_State *L)
+static int
+Wwinch(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    return pushintresult(winch(w));
+	WINDOW *w = checkwin(L, 1);
+	return pushintresult(winch(w));
 }
 
-static int Wmvwinch(lua_State *L)
+
+static int
+Wmvwinch(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int y = luaL_checkint(L, 2);
-    int x = luaL_checkint(L, 3);
-    return pushintresult(mvwinch(w, y, x));
+	WINDOW *w = checkwin(L, 1);
+	int y = luaL_checkint(L, 2);
+	int x = luaL_checkint(L, 3);
+	return pushintresult(mvwinch(w, y, x));
 }
 
-/*
-** =======================================================
-** inchstr
-** =======================================================
-*/
 
-static int Wwinchnstr(lua_State *L)
+static int
+Wwinchnstr(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int n = luaL_checkint(L, 2);
-    chstr *cs = chstr_new(L, n);
+	WINDOW *w = checkwin(L, 1);
+	int n = luaL_checkint(L, 2);
+	chstr *cs = chstr_new(L, n);
 
-    if (winchnstr(w, cs->str, n) == ERR)
-        return 0;
+	if (winchnstr(w, cs->str, n) == ERR)
+		return 0;
 
-    return 1;
+	return 1;
 }
 
-static int Wmvwinchnstr(lua_State *L)
+
+static int
+Wmvwinchnstr(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int y = luaL_checkint(L, 2);
-    int x = luaL_checkint(L, 3);
-    int n = luaL_checkint(L, 4);
-    chstr *cs = chstr_new(L, n);
+	WINDOW *w = checkwin(L, 1);
+	int y = luaL_checkint(L, 2);
+	int x = luaL_checkint(L, 3);
+	int n = luaL_checkint(L, 4);
+	chstr *cs = chstr_new(L, n);
 
-    if (mvwinchnstr(w, y, x, cs->str, n) == ERR)
-        return 0;
+	if (mvwinchnstr(w, y, x, cs->str, n) == ERR)
+		return 0;
 
-    return 1;
+	return 1;
 }
 
-/*
-** =======================================================
-** instr
-** =======================================================
-*/
 
-static int Wwinnstr(lua_State *L)
+static int
+Wwinnstr(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int n = luaL_checkint(L, 2);
-    char buf[LUAL_BUFFERSIZE];
+	WINDOW *w = checkwin(L, 1);
+	int n = luaL_checkint(L, 2);
+	char buf[LUAL_BUFFERSIZE];
 
-    if (n >= LUAL_BUFFERSIZE) n = LUAL_BUFFERSIZE - 1;
-    if (winnstr(w, buf, n) == ERR)
-        return 0;
+	if (n >= LUAL_BUFFERSIZE)
+		n = LUAL_BUFFERSIZE - 1;
+	if (winnstr(w, buf, n) == ERR)
+		return 0;
 
-    lua_pushlstring(L, buf, n);
-    return 1;
+	lua_pushlstring(L, buf, n);
+	return 1;
 }
+
 
-static int Wmvwinnstr(lua_State *L)
+static int
+Wmvwinnstr(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int y = luaL_checkint(L, 2);
-    int x = luaL_checkint(L, 3);
-    int n = luaL_checkint(L, 4);
-    char buf[LUAL_BUFFERSIZE];
+	WINDOW *w = checkwin(L, 1);
+	int y = luaL_checkint(L, 2);
+	int x = luaL_checkint(L, 3);
+	int n = luaL_checkint(L, 4);
+	char buf[LUAL_BUFFERSIZE];
 
-    if (n >= LUAL_BUFFERSIZE) n = LUAL_BUFFERSIZE - 1;
-    if (mvwinnstr(w, y, x, buf, n) == ERR)
-        return 0;
+	if (n >= LUAL_BUFFERSIZE)
+		n = LUAL_BUFFERSIZE - 1;
+	if (mvwinnstr(w, y, x, buf, n) == ERR)
+		return 0;
 
-    lua_pushlstring(L, buf, n);
-    return 1;
+	lua_pushlstring(L, buf, n);
+	return 1;
 }
 
-/*
-** =======================================================
-** insch
-** =======================================================
-*/
 
-static int Wwinsch(lua_State *L)
+static int
+Wwinsch(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    chtype ch = checkch(L, 2);
-    return pushokresult(winsch(w, ch));
+	WINDOW *w = checkwin(L, 1);
+	chtype ch = checkch(L, 2);
+	return pushokresult(winsch(w, ch));
 }
 
-static int Wmvwinsch(lua_State *L)
+
+static int
+Wmvwinsch(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int y = luaL_checkint(L, 2);
-    int x = luaL_checkint(L, 3);
-    chtype ch = checkch(L, 4);
-    return pushokresult(mvwinsch(w, y, x, ch));
+	WINDOW *w = checkwin(L, 1);
+	int y = luaL_checkint(L, 2);
+	int x = luaL_checkint(L, 3);
+	chtype ch = checkch(L, 4);
+	return pushokresult(mvwinsch(w, y, x, ch));
 }
 
-/*
-** =======================================================
-** insstr
-** =======================================================
-*/
 
-static int Wwinsstr(lua_State *L)
+static int
+Wwinsstr(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    const char *str = luaL_checkstring(L, 2);
-    return pushokresult(winsnstr(w, str, lua_strlen(L, 2)));
+	WINDOW *w = checkwin(L, 1);
+	const char *str = luaL_checkstring(L, 2);
+	return pushokresult(winsnstr(w, str, lua_strlen(L, 2)));
 }
 
-static int Wmvwinsstr(lua_State *L)
+
+static int
+Wmvwinsstr(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int y = luaL_checkint(L, 2);
-    int x = luaL_checkint(L, 3);
-    const char *str = luaL_checkstring(L, 4);
-    return pushokresult(mvwinsnstr(w, y, x, str, lua_strlen(L, 2)));
+	WINDOW *w = checkwin(L, 1);
+	int y = luaL_checkint(L, 2);
+	int x = luaL_checkint(L, 3);
+	const char *str = luaL_checkstring(L, 4);
+	return pushokresult(mvwinsnstr(w, y, x, str, lua_strlen(L, 2)));
 }
+
 
-static int Wwinsnstr(lua_State *L)
+static int
+Wwinsnstr(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    const char *str = luaL_checkstring(L, 2);
-    int n = luaL_checkint(L, 3);
-    return pushokresult(winsnstr(w, str, n));
+	WINDOW *w = checkwin(L, 1);
+	const char *str = luaL_checkstring(L, 2);
+	int n = luaL_checkint(L, 3);
+	return pushokresult(winsnstr(w, str, n));
 }
 
-static int Wmvwinsnstr(lua_State *L)
+
+static int
+Wmvwinsnstr(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int y = luaL_checkint(L, 2);
-    int x = luaL_checkint(L, 3);
-    const char *str = luaL_checkstring(L, 4);
-    int n = luaL_checkint(L, 5);
-    return pushokresult(mvwinsnstr(w, y, x, str, n));
+	WINDOW *w = checkwin(L, 1);
+	int y = luaL_checkint(L, 2);
+	int x = luaL_checkint(L, 3);
+	const char *str = luaL_checkstring(L, 4);
+	int n = luaL_checkint(L, 5);
+	return pushokresult(mvwinsnstr(w, y, x, str, n));
 }
 
-/*
-** =======================================================
-** pad
-** =======================================================
-*/
 
-static int Cnewpad(lua_State *L)
+static int
+Cnewpad(lua_State *L)
 {
-    int nlines = luaL_checkint(L, 1);
-    int ncols = luaL_checkint(L, 2);
-    lc_newwin(L, newpad(nlines, ncols));
-    return 1;
+	int nlines = luaL_checkint(L, 1);
+	int ncols = luaL_checkint(L, 2);
+	lc_newwin(L, newpad(nlines, ncols));
+	return 1;
 }
 
-static int Wsubpad(lua_State *L)
+
+static int
+Wsubpad(lua_State *L)
 {
-    WINDOW *orig = checkwin(L, 1);
-    int nlines  = luaL_checkint(L, 2);
-    int ncols   = luaL_checkint(L, 3);
-    int begin_y = luaL_checkint(L, 4);
-    int begin_x = luaL_checkint(L, 5);
+	WINDOW *orig = checkwin(L, 1);
+	int nlines  = luaL_checkint(L, 2);
+	int ncols   = luaL_checkint(L, 3);
+	int begin_y = luaL_checkint(L, 4);
+	int begin_x = luaL_checkint(L, 5);
 
-    lc_newwin(L, subpad(orig, nlines, ncols, begin_y, begin_x));
-    return 1;
+	lc_newwin(L, subpad(orig, nlines, ncols, begin_y, begin_x));
+	return 1;
 }
+
 
-static int Wprefresh(lua_State *L)
+static int
+Wprefresh(lua_State *L)
 {
-    WINDOW *p = checkwin(L, 1);
-    int pminrow = luaL_checkint(L, 2);
-    int pmincol = luaL_checkint(L, 3);
-    int sminrow = luaL_checkint(L, 4);
-    int smincol = luaL_checkint(L, 5);
-    int smaxrow = luaL_checkint(L, 6);
-    int smaxcol = luaL_checkint(L, 7);
+	WINDOW *p = checkwin(L, 1);
+	int pminrow = luaL_checkint(L, 2);
+	int pmincol = luaL_checkint(L, 3);
+	int sminrow = luaL_checkint(L, 4);
+	int smincol = luaL_checkint(L, 5);
+	int smaxrow = luaL_checkint(L, 6);
+	int smaxcol = luaL_checkint(L, 7);
 
-    return pushokresult(prefresh(p, pminrow, pmincol,
-        sminrow, smincol, smaxrow, smaxcol));
+	return pushokresult(prefresh(p, pminrow, pmincol,
+		sminrow, smincol, smaxrow, smaxcol));
 }
 
-static int Wpnoutrefresh(lua_State *L)
+
+static int
+Wpnoutrefresh(lua_State *L)
 {
-    WINDOW *p = checkwin(L, 1);
-    int pminrow = luaL_checkint(L, 2);
-    int pmincol = luaL_checkint(L, 3);
-    int sminrow = luaL_checkint(L, 4);
-    int smincol = luaL_checkint(L, 5);
-    int smaxrow = luaL_checkint(L, 6);
-    int smaxcol = luaL_checkint(L, 7);
+	WINDOW *p = checkwin(L, 1);
+	int pminrow = luaL_checkint(L, 2);
+	int pmincol = luaL_checkint(L, 3);
+	int sminrow = luaL_checkint(L, 4);
+	int smincol = luaL_checkint(L, 5);
+	int smaxrow = luaL_checkint(L, 6);
+	int smaxcol = luaL_checkint(L, 7);
 
-    return pushokresult(pnoutrefresh(p, pminrow, pmincol,
-        sminrow, smincol, smaxrow, smaxcol));
+	return pushokresult(pnoutrefresh(p, pminrow, pmincol,
+		sminrow, smincol, smaxrow, smaxcol));
 }
 
 
-static int Wpechochar(lua_State *L)
+static int
+Wpechochar(lua_State *L)
 {
-    WINDOW *p = checkwin(L, 1);
-    chtype ch = checkch(L, 2);
-    return pushokresult(pechochar(p, ch));
+	WINDOW *p = checkwin(L, 1);
+	chtype ch = checkch(L, 2);
+	return pushokresult(pechochar(p, ch));
 }
 
-/*
-** =======================================================
-** attr
-** =======================================================
-*/
 
-static int Wattroff(lua_State *L)
+static int
+Wattroff(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int bf = luaL_checkint(L, 2);
-    return pushokresult(wattroff(w, bf));
+	WINDOW *w = checkwin(L, 1);
+	int bf = luaL_checkint(L, 2);
+	return pushokresult(wattroff(w, bf));
 }
 
-static int Wattron(lua_State *L)
+
+static int
+Wattron(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int bf = luaL_checkint(L, 2);
-    return pushokresult(wattron(w, bf));
+	WINDOW *w = checkwin(L, 1);
+	int bf = luaL_checkint(L, 2);
+	return pushokresult(wattron(w, bf));
 }
+
 
-static int Wattrset(lua_State *L)
+static int
+Wattrset(lua_State *L)
 {
-    WINDOW *w = checkwin(L, 1);
-    int bf = luaL_checkint(L, 2);
-    return pushokresult(wattrset(w, bf));
+	WINDOW *w = checkwin(L, 1);
+	int bf = luaL_checkint(L, 2);
+	return pushokresult(wattrset(w, bf));
 }
 
-static int Wstandend(lua_State *L)
+
+static int
+Wstandend(lua_State *L)
 {
-    return pushokresult(wstandend(checkwin(L, 1)));
+	return pushokresult(wstandend(checkwin(L, 1)));
 }
 
-static int Wstandout(lua_State *L)
+
+static int
+Wstandout(lua_State *L)
 {
-    return pushokresult(wstandout(checkwin(L, 1)));
+	return pushokresult(wstandout(checkwin(L, 1)));
 }
-
 
-/*
-** =======================================================
-** query terminfo database
-** =======================================================
-*/
 
 static char ti_capname[32];
 
-static int Ctigetflag (lua_State *L)
+static int
+Ctigetflag (lua_State *L)
 {
-    int res;
+	int res;
 
-    strlcpy (ti_capname, luaL_checkstring (L, 1), sizeof (ti_capname));
-    res = tigetflag (ti_capname);
-    if (-1 == res)
-        return luaL_error (L, "`%s' is not a boolean capability", ti_capname);
-    else
-        lua_pushboolean (L, res);
-    return 1;
-}
-
-static int Ctigetnum (lua_State *L)
-{
-    int res;
-
-    strlcpy (ti_capname, luaL_checkstring (L, 1), sizeof (ti_capname));
-    res = tigetnum (ti_capname);
-    if (-2 == res)
-        return luaL_error (L, "`%s' is not a numeric capability", ti_capname);
-    else if (-1 == res)
-        lua_pushnil (L);
-    else
-        lua_pushinteger(L, res);
-    return 1;
-}
-
-static int Ctigetstr (lua_State *L)
-{
-    const char *res;
-
-    strlcpy (ti_capname, luaL_checkstring (L, 1), sizeof (ti_capname));
-    res = tigetstr (ti_capname);
-    if ((char *) -1 == res)
-        return luaL_error (L, "`%s' is not a string capability", ti_capname);
-    else if (NULL == res)
-        lua_pushnil (L);
-    else
-        lua_pushstring(L, res);
-    return 1;
+	strlcpy (ti_capname, luaL_checkstring (L, 1), sizeof (ti_capname));
+	res = tigetflag (ti_capname);
+	if (-1 == res)
+		return luaL_error (L, "`%s' is not a boolean capability", ti_capname);
+	else
+		lua_pushboolean (L, res);
+	return 1;
 }
 
 
-/*
-** =======================================================
-** register functions
-** =======================================================
-*/
+static int
+Ctigetnum (lua_State *L)
+{
+	int res;
+
+	strlcpy (ti_capname, luaL_checkstring (L, 1), sizeof (ti_capname));
+	res = tigetnum (ti_capname);
+	if (-2 == res)
+		return luaL_error (L, "`%s' is not a numeric capability", ti_capname);
+	else if (-1 == res)
+		lua_pushnil (L);
+	else
+		lua_pushinteger(L, res);
+	return 1;
+}
+
+
+static int
+Ctigetstr (lua_State *L)
+{
+	const char *res;
+
+	strlcpy (ti_capname, luaL_checkstring (L, 1), sizeof (ti_capname));
+	res = tigetstr (ti_capname);
+	if ((char *) -1 == res)
+		return luaL_error (L, "`%s' is not a string capability", ti_capname);
+	else if (NULL == res)
+		lua_pushnil (L);
+	else
+		lua_pushstring(L, res);
+	return 1;
+}
+
+
 /* chstr members */
 static const luaL_Reg chstrlib[] =
 {
 #define MENTRY(_f) { LPOSIX_STR(_f), LPOSIX_SPLICE(chstr_, _f) }
-    MENTRY( len		),
-    MENTRY( set_ch	),
-    MENTRY( set_str	),
-    MENTRY( get		),
-    MENTRY( dup		),
+	MENTRY( len		),
+	MENTRY( set_ch		),
+	MENTRY( set_str		),
+	MENTRY( get		),
+	MENTRY( dup		),
 #undef MENTRY
-
-    { NULL, NULL }
+	{ NULL, NULL }
 };
+
 
 static const luaL_Reg windowlib[] =
 {
-    LPOSIX_FUNC( W__tostring	),
-    LPOSIX_FUNC( Waddch		),
-    LPOSIX_FUNC( Waddchstr	),
-    LPOSIX_FUNC( Waddstr	),
-    LPOSIX_FUNC( Wattroff	),
-    LPOSIX_FUNC( Wattron	),
-    LPOSIX_FUNC( Wattrset	),
-    LPOSIX_FUNC( Wborder	),
-    LPOSIX_FUNC( Wbox		),
-    LPOSIX_FUNC( Wclear		),
-    LPOSIX_FUNC( Wclearok	),
-    LPOSIX_FUNC( Wclone		),
-    LPOSIX_FUNC( Wclose		),
-    LPOSIX_FUNC( Wclrtobot	),
-    LPOSIX_FUNC( Wclrtoeol	),
-    LPOSIX_FUNC( Wcopywin	),
-    LPOSIX_FUNC( Wcursyncup	),
-    LPOSIX_FUNC( Wdelch		),
-    LPOSIX_FUNC( Wdeleteln	),
-    LPOSIX_FUNC( Wderive	),
-    LPOSIX_FUNC( Wechoch	),
-    LPOSIX_FUNC( Werase		),
-    LPOSIX_FUNC( Wgetbegyx	),
-    LPOSIX_FUNC( Wgetbkgd	),
-    LPOSIX_FUNC( Wgetch		),
-    LPOSIX_FUNC( Wgetmaxyx	),
-    LPOSIX_FUNC( Wgetparyx	),
-    LPOSIX_FUNC( Wgetstr	),
-    LPOSIX_FUNC( Wgetyx		),
-    LPOSIX_FUNC( Whline		),
-    LPOSIX_FUNC( Widcok		),
-    LPOSIX_FUNC( Widlok		),
-    LPOSIX_FUNC( Wimmedok	),
-    LPOSIX_FUNC( Winsertln	),
-    LPOSIX_FUNC( Wintrflush	),
-    LPOSIX_FUNC( Wis_linetouched),
-    LPOSIX_FUNC( Wis_wintouched	),
-    LPOSIX_FUNC( Wkeypad	),
-    LPOSIX_FUNC( Wleaveok	),
-    LPOSIX_FUNC( Wmeta		),
-    LPOSIX_FUNC( Wmove		),
-    LPOSIX_FUNC( Wmove_derived	),
-    LPOSIX_FUNC( Wmove_window	),
-    LPOSIX_FUNC( Wmvaddch	),
-    LPOSIX_FUNC( Wmvaddchstr	),
-    LPOSIX_FUNC( Wmvaddstr	),
-    LPOSIX_FUNC( Wmvdelch	),
-    LPOSIX_FUNC( Wmvgetch	),
-    LPOSIX_FUNC( Wmvgetstr	),
-    LPOSIX_FUNC( Wmvhline	),
-    LPOSIX_FUNC( Wmvvline	),
-    LPOSIX_FUNC( Wmvwinch	),
-    LPOSIX_FUNC( Wmvwinchnstr	),
-    LPOSIX_FUNC( Wmvwinnstr	),
-    LPOSIX_FUNC( Wmvwinsch	),
-    LPOSIX_FUNC( Wmvwinsnstr	),
-    LPOSIX_FUNC( Wmvwinsstr	),
-    LPOSIX_FUNC( Wnodelay	),
-    LPOSIX_FUNC( Wnotimeout	),
-    LPOSIX_FUNC( Wnoutrefresh	),
-    LPOSIX_FUNC( Woverlay	),
-    LPOSIX_FUNC( Woverwrite	),
-    LPOSIX_FUNC( Wpechochar	),
-    LPOSIX_FUNC( Wpnoutrefresh	),
-    LPOSIX_FUNC( Wprefresh	),
-    LPOSIX_FUNC( Wredrawln	),
-    LPOSIX_FUNC( Wredrawwin	),
-    LPOSIX_FUNC( Wrefresh	),
-    LPOSIX_FUNC( Wresize	),
-    LPOSIX_FUNC( Wscrl		),
-    LPOSIX_FUNC( Wscrollok	),
-    LPOSIX_FUNC( Wstandend	),
-    LPOSIX_FUNC( Wstandout	),
-    LPOSIX_FUNC( Wsub		),
-    LPOSIX_FUNC( Wsubpad	),
-    LPOSIX_FUNC( Wsyncdown	),
-    LPOSIX_FUNC( Wsyncok	),
-    LPOSIX_FUNC( Wsyncup	),
-    LPOSIX_FUNC( Wtimeout	),
-    LPOSIX_FUNC( Wtouch		),
-    LPOSIX_FUNC( Wtouchline	),
-    LPOSIX_FUNC( Wvline		),
-    LPOSIX_FUNC( Wwbkgd		),
-    LPOSIX_FUNC( Wwbkgdset	),
-    LPOSIX_FUNC( Wwinch		),
-    LPOSIX_FUNC( Wwinchnstr	),
-    LPOSIX_FUNC( Wwinnstr	),
-    LPOSIX_FUNC( Wwinsch	),
-    LPOSIX_FUNC( Wwinsdelln	),
-    LPOSIX_FUNC( Wwinsnstr	),
-    LPOSIX_FUNC( Wwinsstr	),
-    LPOSIX_FUNC( Wwsetscrreg	),
-    {"__gc",     Wclose		}, /* rough safety net */
-
-    {NULL, NULL}
+	LPOSIX_FUNC( W__tostring	),
+	LPOSIX_FUNC( Waddch		),
+	LPOSIX_FUNC( Waddchstr		),
+	LPOSIX_FUNC( Waddstr		),
+	LPOSIX_FUNC( Wattroff		),
+	LPOSIX_FUNC( Wattron		),
+	LPOSIX_FUNC( Wattrset		),
+	LPOSIX_FUNC( Wborder		),
+	LPOSIX_FUNC( Wbox		),
+	LPOSIX_FUNC( Wclear		),
+	LPOSIX_FUNC( Wclearok		),
+	LPOSIX_FUNC( Wclone		),
+	LPOSIX_FUNC( Wclose		),
+	LPOSIX_FUNC( Wclrtobot		),
+	LPOSIX_FUNC( Wclrtoeol		),
+	LPOSIX_FUNC( Wcopywin		),
+	LPOSIX_FUNC( Wcursyncup		),
+	LPOSIX_FUNC( Wdelch		),
+	LPOSIX_FUNC( Wdeleteln		),
+	LPOSIX_FUNC( Wderive		),
+	LPOSIX_FUNC( Wechoch		),
+	LPOSIX_FUNC( Werase		),
+	LPOSIX_FUNC( Wgetbegyx		),
+	LPOSIX_FUNC( Wgetbkgd		),
+	LPOSIX_FUNC( Wgetch		),
+	LPOSIX_FUNC( Wgetmaxyx		),
+	LPOSIX_FUNC( Wgetparyx		),
+	LPOSIX_FUNC( Wgetstr		),
+	LPOSIX_FUNC( Wgetyx		),
+	LPOSIX_FUNC( Whline		),
+	LPOSIX_FUNC( Widcok		),
+	LPOSIX_FUNC( Widlok		),
+	LPOSIX_FUNC( Wimmedok		),
+	LPOSIX_FUNC( Winsertln		),
+	LPOSIX_FUNC( Wintrflush		),
+	LPOSIX_FUNC( Wis_linetouched	),
+	LPOSIX_FUNC( Wis_wintouched	),
+	LPOSIX_FUNC( Wkeypad		),
+	LPOSIX_FUNC( Wleaveok		),
+	LPOSIX_FUNC( Wmeta		),
+	LPOSIX_FUNC( Wmove		),
+	LPOSIX_FUNC( Wmove_derived	),
+	LPOSIX_FUNC( Wmove_window	),
+	LPOSIX_FUNC( Wmvaddch		),
+	LPOSIX_FUNC( Wmvaddchstr	),
+	LPOSIX_FUNC( Wmvaddstr		),
+	LPOSIX_FUNC( Wmvdelch		),
+	LPOSIX_FUNC( Wmvgetch		),
+	LPOSIX_FUNC( Wmvgetstr		),
+	LPOSIX_FUNC( Wmvhline		),
+	LPOSIX_FUNC( Wmvvline		),
+	LPOSIX_FUNC( Wmvwinch		),
+	LPOSIX_FUNC( Wmvwinchnstr	),
+	LPOSIX_FUNC( Wmvwinnstr		),
+	LPOSIX_FUNC( Wmvwinsch		),
+	LPOSIX_FUNC( Wmvwinsnstr	),
+	LPOSIX_FUNC( Wmvwinsstr		),
+	LPOSIX_FUNC( Wnodelay		),
+	LPOSIX_FUNC( Wnotimeout		),
+	LPOSIX_FUNC( Wnoutrefresh	),
+	LPOSIX_FUNC( Woverlay		),
+	LPOSIX_FUNC( Woverwrite		),
+	LPOSIX_FUNC( Wpechochar		),
+	LPOSIX_FUNC( Wpnoutrefresh	),
+	LPOSIX_FUNC( Wprefresh		),
+	LPOSIX_FUNC( Wredrawln		),
+	LPOSIX_FUNC( Wredrawwin		),
+	LPOSIX_FUNC( Wrefresh		),
+	LPOSIX_FUNC( Wresize		),
+	LPOSIX_FUNC( Wscrl		),
+	LPOSIX_FUNC( Wscrollok		),
+	LPOSIX_FUNC( Wstandend		),
+	LPOSIX_FUNC( Wstandout		),
+	LPOSIX_FUNC( Wsub		),
+	LPOSIX_FUNC( Wsubpad		),
+	LPOSIX_FUNC( Wsyncdown		),
+	LPOSIX_FUNC( Wsyncok		),
+	LPOSIX_FUNC( Wsyncup		),
+	LPOSIX_FUNC( Wtimeout		),
+	LPOSIX_FUNC( Wtouch		),
+	LPOSIX_FUNC( Wtouchline		),
+	LPOSIX_FUNC( Wvline		),
+	LPOSIX_FUNC( Wwbkgd		),
+	LPOSIX_FUNC( Wwbkgdset		),
+	LPOSIX_FUNC( Wwinch		),
+	LPOSIX_FUNC( Wwinchnstr		),
+	LPOSIX_FUNC( Wwinnstr		),
+	LPOSIX_FUNC( Wwinsch		),
+	LPOSIX_FUNC( Wwinsdelln		),
+	LPOSIX_FUNC( Wwinsnstr		),
+	LPOSIX_FUNC( Wwinsstr		),
+	LPOSIX_FUNC( Wwsetscrreg	),
+	{"__gc",     Wclose		}, /* rough safety net */
+	{NULL, NULL}
 };
+
 
 static const luaL_Reg curseslib[] =
 {
-    LPOSIX_FUNC( Cbaudrate	),
-    LPOSIX_FUNC( Cbeep		),
-    LPOSIX_FUNC( Ccbreak	),
-    LPOSIX_FUNC( Ccolor_pair	),
-    LPOSIX_FUNC( Ccolor_pairs	),
-    LPOSIX_FUNC( Ccolors	),
-    LPOSIX_FUNC( Ccols		),
-    LPOSIX_FUNC( Ccurs_set	),
-    LPOSIX_FUNC( Cdelay_output	),
-    LPOSIX_FUNC( Cdoupdate	),
-    LPOSIX_FUNC( Cecho		),
-    LPOSIX_FUNC( Cendwin	),
-    LPOSIX_FUNC( Cerasechar	),
-    LPOSIX_FUNC( Cflash		),
-    LPOSIX_FUNC( Cflushinp	),
-    LPOSIX_FUNC( Chalfdelay	),
-    LPOSIX_FUNC( Chas_colors	),
-    LPOSIX_FUNC( Chas_ic	),
-    LPOSIX_FUNC( Chas_il	),
-    LPOSIX_FUNC( Cinit_pair	),
-    LPOSIX_FUNC( Cisendwin	),
-    LPOSIX_FUNC( Ckeyname	),
-    LPOSIX_FUNC( Ckillchar	),
-    LPOSIX_FUNC( Clines		),
-    LPOSIX_FUNC( Clongname	),
-    LPOSIX_FUNC( Cnapms		),
-    LPOSIX_FUNC( Cnew_chstr	),
-    LPOSIX_FUNC( Cnewpad	),
-    LPOSIX_FUNC( Cnewwin	),
-    LPOSIX_FUNC( Cnl		),
-    LPOSIX_FUNC( Cpair_content	),
-    LPOSIX_FUNC( Craw		),
-    LPOSIX_FUNC( Cresizeterm	),
-    LPOSIX_FUNC( Cripoffline	),
-    LPOSIX_FUNC( Cslk_attroff	),
-    LPOSIX_FUNC( Cslk_attron	),
-    LPOSIX_FUNC( Cslk_attrset	),
-    LPOSIX_FUNC( Cslk_clear	),
-    LPOSIX_FUNC( Cslk_init	),
-    LPOSIX_FUNC( Cslk_label	),
-    LPOSIX_FUNC( Cslk_noutrefresh	),
-    LPOSIX_FUNC( Cslk_refresh	),
-    LPOSIX_FUNC( Cslk_restore	),
-    LPOSIX_FUNC( Cslk_set	),
-    LPOSIX_FUNC( Cslk_touch	),
-    LPOSIX_FUNC( Cstart_color	),
-    LPOSIX_FUNC( Cstdscr	),
-    LPOSIX_FUNC( Ctermattrs	),
-    LPOSIX_FUNC( Ctermname	),
-    LPOSIX_FUNC( Ctigetflag	),
-    LPOSIX_FUNC( Ctigetnum	),
-    LPOSIX_FUNC( Ctigetstr	),
-    LPOSIX_FUNC( Cunctrl	),
-    LPOSIX_FUNC( Cungetch	),
-    LPOSIX_FUNC( Cuse_default_colors	),
-
-    {NULL, NULL}
+	LPOSIX_FUNC( Cbaudrate		),
+	LPOSIX_FUNC( Cbeep		),
+	LPOSIX_FUNC( Ccbreak		),
+	LPOSIX_FUNC( Ccolor_pair	),
+	LPOSIX_FUNC( Ccolor_pairs	),
+	LPOSIX_FUNC( Ccolors		),
+	LPOSIX_FUNC( Ccols		),
+	LPOSIX_FUNC( Ccurs_set		),
+	LPOSIX_FUNC( Cdelay_output	),
+	LPOSIX_FUNC( Cdoupdate		),
+	LPOSIX_FUNC( Cecho		),
+	LPOSIX_FUNC( Cendwin		),
+	LPOSIX_FUNC( Cerasechar		),
+	LPOSIX_FUNC( Cflash		),
+	LPOSIX_FUNC( Cflushinp		),
+	LPOSIX_FUNC( Chalfdelay		),
+	LPOSIX_FUNC( Chas_colors	),
+	LPOSIX_FUNC( Chas_ic		),
+	LPOSIX_FUNC( Chas_il		),
+	LPOSIX_FUNC( Cinit_pair		),
+	LPOSIX_FUNC( Cisendwin		),
+	LPOSIX_FUNC( Ckeyname		),
+	LPOSIX_FUNC( Ckillchar		),
+	LPOSIX_FUNC( Clines		),
+	LPOSIX_FUNC( Clongname		),
+	LPOSIX_FUNC( Cnapms		),
+	LPOSIX_FUNC( Cnew_chstr		),
+	LPOSIX_FUNC( Cnewpad		),
+	LPOSIX_FUNC( Cnewwin		),
+	LPOSIX_FUNC( Cnl		),
+	LPOSIX_FUNC( Cpair_content	),
+	LPOSIX_FUNC( Craw		),
+	LPOSIX_FUNC( Cresizeterm	),
+	LPOSIX_FUNC( Cripoffline	),
+	LPOSIX_FUNC( Cslk_attroff	),
+	LPOSIX_FUNC( Cslk_attron	),
+	LPOSIX_FUNC( Cslk_attrset	),
+	LPOSIX_FUNC( Cslk_clear		),
+	LPOSIX_FUNC( Cslk_init		),
+	LPOSIX_FUNC( Cslk_label		),
+	LPOSIX_FUNC( Cslk_noutrefresh	),
+	LPOSIX_FUNC( Cslk_refresh	),
+	LPOSIX_FUNC( Cslk_restore	),
+	LPOSIX_FUNC( Cslk_set		),
+	LPOSIX_FUNC( Cslk_touch		),
+	LPOSIX_FUNC( Cstart_color	),
+	LPOSIX_FUNC( Cstdscr		),
+	LPOSIX_FUNC( Ctermattrs		),
+	LPOSIX_FUNC( Ctermname		),
+	LPOSIX_FUNC( Ctigetflag		),
+	LPOSIX_FUNC( Ctigetnum		),
+	LPOSIX_FUNC( Ctigetstr		),
+	LPOSIX_FUNC( Cunctrl		),
+	LPOSIX_FUNC( Cungetch		),
+	LPOSIX_FUNC( Cuse_default_colors),
+	{NULL, NULL}
 };
 #endif
 
@@ -2070,42 +2154,42 @@ LUALIB_API int luaopen_curses_c (lua_State *L);
 int luaopen_posix_curses (lua_State *L)
 {
 #if HAVE_CURSES
-    /*
-    ** create new metatable for window objects
-    */
-    luaL_newmetatable(L, WINDOWMETA);
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -2);               /* push metatable */
-    lua_rawset(L, -3);                  /* metatable.__index = metatable */
-    luaL_openlib(L, NULL, windowlib, 0);
+	/*
+	** create new metatable for window objects
+	*/
+	luaL_newmetatable(L, WINDOWMETA);
+	lua_pushliteral(L, "__index");
+	lua_pushvalue(L, -2);			   /* push metatable */
+	lua_rawset(L, -3);				  /* metatable.__index = metatable */
+	luaL_openlib(L, NULL, windowlib, 0);
 
-    lua_pop(L, 1);                      /* remove metatable from stack */
+	lua_pop(L, 1);					  /* remove metatable from stack */
 
-    /*
-    ** create new metatable for chstr objects
-    */
-    luaL_newmetatable(L, CHSTRMETA);
-    lua_pushliteral(L, "__index");
-    lua_pushvalue(L, -2);               /* push metatable */
-    lua_rawset(L, -3);                  /* metatable.__index = metatable */
-    luaL_openlib(L, NULL, chstrlib, 0);
+	/*
+	** create new metatable for chstr objects
+	*/
+	luaL_newmetatable(L, CHSTRMETA);
+	lua_pushliteral(L, "__index");
+	lua_pushvalue(L, -2);			   /* push metatable */
+	lua_rawset(L, -3);				  /* metatable.__index = metatable */
+	luaL_openlib(L, NULL, chstrlib, 0);
 
-    lua_pop(L, 1);                      /* remove metatable from stack */
+	lua_pop(L, 1);					  /* remove metatable from stack */
 #endif
 
-    /*
-    ** create global table with curses methods/variables/constants
-    */
-    luaL_register(L, "curses", curseslib);
-    lua_pushliteral(L, "posix curses for " LUA_VERSION " / " PACKAGE_STRING);
-    lua_setfield(L, -2, "version");
+	/*
+	** create global table with curses methods/variables/constants
+	*/
+	luaL_register(L, "curses", curseslib);
+	lua_pushliteral(L, "posix curses for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
 
 #if HAVE_CURSES
-    lua_pushstring(L, "initscr");
-    lua_pushvalue(L, -2);
-    lua_pushcclosure(L, Cinitscr, 1);
-    lua_settable(L, -3);
+	lua_pushstring(L, "initscr");
+	lua_pushvalue(L, -2);
+	lua_pushcclosure(L, Cinitscr, 1);
+	lua_settable(L, -3);
 #endif
 
-    return 1;
+	return 1;
 }
