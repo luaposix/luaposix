@@ -183,7 +183,7 @@ static chstr* checkchstr(lua_State *L, int offset)
  ****/
 
 static int
-Cnew_chstr(lua_State *L)
+Pnew_chstr(lua_State *L)
 {
 	int len = checkint(L, 1);
 	chstr* ncs = chstr_new(L, len);
@@ -310,7 +310,7 @@ chstr_dup(lua_State *L)
 
 /*
 ** these values may be fixed only after initialization, so this is
-** called from Cinitscr, after the curses driver is initialized
+** called from Pinitscr, after the curses driver is initialized
 **
 ** curses table is kept at upvalue position 1, in case the global
 ** name is changed by the user or even in the registration phase by
@@ -419,7 +419,7 @@ cleanup(void)
 
 
 static int
-Cinitscr(lua_State *L)
+Pinitscr(lua_State *L)
 {
 	WINDOW *w;
 
@@ -455,7 +455,7 @@ Cinitscr(lua_State *L)
 /* FIXME: Avoid cast to void. */
 
 static int
-Cendwin(lua_State *L)
+Pendwin(lua_State *L)
 {
 	(void) L;
 	endwin();
@@ -464,14 +464,14 @@ Cendwin(lua_State *L)
 
 
 static int
-Cisendwin(lua_State *L)
+Pisendwin(lua_State *L)
 {
 	return pushboolresult(isendwin());
 }
 
 
 static int
-Cstdscr(lua_State *L)
+Pstdscr(lua_State *L)
 {
 	lua_pushstring(L, STDSCR_REGISTRY);
 	lua_rawget(L, LUA_REGISTRYINDEX);
@@ -480,42 +480,42 @@ Cstdscr(lua_State *L)
 
 
 static int
-Ccols(lua_State *L)
+Pcols(lua_State *L)
 {
 	return pushintresult(COLS);
 }
 
 
 static int
-Clines(lua_State *L)
+Plines(lua_State *L)
 {
 	return pushintresult(LINES);
 }
 
 
 static int
-Cstart_color(lua_State *L)
+Pstart_color(lua_State *L)
 {
 	return pushokresult(start_color());
 }
 
 
 static int
-Chas_colors(lua_State *L)
+Phas_colors(lua_State *L)
 {
 	return pushboolresult(has_colors());
 }
 
 
 static int
-Cuse_default_colors(lua_State *L)
+Puse_default_colors(lua_State *L)
 {
 	return pushokresult(use_default_colors());
 }
 
 
 static int
-Cinit_pair(lua_State *L)
+Pinit_pair(lua_State *L)
 {
 	short pair = checkint(L, 1);
 	short f = checkint(L, 2);
@@ -525,7 +525,7 @@ Cinit_pair(lua_State *L)
 
 
 static int
-Cpair_content(lua_State *L)
+Ppair_content(lua_State *L)
 {
 	short pair = checkint(L, 1);
 	short f;
@@ -542,21 +542,21 @@ Cpair_content(lua_State *L)
 
 
 static int
-Ccolors(lua_State *L)
+Pcolors(lua_State *L)
 {
 	return pushintresult(COLORS);
 }
 
 
 static int
-Ccolor_pairs(lua_State *L)
+Pcolor_pairs(lua_State *L)
 {
 	return pushintresult(COLOR_PAIRS);
 }
 
 
 static int
-Ccolor_pair(lua_State *L)
+Pcolor_pair(lua_State *L)
 {
 	int n = checkint(L, 1);
 	return pushintresult(COLOR_PAIR(n));
@@ -564,42 +564,42 @@ Ccolor_pair(lua_State *L)
 
 
 static int
-Cbaudrate(lua_State *L)
+Pbaudrate(lua_State *L)
 {
 	return pushintresult(baudrate());
 }
 
 
 static int
-Cerasechar(lua_State *L)
+Perasechar(lua_State *L)
 {
 	return pushintresult(erasechar());
 }
 
 
 static int
-Chas_ic(lua_State *L)
+Phas_ic(lua_State *L)
 {
 	return pushboolresult(has_ic());
 }
 
 
 static int
-Chas_il(lua_State *L)
+Phas_il(lua_State *L)
 {
 	return pushboolresult(has_il());
 }
 
 
 static int
-Ckillchar(lua_State *L)
+Pkillchar(lua_State *L)
 {
 	return pushintresult(killchar());
 }
 
 
 static int
-Ctermattrs(lua_State *L)
+Ptermattrs(lua_State *L)
 {
 	if (lua_gettop(L) > 0)
 	{
@@ -611,14 +611,14 @@ Ctermattrs(lua_State *L)
 
 
 static int
-Ctermname(lua_State *L)
+Ptermname(lua_State *L)
 {
 	return pushstringresult(termname());
 }
 
 
 static int
-Clongname(lua_State *L)
+Plongname(lua_State *L)
 {
 	return pushstringresult(longname());
 }
@@ -660,7 +660,7 @@ ripoffline_cb(WINDOW* w, int cols)
 
 
 static int
-Cripoffline(lua_State *L)
+Pripoffline(lua_State *L)
 {
 	static int rip = 0;
 	int top_line = lua_toboolean(L, 1);
@@ -698,7 +698,7 @@ Cripoffline(lua_State *L)
 
 
 static int
-Ccurs_set(lua_State *L)
+Pcurs_set(lua_State *L)
 {
 	int vis = checkint(L, 1);
 	int state = curs_set(vis);
@@ -710,7 +710,7 @@ Ccurs_set(lua_State *L)
 
 
 static int
-Cnapms(lua_State *L)
+Pnapms(lua_State *L)
 {
 	int ms = checkint(L, 1);
 	return pushokresult(napms(ms));
@@ -718,7 +718,7 @@ Cnapms(lua_State *L)
 
 
 static int
-Cresizeterm(lua_State *L)
+Presizeterm(lua_State *L)
 {
 	int nlines  = checkint(L, 1);
 	int ncols   = checkint(L, 2);
@@ -731,21 +731,21 @@ Cresizeterm(lua_State *L)
 
 
 static int
-Cbeep(lua_State *L)
+Pbeep(lua_State *L)
 {
 	return pushokresult(beep());
 }
 
 
 static int
-Cflash(lua_State *L)
+Pflash(lua_State *L)
 {
 	return pushokresult(flash());
 }
 
 
 static int
-Cnewwin(lua_State *L)
+Pnewwin(lua_State *L)
 {
 	int nlines  = checkint(L, 1);
 	int ncols   = checkint(L, 2);
@@ -907,7 +907,7 @@ Wredrawln(lua_State *L)
 
 
 static int
-Cdoupdate(lua_State *L)
+Pdoupdate(lua_State *L)
 {
 	return pushokresult(doupdate());
 }
@@ -1133,7 +1133,7 @@ Wclrtoeol(lua_State *L)
 
 
 static int
-Cslk_init(lua_State *L)
+Pslk_init(lua_State *L)
 {
 	int fmt = checkint(L, 1);
 	return pushokresult(slk_init(fmt));
@@ -1141,7 +1141,7 @@ Cslk_init(lua_State *L)
 
 
 static int
-Cslk_set(lua_State *L)
+Pslk_set(lua_State *L)
 {
 	int labnum = checkint(L, 1);
 	const char* label = luaL_checkstring(L, 2);
@@ -1151,21 +1151,21 @@ Cslk_set(lua_State *L)
 
 
 static int
-Cslk_refresh(lua_State *L)
+Pslk_refresh(lua_State *L)
 {
 	return pushokresult(slk_refresh());
 }
 
 
 static int
-Cslk_noutrefresh(lua_State *L)
+Pslk_noutrefresh(lua_State *L)
 {
 	return pushokresult(slk_noutrefresh());
 }
 
 
 static int
-Cslk_label(lua_State *L)
+Pslk_label(lua_State *L)
 {
 	int labnum = checkint(L, 1);
 	return pushstringresult(slk_label(labnum));
@@ -1173,28 +1173,28 @@ Cslk_label(lua_State *L)
 
 
 static int
-Cslk_clear(lua_State *L)
+Pslk_clear(lua_State *L)
 {
 	return pushokresult(slk_clear());
 }
 
 
 static int
-Cslk_restore(lua_State *L)
+Pslk_restore(lua_State *L)
 {
 	return pushokresult(slk_restore());
 }
 
 
 static int
-Cslk_touch(lua_State *L)
+Pslk_touch(lua_State *L)
 {
 	return pushokresult(slk_touch());
 }
 
 
 static int
-Cslk_attron(lua_State *L)
+Pslk_attron(lua_State *L)
 {
 	chtype attrs = checkch(L, 1);
 	return pushokresult(slk_attron(attrs));
@@ -1202,7 +1202,7 @@ Cslk_attron(lua_State *L)
 
 
 static int
-Cslk_attroff(lua_State *L)
+Pslk_attroff(lua_State *L)
 {
 	chtype attrs = checkch(L, 1);
 	return pushokresult(slk_attroff(attrs));
@@ -1210,7 +1210,7 @@ Cslk_attroff(lua_State *L)
 
 
 static int
-Cslk_attrset(lua_State *L)
+Pslk_attrset(lua_State *L)
 {
 	chtype attrs = checkch(L, 1);
 	return pushokresult(slk_attrset(attrs));
@@ -1326,7 +1326,7 @@ Wgetbkgd(lua_State *L)
 
 
 static int
-Ccbreak(lua_State *L)
+Pcbreak(lua_State *L)
 {
 	if (lua_isnoneornil(L, 1) || lua_toboolean(L, 1))
 		return pushokresult(cbreak());
@@ -1335,7 +1335,7 @@ Ccbreak(lua_State *L)
 
 
 static int
-Cecho(lua_State *L)
+Pecho(lua_State *L)
 {
 	if (lua_isnoneornil(L, 1) || lua_toboolean(L, 1))
 		return pushokresult(echo());
@@ -1344,7 +1344,7 @@ Cecho(lua_State *L)
 
 
 static int
-Craw(lua_State *L)
+Praw(lua_State *L)
 {
 	if (lua_isnoneornil(L, 1) || lua_toboolean(L, 1))
 		return pushokresult(raw());
@@ -1353,7 +1353,7 @@ Craw(lua_State *L)
 
 
 static int
-Chalfdelay(lua_State *L)
+Phalfdelay(lua_State *L)
 {
 	int tenths = checkint(L, 1);
 	return pushokresult(halfdelay(tenths));
@@ -1416,7 +1416,7 @@ Wnotimeout(lua_State *L)
 
 
 static int
-Cnl(lua_State *L)
+Pnl(lua_State *L)
 {
 	if (lua_isnoneornil(L, 1) || lua_toboolean(L, 1))
 		return pushokresult(nl());
@@ -1526,7 +1526,7 @@ Wcopywin(lua_State *L)
 
 
 static int
-Cunctrl(lua_State *L)
+Punctrl(lua_State *L)
 {
 	chtype c = luaL_checknumber(L, 1);
 	return pushstringresult(unctrl(c));
@@ -1534,7 +1534,7 @@ Cunctrl(lua_State *L)
 
 
 static int
-Ckeyname(lua_State *L)
+Pkeyname(lua_State *L)
 {
 	int c = checkint(L, 1);
 	return pushstringresult(keyname(c));
@@ -1542,7 +1542,7 @@ Ckeyname(lua_State *L)
 
 
 static int
-Cdelay_output(lua_State *L)
+Pdelay_output(lua_State *L)
 {
 	int ms = checkint(L, 1);
 	return pushokresult(delay_output(ms));
@@ -1550,7 +1550,7 @@ Cdelay_output(lua_State *L)
 
 
 static int
-Cflushinp(lua_State *L)
+Pflushinp(lua_State *L)
 {
 	return pushboolresult(flushinp());
 }
@@ -1630,7 +1630,7 @@ Wmvgetch(lua_State *L)
 
 
 static int
-Cungetch(lua_State *L)
+Pungetch(lua_State *L)
 {
 	int c = checkint(L, 1);
 	return pushokresult(ungetch(c));
@@ -1818,7 +1818,7 @@ Wmvwinsnstr(lua_State *L)
 
 
 static int
-Cnewpad(lua_State *L)
+Pnewpad(lua_State *L)
 {
 	int nlines = checkint(L, 1);
 	int ncols = checkint(L, 2);
@@ -1926,7 +1926,7 @@ Wstandout(lua_State *L)
 static char ti_capname[32];
 
 static int
-Ctigetflag (lua_State *L)
+Ptigetflag (lua_State *L)
 {
 	int res;
 
@@ -1941,7 +1941,7 @@ Ctigetflag (lua_State *L)
 
 
 static int
-Ctigetnum (lua_State *L)
+Ptigetnum (lua_State *L)
 {
 	int res;
 
@@ -1958,7 +1958,7 @@ Ctigetnum (lua_State *L)
 
 
 static int
-Ctigetstr (lua_State *L)
+Ptigetstr (lua_State *L)
 {
 	const char *res;
 
@@ -2089,61 +2089,61 @@ static const luaL_Reg windowlib[] =
 
 static const luaL_Reg curseslib[] =
 {
-	LPOSIX_FUNC( Cbaudrate		),
-	LPOSIX_FUNC( Cbeep		),
-	LPOSIX_FUNC( Ccbreak		),
-	LPOSIX_FUNC( Ccolor_pair	),
-	LPOSIX_FUNC( Ccolor_pairs	),
-	LPOSIX_FUNC( Ccolors		),
-	LPOSIX_FUNC( Ccols		),
-	LPOSIX_FUNC( Ccurs_set		),
-	LPOSIX_FUNC( Cdelay_output	),
-	LPOSIX_FUNC( Cdoupdate		),
-	LPOSIX_FUNC( Cecho		),
-	LPOSIX_FUNC( Cendwin		),
-	LPOSIX_FUNC( Cerasechar		),
-	LPOSIX_FUNC( Cflash		),
-	LPOSIX_FUNC( Cflushinp		),
-	LPOSIX_FUNC( Chalfdelay		),
-	LPOSIX_FUNC( Chas_colors	),
-	LPOSIX_FUNC( Chas_ic		),
-	LPOSIX_FUNC( Chas_il		),
-	LPOSIX_FUNC( Cinit_pair		),
-	LPOSIX_FUNC( Cisendwin		),
-	LPOSIX_FUNC( Ckeyname		),
-	LPOSIX_FUNC( Ckillchar		),
-	LPOSIX_FUNC( Clines		),
-	LPOSIX_FUNC( Clongname		),
-	LPOSIX_FUNC( Cnapms		),
-	LPOSIX_FUNC( Cnew_chstr		),
-	LPOSIX_FUNC( Cnewpad		),
-	LPOSIX_FUNC( Cnewwin		),
-	LPOSIX_FUNC( Cnl		),
-	LPOSIX_FUNC( Cpair_content	),
-	LPOSIX_FUNC( Craw		),
-	LPOSIX_FUNC( Cresizeterm	),
-	LPOSIX_FUNC( Cripoffline	),
-	LPOSIX_FUNC( Cslk_attroff	),
-	LPOSIX_FUNC( Cslk_attron	),
-	LPOSIX_FUNC( Cslk_attrset	),
-	LPOSIX_FUNC( Cslk_clear		),
-	LPOSIX_FUNC( Cslk_init		),
-	LPOSIX_FUNC( Cslk_label		),
-	LPOSIX_FUNC( Cslk_noutrefresh	),
-	LPOSIX_FUNC( Cslk_refresh	),
-	LPOSIX_FUNC( Cslk_restore	),
-	LPOSIX_FUNC( Cslk_set		),
-	LPOSIX_FUNC( Cslk_touch		),
-	LPOSIX_FUNC( Cstart_color	),
-	LPOSIX_FUNC( Cstdscr		),
-	LPOSIX_FUNC( Ctermattrs		),
-	LPOSIX_FUNC( Ctermname		),
-	LPOSIX_FUNC( Ctigetflag		),
-	LPOSIX_FUNC( Ctigetnum		),
-	LPOSIX_FUNC( Ctigetstr		),
-	LPOSIX_FUNC( Cunctrl		),
-	LPOSIX_FUNC( Cungetch		),
-	LPOSIX_FUNC( Cuse_default_colors),
+	LPOSIX_FUNC( Pbaudrate		),
+	LPOSIX_FUNC( Pbeep		),
+	LPOSIX_FUNC( Pcbreak		),
+	LPOSIX_FUNC( Pcolor_pair	),
+	LPOSIX_FUNC( Pcolor_pairs	),
+	LPOSIX_FUNC( Pcolors		),
+	LPOSIX_FUNC( Pcols		),
+	LPOSIX_FUNC( Pcurs_set		),
+	LPOSIX_FUNC( Pdelay_output	),
+	LPOSIX_FUNC( Pdoupdate		),
+	LPOSIX_FUNC( Pecho		),
+	LPOSIX_FUNC( Pendwin		),
+	LPOSIX_FUNC( Perasechar		),
+	LPOSIX_FUNC( Pflash		),
+	LPOSIX_FUNC( Pflushinp		),
+	LPOSIX_FUNC( Phalfdelay		),
+	LPOSIX_FUNC( Phas_colors	),
+	LPOSIX_FUNC( Phas_ic		),
+	LPOSIX_FUNC( Phas_il		),
+	LPOSIX_FUNC( Pinit_pair		),
+	LPOSIX_FUNC( Pisendwin		),
+	LPOSIX_FUNC( Pkeyname		),
+	LPOSIX_FUNC( Pkillchar		),
+	LPOSIX_FUNC( Plines		),
+	LPOSIX_FUNC( Plongname		),
+	LPOSIX_FUNC( Pnapms		),
+	LPOSIX_FUNC( Pnew_chstr		),
+	LPOSIX_FUNC( Pnewpad		),
+	LPOSIX_FUNC( Pnewwin		),
+	LPOSIX_FUNC( Pnl		),
+	LPOSIX_FUNC( Ppair_content	),
+	LPOSIX_FUNC( Praw		),
+	LPOSIX_FUNC( Presizeterm	),
+	LPOSIX_FUNC( Pripoffline	),
+	LPOSIX_FUNC( Pslk_attroff	),
+	LPOSIX_FUNC( Pslk_attron	),
+	LPOSIX_FUNC( Pslk_attrset	),
+	LPOSIX_FUNC( Pslk_clear		),
+	LPOSIX_FUNC( Pslk_init		),
+	LPOSIX_FUNC( Pslk_label		),
+	LPOSIX_FUNC( Pslk_noutrefresh	),
+	LPOSIX_FUNC( Pslk_refresh	),
+	LPOSIX_FUNC( Pslk_restore	),
+	LPOSIX_FUNC( Pslk_set		),
+	LPOSIX_FUNC( Pslk_touch		),
+	LPOSIX_FUNC( Pstart_color	),
+	LPOSIX_FUNC( Pstdscr		),
+	LPOSIX_FUNC( Ptermattrs		),
+	LPOSIX_FUNC( Ptermname		),
+	LPOSIX_FUNC( Ptigetflag		),
+	LPOSIX_FUNC( Ptigetnum		),
+	LPOSIX_FUNC( Ptigetstr		),
+	LPOSIX_FUNC( Punctrl		),
+	LPOSIX_FUNC( Pungetch		),
+	LPOSIX_FUNC( Puse_default_colors),
 	{NULL, NULL}
 };
 #endif
@@ -2187,7 +2187,7 @@ int luaopen_posix_curses (lua_State *L)
 #if HAVE_CURSES
 	lua_pushstring(L, "initscr");
 	lua_pushvalue(L, -2);
-	lua_pushcclosure(L, Cinitscr, 1);
+	lua_pushcclosure(L, Pinitscr, 1);
 	lua_settable(L, -3);
 #endif
 
