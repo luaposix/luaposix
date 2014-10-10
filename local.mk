@@ -71,7 +71,6 @@ ext_posix_posix_la_SOURCES =		\
 	ext/posix/posix.c		\
 	$(NOTHING_ELSE)
 EXTRA_ext_posix_posix_la_SOURCES =	\
-	ext/posix/_helpers.c		\
 	ext/posix/ctype.c		\
 	ext/posix/curses.c		\
 	ext/posix/dirent.c		\
@@ -294,6 +293,7 @@ EXTRA_DIST +=				\
 	examples/socket.lua		\
 	examples/termios.lua		\
 	examples/tree.lua		\
+	ext/include/_helpers.c		\
 	ext/include/strlcpy.c		\
 	ext/include/lua52compat.h	\
 	$(NOTHING_ELSE)
