@@ -1,28 +1,32 @@
-/*************************************************************************
- * Library: lcurses - Lua 5.1 interface to the curses library            *
- *                                                                       *
- * (c) Reuben Thomas <rrt@sc3d.org> 2009-2012                            *
- * (c) Tiago Dionizio <tiago.dionizio AT gmail.com> 2004-2007            *
- *                                                                       *
- * Permission is hereby granted, free of charge, to any person obtaining *
- * a copy of this software and associated documentation files (the       *
- * "Software"), to deal in the Software without restriction, including   *
- * without limitation the rights to use, copy, modify, merge, publish,   *
- * distribute, sublicense, and/or sell copies of the Software, and to    *
- * permit persons to whom the Software is furnished to do so, subject to *
- * the following conditions:                                             *
- *                                                                       *
- * The above copyright notice and this permission notice shall be        *
- * included in all copies or substantial portions of the Software.       *
- *                                                                       *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,       *
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF    *
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.*
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY  *
- * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,  *
- * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     *
- * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                *
- ************************************************************************/
+/***
+@module posix.curses
+*/
+/*
+ * Library: lcurses - Lua 5.1 interface to the curses library
+ *
+ * (c) Gary V. Vaughan <gary@vaughan.pe> 2013-2014
+ * (c) Reuben Thomas <rrt@sc3d.org> 2009-2012
+ * (c) Tiago Dionizio <tiago.dionizio AT gmail.com> 2004-2007
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 
 #include <config.h>
 
@@ -43,22 +47,6 @@
 #include <term.h>
 
 #include "_helpers.c"
-
-/* The extra indirection to these macros is required so that if the
-   arguments are themselves macros, they will get expanded too.  */
-#define LCURSES__SPLICE(_s, _t)	_s##_t
-#define LCURSES_SPLICE(_s, _t)	LCURSES__SPLICE(_s, _t)
-
-#define LCURSES__STR(_s)	#_s
-#define LCURSES_STR(_s)		LCURSES__STR(_s)
-
-/* The +1 is to step over the leading '_' that is required to prevent
-   premature expansion of MENTRY arguments if we didn't add it.  */
-#define LCURSES__STR_1(_s)	(#_s + 1)
-#define LCURSES_STR_1(_s)	LCURSES__STR_1(_s)
-
-/* strlcpy() implementation for non-BSD based Unices.
-   strlcpy() is a safer less error-prone replacement for strncpy(). */
 #include "strlcpy.c"
 
 
@@ -383,7 +371,7 @@ static int chstr_dup(lua_State *L)
     lua_settable(L, lua_upvalueindex(1));
 
 #define CC(s)       CCR(#s, s)
-#define CF(i)       CCR(LCURSES_STR(LCURSES_SPLICE(KEY_F, i)), KEY_F(i))
+#define CF(i)       CCR(LPOSIX_STR(LPOSIX_SPLICE(KEY_F, i)), KEY_F(i))
 
 /*
 ** these values may be fixed only after initialization, so this is
@@ -1819,7 +1807,7 @@ static int Ctigetstr (lua_State *L)
 /* chstr members */
 static const luaL_Reg chstrlib[] =
 {
-#define MENTRY(_f) { LCURSES_STR(_f), LCURSES_SPLICE(chstr_, _f) }
+#define MENTRY(_f) { LPOSIX_STR(_f), LPOSIX_SPLICE(chstr_, _f) }
     MENTRY( len		),
     MENTRY( set_ch	),
     MENTRY( set_str	),
@@ -1832,248 +1820,161 @@ static const luaL_Reg chstrlib[] =
 
 static const luaL_Reg windowlib[] =
 {
-#define MENTRY(_f) { LCURSES_STR_1(_f), (_f) }
-    /* window */
-    MENTRY( Wclose		),
-    MENTRY( Wsub		),
-    MENTRY( Wderive		),
-    MENTRY( Wmove_window	),
-    MENTRY( Wmove_derived	),
-    MENTRY( Wresize		),
-    MENTRY( Wclone		),
-    MENTRY( Wsyncup		),
-    MENTRY( Wsyncdown		),
-    MENTRY( Wsyncok		),
-    MENTRY( Wcursyncup		),
-
-    /* inopts */
-    MENTRY( Wintrflush	),
-    MENTRY( Wkeypad	),
-    MENTRY( Wmeta	),
-    MENTRY( Wnodelay	),
-    MENTRY( Wtimeout	),
-    MENTRY( Wnotimeout	),
-
-    /* outopts */
-    MENTRY( Wclearok	),
-    MENTRY( Widlok	),
-    MENTRY( Wleaveok	),
-    MENTRY( Wscrollok	),
-    MENTRY( Widcok	),
-    MENTRY( Wimmedok	),
-    MENTRY( Wwsetscrreg	),
-
-    /* pad */
-    MENTRY( Wsubpad		),
-    MENTRY( Wprefresh		),
-    MENTRY( Wpnoutrefresh	),
-    MENTRY( Wpechochar		),
-
-    /* move */
-    MENTRY( Wmove	),
-
-    /* scroll */
-    MENTRY( Wscrl	),
-
-    /* refresh */
-    MENTRY( Wrefresh		),
-    MENTRY( Wnoutrefresh	),
-    MENTRY( Wredrawwin		),
-    MENTRY( Wredrawln		),
-
-    /* clear */
-    MENTRY( Werase	),
-    MENTRY( Wclear	),
-    MENTRY( Wclrtobot	),
-    MENTRY( Wclrtoeol	),
-
-    /* touch */
-    MENTRY( Wtouch		),
-    MENTRY( Wtouchline		),
-    MENTRY( Wis_linetouched	),
-    MENTRY( Wis_wintouched	),
-
-    /* attrs */
-    MENTRY( Wattroff	),
-    MENTRY( Wattron	),
-    MENTRY( Wattrset	),
-    MENTRY( Wstandout	),
-    MENTRY( Wstandend	),
-
-    /* getch */
-    MENTRY( Wgetch	),
-    MENTRY( Wmvgetch	),
-
-    /* getyx */
-    MENTRY( Wgetyx	),
-    MENTRY( Wgetparyx	),
-    MENTRY( Wgetbegyx	),
-    MENTRY( Wgetmaxyx	),
-
-    /* border */
-    MENTRY( Wborder	),
-    MENTRY( Wbox	),
-    MENTRY( Whline	),
-    MENTRY( Wvline	),
-    MENTRY( Wmvhline	),
-    MENTRY( Wmvvline	),
-
-    /* addch */
-    MENTRY( Waddch	),
-    MENTRY( Wmvaddch	),
-    MENTRY( Wechoch	),
-
-    /* addchstr */
-    MENTRY( Waddchstr	),
-    MENTRY( Wmvaddchstr	),
-
-    /* addstr */
-    MENTRY( Waddstr	),
-    MENTRY( Wmvaddstr	),
-
-    /* bkgd */
-    MENTRY( Wwbkgdset	),
-    MENTRY( Wwbkgd	),
-    MENTRY( Wgetbkgd	),
-
-    /* overlay */
-    MENTRY( Woverlay	),
-    MENTRY( Woverwrite	),
-    MENTRY( Wcopywin	),
-
-    /* delch */
-    MENTRY( Wdelch	),
-    MENTRY( Wmvdelch	),
-
-    /* deleteln */
-    MENTRY( Wdeleteln	),
-    MENTRY( Winsertln	),
-    MENTRY( Wwinsdelln	),
-
-    /* getstr */
-    MENTRY( Wgetstr	),
-    MENTRY( Wmvgetstr	),
-
-    /* inch */
-    MENTRY( Wwinch		),
-    MENTRY( Wmvwinch		),
-    MENTRY( Wwinchnstr		),
-    MENTRY( Wmvwinchnstr	),
-
-    /* instr */
-    MENTRY( Wwinnstr	),
-    MENTRY( Wmvwinnstr	),
-
-    /* insch */
-    MENTRY( Wwinsch	),
-    MENTRY( Wmvwinsch	),
-
-    /* insstr */
-    MENTRY( Wwinsstr	),
-    MENTRY( Wwinsnstr	),
-    MENTRY( Wmvwinsstr	),
-    MENTRY( Wmvwinsnstr	),
-
-    /* misc */
-    MENTRY( W__tostring	),
-#undef MENTRY
-    {"__gc",        Wclose  }, /* rough safety net */
+    LPOSIX_FUNC( W__tostring	),
+    LPOSIX_FUNC( Waddch		),
+    LPOSIX_FUNC( Waddchstr	),
+    LPOSIX_FUNC( Waddstr	),
+    LPOSIX_FUNC( Wattroff	),
+    LPOSIX_FUNC( Wattron	),
+    LPOSIX_FUNC( Wattrset	),
+    LPOSIX_FUNC( Wborder	),
+    LPOSIX_FUNC( Wbox		),
+    LPOSIX_FUNC( Wclear		),
+    LPOSIX_FUNC( Wclearok	),
+    LPOSIX_FUNC( Wclone		),
+    LPOSIX_FUNC( Wclose		),
+    LPOSIX_FUNC( Wclrtobot	),
+    LPOSIX_FUNC( Wclrtoeol	),
+    LPOSIX_FUNC( Wcopywin	),
+    LPOSIX_FUNC( Wcursyncup	),
+    LPOSIX_FUNC( Wdelch		),
+    LPOSIX_FUNC( Wdeleteln	),
+    LPOSIX_FUNC( Wderive	),
+    LPOSIX_FUNC( Wechoch	),
+    LPOSIX_FUNC( Werase		),
+    LPOSIX_FUNC( Wgetbegyx	),
+    LPOSIX_FUNC( Wgetbkgd	),
+    LPOSIX_FUNC( Wgetch		),
+    LPOSIX_FUNC( Wgetmaxyx	),
+    LPOSIX_FUNC( Wgetparyx	),
+    LPOSIX_FUNC( Wgetstr	),
+    LPOSIX_FUNC( Wgetyx		),
+    LPOSIX_FUNC( Whline		),
+    LPOSIX_FUNC( Widcok		),
+    LPOSIX_FUNC( Widlok		),
+    LPOSIX_FUNC( Wimmedok	),
+    LPOSIX_FUNC( Winsertln	),
+    LPOSIX_FUNC( Wintrflush	),
+    LPOSIX_FUNC( Wis_linetouched),
+    LPOSIX_FUNC( Wis_wintouched	),
+    LPOSIX_FUNC( Wkeypad	),
+    LPOSIX_FUNC( Wleaveok	),
+    LPOSIX_FUNC( Wmeta		),
+    LPOSIX_FUNC( Wmove		),
+    LPOSIX_FUNC( Wmove_derived	),
+    LPOSIX_FUNC( Wmove_window	),
+    LPOSIX_FUNC( Wmvaddch	),
+    LPOSIX_FUNC( Wmvaddchstr	),
+    LPOSIX_FUNC( Wmvaddstr	),
+    LPOSIX_FUNC( Wmvdelch	),
+    LPOSIX_FUNC( Wmvgetch	),
+    LPOSIX_FUNC( Wmvgetstr	),
+    LPOSIX_FUNC( Wmvhline	),
+    LPOSIX_FUNC( Wmvvline	),
+    LPOSIX_FUNC( Wmvwinch	),
+    LPOSIX_FUNC( Wmvwinchnstr	),
+    LPOSIX_FUNC( Wmvwinnstr	),
+    LPOSIX_FUNC( Wmvwinsch	),
+    LPOSIX_FUNC( Wmvwinsnstr	),
+    LPOSIX_FUNC( Wmvwinsstr	),
+    LPOSIX_FUNC( Wnodelay	),
+    LPOSIX_FUNC( Wnotimeout	),
+    LPOSIX_FUNC( Wnoutrefresh	),
+    LPOSIX_FUNC( Woverlay	),
+    LPOSIX_FUNC( Woverwrite	),
+    LPOSIX_FUNC( Wpechochar	),
+    LPOSIX_FUNC( Wpnoutrefresh	),
+    LPOSIX_FUNC( Wprefresh	),
+    LPOSIX_FUNC( Wredrawln	),
+    LPOSIX_FUNC( Wredrawwin	),
+    LPOSIX_FUNC( Wrefresh	),
+    LPOSIX_FUNC( Wresize	),
+    LPOSIX_FUNC( Wscrl		),
+    LPOSIX_FUNC( Wscrollok	),
+    LPOSIX_FUNC( Wstandend	),
+    LPOSIX_FUNC( Wstandout	),
+    LPOSIX_FUNC( Wsub		),
+    LPOSIX_FUNC( Wsubpad	),
+    LPOSIX_FUNC( Wsyncdown	),
+    LPOSIX_FUNC( Wsyncok	),
+    LPOSIX_FUNC( Wsyncup	),
+    LPOSIX_FUNC( Wtimeout	),
+    LPOSIX_FUNC( Wtouch		),
+    LPOSIX_FUNC( Wtouchline	),
+    LPOSIX_FUNC( Wvline		),
+    LPOSIX_FUNC( Wwbkgd		),
+    LPOSIX_FUNC( Wwbkgdset	),
+    LPOSIX_FUNC( Wwinch		),
+    LPOSIX_FUNC( Wwinchnstr	),
+    LPOSIX_FUNC( Wwinnstr	),
+    LPOSIX_FUNC( Wwinsch	),
+    LPOSIX_FUNC( Wwinsdelln	),
+    LPOSIX_FUNC( Wwinsnstr	),
+    LPOSIX_FUNC( Wwinsstr	),
+    LPOSIX_FUNC( Wwsetscrreg	),
+    {"__gc",     Wclose		}, /* rough safety net */
 
     {NULL, NULL}
 };
 
 static const luaL_Reg curseslib[] =
 {
-#define MENTRY(_f) { LCURSES_STR_1(_f), (_f) }
-    /* chstr helper function */
-    MENTRY( Cnew_chstr	),
+    LPOSIX_FUNC( Cbaudrate	),
+    LPOSIX_FUNC( Cbeep		),
+    LPOSIX_FUNC( Ccbreak	),
+    LPOSIX_FUNC( Ccolor_pair	),
+    LPOSIX_FUNC( Ccolor_pairs	),
+    LPOSIX_FUNC( Ccolors	),
+    LPOSIX_FUNC( Ccols		),
+    LPOSIX_FUNC( Ccurs_set	),
+    LPOSIX_FUNC( Cdelay_output	),
+    LPOSIX_FUNC( Cdoupdate	),
+    LPOSIX_FUNC( Cecho		),
+    LPOSIX_FUNC( Cendwin	),
+    LPOSIX_FUNC( Cerasechar	),
+    LPOSIX_FUNC( Cflash		),
+    LPOSIX_FUNC( Cflushinp	),
+    LPOSIX_FUNC( Chalfdelay	),
+    LPOSIX_FUNC( Chas_colors	),
+    LPOSIX_FUNC( Chas_ic	),
+    LPOSIX_FUNC( Chas_il	),
+    LPOSIX_FUNC( Cinit_pair	),
+    LPOSIX_FUNC( Cisendwin	),
+    LPOSIX_FUNC( Ckeyname	),
+    LPOSIX_FUNC( Ckillchar	),
+    LPOSIX_FUNC( Clines		),
+    LPOSIX_FUNC( Clongname	),
+    LPOSIX_FUNC( Cnapms		),
+    LPOSIX_FUNC( Cnew_chstr	),
+    LPOSIX_FUNC( Cnewpad	),
+    LPOSIX_FUNC( Cnewwin	),
+    LPOSIX_FUNC( Cnl		),
+    LPOSIX_FUNC( Cpair_content	),
+    LPOSIX_FUNC( Craw		),
+    LPOSIX_FUNC( Cresizeterm	),
+    LPOSIX_FUNC( Cripoffline	),
+    LPOSIX_FUNC( Cslk_attroff	),
+    LPOSIX_FUNC( Cslk_attron	),
+    LPOSIX_FUNC( Cslk_attrset	),
+    LPOSIX_FUNC( Cslk_clear	),
+    LPOSIX_FUNC( Cslk_init	),
+    LPOSIX_FUNC( Cslk_label	),
+    LPOSIX_FUNC( Cslk_noutrefresh	),
+    LPOSIX_FUNC( Cslk_refresh	),
+    LPOSIX_FUNC( Cslk_restore	),
+    LPOSIX_FUNC( Cslk_set	),
+    LPOSIX_FUNC( Cslk_touch	),
+    LPOSIX_FUNC( Cstart_color	),
+    LPOSIX_FUNC( Cstdscr	),
+    LPOSIX_FUNC( Ctermattrs	),
+    LPOSIX_FUNC( Ctermname	),
+    LPOSIX_FUNC( Ctigetflag	),
+    LPOSIX_FUNC( Ctigetnum	),
+    LPOSIX_FUNC( Ctigetstr	),
+    LPOSIX_FUNC( Cunctrl	),
+    LPOSIX_FUNC( Cungetch	),
+    LPOSIX_FUNC( Cuse_default_colors	),
 
-    /* initscr */
-    MENTRY( Cendwin	),
-    MENTRY( Cisendwin	),
-    MENTRY( Cstdscr	),
-    MENTRY( Ccols	),
-    MENTRY( Clines	),
-
-    /* color */
-    MENTRY( Cstart_color	),
-    MENTRY( Chas_colors		),
-    MENTRY( Cuse_default_colors	),
-    MENTRY( Cinit_pair		),
-    MENTRY( Cpair_content	),
-    MENTRY( Ccolors		),
-    MENTRY( Ccolor_pairs	),
-    MENTRY( Ccolor_pair		),
-
-    /* termattrs */
-    MENTRY( Cbaudrate	),
-    MENTRY( Cerasechar	),
-    MENTRY( Ckillchar	),
-    MENTRY( Chas_ic	),
-    MENTRY( Chas_il	),
-    MENTRY( Ctermattrs	),
-    MENTRY( Ctermname	),
-    MENTRY( Clongname	),
-
-    /* kernel */
-    MENTRY( Cripoffline	),
-    MENTRY( Cnapms	),
-    MENTRY( Ccurs_set	),
-
-    /* resize */
-    MENTRY( Cresizeterm	),
-
-    /* beep */
-    MENTRY( Cbeep	),
-    MENTRY( Cflash	),
-
-    /* window */
-    MENTRY( Cnewwin	),
-
-    /* pad */
-    MENTRY( Cnewpad	),
-
-    /* refresh */
-    MENTRY( Cdoupdate	),
-
-    /* inopts */
-    MENTRY( Ccbreak	),
-    MENTRY( Cecho	),
-    MENTRY( Craw	),
-    MENTRY( Chalfdelay	),
-
-    /* util */
-    MENTRY( Cunctrl		),
-    MENTRY( Ckeyname		),
-    MENTRY( Cdelay_output	),
-    MENTRY( Cflushinp		),
-
-    /* getch */
-    MENTRY( Cungetch	),
-
-    /* outopts */
-    MENTRY( Cnl	),
-
-    /* query terminfo database */
-    MENTRY( Ctigetflag	),
-    MENTRY( Ctigetnum	),
-    MENTRY( Ctigetstr	),
-
-    /* slk */
-    MENTRY( Cslk_init		),
-    MENTRY( Cslk_set		),
-    MENTRY( Cslk_refresh	),
-    MENTRY( Cslk_noutrefresh	),
-    MENTRY( Cslk_label		),
-    MENTRY( Cslk_clear		),
-    MENTRY( Cslk_restore	),
-    MENTRY( Cslk_touch		),
-    MENTRY( Cslk_attron		),
-    MENTRY( Cslk_attroff	),
-    MENTRY( Cslk_attrset	),
-#undef MENTRY
-
-    /* terminator */
     {NULL, NULL}
 };
 #endif
@@ -2123,7 +2024,3 @@ int luaopen_posix_curses (lua_State *L)
 
     return 1;
 }
-
-/* Local Variables: */
-/* c-basic-offset: 4 */
-/* End:             */
