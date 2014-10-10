@@ -31,8 +31,7 @@ Pctermid(lua_State *L)
 {
 	char b[L_ctermid];
 	checknargs(L, 0);
-	lua_pushstring(L, ctermid(b));
-	return 1;
+	return pushstringresult(ctermid(b));
 }
 
 

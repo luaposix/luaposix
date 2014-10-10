@@ -76,8 +76,7 @@ Praise(lua_State *L)
 	int sig = checkint(L, 1);
 	checknargs(L, 1);
 	lua_pop(L, 1);
-	lua_pushinteger(L, raise(sig));
-	return 1;
+	return pushintresult(raise(sig));
 }
 
 

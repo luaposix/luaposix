@@ -271,13 +271,18 @@ pusherror(lua_State *L, const char *info)
 	return 3;
 }
 
+#define pushboolresult(b)	(lua_pushboolean(L, (b)), 1)
+
+#define pushintresult(n)	(lua_pushinteger(L, (n)), 1)
+
+#define pushstringresult(s)	(lua_pushstring(L, (s)), 1)
+
 static int
 pushresult(lua_State *L, int i, const char *info)
 {
 	if (i==-1)
 		return pusherror(L, info);
-	lua_pushinteger(L, i);
-	return 1;
+	return pushintresult(i);
 }
 
 static void

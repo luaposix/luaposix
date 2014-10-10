@@ -68,11 +68,7 @@ aux_files(lua_State *L)
 		*p=NULL;
 		return 0;
 	}
-	else
-	{
-		lua_pushstring(L, entry->d_name);
-		return 1;
-	}
+	return pushstringresult(entry->d_name);
 }
 
 

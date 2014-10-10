@@ -212,8 +212,7 @@ Pptsname(lua_State *L)
 	slave = ptsname(fd);
 	if (!slave)
 		return pusherror(L, "getptsname");
-	lua_pushstring(L, slave);
-	return 1;
+	return pushstringresult(slave);
 }
 
 

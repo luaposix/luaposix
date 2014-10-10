@@ -27,8 +27,7 @@ bind_ctype(lua_State *L, int (*cb)(int))
 	char c = *s;
 	checknargs(L, 1);
 	lua_pop(L, 1);
-	lua_pushboolean(L, cb((int)c));
-	return 1;
+	return pushboolresult(cb((int)c));
 }
 
 

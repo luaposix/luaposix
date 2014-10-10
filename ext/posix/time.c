@@ -209,14 +209,13 @@ static int
 Pmktime(lua_State *L)
 {
 	struct tm t;
-	time_t ret;
+	time_t r;
 	checknargs(L, 1);
 	totm(L, 1, &t);
-	ret = mktime(&t);
-	if (ret == -1)
+	r = mktime(&t);
+	if (r == -1)
 		return 0;
-	lua_pushinteger(L, ret);
-	return 1;
+	return pushintresult(r);
 }
 
 
@@ -277,8 +276,7 @@ Pstrftime(lua_State *L)
 		totm(L, 2, &t);
 
 	strftime(tmp, sizeof(tmp), format, &t);
-	lua_pushstring(L, tmp);
-	return 1;
+	return pushstringresult(tmp);
 }
 
 /***

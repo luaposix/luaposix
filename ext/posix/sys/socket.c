@@ -378,8 +378,7 @@ Pconnect(lua_State *L)
 	if (r < 0 && errno != EINPROGRESS)
 		return pusherror(L, NULL);
 
-	lua_pushboolean(L, 1);
-	return 1;
+	return pushboolresult(1);
 }
 
 
@@ -407,8 +406,7 @@ Pbind(lua_State *L)
 	r = bind(fd, (struct sockaddr *)&sa, salen);
 	if (r < 0)
 		return pusherror(L, NULL);
-	lua_pushboolean(L, 1);
-	return 1;
+	return pushboolresult(1);
 }
 
 

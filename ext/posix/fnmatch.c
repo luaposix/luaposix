@@ -40,15 +40,12 @@ Pfnmatch(lua_State *L)
 	checknargs(L, 3);
 	res = fnmatch(pattern, string, flags);
 	if (res == 0)
-		lua_pushboolean(L, 1);
-	else if (res == FNM_NOMATCH)
-		lua_pushboolean(L, 0);
-	else
-	{
-		lua_pushstring(L, "fnmatch failed");
-		lua_error(L);
-	}
-	return 1;
+		return pushboolresult(1);
+	if (res == FNM_NOMATCH)
+		return pushboolresult(0);
+
+	lua_pushstring(L, "fnmatch failed");
+	return lua_error(L);
 }
 
 

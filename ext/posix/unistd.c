@@ -158,7 +158,7 @@ static int
 Pcrypt(lua_State *L)
 {
 	const char *str, *salt;
-	char *res;
+	char *r;
 
 	str = luaL_checkstring(L, 1);
 	salt = luaL_checkstring(L, 2);
@@ -166,10 +166,8 @@ Pcrypt(lua_State *L)
 		luaL_error(L, "not enough salt");
 	checknargs(L, 2);
 
-	res = crypt(str, salt);
-	lua_pushstring(L, res);
-
-	return 1;
+	r = crypt(str, salt);
+	return pushstringresult(r);
 }
 #endif
 
@@ -390,8 +388,7 @@ Pgetcwd(lua_State *L)
 	if (b == NULL)
 		/* we return the same error as below */
 		return pusherror(L, ".");
-	lua_pushstring(L, b);
-	return 1;
+	return pushstringresult(b);
 #else
 	long size = pathconf(".", _PC_PATH_MAX);
 	void *ud;
@@ -464,8 +461,7 @@ static int
 Pgetlogin(lua_State *L)
 {
 	checknargs(L, 0);
-	lua_pushstring(L, getlogin());
-	return 1;
+	return pushstringresult(getlogin());
 }
 
 
@@ -528,8 +524,7 @@ static int
 Phostid(lua_State *L)
 {
 	checknargs(L, 0);
-	lua_pushinteger(L, gethostid());
-	return 1;
+	return pushintresult(gethostid());
 }
 
 
@@ -966,8 +961,7 @@ Psleep(lua_State *L)
 {
 	unsigned int seconds = checkint(L, 1);
 	checknargs(L, 1);
-	lua_pushinteger(L, sleep(seconds));
-	return 1;
+	return pushintresult(sleep(seconds));
 }
 
 
@@ -1070,8 +1064,7 @@ Pttyname(lua_State *L)
 {
 	int fd=optint(L, 1, 0);
 	checknargs(L, 1);
-	lua_pushstring(L, ttyname(fd));
-	return 1;
+	return pushstringresult(ttyname(fd));
 }
 
 
