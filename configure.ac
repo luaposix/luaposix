@@ -111,10 +111,6 @@ fi
 
 dnl Curses
 AX_WITH_CURSES
-if test "$ax_cv_curses" = "yes"; then
-  AC_SUBST([WANTEDLIBS], [ext/curses/curses_c.la])
-  AC_SUBST([WANTEDLUA], [lib/curses.lua])
-fi
 AC_ARG_VAR(CURSES_LIB, [linker flags for curses library])
 
 save_LIBS=$LIBS

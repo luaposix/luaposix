@@ -10,10 +10,9 @@
 ## Environment. ##
 ## ------------ ##
 
-curses_cpath = $(abs_builddir)/ext/curses/$(objdir)/?$(shrext)
 posix_cpath = $(abs_builddir)/ext/posix/$(objdir)/?$(shrext)
 
-std_cpath = $(curses_cpath);$(posix_cpath);$(LUA_CPATH)
+std_cpath = $(posix_cpath);$(LUA_CPATH)
 std_path  = $(abs_srcdir)/lib/?.lua;$(LUA_PATH)
 
 LUA_ENV   = LUA_PATH="$(std_path)" LUA_CPATH="$(std_cpath)"
@@ -56,7 +55,7 @@ include specs/specs.mk
 
 dist_lua_DATA +=			\
 	lib/posix.lua			\
-	$(WANTEDLUA)			\
+	lib/curses.lua			\
 	$(NOTHING_ELSE)
 
 luaposixdir = $(luadir)/posix
@@ -66,7 +65,7 @@ dist_luaposix_DATA =			\
 	lib/posix/util.lua		\
 	$(NOTHING_ELSE)
 
-luaexec_LTLIBRARIES	 = ext/posix/posix.la $(WANTEDLIBS)
+luaexec_LTLIBRARIES = ext/posix/posix.la
 
 ext_posix_posix_la_SOURCES =		\
 	ext/posix/posix.c		\
@@ -74,6 +73,7 @@ ext_posix_posix_la_SOURCES =		\
 EXTRA_ext_posix_posix_la_SOURCES =	\
 	ext/posix/_helpers.c		\
 	ext/posix/ctype.c		\
+	ext/posix/curses.c		\
 	ext/posix/dirent.c		\
 	ext/posix/errno.c		\
 	ext/posix/fcntl.c		\
@@ -105,11 +105,7 @@ EXTRA_ext_posix_posix_la_SOURCES =	\
 	$(NOTHING_ELSE)
 
 ext_posix_posix_la_CFLAGS  = $(AM_CFLAGS) $(POSIX_EXTRA_CFLAGS)
-ext_posix_posix_la_LDFLAGS = $(AM_LDFLAGS) $(LIBCRYPT) $(LIBRT)
-
-EXTRA_LTLIBRARIES +=			\
-	ext/curses/curses_c.la		\
-	$(NOTHING_ELSE)
+ext_posix_posix_la_LDFLAGS = $(AM_LDFLAGS) $(LIBCRYPT) $(LIBRT) $(CURSES_LIB)
 
 luaexecposixdir = $(luaexecdir)/posix
 luaexecposixsysdir = $(luaexecposixdir)/sys
@@ -118,10 +114,6 @@ luaexecposixsysdir = $(luaexecposixdir)/sys
 luaexec_LDFLAGS = $(AM_LDFLAGS) -rpath '$(luaexecdir)'
 luaexecposix_LDFLAGS = $(AM_LDFLAGS) -rpath '$(luaexecposixdir)'
 luaexecposixsys_LDFLAGS = $(AM_LDFLAGS) -rpath '$(luaexecposixsysdir)'
-
-ext_curses_curses_c_la_SOURCES = ext/curses/curses.c
-ext_curses_curses_c_la_LDFLAGS = $(luaexec_LDFLAGS) $(CURSES_LIB)
-
 
 
 ## ---------------------- ##
@@ -135,6 +127,7 @@ ext_curses_curses_c_la_LDFLAGS = $(luaexec_LDFLAGS) $(CURSES_LIB)
 
 posix_submodules =			\
 	ext/posix/ctype.la		\
+	ext/posix/curses.la		\
 	ext/posix/dirent.la		\
 	ext/posix/errno.la		\
 	ext/posix/fcntl.la		\
@@ -169,6 +162,7 @@ EXTRA_LTLIBRARIES += $(posix_submodules)
 check_local += $(posix_submodules)
 
 ext_posix_ctype_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_curses_la_LDFLAGS = $(luaexecposix_LDFLAGS) $(CURSES_LIB)
 ext_posix_dirent_la_LDFLAGS = $(luaexecposix_LDFLAGS)
 ext_posix_errno_la_LDFLAGS = $(luaexecposix_LDFLAGS)
 ext_posix_fcntl_la_LDFLAGS = $(luaexecposix_LDFLAGS)
@@ -266,7 +260,7 @@ dist_examples_DATA +=			\
 	doc/examples/tree.lua.html	\
 	$(NOTHING_ELSE)
 
-$(dist_doc_DATA): ext/curses/curses.c build-aux/make_lcurses_doc.pl
+$(dist_doc_DATA): ext/posix/curses.c build-aux/make_lcurses_doc.pl
 	test -d $(builddir)/doc || mkdir $(builddir)/doc
 	$(PERL) build-aux/make_lcurses_doc.pl
 if HAVE_LDOC

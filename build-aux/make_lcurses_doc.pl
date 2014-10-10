@@ -21,7 +21,7 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-open(I, 'ext/curses/curses.c') or die; my @I = (<I>); close I;
+open(I, 'ext/posix/curses.c') or die; my @I = (<I>); close I;
 
 # make list of the lc_ and lcw_ routines
 my %lc_routine = ();

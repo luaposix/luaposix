@@ -26,11 +26,7 @@
 
 #include <config.h>
 
-#include <stdlib.h>
-#include <string.h>
-#include <lua.h>
-#include <lauxlib.h>
-#include "lua52compat.h"
+#if HAVE_CURSES
 #if HAVE_NCURSESW_CURSES_H
 #  include <ncursesw/curses.h>
 #elif HAVE_NCURSESW_H
@@ -45,6 +41,8 @@
 #  error "SysV or X/Open-compatible Curses header file required"
 #endif
 #include <term.h>
+
+#include "_helpers.c"
 
 /* The extra indirection to these macros is required so that if the
    arguments are themselves macros, they will get expanded too.  */
@@ -2078,13 +2076,14 @@ static const luaL_Reg curseslib[] =
     /* terminator */
     {NULL, NULL}
 };
-
+#endif
 
 /* Prototype to keep compiler happy. */
 LUALIB_API int luaopen_curses_c (lua_State *L);
 
-int luaopen_curses_c (lua_State *L)
+int luaopen_posix_curses (lua_State *L)
 {
+#if HAVE_CURSES
     /*
     ** create new metatable for window objects
     */
@@ -2106,16 +2105,21 @@ int luaopen_curses_c (lua_State *L)
     luaL_openlib(L, NULL, chstrlib, 0);
 
     lua_pop(L, 1);                      /* remove metatable from stack */
+#endif
 
     /*
     ** create global table with curses methods/variables/constants
     */
     luaL_register(L, "curses", curseslib);
+    lua_pushliteral(L, "posix curses for " LUA_VERSION " / " PACKAGE_STRING);
+    lua_setfield(L, -2, "version");
 
+#if HAVE_CURSES
     lua_pushstring(L, "initscr");
     lua_pushvalue(L, -2);
     lua_pushcclosure(L, Cinitscr, 1);
     lua_settable(L, -3);
+#endif
 
     return 1;
 }
