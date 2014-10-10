@@ -78,7 +78,8 @@ lc_newwin(lua_State *L, WINDOW *nw)
 }
 
 
-static WINDOW **lc_getwin(lua_State *L, int offset)
+static WINDOW **
+lc_getwin(lua_State *L, int offset)
 {
 	WINDOW **w = (WINDOW**)luaL_checkudata(L, offset, WINDOWMETA);
 	if (w == NULL)
@@ -87,7 +88,8 @@ static WINDOW **lc_getwin(lua_State *L, int offset)
 }
 
 
-static WINDOW *checkwin(lua_State *L, int offset)
+static WINDOW *
+checkwin(lua_State *L, int offset)
 {
 	WINDOW **w = lc_getwin(L, offset);
 	if (*w == NULL)
@@ -110,7 +112,8 @@ W__tostring(lua_State *L)
 }
 
 
-static chtype checkch(lua_State *L, int offset)
+static chtype
+checkch(lua_State *L, int offset)
 {
 	if (lua_type(L, offset) == LUA_TNUMBER)
 		return luaL_checknumber(L, offset);
@@ -121,7 +124,8 @@ static chtype checkch(lua_State *L, int offset)
 }
 
 
-static chtype optch(lua_State *L, int offset, chtype def)
+static chtype
+optch(lua_State *L, int offset, chtype def)
 {
 	if (lua_isnoneornil(L, offset))
 		return def;
@@ -146,7 +150,8 @@ typedef struct
 
 /* create new chstr object and leave it in the lua stack */
 
-static chstr* chstr_new(lua_State *L, int len)
+static chstr *
+Cnew(lua_State *L, int len)
 {
 	if (len < 1)
 	{
@@ -164,7 +169,8 @@ static chstr* chstr_new(lua_State *L, int len)
 
 /* get chstr from lua (convert if needed) */
 
-static chstr* checkchstr(lua_State *L, int offset)
+static chstr *
+checkchstr(lua_State *L, int offset)
 {
 	chstr *cs = (chstr*)luaL_checkudata(L, offset, CHSTRMETA);
 	if (cs)
@@ -186,7 +192,7 @@ static int
 Pnew_chstr(lua_State *L)
 {
 	int len = checkint(L, 1);
-	chstr* ncs = chstr_new(L, len);
+	chstr* ncs = Cnew(L, len);
 	memset(ncs->str, ' ', len*sizeof(chtype));
 	return 1;
 }
@@ -194,7 +200,7 @@ Pnew_chstr(lua_State *L)
 /* change the contents of the chstr */
 
 static int
-chstr_set_str(lua_State *L)
+Cset_str(lua_State *L)
 {
 	chstr *cs = checkchstr(L, 1);
 	int offset = checkint(L, 2);
@@ -238,7 +244,7 @@ chstr_set_str(lua_State *L)
  ****/
 
 static int
-chstr_set_ch(lua_State *L)
+Cset_ch(lua_State *L)
 {
 	chstr* cs = checkchstr(L, 1);
 	int offset = checkint(L, 2);
@@ -261,7 +267,7 @@ chstr_set_ch(lua_State *L)
 /* get information from the chstr */
 
 static int
-chstr_get(lua_State *L)
+Cget(lua_State *L)
 {
 	chstr* cs = checkchstr(L, 1);
 	int offset = checkint(L, 2);
@@ -281,7 +287,7 @@ chstr_get(lua_State *L)
 /* retrieve chstr length */
 
 static int
-chstr_len(lua_State *L)
+Clen(lua_State *L)
 {
 	chstr *cs = checkchstr(L, 1);
 	return pushintresult(cs->len);
@@ -290,10 +296,10 @@ chstr_len(lua_State *L)
 /* duplicate chstr */
 
 static int
-chstr_dup(lua_State *L)
+Cdup(lua_State *L)
 {
 	chstr *cs = checkchstr(L, 1);
-	chstr *ncs = chstr_new(L, cs->len);
+	chstr *ncs = Cnew(L, cs->len);
 
 	memcpy(ncs->str, cs->str, CHSTR_SIZE(cs->len));
 	return 1;
@@ -1694,7 +1700,7 @@ Wwinchnstr(lua_State *L)
 {
 	WINDOW *w = checkwin(L, 1);
 	int n = checkint(L, 2);
-	chstr *cs = chstr_new(L, n);
+	chstr *cs = Cnew(L, n);
 
 	if (winchnstr(w, cs->str, n) == ERR)
 		return 0;
@@ -1710,7 +1716,7 @@ Wmvwinchnstr(lua_State *L)
 	int y = checkint(L, 2);
 	int x = checkint(L, 3);
 	int n = checkint(L, 4);
-	chstr *cs = chstr_new(L, n);
+	chstr *cs = Cnew(L, n);
 
 	if (mvwinchnstr(w, y, x, cs->str, n) == ERR)
 		return 0;
@@ -1977,13 +1983,11 @@ Ptigetstr (lua_State *L)
 /* chstr members */
 static const luaL_Reg chstrlib[] =
 {
-#define MENTRY(_f) { LPOSIX_STR(_f), LPOSIX_SPLICE(chstr_, _f) }
-	MENTRY( len		),
-	MENTRY( set_ch		),
-	MENTRY( set_str		),
-	MENTRY( get		),
-	MENTRY( dup		),
-#undef MENTRY
+	LPOSIX_FUNC( Clen		),
+	LPOSIX_FUNC( Cset_ch		),
+	LPOSIX_FUNC( Cset_str		),
+	LPOSIX_FUNC( Cget		),
+	LPOSIX_FUNC( Cdup		),
 	{ NULL, NULL }
 };
 
