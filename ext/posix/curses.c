@@ -1,4 +1,52 @@
 /***
+ Curses binding for Lua 5.1/5.2.
+
+ In the C library, the following functions:
+
+     getstr()   (and wgetstr(), mvgetstr(), and mvwgetstr())
+     inchstr()  (and winchstr(), mvinchstr(), and mvwinchstr())
+     instr()    (and winstr(), mvinstr(), and mvwinstr())
+
+ are subject to buffer overflow attack. This is because you pass in the
+ buffer to be filled in, which has to be of finite length. But in this
+ Lua module, a buffer is assigned automatically and the function returns
+ the string, so there is no security issue. You may still use the alternate
+ functions:
+
+     s = stdscr:getnstr()
+     s = stdscr:inchnstr()
+     s = stdscr:innstr()
+
+ which take an extra "size of buffer" argument, in order to impose a maximum
+ length on the string the user may type in.
+
+ Some of the C functions beginning with "no" do not exist in Lua. You should
+ use `curses.nl(0)` and `curses.nl(1)` instead of `nonl()` and `nl()`, and
+ likewise `curses.echo(0)` and `curses.echo(1)` instead of `noecho()` and
+ `echo()` .
+
+ In this Lua module the `stdscr:getch()` function always returns an integer.
+ In C, a single character is an integer, but in Lua (and Perl) a single
+ character is a short string. The Perl Curses function `getch()` returns a
+ char if it was a char, and a number if it was a constant; to get this
+ behaviour in Lua you have to convert explicitly, e.g.:
+
+     if c < 256 then c = string.char(c) end
+
+ Some Lua functions take a different set of parameters than their C
+ counterparts; for example, you should use `str = stdscr.getstr()` and
+ `y, x = stdscr.getyx()` instead of `getstr(str)` and `getyx(y, x)`, and
+ likewise for `getbegyx` and `getmaxyx` and `getparyx` and `pair_content`.
+ The Perl Curses module now uses the C-compatible parameters, so be aware of
+ this difference when translating code from Perl into Lua, as well as from C
+ into Lua.
+
+ Many curses functions have variants starting with the prefixes `w-`, `mv-`,
+ and/or `wmv-`. These variants differ only in the explicit addition of a
+ window, or by the addition of two coordinates that are used to move the
+ cursor first. For example, `addch()` has three other variants: `waddch()`,
+ `mvaddch()`, and `mvwaddch()`.
+
 @module posix.curses
 */
 /*

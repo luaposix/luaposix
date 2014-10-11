@@ -4,6 +4,11 @@ Stdlib NEWS - User visible changes
 
 ** New features:
 
+ - The curses library is fully integrated into luaposix, including reasonably
+   comprehensive LDoc documentation (certainly much better than the single
+   wooly web-page in previous releases).  For backwards compatibility, all
+   APIs are re-exported from the `curses` module.
+
  - For backwards compatibility, everything is still lumped together in the
    `posix.???` namespace, but, now raw APIs have been reorganised according to
    the POSIX header files they belong to:

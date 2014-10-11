@@ -40,11 +40,13 @@ update_copyright_env = \
 
 examplesdir		= $(docdir)/examples
 modulesdir		= $(docdir)/modules
+classesdir		= $(docdir)/classes
 
 dist_data_DATA		=
 dist_doc_DATA		=
 dist_examples_DATA	=
 dist_modules_DATA	=
+dist_classes_DATA	=
 
 include specs/specs.mk
 
@@ -206,8 +208,6 @@ clean-local:
 ## -------------- ##
 
 dist_doc_DATA +=			\
-	doc/curses.html			\
-	doc/curses_c.html		\
 	doc/index.html			\
 	doc/ldoc.css			\
 	$(NOTHING_ELSE)
@@ -246,6 +246,11 @@ dist_modules_DATA +=				\
 	doc/modules/posix.utime.html		\
 	$(NOTHING_ELSE)
 
+dist_classes_DATA +=				\
+	doc/classes/posix.curses.chstr.html	\
+	doc/classes/posix.curses.window.html	\
+	$(NOTHING_ELSE)
+
 dist_examples_DATA +=				\
 	doc/examples/curses.lua.html		\
 	doc/examples/dir.lua.html		\
@@ -264,9 +269,8 @@ dist_examples_DATA +=				\
 	doc/examples/tree.lua.html		\
 	$(NOTHING_ELSE)
 
-$(dist_doc_DATA): ext/posix/curses.c build-aux/make_lcurses_doc.pl
+$(dist_doc_DATA): $(EXTRA_ext_posix_posix_la_SOURCES) $(ext_posix_posix_la_SOURCES)
 	test -d $(builddir)/doc || mkdir $(builddir)/doc
-	$(PERL) build-aux/make_lcurses_doc.pl
 if HAVE_LDOC
 	$(LDOC) -c build-aux/config.ld -d $(abs_srcdir)/doc .
 else
@@ -274,7 +278,7 @@ else
 	touch doc/index.html doc/ldoc.css
 endif
 
-doc: $(dist_doc_DATA) $(dist_examples_DATA) $(dist_modules_DATA)
+doc: $(dist_doc_DATA) $(dist_examples_DATA) $(dist_modules_DATA) $(dist_classes_DATA)
 
 
 ## ------------- ##
@@ -283,7 +287,6 @@ doc: $(dist_doc_DATA) $(dist_examples_DATA) $(dist_modules_DATA)
 
 EXTRA_DIST +=				\
 	build-aux/config.ld.in		\
-	build-aux/make_lcurses_doc.pl	\
 	examples/dir.lua		\
 	examples/fork.lua		\
 	examples/fork2.lua		\
