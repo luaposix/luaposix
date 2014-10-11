@@ -1128,6 +1128,9 @@ static const luaL_Reg curseslib[] =
 LUALIB_API int
 luaopen_posix_curses(lua_State *L)
 {
+	luaopen_posix_curses_window(L);
+	luaopen_posix_curses_chstr(L);
+
 	luaL_register(L, "curses", curseslib);
 	lua_pushliteral(L, "posix curses for " LUA_VERSION " / " PACKAGE_STRING);
 	lua_setfield(L, -2, "version");
