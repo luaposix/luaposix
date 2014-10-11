@@ -1,6 +1,3 @@
-/***
-@module posix.sys.socket
-*/
 /*
  * POSIX library for Lua 5.1/5.2.
  * (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2014
@@ -12,7 +9,16 @@
  * With contributions by Roberto Ierusalimschy.
  * With documentation from Steve Donovan 2012
  */
+/***
+ BSD Sockets.
 
+ Where supported by the underlying system, functions and constants to create,
+ connect and communicate over BSD sockets.  If the module loads successfully,
+ but there is no kernel support, then `posix.sys.socket.version` will be set,
+ but the unsupported APIs will be `nil`.
+
+@module posix.sys.socket
+*/
 
 #include <config.h>
 

@@ -1,6 +1,3 @@
-/***
-@module posix.unistd
-*/
 /*
  * POSIX library for Lua 5.1/5.2.
  * (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2014
@@ -12,6 +9,14 @@
  * With contributions by Roberto Ierusalimschy.
  * With documentation from Steve Donovan 2012
  */
+/***
+ Unix Standard APIs.
+
+ Where the underlying system does not support one of these functions, it
+ will have a `nil` value in the module table.
+
+@module posix.unistd
+*/
 
 #include <config.h>
 

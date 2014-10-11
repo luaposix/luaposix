@@ -1,6 +1,3 @@
-/***
-@module posix.termio
-*/
 /*
  * POSIX library for Lua 5.1/5.2.
  * (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2014
@@ -12,6 +9,13 @@
  * With contributions by Roberto Ierusalimschy.
  * With documentation from Steve Donovan 2012
  */
+/***
+ Control Terminal I/O.
+
+ Functions and constants for controlling terminal behaviour.
+
+@module posix.termio
+*/
 
 #include <config.h>
 

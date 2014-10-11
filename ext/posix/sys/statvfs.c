@@ -1,6 +1,3 @@
-/***
-@module posix.sys.statvfs
-*/
 /*
  * POSIX library for Lua 5.1/5.2.
  * (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2014
@@ -12,6 +9,15 @@
  * With contributions by Roberto Ierusalimschy.
  * With documentation from Steve Donovan 2012
  */
+/***
+ Retrieve File System Information.
+
+ Where supported by the underlying system, query the file system.  If the
+ module loads, but there is no kernel support, then `posix.sys.statvfs.version`
+ will be set, but the unsupported APIs will be `nil`.
+
+@module posix.sys.statvfs
+*/
 
 #include <config.h>
 

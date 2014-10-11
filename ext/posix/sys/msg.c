@@ -1,6 +1,3 @@
-/***
-@module posix.sys.msg
-*/
 /*
  * POSIX library for Lua 5.1/5.2.
  * (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2014
@@ -12,6 +9,16 @@
  * With contributions by Roberto Ierusalimschy.
  * With documentation from Steve Donovan 2012
  */
+/***
+ Sys V Message Queue Operations.
+
+ Where supported by the underlying system, functions to send and receive
+ interprocess messages.  If the module loads successfully, but there is
+ no system support, then `posix.sys.msg.version` will be set, but the
+ unsupported APIs wil be `nil`.
+
+@module posix.sys.msg
+*/
 
 #include <config.h>
 

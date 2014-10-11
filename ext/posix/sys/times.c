@@ -1,6 +1,3 @@
-/***
-@module posix.sys.times
-*/
 /*
  * POSIX library for Lua 5.1/5.2.
  * (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2014
@@ -12,6 +9,11 @@
  * With contributions by Roberto Ierusalimschy.
  * With documentation from Steve Donovan 2012
  */
+/***
+ Process Times.
+
+@module posix.sys.times
+*/
 
 #include <config.h>
 

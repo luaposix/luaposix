@@ -1,15 +1,3 @@
-/***
-Curses attributed string buffers.
-
-An array of characters, plus associated curses attributes and
-colors at each position.
-
-Although marginally useful alone, the constants used to set colors
-and attributes in `chstr` buffers are not defined until **after**
-`curses.initscr ()` has been called.
-
-@classmod posix.curses.chstr
-*/
 /*
  * Curses binding for Lua 5.1/5.2.
  *
@@ -36,6 +24,18 @@ and attributes in `chstr` buffers are not defined until **after**
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+/***
+Curses attributed string buffers.
+
+An array of characters, plus associated curses attributes and
+colors at each position.
+
+Although marginally useful alone, the constants used to set colors
+and attributes in `chstr` buffers are not defined until **after**
+`curses.initscr ()` has been called.
+
+@classmod posix.curses.chstr
+*/
 
 #ifndef LUAPOSIX_CURSES_CHSTR_C
 #define LUAPOSIX_CURSES_CHSTR_C 1

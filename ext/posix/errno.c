@@ -1,6 +1,3 @@
-/***
-@module posix.errno
-*/
 /*
  * POSIX library for Lua 5.1/5.2.
  * (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2014
@@ -12,6 +9,16 @@
  * With contributions by Roberto Ierusalimschy.
  * With documentation from Steve Donovan 2012
  */
+/***
+ System error codes and messages.
+
+ Usually, you'll be able to work with the error messages returned as the
+ second value from failed calls directly, without having to manually save
+ and stringify the system messages as you would in C.  For completeness,
+ the functions are still available here.
+
+@module posix.errno
+*/
 
 #include <config.h>
 

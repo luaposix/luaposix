@@ -1,6 +1,3 @@
-/***
-@module posix.sys.resource
-*/
 /*
  * POSIX library for Lua 5.1/5.2.
  * (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2014
@@ -12,6 +9,11 @@
  * With contributions by Roberto Ierusalimschy.
  * With documentation from Steve Donovan 2012
  */
+/***
+ Control Maximum System Resource Consumption.
+
+@module posix.sys.resource
+*/
 
 #include <config.h>
 

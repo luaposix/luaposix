@@ -1,6 +1,3 @@
-/***
-@module posix.poll
-*/
 /*
  * POSIX library for Lua 5.1/5.2.
  * (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2014
@@ -12,6 +9,13 @@
  * With contributions by Roberto Ierusalimschy.
  * With documentation from Steve Donovan 2012
  */
+/***
+ Synchronous I/O Multiplexing.
+
+ Examine file descriptors for events, such as readyness for I/O.
+
+@module posix.poll
+*/
 
 #include <config.h>
 

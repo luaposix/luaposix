@@ -1,6 +1,3 @@
-/***
-@module posix.signal
-*/
 /*
  * POSIX library for Lua 5.1/5.2.
  * (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2014
@@ -12,7 +9,16 @@
  * With contributions by Roberto Ierusalimschy.
  * With documentation from Steve Donovan 2012
  */
+/***
+ Software Signal Facilities.
 
+ Constants and functions for propagating signals among processes.
+
+ Note that `posix.signal.signal` is implemented with sigaction(2) for
+ consistent semantics across platforms.
+
+@module posix.signal
+*/
 
 #include <config.h>
 

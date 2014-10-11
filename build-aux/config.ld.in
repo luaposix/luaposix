@@ -57,6 +57,7 @@ file = {
 }
 examples = "../examples"
 
+boilerplate = true
 format = "markdown"
 merge = true
 sort = true

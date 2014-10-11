@@ -1,6 +1,3 @@
-/***
-@classmod posix.curses.window
-*/
 /*
  * Curses binding for Lua 5.1/5.2.
  *
@@ -27,6 +24,17 @@
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+/***
+ Curses Window objects.
+
+ The methods documented on this page are available on any Curses Window
+ object, such as created by:
+
+     stdscr = curses.initscr ()
+     window = curses.newwin (25, 80, 0, 0)
+
+@classmod posix.curses.window
+*/
 
 #include <config.h>
 
