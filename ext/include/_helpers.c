@@ -26,6 +26,21 @@
 #  include <strings.h> /* for strcasecmp() */
 #endif
 
+#if HAVE_CURSES
+# if HAVE_NCURSESW_CURSES_H
+#    include <ncursesw/curses.h>
+# elif HAVE_NCURSESW_H
+#    include <ncursesw.h>
+# elif HAVE_NCURSES_CURSES_H
+#    include <ncurses/curses.h>
+# elif HAVE_NCURSES_H
+#    include <ncurses.h>
+# elif HAVE_CURSES_H
+#    include <curses.h>
+# endif
+#include <term.h>
+#endif
+
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
@@ -62,6 +77,8 @@
 	lua_setfield(L, -2, #_f)
 
 #define LPOSIX_FUNC(_s)		{LPOSIX_STR_1(_s), (_s)}
+
+#define pushokresult(b)	pushboolresult((int) (b) == OK)
 
 #ifndef errno
 extern int errno;
@@ -108,6 +125,32 @@ checklong(lua_State *L, int narg)
 {
 	return (long)checkinteger(L, narg, "int");
 }
+
+
+#if HAVE_CURSES
+static chtype
+checkch(lua_State *L, int narg)
+{
+	if (lua_type(L, narg) == LUA_TNUMBER)
+		return luaL_checknumber(L, narg);
+	if (lua_type(L, narg) == LUA_TSTRING)
+		return *lua_tostring(L, narg);
+
+	return argtypeerror(L, narg, "int or char");
+}
+
+
+static chtype
+optch(lua_State *L, int narg, chtype def)
+{
+	if (lua_isnoneornil(L, narg))
+		return def;
+	if (lua_isnumber(L, narg) || lua_isstring(L, narg))
+		return checkch(L, narg);
+	return argtypeerror(L, narg, "int or char or nil");
+}
+#endif
+
 
 static int
 optboolean(lua_State *L, int narg, int def)

@@ -73,6 +73,8 @@ ext_posix_posix_la_SOURCES =		\
 EXTRA_ext_posix_posix_la_SOURCES =	\
 	ext/posix/ctype.c		\
 	ext/posix/curses.c		\
+	ext/posix/curses/chstr.c	\
+	ext/posix/curses/window.c	\
 	ext/posix/dirent.c		\
 	ext/posix/errno.c		\
 	ext/posix/fcntl.c		\
@@ -127,6 +129,8 @@ luaexecposixsys_LDFLAGS = $(AM_LDFLAGS) -rpath '$(luaexecposixsysdir)'
 posix_submodules =			\
 	ext/posix/ctype.la		\
 	ext/posix/curses.la		\
+	ext/posix/curses/chstr.la	\
+	ext/posix/curses/window.la	\
 	ext/posix/dirent.la		\
 	ext/posix/errno.la		\
 	ext/posix/fcntl.la		\

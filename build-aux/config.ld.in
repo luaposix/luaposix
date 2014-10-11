@@ -8,15 +8,21 @@ tparam_alias "int"
 tparam_alias "bool"
 
 local upat = "http://www.kernel.org/doc/man-pages/online/pages/man%s/%s.%s.html"
-custom_see_handler("^([%w_]+)%((%d)%)$",function(name,section)
-    local url = upat:format(section,name,section)
+custom_see_handler("^([%w_]+)%((%dx?)%)$",function(name,section)
+    local url = upat:format(section:sub(1,1),name,section)
     local name = name .. "(" .. section .. ")"
     return name, url
 end)
 
 dir = "."
 file = {
+  -- Classes
+  "../ext/posix/curses/chstr.c",
+  "../ext/posix/curses/window.c",
+
+  -- Modules
   "../ext/posix/ctype.c",
+  "../ext/posix/curses.c",
   "../ext/posix/dirent.c",
   "../ext/posix/errno.c",
   "../ext/posix/fcntl.c",
