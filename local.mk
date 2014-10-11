@@ -269,7 +269,9 @@ dist_examples_DATA +=				\
 	doc/examples/tree.lua.html		\
 	$(NOTHING_ELSE)
 
-$(dist_doc_DATA): $(EXTRA_ext_posix_posix_la_SOURCES) $(ext_posix_posix_la_SOURCES)
+allhtml = $(dist_doc_DATA) $(dist_examples_DATA) $(dist_modules_DATA) $(dist_classes_DATA)
+
+$(allhtml): $(EXTRA_ext_posix_posix_la_SOURCES) $(ext_posix_posix_la_SOURCES)
 	test -d $(builddir)/doc || mkdir $(builddir)/doc
 if HAVE_LDOC
 	$(LDOC) -c build-aux/config.ld -d $(abs_srcdir)/doc .
@@ -278,7 +280,7 @@ else
 	touch doc/index.html doc/ldoc.css
 endif
 
-doc: $(dist_doc_DATA) $(dist_examples_DATA) $(dist_modules_DATA) $(dist_classes_DATA)
+doc: $(allhtml)
 
 
 ## ------------- ##
