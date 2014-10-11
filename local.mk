@@ -246,21 +246,22 @@ dist_modules_DATA +=				\
 	doc/modules/posix.utime.html		\
 	$(NOTHING_ELSE)
 
-dist_examples_DATA +=			\
-	doc/examples/dir.lua.html	\
-	doc/examples/fork.lua.html	\
-	doc/examples/fork2.lua.html	\
-	doc/examples/getopt.lua.html	\
-	doc/examples/glob.lua.html	\
-	doc/examples/limit.lua.html	\
-	doc/examples/lock.lua.html	\
+dist_examples_DATA +=				\
+	doc/examples/curses.lua.html		\
+	doc/examples/dir.lua.html		\
+	doc/examples/fork.lua.html		\
+	doc/examples/fork2.lua.html		\
+	doc/examples/getopt.lua.html		\
+	doc/examples/glob.lua.html		\
+	doc/examples/limit.lua.html		\
+	doc/examples/lock.lua.html		\
 	doc/examples/netlink-uevent.lua.html	\
-	doc/examples/ping.lua.html	\
-	doc/examples/poll.lua.html	\
-	doc/examples/signal.lua.html	\
-	doc/examples/socket.lua.html	\
-	doc/examples/termios.lua.html	\
-	doc/examples/tree.lua.html	\
+	doc/examples/ping.lua.html		\
+	doc/examples/poll.lua.html		\
+	doc/examples/signal.lua.html		\
+	doc/examples/socket.lua.html		\
+	doc/examples/termios.lua.html		\
+	doc/examples/tree.lua.html		\
 	$(NOTHING_ELSE)
 
 $(dist_doc_DATA): ext/posix/curses.c build-aux/make_lcurses_doc.pl
