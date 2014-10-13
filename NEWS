@@ -56,6 +56,9 @@ Stdlib NEWS - User visible changes
 
  - Add posix.WUNTRACED for posix.wait flags.
 
+ - Add curses.A_COLOR (where supported by the underlying curses library) for
+   extracting color pair assignments from the results of `curses.window.winch`.
+
 ** Bug fixes:
 
  - posix.stat really does call stat(2) now.

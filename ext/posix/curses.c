@@ -163,6 +163,9 @@ register_curses_constants(lua_State *L)
 	CC(A_BOLD)		CC(A_PROTECT)		CC(A_INVIS)
 	CC(A_ALTCHARSET)	CC(A_CHARTEXT)
 	CC(A_ATTRIBUTES)
+#ifdef A_COLOR
+	CC(A_COLOR)
+#endif
 
 	/* key functions */
 	CC(KEY_BREAK)		CC(KEY_DOWN)		CC(KEY_UP)
