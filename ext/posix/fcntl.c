@@ -13,7 +13,7 @@
  File Control.
 
  Low-level control over file descriptors, including creating new file
- descriptors with `open` and `creat`.
+ descriptors with `open`.
 
 @module posix.fcntl
 */
@@ -34,33 +34,6 @@
 #define O_DSYNC 0
 #endif
 
-
-
-/***
-Create a file.
-@function creat
-@string path name of file to create
-@string mode permissions with which to create file
-@treturn[1] int file descriptor of file at *path*, if successful
-@return[2] nil
-@treturn[2] string error message
-@see creat(2)
-@see posix.sys.stat.chmod
-@see open
-@usage
-fd = P.creat ("data", "rw-r-----")
-*/
-static int
-Pcreat(lua_State *L)
-{
-	const char *path = luaL_checkstring(L, 1);
-	const char *modestr = luaL_checkstring(L, 2);
-	mode_t mode;
-	checknargs(L, 2);
-	if (mode_munch(&mode, modestr))
-		luaL_argerror(L, 2, "bad mode");
-	return pushresult(L, open(path, O_CREAT|O_WRONLY|O_TRUNC, mode), path);
-}
 
 
 #if HAVE_POSIX_FADVISE
@@ -196,7 +169,6 @@ Popen(lua_State *L)
 
 static const luaL_Reg posix_fcntl_fns[] =
 {
-	LPOSIX_FUNC( Pcreat		),
 #if HAVE_POSIX_FADVISE
 	LPOSIX_FUNC( Pfadvise		),
 #endif

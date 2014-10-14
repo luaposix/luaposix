@@ -40,10 +40,6 @@ Stdlib NEWS - User visible changes
 
  - Adds posix.lstat.
 
- - Implementation of posix.creat is now in ext/posix/posix.c to better
-   support projects that copy posix.c into their own tree and compile
-   directly.
-
  - Add group APIs from grp.h: `posix.grp.endgrent`, `posix.grp.getgrent`,
    `posix.grp.getgrgid`, `posix.grp.getgrnam` and `posix.grp.setgrent`.
    Consequently, `posix.getgroup` is now reimplemented in Lua over the POSIX

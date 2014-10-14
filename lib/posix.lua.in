@@ -40,8 +40,38 @@ local list = {
 -- end of stdlib code
 
 
----
--- Information about a group.
+-- Create a file.
+-- This function is obsoleted by @{posix.fcntl.open} with `posix.O_CREAT`.
+-- @function creat
+-- @string path name of file to create
+-- @string mode permissions with which to create file
+-- @treturn[1] int file descriptor of file at *path*, if successful
+-- @return[2] nil
+-- @treturn[2] string error message
+-- @see creat(2)
+-- @see posix.sys.stat.chmod
+-- @usage
+--   fd = P.creat ("data", "rw-r-----")
+function M.creat (path, mode, ...)
+  local argc = select ("#", path, mode, ...)
+  if argc > 2 then
+    error ("bad argument #3 to 'creat' (no more than 2 arguments expected, got " .. tostring (argc) .. ")")
+  end
+
+  local got = type (path):gsub ("nil", "no value")
+  if got ~= "string" then
+    error ("bad argument #1 to 'creat' (string expected, got " .. got .. ")")
+  end
+  got = type (mode):gsub ("nil", "no value")
+  if got ~= "string" then
+    error ("bad argument #2 to 'creat' (string expected, got " .. got .. ")")
+  end
+
+  return M.open (path, bit.bor (M.O_CREAT, M.O_WRONLY, M.O_TRUNC), mode)
+end
+
+
+--- Information about a group.
 -- @function getgroup
 -- @tparam int|string group id or group name
 -- @treturn table `{name=name,gid=gid,0=member0,1=member1,...}`

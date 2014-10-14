@@ -104,12 +104,12 @@ specify posix:
         creat = posix.creat
 
     - context with bad arguments: |
-        badargs.diagnose (creat, "(string, string)")
+        badargs.diagnose (creat, "creat (string, string)")
 
         examples {
           ["it diagnoses argument #2 invalid mode"] = function ()
             expect (creat ("not/existing", "g+vv")).
-              to_raise "bad argument #2 to 'creat' (bad mode)"
+              to_raise "bad argument #3 to 'open' (bad mode)"
           end
         }
 
