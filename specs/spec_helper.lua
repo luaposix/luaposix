@@ -13,10 +13,6 @@ package.path  = std.package.normalize (
 		  top_srcdir .. "/lib/?/init.lua",
 		  package.path)
 package.cpath = std.package.normalize (
-		  top_builddir .. "/ext/curses/.libs/?.so",
-		  top_srcdir .. "/ext/curses/.libs/?.so",
-		  top_builddir .. "/ext/curses/_libs/?.dll",
-		  top_srcdir .. "/ext/curses/_libs/?.dll",
 		  top_builddir .. "/ext/posix/.libs/?.so",
 		  top_srcdir .. "/ext/posix/.libs/?.so",
 		  top_builddir .. "/ext/posix/_libs/?.dll",
@@ -24,6 +20,7 @@ package.cpath = std.package.normalize (
 		  package.cpath)
 
 posix = require "posix"
+
 bit   = bit32 or require "bit"
 
 band, bnot, bor = bit.band, bit.bnot, bit.bor
