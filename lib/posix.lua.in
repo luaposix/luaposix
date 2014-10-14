@@ -37,6 +37,43 @@ local list = {
     return r
   end
 }
+
+local function argerror (name, i, extramsg, level)
+  level = level or 1
+  local s = string.format ("bad argument #%d to '%s'", i, name)
+  if extramsg ~= nil then
+    s = s .. " (" .. extramsg .. ")"
+  end
+  error (s, level + 1)
+end
+
+local function toomanyargerror (name, expected, got, level)
+  level = level or 1
+  local fmt = "no more than %d argument%s expected, got %d"
+  argerror (name, expected + 1,
+            fmt:format (expected, expected > 1 and "s" or "", got), level + 1)
+end
+
+local function argtypeerror (name, i, expect, actual, level)
+  level = level or 1
+  local fmt = "%s expected, got %s"
+  argerror (name, i,
+            fmt:format (expect, type (actual):gsub ("nil", "no value")), level + 1)
+end
+
+local function checkstring (name, i, actual)
+  if type (actual) ~= "string" then
+    argtypeerror (name, i, "string", actual, 2)
+  end
+  return actual
+end
+
+local function checktable (name, i, actual)
+  if type (actual) ~= "table" then
+    argtypeerror (name, i, "table", actual, 2)
+  end
+  return actual
+end
 -- end of stdlib code
 
 
@@ -53,19 +90,11 @@ local list = {
 -- @usage
 --   fd = P.creat ("data", "rw-r-----")
 function M.creat (path, mode, ...)
-  local argc = select ("#", path, mode, ...)
-  if argc > 2 then
-    error ("bad argument #3 to 'creat' (no more than 2 arguments expected, got " .. tostring (argc) .. ")")
-  end
+  path = checkstring ("creat", 1, path)
+  mode = checkstring ("creat", 2, mode)
 
-  local got = type (path):gsub ("nil", "no value")
-  if got ~= "string" then
-    error ("bad argument #1 to 'creat' (string expected, got " .. got .. ")")
-  end
-  got = type (mode):gsub ("nil", "no value")
-  if got ~= "string" then
-    error ("bad argument #2 to 'creat' (string expected, got " .. got .. ")")
-  end
+  local argc = select ("#", path, mode, ...)
+  if argc > 2 then toomanyargerror ("creat", 2, argc) end
 
   return M.open (path, bit.bor (M.O_CREAT, M.O_WRONLY, M.O_TRUNC), mode)
 end
@@ -79,9 +108,7 @@ end
 -- print (P.getgroup (P.getpasswd ().gid).name)
 function M.getgroup (grp, ...)
   local argc = select ("#", grp, ...)
-  if argc > 1 then
-    error ("bad argument #2 to 'getgroup' (no more than 1 argument expected, got " .. tostring (argc) .. ")")
-  end
+  if argc > 1 then toomanyargerror ("getgroup", 1, argc) end
 
   local fn
   if type (grp) == "number" then
@@ -89,8 +116,7 @@ function M.getgroup (grp, ...)
   elseif type (grp) == "string" then
     fn = M.getgrnam
   else
-    local got = type (grp):gsub ("nil", "no value")
-    error ("bad argument #1 to 'getgroup' (string or int expected, got " .. got .. ")")
+    argtypeerror ("getgroup", 1, "string or int", grp)
   end
 
   local g = fn (grp)
@@ -140,8 +166,7 @@ M.system = M.spawn -- OBSOLETE alias
 -- @return exit code of the chain
 local function pipeline (t, pipe_fn)
   local pipe_fn = pipe_fn or posix.pipe
-  assert (type (t) == "table",
-          "bad argument #1 to 'pipeline' (table expected, got " .. type (t) .. ")")
+  t = checktable ("pipeline", 1, t)
 
   local pid, read_fd, write_fd, save_stdout
   if #t > 1 then
@@ -268,7 +293,7 @@ function M.euidaccess (file, mode)
   -- The super-user can read and write any file, and execute any file
   -- that anyone can execute.
   if pid.euid == 0 and ((not string.match (mode, "x")) or
-                      string.match (stats.st_mode, "x")) then
+                         string.match (stats.st_mode, "x")) then
     return 0
   end
 
