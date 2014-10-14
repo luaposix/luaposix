@@ -23,6 +23,12 @@ specify posix:
       badargs.diagnose (posix.abort, "()")
 
 
+- describe euidaccess:
+  - before: f = posix.euidaccess
+  - context with bad arguments:
+      badargs.diagnose (f, "euidaccess (string, string)")
+
+
 - describe isgraph:
   - context with bad arguments:
       badargs.diagnose (posix.isgraph, "(string)")
@@ -46,6 +52,48 @@ specify posix:
 - describe getopt:
   - context with bad arguments:
       badargs.diagnose (posix.getopt, "(list, string, ?table, ?int, ?int)")
+
+
+- describe pipeline:
+  - before: f = posix.pipeline
+  - context with bad arguments:
+      badargs.diagnose (f, "pipeline (table, ?function)")
+
+
+- describe pipeline_iterator:
+  - before: f = posix.pipeline_iterator
+  - context with bad arguments:
+      badargs.diagnose (f, "pipeline_iterator (table, ?function)")
+
+
+- describe pipeline_slurp:
+  - before: f = posix.pipeline_slurp
+  - context with bad arguments:
+      badargs.diagnose (f, "pipeline_slurp (table, ?function)")
+
+
+- describe spawn:
+  - before: f = posix.spawn
+  - context with bad arguments:
+      badargs.diagnose (f, "spawn (string|table|function, string*)")
+
+
+- describe timeradd:
+  - before: f = posix.timeradd
+  - context with bad arguments:
+      badargs.diagnose (f, "timeradd (table, table)")
+
+
+- describe timercmp:
+  - before: f = posix.timercmp
+  - context with bad arguments:
+      badargs.diagnose (f, "timercmp (table, table)")
+
+
+- describe timersub:
+  - before: f = posix.timersub
+  - context with bad arguments:
+      badargs.diagnose (f, "timersub (table, table)")
 
 
 

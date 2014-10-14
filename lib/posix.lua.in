@@ -18,6 +18,27 @@ local bit = bit32 or require "bit"
 local M = {}
 
 
+-- For backwards compatibility, copy all table entries into M namespace.
+for _, sub in ipairs {
+  "ctype", "dirent", "errno", "fcntl", "fnmatch", "getopt", "glob", "grp",
+  "libgen", "poll", "pwd", "sched", "signal", "stdio", "stdlib", "sys.msg",
+  "sys.resource", "sys.socket", "sys.stat", "sys.statvfs", "sys.time",
+  "sys.times", "sys.utsname", "sys.wait", "syslog", "termio", "time",
+  "unistd", "util", "utime"
+} do
+  local t = require ("posix." .. sub)
+  for k, v in pairs (t) do
+    if k ~= "version" then
+      assert(M[k] == nil, "posix namespace clash: " .. sub .. "." .. k)
+      M[k] = v
+    end
+  end
+end
+
+
+M.version = "posix for " .. _VERSION .. " / @PACKAGE_STRING@"
+
+
 -- Code extracted from lua-stdlib with minimal modifications
 local list = {
   sub = function (l, from, to)
@@ -77,6 +98,7 @@ end
 -- end of stdlib code
 
 
+
 -- Create a file.
 -- This function is obsoleted by @{posix.fcntl.open} with `posix.O_CREAT`.
 -- @function creat
@@ -89,14 +111,27 @@ end
 -- @see posix.sys.stat.chmod
 -- @usage
 --   fd = P.creat ("data", "rw-r-----")
-function M.creat (path, mode, ...)
-  path = checkstring ("creat", 1, path)
-  mode = checkstring ("creat", 2, mode)
 
-  local argc = select ("#", path, mode, ...)
-  if argc > 2 then toomanyargerror ("creat", 2, argc) end
+local creat_flags = bit.bor (M.O_CREAT, M.O_WRONLY, M.O_TRUNC)
 
-  return M.open (path, bit.bor (M.O_CREAT, M.O_WRONLY, M.O_TRUNC), mode)
+local open = M.open
+
+local function creat (path, mode)
+  return open (path, creat_flags, mode)
+end
+
+if _DEBUG ~= false then
+  M.creat = function (...)
+    local argt = {...}
+    if #argt > 2 then toomanyargerror ("creat", 2, #argt) end
+
+    checkstring ("creat", 1, argt[1])
+    checkstring ("creat", 2, argt[2])
+
+    return creat (...)
+  end
+else
+  M.creat = creat
 end
 
 
@@ -106,10 +141,8 @@ end
 -- @treturn table `{name=name,gid=gid,0=member0,1=member1,...}`
 -- @usage
 -- print (P.getgroup (P.getpasswd ().gid).name)
-function M.getgroup (grp, ...)
-  local argc = select ("#", grp, ...)
-  if argc > 1 then toomanyargerror ("getgroup", 1, argc) end
 
+local function getgroup (grp)
   local fn
   if type (grp) == "number" then
     fn = M.getgrgid
@@ -125,17 +158,33 @@ function M.getgroup (grp, ...)
   end
 end
 
+if _DEBUG ~= false then
+  M.getgroup = function (...)
+    local argt = {...}
+    if #argt > 1 then toomanyargerror ("getgroup", 1, #argt) end
+    return getgroup (...)
+  end
+else
+  M.getgroup = getgroup
+end
+
 
 --- Run a command or function in a sub-process.
+-- @function spawn
 -- @param task, a string to be executed as a shell command, or a
--- table of arguments to <code>posix.execp</code> or a Lua function
--- which should read from standard input, write to standard output,
--- and return an exit code
--- @param ... positional arguments to the program or function
--- @return status exit code, or nil if fork or wait fails
--- @return error message, or exit type if wait succeeds
-function M.spawn (task, ...)
-  local pid, err = posix.fork ()
+--   table of arguments to `P.execp` or a Lua function, which should read
+--   from standard input, write to standard output, and return an exit code
+-- @tparam string ... positional arguments to the program or function
+-- @treturn[1] int status exit code, if successful
+-- @treturn[1] string exit type, if wait succeeds
+-- @treturn[2] nil
+-- @treturn[2] string error message
+
+local _exit, errno, execp, fork, wait =
+  M._exit, M.errno, M.execp, M.fork, M.wait
+
+local function spawn (task, ...)
+  local pid, err = fork ()
   if pid == nil then
     return pid, err
   elseif pid == 0 then
@@ -143,30 +192,52 @@ function M.spawn (task, ...)
       task = {"/bin/sh", "-c", task, ...}
     end
     if type (task) == "table" then
-      posix.execp (unpack (task))
+      execp (unpack (task))
       -- Only get here if there's an error; kill the fork
-      local _, no = posix.errno ()
-      posix._exit (no)
+      local _, no = errno ()
+      _exit (no)
     else
-      posix._exit (task (...) or 0)
+      _exit (task (...) or 0)
     end
   else
-    local _, reason, status = posix.wait (pid)
+    local _, reason, status = wait (pid)
     return status, reason -- If wait failed, status is nil & reason is error
   end
 end
+
+if _DEBUG ~= false then
+  M.spawn = function (task, ...)
+    local argt, typetask = {task, ...}, type (task)
+    if typetask ~= "string" and typetask ~= "table" and typetask ~= "function" then
+      argtypeerror ("spawn", 1, "string, table or function", task)
+    end
+    local i = 2
+    repeat
+      checkstring ("spawn", i, argt[i])
+      i = i + 1
+    until i > #argt
+    return spawn (task, ...)
+  end
+else
+  M.spawn = spawn
+end
+
 M.system = M.spawn -- OBSOLETE alias
 
 
 --- Perform a series of commands and Lua functions as a pipeline.
--- @tparam table t tasks for <code>posix.spawn</code>
--- @param pipe_fn function returning a paired read and write file
--- descriptor
--- (default: <code>posix.pipe</code>)
--- @return exit code of the chain
+-- @function pipeline
+-- @tparam table t tasks for @{spawn}
+-- @func[opt=@{posix.unistd.pipe} pipe_fn function returning a paired read and
+--   write file descriptor
+-- @treturn int exit code of the chain
+
+local close, dup, dup2, fork, pipe, wait =
+  M.close, M.dup, M.dup2, M.fork, M.pipe, M.wait
+local STDIN_FILENO, STDOUT_FILENO = M.STDIN_FILENO, M.STDOUT_FILENO
+
 local function pipeline (t, pipe_fn)
-  local pipe_fn = pipe_fn or posix.pipe
-  t = checktable ("pipeline", 1, t)
+  pipe_fn = pipe_fn or pipe
 
   local pid, read_fd, write_fd, save_stdout
   if #t > 1 then
@@ -174,80 +245,101 @@ local function pipeline (t, pipe_fn)
     if not read_fd then
       die ("error opening pipe")
     end
-    pid = posix.fork ()
+    pid = fork ()
     if pid == nil then
       die ("error forking")
     elseif pid == 0 then -- child process
-      if not posix.dup2 (read_fd, posix.STDIN_FILENO) then
+      if not dup2 (read_fd, STDIN_FILENO) then
         die ("error dup2-ing")
       end
-      posix.close (read_fd)
-      posix.close (write_fd)
+      close (read_fd)
+      close (write_fd)
       os.exit (pipeline (list.sub (t, 2), pipe_fn)) -- recurse with remaining arguments
     else -- parent process
-      save_stdout = posix.dup (posix.STDOUT_FILENO)
+      save_stdout = dup (STDOUT_FILENO)
       if not save_stdout then
         die ("error dup-ing")
       end
-      if not posix.dup2 (write_fd, posix.STDOUT_FILENO) then
+      if not dup2 (write_fd, STDOUT_FILENO) then
         die ("error dup2-ing")
       end
-      posix.close (read_fd)
-      posix.close (write_fd)
+      close (read_fd)
+      close (write_fd)
     end
   end
 
-  local ret = M.spawn (t[1])
-  if not ret then
+  local r = spawn (t[1])
+  if not r then
     die ("error in fork or wait")
   end
-  posix.close (posix.STDOUT_FILENO)
+  close (STDOUT_FILENO)
 
   if #t > 1 then
-    posix.close (write_fd)
-    posix.wait (pid)
-    if not posix.dup2 (save_stdout, posix.STDOUT_FILENO) then
+    close (write_fd)
+    wait (pid)
+    if not dup2 (save_stdout, STDOUT_FILENO) then
       die ("error dup2-ing")
     end
-    posix.close (save_stdout)
+    close (save_stdout)
   end
 
-  return ret
+  return r
 end
-M.pipeline = pipeline
+
+if _DEBUG ~= false then
+  M.pipeline = function (...)
+    local argt = {...}
+    checktable ("pipeline", 1, argt[1])
+    local typepipefn = type (argt[2])
+    if argt[2] ~= nil and type (argt[2]) ~= "function" then
+      argtypeerror ("pipeline", 2, "function or nil", argt[2])
+    end
+    if #argt > 2 then toomanyargerror ("pipeline", 2, #argt) end
+    return pipeline (...)
+  end
+else
+  M.pipeline = pipeline
+end
 
 
 --- Perform a series of commands and Lua functions as a pipeline,
 -- returning the output of the last stage's <code>stdout</code> as
 -- the values of an iterator.
--- @param t as for <code>posix.pipeline</code>
--- @param pipe_fn as for <code>posix.pipeline</code>
+-- @function pipeline_iterator
+-- @tparam table t tasks for @{spawn}
+-- @func[opt=@{posix.unistd.pipe} pipe_fn function returning a paired read and
+--   write file descriptor
 -- @return iterator function returning a chunk of output on each call
-function M.pipeline_iterator (t, pipe_fn)
-  local read_fd, write_fd = posix.pipe ()
+
+local close, fork, pipe, read, wait, write =
+  M.close, M.fork, M.pipe, M.read, M.wait, M.write
+local BUFSIZ, STDIN_FILENO = M.BUFSIZ, M.STDIN_FILENO
+
+function pipeline_iterator (t, pipe_fn)
+  local read_fd, write_fd = pipe ()
   if not read_fd then
     die ("error opening pipe")
   end
   table.insert (t, function ()
                      while true do
-                       local s = posix.read (posix.STDIN_FILENO, posix.BUFSIZ)
+                       local s = read (STDIN_FILENO, BUFSIZ)
                        if not s or #s == 0 then break end
-                       posix.write (write_fd, s)
+                       write (write_fd, s)
                      end
-                     posix.close (write_fd)
+                     close (write_fd)
                    end)
 
-  local pid = posix.fork ()
+  local pid = fork ()
   if pid == nil then
     die ("error forking")
   elseif pid == 0 then -- child process
-    os.exit (M.pipeline (t, pipe_fn))
+    os.exit (pipeline (t, pipe_fn))
   else -- parent process
-    posix.close (write_fd)
+    close (write_fd)
     return function ()
-      local s = posix.read (read_fd, posix.BUFSIZ)
+      local s = read (read_fd, BUFSIZ)
       if not s or #s == 0 then
-        posix.wait (pid)
+        wait (pid)
         return nil
       end
       return s
@@ -255,37 +347,69 @@ function M.pipeline_iterator (t, pipe_fn)
   end
 end
 
+if _DEBUG ~= false then
+  M.pipeline_iterator = function (...)
+    local argt = {...}
+    checktable ("pipeline_iterator", 1, argt[1])
+    local typepipefn = type (argt[2])
+    if argt[2] ~= nil and type (argt[2]) ~= "function" then
+      argtypeerror ("pipeline_iterator", 2, "function or nil", argt[2])
+    end
+    if #argt > 2 then toomanyargerror ("pipeline_iterator", 2, #argt) end
+  end
+end
 
---- Perform a series of commands and Lua functions as a pipeline,
--- returning the output of the last stage's <code>stdout</code>.
--- @param t as for <code>posix.pipeline</code>
--- @param pipe_fn as for <code>posix.pipeline</code>
--- @return output of the pipeline
-function M.pipeline_slurp (t, pipe_fn)
+
+--- Perform a series of commands and Lua functions as a pipeline.
+-- Return the output of the last stage's `stdout`.
+-- @function pipeline_slurp
+-- @tparam table t tasks for @{spawn}
+-- @func[opt=@{posix.unistd.pipe} pipe_fn function returning a paired read and
+--   write file descriptor
+-- @treturn string output of the pipeline
+
+local function pipeline_slurp (t, pipe_fn)
   local out = ""
-  for s in M.pipeline_iterator (t, pipe_fn) do
+  for s in pipeline_iterator (t, pipe_fn) do
     out = out .. s
   end
   return out
 end
 
+if _DEBUG ~= false then
+  M.pipeline_slurp = function (...)
+    local argt = {...}
+    checktable ("pipeline_slurp", 1, argt[1])
+    local typepipefn = type (argt[2])
+    if argt[2] ~= nil and type (argt[2]) ~= "function" then
+      argtypeerror ("pipeline_slurp", 2, "function or nil", argt[2])
+    end
+    if #argt > 2 then toomanyargerror ("pipeline_slurp", 2, #argt) end
+  end
+end
 
---- Check permissions like <code>access</code>, but for euid.
+
+--- Check permissions like @{posix.unistd.access}, but for euid.
 -- Based on the glibc function of the same name. Does not always check
 -- for read-only file system, text busy, etc., and does not work with
 -- ACLs &c.
--- @param file file to check
--- @param mode checks to perform (as for access)
+-- @function euidaccess
+-- @string file file to check
+-- @string mode checks to perform (as for access)
 -- @return 0 if access allowed; <code>nil</code> otherwise (and errno is set)
-function M.euidaccess (file, mode)
-  local pid = posix.getpid ()
+
+local access, getpid, set_errno, stat =
+  M.access, M.getpid, M.set_errno, M.stat
+
+local function euidaccess (file, mode)
+  local pid = getpid ()
 
   if pid.uid == pid.euid and pid.gid == pid.egid then
     -- If we are not set-uid or set-gid, access does the same.
-    return posix.access (file, mode)
+    return access (file, mode)
   end
 
-  local stats = posix.stat (file)
+  local stats = stat (file)
   if not stats then
     return
   end
@@ -316,15 +440,28 @@ function M.euidaccess (file, mode)
   if string.gsub ("[^" .. granted .. "]", mode) == "" then
     return 0
   end
-  posix.set_errno (EACCESS)
+  set_errno (EACCESS)
+end
+
+if _DEBUG ~= false then
+  M.euidaccess = function (...)
+    local argt = {...}
+    checkstring ("euidaccess", 1, argt[1])
+    checkstring ("euidaccess", 2, argt[2])
+    if #argt > 2 then toomanyargerror ("euidaccess", 2, #argt) end
+  end
+else
+  M.euidaccess = euidaccess
 end
 
 
 --- Add one gettimeofday() returned timeval to another.
+-- @function timeradd
 -- @param x a timeval
 -- @param y another timeval
 -- @return x + y, adjusted for usec overflow
-function M.timeradd (x,y)
+
+local function timeradd (x, y)
   local sec, usec = 0, 0
   if x.sec then sec = sec + x.sec end
   if y.sec then sec = sec + y.sec end
@@ -338,11 +475,22 @@ function M.timeradd (x,y)
   return { sec = sec, usec = usec }
 end
 
+if _DEBUG ~= false then
+  M.timeradd = function (...)
+    local argt = {...}
+    checktable ("timeradd", 1, argt[1])
+    checktable ("timeradd", 2, argt[2])
+    if #argt > 2 then toomanyargerror ("timeradd", 2, #argt) end
+  end
+end
+
 
 --- Compare one gettimeofday() returned timeval with another
+-- @function timercmp
 -- @param x a timeval
 -- @param y another timeval
 -- @return 0 if x and y are equal, >0 if x is newer, <0 if y is newer
+
 function M.timercmp (x, y)
   local x = { sec = x.sec or 0, usec = x.usec or 0 }
   local y = { sec = y.sec or 0, usec = y.usec or 0 }
@@ -353,11 +501,22 @@ function M.timercmp (x, y)
   end
 end
 
+if _DEBUG ~= false then
+  M.timercmp = function (...)
+    local argt = {...}
+    checktable ("timercmp", 1, argt[1])
+    checktable ("timercmp", 2, argt[2])
+    if #argt > 2 then toomanyargerror ("timercmp", 2, #argt) end
+  end
+end
+
 
 --- Subtract one gettimeofday() returned timeval from another.
+-- @function timersub
 -- @param x a timeval
 -- @param y another timeval
 -- @return x - y, adjusted for usec underflow
+
 function M.timersub (x,y)
   local sec, usec = 0, 0
   if x.sec then sec = x.sec end
@@ -368,29 +527,17 @@ function M.timersub (x,y)
     sec = sec - 1
     usec = usec + 1000000
   end
-
   return { sec = sec, usec = usec }
 end
 
-
--- For backwards compatibility, copy all table entries into M namespace.
-for _, sub in ipairs {
-  "ctype", "dirent", "errno", "fcntl", "fnmatch", "getopt", "glob", "grp",
-  "libgen", "poll", "pwd", "sched", "signal", "stdio", "stdlib", "sys.msg",
-  "sys.resource", "sys.socket", "sys.stat", "sys.statvfs", "sys.time",
-  "sys.times", "sys.utsname", "sys.wait", "syslog", "termio", "time",
-  "unistd", "util", "utime"
-} do
-  local t = require ("posix." .. sub)
-  for k, v in pairs (t) do
-    if k ~= "version" then
-      assert(M[k] == nil, "posix namespace clash: " .. sub .. "." .. k)
-      M[k] = v
-    end
+if _DEBUG ~= false then
+  M.timersub = function (...)
+    local argt = {...}
+    checktable ("timersub", 1, argt[1])
+    checktable ("timersub", 2, argt[2])
+    if #argt > 2 then toomanyargerror ("timersub", 2, #argt) end
   end
 end
 
-
-M.version = "posix for " .. _VERSION .. " / @PACKAGE_STRING@"
 
 return M
