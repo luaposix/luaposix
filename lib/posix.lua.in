@@ -40,6 +40,36 @@ local list = {
 -- end of stdlib code
 
 
+---
+-- Information about a group.
+-- @function getgroup
+-- @tparam int|string group id or group name
+-- @treturn table `{name=name,gid=gid,0=member0,1=member1,...}`
+-- @usage
+-- print (P.getgroup (P.getpasswd ().gid).name)
+function M.getgroup (grp, ...)
+  local argc = select ("#", grp, ...)
+  if argc > 1 then
+    error ("bad argument #2 to 'getgroup' (no more than 1 argument expected, got " .. tostring (argc) .. ")")
+  end
+
+  local fn
+  if type (grp) == "number" then
+    fn = M.getgrgid
+  elseif type (grp) == "string" then
+    fn = M.getgrnam
+  else
+    local got = type (grp):gsub ("nil", "no value")
+    error ("bad argument #1 to 'getgroup' (string or int expected, got " .. got .. ")")
+  end
+
+  local g = fn (grp)
+  if g ~= nil then
+    return {name=g.gr_name, gid=g.gr_gid, mem=g.gr_mem}
+  end
+end
+
+
 --- Run a command or function in a sub-process.
 -- @param task, a string to be executed as a shell command, or a
 -- table of arguments to <code>posix.execp</code> or a Lua function

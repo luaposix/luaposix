@@ -26,47 +26,151 @@
 
 
 /***
-Information about a group.
-@function getgroup
-@tparam int|string group id or group name
-@treturn table `{name=name,gid=gid,0=member0,1=member1,...}`
-@usage
-print (P.getgroup (P.getpasswd ().gid).name)
+Group record.
+@table group
+@string gr_name name of group
+@int gr_gid unique group id
+@tfield list gr_mem a list of group members
 */
+
 static int
-Pgetgroup(lua_State *L)
+pushgroup(lua_State *L, struct group *g)
 {
-	struct group *g = NULL;
-	if (lua_isnumber(L, 1))
-		g = getgrgid((gid_t)lua_tonumber(L, 1));
-	else if (lua_isstring(L, 1))
-		g = getgrnam(lua_tostring(L, 1));
-	else
-		luaL_typerror(L, 1, "string or int");
-	checknargs(L, 1);
-	if (g == NULL)
+	if (!g)
+	{
 		lua_pushnil(L);
-	else
+		return 1;
+	}
+
+	lua_createtable(L, 0, 3);
+	lua_pushnumber(L, (int) g->gr_gid);
+	lua_setfield(L, -2, "gr_gid");
+	if (g->gr_name)
+	{
+		lua_pushstring(L, g->gr_name);
+		lua_setfield(L, -2, "gr_name");
+	}
+	if (g->gr_mem)
 	{
 		int i;
 		lua_newtable(L);
-		lua_pushstring(L, g->gr_name);
-		lua_setfield(L, -2, "name");
-		lua_pushinteger(L, g->gr_gid);
-		lua_setfield(L, -2, "gid");
 		for (i = 0; g->gr_mem[i] != NULL; i++)
 		{
 			lua_pushstring(L, g->gr_mem[i]);
 			lua_rawseti(L, -2, i + 1);
 		}
+		lua_setfield(L, -2, "gr_mem");
 	}
 	return 1;
 }
 
 
+/***
+Release group database resources.
+@function endgrent
+@see getgrent
+*/
+static int
+Pendgrent(lua_State *L)
+{
+	checknargs(L, 0);
+	endgrent();
+	return 0;
+}
+
+
+/***
+Fetch next group.
+@function getgrent
+@treturn group next group record
+@see endgrent
+@usage
+  t = P.getgrent ()
+  while t ~= nil do
+    process (t)
+    t = P.getgrent ()
+  end
+  P.endgrent ()
+*/
+static int
+Pgetgrent(lua_State *L)
+{
+	struct group *g;
+	checknargs(L, 0);
+	g = getgrent();
+	if (!g && errno == 0)
+		endgrent ();
+	return pushgroup(L, g);
+}
+
+
+/***
+Fetch group with given groud id.
+@function getgrgid
+@int gid group id
+@treturn group group record for *gid*
+@usage
+  t = P.getgrgid (0)
+*/
+static int
+Pgetgrgid(lua_State *L)
+{
+	gid_t gid = (gid_t) checkint(L, 1);
+	struct group *g;
+	checknargs(L, 1);
+
+	errno = 0;	/* so we can recognise a successful empty result */
+	g = getgrgid (gid);
+	if (!g && errno != 0)
+		return pusherror(L, "getgrgid");
+	return pushgroup(L, g);
+}
+
+
+/***
+Fetch named group.
+@function getgrnam
+@string name group name
+@treturn group group record for *name*
+@usage
+  t = P.getgrnam "wheel"
+*/
+static int
+Pgetgrnam(lua_State *L)
+{
+	const char *name = luaL_checkstring(L, 1);
+	struct group *g;
+	checknargs(L, 1);
+
+	errno = 0;	/* so we can recognise a successful empty result */
+	g = getgrnam (name);
+	if (!g && errno != 0)
+		return pusherror(L, "getgrnam");
+	return pushgroup(L, g);
+}
+
+
+/***
+Rewind next @{getgrent} back to start of database.
+@function setgrent
+@see getgrent
+*/
+static int
+Psetgrent(lua_State *L)
+{
+	checknargs(L, 0);
+	setgrent();
+	return 0;
+}
+
+
 static const luaL_Reg posix_grp_fns[] =
 {
-	LPOSIX_FUNC( Pgetgroup		),
+	LPOSIX_FUNC( Pendgrent		),
+	LPOSIX_FUNC( Pgetgrent		),
+	LPOSIX_FUNC( Pgetgrgid		),
+	LPOSIX_FUNC( Pgetgrnam		),
+	LPOSIX_FUNC( Psetgrent		),
 	{NULL, NULL}
 };
 

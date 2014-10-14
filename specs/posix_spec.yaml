@@ -2103,9 +2103,25 @@ specify posix:
         end
 
 
+  ## For backwards compatibility only; obsoleted by getgrgid and getgrnam ##
   - describe getgroup:
+    - before:
+        getgrgid, getgroup = posix.getgrgid, posix.getgroup
+        groot = getgrgid (0).gr_name
+
     - context with bad arguments:
-        badargs.diagnose (posix.getgroup, "(string|int)")
+        badargs.diagnose (posix.getgroup, "getgroup (string|int)")
+
+    - it returns a table for an existing group:
+        expect (type (getgroup (groot))).to_be "table"
+    - it fetches a group by gid:
+        expect (getgroup (0).name).to_be (groot)
+        expect (getgroup (0).gid).to_be (0)
+        expect (getgroup (0).mem).to_contain "root"
+    - it fetches a group by name:
+        expect (getgroup (groot).name).to_be (groot)
+        expect (getgroup (groot).gid).to_be (0)
+        expect (getgroup (groot).mem).to_contain "root"
 
 
   - describe getgroups:
