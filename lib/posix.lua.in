@@ -123,11 +123,9 @@ end
 if _DEBUG ~= false then
   M.creat = function (...)
     local argt = {...}
-    if #argt > 2 then toomanyargerror ("creat", 2, #argt) end
-
     checkstring ("creat", 1, argt[1])
     checkstring ("creat", 2, argt[2])
-
+    if #argt > 2 then toomanyargerror ("creat", 2, #argt) end
     return creat (...)
   end
 else
@@ -195,6 +193,7 @@ if _DEBUG ~= false then
     checkstring ("euidaccess", 1, argt[1])
     checkstring ("euidaccess", 2, argt[2])
     if #argt > 2 then toomanyargerror ("euidaccess", 2, #argt) end
+    return euidaccess (...)
   end
 else
   M.euidaccess = euidaccess
@@ -366,6 +365,7 @@ if _DEBUG ~= false then
       argtypeerror ("pipeline_iterator", 2, "function or nil", argt[2])
     end
     if #argt > 2 then toomanyargerror ("pipeline_iterator", 2, #argt) end
+    return pipeline_iterator (...)
   end
 end
 
@@ -395,6 +395,7 @@ if _DEBUG ~= false then
       argtypeerror ("pipeline_slurp", 2, "function or nil", argt[2])
     end
     if #argt > 2 then toomanyargerror ("pipeline_slurp", 2, #argt) end
+    return pipeline_slurp (...)
   end
 end
 
@@ -481,6 +482,7 @@ if _DEBUG ~= false then
     checktable ("timeradd", 1, argt[1])
     checktable ("timeradd", 2, argt[2])
     if #argt > 2 then toomanyargerror ("timeradd", 2, #argt) end
+    return timeradd (...)
   end
 end
 
@@ -491,7 +493,7 @@ end
 -- @param y another timeval
 -- @return 0 if x and y are equal, >0 if x is newer, <0 if y is newer
 
-function M.timercmp (x, y)
+local function timercmp (x, y)
   local x = { sec = x.sec or 0, usec = x.usec or 0 }
   local y = { sec = y.sec or 0, usec = y.usec or 0 }
   if x.sec ~= y.sec then
@@ -507,6 +509,7 @@ if _DEBUG ~= false then
     checktable ("timercmp", 1, argt[1])
     checktable ("timercmp", 2, argt[2])
     if #argt > 2 then toomanyargerror ("timercmp", 2, #argt) end
+    return timercmp (...)
   end
 end
 
@@ -517,7 +520,7 @@ end
 -- @param y another timeval
 -- @return x - y, adjusted for usec underflow
 
-function M.timersub (x,y)
+local function timersub (x,y)
   local sec, usec = 0, 0
   if x.sec then sec = x.sec end
   if y.sec then sec = sec - y.sec end
@@ -536,6 +539,7 @@ if _DEBUG ~= false then
     checktable ("timersub", 1, argt[1])
     checktable ("timersub", 2, argt[2])
     if #argt > 2 then toomanyargerror ("timersub", 2, #argt) end
+    return timersub (...)
   end
 end
 
