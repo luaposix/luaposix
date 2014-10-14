@@ -55,7 +55,7 @@ specify posix/grp:
   - it fetches a group by gid:
       expect (getgrgid (0).gr_name).to_be (groot)
       expect (getgrgid (0).gr_gid).to_be (0)
-      expect (getgrgid (0).gr_mem).to_contain "root"
+      expect (type (getgrgid (0).gr_mem)).to_be "table"
 
 
 - describe getgrnam:
@@ -73,7 +73,7 @@ specify posix/grp:
   - it fetches a group by name:
       expect (getgrnam (groot).gr_name).to_be (groot)
       expect (getgrnam (groot).gr_gid).to_be (0)
-      expect (getgrnam (groot).gr_mem).to_contain "root"
+      expect (type (getgrnam (groot).gr_mem)).to_be "table"
 
 
 - describe setgrent:

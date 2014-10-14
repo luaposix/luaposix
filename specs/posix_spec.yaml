@@ -2117,11 +2117,11 @@ specify posix:
     - it fetches a group by gid:
         expect (getgroup (0).name).to_be (groot)
         expect (getgroup (0).gid).to_be (0)
-        expect (getgroup (0).mem).to_contain "root"
+        expect (type (getgroup (0).mem)).to_be "table"
     - it fetches a group by name:
         expect (getgroup (groot).name).to_be (groot)
         expect (getgroup (groot).gid).to_be (0)
-        expect (getgroup (groot).mem).to_contain "root"
+        expect (type (getgroup (groot).mem)).to_be "table"
 
 
   - describe getgroups:
