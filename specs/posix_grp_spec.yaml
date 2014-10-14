@@ -17,7 +17,7 @@ specify posix/grp:
       grp.getgrent ()
       endgrent ()
       expect (grp.getgrent ()).to_equal (g)
-      
+
 
 - describe getgrent:
   - before:
