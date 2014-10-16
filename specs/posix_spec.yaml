@@ -2151,49 +2151,35 @@ specify posix:
         badargs.diagnose (posix.getlogin, "()")
 
 
-  ## For backwards compatibility only; obsoleted by getpwuid and getpwnam ##
   - describe getpasswd:
     - before:
         getenv, getgid, getpasswd, getuid =
           posix.getenv, posix.getgid, posix.getpasswd, posix.getuid
-        user = getpasswd ((getenv "USER"), "name")
-        root = getpasswd (0, "name")
+        user = getpasswd ((getenv "USER")).name
+        root = getpasswd (0).name
 
     - context with bad arguments:
-      - before:
-          getpasswd, badarg = init (posix, "getpasswd")
-
-      - 'it diagnoses argument #1 type not string, int or nil':
-          expect (getpasswd (false)).
-            to_raise (badarg (1, "?string|int", "boolean"))
+        badargs.diagnose (getpasswd, "getpasswd (?string|int)")
 
     - it fetches the user uid:
         expect (getpasswd (user).uid).to_be (getuid ())
-        expect (getpasswd (root, "uid")).to_be (0)
+        expect (getpasswd (root).uid).to_be (0)
     - it fetches the user name:
         expect (getpasswd (user).name).to_be (user)
-        expect (getpasswd (0, "name")).to_be (root)
-        expect (getpasswd (root, "name")).to_be (root)
+        expect (getpasswd (0).name).to_be (root)
+        expect (getpasswd (root).name).to_be (root)
     - it fetches the user gid:
         expect (getpasswd (user).gid).to_be (getgid ())
-        expect (getpasswd (0, "gid")).to_be (0)
-        expect (getpasswd (root, "gid")).to_be (0)
+        expect (getpasswd (0).gid).to_be (0)
+        expect (getpasswd (root).gid).to_be (0)
     - it fetches the user password:
         expect (getpasswd (user).passwd).to_match.any_of {"x", "%*+"}
-        expect (getpasswd (0, "passwd")).to_match.any_of {"x", "%*+"}
-        expect (getpasswd (root, "passwd")).to_match.any_of {"x", "%*+"}
+        expect (getpasswd (0).passwd).to_match.any_of {"x", "%*+"}
+        expect (getpasswd (root).passwd).to_match.any_of {"x", "%*+"}
     - it fetches the user home directory:
-        expect (getpasswd (user, "dir")).to_be (getenv "HOME")
+        expect (getpasswd (user).dir).to_be (getenv "HOME")
     - it fetches the user shell:
-        expect (getpasswd (user, "shell")).to_be (getenv "SHELL")
-    - it fetches a subtable of named fields:
-        expect ({getpasswd (user, "name", "shell", "dir")}).
-          to_equal {user, getenv "SHELL", getenv "HOME"}
-    - it fetches everything without an argument:
-        t = getpasswd (user)
-        for k, v in pairs (t) do
-          expect (t[k]).to_be (getpasswd (user, k))
-        end
+        expect (getpasswd (user).shell).to_be (getenv "SHELL")
 
 
   - describe getgroup:

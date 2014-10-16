@@ -243,16 +243,23 @@ else
 end
 
 
+--- User information.
+-- @table passwd
+-- @string name user name
+-- @int uid unique user id
+-- @int gid group id
+-- @string passwd encrypted password
+-- @string dir home directory
+-- @string shell path of login shell
+
+
 --- Get the password entry for a user.
 -- @function getpasswd
 -- @tparam[opt=current user] int|string user name or id
--- @string ... field names, each one of "uid", "name", "gid", "passwd",
---   "dir" or "shell"
--- @return ... values, or a table of all fields if *user* is `nil`
+-- @treturn passwd user information
 -- @usage for a,b in pairs (P.getpasswd "root") do print (a, b) end
--- @usage print (P.getpasswd ("root", "shell"))
 
-local function getpasswd (user, ...)
+local function getpasswd (user)
   if user == nil then user = geteuid () end
 
   local p
@@ -265,41 +272,22 @@ local function getpasswd (user, ...)
   end
 
   if p ~= nil then
-    local argt = {...}
-
-    if not (next (argt)) then
-      return {
-	dir    = p.pw_dir,
-	gid    = p.pw_gid,
-	name   = p.pw_name,
-	passwd = p.pw_passwd,
-	shell  = p.pw_shell,
-	uid    = p.pw_uid,
-      }
-    else
-      local r = {}
-      for i, v in ipairs (argt) do
-        if     v == "dir"    then r[#r + 1] = p.pw_dir
-        elseif v == "gid"    then r[#r + 1] = p.pw_gid
-        elseif v == "name"   then r[#r + 1] = p.pw_name
-        elseif v == "passwd" then r[#r + 1] = p.pw_passwd
-        elseif v == "shell"  then r[#r + 1] = p.pw_shell
-        elseif v == "uid"    then r[#r + 1] = p.pw_uid
-        else
-	  argerror ("getpasswd", i + 1, "invalid option '" .. v .. "'")
-        end
-      end
-      return unpack (r)
-    end
+    return {
+      dir    = p.pw_dir,
+      gid    = p.pw_gid,
+      name   = p.pw_name,
+      passwd = p.pw_passwd,
+      shell  = p.pw_shell,
+      uid    = p.pw_uid,
+    }
   end
 end
 
 if _DEBUG ~= false then
-  M.getpasswd = function (user, ...)
-    for i, v in ipairs {...} do
-      checkstring ("getpasswd", i, v)
-    end
-    return getpasswd (user, ...)
+  M.getpasswd = function (...)
+    local argt = {...}
+    if #argt > 1 then toomanyargerror ("getpasswd", 1, #argt) end
+    return getpasswd (...)
   end
 else
   M.getpasswd = getpasswd
