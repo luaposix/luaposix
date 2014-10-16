@@ -99,13 +99,13 @@ Pgetgrent(lua_State *L)
 	checknargs(L, 0);
 	g = getgrent();
 	if (!g && errno == 0)
-		endgrent ();
+		endgrent();
 	return pushgroup(L, g);
 }
 
 
 /***
-Fetch group with given groud id.
+Fetch group with given group id.
 @function getgrgid
 @int gid group id
 @treturn group group record for *gid*
@@ -120,7 +120,7 @@ Pgetgrgid(lua_State *L)
 	checknargs(L, 1);
 
 	errno = 0;	/* so we can recognise a successful empty result */
-	g = getgrgid (gid);
+	g = getgrgid(gid);
 	if (!g && errno != 0)
 		return pusherror(L, "getgrgid");
 	return pushgroup(L, g);
