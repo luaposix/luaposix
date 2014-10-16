@@ -26,71 +26,160 @@
 #include "_helpers.c"
 
 
-static void
-Fgetpasswd(lua_State *L, int i, const void *data)
-{
-	const struct passwd *p=data;
-	switch (i)
-	{
-		case 0:
-			lua_pushstring(L, p->pw_name);
-			break;
-		case 1:
-			lua_pushinteger(L, p->pw_uid);
-			break;
-		case 2:
-			lua_pushinteger(L, p->pw_gid);
-			break;
-		case 3:
-			lua_pushstring(L, p->pw_dir);
-			break;
-		case 4:
-			lua_pushstring(L, p->pw_shell);
-			break;
-		case 5:
-			lua_pushstring(L, p->pw_passwd);
-			break;
-	}
-}
+/***
+Password record.
+@table passwd
+@string pw_name user's login name
+@int pw_uid unique user id
+@int pw_gid user's default group id
+@string pw_dir initial working directory
+@string pw_shell user's login shell path
+*/
 
-static const char *const Sgetpasswd[] =
+static int
+pushpasswd(lua_State *L, struct passwd *p)
 {
-	"name", "uid", "gid", "dir", "shell", "passwd", NULL
-};
+	if (!p)
+	{
+		lua_pushnil(L);
+		return 1;
+	}
+
+	lua_createtable(L, 0, 5);
+	lua_pushnumber(L, (int) p->pw_uid);
+	lua_setfield(L, -2, "pw_uid");
+	lua_pushnumber(L, (int) p->pw_gid);
+	lua_setfield(L, -2, "pw_gid");
+	if (p->pw_name)
+	{
+		lua_pushstring(L, p->pw_name);
+		lua_setfield(L, -2, "pw_name");
+	}
+	if (p->pw_dir)
+	{
+		lua_pushstring(L, p->pw_dir);
+		lua_setfield(L, -2, "pw_dir");
+	}
+	if (p->pw_shell)
+	{
+		lua_pushstring(L, p->pw_shell);
+		lua_setfield(L, -2, "pw_shell");
+	}
+	if (p->pw_passwd)
+	{
+		lua_pushstring(L, p->pw_passwd);
+		lua_setfield(L, -2, "pw_passwd");
+	}
+	return 1;
+}
 
 
 /***
-Get the password entry for a user.
-@function getpasswd
-@tparam[opt=current user] string|int user name or id
-@string ... field names, each one of "uid", "name", "gid", "passwd", "dir", "shell"
-@return ... values, or table of all fields if *user* is `nil`
-@usage for a,b in pairs(P.getpasswd("root")) do print(a,b) end
-@usage print(P.getpasswd("root", "shell"))
+Release password database resources.
+@function endpwent
+@see getpwent
 */
 static int
-Pgetpasswd(lua_State *L)
+Pendpwent(lua_State *L)
 {
-	struct passwd *p=NULL;
-	if (lua_isnoneornil(L, 1))
-		p = getpwuid(geteuid());
-	else if (lua_isnumber(L, 1))
-		p = getpwuid((uid_t)lua_tonumber(L, 1));
-	else if (lua_isstring(L, 1))
-		p = getpwnam(lua_tostring(L, 1));
-	else
-		luaL_typerror(L, 1, "string, int or nil");
-	if (p==NULL)
-		lua_pushnil(L);
-	else
-		return doselection(L, 2, Sgetpasswd, Fgetpasswd, p);
-	return 1;
+	checknargs(L, 0);
+	endpwent();
+	return 0;
+}
+
+
+/***
+Fetch next password entry.
+@function getpwent
+@treturn passwd next password record
+@see endpwent
+@usage
+  t = P.getpwent ()
+  while t ~= nil do
+    process (t)
+    t = P.getpwent ()
+  end
+  P.endpwent ()
+*/
+static int
+Pgetpwent(lua_State *L)
+{
+	struct passwd *p;
+	checknargs(L, 0);
+	p = getpwent();
+	if (!p && errno == 0)
+		endpwent();
+	return pushpasswd(L, p);
+}
+
+
+/***
+Fetch named user.
+@function getpwnam
+@string name user name
+@treturn passwd passwd record for *name*
+@usage
+  t = P.getpwnam "root"
+*/
+static int
+Pgetpwnam(lua_State *L)
+{
+	const char *name = luaL_checkstring(L, 1);
+	struct passwd *p;
+	checknargs(L, 1);
+
+	errno = 0;	/* so we can recognise a successful empty result */
+	p = getpwnam (name);
+	if (!p && errno != 0)
+		return pusherror(L, "getpwnam");
+	return pushpasswd(L, p);
+}
+
+
+/***
+Fetch password entry with given user id.
+@function getpwuid
+@int uid user id
+@treturn passwd passwd record for *uid*
+@usage
+  t = P.getpwuid (0)
+*/
+static int
+Pgetpwuid(lua_State *L)
+{
+	uid_t uid = (uid_t) checkint(L, 1);
+	struct passwd *p;
+	checknargs(L, 1);
+
+	errno = 0;	/* so we can recognise a successful empty result */
+	p = getpwuid(uid);
+	if (!p && errno != 0)
+		return pusherror(L, "getpwuid");
+	return pushpasswd(L, p);
+}
+
+
+/***
+Rewind next @{getpwent} back to start of database.
+@function setpwent
+@see getpwent
+*/
+static int
+Psetpwent(lua_State *L)
+{
+	checknargs(L, 0);
+	setpwent();
+	return 0;
 }
 
 
 static const luaL_Reg posix_pwd_fns[] =
 {
-	LPOSIX_FUNC( Pgetpasswd		),
+	LPOSIX_FUNC( Pendpwent		),
+	LPOSIX_FUNC( Pgetpwent		),
+	LPOSIX_FUNC( Pgetpwnam		),
+	LPOSIX_FUNC( Pgetpwuid		),
+	LPOSIX_FUNC( Psetpwent		),
 	{NULL, NULL}
 };
 

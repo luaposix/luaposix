@@ -45,6 +45,11 @@ Stdlib NEWS - User visible changes
    Consequently, `posix.getgroup` is now reimplemented in Lua over the POSIX
    APIs.
 
+ - Add pwd APIs from pwd.h: `posix.pwd.endpwent`, `posix.grp.getpwent`,
+   `posix.pwd.getpwnam`, `posix.pwd.getpwuid` and `posix.pwd.setpwent`.
+   Consequently, `posix.getpasswd` is now reimplemented in Lua over the POSIX
+   APIs.
+
  - All posix APIs now fully and correctly diagnose extraneous and wrong
    type arguments with an error.
 

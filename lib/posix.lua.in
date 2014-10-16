@@ -234,6 +234,69 @@ else
 end
 
 
+--- Get the password entry for a user.
+-- @function getpasswd
+-- @tparam[opt=current user] int|string user name or id
+-- @string ... field names, each one of "uid", "name", "gid", "passwd",
+--   "dir" or "shell"
+-- @return ... values, or a table of all fields if *user* is `nil`
+-- @usage for a,b in pairs (P.getpasswd "root") do print (a, b) end
+-- @usage print (P.getpasswd ("root", "shell"))
+
+local function getpasswd (user, ...)
+  if user == nil then user = M.getpid "euid" end
+
+  local p
+  if type (user) == "number" then
+    p = M.getpwuid (user)
+  elseif type (user) == "string" then
+    p = M.getpwnam (user)
+  else
+    argtypeerror ("getpasswd", 1, "string, int or nil", user)
+  end
+
+  if p ~= nil then
+    local argt = {...}
+
+    if not (next (argt)) then
+      return {
+	dir    = p.pw_dir,
+	gid    = p.pw_gid,
+	name   = p.pw_name,
+	passwd = p.pw_passwd,
+	shell  = p.pw_shell,
+	uid    = p.pw_uid,
+      }
+    else
+      local r = {}
+      for i, v in ipairs (argt) do
+        if     v == "dir"    then r[#r + 1] = p.pw_dir
+        elseif v == "gid"    then r[#r + 1] = p.pw_gid
+        elseif v == "name"   then r[#r + 1] = p.pw_name
+        elseif v == "passwd" then r[#r + 1] = p.pw_passwd
+        elseif v == "shell"  then r[#r + 1] = p.pw_shell
+        elseif v == "uid"    then r[#r + 1] = p.pw_uid
+        else
+	  argerror ("getpasswd", i + 1, "invalid option '" .. v .. "'")
+        end
+      end
+      return unpack (r)
+    end
+  end
+end
+
+if _DEBUG ~= false then
+  M.getpasswd = function (user, ...)
+    for i, v in ipairs {...} do
+      checkstring ("getpasswd", i, v)
+    end
+    return getpasswd (user, ...)
+  end
+else
+  M.getpasswd = getpasswd
+end
+
+
 --- Perform a series of commands and Lua functions as a pipeline.
 -- @function pipeline
 -- @tparam table t tasks for @{spawn}

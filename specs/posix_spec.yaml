@@ -2149,6 +2149,7 @@ specify posix:
         badargs.diagnose (posix.getlogin, "()")
 
 
+  ## For backwards compatibility only; obsoleted by getpwuid and getpwnam ##
   - describe getpasswd:
     - before:
         getenv, getpasswd, getpid = posix.getenv, posix.getpasswd, posix.getpid
