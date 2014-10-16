@@ -142,13 +142,14 @@ end
 -- @string mode checks to perform (as for access)
 -- @return 0 if access allowed; <code>nil</code> otherwise (and errno is set)
 
-local access, getpid, set_errno, stat =
-  M.access, M.getpid, M.set_errno, M.stat
+local access, set_errno, stat = M.access, M.set_errno, M.stat
+local getegid, geteuid, getgid, getuid =
+  M.getegid, M.geteuid, M.getgid, M.getuid
 
 local function euidaccess (file, mode)
-  local pid = getpid ()
+  local euid, egid = geteuid (), getegid ()
 
-  if pid.uid == pid.euid and pid.gid == pid.egid then
+  if getuid () == euid and getgid () == egid then
     -- If we are not set-uid or set-gid, access does the same.
     return access (file, mode)
   end
@@ -160,8 +161,8 @@ local function euidaccess (file, mode)
 
   -- The super-user can read and write any file, and execute any file
   -- that anyone can execute.
-  if pid.euid == 0 and ((not string.match (mode, "x")) or
-                         string.match (stats.st_mode, "x")) then
+  if euid == 0 and ((not string.match (mode, "x")) or
+                    string.match (stats.st_mode, "x")) then
     return 0
   end
 
@@ -174,9 +175,9 @@ local function euidaccess (file, mode)
 
   -- Get the modes we need.
   local granted = stats.st_mode:sub (1, 3)
-  if pid.euid == stats.st_uid then
+  if euid == stats.st_uid then
     granted = stats.st_mode:sub (7, 9)
-  elseif pid.egid == stats.st_gid or set.new (posix.getgroups ()):member (stats.st_gid) then
+  elseif egid == stats.st_gid or set.new (posix.getgroups ()):member (stats.st_gid) then
     granted = stats.st_mode:sub (4, 6)
   end
   granted = string.gsub (granted, "[^rwx]", "")
@@ -212,10 +213,10 @@ end
 -- @tparam[opt=current group] int|string group id or group name
 -- @treturn group group information
 -- @usage
---   print (P.getgroup (P.getpasswd ().gid).name)
+--   print (P.getgroup (P.getgid ()).name)
 
 local function getgroup (grp)
-  if grp == nil then grp = M.getpid "egid" end
+  if grp == nil then grp = getegid () end
 
   local g
   if type (grp) == "number" then
@@ -252,7 +253,7 @@ end
 -- @usage print (P.getpasswd ("root", "shell"))
 
 local function getpasswd (user, ...)
-  if user == nil then user = M.getpid "euid" end
+  if user == nil then user = geteuid () end
 
   local p
   if type (user) == "number" then
@@ -302,6 +303,70 @@ if _DEBUG ~= false then
   end
 else
   M.getpasswd = getpasswd
+end
+
+
+--- Get process identifiers.
+-- @function getpid
+-- @tparam[opt] table|string type one of "egid", "euid", "gid", "uid",
+--   "pgrp", "pid" or "ppid"; or a single list of the same
+-- @string[opt] ... unless *type* was a table, zero or more additional
+--   type strings
+-- @return ... values, or a table of all fields if no option given
+-- @usage for a,b in pairs (P.getpid ()) do print (a, b) end
+-- @usage print (P.getpid ("uid", "euid"))
+
+local getegid, geteuid, getgid, getuid =
+  M.getegid, M.geteuid, M.getgid, M.getuid
+local _getpid, getpgrp, getppid = M.getpid, M.getpgrp, M.getppid
+
+local function getpid (...)
+  local argt = {...}
+  if type (argt[1]) == "table" then argt = argt[1] end
+
+  if not (next (argt)) then
+    return {
+      egid = getegid (),
+      euid = geteuid (),
+      gid  = getgid (),
+      uid  = getuid (),
+      pgrp = getpgrp (),
+      pid  = _getpid (),
+      ppid = getppid (),
+      }
+  else
+    local r = {}
+    for i, v in ipairs (argt) do
+      if     v == "egid" then r[#r + 1] = getegid ()
+      elseif v == "euid" then r[#r + 1] = geteuid ()
+      elseif v == "gid"  then r[#r + 1] = getgid ()
+      elseif v == "uid"  then r[#r + 1] = getuid ()
+      elseif v == "pgrp" then r[#r + 1] = getpgrp ()
+      elseif v == "pid"  then r[#r + 1] = _getpid ()
+      elseif v == "ppid" then r[#r + 1] = getppid ()
+      else
+	argerror ("getpid", i, "invalid option '" .. v .. "'")
+      end
+    end
+    return unpack (r)
+  end
+end
+
+if _DEBUG ~= false then
+  M.getpid = function (t, ...)
+    local argt = {t, ...}
+    if type (t) == "table" and #argt > 1 then
+      toomanyargerror ("getpid", 1, #argt)
+    elseif t ~= nil and type (t) ~= "string" then
+      argtypeerror ("getpid", 1, "table, string or nil", t)
+    end
+    for i = 2, #argt do
+      checkstring ("getpid", i, argt[i])
+    end
+    return getpid (t, ...)
+  end
+else
+  M.getpid = getpid
 end
 
 

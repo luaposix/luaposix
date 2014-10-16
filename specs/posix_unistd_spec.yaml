@@ -1,0 +1,89 @@
+specify posix/unistd:
+- before: |
+    pwd    = require "posix.pwd"
+    unistd = require "posix.unistd"
+
+    -- Assume $USER is the process owner, egid is gid and euid is uid
+    ids = pwd.getpwnam (os.getenv "USER")
+
+
+- describe getegid:
+  - before:
+      getegid = unistd.getegid
+
+  - context with bad arguments:
+      badargs.diagnose (getegid, "()")
+
+  - it returns the effective group id:
+      expect (getegid ()).to_be (ids.pw_gid)
+
+
+- describe geteuid:
+  - before:
+      geteuid = unistd.geteuid
+
+  - context with bad arguments:
+      badargs.diagnose (geteuid, "()")
+
+  - it returns the effective user id:
+      expect (geteuid ()).to_be (ids.pw_uid)
+
+
+- describe getgid:
+  - before:
+      getgid = unistd.getgid
+
+  - context with bad arguments:
+      badargs.diagnose (getgid, "()")
+
+  - it returns the group id:
+      expect (getgid ()).to_be (ids.pw_gid)
+
+
+- describe getuid:
+  - before:
+      getuid = unistd.getuid
+
+  - context with bad arguments:
+      badargs.diagnose (getuid, "()")
+
+  - it returns the user id:
+      expect (getuid ()).to_be (ids.pw_uid)
+
+
+- describe getpgrp:
+  - before:
+      getpgrp = unistd.getpgrp
+
+  - context with bad arguments:
+      badargs.diagnose (getpgrp, "()")
+
+  - it returns the a positive integer:
+      expect (math.floor (getpgrp ())).to_be (getpgrp ())
+      expect (getpgrp () > 0).to_be (true)
+
+
+- describe getpid:
+  - before:
+      getpid = unistd.getpid
+
+  - context with bad arguments:
+      badargs.diagnose (getpid, "()")
+
+  - it returns the a positive integer:
+      expect (math.floor (getpid ())).to_be (getpid ())
+      expect (getpid () > 0).to_be (true)
+
+
+- describe getppid:
+  - before:
+      getppid = unistd.getppid
+
+  - context with bad arguments:
+      badargs.diagnose (getppid, "()")
+
+  - it returns a positive integer:
+      expect (math.floor (getppid ())).to_be (getppid ())
+      expect (getppid () > 0).to_be (true)
+  - it does not return the process id:
+      expect (getppid ()).not_to_be (unistd.getpid ())

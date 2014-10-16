@@ -414,6 +414,48 @@ Pgetcwd(lua_State *L)
 }
 
 
+/***
+Return effective group id of calling process.
+@function getegid
+@treturn int effective group id of calling process
+@see getgid
+*/
+static int
+Pgetegid(lua_State *L)
+{
+	checknargs(L, 0);
+	return pushintresult(getegid ());
+}
+
+
+/***
+Return effective user id of calling process.
+@function geteuid
+@treturn int effective user id of calling process
+@see getuid
+*/
+static int
+Pgeteuid(lua_State *L)
+{
+	checknargs(L, 0);
+	return pushintresult(geteuid ());
+}
+
+
+/***
+Return group id of calling process.
+@function getgid
+@treturn int group id of calling process
+@see getegid
+*/
+static int
+Pgetgid(lua_State *L)
+{
+	checknargs(L, 0);
+	return pushintresult(getgid ());
+}
+
+
 #if _POSIX_VERSION >= 200112L
 /***
 Get list of supplementary group ids.
@@ -470,52 +512,58 @@ Pgetlogin(lua_State *L)
 }
 
 
-static void
-FgetID(lua_State *L, int i, const void *LPOSIX_UNUSED (data))
+/***
+Return process group id of calling process.
+@function getpgrp
+@treturn int process group id of calling process
+@see getpid
+*/
+static int
+Pgetpgrp(lua_State *L)
 {
-	switch (i)
-	{
-		case 0:
-			lua_pushinteger(L, getegid());
-			break;
-		case 1:
-			lua_pushinteger(L, geteuid());
-			break;
-		case 2:
-			lua_pushinteger(L, getgid());
-			break;
-		case 3:
-			lua_pushinteger(L, getuid());
-			break;
-		case 4:
-			lua_pushinteger(L, getpgrp());
-			break;
-		case 5:
-			lua_pushinteger(L, getpid());
-			break;
-		case 6:
-			lua_pushinteger(L, getppid());
-			break;
-	}
+	checknargs(L, 0);
+	return pushintresult(getpgrp ());
 }
-
-static const char *const SgetID[] =
-{
-	"egid", "euid", "gid", "uid", "pgrp", "pid", "ppid", NULL
-};
 
 
 /***
-Get process identifiers.
+Return process id of calling process.
 @function getpid
-@string ... types, each one of "egid", "euid", "gid", "uid", "pgrp", "pid", "ppid"
-@return ... values, or table of all ids if no option given
-@usage P.getpid 'pid' -- PID of current process
+@treturn int process id of calling process
 */
 static int
 Pgetpid(lua_State *L)
 {
-	return doselection(L, 1, SgetID, FgetID, NULL);
+	checknargs(L, 0);
+	return pushintresult(getpid ());
+}
+
+
+/***
+Return parent process id of calling process.
+@function getppid
+@treturn int parent process id of calling process
+@see getpid
+*/
+static int
+Pgetppid(lua_State *L)
+{
+	checknargs(L, 0);
+	return pushintresult(getppid ());
+}
+
+
+/***
+Return user id of calling process.
+@function getuid
+@treturn int user id of calling process
+@see geteuid
+*/
+static int
+Pgetuid(lua_State *L)
+{
+	checknargs(L, 0);
+	return pushintresult(getuid ());
 }
 
 
@@ -1134,9 +1182,14 @@ static const luaL_Reg posix_unistd_fns[] =
 #if _POSIX_VERSION >= 200112L
 	LPOSIX_FUNC( Pgetgroups		),
 #endif
-	LPOSIX_FUNC( Pgetgroups		),
+	LPOSIX_FUNC( Pgetegid		),
+	LPOSIX_FUNC( Pgeteuid		),
+	LPOSIX_FUNC( Pgetgid		),
 	LPOSIX_FUNC( Pgetlogin		),
+	LPOSIX_FUNC( Pgetpgrp		),
 	LPOSIX_FUNC( Pgetpid		),
+	LPOSIX_FUNC( Pgetppid		),
+	LPOSIX_FUNC( Pgetuid		),
 	LPOSIX_FUNC( Phostid		),
 	LPOSIX_FUNC( Pisatty		),
 	LPOSIX_FUNC( Plink		),

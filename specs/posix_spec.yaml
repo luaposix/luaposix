@@ -808,7 +808,9 @@ specify posix:
     - before:
         # choose a format without seconds, that won't cause a race condition
         fmt = "%b %d %H:%M"
-        getpid, stat = posix.getpid, posix.stat
+
+        getegid, geteuid, stat =
+          posix.getegid, posix.geteuid, posix.stat
 
         badarg = function (...) return badargs.format ("stat", ...) end
 
@@ -866,11 +868,11 @@ specify posix:
           to_be (stat (dir .. "/file", "nlink"))
         expect (stat (dir .. "/subdir", "nlink")).to_be (2)
     - it fetches the owner id:
-        expect (stat (dir .. "/file").uid).to_be (getpid "euid")
-        expect (stat (dir .. "/subdir", "uid")).to_be (getpid "euid")
+        expect (stat (dir .. "/file").uid).to_be (geteuid ())
+        expect (stat (dir .. "/subdir", "uid")).to_be (geteuid ())
     - it fetches the owner group id:
-        expect (stat (dir .. "/file").gid).to_be (getpid "egid")
-        expect (stat (dir .. "/subdir", "gid")).to_be (getpid "egid")
+        expect (stat (dir .. "/file").gid).to_be (getegid ())
+        expect (stat (dir .. "/subdir", "gid")).to_be (getegid ())
     - it fetches a subtable of named fields:
         expect ({stat (dir .. "/file", "type", "size", "nlink")}).
           to_equal {"regular", 0, 2}
@@ -885,7 +887,7 @@ specify posix:
     - before:
         # choose a format without seconds, that won't cause a race condition
         fmt = "%b %d %H:%M"
-        getpid = posix.getpid
+        getegid, geteuid = posix.getegid, posix.geteuid
         lstat, badarg = init (posix, "lstat")
 
     # posix.lstat takes an optional string or table as its second
@@ -942,11 +944,11 @@ specify posix:
           to_be (lstat (dir .. "/file", "nlink"))
         expect (lstat (dir .. "/subdir", "nlink")).to_be (2)
     - it fetches the owner id:
-        expect (lstat (dir .. "/file").uid).to_be (getpid "euid")
-        expect (lstat (dir .. "/subdir", "uid")).to_be (getpid "euid")
+        expect (lstat (dir .. "/file").uid).to_be (geteuid ())
+        expect (lstat (dir .. "/subdir", "uid")).to_be (geteuid ())
     - it fetches the owner group id:
-        expect (lstat (dir .. "/file").gid).to_be (getpid "egid")
-        expect (lstat (dir .. "/subdir", "gid")).to_be (getpid "egid")
+        expect (lstat (dir .. "/file").gid).to_be (getegid ())
+        expect (lstat (dir .. "/subdir", "gid")).to_be (getegid ())
     - it fetches a subtable of named fields:
         expect ({lstat (dir .. "/file", "type", "size", "nlink")}).
           to_equal {"regular", 0, 2}
@@ -1313,8 +1315,8 @@ specify posix:
     # NOTE: Calling expect in a child process does not report results
     #       back to parent, so we send test data over a pipe.
     - before:
-        nice, execp, fork, getpid, wait =
-          posix.nice, posix.execp, posix.fork, posix.getpid, posix.wait
+        nice, execp, fork, getpid, getppid, wait =
+          posix.nice, posix.execp, posix.fork, posix.getpid, posix.getppid, posix.wait
         _exit, close, pipe, read, write =
           posix._exit, posix.close, posix.pipe, posix.read, posix.write
         P_CHILD = 0
@@ -1328,7 +1330,7 @@ specify posix:
         if process == P_CHILD then
           close (r) -- close unused read end
           -- write parent pid and child pid to shared pipe.
-          write (w, tostring (getpid "ppid").."\n")
+          write (w, tostring (getppid ()).."\n")
           write (w, tostring (getpid "pid").."\n")
           close (w)
           _exit (status)
@@ -2152,7 +2154,8 @@ specify posix:
   ## For backwards compatibility only; obsoleted by getpwuid and getpwnam ##
   - describe getpasswd:
     - before:
-        getenv, getpasswd, getpid = posix.getenv, posix.getpasswd, posix.getpid
+        getenv, getgid, getpasswd, getuid =
+          posix.getenv, posix.getgid, posix.getpasswd, posix.getuid
         user = getpasswd ((getenv "USER"), "name")
         root = getpasswd (0, "name")
 
@@ -2165,14 +2168,14 @@ specify posix:
             to_raise (badarg (1, "?string|int", "boolean"))
 
     - it fetches the user uid:
-        expect (getpasswd (user).uid).to_be (getpid "uid")
+        expect (getpasswd (user).uid).to_be (getuid ())
         expect (getpasswd (root, "uid")).to_be (0)
     - it fetches the user name:
         expect (getpasswd (user).name).to_be (user)
         expect (getpasswd (0, "name")).to_be (root)
         expect (getpasswd (root, "name")).to_be (root)
     - it fetches the user gid:
-        expect (getpasswd (user).gid).to_be (getpid "gid")
+        expect (getpasswd (user).gid).to_be (getgid ())
         expect (getpasswd (0, "gid")).to_be (0)
         expect (getpasswd (root, "gid")).to_be (0)
     - it fetches the user password:
@@ -2195,8 +2198,8 @@ specify posix:
 
   - describe getgroup:
     - before:
-        getgrgid, getgroup, getpid =
-          posix.getgrgid, posix.getgroup, posix.getpid
+        getgrgid, getgroup, getegid =
+          posix.getgrgid, posix.getgroup, posix.getegid
         groot = getgrgid (0).gr_name
 
     - context with bad arguments:
@@ -2205,7 +2208,7 @@ specify posix:
     - it returns a table for an existing group:
         expect (type (getgroup (groot))).to_be "table"
     - it fetches current group by default:
-        expect (getgroup ()).to_equal (getgroup (getpid "egid"))
+        expect (getgroup ()).to_equal (getgroup (getegid ()))
     - it fetches a group by gid:
         expect (getgroup (0).name).to_be (groot)
         expect (getgroup (0).gid).to_be (0)

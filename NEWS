@@ -53,6 +53,12 @@ Stdlib NEWS - User visible changes
    Consequently, `posix.getpasswd` is now reimplemented in Lua over the POSIX
    APIs.
 
+ - Add missing APIs from unistd.h: `posix.unistd.getegid`,
+   `posix.unistd.geteuid`, `posix.unistd.getgid`, `posix.unistd.getuid`,
+   `posix.unistd.getpgrp`, `posix.unistd.getpid`, `posix.unistd.getppid`.
+   Consequently, `posix.getpid` is now reimplemented in Lua over the POSIX
+   APIs.
+
  - All posix APIs now fully and correctly diagnose extraneous and wrong
    type arguments with an error.
 
@@ -69,6 +75,9 @@ Stdlib NEWS - User visible changes
    extracting color pair assignments from the results of `curses.window.winch`.
 
 ** Bug fixes:
+
+ - posix.getpid processes a single table argument with a list of types
+   correctly.
 
  - posix.stat really does call stat(2) now.
 
