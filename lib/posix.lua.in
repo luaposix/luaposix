@@ -36,7 +36,17 @@ for _, sub in ipairs {
 end
 
 
+-- Inject deprecated APIs (overwriting submodules) for backwards compatibility.
+for k, v in pairs (require "posix.compat") do
+  M[k] = v
+end
+
+
 M.version = "posix for " .. _VERSION .. " / @PACKAGE_STRING@"
+
+
+local argerror, argtypeerror, checkstring, checktable, toomanyargerror =
+  M.argerror, M.argtypeerror, M.checkstring, M.checktable, M.toomanyargerror
 
 
 -- Code extracted from lua-stdlib with minimal modifications
@@ -58,79 +68,8 @@ local list = {
     return r
   end
 }
-
-local function argerror (name, i, extramsg, level)
-  level = level or 1
-  local s = string.format ("bad argument #%d to '%s'", i, name)
-  if extramsg ~= nil then
-    s = s .. " (" .. extramsg .. ")"
-  end
-  error (s, level + 1)
-end
-
-local function toomanyargerror (name, expected, got, level)
-  level = level or 1
-  local fmt = "no more than %d argument%s expected, got %d"
-  argerror (name, expected + 1,
-            fmt:format (expected, expected > 1 and "s" or "", got), level + 1)
-end
-
-local function argtypeerror (name, i, expect, actual, level)
-  level = level or 1
-  local fmt = "%s expected, got %s"
-  argerror (name, i,
-            fmt:format (expect, type (actual):gsub ("nil", "no value")), level + 1)
-end
-
-local function checkstring (name, i, actual)
-  if type (actual) ~= "string" then
-    argtypeerror (name, i, "string", actual, 2)
-  end
-  return actual
-end
-
-local function checktable (name, i, actual)
-  if type (actual) ~= "table" then
-    argtypeerror (name, i, "table", actual, 2)
-  end
-  return actual
-end
 -- end of stdlib code
 
-
-
--- Create a file.
--- This function is obsoleted by @{posix.fcntl.open} with `posix.O_CREAT`.
--- @function creat
--- @string path name of file to create
--- @string mode permissions with which to create file
--- @treturn[1] int file descriptor of file at *path*, if successful
--- @return[2] nil
--- @treturn[2] string error message
--- @see creat(2)
--- @see posix.sys.stat.chmod
--- @usage
---   fd = P.creat ("data", "rw-r-----")
-
-local creat_flags = bit.bor (M.O_CREAT, M.O_WRONLY, M.O_TRUNC)
-
-local open = M.open
-
-local function creat (path, mode)
-  return open (path, creat_flags, mode)
-end
-
-if _DEBUG ~= false then
-  M.creat = function (...)
-    local argt = {...}
-    checkstring ("creat", 1, argt[1])
-    checkstring ("creat", 2, argt[2])
-    if #argt > 2 then toomanyargerror ("creat", 2, #argt) end
-    return creat (...)
-  end
-else
-  M.creat = creat
-end
 
 
 --- Check permissions like @{posix.unistd.access}, but for euid.
@@ -198,163 +137,6 @@ if _DEBUG ~= false then
   end
 else
   M.euidaccess = euidaccess
-end
-
-
---- Group information.
--- @table group
--- @string name name of group
--- @int gid unique group id
--- @string ... list of group members
-
-
---- Information about a group.
--- @function getgroup
--- @tparam[opt=current group] int|string group id or group name
--- @treturn group group information
--- @usage
---   print (P.getgroup (P.getgid ()).name)
-
-local function getgroup (grp)
-  if grp == nil then grp = getegid () end
-
-  local g
-  if type (grp) == "number" then
-    g = M.getgrgid (grp)
-  elseif type (grp) == "string" then
-    g = M.getgrnam (grp)
-  else
-    argtypeerror ("getgroup", 1, "string, int or nil", grp)
-  end
-
-  if g ~= nil then
-    return {name=g.gr_name, gid=g.gr_gid, mem=g.gr_mem}
-  end
-end
-
-if _DEBUG ~= false then
-  M.getgroup = function (...)
-    local argt = {...}
-    if #argt > 1 then toomanyargerror ("getgroup", 1, #argt) end
-    return getgroup (...)
-  end
-else
-  M.getgroup = getgroup
-end
-
-
---- User information.
--- @table passwd
--- @string name user name
--- @int uid unique user id
--- @int gid group id
--- @string passwd encrypted password
--- @string dir home directory
--- @string shell path of login shell
-
-
---- Get the password entry for a user.
--- @function getpasswd
--- @tparam[opt=current user] int|string user name or id
--- @treturn passwd user information
--- @usage for a,b in pairs (P.getpasswd "root") do print (a, b) end
-
-local function getpasswd (user)
-  if user == nil then user = geteuid () end
-
-  local p
-  if type (user) == "number" then
-    p = M.getpwuid (user)
-  elseif type (user) == "string" then
-    p = M.getpwnam (user)
-  else
-    argtypeerror ("getpasswd", 1, "string, int or nil", user)
-  end
-
-  if p ~= nil then
-    return {
-      dir    = p.pw_dir,
-      gid    = p.pw_gid,
-      name   = p.pw_name,
-      passwd = p.pw_passwd,
-      shell  = p.pw_shell,
-      uid    = p.pw_uid,
-    }
-  end
-end
-
-if _DEBUG ~= false then
-  M.getpasswd = function (...)
-    local argt = {...}
-    if #argt > 1 then toomanyargerror ("getpasswd", 1, #argt) end
-    return getpasswd (...)
-  end
-else
-  M.getpasswd = getpasswd
-end
-
-
---- Get process identifiers.
--- @function getpid
--- @tparam[opt] table|string type one of "egid", "euid", "gid", "uid",
---   "pgrp", "pid" or "ppid"; or a single list of the same
--- @string[opt] ... unless *type* was a table, zero or more additional
---   type strings
--- @return ... values, or a table of all fields if no option given
--- @usage for a,b in pairs (P.getpid ()) do print (a, b) end
--- @usage print (P.getpid ("uid", "euid"))
-
-local getegid, geteuid, getgid, getuid =
-  M.getegid, M.geteuid, M.getgid, M.getuid
-local _getpid, getpgrp, getppid = M.getpid, M.getpgrp, M.getppid
-
-local function getpid (...)
-  local argt = {...}
-  if type (argt[1]) == "table" then argt = argt[1] end
-
-  if not (next (argt)) then
-    return {
-      egid = getegid (),
-      euid = geteuid (),
-      gid  = getgid (),
-      uid  = getuid (),
-      pgrp = getpgrp (),
-      pid  = _getpid (),
-      ppid = getppid (),
-      }
-  else
-    local r = {}
-    for i, v in ipairs (argt) do
-      if     v == "egid" then r[#r + 1] = getegid ()
-      elseif v == "euid" then r[#r + 1] = geteuid ()
-      elseif v == "gid"  then r[#r + 1] = getgid ()
-      elseif v == "uid"  then r[#r + 1] = getuid ()
-      elseif v == "pgrp" then r[#r + 1] = getpgrp ()
-      elseif v == "pid"  then r[#r + 1] = _getpid ()
-      elseif v == "ppid" then r[#r + 1] = getppid ()
-      else
-	argerror ("getpid", i, "invalid option '" .. v .. "'")
-      end
-    end
-    return unpack (r)
-  end
-end
-
-if _DEBUG ~= false then
-  M.getpid = function (t, ...)
-    local argt = {t, ...}
-    if type (t) == "table" and #argt > 1 then
-      toomanyargerror ("getpid", 1, #argt)
-    elseif t ~= nil and type (t) ~= "string" then
-      argtypeerror ("getpid", 1, "table, string or nil", t)
-    end
-    for i = 2, #argt do
-      checkstring ("getpid", i, argt[i])
-    end
-    return getpid (t, ...)
-  end
-else
-  M.getpid = getpid
 end
 
 

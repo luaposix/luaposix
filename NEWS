@@ -93,10 +93,6 @@ Stdlib NEWS - User visible changes
    releases erroneously called lstat(2) internally instead, and return
    information about the link itself.
 
- - For consistency and simplicity, `posix.getpasswd` no longer accepts a list
-   of field names, and always returns a populated table equivalent to the
-   result of providing no field names in the previous release.
-
 
 * Noteworthy changes in release 32 (2014-05-30) [stable]
 

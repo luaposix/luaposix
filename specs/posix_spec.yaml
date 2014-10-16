@@ -188,21 +188,6 @@ specify posix:
         expect (open ("not/existing", -1, "o-s", false)).to_raise (badarg (4))
 
 
-  - describe creat:
-    - before:
-        creat = posix.creat
-
-    - context with bad arguments: |
-        badargs.diagnose (creat, "creat (string, string)")
-
-        examples {
-          ["it diagnoses argument #2 invalid mode"] = function ()
-            expect (creat ("not/existing", "g+vv")).
-              to_raise "bad argument #3 to 'open' (bad mode)"
-          end
-        }
-
-
   - describe close:
     - context with bad arguments:
         badargs.diagnose (posix.close, "(int)")
@@ -1443,27 +1428,6 @@ specify posix:
         expect (getenv "very_unlikely_to_be_set").to_be (nil)
 
 
-  - describe getpid:
-    - before:
-        getpid, badarg = init (posix, "getpid")
-
-    # posix.getpid takes an optional string or table as its first
-    # argument, followed by zero or more strings only if the first
-    # argument was a string; since we can't express that with
-    # `badargs.diagnose` do it all manually again...
-    - context with bad arguments:
-      - 'it diagnoses argument #1 type not table, string or nil':
-          expect (getpid (false)).to_raise (badarg (1, "?table|string", "boolean"))
-      - 'it diagnoses argument #1 string invalid': |
-          expect (getpid ("fubar")).
-            to_raise "bad argument #1 to 'getpid' (invalid option 'fubar')"
-      - 'it diagnoses argument #2 type not string':
-          expect (getpid ("ppid", false)).
-            to_raise (badarg (2, "string", "boolean"))
-      - it diagnoses too many arguments:
-          expect (getpid ({}, false)).to_raise (badarg (2))
-
-
   - describe times:
     - before:
         table.unpack = table.unpack or unpack
@@ -2149,60 +2113,6 @@ specify posix:
   - describe getlogin:
     - context with bad arguments:
         badargs.diagnose (posix.getlogin, "()")
-
-
-  - describe getpasswd:
-    - before:
-        getenv, getgid, getpasswd, getuid =
-          posix.getenv, posix.getgid, posix.getpasswd, posix.getuid
-        user = getpasswd ((getenv "USER")).name
-        root = getpasswd (0).name
-
-    - context with bad arguments:
-        badargs.diagnose (getpasswd, "getpasswd (?string|int)")
-
-    - it fetches the user uid:
-        expect (getpasswd (user).uid).to_be (getuid ())
-        expect (getpasswd (root).uid).to_be (0)
-    - it fetches the user name:
-        expect (getpasswd (user).name).to_be (user)
-        expect (getpasswd (0).name).to_be (root)
-        expect (getpasswd (root).name).to_be (root)
-    - it fetches the user gid:
-        expect (getpasswd (user).gid).to_be (getgid ())
-        expect (getpasswd (0).gid).to_be (0)
-        expect (getpasswd (root).gid).to_be (0)
-    - it fetches the user password:
-        expect (getpasswd (user).passwd).to_match.any_of {"x", "%*+"}
-        expect (getpasswd (0).passwd).to_match.any_of {"x", "%*+"}
-        expect (getpasswd (root).passwd).to_match.any_of {"x", "%*+"}
-    - it fetches the user home directory:
-        expect (getpasswd (user).dir).to_be (getenv "HOME")
-    - it fetches the user shell:
-        expect (getpasswd (user).shell).to_be (getenv "SHELL")
-
-
-  - describe getgroup:
-    - before:
-        getgrgid, getgroup, getegid =
-          posix.getgrgid, posix.getgroup, posix.getegid
-        groot = getgrgid (0).gr_name
-
-    - context with bad arguments:
-        badargs.diagnose (posix.getgroup, "getgroup (?string|int)")
-
-    - it returns a table for an existing group:
-        expect (type (getgroup (groot))).to_be "table"
-    - it fetches current group by default:
-        expect (getgroup ()).to_equal (getgroup (getegid ()))
-    - it fetches a group by gid:
-        expect (getgroup (0).name).to_be (groot)
-        expect (getgroup (0).gid).to_be (0)
-        expect (type (getgroup (0).mem)).to_be "table"
-    - it fetches a group by name:
-        expect (getgroup (groot).name).to_be (groot)
-        expect (getgroup (groot).gid).to_be (0)
-        expect (type (getgroup (groot).mem)).to_be "table"
 
 
   - describe getgroups:
