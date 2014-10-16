@@ -200,24 +200,32 @@ else
 end
 
 
+--- Group information.
+-- @table group
+-- @string name name of group
+-- @int gid unique group id
+-- @string ... list of group members
+
+
 --- Information about a group.
 -- @function getgroup
--- @tparam int|string group id or group name
--- @treturn table `{name=name,gid=gid,0=member0,1=member1,...}`
+-- @tparam[opt=current group] int|string group id or group name
+-- @treturn group group information
 -- @usage
--- print (P.getgroup (P.getpasswd ().gid).name)
+--   print (P.getgroup (P.getpasswd ().gid).name)
 
 local function getgroup (grp)
-  local fn
+  if grp == nil then grp = M.getpid "egid" end
+
+  local g
   if type (grp) == "number" then
-    fn = M.getgrgid
+    g = M.getgrgid (grp)
   elseif type (grp) == "string" then
-    fn = M.getgrnam
+    g = M.getgrnam (grp)
   else
-    argtypeerror ("getgroup", 1, "string or int", grp)
+    argtypeerror ("getgroup", 1, "string, int or nil", grp)
   end
 
-  local g = fn (grp)
   if g ~= nil then
     return {name=g.gr_name, gid=g.gr_gid, mem=g.gr_mem}
   end

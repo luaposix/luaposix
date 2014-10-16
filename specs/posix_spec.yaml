@@ -2193,17 +2193,19 @@ specify posix:
         end
 
 
-  ## For backwards compatibility only; obsoleted by getgrgid and getgrnam ##
   - describe getgroup:
     - before:
-        getgrgid, getgroup = posix.getgrgid, posix.getgroup
+        getgrgid, getgroup, getpid =
+          posix.getgrgid, posix.getgroup, posix.getpid
         groot = getgrgid (0).gr_name
 
     - context with bad arguments:
-        badargs.diagnose (posix.getgroup, "getgroup (string|int)")
+        badargs.diagnose (posix.getgroup, "getgroup (?string|int)")
 
     - it returns a table for an existing group:
         expect (type (getgroup (groot))).to_be "table"
+    - it fetches current group by default:
+        expect (getgroup ()).to_equal (getgroup (getpid "egid"))
     - it fetches a group by gid:
         expect (getgroup (0).name).to_be (groot)
         expect (getgroup (0).gid).to_be (0)
