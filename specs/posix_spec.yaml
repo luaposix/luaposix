@@ -1079,11 +1079,6 @@ specify posix:
 
 
 - specify host management:
-  - describe hostid:
-    - context with bad arguments:
-        badargs.diagnose (posix.hostid, "()")
-
-
   - describe uname:
     - before:
         uname = posix.uname

@@ -38,7 +38,10 @@ Stdlib NEWS - User visible changes
    `ext/include/lua52compat.c`, and also `ext/include/strlcat.c` for one or
    two of them.
 
- - Adds posix.lstat.
+ - Add `posix.unistd.gethostid`. The old `posix.hostid` API is still available
+   as an alias.
+
+ - Add `posix.lstat`.
 
  - Add group APIs from grp.h: `posix.grp.endgrent`, `posix.grp.getgrent`,
    `posix.grp.getgrgid`, `posix.grp.getgrnam` and `posix.grp.setgrent`.
@@ -62,33 +65,33 @@ Stdlib NEWS - User visible changes
  - All posix APIs now fully and correctly diagnose extraneous and wrong
    type arguments with an error.
 
- - Add posix.IPC_NOWAIT, posix.MSG_EXCEPT and posix.MSG_NOERROR
+ - Add `posix.IPC_NOWAIT`, `posix.MSG_EXCEPT` and `posix.MSG_NOERROR`
    constants for message queues.
 
- - Add posix.IPPROTO_UDP for socket programming.
+ - Add `posix.IPPROTO_UDP` for socket programming.
 
- - Add posix.AI_NUMERICSERV for posix.getaddrinfo hints flags.
+ - Add `posix.AI_NUMERICSERV` for posix.getaddrinfo hints flags.
 
- - Add posix.WUNTRACED for posix.wait flags.
+ - Add `posix.WUNTRACED` for posix.wait flags.
 
- - Add curses.A_COLOR (where supported by the underlying curses library) for
+ - Add `curses.A_COLOR` (where supported by the underlying curses library) for
    extracting color pair assignments from the results of `curses.window.winch`.
 
 ** Bug fixes:
 
- - posix.getpid processes a single table argument with a list of types
+ - `posix.getpid` processes a single table argument with a list of types
    correctly.
 
- - posix.stat really does call stat(2) now.
+ - `posix.stat` really does call stat(2) now.
 
- - posix.readlink is much more robust, and reports errors accurately.
+ - `posix.readlink` is much more robust, and reports errors accurately.
 
  - configured installation installs `posix.so` into the lua cpath directory
    correctly.
 
 ** Incompatible changes:
 
- - Calling posix.stat on a symbolic link now returns information about
+ - Calling `posix.stat` on a symbolic link now returns information about
    the file pointed to by the link, just like stat(2).  Previous
    releases erroneously called lstat(2) internally instead, and return
    information about the link itself.

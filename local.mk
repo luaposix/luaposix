@@ -63,6 +63,7 @@ dist_lua_DATA +=			\
 luaposixdir = $(luadir)/posix
 
 dist_luaposix_DATA =			\
+	lib/posix/compat.lua		\
 	lib/posix/sys.lua		\
 	lib/posix/util.lua		\
 	$(NOTHING_ELSE)

@@ -569,12 +569,12 @@ Pgetuid(lua_State *L)
 
 /***
 Get host id.
-@function hostid
+@function gethostid
 @see gethostid(3)
 @return host id
 */
 static int
-Phostid(lua_State *L)
+Pgethostid(lua_State *L)
 {
 	checknargs(L, 0);
 	return pushintresult(gethostid());
@@ -1190,7 +1190,7 @@ static const luaL_Reg posix_unistd_fns[] =
 	LPOSIX_FUNC( Pgetpid		),
 	LPOSIX_FUNC( Pgetppid		),
 	LPOSIX_FUNC( Pgetuid		),
-	LPOSIX_FUNC( Phostid		),
+	LPOSIX_FUNC( Pgethostid		),
 	LPOSIX_FUNC( Pisatty		),
 	LPOSIX_FUNC( Plink		),
 	LPOSIX_FUNC( Plseek		),

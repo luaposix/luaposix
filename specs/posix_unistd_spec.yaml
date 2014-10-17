@@ -40,6 +40,17 @@ specify posix/unistd:
       expect (getgid ()).to_be (ids.pw_gid)
 
 
+- describe gethostid:
+  - before:
+      gethostid = unistd.gethostid
+
+  - context with bad arguments:
+      badargs.diagnose (gethostid, "()")
+
+  - it returns an integer:
+      expect (math.floor (gethostid ())).to_be (gethostid ())
+
+
 - describe getuid:
   - before:
       getuid = unistd.getuid
@@ -58,7 +69,7 @@ specify posix/unistd:
   - context with bad arguments:
       badargs.diagnose (getpgrp, "()")
 
-  - it returns the a positive integer:
+  - it returns a positive integer:
       expect (math.floor (getpgrp ())).to_be (getpgrp ())
       expect (getpgrp () > 0).to_be (true)
 

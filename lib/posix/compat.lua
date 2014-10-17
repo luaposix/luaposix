@@ -281,4 +281,13 @@ else
 end
 
 
+--- Get host id.
+-- @function hostid
+-- @treturn int unique host identifier
+
+local unistd = require "posix.unistd"
+
+M.hostid = unistd.gethostid
+
+
 return M

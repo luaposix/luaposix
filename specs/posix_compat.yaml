@@ -106,3 +106,8 @@ specify compat:
           to_raise (badarg (2, "string", "boolean"))
     - it diagnoses too many arguments:
         expect (getpid ({}, false)).to_raise (badarg (2))
+
+
+- describe hostid:
+  - context with bad arguments:
+      badargs.diagnose (posix.hostid, "()")
