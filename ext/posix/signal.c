@@ -270,6 +270,54 @@ static const luaL_Reg posix_signal_fns[] =
 };
 
 
+/***
+Constants.
+@section constants
+*/
+
+/***
+Signal constants.
+Any constants not available in the underlying system will be `nil` valued.
+@table posix.signal
+@int SIGABRT abort ()
+@int SIGALRM alarm clock
+@int SIGBUS bus error
+@int SIGCHLD to parent on child stop or exit
+@int SIGCONT continue a stopped process
+@int SIGFPE floating point error
+@int SIGHUP hangup
+@int SIGILL illegal instruction
+@int SIGINT interrupt
+@int SIGKILL kill
+@int SIGPIPE write on pipe with no reader
+@int SIGQUIT quit
+@int SIGSEGV segmentation violation
+@int SIGSTOP stop
+@int SIGTERM terminate
+@int SIGTSTP stop signal from tty
+@int SIGTTIN to readers process group on background tty read
+@int SIGTTOU to readers process group on background tty output
+@int SIGUSR1 user defined
+@int SIGUSR2 user defined
+@int SIGSYS bad argument to system call
+@int SIGTRAP trace trap
+@int SIGURG urgent condition on i/o channel
+@int SIGVTALRM virtual time alarm
+@int SIGXCPU exceeded cpu time limit
+@int SIGXFSZ exceeded file size limit
+@int SA_NOCLDSTOP do not generate a SIGCHLD on child stop
+@int SA_NOCLDWAIT don't keep zombies child processes
+@int SA_RESETHAND reset to SIG_DFL when taking a signal
+@int SA_NODEFER don't mask the signal we're delivering
+@usage
+  -- Print signal constants supported on this host.
+  for name, value in pairs (require "posix.signal") do
+    if type (value) == "number" then
+      print (name, value)
+     end
+  end
+*/
+
 LUALIB_API int
 luaopen_posix_signal(lua_State *L)
 {

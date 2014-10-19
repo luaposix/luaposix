@@ -91,6 +91,27 @@ static const luaL_Reg posix_sched_fns[] =
 };
 
 
+/***
+Constants.
+@section constants
+*/
+
+/***
+Scheduler constants.
+Any constants not available in the underlying system will be `nil` valued.
+@table posix.sched
+@int SCHED_FIFO  first-in, first-out scheduling policy
+@int SCHED_RR round-robin scheduling policy
+@int SCHED_OTHER another scheduling policy
+@usage
+  -- Print scheduler constants supported on this host.
+  for name, value in pairs (require "posix.sched") do
+    if type (value) == "number" then
+      print (name, value)
+     end
+  end
+*/
+
 LUALIB_API int
 luaopen_posix_sched(lua_State *L)
 {

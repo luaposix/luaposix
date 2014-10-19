@@ -62,6 +62,27 @@ static const luaL_Reg posix_fnmatch_fns[] =
 };
 
 
+/***
+Constants.
+@section constants
+*/
+
+/***
+Fnmatch constants.
+Any constants not available in the underlying system will be `nil` valued.
+@table posix.fnmatch
+@int FNM_PATHNAME slashes in pathname must be matched by slash in pattern
+@int FNM_NOESCAPE disable backslash escaping
+@int FNM_PERIOD periods in pathname must be matched by period in pattern
+@usage
+  -- Print fnmatch constants supported on this host.
+  for name, value in pairs (require "posix.fnmatch") do
+    if type (value) == "number" then
+      print (name, value)
+     end
+  end
+*/
+
 LUALIB_API int
 luaopen_posix_fnmatch(lua_State *L)
 {

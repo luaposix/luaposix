@@ -1213,6 +1213,30 @@ static const luaL_Reg posix_unistd_fns[] =
 };
 
 
+/***
+Constants.
+@section constants
+*/
+
+/***
+Standard constants.
+Any constants not available in the underlying system will be `nil` valued.
+@table posix.unistd
+@int STDIN_FILENO standard input file descriptor
+@int STDOUT_FILENO standard output file descriptor
+@int STDERR_FILENO standard error file descriptor
+@int SEEK_SET absolute file pointer position
+@int SEEK_CUR relative file pointer position
+@int SEEK_END set file pointer to the end of file
+@usage
+  -- Print unistd constants supported on this host.
+  for name, value in pairs (require "posix.unistd") do
+    if type (value) == "number" then
+      print (name, value)
+     end
+  end
+*/
+
 LUALIB_API int
 luaopen_posix_unistd(lua_State *L)
 {

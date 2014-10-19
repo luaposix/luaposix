@@ -757,6 +757,92 @@ static const luaL_Reg posix_sys_socket_fns[] =
 };
 
 
+/***
+Constants.
+@section constants
+*/
+
+/***
+Socket constants.
+Any constants not available in the underlying system will be `nil` valued.
+@table posix.sys.socket
+@int AF_INET IP protocol family
+@int AF_INET6 IP version 6
+@int AF_NETLINK Netlink protocol family
+@int AF_UNIX local to host
+@int AF_UNSPEC unspecified
+@int AI_ADDRCONFIG use host configuration for returned address type
+@int AI_ALL return IPv4 mapped and IPv6 addresses
+@int AI_CANONNAME request canonical name
+@int AI_NUMERICHOST don't use domain name resolution
+@int AI_NUMERICSERV don't use service name resolution
+@int AI_PASSIVE address is intended for @{bind}
+@int AI_V4MAPPED IPv4 mapped addresses are acceptable
+@int IPPROTO_ICMP internet control message protocol
+@int IPPROTO_IP internet protocol
+@int IPPROTO_IPV6 IPv6 header
+@int IPPROTO_TCP transmission control protocol
+@int IPPROTO_UDP user datagram protocol
+@int IPV6_JOIN_GROUP
+@int IPV6_LEAVE_GROUP
+@int IPV6_MULTICAST_HOPS
+@int IPV6_MULTICAST_IF
+@int IPV6_MULTICAST_LOOP
+@int IPV6_UNICAST_HOPS
+@int IPV6_V6ONLY
+@int NETLINK_AUDIT auditing
+@int NETLINK_CONNECTOR
+@int NETLINK_DNRTMSG decnet routing messages
+@int NETLINK_ECRYPTFS
+@int NETLINK_FIB_LOOKUP
+@int NETLINK_FIREWALL firewalling hook
+@int NETLINK_GENERIC
+@int NETLINK_IP6_FW
+@int NETLINK_ISCSI open iSCSI
+@int NETLINK_KOBJECT_UEVENT kernel messages to userspace
+@int NETLINK_NETFILTER netfilter subsystem
+@int NETLINK_NFLOG netfilter/iptables ULOG
+@int NETLINK_ROUTE routing/device hook
+@int NETLINK_SCSITRANSPORT SCSI transports
+@int NETLINK_SELINUX SELinux event notifications
+@int NETLINK_UNUSED unused number
+@int NETLINK_USERSOCK reserved for user mode socket protocols
+@int NETLINK_XFRM ipsec
+@int SHUT_RD no more receptions
+@int SHUT_RDWR no more receptions or transmissions
+@int SHUT_WR no more transmissions
+@int SOCK_DGRAM connectionless unreliable datagrams
+@int SOCK_RAW raw protocol interface
+@int SOCK_STREAM connection based byte stream
+@int SOL_SOCKET socket level
+@int SOMAXCONN maximum concurrent connections
+@int SO_ACCEPTCONN does this socket accept connections
+@int SO_BINDTODEVICE bind to a particular device
+@int SO_BROADCAST permit broadcasts
+@int SO_DEBUG turn-on socket debugging
+@int SO_DONTROUTE bypass standard routing
+@int SO_ERROR set socket error flag
+@int SO_KEEPALIVE periodically transmit keep-alive message
+@int SO_LINGER linger on a @{posix.unistd.close} if data is still present
+@int SO_OOBINLINE leave out-of-band data inline
+@int SO_RCVBUF set receive buffer size
+@int SO_RCVLOWAT set receive buffer low water mark
+@int SO_RCVTIMEO set receive timeout
+@int SO_REUSEADDR reuse local addresses
+@int SO_SNDBUF set send buffer size
+@int SO_SNDLOWAT set send buffer low water mark
+@int SO_SNDTIMEO set send timeout
+@int SO_TYPE get the socket type
+@int TCP_NODELAY don't delay send for packet coalescing
+@usage
+  -- Print socket constants supported on this host.
+  for name, value in pairs (require "posix.sys.socket") do
+    if type (value) == "number" then
+      print (name, value)
+     end
+  end
+*/
+
 LUALIB_API int
 luaopen_posix_sys_socket(lua_State *L)
 {

@@ -178,6 +178,55 @@ static const luaL_Reg posix_fcntl_fns[] =
 };
 
 
+/***
+Constants.
+@section constants
+*/
+
+/***
+Fcntl constants.
+Any constants not available in the underlying system will be `nil` valued.
+@table posix.fcntl
+@int F_DUPFD duplicate file descriptor
+@int F_GETFD get file descriptor flags
+@int F_SETFD set file descriptor flags
+@int F_GETFL get file status flags
+@int F_SETFL set file status flags
+@int F_GETLK get record locking information
+@int F_SETLK set record locking information
+@int F_SETLKW set lock, and wait if blocked
+@int F_GETOWN get SIGIO/SIGURG process owner
+@int F_SETOWN set SIGIO/SIGURG process owner
+@int F_RDLCK shared or read lock
+@int F_WRLCK exclusive or write lock
+@int F_UNLCK unlock
+@int O_RDONLY open for reading only
+@int O_WRONLY open for writing only
+@int O_RDWR open for reading and writing
+@int O_APPEND set append mode
+@int O_CREAT create if nonexistent
+@int O_DSYNC synchronise io data integrity
+@int O_EXCL error if file already exists
+@int O_NOCTTY don't assign controlling terminal
+@int O_NONBLOCK no delay
+@int O_RSYNC synchronise file read integrity
+@int O_SYNC synchronise file write integrity
+@int O_TRUNC truncate to zero length
+@int POSIX_FADV_NORMAL no advice
+@int POSIX_FADV_SEQUENTIAL expecting to access data sequentially
+@int POSIX_FADV_RANDOM expecting to access data randomly
+@int POSIX_FADV_NOREUSE expecting to access data once only
+@int POSIX_FADV_WILLNEED expecting to access data in the near future
+@int POSIX_FADV_DONTNEED not expecting to access the data in the near future
+@usage
+  -- Print fcntl constants supported on this host.
+  for name, value in pairs (require "posix.fcntl") do
+    if type (value) == "number" then
+      print (name, value)
+     end
+  end
+*/
+
 LUALIB_API int
 luaopen_posix_fcntl(lua_State *L)
 {

@@ -139,6 +139,52 @@ static const luaL_Reg posix_syslog_fns[] =
 };
 
 
+/***
+Constants.
+@section constants
+*/
+
+/***
+System logging constants.
+Any constants not available in the underlying system will be `nil` valued.
+@table posix.syslog
+@int LOG_AUTH security/authorisation messages
+@int LOG_AUTHPRIV private authorisation messages
+@int LOG_CRON clock daemon
+@int LOG_DAEMON system daemons
+@int LOG_FTP ftp daemon
+@int LOG_KERN kernel messages
+@int LOG_LOCAL0 reserved for local use
+@int LOG_LOCAL1 reserved for local use
+@int LOG_LOCAL2 reserved for local use
+@int LOG_LOCAL3 reserved for local use
+@int LOG_LOCAL4 reserved for local use
+@int LOG_LOCAL5 reserved for local use
+@int LOG_LOCAL6 reserved for local use
+@int LOG_LOCAL7 reserved for local use
+@int LOG_LPR line printer subsystem
+@int LOG_MAIL mail system
+@int LOG_NEWS network news subsystem
+@int LOG_SYSLOG messages generated internally by syslogd
+@int LOG_USER random user-level messages
+@int LOG_UUCP unix-to-unix copy subsystem
+@int LOG_EMERG system is unusable
+@int LOG_ALERT action must be taken immediately
+@int LOG_CRIT critical conditions
+@int LOG_ERR error conditions
+@int LOG_WARNING warning conditions
+@int LOG_NOTICE normal but significant conditions
+@int LOG_INFO informational
+@int LOG_DEBUG debug-level messages
+@usage
+  -- Print syslog constants supported on this host.
+  for name, value in pairs (require "posix.syslog") do
+    if type (value) == "number" then
+      print (name, value)
+     end
+  end
+*/
+
 LUALIB_API int
 luaopen_posix_syslog(lua_State *L)
 {

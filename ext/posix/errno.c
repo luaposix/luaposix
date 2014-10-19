@@ -87,7 +87,98 @@ luaopen_posix_errno(lua_State *L)
 	lua_pushliteral(L, "posix.errno for " LUA_VERSION " / " PACKAGE_STRING);
 	lua_setfield(L, -2, "version");
 
-	/* errno values */
+/***
+Constants.
+@section constants
+*/
+
+/***
+Error constants.
+Any constants not available in the underlying system will be `nil` valued.
+
+If you find one of the luaposix APIs returns an error code not listed here,
+please raise an issue [here](http://github.com/luaposix/luaposixissues), stating
+the symbolic name of the constant (from `/usr/include/errno.h` or equivalent).
+@table posix.errno
+@int E2BIG argument list too long
+@int EACCES permission denied
+@int EADDRINUSE address already in use
+@int EADDRNOTAVAIL can't assign requested address
+@int EAFNOSUPPORT address family not supported by protocol family
+@int EAGAIN resource temporarily unavailable
+@int EALREADY operation already in progress
+@int EBADF bad file descriptor
+@int EBADMSG bad message
+@int EBUSY resource busy
+@int ECANCELED operation canceled
+@int ECHILD no child processes
+@int ECONNABORTED software caused connection abort
+@int ECONNREFUSED connection refused
+@int ECONNRESET connection reset by peer
+@int EDEADLK resource deadlock avoided
+@int EDESTADDRREQ destination address required
+@int EDOM numerical argument out of domain
+@int EEXIST file exists
+@int EFAULT bad address
+@int EFBIG file too large
+@int EHOSTUNREACH no route to host
+@int EIDRM identifier removed
+@int EILSEQ illegal byte sequence
+@int EINPROGRESS operation now in progress
+@int EINTR interrupted system call
+@int EINVAL invalid argument
+@int EIO input/output error
+@int EISCONN socket is already connected
+@int EISDIR is a directory
+@int ELOOP too many levels of symbolic links
+@int EMFILE too many open files
+@int EMLINK too many links
+@int EMSGSIZE message too long
+@int ENAMETOOLONG file name too long
+@int ENETDOWN network is down
+@int ENETRESET network dropped connection on reset
+@int ENETUNREACH network is unreachable
+@int ENFILE too many open files in system
+@int ENOBUFS no buffer space available
+@int ENODEV operation not supported by device
+@int ENOENT no such file or directory
+@int ENOEXEC exec format error
+@int ENOLCK no locks available
+@int ENOMEM cannot allocate memory
+@int ENOMSG no message of desired type
+@int ENOPROTOOPT protocol not available
+@int ENOSPC no space left on device
+@int ENOSYS function not implemented
+@int ENOTCONN socket is not connected
+@int ENOTDIR not a directory
+@int ENOTEMPTY directory not empty
+@int ENOTSOCK socket operation on non-socket
+@int ENOTSUP operation not supported
+@int ENOTTY inappropriate ioctl for device
+@int ENXIO device not configured
+@int EOPNOTSUPP operation not supported on socket
+@int EOVERFLOW value too large to be stored in data type
+@int EPERM operation not permitted
+@int EPIPE broken pipe
+@int EPROTO protocol error
+@int EPROTONOSUPPORT protocol not supported
+@int EPROTOTYPE protocol wrong type for socket
+@int ERANGE result too large
+@int EROFS read-only file system
+@int ESPIPE illegal seek
+@int ESRCH no such process
+@int ETIMEDOUT operation timed out
+@int ETXTBSY text file busy
+@int EWOULDBLOCK operation would block
+@int EXDEV cross-device link
+@usage
+  -- Print errno constants supported on this host.
+  for name, value in pairs (require "posix.errno") do
+    if type (value) == "number" then
+      print (name, value)
+    end
+  end
+*/
 #ifdef E2BIG
 	LPOSIX_CONST( E2BIG		);
 #endif

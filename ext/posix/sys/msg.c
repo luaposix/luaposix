@@ -172,6 +172,30 @@ static const luaL_Reg posix_sys_msg_fns[] =
 };
 
 
+/***
+Constants.
+@section constants
+*/
+
+/***
+Message constants.
+Any constants not available in the underlying system will be `nil` valued.
+@table posix.sys.msg
+@int IPC_CREAT create entry if key does not exist
+@int IPC_EXCL fail if key exists
+@int IPC_PRIVATE private key
+@int IPC_NOWAIT error if request must wait
+@int MSG_EXCEPT read messages with differing type
+@int MSG_NOERROR truncate received message rather than erroring
+@usage
+  -- Print msg constants supported on this host.
+  for name, value in pairs (require "posix.sys.msg") do
+    if type (value) == "number" then
+      print (name, value)
+     end
+  end
+*/
+
 LUALIB_API int
 luaopen_posix_sys_msg(lua_State *L)
 {

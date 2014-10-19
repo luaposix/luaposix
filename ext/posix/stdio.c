@@ -64,6 +64,31 @@ static const luaL_Reg posix_stdio_fns[] =
 };
 
 
+/***
+Constants.
+@section constants
+*/
+
+/***
+Stdio constants.
+Any constants not available in the underlying system will be `nil` valued.
+@table posix.stdio
+@int _IOFBF fully buffered
+@int _IOLBF line buffered
+@int _IONBF unbuffered
+@int BUFSIZ size of buffer
+@int EOF end of file
+@int FOPEN_MAX maximum number of open files
+@int FILENAME_MAX maximum length of filename
+@usage
+  -- Print stdio constants supported on this host.
+  for name, value in pairs (require "posix.stdio") do
+    if type (value) == "number" then
+      print (name, value)
+     end
+  end
+*/
+
 LUALIB_API int
 luaopen_posix_stdio(lua_State *L)
 {

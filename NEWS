@@ -9,6 +9,9 @@ Stdlib NEWS - User visible changes
    wooly web-page in previous releases).  For backwards compatibility, all
    APIs are re-exported from the `curses` module.
 
+ - Most constants available through luaposix are now listed in the LDocs of
+   the submodule that defines them.
+
  - For backwards compatibility, everything is still lumped together in the
    `posix.???` namespace, but, now raw APIs have been reorganised according to
    the POSIX header files they belong to:

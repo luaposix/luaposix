@@ -76,6 +76,26 @@ static const luaL_Reg posix_sys_wait_fns[] =
 };
 
 
+/***
+Constants.
+@section constants
+*/
+
+/***
+Wait constants.
+Any constants not available in the underlying system will be `nil` valued.
+@table posix.sys.wait
+@int WNOHANG don't block waiting
+@int WUNTRACED report status of stopped children
+@usage
+  -- Print wait constants supported on this host.
+  for name, value in pairs (require "posix.sys.wait") do
+    if type (value) == "number" then
+      print (name, value)
+     end
+  end
+*/
+
 LUALIB_API int
 luaopen_posix_sys_wait(lua_State *L)
 {
