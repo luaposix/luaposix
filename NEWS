@@ -80,6 +80,8 @@ Stdlib NEWS - User visible changes
  - Add `curses.A_COLOR` (where supported by the underlying curses library) for
    extracting color pair assignments from the results of `curses.window.winch`.
 
+ - Add missing `curses.KEY_F31` constant.
+
 ** Bug fixes:
 
  - `posix.getpid` processes a single table argument with a list of types
