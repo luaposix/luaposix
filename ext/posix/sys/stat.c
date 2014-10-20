@@ -55,6 +55,102 @@ Pchmod(lua_State *L)
 }
 
 
+static const char *
+filetype(mode_t m)
+{
+	if (S_ISREG(m))
+		return "regular";
+	else if (S_ISLNK(m))
+		return "link";
+	else if (S_ISDIR(m))
+		return "directory";
+	else if (S_ISCHR(m))
+		return "character device";
+	else if (S_ISBLK(m))
+		return "block device";
+	else if (S_ISFIFO(m))
+		return "fifo";
+	else if (S_ISSOCK(m))
+		return "socket";
+	else
+		return "?";
+}
+
+
+static void
+Fstat(lua_State *L, int i, const void *data)
+{
+	const struct stat *s=data;
+	switch (i)
+	{
+		case 0:
+			pushmode(L, s->st_mode);
+			break;
+		case 1:
+			lua_pushinteger(L, s->st_ino);
+			break;
+		case 2:
+			lua_pushinteger(L, s->st_dev);
+			break;
+		case 3:
+			lua_pushinteger(L, s->st_nlink);
+			break;
+		case 4:
+			lua_pushinteger(L, s->st_uid);
+			break;
+		case 5:
+			lua_pushinteger(L, s->st_gid);
+			break;
+		case 6:
+			lua_pushinteger(L, s->st_size);
+			break;
+		case 7:
+			lua_pushinteger(L, s->st_atime);
+			break;
+		case 8:
+			lua_pushinteger(L, s->st_mtime);
+			break;
+		case 9:
+			lua_pushinteger(L, s->st_ctime);
+			break;
+		case 10:
+			lua_pushstring(L, filetype(s->st_mode));
+			break;
+	}
+}
+
+
+static const char *const Sstat[] =
+{
+	"mode", "ino", "dev", "nlink", "uid", "gid",
+	"size", "atime", "mtime", "ctime", "type",
+	NULL
+};
+
+
+/***
+Information about an existing file path.
+If file is a symbolic link return information about the link itself.
+@function lstat
+@string path file to act on
+@string ... field names, each one of "mode", "ino", "dev", "nlink", "uid", "gid",
+"size", "atime", "mtime", "ctime", "type"
+@return ... values, or table of all fields if no option given
+@see lstat(2)
+@see stat
+@usage for a, b in pairs(P.lstat("/etc/")) do print(a, b) end
+*/
+static int
+Plstat(lua_State *L)
+{
+	struct stat s;
+	const char *path=luaL_checkstring(L, 1);
+	if (lstat(path,&s)==-1)
+		return pusherror(L, path);
+	return doselection(L, 2, Sstat, Fstat, &s);
+}
+
+
 /***
 Make a directory.
 @function mkdir
@@ -92,6 +188,29 @@ Pmkfifo(lua_State *L)
 
 
 /***
+Information about an existing file path.
+If file is a symbolic link return information about the file the link points to.
+@function stat
+@string path file to act on
+@string ... field names, each one of "mode", "ino", "dev", "nlink", "uid", "gid",
+"size", "atime", "mtime", "ctime", "type"
+@return ... values, or table of all fields if no option given
+@see stat(2)
+@see lstat
+@usage for a, b in pairs(P.stat("/etc/")) do print(a, b) end
+*/
+static int
+Pstat(lua_State *L)
+{
+	struct stat s;
+	const char *path=luaL_checkstring(L, 1);
+	if (stat(path,&s)==-1)
+		return pusherror(L, path);
+	return doselection(L, 2, Sstat, Fstat, &s);
+}
+
+
+/***
 Set file mode creation mask.
 @function umask
 @string[opt] mode file creation mask string (see @{chmod} for format)
@@ -121,8 +240,10 @@ Pumask(lua_State *L)
 static const luaL_Reg posix_sys_stat_fns[] =
 {
 	LPOSIX_FUNC( Pchmod		),
+	LPOSIX_FUNC( Plstat		),
 	LPOSIX_FUNC( Pmkdir		),
 	LPOSIX_FUNC( Pmkfifo		),
+	LPOSIX_FUNC( Pstat		),
 	LPOSIX_FUNC( Pumask		),
 	{NULL, NULL}
 };
