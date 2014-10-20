@@ -26,8 +26,8 @@
 /***
 Time value.
 @table timeval
-@int sec seconds elapsed
-@int usec remainder in microseconds
+@int tv_sec seconds elapsed
+@int tv_usec remainder in microseconds
 */
 
 
