@@ -97,6 +97,27 @@ else
 end
 
 
+--- Match a filename against a shell pattern.
+-- @function fnmatch
+-- @string pat shell pattern
+-- @string name filename
+-- @return true or false
+-- @raise error if fnmatch failed
+-- @see posix.fnmatch.fnmatch
+
+local fnm = require "posix.fnmatch"
+
+function M.fnmatch (...)
+  local r = fnm.fnmatch (...)
+  if r == 0 then
+    return true
+  elseif r == fnm.FNM_NOMATCH then
+    return false
+  end
+  error "fnmatch failed"
+end
+
+
 --- Group information.
 -- @table group
 -- @string name name of group

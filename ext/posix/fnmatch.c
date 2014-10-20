@@ -32,8 +32,9 @@ Match a filename against a shell pattern.
 @string pat shell pattern
 @string name filename
 @int[opt=0] flags optional
-@return true or false
-@raise error if fnmatch failed
+@treturn[1] int `0`, if successful
+@treturn[2] int `FNM_NOMATCH`
+@treturn[3] int some other non-zero integer if fnmatch itself failed
 @see fnmatch(3)
 */
 static int
@@ -44,14 +45,7 @@ Pfnmatch(lua_State *L)
 	int flags = optint(L, 3, 0);
 	int res;
 	checknargs(L, 3);
-	res = fnmatch(pattern, string, flags);
-	if (res == 0)
-		return pushboolresult(1);
-	if (res == FNM_NOMATCH)
-		return pushboolresult(0);
-
-	lua_pushstring(L, "fnmatch failed");
-	return lua_error(L);
+	return pushintresult(fnmatch(pattern, string, flags));
 }
 
 
@@ -73,6 +67,7 @@ Any constants not available in the underlying system will be `nil` valued.
 @table posix.fnmatch
 @int FNM_PATHNAME slashes in pathname must be matched by slash in pattern
 @int FNM_NOESCAPE disable backslash escaping
+@int FNM_NOMATCH match failed
 @int FNM_PERIOD periods in pathname must be matched by period in pattern
 @usage
   -- Print fnmatch constants supported on this host.
@@ -93,6 +88,7 @@ luaopen_posix_fnmatch(lua_State *L)
 	/* from fnmatch.h */
 	LPOSIX_CONST( FNM_PATHNAME	);
 	LPOSIX_CONST( FNM_NOESCAPE	);
+	LPOSIX_CONST( FNM_NOMATCH	);
 	LPOSIX_CONST( FNM_PERIOD	);
 
 	return 1;
