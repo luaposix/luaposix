@@ -1,7 +1,7 @@
 -- -*- lua -*-
-title = "@PACKAGE_VERSION@ Reference"
+title = "@PACKAGE_STRING@ Reference"
 project = "@PACKAGE_STRING@"
-description = "POSIX bindings for Lua"
+description = "POSIX bindings for Lua (including curses)"
 
 tparam_alias "string"
 tparam_alias "int"
@@ -58,6 +58,7 @@ file = {
 examples = "../examples"
 
 boilerplate = true
+backtick_references = false
 format = "markdown"
 merge = true
 sort = true
