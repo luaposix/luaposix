@@ -1991,20 +1991,6 @@ specify posix:
 
 
 - specify time and date:
-  - describe gettimeofday:
-    - before:
-        gettimeofday = posix.gettimeofday
-
-    - context with bad arguments:
-        badargs.diagnose (posix.gettimeofday, "()")
-
-    - it fetches the current epoch time:
-        t = gettimeofday ()
-        expect (t.sec).to_be (posix.time ())
-        expect (type (t.usec)).to_be "number"
-        expect (t.usec >= 0).to_be (true)
-
-
   - describe time:
     - context with bad arguments:
         badargs.diagnose (posix.time, "()")

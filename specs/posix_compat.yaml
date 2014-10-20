@@ -135,6 +135,20 @@ specify compat:
         expect (getpid ({}, false)).to_raise (badarg (2))
 
 
+- describe gettimeofday:
+  - before:
+      gettimeofday = posix.gettimeofday
+
+  - context with bad arguments:
+      badargs.diagnose (gettimeofday, "gettimeofday ()")
+
+  - it fetches the current epoch time:
+      t, epoch = gettimeofday (), posix.time ()
+      expect (t.sec).to_be (epoch)
+      expect (type (t.usec)).to_be "number"
+      expect (t.usec >= 0).to_be (true)
+
+
 - describe hostid:
   - context with bad arguments:
       badargs.diagnose (posix.hostid, "()")

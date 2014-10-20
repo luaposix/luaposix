@@ -325,6 +325,21 @@ local unistd = require "posix.unistd"
 M.hostid = unistd.gethostid
 
 
+--- Get time of day.
+-- @function gettimeofday
+-- @treturn timeval time elapsed since *epoch*
+-- @see gettimeofday(2)
+
+local systime = require "posix.sys.time"
+
+local gettimeofday = systime.gettimeofday
+
+function M.gettimeofday (...)
+  local tv = gettimeofday (...)
+  return { sec = tv.tv_sec, usec = tv.tv_usec }
+end
+
+
 --- Check for any printable character except space.
 -- @function isgraph
 -- @see isgraph(3)

@@ -45,14 +45,7 @@ Pgettimeofday(lua_State *L)
 	if (gettimeofday(&tv, NULL) == -1)
 		return pusherror(L, "gettimeofday");
 
-	lua_newtable(L);
-	lua_pushstring(L, "sec");
-	lua_pushinteger(L, tv.tv_sec);
-	lua_settable(L, -3);
-	lua_pushstring(L, "usec");
-	lua_pushinteger(L, tv.tv_usec);
-	lua_settable(L, -3);
-	return 1;
+	return pushtimeval(L, &tv);
 }
 
 
