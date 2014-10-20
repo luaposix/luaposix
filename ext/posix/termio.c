@@ -45,6 +45,8 @@ referring to a terminal control character.
 
 /***
 Terminal attributes.
+The constants named below are all available in this submodule's namespace,
+as long as they are supported by the underlying system.
 @table termios
 @int cflag bitwise OR of zero or more of `B0`, `B50`, `B75`, `B110`,
   `B134`, `B150`, `B200`, `B300`, `B600`, `B1200`, `B1800`, `B2400`,
@@ -53,12 +55,12 @@ Terminal attributes.
   `HUPCL`, `CLOCAL` and `CRTSCTS`
 @int iflag input flags; bitwise OR of zero or more of `IGNBRK`, `BRKINT`,
   `IGNPAR`, `PARMRK`, `INPCK`, `ISTRIP`, `INLCR`, `IGNCR`, `ICRNL`,
-  `IXON`, `IXOFF`, `IXANY`, `IMAXBEL`, `IUTF8`
+  `IXON`, `IXOFF`, `IXANY`, `IMAXBEL` and `IUTF8`
 @int lflags local flags; bitwise OR of zero or more of `ISIG`, `ICANON`,
-  `ECHO`, `ECHOE`, `ECHOK', 'ECHONL`, `NOFLSH`, `IEXTEN`, 'TOSTOP'
+  `ECHO`, `ECHOE`, `ECHOK', 'ECHONL`, `NOFLSH`, `IEXTEN` and `TOSTOP`
 @int oflag output flags; bitwise OR of zero or more of `OPOST`, `ONLCR`,
   `OXTABS`, `ONOEOT`, `OCRNL`, `ONOCR`, `ONLRET`, `OFILL`, `NLDLY`,
-  `TABDLY`, `CRDLY`, `FFDLY`, `BSDLY`, `VTDLY`, `OFDEL`
+  `TABDLY`, `CRDLY`, `FFDLY`, `BSDLY`, `VTDLY` and `OFDEL`
 @tfield ccs cc array of terminal control characters
 */
 
