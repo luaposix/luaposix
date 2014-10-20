@@ -41,10 +41,14 @@
 #include <sys/types.h>
 #endif
 
-#include "_helpers.c"
-
 
 #if _POSIX_VERSION >= 200112L
+
+/* strlcpy() implementation for non-BSD based Unices.
+   strlcpy() is a safer less error-prone replacement for strncpy(). */
+#include "strlcpy.c"
+#include "_helpers.c"
+
 
 /***
 Socket address.
@@ -65,11 +69,43 @@ Address information hints.
 @int socktype one of `SOCK_STREAM`, `SOCK_DGRAM` or `SOCK_RAW`
 @int protocol one of `IPPROTO_TCP` or `IPPROTO_UDP`
 */
+static int
+pushsockaddrinfo(lua_State *L, int family, struct sockaddr *sa)
+{
+	char addr[INET6_ADDRSTRLEN];
+	struct sockaddr_in *sa4;
+	struct sockaddr_in6 *sa6;
 
+	lua_newtable(L);
+	pushnumberfield("family", family);
 
-/* strlcpy() implementation for non-BSD based Unices.
-   strlcpy() is a safer less error-prone replacement for strncpy(). */
-#include "strlcpy.c"
+	switch (family)
+	{
+		case AF_INET:
+			sa4 = (struct sockaddr_in *)sa;
+			inet_ntop(family, &sa4->sin_addr, addr, sizeof addr);
+			pushnumberfield("port", ntohs(sa4->sin_port));
+			pushstringfield("addr", addr);
+			break;
+		case AF_INET6:
+			sa6 = (struct sockaddr_in6 *)sa;
+			inet_ntop(family, &sa6->sin6_addr, addr, sizeof addr);
+			pushnumberfield("port", ntohs(sa6->sin6_port));
+			pushstringfield("addr", addr);
+			break;
+		case AF_UNIX:
+			pushstringfield("path", ((struct sockaddr_un *) sa)->sun_path);
+			break;
+#if HAVE_LINUX_NETLINK_H
+		case AF_NETLINK:
+			pushnumberfield("pid", ((struct sockaddr_nl *) sa)->nl_pid);
+			pushnumberfield("groups", ((struct sockaddr_nl *) sa)->nl_groups);
+			break;
+#endif
+	}
+
+	return 1;
+}
 
 
 /***
@@ -121,55 +157,6 @@ Psocketpair(lua_State *L)
 	lua_pushinteger(L, fd[0]);
 	lua_pushinteger(L, fd[1]);
 	return 2;
-}
-
-
-/* Push a new lua table populated with the fields describing the passed sockaddr */
-static int
-sockaddr_to_lua(lua_State *L, int family, struct sockaddr *sa)
-{
-	char addr[INET6_ADDRSTRLEN];
-	int port;
-	struct sockaddr_in *sa4;
-	struct sockaddr_in6 *sa6;
-	struct sockaddr_un *sau;
-#if HAVE_LINUX_NETLINK_H
-	struct sockaddr_nl *san;
-#endif
-
-	lua_newtable(L);
-	lua_pushnumber(L, family); lua_setfield(L, -2, "family");
-
-	switch (family)
-	{
-		case AF_INET:
-			sa4 = (struct sockaddr_in *)sa;
-			inet_ntop(family, &sa4->sin_addr, addr, sizeof addr);
-			port = ntohs(sa4->sin_port);
-			lua_pushnumber(L, port); lua_setfield(L, -2, "port");
-			lua_pushstring(L, addr); lua_setfield(L, -2, "addr");
-			break;
-		case AF_INET6:
-			sa6 = (struct sockaddr_in6 *)sa;
-			inet_ntop(family, &sa6->sin6_addr, addr, sizeof addr);
-			port = ntohs(sa6->sin6_port);
-			lua_pushnumber(L, port); lua_setfield(L, -2, "port");
-			lua_pushstring(L, addr); lua_setfield(L, -2, "addr");
-			break;
-		case AF_UNIX:
-			sau = (struct sockaddr_un *)sa;
-			lua_pushstring(L, sau->sun_path); lua_setfield(L, -2, "path");
-			break;
-#if HAVE_LINUX_NETLINK_H
-		case AF_NETLINK:
-			san = (struct sockaddr_nl *)sa;
-			lua_pushnumber(L, san->nl_pid); lua_setfield(L, -2, "pid");
-			lua_pushnumber(L, san->nl_groups); lua_setfield(L, -2, "groups");
-			break;
-#endif
-	}
-
-	return 1;
 }
 
 
@@ -348,10 +335,10 @@ Pgetaddrinfo(lua_State *L)
 		for (p = res; p != NULL; p = p->ai_next)
 		{
 			lua_pushnumber(L, n++);
-			sockaddr_to_lua(L, p->ai_family, p->ai_addr);
-			pushnumberfield(L, -2, "socktype", p->ai_socktype);
-			pushstringfield(L, -2, "canonname", p->ai_canonname);
-			pushnumberfield(L, -2, "protocol",  p->ai_protocol);
+			pushsockaddrinfo(L, p->ai_family, p->ai_addr);
+			pushnumberfield("socktype",  p->ai_socktype);
+			pushstringfield("canonname", p->ai_canonname);
+			pushnumberfield("protocol",  p->ai_protocol);
 			lua_settable(L, -3);
 		}
 	}
@@ -466,7 +453,7 @@ Paccept(lua_State *L)
 		return pusherror(L, NULL);
 
 	lua_pushnumber(L, fd_client);
-	sockaddr_to_lua(L, sa.ss_family, (struct sockaddr *)&sa);
+	pushsockaddrinfo(L, sa.ss_family, (struct sockaddr *)&sa);
 
 	return 2;
 }
@@ -551,7 +538,7 @@ Precvfrom(lua_State *L)
 
 	lua_pushlstring(L, buf, r);
 	lalloc(ud, buf, count, 0);
-	sockaddr_to_lua(L, sa.ss_family, (struct sockaddr *)&sa);
+	pushsockaddrinfo(L, sa.ss_family, (struct sockaddr *)&sa);
 
 	return 2;
 }

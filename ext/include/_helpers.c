@@ -288,19 +288,11 @@ optstringfield(lua_State *L, int index, const char *k, const char *def)
 	return checkstringfield(L, index, k);
 }
 
-static void
-pushnumberfield(lua_State *L, int index, const char *k, lua_Integer v)
-{
-	lua_pushnumber(L, v);
-	lua_setfield(L, index, k);
-}
+#define pushnumberfield(k,v) \
+	lua_pushnumber(L, (lua_Integer) v); lua_setfield(L, -2, k)
 
-static void
-pushstringfield(lua_State *L, int index, const char *k, const char *v)
-{
-	lua_pushstring(L, v);
-	lua_setfield(L, index, k);
-}
+#define pushstringfield(k,v) \
+	lua_pushstring(L, (const char *) v); lua_setfield(L, -2, k)
 
 static int
 pusherror(lua_State *L, const char *info)
