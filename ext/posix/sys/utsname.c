@@ -23,46 +23,70 @@
 
 
 /***
+System identification record.
+@table utsname
+@string machine hardware platform name
+@string nodename network node name
+@string release operating system release level
+@string sysname operating system name
+@string version operating system version
+*/
+
+static int
+pushutsname(lua_State *L, struct utsname *u)
+{
+	if (!u)
+	{
+		lua_pushnil(L);
+		return 1;
+	}
+
+	lua_createtable(L, 0, 5);
+	if (u->machine)
+	{
+		lua_pushstring(L, u->machine);
+		lua_setfield(L, -2, "machine");
+	}
+	if (u->nodename)
+	{
+		lua_pushstring(L, u->nodename);
+		lua_setfield(L, -2, "nodename");
+	}
+	if (u->release)
+	{
+		lua_pushstring(L, u->release);
+		lua_setfield(L, -2, "release");
+	}
+	if (u->sysname)
+	{
+		lua_pushstring(L, u->sysname);
+		lua_setfield(L, -2, "sysname");
+	}
+	if (u->version)
+	{
+		lua_pushstring(L, u->version);
+		lua_setfield(L, -2, "version");
+	}
+	return 1;
+}
+
+
+/***
 Return information about this machine.
 @function uname
-@see uname(2)
-@string[opt="%s %n %r %v %m"] format contains zero or more of:
-
- * %m  machine name
- * %n  node name
- * %r  release
- * %s  sys name
- * %v  version
-
-@treturn[1] string filled *format* string, if successful
+@treturn[1] utsname system information
 @return[2] nil
-@treturn string error message
+@treturn[2] string error message
+@see uname(2)
 */
 static int
 Puname(lua_State *L)
 {
 	struct utsname u;
-	luaL_Buffer b;
-	const char *s;
-	checknargs(L, 1);
+	checknargs(L, 0);
 	if (uname(&u)==-1)
-		return pusherror(L, NULL);
-	luaL_buffinit(L, &b);
-	for (s=optstring(L, 1, "%s %n %r %v %m"); *s; s++)
-		if (*s!='%')
-			luaL_addchar(&b, *s);
-		else switch (*++s)
-		{
-			case '%':	luaL_addchar(&b, *s); break;
-			case 'm':	luaL_addstring(&b,u.machine); break;
-			case 'n':	luaL_addstring(&b,u.nodename); break;
-			case 'r':	luaL_addstring(&b,u.release); break;
-			case 's':	luaL_addstring(&b,u.sysname); break;
-			case 'v':	luaL_addstring(&b,u.version); break;
-			default:	badoption(L, 2, "format", *s); break;
-		}
-	luaL_pushresult(&b);
-	return 1;
+		return pusherror(L, "uname");
+	return pushutsname(L, &u);
 }
 
 

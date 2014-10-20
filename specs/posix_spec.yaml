@@ -1042,23 +1042,6 @@ specify posix:
 
 
 - specify host management:
-  - describe uname:
-    - before:
-        uname = posix.uname
-
-    - context with bad arguments:
-        badargs.diagnose (posix.uname, "(?string)")
-
-    - it substitutes %n:
-        expect (uname "%n").to_be (cmd_output "uname -n")
-    - it substitutes %m:
-        expect (uname "%m").to_be (cmd_output "uname -m")
-    - it substitutes %r:
-        expect (uname "%r").to_be (cmd_output "uname -r")
-    - it outputs everything with no arguments:
-        expect (uname ()).to_be (cmd_output "uname -s -n -r -v -m")
-
-
   - describe sysconf:
     - before:
         sysconf, badarg = init (posix, "sysconf")

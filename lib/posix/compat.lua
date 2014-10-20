@@ -36,6 +36,11 @@ local function argtypeerror (name, i, expect, actual, level)
             fmt:format (expect, type (actual):gsub ("nil", "no value")), level + 1)
 end
 
+local function badoption (name, i, what, option)
+  local fmt = "invalid %s option '%s'"
+  argerror (name, i, fmt:format (what, option), 2)
+end
+
 local function checkstring (name, i, actual)
   if type (actual) ~= "string" then
     argtypeerror (name, i, "string", actual, 2)
@@ -50,12 +55,21 @@ local function checktable (name, i, actual)
   return actual
 end
 
+local function optstring (name, i, actual, def)
+  if actual ~= nil and type (actual) ~= "string" then
+    argtypeerror (name, i, "string or nil", actual, 2)
+  end
+  return actual or def
+end
+
 
 local M = {
   argerror        = argerror,
   argtypeerror    = argtypeerror,
+  badoption       = badoption,
   checkstring     = checkstring,
   checktable      = checktable,
+  optstring       = optstring,
   toomanyargerror = toomanyargerror,
 }
 
@@ -338,6 +352,53 @@ local isprint = ctype.isprint
 
 function M.isprint (...)
   return isprint (...) ~= 0
+end
+
+
+--- Return information about this machine.
+-- @function uname
+-- @see uname(2)
+-- @string[opt="%s %n %r %v %m"] format contains zero or more of:
+--
+-- * %m  machine name
+-- * %n  node name
+-- * %r  release
+-- * %s  sys name
+-- * %v  version
+--
+--@treturn[1] string filled *format* string, if successful
+--@return[2] nil
+--@treturn string error message
+
+local utsname = require "posix.sys.utsname"
+
+local _uname = utsname.uname
+
+local function uname (spec)
+  local u = _uname ()
+  return optstring ("uname", 1, spec, "%s %n %r %v %m"):gsub ("%%(.)", function (s)
+    if s == "%" then return "%"
+    elseif s == "m" then return u.machine
+    elseif s == "n" then return u.nodename
+    elseif s == "r" then return u.release
+    elseif s == "s" then return u.sysname
+    elseif s == "v" then return u.version
+    else
+      badoption ("uname", 1, "format", s)
+    end
+  end)
+end
+
+if _DEBUG ~= false then
+  M.uname = function (s, ...)
+    local argt = {s, ...}
+    if #argt > 1 then
+      toomanyargerror ("uname", 1, #argt)
+    end
+    return uname (s)
+  end
+else
+  M.uname = uname
 end
 
 

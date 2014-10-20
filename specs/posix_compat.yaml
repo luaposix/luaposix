@@ -164,3 +164,27 @@ specify compat:
       expect (isprint 'a').to_be (true)
   - it returns false for failed tests:
       expect (isprint (string.char (0))).to_be (false)
+
+
+- describe uname:
+  - before:
+      uname = posix.uname
+
+  - context with bad arguments: |
+      badargs.diagnose (uname, "uname (?string)")
+
+      examples {
+        ['it diagnoses bad specifier format options'] = function ()
+          expect (uname ("foo %_")).
+            to_error "bad argument #1 to 'uname' (invalid format option '_')"
+        end
+      }
+
+  - it substitutes %n:
+      expect (uname "%n").to_be (cmd_output "uname -n")
+  - it substitutes %m:
+      expect (uname "%m").to_be (cmd_output "uname -m")
+  - it substitutes %r:
+      expect (uname "%r").to_be (cmd_output "uname -r")
+  - it outputs everything with no arguments:
+      expect (uname ()).to_be (cmd_output "uname -s -n -r -v -m")
