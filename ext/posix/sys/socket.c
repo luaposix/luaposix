@@ -173,7 +173,9 @@ sockaddr_to_lua(lua_State *L, int family, struct sockaddr *sa)
 }
 
 
-static const char *Safinet_fields[] = { "family", "port", "addr" };
+static const char *Safinet_fields[] = { "family", "port", "addr",
+					/* Also allow getaddrinfo result tables */
+					"socktype", "canonname", "protocol" };
 static const char *Safunix_fields[] = { "family", "path" };
 static const char *Safnetlink_fields[] = { "family", "pid", "groups" };
 
