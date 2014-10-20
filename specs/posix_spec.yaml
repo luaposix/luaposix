@@ -29,16 +29,6 @@ specify posix:
       badargs.diagnose (f, "euidaccess (string, string)")
 
 
-- describe isgraph:
-  - context with bad arguments:
-      badargs.diagnose (posix.isgraph, "(string)")
-
-
-- describe isprint:
-  - context with bad arguments:
-      badargs.diagnose (posix.isprint, "(string)")
-
-
 - describe errno:
   - context with bad arguments:
       badargs.diagnose (posix.errno, "(?int)")

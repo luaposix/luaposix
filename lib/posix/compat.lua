@@ -311,4 +311,34 @@ local unistd = require "posix.unistd"
 M.hostid = unistd.gethostid
 
 
+--- Check for any printable character except space.
+-- @function isgraph
+-- @see isgraph(3)
+-- @string character to act on
+-- @treturn bool non-`false` if character is in the class
+
+local ctype = require "posix.ctype"
+
+local isgraph = ctype.isgraph
+
+function M.isgraph (...)
+  return isgraph (...) ~= 0
+end
+
+
+--- Check for any printable character including space.
+-- @function isprint
+-- @string character to act on
+-- @treturn bool non-`false` if character is in the class
+-- @see isprint(3)
+
+local ctype = require "posix.ctype"
+
+local isprint = ctype.isprint
+
+function M.isprint (...)
+  return isprint (...) ~= 0
+end
+
+
 return M

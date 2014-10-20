@@ -29,7 +29,7 @@ bind_ctype(lua_State *L, int (*cb)(int))
 	char c = *s;
 	checknargs(L, 1);
 	lua_pop(L, 1);
-	return pushboolresult(cb((int)c));
+	return pushintresult(cb((int)c));
 }
 
 
@@ -38,7 +38,7 @@ Check for any printable character except space.
 @function isgraph
 @see isgraph(3)
 @string character to act on
-@treturn bool non-`false` if character is in the class
+@treturn int non-zero if character is not in the class
 */
 static int
 Pisgraph(lua_State *L)
@@ -51,7 +51,7 @@ Pisgraph(lua_State *L)
 Check for any printable character including space.
 @function isprint
 @string character to act on
-@treturn bool non-`false` if character is in the class
+@treturn int non-zero if character is not in the class
 @see isprint(3)
 */
 static int

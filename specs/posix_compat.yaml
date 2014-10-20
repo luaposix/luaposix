@@ -138,3 +138,29 @@ specify compat:
 - describe hostid:
   - context with bad arguments:
       badargs.diagnose (posix.hostid, "()")
+
+
+- describe isgraph:
+  - before:
+      isgraph = posix.isgraph
+
+  - context with bad arguments:
+      badargs.diagnose (isgraph, "isgraph (string)")
+
+  - it returns true for successful tests:
+      expect (isgraph 'a').to_be (true)
+  - it returns false for failed tests:
+      expect (isgraph ' ').to_be (false)
+
+
+- describe isprint:
+  - before:
+      isprint = posix.isprint
+
+  - context with bad arguments:
+      badargs.diagnose (isprint, "isprint (string)")
+
+  - it returns true for successful tests:
+      expect (isprint 'a').to_be (true)
+  - it returns false for failed tests:
+      expect (isprint (string.char (0))).to_be (false)
