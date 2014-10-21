@@ -23,6 +23,151 @@
 
 
 /***
+File state record.
+@table PosixStat
+@int st_dev device id
+@int st_ino inode number
+@int st_mode mode of file
+@int st_nlink number of hardlinks to file
+@int st_uid user id of file owner
+@int st_gid group id of file owner
+@int st_rdev additional device specific id for special files
+@int st_size file size in bytes
+@int st_atime time of last access
+@int st_mtime time of last data modification
+@int st_ctime time of last state change
+@int st_blksize preferred block size
+@int st_blocks number of blocks allocated
+*/
+static int
+pushstat(lua_State *L, struct stat *st)
+{
+	if (!st)
+		return lua_pushnil(L), 1;
+
+	lua_createtable(L, 0, 13);
+
+	setnumberfield(st, st_dev);
+	setnumberfield(st, st_ino);
+	setnumberfield(st, st_mode);
+	setnumberfield(st, st_nlink);
+	setnumberfield(st, st_uid);
+	setnumberfield(st, st_gid);
+	setnumberfield(st, st_rdev);
+	setnumberfield(st, st_size);
+	setnumberfield(st, st_blksize);
+	setnumberfield(st, st_blocks);
+
+	/* st_[amc]time is a macro on at least Mac OS, so we have to
+	   assign field name strings manually. */
+        pushnumberfield("st_atime", st->st_atime);
+        pushnumberfield("st_mtime", st->st_mtime);
+        pushnumberfield("st_ctime", st->st_ctime);
+
+	settypemetatable("PosixStat");
+	return 1;
+}
+
+
+/***
+Test for a block special file.
+@function S_ISBLK
+@int mode the st_mode field of a @{PosixStat}
+@treturn int non-zero if *mode* represents a block special file
+*/
+static int
+PS_ISBLK(lua_State *L)
+{
+	checknargs(L, 1);
+	return pushintresult(S_ISBLK((mode_t) checkint(L, 1)));
+}
+
+
+/***
+Test for a character special file.
+@function S_ISCHR
+@int mode the st_mode field of a @{PosixStat}
+@treturn int non-zero if *mode* represents a character special file
+*/
+static int
+PS_ISCHR(lua_State *L)
+{
+	checknargs(L, 1);
+	return pushintresult(S_ISCHR((mode_t) checkint(L, 1)));
+}
+
+
+/***
+Test for a directory.
+@function S_ISDIR
+@int mode the st_mode field of a @{PosixStat}
+@treturn int non-zero if *mode* represents a directory
+*/
+static int
+PS_ISDIR(lua_State *L)
+{
+	checknargs(L, 1);
+	return pushintresult(S_ISDIR((mode_t) checkint(L, 1)));
+}
+
+
+/***
+Test for a fifo special file.
+@function S_ISFIFO
+@int mode the st_mode field of a @{PosixStat}
+@treturn int non-zero if *mode* represents a fifo special file
+*/
+static int
+PS_ISFIFO(lua_State *L)
+{
+	checknargs(L, 1);
+	return pushintresult(S_ISFIFO((mode_t) checkint(L, 1)));
+}
+
+
+/***
+Test for a symbolic link.
+@function S_ISLNK
+@int mode the st_mode field of a @{PosixStat}
+@treturn int non-zero if *mode* represents a symbolic link
+*/
+static int
+PS_ISLNK(lua_State *L)
+{
+	checknargs(L, 1);
+	return pushintresult(S_ISLNK((mode_t) checkint(L, 1)));
+}
+
+
+/***
+Test for a regular file.
+@function S_ISREG
+@int mode the st_mode field of a @{PosixStat}
+@treturn int non-zero if *mode* represents a regular file
+*/
+static int
+PS_ISREG(lua_State *L)
+{
+	checknargs(L, 1);
+	return pushintresult(S_ISREG((mode_t) checkint(L, 1)));
+}
+
+
+/***
+Test for a socket.
+@function S_ISSOCK
+@int mode the st_mode field of a @{PosixStat}
+@treturn int non-zero if *mode* represents a socket
+*/
+static int
+PS_ISSOCK(lua_State *L)
+{
+	checknargs(L, 1);
+	return pushintresult(S_ISSOCK((mode_t) checkint(L, 1)));
+}
+
+
+/***
 Change the mode of the path.
 @function chmod
 @string path existing file path
@@ -55,99 +200,25 @@ Pchmod(lua_State *L)
 }
 
 
-static const char *
-filetype(mode_t m)
-{
-	if (S_ISREG(m))
-		return "regular";
-	else if (S_ISLNK(m))
-		return "link";
-	else if (S_ISDIR(m))
-		return "directory";
-	else if (S_ISCHR(m))
-		return "character device";
-	else if (S_ISBLK(m))
-		return "block device";
-	else if (S_ISFIFO(m))
-		return "fifo";
-	else if (S_ISSOCK(m))
-		return "socket";
-	else
-		return "?";
-}
-
-
-static void
-Fstat(lua_State *L, int i, const void *data)
-{
-	const struct stat *s=data;
-	switch (i)
-	{
-		case 0:
-			pushmode(L, s->st_mode);
-			break;
-		case 1:
-			lua_pushinteger(L, s->st_ino);
-			break;
-		case 2:
-			lua_pushinteger(L, s->st_dev);
-			break;
-		case 3:
-			lua_pushinteger(L, s->st_nlink);
-			break;
-		case 4:
-			lua_pushinteger(L, s->st_uid);
-			break;
-		case 5:
-			lua_pushinteger(L, s->st_gid);
-			break;
-		case 6:
-			lua_pushinteger(L, s->st_size);
-			break;
-		case 7:
-			lua_pushinteger(L, s->st_atime);
-			break;
-		case 8:
-			lua_pushinteger(L, s->st_mtime);
-			break;
-		case 9:
-			lua_pushinteger(L, s->st_ctime);
-			break;
-		case 10:
-			lua_pushstring(L, filetype(s->st_mode));
-			break;
-	}
-}
-
-
-static const char *const Sstat[] =
-{
-	"mode", "ino", "dev", "nlink", "uid", "gid",
-	"size", "atime", "mtime", "ctime", "type",
-	NULL
-};
-
-
 /***
 Information about an existing file path.
-If file is a symbolic link return information about the link itself.
+If file is a symbolic link, return information about the link itself.
 @function lstat
 @string path file to act on
-@string ... field names, each one of "mode", "ino", "dev", "nlink", "uid", "gid",
-"size", "atime", "mtime", "ctime", "type"
-@return ... values, or table of all fields if no option given
+@treturn PosixStat information about *path*
 @see lstat(2)
 @see stat
-@usage for a, b in pairs(P.lstat("/etc/")) do print(a, b) end
+@usage for a, b in pairs (P.lstat "/etc/") do print (a, b) end
 */
 static int
 Plstat(lua_State *L)
 {
 	struct stat s;
-	const char *path=luaL_checkstring(L, 1);
-	if (lstat(path,&s)==-1)
+	const char *path = luaL_checkstring(L, 1);
+	checknargs(L, 1);
+	if (lstat(path, &s) == -1)
 		return pusherror(L, path);
-	return doselection(L, 2, Sstat, Fstat, &s);
+	return pushstat(L, &s);
 }
 
 
@@ -189,24 +260,23 @@ Pmkfifo(lua_State *L)
 
 /***
 Information about an existing file path.
-If file is a symbolic link return information about the file the link points to.
+If file is a symbolic link, return information about the file the link points to.
 @function stat
 @string path file to act on
-@string ... field names, each one of "mode", "ino", "dev", "nlink", "uid", "gid",
-"size", "atime", "mtime", "ctime", "type"
-@return ... values, or table of all fields if no option given
+@treturn PosixStat information about *path*
 @see stat(2)
 @see lstat
-@usage for a, b in pairs(P.stat("/etc/")) do print(a, b) end
+@usage for a, b in pairs (P.stat "/etc/") do print (a, b) end
 */
 static int
 Pstat(lua_State *L)
 {
 	struct stat s;
-	const char *path=luaL_checkstring(L, 1);
-	if (stat(path,&s)==-1)
+	const char *path = luaL_checkstring(L, 1);
+	checknargs(L, 1);
+	if (stat(path, &s) == -1)
 		return pusherror(L, path);
-	return doselection(L, 2, Sstat, Fstat, &s);
+	return pushstat(L, &s);
 }
 
 
@@ -222,7 +292,7 @@ Pumask(lua_State *L)
 {
 	const char *modestr = optstring(L, 1, NULL);
 	mode_t mode;
-	checknargs (L, 1);
+	checknargs(L, 1);
 	umask(mode=umask(0));
 	mode=(~mode)&0777;
 	if (modestr)
@@ -239,6 +309,13 @@ Pumask(lua_State *L)
 
 static const luaL_Reg posix_sys_stat_fns[] =
 {
+	LPOSIX_FUNC( PS_ISBLK		),
+	LPOSIX_FUNC( PS_ISCHR		),
+	LPOSIX_FUNC( PS_ISDIR		),
+	LPOSIX_FUNC( PS_ISFIFO		),
+	LPOSIX_FUNC( PS_ISLNK		),
+	LPOSIX_FUNC( PS_ISREG		),
+	LPOSIX_FUNC( PS_ISSOCK		),
 	LPOSIX_FUNC( Pchmod		),
 	LPOSIX_FUNC( Plstat		),
 	LPOSIX_FUNC( Pmkdir		),
@@ -249,12 +326,76 @@ static const luaL_Reg posix_sys_stat_fns[] =
 };
 
 
+/***
+Constants.
+@section constants
+*/
+
+/***
+Stat constants.
+Any constants not available in the underlying system will be `nil` valued.
+@table posix.sys.stat
+@int S_IFMT file type mode bitmask
+@int S_IFBLK block special
+@int S_IFCHR character special
+@int S_IFDIR directory
+@int S_IFIFO fifo
+@int S_IFLNK symbolic link
+@int S_IFREG regular file
+@int S_IFSOCK socket
+@int S_IRWXU user read, write and execute
+@int S_IRUSR user read
+@int S_IWUSR user write
+@int S_IXUSR user execute
+@int S_IRWXG group read, write and execute
+@int S_IRGRP group read
+@int S_IWGRP group write
+@int S_IXGRP group execute
+@int S_IRWXO other read, write and execute
+@int S_IROTH other read
+@int S_IWOTH other write
+@int S_IXOTH other execute
+@int S_ISGID set group id on execution
+@int S_ISUID set user id on execution
+@usage
+  -- Print stat constants supported on this host.
+  for name, value in pairs (require "posix.sys.stat") do
+    if type (value) == "number" then
+      print (name, value)
+     end
+  end
+*/
+
+
 LUALIB_API int
 luaopen_posix_sys_stat(lua_State *L)
 {
 	luaL_register(L, "posix.sys.stat", posix_sys_stat_fns);
 	lua_pushliteral(L, "posix.sys.stat for " LUA_VERSION " / " PACKAGE_STRING);
 	lua_setfield(L, -2, "version");
+
+	LPOSIX_CONST( S_IFMT		);
+	LPOSIX_CONST( S_IFBLK		);
+	LPOSIX_CONST( S_IFCHR		);
+	LPOSIX_CONST( S_IFDIR		);
+	LPOSIX_CONST( S_IFIFO		);
+	LPOSIX_CONST( S_IFLNK		);
+	LPOSIX_CONST( S_IFREG		);
+	LPOSIX_CONST( S_IFSOCK		);
+	LPOSIX_CONST( S_IRWXU		);
+	LPOSIX_CONST( S_IRUSR		);
+	LPOSIX_CONST( S_IWUSR		);
+	LPOSIX_CONST( S_IXUSR		);
+	LPOSIX_CONST( S_IRWXG		);
+	LPOSIX_CONST( S_IRGRP		);
+	LPOSIX_CONST( S_IWGRP		);
+	LPOSIX_CONST( S_IXGRP		);
+	LPOSIX_CONST( S_IRWXO		);
+	LPOSIX_CONST( S_IROTH		);
+	LPOSIX_CONST( S_IWOTH		);
+	LPOSIX_CONST( S_IXOTH		);
+	LPOSIX_CONST( S_ISGID		);
+	LPOSIX_CONST( S_ISUID		);
 
 	return 1;
 }

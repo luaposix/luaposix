@@ -367,6 +367,7 @@ specify posix:
       # Make and change into a temporary subdirectory where we can
       # control all the contents for self-contained examples.
       link, mkdir, mkdtemp = posix.link, posix.mkdir, posix.mkdtemp
+      origwd = posix.getcwd ()
       dir, errmsg = mkdtemp (template)
       mkdir (dir .. "/subdir")
       link ("subdir", dir .. "/soft", true)
@@ -374,6 +375,7 @@ specify posix:
       link (dir .. "/file", dir .. "/hard")
       link ("no such destination", dir .. "/dangling", true)
   - after:
+      posix.chdir (origwd)
       rmtmp (dir)
 
 
@@ -467,8 +469,8 @@ specify posix:
 
   - describe mkdir:
     - before:
-        chdir, mkdir, rmdir = posix.chdir, posix.mkdir, posix.rmdir
-        cwd = posix.getcwd ()
+        chdir, getcwd, mkdir, rmdir = posix.chdir, posix.getcwd, posix.mkdir, posix.rmdir
+        cwd = getcwd ()
     - after:
         chdir (cwd)
         pcall (rmdir, "x")
@@ -750,161 +752,6 @@ specify posix:
         expect (stat ("xxx", "atime")).not_to_equal (atime)
         expect (Emsg (utime ("xxx", nil, atime))).to_be ""
         expect (stat ("xxx", "atime")).to_equal (atime)
-
-
-  - describe stat:
-    - before:
-        # choose a format without seconds, that won't cause a race condition
-        fmt = "%b %d %H:%M"
-
-        getegid, geteuid, stat =
-          posix.getegid, posix.geteuid, posix.stat
-
-        badarg = function (...) return badargs.format ("stat", ...) end
-
-    # posix.stat takes an optional string or table as its second
-    # argument, followed by zero or more strings only if the second
-    # argument was a string; since we can't express that with
-    # `badargs.diagnose` do it all manually again...
-    - context with bad arguments:
-      - 'it diagnoses missing argument #1':
-          expect (stat ()).to_raise (badarg (1, "string"))
-      - 'it diagnoses argument #1 type not string':
-          expect (stat (false)).to_raise (badarg (1, "string", "boolean"))
-      - 'it diagnoses argument #2 type not table, string or nil':
-          expect (stat (".", false)).
-            to_raise (badarg (2, "?table|string", "boolean"))
-      - 'it diagnoses argument #2 string invalid': |
-          expect (stat (".", "fubar")).
-            to_raise "bad argument #2 to 'stat' (invalid option 'fubar')"
-      - 'it diagnoses argument #3 type not string':
-          expect (stat (".", "type", false)).
-            to_raise (badarg (3, "string", "boolean"))
-      - it diagnoses too many arguments:
-          expect (stat (".", {}, false)).
-            to_raise (badarg (3))
-
-    - it fetches the file inode:
-        expect (stat (dir .. "/hard").ino).to_be (stat (dir .. "/file").ino)
-    - it fetches the file type:
-        expect (stat (dir).type).to_be "directory"
-        expect (stat (dir .. "/file", "type")).to_be "regular"
-        expect (stat (dir .. "/soft", "type")).to_be "directory"
-        expect (stat (dir .. "/hard", "type")).to_be "regular"
-    - it fetches the file size:
-        # skip directory size, which is system dependent
-        expect (stat (dir .. "/file").size).to_be (0)
-        expect (stat (dir .. "/soft", "size")).to_be (stat (dir .. "/subdir", "size"))
-        expect (stat (dir .. "/hard", "size")).
-          to_be (stat (dir .. "/file", "size"))
-    - it fetches the file access time:
-        expect (os.date (fmt, stat (dir .. "/file", "atime"))).
-          to_be (os.date (fmt))
-    - it fetches the file modification time:
-        expect (os.date (fmt, stat (dir .. "/file", "mtime"))).
-          to_be (os.date (fmt))
-    - it fetches the file creation time:
-        expect (os.date (fmt, stat (dir .. "/file", "ctime"))).
-          to_be (os.date (fmt))
-    - it fetches the file access mode:
-        expect (stat (dir .. "/file").mode).to_match ("^[-rwx]+$")
-        expect (stat (dir .. "/subdir", "mode")).to_match ("^[-rwx]+$")
-    - it fetches the number of links:
-        expect (stat (dir .. "/file").nlink).to_be (2)
-        expect (stat (dir .. "/soft", "nlink")).to_be (2)
-        expect (stat (dir .. "/hard", "nlink")).
-          to_be (stat (dir .. "/file", "nlink"))
-        expect (stat (dir .. "/subdir", "nlink")).to_be (2)
-    - it fetches the owner id:
-        expect (stat (dir .. "/file").uid).to_be (geteuid ())
-        expect (stat (dir .. "/subdir", "uid")).to_be (geteuid ())
-    - it fetches the owner group id:
-        expect (stat (dir .. "/file").gid).to_be (getegid ())
-        expect (stat (dir .. "/subdir", "gid")).to_be (getegid ())
-    - it fetches a subtable of named fields:
-        expect ({stat (dir .. "/file", "type", "size", "nlink")}).
-          to_equal {"regular", 0, 2}
-    - it fetches everything without an argument:
-        t = stat (dir .. "/file")
-        for k, v in pairs (t) do
-          expect (t[k]).to_be (stat (dir .. "/file", k))
-        end
-
-
-  - describe lstat:
-    - before:
-        # choose a format without seconds, that won't cause a race condition
-        fmt = "%b %d %H:%M"
-        getegid, geteuid = posix.getegid, posix.geteuid
-        lstat, badarg = init (posix, "lstat")
-
-    # posix.lstat takes an optional string or table as its second
-    # argument, followed by zero or more strings only if the second
-    # argument was a string; since we can't express that with
-    # `badargs.diagnose` do it all manually again...
-    - context with bad arguments:
-      - 'it diagnoses missing argument #1':
-          expect (lstat ()).to_raise (badarg (1, "string"))
-      - 'it diagnoses argument #1 type not string':
-          expect (lstat (false)).to_raise (badarg (1, "string", "boolean"))
-      - 'it diagnoses argument #2 type not table, string or nil':
-          expect (lstat (".", false)).
-            to_raise (badarg (2, "?table|string", "boolean"))
-      - 'it diagnoses argument #2 string invalid': |
-          expect (lstat (".", "fubar")).
-            to_raise "bad argument #2 to 'lstat' (invalid option 'fubar')"
-      - 'it diagnoses argument #3 type not string':
-          expect (lstat (".", "type", false)).
-            to_raise (badarg (3, "string", "boolean"))
-      - it diagnoses too many arguments:
-          expect (lstat (".", {}, false)).
-            to_raise (badarg (3))
-
-    - it fetches the file inode:
-        expect (lstat (dir .. "/hard").ino).to_be (lstat (dir .. "/file").ino)
-    - it fetches the file type:
-        expect (lstat (dir).type).to_be "directory"
-        expect (lstat (dir .. "/file", "type")).to_be "regular"
-        expect (lstat (dir .. "/soft", "type")).to_be "link"
-        expect (lstat (dir .. "/hard", "type")).to_be "regular"
-    - it fetches the file size:
-        # skip directory size, which is system dependent
-        expect (lstat (dir .. "/file").size).to_be (0)
-        expect (lstat (dir .. "/soft", "size")).to_be (string.len ("subdir"))
-        expect (lstat (dir .. "/hard", "size")).
-          to_be (lstat (dir .. "/file", "size"))
-    - it fetches the file access time:
-        expect (os.date (fmt, lstat (dir .. "/file", "atime"))).
-          to_be (os.date (fmt))
-    - it fetches the file modification time:
-        expect (os.date (fmt, lstat (dir .. "/file", "mtime"))).
-          to_be (os.date (fmt))
-    - it fetches the file creation time:
-        expect (os.date (fmt, lstat (dir .. "/file", "ctime"))).
-          to_be (os.date (fmt))
-    - it fetches the file access mode:
-        expect (lstat (dir .. "/file").mode).to_match ("^[-rwx]+$")
-        expect (lstat (dir .. "/subdir", "mode")).to_match ("^[-rwx]+$")
-    - it fetches the number of links:
-        expect (lstat (dir .. "/file").nlink).to_be (2)
-        expect (lstat (dir .. "/soft", "nlink")).to_be (1)
-        expect (lstat (dir .. "/hard", "nlink")).
-          to_be (lstat (dir .. "/file", "nlink"))
-        expect (lstat (dir .. "/subdir", "nlink")).to_be (2)
-    - it fetches the owner id:
-        expect (lstat (dir .. "/file").uid).to_be (geteuid ())
-        expect (lstat (dir .. "/subdir", "uid")).to_be (geteuid ())
-    - it fetches the owner group id:
-        expect (lstat (dir .. "/file").gid).to_be (getegid ())
-        expect (lstat (dir .. "/subdir", "gid")).to_be (getegid ())
-    - it fetches a subtable of named fields:
-        expect ({lstat (dir .. "/file", "type", "size", "nlink")}).
-          to_equal {"regular", 0, 2}
-    - it fetches everything without an argument:
-        t = lstat (dir .. "/file")
-        for k, v in pairs (t) do
-          expect (t[k]).to_be (lstat (dir .. "/file", k))
-        end
 
 
   - describe statvfs:

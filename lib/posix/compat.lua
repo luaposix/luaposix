@@ -74,7 +74,8 @@ local M = {
 }
 
 
--- Create a file.
+
+--- Create a file.
 -- This function is obsoleted by @{posix.fcntl.open} with `posix.O_CREAT`.
 -- @function creat
 -- @string path name of file to create
@@ -367,6 +368,172 @@ local isprint = ctype.isprint
 
 function M.isprint (...)
   return isprint (...) ~= 0
+end
+
+
+--- Information about an existing file path.
+-- If the file is a symbolic link, return information about the link
+-- itself.
+-- @function lstat
+-- @string path file to act on
+-- @tparam[opt] table|string field one of "dev", "ino", "mode", "nlink",
+--   "uid", "gid", "rdev", "size", "atime", "mtime", "ctime" or "type"
+-- @string[opt] ... unless *field* was a table, zero or more additional
+--   field names
+-- @return values, or table of all fields if no option fiven
+-- @see lstat(2)
+-- @see stat
+-- @usage for a,b in pairs (P,lstat "/etc/") do print (a, b) end
+
+local st = require "posix.sys.stat"
+
+local mode_map = {
+  { c = "r", b = st.S_IRUSR }, { c = "w", b = st.S_IWUSR }, { c = "x", b = st.S_IXUSR },
+  { c = "r", b = st.S_IRGRP }, { c = "w", b = st.S_IWGRP }, { c = "x", b = st.S_IXGRP },
+  { c = "r", b = st.S_IROTH }, { c = "w", b = st.S_IWOTH }, { c = "x", b = st.S_IXOTH },
+}
+
+
+local S_ISUID, S_ISGID, S_IXUSR, S_IXGRP = st.S_ISUID, st.S_ISGID, st.S_IXUSR, st.S_IXGRP
+
+local function pushmode (mode)
+  local m = {}
+  for i = 1, 9 do
+    if band (mode, mode_map[i].b) ~= 0 then m[i] = mode_map[i].c else m[i] = "-" end
+  end
+  if band (mode, S_ISUID) ~= 0 then
+    if band (mode, S_IXUSR) ~= 0 then m[2] = "s" else m[2] = "S" end
+  end
+  if band (mode, S_ISGID) ~= 0 then
+    if band (mode, S_IXGRP) ~= 0 then m[2] = "s" else m[2] = "S" end
+  end
+  return table.concat (m)
+end
+
+
+local S_ISREG, S_ISLNK, S_ISDIR, S_ISCHR, S_ISBLK, S_ISFIFO, S_ISSOCK =
+  st.S_ISREG, st.S_ISLNK, st.S_ISDIR, st.S_ISCHR, st.S_ISBLK, st.S_ISFIFO, st.S_ISSOCK
+
+local function filetype (mode)
+  if S_ISREG (mode) ~= 0 then
+    return "regular"
+  elseif S_ISLNK (mode) ~= 0 then
+    return "link"
+  elseif S_ISDIR (mode) ~= 0 then
+    return "directory"
+  elseif S_ISCHR (mode) ~= 0 then
+    return "character device"
+  elseif S_ISBLK (mode) ~= 0 then
+    return "block device"
+  elseif S_ISFIFO (mode) ~= 0 then
+    return "fifo"
+  elseif S_ISSOCK (mode) ~= 0 then
+    return "socket"
+  else
+    return "?"
+  end
+end
+
+local function statselection (name, info, ...)
+  local t = {...}
+  if not (next (t)) then
+    return {
+      dev   = info.st_dev,
+      ino   = info.st_ino,
+      mode  = pushmode (info.st_mode),
+      nlink = info.st_nlink,
+      uid   = info.st_uid,
+      gid   = info.st_gid,
+      size  = info.st_size,
+      atime = info.st_atime,
+      mtime = info.st_mtime,
+      ctime = info.st_ctime,
+      type  = filetype (info.st_mode),
+    }
+  else
+    local r = {}
+    for i, v in ipairs (t) do
+      if     v == "dev"   then r[#r + 1] = info.st_dev
+      elseif v == "ino"   then r[#r + 1] = info.st_ino
+      elseif v == "mode"  then r[#r + 1] = pushmode (info.st_mode)
+      elseif v == "nlink" then r[#r + 1] = info.st_nlink
+      elseif v == "uid"   then r[#r + 1] = info.st_uid
+      elseif v == "gid"   then r[#r + 1] = info.st_gid
+      elseif v == "size"  then r[#r + 1] = info.st_size
+      elseif v == "atime" then r[#r + 1] = info.st_atime
+      elseif v == "mtime" then r[#r + 1] = info.st_mtime
+      elseif v == "ctime" then r[#r + 1] = info.st_ctime
+      elseif v == "type"  then r[#r + 1] = filetype (info.st_mode)
+      else
+	M.argerror (name, i + 1, "invalid option '" .. v .. "'")
+      end
+    end
+    return unpack (r)
+  end
+end
+
+
+local _lstat = st.lstat
+
+local function lstat (path, ...)
+  return statselection ("lstat", _lstat (path), ...)
+end
+
+if _DEBUG ~= false then
+  M.lstat = function (path, t, ...)
+    local argt = {path, t, ...}
+    checkstring ("lstat", 1, path)
+    if type (t) == "table" and #argt > 2 then
+      toomanyargerror ("lstat", 2, #argt)
+    elseif t ~= nil and type (t) ~= "string" then
+      argtypeerror ("lstat", 2, "table, string or nil", t)
+    end
+    for i = 3, #argt do
+      checkstring ("lstat", i, argt[i])
+    end
+    return lstat (path, t, ...)
+  end
+else
+  M.lstat = lstat
+end
+
+
+--- Information about an existing file path.
+-- If the file is a symbolic link, return information about the file the
+-- link points to.
+-- @function stat
+-- @string path file to act on
+-- @tparam[opt] table|string field one of "dev", "ino", "mode", "nlink",
+--   "uid", "gid", "rdev", "size", "atime", "mtime", "ctime" or "type"
+-- @string[opt] ... unless *field* was a table, zero or more additional
+--   field names
+-- @return values, or table of all fields if no option fiven
+-- @see lstat(2)
+-- @see stat
+-- @usage for a,b in pairs (P,lstat "/etc/") do print (a, b) end
+
+local _stat = st.stat
+
+local function stat (path, ...)
+  return statselection ("stat", _stat (path), ...)
+end
+
+if _DEBUG ~= false then
+  M.stat = function (path, t, ...)
+    local argt = {path, t, ...}
+    checkstring ("stat", 1, path)
+    if type (t) == "table" and #argt > 2 then
+      toomanyargerror ("stat", 2, #argt)
+    elseif t ~= nil and type (t) ~= "string" then
+      argtypeerror ("stat", 2, "table, string or nil", t)
+    end
+    for i = 3, #argt do
+      checkstring ("stat", i, argt[i])
+    end
+    return stat (path, t, ...)
+  end
+else
+  M.stat = stat
 end
 
 

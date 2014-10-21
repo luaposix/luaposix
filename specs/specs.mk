@@ -13,6 +13,7 @@ specl_SPECS =						\
 	$(srcdir)/specs/posix_fnmatch_spec.yaml		\
 	$(srcdir)/specs/posix_grp_spec.yaml		\
 	$(srcdir)/specs/posix_pwd_spec.yaml		\
+	$(srcdir)/specs/posix_sys_stat_spec.yaml	\
 	$(srcdir)/specs/posix_sys_time_spec.yaml	\
 	$(srcdir)/specs/posix_sys_utsname_spec.yaml	\
 	$(srcdir)/specs/posix_unistd_spec.yaml		\

@@ -64,6 +64,23 @@ Stdlib NEWS - User visible changes
    Consequently, `posix.getpid` is now reimplemented in Lua over the POSIX
    APIs.
 
+ - Add missing APIs from sys/stat.h: `posix.sys.stat.S_ISBLK`,
+   `posix.sys.stat.S_ISCHR`, `posix.sys.stat.S_ISDIR`,
+   `posix.sys.stat.S_ISFIFO`, `posix.sys.stat.S_ISLNK`,
+   `posix.sys.stat.S_ISREG`, `posix.sys.stat.S_ISSOCK`.
+
+ - Add missing constants from sys/stat.h: `posix.sys.stat.S_IFMT`,
+   `posix.sys.stat.S_IFBLK`, `posix.sys.stat.S_IFCHR`,
+   `posix.sys.stat.S_IFDIR`, `posix.sys.stat.S_IFIFO`,
+   `posix.sys.stat.S_IFLNK`, `posix.sys.stat.S_IFREG`,
+   `posix.sys.stat.S_IRWXU`, `posix.sys.stat.S_IRUSR`,
+   `posix.sys.stat.S_IWUSR`, `posix.sys.stat.S_IXUSR`,
+   `posix.sys.stat.S_IRWXG`, `posix.sys.stat.S_IRGRP`,
+   `posix.sys.stat.S_IWGRP`, `posix.sys.stat.S_IXGRP`,
+   `posix.sys.stat.S_IRWXO`, `posix.sys.stat.S_IROTH`,
+   `posix.sys.stat.S_IWOTH`, `posix.sys.stat.S_IXOTH`,
+   `posix.sys.stat.S_ISGID`, `posix.sys.stat.S_ISUID`.
+
  - All posix APIs now fully and correctly diagnose extraneous and wrong
    type arguments with an error.
 

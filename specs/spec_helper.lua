@@ -84,19 +84,25 @@ function cmd_output (cmd)
   return hell.spawn (cmd).output:gsub ("^%s+", ""):gsub ("%s+$", "")
 end
 
+
+local st = require "posix.sys.stat"
+local stat, S_ISDIR = st.lstat, st.S_ISDIR
+
 -- Recursively remove a temporary directory.
 function rmtmp (dir)
   for f in posix.files (dir) do
     if f ~= "." and f ~= ".." then
-      path = dir .. "/" .. f
-      if posix.stat (path, "type") == "directory" then
+      local path = dir .. "/" .. f
+      if S_ISDIR (stat (path).st_mode) ~= 0 then
         rmtmp (path)
       else
         os.remove (path)
       end
     end
   end
+  os.remove (dir)
 end
+
 
 -- Create an empty file at PATH.
 function touch (path) io.open (path, "w+"):close () end
