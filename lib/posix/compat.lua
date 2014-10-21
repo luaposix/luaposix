@@ -12,6 +12,9 @@
  @module posix.compat
 ]]
 
+local bit = bit32 or require "bit"
+local band, bnot, bor = bit.band, bit.bnot, bit.bor
+
 
 local function argerror (name, i, extramsg, level)
   level = level or 1
