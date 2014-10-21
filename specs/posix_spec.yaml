@@ -537,7 +537,7 @@ specify posix:
 
   - describe link:
     - before:
-        link, lstat, stat = posix.link, posix.lstat, posix.stat
+        link, stat = posix.link, posix.stat
         touch "xxx"
     - after:
         os.remove "xxx"
@@ -547,11 +547,11 @@ specify posix:
 
     - it creates hard links:
         expect (Emsg (link ("xxx", "xxx-hard"))).to_be ""
-        expect (lstat ("xxx-hard", "ino")).to_be (stat ("xxx", "ino"))
+        expect (stat ("xxx-hard", "ino")).to_be (stat ("xxx", "ino"))
         os.remove "xxx-hard"
     - it creates soft links:
         expect (Emsg (link ("xxx", "xxx-soft", true))).to_be ""
-        expect (lstat ("xxx-soft", "type")).to_be "link"
+        expect (stat ("xxx-soft", "type")).to_be "link"
         os.remove "xxx-soft"
 
   - describe readlink:

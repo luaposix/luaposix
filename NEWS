@@ -43,8 +43,6 @@ Stdlib NEWS - User visible changes
  - Add `posix.unistd.gethostid`. The old `posix.hostid` API is still available
    as an alias.
 
- - Add `posix.lstat`.
-
  - Add group APIs from grp.h: `posix.grp.endgrent`, `posix.grp.getgrent`,
    `posix.grp.getgrgid`, `posix.grp.getgrnam` and `posix.grp.setgrent`.
    Consequently, `posix.getgroup` is now reimplemented in Lua over the POSIX
@@ -103,19 +101,10 @@ Stdlib NEWS - User visible changes
  - `posix.getpid` processes a single table argument with a list of types
    correctly.
 
- - `posix.stat` really does call stat(2) now.
-
  - `posix.readlink` is much more robust, and reports errors accurately.
 
  - configured installation installs `posix.so` into the lua cpath directory
    correctly.
-
-** Incompatible changes:
-
- - Calling `posix.stat` on a symbolic link now returns information about
-   the file pointed to by the link, just like stat(2).  Previous
-   releases erroneously called lstat(2) internally instead, and return
-   information about the link itself.
 
 
 * Noteworthy changes in release 32 (2014-05-30) [stable]

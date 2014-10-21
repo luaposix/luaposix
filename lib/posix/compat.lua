@@ -377,16 +377,15 @@ end
 --- Information about an existing file path.
 -- If the file is a symbolic link, return information about the link
 -- itself.
--- @function lstat
+-- @function stat
 -- @string path file to act on
 -- @tparam[opt] table|string field one of "dev", "ino", "mode", "nlink",
 --   "uid", "gid", "rdev", "size", "atime", "mtime", "ctime" or "type"
 -- @string[opt] ... unless *field* was a table, zero or more additional
 --   field names
 -- @return values, or table of all fields if no option fiven
--- @see lstat(2)
--- @see stat
--- @usage for a,b in pairs (P,lstat "/etc/") do print (a, b) end
+-- @see stat(2)
+-- @usage for a,b in pairs (P,stat "/etc/") do print (a, b) end
 
 local st = require "posix.sys.stat"
 
@@ -476,46 +475,7 @@ local function statselection (name, info, ...)
 end
 
 
-local _lstat = st.lstat
-
-local function lstat (path, ...)
-  return statselection ("lstat", _lstat (path), ...)
-end
-
-if _DEBUG ~= false then
-  M.lstat = function (path, t, ...)
-    local argt = {path, t, ...}
-    checkstring ("lstat", 1, path)
-    if type (t) == "table" and #argt > 2 then
-      toomanyargerror ("lstat", 2, #argt)
-    elseif t ~= nil and type (t) ~= "string" then
-      argtypeerror ("lstat", 2, "table, string or nil", t)
-    end
-    for i = 3, #argt do
-      checkstring ("lstat", i, argt[i])
-    end
-    return lstat (path, t, ...)
-  end
-else
-  M.lstat = lstat
-end
-
-
---- Information about an existing file path.
--- If the file is a symbolic link, return information about the file the
--- link points to.
--- @function stat
--- @string path file to act on
--- @tparam[opt] table|string field one of "dev", "ino", "mode", "nlink",
---   "uid", "gid", "rdev", "size", "atime", "mtime", "ctime" or "type"
--- @string[opt] ... unless *field* was a table, zero or more additional
---   field names
--- @return values, or table of all fields if no option fiven
--- @see lstat(2)
--- @see stat
--- @usage for a,b in pairs (P,lstat "/etc/") do print (a, b) end
-
-local _stat = st.stat
+local _stat = st.lstat
 
 local function stat (path, ...)
   return statselection ("stat", _stat (path), ...)
@@ -536,7 +496,7 @@ if _DEBUG ~= false then
     return stat (path, t, ...)
   end
 else
-  M.stat = stat
+  M.lstat = lstat
 end
 
 
