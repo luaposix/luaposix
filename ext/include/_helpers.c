@@ -372,21 +372,6 @@ badoption(lua_State *L, int i, const char *what, int option)
 #define setstringfield(_p, _n) pushstringfield(LPOSIX_STR(_n), _p->_n)
 
 
-static int
-pushtimeval(lua_State *L, struct timeval *tv)
-{
-	if (!tv)
-		return lua_pushnil(L), 1;
-
-	lua_createtable(L, 0, 2);
-	setnumberfield(tv, tv_sec);
-	setnumberfield(tv, tv_usec);
-
-	settypemetatable("PosixTimeval");
-	return 1;
-}
-
-
 typedef void (*Selector)(lua_State *L, int i, const void *data);
 
 static int

@@ -29,6 +29,19 @@ Time value.
 @int tv_sec seconds elapsed
 @int tv_usec remainder in microseconds
 */
+static int
+pushtimeval(lua_State *L, struct timeval *tv)
+{
+	if (!tv)
+		return lua_pushnil(L), 1;
+
+	lua_createtable(L, 0, 2);
+	setnumberfield(tv, tv_sec);
+	setnumberfield(tv, tv_usec);
+
+	settypemetatable("PosixTimeval");
+	return 1;
+}
 
 
 /***
