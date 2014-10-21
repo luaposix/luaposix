@@ -26,8 +26,8 @@ specify posix/pwd:
   - context with bad arguments:
       badargs.diagnose (getpwent, "()")
 
-  - it returns a table for an existing user:
-      expect (type (getpwent ())).to_be "table"
+  - it returns a PosixPasswd for an existing user:
+      expect (prototype (getpwent ())).to_be "PosixPasswd"
   - it fetches a different user on subsequent calls:
       p = getpwent ()
       expect (getpwent ()).not_to_equal (p)
@@ -51,8 +51,8 @@ specify posix/pwd:
 
   - it returns 'nil' for a non-existent user:
       expect (getpwnam "veryunlikelyusername").to_be (nil)
-  - it returns a table for an existing user:
-      expect (type (getpwnam "root")).to_be "table"
+  - it returns a PosixPasswd for an existing user:
+      expect (prototype (getpwnam "root")).to_be "PosixPasswd"
   - it fetches a passwd entry by name:
       expect (getpwnam ("root").pw_name).to_be "root"
       expect (getpwnam ("root").pw_uid).to_be (0)
@@ -68,8 +68,8 @@ specify posix/pwd:
   - context with bad arguments:
       badargs.diagnose (getpwuid, "(int)")
 
-  - it returns a table for an existing passwd entry:
-      expect (type (getpwuid (0))).to_be "table"
+  - it returns a PosixPasswd for an existing user:
+      expect (prototype (getpwuid (0))).to_be "PosixPasswd"
   - it fetches a passwd entry by gid:
       expect (getpwuid (0).pw_name).to_be "root"
       expect (getpwuid (0).pw_uid).to_be (0)

@@ -80,13 +80,6 @@ static const luaL_Reg posix_errno_fns[] =
 };
 
 
-LUALIB_API int
-luaopen_posix_errno(lua_State *L)
-{
-	luaL_register(L, "posix.errno", posix_errno_fns);
-	lua_pushliteral(L, "posix.errno for " LUA_VERSION " / " PACKAGE_STRING);
-	lua_setfield(L, -2, "version");
-
 /***
 Constants.
 @section constants
@@ -179,6 +172,13 @@ the symbolic name of the constant (from `/usr/include/errno.h` or equivalent).
     end
   end
 */
+LUALIB_API int
+luaopen_posix_errno(lua_State *L)
+{
+	luaL_register(L, "posix.errno", posix_errno_fns);
+	lua_pushliteral(L, "posix.errno for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_setfield(L, -2, "version");
+
 #ifdef E2BIG
 	LPOSIX_CONST( E2BIG		);
 #endif

@@ -29,17 +29,16 @@ Stdlib NEWS - User visible changes
    between luaposix APIs and the C functions they wrap, so translating from
    C is now easier than ever.
 
-   !!!HOWEVER: The submodule APIs will become much thinner in future releases,
-   even though the bindings in the top-level `posix` table will remain stable,
-   so you shouldn't rely on the submodule APIs for anything you don't want to
-   keep updating in the face of the thinning submodule wrappers!!!
-
  - Each of the newly separated submodules is self-contained, and can be copied
    to another project for compiling and/or loading in a custom Lua runtime. If
    you want to make use of this, in addition to the source for the modules you
    copy, you'll also need at least the files `ext/posix/_helpers.c` and
    `ext/include/lua52compat.c`, and also `ext/include/strlcat.c` for one or
    two of them.
+
+ - Where submodule calls return a table representation of a similar C struct
+   from a POSIX API, the Lua return tables have an appropriate `_type` field
+   metatable entry compatible with lua-stdlib `std.object.type`.
 
  - Add `posix.unistd.gethostid`. The old `posix.hostid` API is still available
    as an alias.

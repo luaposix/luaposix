@@ -1914,7 +1914,7 @@ luaopen_posix_curses_window(lua_State *L)
 
 	lua_pushvalue(L, mt);
 	lua_setfield(L, mt, "__index");		/* mt.__index = mt */
-	lua_pushliteral(L, "Curses Window");
+	lua_pushliteral(L, "PosixWindow");
 	lua_setfield(L, mt, "_type");		/* mt._type = "Curses Window" */
 
 	/* for k,v in pairs(t) do mt[k]=v end */

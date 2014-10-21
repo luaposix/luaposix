@@ -36,37 +36,16 @@ static int
 pushutsname(lua_State *L, struct utsname *u)
 {
 	if (!u)
-	{
-		lua_pushnil(L);
-		return 1;
-	}
+		return lua_pushnil(L), 1;
 
 	lua_createtable(L, 0, 5);
-	if (u->machine)
-	{
-		lua_pushstring(L, u->machine);
-		lua_setfield(L, -2, "machine");
-	}
-	if (u->nodename)
-	{
-		lua_pushstring(L, u->nodename);
-		lua_setfield(L, -2, "nodename");
-	}
-	if (u->release)
-	{
-		lua_pushstring(L, u->release);
-		lua_setfield(L, -2, "release");
-	}
-	if (u->sysname)
-	{
-		lua_pushstring(L, u->sysname);
-		lua_setfield(L, -2, "sysname");
-	}
-	if (u->version)
-	{
-		lua_pushstring(L, u->version);
-		lua_setfield(L, -2, "version");
-	}
+	setstringfield(u, machine);
+	setstringfield(u, nodename);
+	setstringfield(u, release);
+	setstringfield(u, sysname);
+	setstringfield(u, version);
+
+	settypemetatable("PosixUtsname");
 	return 1;
 }
 

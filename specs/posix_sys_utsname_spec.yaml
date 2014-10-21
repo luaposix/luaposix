@@ -12,6 +12,8 @@ specify posix/sys/utsname:
   - context with bad arguments:
       badargs.diagnose (uname, "()")
 
+  - it returns a PosixUtsname:
+      expect (prototype (u)).to_be "PosixUtsname"
   - it returns machine name:
       expect (u.machine).to_be (cmd_output "uname -m")
   - it returns nodename:

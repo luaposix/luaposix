@@ -25,7 +25,7 @@
 
 /***
 Time value.
-@table timeval
+@table PosixTimeval
 @int tv_sec seconds elapsed
 @int tv_usec remainder in microseconds
 */
@@ -34,7 +34,7 @@ Time value.
 /***
 Get time of day.
 @function gettimeofday
-@treturn timeval time elapsed since *epoch*
+@treturn PosixTimeval time elapsed since *epoch*
 @see gettimeofday(2)
 */
 static int

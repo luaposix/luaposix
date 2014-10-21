@@ -28,7 +28,7 @@
 
 /***
 Password record.
-@table passwd
+@table PosixPasswd
 @string pw_name user's login name
 @int pw_uid unique user id
 @int pw_gid user's default group id
@@ -40,36 +40,17 @@ static int
 pushpasswd(lua_State *L, struct passwd *p)
 {
 	if (!p)
-	{
-		lua_pushnil(L);
-		return 1;
-	}
+		return lua_pushnil(L), 1;
 
-	lua_createtable(L, 0, 5);
-	lua_pushnumber(L, (int) p->pw_uid);
-	lua_setfield(L, -2, "pw_uid");
-	lua_pushnumber(L, (int) p->pw_gid);
-	lua_setfield(L, -2, "pw_gid");
-	if (p->pw_name)
-	{
-		lua_pushstring(L, p->pw_name);
-		lua_setfield(L, -2, "pw_name");
-	}
-	if (p->pw_dir)
-	{
-		lua_pushstring(L, p->pw_dir);
-		lua_setfield(L, -2, "pw_dir");
-	}
-	if (p->pw_shell)
-	{
-		lua_pushstring(L, p->pw_shell);
-		lua_setfield(L, -2, "pw_shell");
-	}
-	if (p->pw_passwd)
-	{
-		lua_pushstring(L, p->pw_passwd);
-		lua_setfield(L, -2, "pw_passwd");
-	}
+	lua_createtable(L, 0, 6);
+	setnumberfield(p, pw_uid);
+	setnumberfield(p, pw_gid);
+	setstringfield(p, pw_name);
+	setstringfield(p, pw_dir);
+	setstringfield(p, pw_shell);
+	setstringfield(p, pw_passwd);
+
+	settypemetatable("PosixPasswd");
 	return 1;
 }
 
@@ -91,7 +72,7 @@ Pendpwent(lua_State *L)
 /***
 Fetch next password entry.
 @function getpwent
-@treturn passwd next password record
+@treturn PosixPasswd next password record
 @see endpwent
 @usage
   t = P.getpwent ()
@@ -117,7 +98,7 @@ Pgetpwent(lua_State *L)
 Fetch named user.
 @function getpwnam
 @string name user name
-@treturn passwd passwd record for *name*
+@treturn PosixPasswd passwd record for *name*
 @usage
   t = P.getpwnam "root"
 */
@@ -140,7 +121,7 @@ Pgetpwnam(lua_State *L)
 Fetch password entry with given user id.
 @function getpwuid
 @int uid user id
-@treturn passwd passwd record for *uid*
+@treturn PosixPasswd passwd record for *uid*
 @usage
   t = P.getpwuid (0)
 */

@@ -31,6 +31,12 @@ band, bnot, bor = bit.band, bit.bnot, bit.bor
 local LUA = os.getenv "LUA" or "lua"
 
 
+-- Easily check for std.object.type compatibility.
+function prototype (o)
+  return (getmetatable (o) or {})._type or io.type (o) or type (o)
+end
+
+
 local function mkscript (code)
   local f = os.tmpname ()
   local h = io.open (f, "w")

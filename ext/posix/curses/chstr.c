@@ -284,8 +284,8 @@ luaopen_posix_curses_chstr(lua_State *L)
 
 	lua_pushvalue(L, mt);
 	lua_setfield(L, -2, "__index");		/* mt.__index = mt */
-	lua_pushliteral(L, "Curses Chstr");
-	lua_setfield(L, -2, "_type");		/* mt._type = "Curses Chstr" */
+	lua_pushliteral(L, "PosixChstr");
+	lua_setfield(L, -2, "_type");		/* mt._type = "PosixChstr" */
 
 	/* for k,v in pairs(t) do mt[k]=v end */
 	for (lua_pushnil(L); lua_next(L, t) != 0;)

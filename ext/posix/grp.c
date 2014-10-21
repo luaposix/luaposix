@@ -27,7 +27,7 @@
 
 /***
 Group record.
-@table group
+@table PosixGroup
 @string gr_name name of group
 @int gr_gid unique group id
 @tfield list gr_mem a list of group members
@@ -37,19 +37,11 @@ static int
 pushgroup(lua_State *L, struct group *g)
 {
 	if (!g)
-	{
-		lua_pushnil(L);
-		return 1;
-	}
+		return lua_pushnil(L), 1;
 
 	lua_createtable(L, 0, 3);
-	lua_pushnumber(L, (int) g->gr_gid);
-	lua_setfield(L, -2, "gr_gid");
-	if (g->gr_name)
-	{
-		lua_pushstring(L, g->gr_name);
-		lua_setfield(L, -2, "gr_name");
-	}
+	setnumberfield(g, gr_gid);
+	setstringfield(g, gr_name);
 	if (g->gr_mem)
 	{
 		int i;
@@ -61,6 +53,8 @@ pushgroup(lua_State *L, struct group *g)
 		}
 		lua_setfield(L, -2, "gr_mem");
 	}
+
+	settypemetatable("PosixGroup");
 	return 1;
 }
 
@@ -82,7 +76,7 @@ Pendgrent(lua_State *L)
 /***
 Fetch next group.
 @function getgrent
-@treturn group next group record
+@treturn PosixGroup next group record
 @see endgrent
 @usage
   t = P.getgrent ()
@@ -108,7 +102,7 @@ Pgetgrent(lua_State *L)
 Fetch group with given group id.
 @function getgrgid
 @int gid group id
-@treturn group group record for *gid*
+@treturn PosixGroup group record for *gid*
 @usage
   t = P.getgrgid (0)
 */
@@ -131,7 +125,7 @@ Pgetgrgid(lua_State *L)
 Fetch named group.
 @function getgrnam
 @string name group name
-@treturn group group record for *name*
+@treturn PosixGroup group record for *name*
 @usage
   t = P.getgrnam "wheel"
 */

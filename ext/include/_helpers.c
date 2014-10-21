@@ -58,6 +58,21 @@
 #  define LPOSIX_UNUSED(x) UNUSED_ ## x
 #endif
 
+/* LPOSIX_STMT_BEG/END are used to create macros that expand to a
+   single compound statement in a portable way. */
+#if defined __GNUC__ && !defined __STRICT_ANSI__ && !defined __cplusplus
+#  define LPOSIX_STMT_BEG	(void)(
+#  define LPOSIX_STMT_END	)
+#else
+#  if (defined sun || defined __sun__)
+#    define LPOSIX_STMT_BEG	if (1)
+#    define LPOSIX_STMT_END	else (void)0
+#  else
+#    define LPOSIX_STMT_BEG	do
+#    define LPOSIX_STMT_END	while (0)
+#  endif
+#endif
+
 
 /* The extra indirection to these macros is required so that if the
    arguments are themselves macros, they will get expanded too.  */
@@ -72,9 +87,10 @@
 #define LPOSIX__STR_1(_s)	(#_s + 1)
 #define LPOSIX_STR_1(_s)	LPOSIX__STR_1(_s)
 
-#define LPOSIX_CONST(_f)	\
-	lua_pushinteger(L, _f);	\
-	lua_setfield(L, -2, #_f)
+#define LPOSIX_CONST(_f)	LPOSIX_STMT_BEG {			\
+					lua_pushinteger(L, _f);		\
+					lua_setfield(L, -2, #_f);	\
+				} LPOSIX_STMT_END
 
 #define LPOSIX_FUNC(_s)		{LPOSIX_STR_1(_s), (_s)}
 
@@ -288,12 +304,6 @@ optstringfield(lua_State *L, int index, const char *k, const char *def)
 	return checkstringfield(L, index, k);
 }
 
-#define pushnumberfield(k,v) \
-	lua_pushnumber(L, (lua_Integer) v); lua_setfield(L, -2, k)
-
-#define pushstringfield(k,v) \
-	lua_pushstring(L, (const char *) v); lua_setfield(L, -2, k)
-
 static int
 pusherror(lua_State *L, const char *info)
 {
@@ -334,6 +344,34 @@ badoption(lua_State *L, int i, const char *what, int option)
  * ================== */
 
 
+#define pushnumberfield(k,v) LPOSIX_STMT_BEG {				\
+	lua_pushnumber(L, (lua_Integer) v); lua_setfield(L, -2, k);	\
+} LPOSIX_STMT_END
+
+#define pushstringfield(k,v) LPOSIX_STMT_BEG {				\
+	if (v) {							\
+		lua_pushstring(L, (const char *) v);			\
+		lua_setfield(L, -2, k);					\
+	}								\
+} LPOSIX_STMT_END
+
+#define pushliteralfield(k,v) LPOSIX_STMT_BEG {				\
+	if (v) {							\
+		lua_pushliteral(L, v);					\
+		lua_setfield(L, -2, k);					\
+	}								\
+} LPOSIX_STMT_END
+
+#define settypemetatable(t) LPOSIX_STMT_BEG {				\
+	if (luaL_newmetatable(L, t) == 1)				\
+		pushliteralfield("_type", t);				\
+	lua_setmetatable(L, -2);					\
+} LPOSIX_STMT_END
+
+#define setnumberfield(_p, _n) pushnumberfield(LPOSIX_STR(_n), _p->_n)
+#define setstringfield(_p, _n) pushstringfield(LPOSIX_STR(_n), _p->_n)
+
+
 static int
 pushtimeval(lua_State *L, struct timeval *tv)
 {
@@ -341,8 +379,10 @@ pushtimeval(lua_State *L, struct timeval *tv)
 		return lua_pushnil(L), 1;
 
 	lua_createtable(L, 0, 2);
-	pushnumberfield("tv_sec", tv->tv_sec);
-	pushnumberfield("tv_usec", tv->tv_usec);
+	setnumberfield(tv, tv_sec);
+	setnumberfield(tv, tv_usec);
+
+	settypemetatable("PosixTimeval");
 	return 1;
 }
 

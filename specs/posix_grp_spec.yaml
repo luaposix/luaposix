@@ -26,8 +26,8 @@ specify posix/grp:
   - context with bad arguments:
       badargs.diagnose (getgrent, "()")
 
-  - it returns a table for an existing group:
-      expect (type (getgrent ())).to_be "table"
+  - it returns a PosixGroup for an existing group:
+      expect (prototype (getgrent ())).to_be "PosixGroup"
   - it fetches a different group on subsequent calls:
       g = getgrent ()
       expect (getgrent ()).not_to_equal (g)
@@ -50,8 +50,8 @@ specify posix/grp:
   - context with bad arguments:
       badargs.diagnose (getgrgid, "(int)")
 
-  - it returns a table for an existing group:
-      expect (type (getgrgid (0))).to_be "table"
+  - it returns a PosixGroup for an existing group:
+      expect (prototype (getgrgid (0))).to_be "PosixGroup"
   - it fetches a group by gid:
       expect (getgrgid (0).gr_name).to_be (groot)
       expect (getgrgid (0).gr_gid).to_be (0)
@@ -68,8 +68,8 @@ specify posix/grp:
 
   - it returns 'nil' for a non-existent group:
       expect (getgrnam "veryunlikelygroupname").to_be (nil)
-  - it returns a table for an existing group:
-      expect (type (getgrnam (groot))).to_be "table"
+  - it returns a PosixGroup for an existing group:
+      expect (prototype (getgrnam (groot))).to_be "PosixGroup"
   - it fetches a group by name:
       expect (getgrnam (groot).gr_name).to_be (groot)
       expect (getgrnam (groot).gr_gid).to_be (0)

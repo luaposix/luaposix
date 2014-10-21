@@ -61,7 +61,7 @@ Socket address.
 
 /***
 Address information hints.
-@table addrinfo
+@table PosixAddrInfo
 @int family one of `AF_INET`, `AF_INET6`, `AF_UNIX` or `AF_NETLINK`
 @int flags bitwise OR of zero or more of `AI_ADDRCONFIG`, `AI_ALL`,
   `AI_CANONNAME`, `AI_NUMERICHOST`, `AI_NUMERICSERV`, `AI_PASSIVE` and
@@ -104,6 +104,7 @@ pushsockaddrinfo(lua_State *L, int family, struct sockaddr *sa)
 #endif
 	}
 
+	settypemetatable("PosixAddrInfo");
 	return 1;
 }
 
@@ -262,7 +263,7 @@ Network address and service translation.
 @function getaddrinfo
 @string host name of a host
 @string service name of service
-@tparam[opt] addrinfo hints table
+@tparam[opt] PosixAddrInfo hints table
 @treturn[1] list of @{sockaddr} tables
 @return[2] nil
 @treturn[2] string error message
