@@ -115,4 +115,4 @@ specify posix/sys/stat:
       blocks = lstat (dir .. "/file").st_blocks
       expect (type (blocks)).to_be "number"
       expect (blocks >= 0).to_be (true)
-      expect (blocks).to_be (lstat (dir).st_blocks)
+      expect (blocks).to_be (lstat (dir .. "/hard").st_blocks)
