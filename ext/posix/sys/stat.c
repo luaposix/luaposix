@@ -283,27 +283,15 @@ Pstat(lua_State *L)
 /***
 Set file mode creation mask.
 @function umask
-@string[opt] mode file creation mask string (see @{chmod} for format)
+@int[opt] mode new file creation mask
 @treturn int previous umask
 @see umask(2)
 */
 static int
 Pumask(lua_State *L)
 {
-	const char *modestr = optstring(L, 1, NULL);
-	mode_t mode;
 	checknargs(L, 1);
-	umask(mode=umask(0));
-	mode=(~mode)&0777;
-	if (modestr)
-	{
-		if (mode_munch(&mode, modestr))
-		        luaL_argerror(L, 1, "bad mode");
-		mode&=0777;
-		umask(~mode);
-	}
-	pushmode(L, mode);
-	return 1;
+	return pushintresult(umask((mode_t) checkint(L, 1)));
 }
 
 

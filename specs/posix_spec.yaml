@@ -652,42 +652,6 @@ specify posix:
         rmtmp (dir)
 
 
-  - describe umask:
-    - before:
-        stat, umask = posix.stat, posix.umask
-        saved = umask ()
-        umask "rwxr-x---"
-    - after:
-        umask (saved)
-
-    - context with bad arguments: |
-        examples {
-          ["it diagnoses argument #1 invalid mode"] = function ()
-            expect (umask ("g+vv")).
-              to_raise "bad argument #1 to 'umask' (bad mode)"
-          end
-        }
-
-        badargs.diagnose (posix.umask, "(?string)")
-
-    - it returns current umask:
-        expect (umask ()).to_be "rwxr-x---"
-    - "it sets attributes with '='":
-        expect (umask "a=r").to_be "r--r--r--"
-    - "it adds attributes with '+'":
-        expect (umask "g+w").to_be "rwxrwx---"
-    - "it removes attributes with '-'":
-        expect (umask "u-r").to_be "-wxr-x---"
-    - it accepts comma separated attribute specifications:
-        expect (umask "a+r,g+w,u-x").to_be "rw-rwxr--"
-    - it controls the mode of newly created files:
-        xxx, mode = dir .. "/xxx", "rw--w-r--"
-        umask (mode)
-        touch (xxx)
-        expect (stat (xxx, "mode")).to_be (mode)
-        os.remove (xxx)
-
-
   - describe chmod:
     - before:
         chmod, stat = posix.chmod, posix.stat

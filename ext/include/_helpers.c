@@ -431,20 +431,6 @@ static const struct { char c; mode_t b; } M[] =
 	{'r', S_IROTH}, {'w', S_IWOTH}, {'x', S_IXOTH},
 };
 
-static void
-pushmode(lua_State *L, mode_t mode)
-{
-	char m[9];
-	int i;
-	for (i=0; i<9; i++)
-		m[i]= (mode & M[i].b) ? M[i].c : '-';
-	if (mode & S_ISUID)
-		m[2]= (mode & S_IXUSR) ? 's' : 'S';
-	if (mode & S_ISGID)
-		m[5]= (mode & S_IXGRP) ? 's' : 'S';
-	lua_pushlstring(L, m, 9);
-}
-
 static int
 rwxrwxrwx(mode_t *mode, const char *p)
 {

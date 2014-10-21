@@ -116,3 +116,26 @@ specify posix/sys/stat:
       expect (type (blocks)).to_be "number"
       expect (blocks >= 0).to_be (true)
       expect (blocks).to_be (lstat (dir .. "/hard").st_blocks)
+
+
+- describe umask:
+  - before:
+      lstat, umask = st.lstat, st.umask
+      newmask = band (st.S_IWGRP, st.S_IRWXO)
+      origmask = umask (newmask)
+  - after:
+      umask (origmask)
+
+  - context with bad arguments:
+      badargs.diagnose (umask, "(int)")
+
+  - it returns current umask:
+      expect (umask (0)).to_be (newmask)
+      expect (umask (newmask)).to_be (0)
+  - it controls the mode of newly created files:
+      all = bor (st.S_IRWXU, st.S_IRWXG, st.S_IRWXO)
+      xxx, mask = dir .. "/xxx", bor (st.S_IRWXO, st.S_IWGRP, st.S_IXGRP)
+      umask (mask)
+      touch (xxx)
+      expect (band (lstat (xxx).st_mode, all)).to_be (bor (st.S_IRUSR, st.S_IWUSR, st.S_IRGRP))
+      os.remove (xxx)

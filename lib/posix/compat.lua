@@ -389,14 +389,17 @@ end
 
 local st = require "posix.sys.stat"
 
+local S_IRUSR, S_IWUSR, S_IXUSR = st.S_IRUSR, st.S_IWUSR, st.S_IXUSR
+local S_IRGRP, S_IWGRP, S_IXGRP = st.S_IRGRP, st.S_IWGRP, st.S_IXGRP
+local S_IROTH, S_IWOTH, S_IXOTH = st.S_IROTH, st.S_IWOTH, st.S_IXOTH
+local S_ISUID, S_ISGID, S_IRWXU, S_IRWXG, S_IRWXO =
+  st.S_ISUID, st.S_ISGID, st.S_IRWXU, st.S_IRWXG, st.S_IRWXO
+
 local mode_map = {
-  { c = "r", b = st.S_IRUSR }, { c = "w", b = st.S_IWUSR }, { c = "x", b = st.S_IXUSR },
-  { c = "r", b = st.S_IRGRP }, { c = "w", b = st.S_IWGRP }, { c = "x", b = st.S_IXGRP },
-  { c = "r", b = st.S_IROTH }, { c = "w", b = st.S_IWOTH }, { c = "x", b = st.S_IXOTH },
+  { c = "r", b = S_IRUSR }, { c = "w", b = S_IWUSR }, { c = "x", b = S_IXUSR },
+  { c = "r", b = S_IRGRP }, { c = "w", b = S_IWGRP }, { c = "x", b = S_IXGRP },
+  { c = "r", b = S_IROTH }, { c = "w", b = S_IWOTH }, { c = "x", b = S_IXOTH },
 }
-
-
-local S_ISUID, S_ISGID, S_IXUSR, S_IXGRP = st.S_ISUID, st.S_ISGID, st.S_IXUSR, st.S_IXGRP
 
 local function pushmode (mode)
   local m = {}
@@ -404,14 +407,71 @@ local function pushmode (mode)
     if band (mode, mode_map[i].b) ~= 0 then m[i] = mode_map[i].c else m[i] = "-" end
   end
   if band (mode, S_ISUID) ~= 0 then
-    if band (mode, S_IXUSR) ~= 0 then m[2] = "s" else m[2] = "S" end
+    if band (mode, S_IXUSR) ~= 0 then m[3] = "s" else m[3] = "S" end
   end
   if band (mode, S_ISGID) ~= 0 then
-    if band (mode, S_IXGRP) ~= 0 then m[2] = "s" else m[2] = "S" end
+    if band (mode, S_IXGRP) ~= 0 then m[6] = "s" else m[6] = "S" end
   end
   return table.concat (m)
 end
 
+local function rwxrwxrwx (modestr)
+  local mode = 0
+  for i = 1, 9 do
+    if modestr:sub (i, i) == mode_map[i].c then
+      mode = bor (mode, mode_map[i].b)
+    elseif modestr:sub (i, i) == "s" then
+      if i == 3 then
+        mode = bor (mode, S_ISUID, S_IXUSR)
+      elseif i == 6 then
+        mode = bor (mode, S_ISGID, S_IXGRP)
+      else
+	return nil  -- bad mode
+      end
+    end
+  end
+  return mode
+end
+
+local function octal_mode (modestr)
+  local mode = 0
+  for i = 1, #modestr do
+    mode = mode * 8 + tonumber (modestr:sub (i, i))
+  end
+  return mode
+end
+
+local function mode_munch (mode, modestr)
+  if #modestr == 9 and modestr:match "^[-rswx]+$" then
+    return rwxrwxrwx (modestr)
+  elseif modestr:match "^[0-7]+$" then
+    return octal_mode (modestr)
+  elseif modestr:match "^[ugoa]+%s*[-+=]%s*[rswx]+,*" then
+    modestr:gsub ("%s*(%a+)%s*(.)%s*(%a+),*", function (who, op, what)
+      local bits, bobs = 0, 0
+      if who:match "[ua]" then bits = bor (bits, S_ISUID, S_IRWXU) end
+      if who:match "[ga]" then bits = bor (bits, S_ISGID, S_IRWXG) end
+      if who:match "[oa]" then bits = bor (bits, S_IRWXO) end
+      if what:match "r" then bobs = bor (bobs, S_IRUSR, S_IRGRP, S_IROTH) end
+      if what:match "w" then bobs = bor (bobs, S_IWUSR, S_IWGRP, S_IWOTH) end
+      if what:match "x" then bobs = bor (bobs, S_IXUSR, S_IXGRP, S_IXOTH) end
+      if what:match "s" then bobs = bor (bobs, S_ISUID, S_ISGID) end
+      if op == "+" then
+	-- mode |= bits & bobs
+	mode = bor (mode, band (bits, bobs))
+      elseif op == "-" then
+	-- mode &= ~(bits & bobs)
+	mode = band (mode, bnot (band (bits, bobs)))
+      elseif op == "=" then
+	-- mode = (mode & ~bits) | (bits & bobs)
+	mode = bor (band (mode, bnot (bits)), band (bits, bobs))
+      end
+    end)
+    return mode
+  else
+    return nil, "bad mode"
+  end
+end
 
 local S_ISREG, S_ISLNK, S_ISDIR, S_ISCHR, S_ISBLK, S_ISFIFO, S_ISSOCK =
   st.S_ISREG, st.S_ISLNK, st.S_ISDIR, st.S_ISCHR, st.S_ISBLK, st.S_ISFIFO, st.S_ISSOCK
@@ -497,6 +557,47 @@ if _DEBUG ~= false then
   end
 else
   M.lstat = lstat
+end
+
+
+--- Set file mode creation mask.
+-- @function umask
+-- @string[opt] mode file creation mask string
+-- @treturn string previous umask
+-- @see umask(2)
+
+local st = require "posix.sys.stat"
+
+local _umask, RWXALL = st.umask, bor (st.S_IRWXU, st.S_IRWXG, st.S_IRWXO)
+
+local function umask (modestr)
+  modestr = modestr or ""
+  local mode = _umask (0)
+  _umask (mode)
+  mode = band (bnot (mode), RWXALL)
+  if #modestr > 0 then
+    local bits, err = mode_munch (mode, modestr)
+    if bits == nil then
+      argerror ("umask", 1, err, 2)
+    end
+    mode = band (bits, RWXALL)
+    _umask (bnot (mode))
+  end
+  return pushmode (mode)
+end
+
+
+if _DEBUG ~= false then
+  M.umask = function (modestr, ...)
+    local argt = {modestr, ...}
+    optstring ("umask", 1, modestr, "")
+    if #argt > 1 then
+      toomanyargerror ("umask", 1, #argt)
+    end
+    return umask (modestr)
+  end
+else
+  M.umask = umask
 end
 
 
