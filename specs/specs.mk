@@ -8,7 +8,7 @@
 specl_SPECS =						\
 	$(srcdir)/specs/curses_spec.yaml		\
 	$(srcdir)/specs/lposix_spec.yaml		\
-	$(srcdir)/specs/posix_compat.yaml		\
+	$(srcdir)/specs/posix_compat_spec.yaml		\
 	$(srcdir)/specs/posix_ctype_spec.yaml		\
 	$(srcdir)/specs/posix_fnmatch_spec.yaml		\
 	$(srcdir)/specs/posix_grp_spec.yaml		\
