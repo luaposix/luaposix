@@ -277,33 +277,33 @@ specify compat:
       end
 
 
-  - describe open:
-    # posix.open ignores the mode argument if flags does not include
-    # O_CREAT, which `badargs.diagnose` can't express; ergo manual
-    # checks here...
-    - before:
-        O_CREAT = posix.O_CREAT
-        open, badarg = init (posix, "open")
+- describe open:
+  # posix.open ignores the mode argument if flags does not include
+  # O_CREAT, which `badargs.diagnose` can't express; ergo manual
+  # checks here...
+  - before:
+      O_CREAT = posix.O_CREAT
+      open, badarg = init (posix, "open")
 
-    - 'it diagnoses missing argument #1':
-        expect (open ()).to_raise (badarg (1, "string"))
-    - 'it diagnoses argument #1 type not string':
-        expect (open (false)).to_raise (badarg (1, "string", "boolean"))
-    - 'it diagnoses missing argument #2':
-        expect (open ("not/existing")).to_raise (badarg (2, "int"))
-    - 'it diagnoses argument #2 type not int':
-        expect (open ("not/existing", false)).
-          to_raise (badarg (2, "int", "boolean"))
-    - 'it diagnoses missing argument #3':
-        expect (open ("not/existing", O_CREAT)).to_raise (badarg (3, "string"))
-    - 'it diagnoses argument #3 type not string':
-        expect (open ("not/existing", O_CREAT, false)).
-          to_raise (badarg (3, "string", "boolean"))
-    - 'it diagnoses argument #3 invalid mode': |
-        expect (open ("not/existing", O_CREAT, "g+vv")).
-          to_raise "bad argument #3 to 'open' (bad mode)"
-    - 'it diagnoses too many arguments':
-        expect (open ("not/existing", -1, "o-s", false)).to_raise (badarg (4))
+  - 'it diagnoses missing argument #1':
+      expect (open ()).to_raise (badarg (1, "string"))
+  - 'it diagnoses argument #1 type not string':
+      expect (open (false)).to_raise (badarg (1, "string", "boolean"))
+  - 'it diagnoses missing argument #2':
+      expect (open ("not/existing")).to_raise (badarg (2, "int"))
+  - 'it diagnoses argument #2 type not int':
+      expect (open ("not/existing", false)).
+        to_raise (badarg (2, "int", "boolean"))
+  - 'it diagnoses missing argument #3':
+      expect (open ("not/existing", O_CREAT)).to_raise (badarg (3, "string"))
+  - 'it diagnoses argument #3 type not string':
+      expect (open ("not/existing", O_CREAT, false)).
+        to_raise (badarg (3, "string", "boolean"))
+  - 'it diagnoses argument #3 invalid mode': |
+      expect (open ("not/existing", O_CREAT, "g+vv")).
+        to_raise "bad argument #3 to 'open' (bad mode)"
+  - 'it diagnoses too many arguments':
+      expect (open ("not/existing", -1, "o-s", false)).to_raise (badarg (4))
 
 
 - describe stat:
