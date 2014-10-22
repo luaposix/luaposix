@@ -159,6 +159,24 @@ local function mode_munch (mode, modestr)
   end
 end
 
+local function doselection (name, argoffset, fields, map)
+  if #fields == 1 and type (fields[1]) == "table" then fields = fields[1] end
+
+  if not (next (fields)) then
+    return map
+  else
+    local r = {}
+    for i, v in ipairs (fields) do
+      if map[v] then
+        r[#r + 1] = map[v]
+      else
+        argerror (name, i + argoffset, "invalid option '" .. v .. "'")
+      end
+    end
+    return unpack (r)
+  end
+end
+
 
 local M = {
   argerror        = argerror,
@@ -356,32 +374,14 @@ local function getpasswd (user, ...)
   end
 
   if p ~= nil then
-    local argt = {...}
-
-    if not (next (argt)) then
-      return {
-	dir    = p.pw_dir,
-	gid    = p.pw_gid,
-	name   = p.pw_name,
-	passwd = p.pw_passwd,
-	shell  = p.pw_shell,
-	uid    = p.pw_uid,
-      }
-    else
-      local r = {}
-      for i, v in ipairs (argt) do
-        if     v == "dir"    then r[#r + 1] = p.pw_dir
-        elseif v == "gid"    then r[#r + 1] = p.pw_gid
-        elseif v == "name"   then r[#r + 1] = p.pw_name
-        elseif v == "passwd" then r[#r + 1] = p.pw_passwd
-        elseif v == "shell"  then r[#r + 1] = p.pw_shell
-        elseif v == "uid"    then r[#r + 1] = p.pw_uid
-        else
-	  M.argerror ("getpasswd", i + 1, "invalid option '" .. v .. "'")
-        end
-      end
-      return unpack (r)
-    end
+    return doselection ("getpasswd", 1, {...}, {
+      dir    = p.pw_dir,
+      gid    = p.pw_gid,
+      name   = p.pw_name,
+      passwd = p.pw_passwd,
+      shell  = p.pw_shell,
+      uid    = p.pw_uid,
+    })
   end
 end
 
@@ -415,35 +415,15 @@ local _getpid, getpgrp, getppid =
   unistd.getpid, unistd.getpgrp, unistd.getppid
 
 local function getpid (...)
-  local argt = {...}
-  if type (argt[1]) == "table" then argt = argt[1] end
-
-  if not (next (argt)) then
-    return {
-      egid = getegid (),
-      euid = geteuid (),
-      gid  = getgid (),
-      uid  = getuid (),
-      pgrp = getpgrp (),
-      pid  = _getpid (),
-      ppid = getppid (),
-      }
-  else
-    local r = {}
-    for i, v in ipairs (argt) do
-      if     v == "egid" then r[#r + 1] = getegid ()
-      elseif v == "euid" then r[#r + 1] = geteuid ()
-      elseif v == "gid"  then r[#r + 1] = getgid ()
-      elseif v == "uid"  then r[#r + 1] = getuid ()
-      elseif v == "pgrp" then r[#r + 1] = getpgrp ()
-      elseif v == "pid"  then r[#r + 1] = _getpid ()
-      elseif v == "ppid" then r[#r + 1] = getppid ()
-      else
-	M.argerror ("getpid", i, "invalid option '" .. v .. "'")
-      end
-    end
-    return unpack (r)
-  end
+  return doselection ("getpid", 0, {...}, {
+    egid = getegid (),
+    euid = geteuid (),
+    gid  = getgid (),
+    uid  = getuid (),
+    pgrp = getpgrp (),
+    pid  = _getpid (),
+    ppid = getppid (),
+  })
 end
 
 if _DEBUG ~= false then
@@ -709,10 +689,12 @@ local function filetype (mode)
   end
 end
 
-local function statselection (name, info, ...)
-  local t = {...}
-  if not (next (t)) then
-    return {
+
+local _stat = st.lstat
+
+local function stat (path, ...)
+  local info = _stat (path)
+  return doselection ("stat", 1, {...}, {
       dev   = info.st_dev,
       ino   = info.st_ino,
       mode  = pushmode (info.st_mode),
@@ -724,34 +706,7 @@ local function statselection (name, info, ...)
       mtime = info.st_mtime,
       ctime = info.st_ctime,
       type  = filetype (info.st_mode),
-    }
-  else
-    local r = {}
-    for i, v in ipairs (t) do
-      if     v == "dev"   then r[#r + 1] = info.st_dev
-      elseif v == "ino"   then r[#r + 1] = info.st_ino
-      elseif v == "mode"  then r[#r + 1] = pushmode (info.st_mode)
-      elseif v == "nlink" then r[#r + 1] = info.st_nlink
-      elseif v == "uid"   then r[#r + 1] = info.st_uid
-      elseif v == "gid"   then r[#r + 1] = info.st_gid
-      elseif v == "size"  then r[#r + 1] = info.st_size
-      elseif v == "atime" then r[#r + 1] = info.st_atime
-      elseif v == "mtime" then r[#r + 1] = info.st_mtime
-      elseif v == "ctime" then r[#r + 1] = info.st_ctime
-      elseif v == "type"  then r[#r + 1] = filetype (info.st_mode)
-      else
-	M.argerror (name, i + 1, "invalid option '" .. v .. "'")
-      end
-    end
-    return unpack (r)
-  end
-end
-
-
-local _stat = st.lstat
-
-local function stat (path, ...)
-  return statselection ("stat", _stat (path), ...)
+  })
 end
 
 if _DEBUG ~= false then
