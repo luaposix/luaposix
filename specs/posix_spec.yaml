@@ -134,11 +134,6 @@ specify posix:
         badargs.diagnose (posix.fileno, "(file)")
 
 
-  - describe mkfifo:
-    - context with bad arguments:
-        badargs.diagnose (posix.mkfifo, "(string)")
-
-
   - describe rpoll:
     - context with bad arguments:
         badargs.diagnose (posix.rpoll, "(int, int)")
@@ -147,35 +142,6 @@ specify posix:
   - describe poll:
     - context with bad arguments:
         badargs.diagnose (posix.poll, "(table, ?int)")
-
-
-  - describe open:
-    # posix.open ignores the mode argument if flags does not include
-    # O_CREAT, which `badargs.diagnose` can't express; ergo manual
-    # checks here...
-    - before:
-        O_CREAT = posix.O_CREAT
-        open, badarg = init (posix, "open")
-
-    - 'it diagnoses missing argument #1':
-        expect (open ()).to_raise (badarg (1, "string"))
-    - 'it diagnoses argument #1 type not string':
-        expect (open (false)).to_raise (badarg (1, "string", "boolean"))
-    - 'it diagnoses missing argument #2':
-        expect (open ("not/existing")).to_raise (badarg (2, "int"))
-    - 'it diagnoses argument #2 type not int':
-        expect (open ("not/existing", false)).
-          to_raise (badarg (2, "int", "boolean"))
-    - 'it diagnoses missing argument #3':
-        expect (open ("not/existing", O_CREAT)).to_raise (badarg (3, "string"))
-    - 'it diagnoses argument #3 type not string':
-        expect (open ("not/existing", O_CREAT, false)).
-          to_raise (badarg (3, "string", "boolean"))
-    - 'it diagnoses argument #3 invalid mode': |
-        expect (open ("not/existing", O_CREAT, "g+vv")).
-          to_raise "bad argument #3 to 'open' (bad mode)"
-    - 'it diagnoses too many arguments':
-        expect (open ("not/existing", -1, "o-s", false)).to_raise (badarg (4))
 
 
   - describe close:
@@ -388,6 +354,7 @@ specify posix:
     - context with bad arguments:
         badargs.diagnose (posix.fsync, "(int)")
 
+
   - describe fdatasync:
     - context with bad arguments:
         if posix.fdatasync then
@@ -465,24 +432,6 @@ specify posix:
   - describe getcwd:
     - context with bad arguments:
         badargs.diagnose (posix.getcwd, "()")
-
-
-  - describe mkdir:
-    - before:
-        chdir, getcwd, mkdir, rmdir = posix.chdir, posix.getcwd, posix.mkdir, posix.rmdir
-        cwd = getcwd ()
-    - after:
-        chdir (cwd)
-        pcall (rmdir, "x")
-
-    - context with bad arguments:
-        badargs.diagnose (mkdir, "(string)")
-
-    - it creates the named directory:
-        expect (Emsg (mkdir "x")).not_to_contain "exists"
-        expect (Emsg (chdir "x")).not_to_contain "No such flle or directory"
-    - it diagnoses already existing directory:
-        expect (Emsg (mkdir ".")).to_contain "exists"
 
 
   - describe chdir:
@@ -650,45 +599,6 @@ specify posix:
         expect (stat (dir, "type")).to_be "directory"
         expect (stat (dir, "mode")).to_be "rwx------"
         rmtmp (dir)
-
-
-  - describe chmod:
-    - before:
-        chmod, stat = posix.chmod, posix.stat
-        touch "xxx"
-        chmod ("xxx", "rwxr-x---")
-    - after:
-        os.remove "xxx"
-
-    - context with bad arguments: |
-        examples {
-          ["it diagnoses argument #2 invalid mode"] = function ()
-            expect (chmod (".", "g+vv")).
-              to_raise "bad argument #2 to 'chmod' (bad mode)"
-          end
-        }
-
-        badargs.diagnose (posix.chmod, "(string, string)")
-
-    - it sets file mode with longhand mode string:
-        mode = "rw---xr--"
-        expect (Emsg (chmod ("xxx", mode))).to_be ""
-        expect (stat ("xxx", "mode")).to_be (mode)
-    - "it sets attributes with '='":
-        expect (Emsg (chmod ("xxx", "o=w"))).to_be ""
-        expect (stat ("xxx", "mode")).to_be "rwxr-x-w-"
-    - "it adds attributes with '+'":
-        expect (Emsg (chmod ("xxx", "g+w"))).to_be ""
-        expect (stat ("xxx", "mode")).to_be "rwxrwx---"
-    - "it removes attributes with '-'":
-        expect (Emsg (chmod ("xxx",  "u-r"))).to_be ""
-        expect (stat ("xxx", "mode")).to_be "-wxr-x---"
-    - it accepts comma separated attribute specifications:
-        expect (Emsg (chmod ("xxx", "a+x,g+w,u-w"))).to_be ""
-        expect (stat ("xxx", "mode")).to_be "r-xrwx--x"
-    - it diagnoses missing files:
-        os.remove "xxx"
-        expect (Emsg (chmod ("xxx", "a=rwx"))).to_contain "No such file or directory"
 
 
   - describe chown:
@@ -912,47 +822,6 @@ specify posix:
           expect (t[k]).to_be (sysconf (k))
         end
 
-
-
-- specify message queues:
-  - before:
-      msgget, msgsnd, msgrcv = posix.msgget, posix.msgsnd, posix.msgrcv
-      IPC_CREAT, IPC_EXCL = posix.IPC_CREAT, posix.IPC_EXCL
-      EEXIST = posix.EEXIST
-
-      mode = "rwxrwxrwx"
-      mq, err, errnum = msgget (100, bor (IPC_CREAT, IPC_EXCL), mode)
-      if errnum == EEXIST then
-        mq, err = msgget (100, 0, mode)
-      end
-
-      type = 42
-      data = "Answer to the Ultimate Question of Life"
-
-
-  - describe msgget:
-    - context with bad arguments:
-        badargs.diagnose (posix.msgget, "(int, ?int, ?string)")
-
-    - it creates a queue:
-        expect (mq).not_to_be (err)
-
-
-  - describe msgsnd:
-    - context with bad arguments:
-        badargs.diagnose (posix.msgsnd, "(int, int, string, ?int)")
-
-    - it sends a message:
-        ok, err = msgsnd (mq, type, data)
-        expect (ok).not_to_be (err)
-
-
-  - describe msgrcv:
-    - context with bad arguments:
-        badargs.diagnose (posix.msgrcv, "(int, int, ?int, ?int)")
-
-    - it receives a message:
-        expect ({msgrcv (mq, 128)}).to_equal {type, data, nil}
 
 
 - specify process management:

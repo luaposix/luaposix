@@ -39,9 +39,9 @@
 Get a message queue identifier
 @function msgget
 @int key message queue id, or `IPC_PRIVATE` for a new queue
-@int[opt=0] flags bitwise or of `IPC_CREAT` and `IPC_EXCL`
-@string[opt="rw-rw-rw-"] mode execute bits are ignored, otherwise see
-  @{posix.sys.stat.chmod} for format.
+@int[opt=0] flags bitwise OR of zero or more from `IPC_CREAT` and `IPC_EXCL`,
+  and access permissions `S_IRUSR`, `S_IWUSR`, `S_IRGRP`, `S_IWGRP`, `S_IROTH`
+  and `S_IWOTH` (from @{posix.sys.stat})
 @treturn[1] int message queue identifier, if successful
 @return[2] nil
 @treturn[2] string error message
@@ -50,17 +50,8 @@ Get a message queue identifier
 static int
 Pmsgget(lua_State *L)
 {
-	mode_t mode;
-	key_t key = checkint(L, 1);
-	int msgflg = optint(L, 2, 0);
-	const char *modestr = optstring(L, 3,"rw-rw-rw-");
-
-	checknargs (L, 3);
-	if (mode_munch(&mode, modestr))
-		luaL_argerror(L, 2, "bad mode");
-	msgflg |= mode;
-
-	return pushresult(L, msgget(key, msgflg), NULL);
+	checknargs (L, 2);
+	return pushresult(L, msgget(checkint(L, 1), optint(L, 2, 0)), "msgget");
 }
 
 

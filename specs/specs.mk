@@ -10,9 +10,11 @@ specl_SPECS =						\
 	$(srcdir)/specs/lposix_spec.yaml		\
 	$(srcdir)/specs/posix_compat_spec.yaml		\
 	$(srcdir)/specs/posix_ctype_spec.yaml		\
+	$(srcdir)/specs/posix_fcntl_spec.yaml		\
 	$(srcdir)/specs/posix_fnmatch_spec.yaml		\
 	$(srcdir)/specs/posix_grp_spec.yaml		\
 	$(srcdir)/specs/posix_pwd_spec.yaml		\
+	$(srcdir)/specs/posix_sys_msg_spec.yaml		\
 	$(srcdir)/specs/posix_sys_stat_spec.yaml	\
 	$(srcdir)/specs/posix_sys_time_spec.yaml	\
 	$(srcdir)/specs/posix_sys_utsname_spec.yaml	\

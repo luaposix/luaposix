@@ -140,30 +140,20 @@ Open a file.
 @int oflags bitwise OR of zero or more of `O_RDONLY`, `O_WRONLY`, `O_RDWR`,
   `O_APPEND`, `O_CREAT`, `O_DSYNC`, `O_EXCL`, `O_NOCTTY`, `O_NONBLOCK`,
   `O_RSYNC`, `O_SYNC`, `O_TRUNC`
-@string mode (used with `O_CREAT`; see @{posix.sys.stat.chmod} for format)
+@int[opt=511] mode access modes used by `O_CREAT`
 @treturn[1] int file descriptor for *path*, if successful
 @return[2] nil
 @treturn[2] string error message
 @see open(2)
 @usage
-fd = P.open ("data", bit.bor (P.O_CREAT, P.O_RDWR), "rw-r-----")
+fd = P.open ("data", bit.bor (P.O_CREAT, P.O_RDWR), bit.bor (P.S_IRWXU, P.S_IRGRP))
 */
 static int
 Popen(lua_State *L)
 {
 	const char *path = luaL_checkstring(L, 1);
-	int flags = checkint(L, 2);
-	mode_t mode = (mode_t) 0;
-	if (flags & O_CREAT)
-	{
-		checknargs(L, 3);
-		const char *modestr = luaL_checkstring(L, 3);
-		if (mode_munch(&mode, modestr))
-			luaL_argerror(L, 3, "bad mode");
-	}
-	else
-		checknargs(L, 2);
-	return pushresult(L, open(path, flags, mode), path);
+	checknargs(L, 3);
+	return pushresult(L, open(path, checkint(L, 2), (mode_t) optint(L, 3, 511)), path);
 }
 
 

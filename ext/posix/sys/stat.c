@@ -170,33 +170,20 @@ PS_ISSOCK(lua_State *L)
 /***
 Change the mode of the path.
 @function chmod
-@string path existing file path
-@string mode one of the following formats:
-
- * "rwxrwxrwx" (e.g. "rw-rw-w--")
- * "ugoa+-=rwx" (e.g. "u+w")
- * "+-=rwx" (e.g. "+w")
-
+@string path existing file path to act on
+@int mode access modes to set for *path*
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
 @see chmod(2)
-@usage P.chmod('bin/dof','+x')
+@usage P.chmod ('bin/dof', bit.bor (P.S_IRWXU, P.S_IRGRP))
 */
 static int
 Pchmod(lua_State *L)
 {
-	mode_t mode;
-	struct stat s;
 	const char *path = luaL_checkstring(L, 1);
-	const char *modestr = luaL_checkstring(L, 2);
 	checknargs(L, 2);
-	if (stat(path, &s))
-		return pusherror(L, path);
-	mode = s.st_mode;
-	if (mode_munch(&mode, modestr))
-		luaL_argerror(L, 2, "bad mode");
-	return pushresult(L, chmod(path, mode), path);
+	return pushresult(L, chmod(path, (mode_t) checkint(L, 2)), path);
 }
 
 
@@ -225,7 +212,8 @@ Plstat(lua_State *L)
 /***
 Make a directory.
 @function mkdir
-@string path
+@string path location in file system to create directory
+@int[opt=511] mode access modes to set for *path*
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
@@ -235,8 +223,8 @@ static int
 Pmkdir(lua_State *L)
 {
 	const char *path = luaL_checkstring(L, 1);
-	checknargs(L, 1);
-	return pushresult(L, mkdir(path, 0777), path);
+	checknargs(L, 2);
+	return pushresult(L, mkdir(path, (mode_t) optint(L, 2, 0777)), path);
 }
 
 
@@ -244,6 +232,7 @@ Pmkdir(lua_State *L)
 Make a FIFO pipe.
 @function mkfifo
 @string path location in file system to create fifo
+@int[opt=511] mode access modes to set for *path*
 @treturn[1] int file descriptor for *path*, if successful
 @return[2] nil
 @treturn[2] string error message
@@ -253,8 +242,8 @@ static int
 Pmkfifo(lua_State *L)
 {
 	const char *path = luaL_checkstring(L, 1);
-	checknargs(L, 1);
-	return pushresult(L, mkfifo(path, 0777), path);
+	checknargs(L, 2);
+	return pushresult(L, mkfifo(path, (mode_t) optint(L, 2, 0777)), path);
 }
 
 

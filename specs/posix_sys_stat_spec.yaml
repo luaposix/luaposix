@@ -5,6 +5,7 @@ specify posix/sys/stat:
     S_IRWXU, S_IRWXG, S_IRWXO = st.S_IRWXU, st.S_IRWXG, st.S_IRWXO
     S_ISBLK, S_ISCHR, S_ISDIR, S_ISFIFO, S_ISREG, S_ISLNK, S_ISSOCK =
       st.S_ISBLK, st.S_ISCHR, st.S_ISDIR, st.S_ISFIFO, st.S_ISREG, st.S_ISLNK, st.S_ISSOCK
+    RWXALL = bor (S_IRWXU, S_IRWXG, S_IRWXO)
 
     dir = posix.mkdtemp (template)
     posix.mkdir (dir .. "/subdir")
@@ -16,6 +17,27 @@ specify posix/sys/stat:
 
 - after:
     rmtmp (dir)
+
+
+- describe chmod:
+  - before:
+      chmod, lstat = st.chmod, st.lstat
+      chmod (dir .. "/file", bor (st.S_IRWXU, st.S_IRGRP, st.S_IXGRP))
+
+  - context with bad arguments: |
+      badargs.diagnose (chmod, "(string, int)")
+
+      examples {
+        ["it diagnoses non-existent files"] = function ()
+          expect (Emsg (chmod (dir .. "/not existing file", st.S_IRWXU))).
+            to_contain "No such file or directory"
+        end
+      }
+
+  - it sets file mode:
+      mode = bor (st.S_IRUSR, st.S_IWUSR, st.S_IXGRP, st.S_IROTH)
+      chmod (dir .. "/file", mode)
+      expect (band (lstat (dir .. "/file").st_mode, RWXALL)).to_be (mode)
 
 
 - describe lstat:
@@ -116,6 +138,52 @@ specify posix/sys/stat:
       expect (type (blocks)).to_be "number"
       expect (blocks >= 0).to_be (true)
       expect (blocks).to_be (lstat (dir .. "/hard").st_blocks)
+
+
+- describe mkdir:
+  - before:
+      dir = posix.mkdtemp (template)
+      lstat, mkdir = st.lstat, st.mkdir
+
+  - after:
+      rmtmp (dir)
+
+  - context with bad arguments:
+      badargs.diagnose (mkdir, "(string, ?int)")
+
+  - it creates the named directory:
+      expect (Emsg (mkdir (dir .. "/subdir"))).not_to_contain "exists"
+      mode = lstat (dir .. "/subdir").st_mode
+      expect (st.S_ISDIR (mode)).not_to_be (0)
+  - it sets the new directory permissions:
+      mkdir (dir .. "/subdir", S_IRWXU)
+      mode = lstat (dir .. "/subdir").st_mode
+      expect (band (mode, RWXALL)).to_be (S_IRWXU)
+  - it diagnoses already existing directory:
+      expect (Emsg (mkdir (dir, RWXALL))).to_contain "exists"
+
+
+- describe mkfifo:
+  - before:
+      dir = posix.mkdtemp (template)
+      lstat, mkfifo = st.lstat, st.mkfifo
+
+  - after:
+      rmtmp (dir)
+
+  - context with bad arguments:
+      badargs.diagnose (mkfifo, "(string, ?int)")
+
+  - it creates the named fifo:
+      expect (Emsg (mkfifo (dir .. "/fifo"))).not_to_contain "exists"
+      mode = lstat (dir .. "/fifo").st_mode
+      expect (st.S_ISFIFO (mode)).not_to_be (0)
+  - it sets the new fifo permissions:
+      mkfifo (dir .. "/fifo", S_IRWXU)
+      mode = lstat (dir .. "/fifo").st_mode
+      expect (band (mode, RWXALL)).to_be (S_IRWXU)
+  - it diagnoses already existing fifo:
+      expect (Emsg (mkfifo (dir, RWXALL))).to_contain "exists"
 
 
 - describe umask:

@@ -5,6 +5,45 @@ specify compat:
     end
 
 
+- describe chmod:
+  - before:
+      chmod, stat = posix.chmod, posix.stat
+      touch "xxx"
+      chmod ("xxx", "rwxr-x---")
+  - after:
+      os.remove "xxx"
+
+  - context with bad arguments: |
+      examples {
+        ["it diagnoses argument #2 invalid mode"] = function ()
+          expect (chmod (".", "g+vv")).
+            to_raise "bad argument #2 to 'chmod' (bad mode)"
+        end
+      }
+
+      badargs.diagnose (chmod, "chmod (string, string)")
+
+  - it sets file mode with longhand mode string:
+      mode = "rw---xr--"
+      expect (Emsg (chmod ("xxx", mode))).to_be ""
+      expect (stat ("xxx", "mode")).to_be (mode)
+  - "it sets attributes with '='":
+      expect (Emsg (chmod ("xxx", "o=w"))).to_be ""
+      expect (stat ("xxx", "mode")).to_be "rwxr-x-w-"
+  - "it adds attributes with '+'":
+      expect (Emsg (chmod ("xxx", "g+w"))).to_be ""
+      expect (stat ("xxx", "mode")).to_be "rwxrwx---"
+  - "it removes attributes with '-'":
+      expect (Emsg (chmod ("xxx",  "u-r"))).to_be ""
+      expect (stat ("xxx", "mode")).to_be "-wxr-x---"
+  - it accepts comma separated attribute specifications:
+      expect (Emsg (chmod ("xxx", "a+x,g+w,u-w"))).to_be ""
+      expect (stat ("xxx", "mode")).to_be "r-xrwx--x"
+  - it diagnoses missing files:
+      os.remove "xxx"
+      expect (Emsg (chmod ("xxx", "a=rwx"))).to_contain "No such file or directory"
+
+
 - describe creat:
   - before:
       creat = posix.creat
@@ -15,7 +54,7 @@ specify compat:
       examples {
         ["it diagnoses argument #2 invalid mode"] = function ()
           expect (creat ("not/existing", "g+vv")).
-            to_raise "bad argument #3 to 'open' (bad mode)"
+            to_raise "bad argument #2 to 'creat' (bad mode)"
         end
       }
 
@@ -178,6 +217,93 @@ specify compat:
       expect (isprint 'a').to_be (true)
   - it returns false for failed tests:
       expect (isprint (string.char (0))).to_be (false)
+
+
+- describe mkdir:
+  - before:
+      dir = posix.mkdtemp (template)
+      chdir, mkdir = posix.chdir, posix.mkdir
+      cwd = posix.getcwd ()
+
+  - after:
+      chdir (cwd)
+      rmtmp (dir)
+
+  - context with bad arguments:
+      badargs.diagnose (mkdir, "mkdir (string)")
+
+  - it creates the named directory:
+      expect (Emsg (mkdir (dir .. "/subdir"))).not_to_contain "exists"
+      expect (Emsg (chdir (dir .. "/subdir"))).not_to_contain "No such flle or directory"
+  - it diagnoses already existing directory:
+      expect (Emsg (mkdir (dir))).to_contain "exists"
+
+
+- describe mkfifo:
+  - before:
+      dir    = posix.mkdtemp (template)
+      mkfifo = posix.mkfifo
+
+  - after:
+      rmtmp (dir)
+
+  - context with bad arguments:
+      badargs.diagnose (mkfifo, "mkfifo (string)")
+
+  - it creates the named fifo:
+      expect (Emsg (mkfifo (dir .. "/fifo"))).not_to_contain "exists"
+      expect (posix.stat (dir .. "/fifo").type).to_be "fifo"
+  - it diagnoses already existing fifo:
+      expect (Emsg (mkfifo (dir))).to_contain "exists"
+
+
+- describe msgget:
+  - before:
+      msgget = posix.msgget
+      EEXIST, IPC_CREAT, IPC_EXCL = posix.EEXIST, posix.IPC_CREAT, posix.IPC_EXCL
+
+  - context with bad arguments:
+      badargs.diagnose (msgget, "msgget (int, ?int, ?string)")
+
+  - it creates a queue:
+      if msgget then
+        modestr = "rwxrwxrwx"
+        mq, err, errnum = msgget (100, bor (IPC_CREAT, IPC_EXCL), modestr)
+        if errnum == EEXIST then
+          mq, err = msgget (100, 0, modestr)
+        end
+        expect (mq).not_to_be (nil)
+        expect (err).to_be (nil)
+      end
+
+
+  - describe open:
+    # posix.open ignores the mode argument if flags does not include
+    # O_CREAT, which `badargs.diagnose` can't express; ergo manual
+    # checks here...
+    - before:
+        O_CREAT = posix.O_CREAT
+        open, badarg = init (posix, "open")
+
+    - 'it diagnoses missing argument #1':
+        expect (open ()).to_raise (badarg (1, "string"))
+    - 'it diagnoses argument #1 type not string':
+        expect (open (false)).to_raise (badarg (1, "string", "boolean"))
+    - 'it diagnoses missing argument #2':
+        expect (open ("not/existing")).to_raise (badarg (2, "int"))
+    - 'it diagnoses argument #2 type not int':
+        expect (open ("not/existing", false)).
+          to_raise (badarg (2, "int", "boolean"))
+    - 'it diagnoses missing argument #3':
+        expect (open ("not/existing", O_CREAT)).to_raise (badarg (3, "string"))
+    - 'it diagnoses argument #3 type not string':
+        expect (open ("not/existing", O_CREAT, false)).
+          to_raise (badarg (3, "string", "boolean"))
+    - 'it diagnoses argument #3 invalid mode': |
+        expect (open ("not/existing", O_CREAT, "g+vv")).
+          to_raise "bad argument #3 to 'open' (bad mode)"
+    - 'it diagnoses too many arguments':
+        expect (open ("not/existing", -1, "o-s", false)).to_raise (badarg (4))
 
 
 - describe stat:

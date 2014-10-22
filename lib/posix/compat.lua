@@ -44,6 +44,13 @@ local function badoption (name, i, what, option)
   argerror (name, i, fmt:format (what, option), 2)
 end
 
+local function checkint (name, i, actual)
+  if type (actual) ~= "number" then
+    argtypeerror (name, i, "int", actual, 2)
+  end
+  return actual
+end
+
 local function checkstring (name, i, actual)
   if type (actual) ~= "string" then
     argtypeerror (name, i, "string", actual, 2)
@@ -66,6 +73,93 @@ local function optstring (name, i, actual, def)
 end
 
 
+local st = require "posix.sys.stat"
+
+local S_IRUSR, S_IWUSR, S_IXUSR = st.S_IRUSR, st.S_IWUSR, st.S_IXUSR
+local S_IRGRP, S_IWGRP, S_IXGRP = st.S_IRGRP, st.S_IWGRP, st.S_IXGRP
+local S_IROTH, S_IWOTH, S_IXOTH = st.S_IROTH, st.S_IWOTH, st.S_IXOTH
+local S_ISUID, S_ISGID, S_IRWXU, S_IRWXG, S_IRWXO =
+  st.S_ISUID, st.S_ISGID, st.S_IRWXU, st.S_IRWXG, st.S_IRWXO
+
+local mode_map = {
+  { c = "r", b = S_IRUSR }, { c = "w", b = S_IWUSR }, { c = "x", b = S_IXUSR },
+  { c = "r", b = S_IRGRP }, { c = "w", b = S_IWGRP }, { c = "x", b = S_IXGRP },
+  { c = "r", b = S_IROTH }, { c = "w", b = S_IWOTH }, { c = "x", b = S_IXOTH },
+}
+
+local function pushmode (mode)
+  local m = {}
+  for i = 1, 9 do
+    if band (mode, mode_map[i].b) ~= 0 then m[i] = mode_map[i].c else m[i] = "-" end
+  end
+  if band (mode, S_ISUID) ~= 0 then
+    if band (mode, S_IXUSR) ~= 0 then m[3] = "s" else m[3] = "S" end
+  end
+  if band (mode, S_ISGID) ~= 0 then
+    if band (mode, S_IXGRP) ~= 0 then m[6] = "s" else m[6] = "S" end
+  end
+  return table.concat (m)
+end
+
+local function rwxrwxrwx (modestr)
+  local mode = 0
+  for i = 1, 9 do
+    if modestr:sub (i, i) == mode_map[i].c then
+      mode = bor (mode, mode_map[i].b)
+    elseif modestr:sub (i, i) == "s" then
+      if i == 3 then
+        mode = bor (mode, S_ISUID, S_IXUSR)
+      elseif i == 6 then
+        mode = bor (mode, S_ISGID, S_IXGRP)
+      else
+	return nil  -- bad mode
+      end
+    end
+  end
+  return mode
+end
+
+local function octal_mode (modestr)
+  local mode = 0
+  for i = 1, #modestr do
+    mode = mode * 8 + tonumber (modestr:sub (i, i))
+  end
+  return mode
+end
+
+local function mode_munch (mode, modestr)
+  if #modestr == 9 and modestr:match "^[-rswx]+$" then
+    return rwxrwxrwx (modestr)
+  elseif modestr:match "^[0-7]+$" then
+    return octal_mode (modestr)
+  elseif modestr:match "^[ugoa]+%s*[-+=]%s*[rswx]+,*" then
+    modestr:gsub ("%s*(%a+)%s*(.)%s*(%a+),*", function (who, op, what)
+      local bits, bobs = 0, 0
+      if who:match "[ua]" then bits = bor (bits, S_ISUID, S_IRWXU) end
+      if who:match "[ga]" then bits = bor (bits, S_ISGID, S_IRWXG) end
+      if who:match "[oa]" then bits = bor (bits, S_IRWXO) end
+      if what:match "r" then bobs = bor (bobs, S_IRUSR, S_IRGRP, S_IROTH) end
+      if what:match "w" then bobs = bor (bobs, S_IWUSR, S_IWGRP, S_IWOTH) end
+      if what:match "x" then bobs = bor (bobs, S_IXUSR, S_IXGRP, S_IXOTH) end
+      if what:match "s" then bobs = bor (bobs, S_ISUID, S_ISGID) end
+      if op == "+" then
+	-- mode |= bits & bobs
+	mode = bor (mode, band (bits, bobs))
+      elseif op == "-" then
+	-- mode &= ~(bits & bobs)
+	mode = band (mode, bnot (band (bits, bobs)))
+      elseif op == "=" then
+	-- mode = (mode & ~bits) | (bits & bobs)
+	mode = bor (band (mode, bnot (bits)), band (bits, bobs))
+      end
+    end)
+    return mode
+  else
+    return nil, "bad mode"
+  end
+end
+
+
 local M = {
   argerror        = argerror,
   argtypeerror    = argtypeerror,
@@ -78,6 +172,49 @@ local M = {
 
 
 
+--- Change the mode of the path.
+-- @function chmod
+-- @string path existing file path
+-- @string mode one of the following formats:
+--
+--   * "rwxrwxrwx" (e.g. "rw-rw-r--")
+--   * "ugo+-=rwx" (e.g. "u+w")
+--   * +-=rwx" (e.g. "+w")
+--
+-- @return[1] int `0`, if successful
+-- @return[2] nil
+-- @treturn[2] string error message
+-- @see chmod(2)
+-- @usage P.chmod ('bin/dof', '+x')
+
+local bit   = bit32 or require "bit"
+local st    = require "posix.sys.stat"
+
+local _chmod, stat = st.chmod, st.stat
+local RWXALL = bit.bor (st.S_IRWXU, st.S_IRWXG, st.S_IRWXO)
+
+local function chmod (path, modestr)
+  local mode = (stat (path) or {}).st_mode
+  local bits, err = mode_munch (mode or 0, modestr)
+  if bits == nil then
+    argerror ("chmod", 2, err, 2)
+  end
+  return _chmod (path, band (bits, RWXALL))
+end
+
+if _DEBUG ~= false then
+  M.chmod = function (...)
+    local argt = {...}
+    checkstring ("chmod", 1, argt[1])
+    checkstring ("chmod", 2, argt[2])
+    if #argt > 2 then toomanyargerror ("chmod", 2, #argt) end
+    return chmod (...)
+  end
+else
+  M.chmod = chmod
+end
+
+
 --- Create a file.
 -- This function is obsoleted by @{posix.fcntl.open} with `posix.O_CREAT`.
 -- @function creat
@@ -87,19 +224,26 @@ local M = {
 -- @return[2] nil
 -- @treturn[2] string error message
 -- @see creat(2)
--- @see posix.sys.stat.chmod
+-- @see posix.chmod
 -- @usage
 --   fd = P.creat ("data", "rw-r-----")
 
-local fcntl = require "posix.fcntl"
 local bit   = bit32 or require "bit"
+local fcntl = require "posix.fcntl"
+local st    = require "posix.sys.stat"
 
-local creat_flags = bit.bor (fcntl.O_CREAT, fcntl.O_WRONLY, fcntl.O_TRUNC)
+local band, bor   = bit.band, bit.bor
+local creat_flags = bor (fcntl.O_CREAT, fcntl.O_WRONLY, fcntl.O_TRUNC)
+local RWXALL      = bor (st.S_IRWXU, st.S_IRWXG, st.S_IRWXO)
 
 local open = fcntl.open
 
-local function creat (path, mode)
-  return open (path, creat_flags, mode)
+local function creat (path, modestr)
+  local mode, err = mode_munch (0, modestr)
+  if mode == nil then
+    argerror ("creat", 2, err, 2)
+  end
+  return open (path, creat_flags, band (mode, RWXALL))
 end
 
 if _DEBUG ~= false then
@@ -374,6 +518,159 @@ function M.isprint (...)
 end
 
 
+--- Make a directory.
+-- @function mkdir
+-- @string path location in file system to create directory
+-- @rteturn[1] int `0`, if successful
+-- @return[2] nil
+-- @treturn[2] string error message
+
+local bit = bit32 or require "bit"
+local st  = require "posix.sys.stat"
+
+local _mkdir = st.mkdir
+local RWXALL = bit.bor (st.S_IRWXU, st.S_IRWXG, st.S_IRWXO)
+
+local function mkdir (path)
+  return _mkdir (path, RWXALL)
+end
+
+if _DEBUG ~= false then
+  M.mkdir = function (...)
+    local argt = {...}
+    checkstring ("mkdir", 1, argt[1])
+    if #argt > 1 then toomanyargerror ("mkdir", 1, #argt) end
+    return mkdir (...)
+  end
+else
+  M.mkdir = _mkdir
+end
+
+
+--- Make a FIFO pipe.
+-- @function mkfifo
+-- @string path location in file system to create fifo
+-- @rteturn[1] int `0`, if successful
+-- @return[2] nil
+-- @treturn[2] string error message
+
+local bit = bit32 or require "bit"
+local st  = require "posix.sys.stat"
+
+local _mkfifo = st.mkfifo
+local RWXALL  = bit.bor (st.S_IRWXU, st.S_IRWXG, st.S_IRWXO)
+
+local function mkfifo (path)
+  return _mkfifo (path, RWXALL)
+end
+
+if _DEBUG ~= false then
+  M.mkfifo = function (...)
+    local argt = {...}
+    checkstring ("mkfifo", 1, argt[1])
+    if #argt > 1 then toomanyargerror ("mkfifo", 1, #argt) end
+    return mkfifo (...)
+  end
+else
+  M.mkfifo = mkfifo
+end
+
+
+--- Get a message queue identifier
+-- @function msgget
+-- @int key message queue id, or `IPC_PRIVATE` for a new queue
+-- @int[opt=0] flags bitwise OR of zero or more from `IPC_CREAT` and `IPC_EXCL`
+-- @string[opt="rw-rw-rw-"] mode execute bits are ignored
+-- @treturn[1] int message queue identifier, if successful
+-- @return[2] nil
+-- @treturn[2] string error message
+-- @see msgget(2)
+
+local bit   = bit32 or require "bit"
+local msg   = require "posix.sys.msg"
+local st    = require "posix.sys.stat"
+
+local _msgget   = msg.msgget
+local band, bor = bit.band, bit.bor
+local RWXALL    = bor (st.S_IRWXU, st.S_IRWXG, st.S_IRWXO)
+
+local function msgget (key, msgflg, modestr)
+  local mode, err = mode_munch (0, modestr)
+  if mode == nil then
+    argerror ("open", 3, err, 2)
+  end
+  return _msgget (key, bor (msgflg, band (mode, RWXALL)))
+end
+
+if not _msgget then
+  -- Not supported by underlying system
+elseif _DEBUG ~= false then
+  M.msgget = function (...)
+    local argt = {...}
+    checkint ("msgget", 1, argt[1])
+    if argt[2] ~= nil and type (argt[2]) ~= "number" then
+      argtypeerror ("msgget", 2, "int or nil", argt[2])
+    end
+    if argt[3] ~= nil and type (argt[3]) ~= "string" then
+      argtypeerror ("msgget", 3, "string or nil", argt[3])
+    end
+    if #argt > 3 then toomanyargerror ("msgget", 3, #argt) end
+    return msgget (...)
+  end
+else
+  M.msgget = msgget
+end
+
+
+--- Open a file.
+-- @function open
+-- @string path file to act on
+-- @int oflags bitwise OR of zero or more of `O_RDONLY`, `O_WRONLY`, `O_RDWR`,
+--   `O_APPEND`, `O_CREAT`, `O_DSYNC`, `O_EXCL`, `O_NOCTTY`, `O_NONBLOCK`,
+--   `O_RSYNC`, `O_SYNC`, `O_TRUNC`
+-- @string modestr (used with `O_CREAT`; see @{chmod} for format)
+-- @treturn[1] int file descriptor for *path*, if successful
+-- @return[2] nil
+-- @treturn[2] string error message
+-- @see open(2)
+-- @usage
+-- fd = P.open ("data", bit.bor (P.O_CREAT, P.O_RDWR), "rw-r-----")
+
+local bit   = bit32 or require "bit"
+local fcntl = require "posix.fcntl"
+
+local _open, O_CREAT = fcntl.open, fcntl.O_CREAT
+local band = bit.band
+
+local function open (path, oflags, modestr)
+  local mode
+  if band (oflags, O_CREAT) ~= 0 then
+    mode, err = mode_munch (0, modestr)
+    if mode == nil then
+      argerror ("open", 3, err, 2)
+    end
+    mode = band (mode, RWXALL)
+  end
+  return _open (path, oflags, mode)
+end
+
+if _DEBUG ~= false then
+  M.open = function (...)
+    local argt, maxt = {...}, 2
+    checkstring ("open", 1, argt[1])
+    local oflags = checkint ("open", 2, argt[2])
+    if band (oflags, O_CREAT) ~= 0 then
+      checkstring ("open", 3, argt[3])
+      maxt = 3
+    end
+    if #argt > maxt then toomanyargerror ("open", maxt, #argt) end
+    return open (...)
+  end
+else
+  M.creat = creat
+end
+
+
 --- Information about an existing file path.
 -- If the file is a symbolic link, return information about the link
 -- itself.
@@ -388,90 +685,6 @@ end
 -- @usage for a,b in pairs (P,stat "/etc/") do print (a, b) end
 
 local st = require "posix.sys.stat"
-
-local S_IRUSR, S_IWUSR, S_IXUSR = st.S_IRUSR, st.S_IWUSR, st.S_IXUSR
-local S_IRGRP, S_IWGRP, S_IXGRP = st.S_IRGRP, st.S_IWGRP, st.S_IXGRP
-local S_IROTH, S_IWOTH, S_IXOTH = st.S_IROTH, st.S_IWOTH, st.S_IXOTH
-local S_ISUID, S_ISGID, S_IRWXU, S_IRWXG, S_IRWXO =
-  st.S_ISUID, st.S_ISGID, st.S_IRWXU, st.S_IRWXG, st.S_IRWXO
-
-local mode_map = {
-  { c = "r", b = S_IRUSR }, { c = "w", b = S_IWUSR }, { c = "x", b = S_IXUSR },
-  { c = "r", b = S_IRGRP }, { c = "w", b = S_IWGRP }, { c = "x", b = S_IXGRP },
-  { c = "r", b = S_IROTH }, { c = "w", b = S_IWOTH }, { c = "x", b = S_IXOTH },
-}
-
-local function pushmode (mode)
-  local m = {}
-  for i = 1, 9 do
-    if band (mode, mode_map[i].b) ~= 0 then m[i] = mode_map[i].c else m[i] = "-" end
-  end
-  if band (mode, S_ISUID) ~= 0 then
-    if band (mode, S_IXUSR) ~= 0 then m[3] = "s" else m[3] = "S" end
-  end
-  if band (mode, S_ISGID) ~= 0 then
-    if band (mode, S_IXGRP) ~= 0 then m[6] = "s" else m[6] = "S" end
-  end
-  return table.concat (m)
-end
-
-local function rwxrwxrwx (modestr)
-  local mode = 0
-  for i = 1, 9 do
-    if modestr:sub (i, i) == mode_map[i].c then
-      mode = bor (mode, mode_map[i].b)
-    elseif modestr:sub (i, i) == "s" then
-      if i == 3 then
-        mode = bor (mode, S_ISUID, S_IXUSR)
-      elseif i == 6 then
-        mode = bor (mode, S_ISGID, S_IXGRP)
-      else
-	return nil  -- bad mode
-      end
-    end
-  end
-  return mode
-end
-
-local function octal_mode (modestr)
-  local mode = 0
-  for i = 1, #modestr do
-    mode = mode * 8 + tonumber (modestr:sub (i, i))
-  end
-  return mode
-end
-
-local function mode_munch (mode, modestr)
-  if #modestr == 9 and modestr:match "^[-rswx]+$" then
-    return rwxrwxrwx (modestr)
-  elseif modestr:match "^[0-7]+$" then
-    return octal_mode (modestr)
-  elseif modestr:match "^[ugoa]+%s*[-+=]%s*[rswx]+,*" then
-    modestr:gsub ("%s*(%a+)%s*(.)%s*(%a+),*", function (who, op, what)
-      local bits, bobs = 0, 0
-      if who:match "[ua]" then bits = bor (bits, S_ISUID, S_IRWXU) end
-      if who:match "[ga]" then bits = bor (bits, S_ISGID, S_IRWXG) end
-      if who:match "[oa]" then bits = bor (bits, S_IRWXO) end
-      if what:match "r" then bobs = bor (bobs, S_IRUSR, S_IRGRP, S_IROTH) end
-      if what:match "w" then bobs = bor (bobs, S_IWUSR, S_IWGRP, S_IWOTH) end
-      if what:match "x" then bobs = bor (bobs, S_IXUSR, S_IXGRP, S_IXOTH) end
-      if what:match "s" then bobs = bor (bobs, S_ISUID, S_ISGID) end
-      if op == "+" then
-	-- mode |= bits & bobs
-	mode = bor (mode, band (bits, bobs))
-      elseif op == "-" then
-	-- mode &= ~(bits & bobs)
-	mode = band (mode, bnot (band (bits, bobs)))
-      elseif op == "=" then
-	-- mode = (mode & ~bits) | (bits & bobs)
-	mode = bor (band (mode, bnot (bits)), band (bits, bobs))
-      end
-    end)
-    return mode
-  else
-    return nil, "bad mode"
-  end
-end
 
 local S_ISREG, S_ISLNK, S_ISDIR, S_ISCHR, S_ISBLK, S_ISFIFO, S_ISSOCK =
   st.S_ISREG, st.S_ISLNK, st.S_ISDIR, st.S_ISCHR, st.S_ISBLK, st.S_ISFIFO, st.S_ISSOCK
