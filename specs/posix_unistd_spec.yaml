@@ -98,3 +98,32 @@ specify posix/unistd:
       expect (getppid () > 0).to_be (true)
   - it does not return the process id:
       expect (getppid ()).not_to_be (unistd.getpid ())
+
+
+- describe sysconf:
+  - before:
+      sysconf = unistd.sysconf
+
+  - context with bad arguments:
+      badargs.diagnose (sysconf, "(int)")
+
+  - it fetches the maximum number of exec arguments:
+      expect (type (sysconf (unistd._SC_ARG_MAX))).to_be "number"
+  - it fetches the number processes per user:
+      expect (type (sysconf (unistd._SC_CHILD_MAX))).to_be "number"
+  - it fetches the number of clock ticks per second:
+      expect (type (sysconf (unistd._SC_CLK_TCK))).to_be "number"
+  - it fetches the job control version:
+      expect (type (sysconf (unistd._SC_JOB_CONTROL))).to_be "number"
+  - it fetches the maximum number of groups:
+      expect (type (sysconf (unistd._SC_NGROUPS_MAX))).to_be "number"
+  - it fetches the maximum number of open descriptors:
+      expect (type (sysconf (unistd._SC_OPEN_MAX))).to_be "number"
+  - it fetches the number of saved ids:
+      expect (type (sysconf (unistd._SC_SAVED_IDS))).to_be "number"
+  - it fetches the maximum number of open streams:
+      expect (type (sysconf (unistd._SC_STREAM_MAX))).to_be "number"
+  - it fetches the maximum length of a timezone name:
+      expect (type (sysconf (unistd._SC_TZNAME_MAX))).to_be "number"
+  - it fetches the POSIX.1 version:
+      expect (type (sysconf (unistd._SC_VERSION))).to_be "number"

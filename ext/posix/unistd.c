@@ -937,52 +937,18 @@ Psync(lua_State *L)
 }
 
 
-#define sysconf_map \
-	MENTRY( _ARG_MAX     ) \
-	MENTRY( _CHILD_MAX   ) \
-	MENTRY( _CLK_TCK     ) \
-	MENTRY( _NGROUPS_MAX ) \
-	MENTRY( _STREAM_MAX  ) \
-	MENTRY( _TZNAME_MAX  ) \
-	MENTRY( _OPEN_MAX    ) \
-	MENTRY( _JOB_CONTROL ) \
-	MENTRY( _SAVED_IDS   ) \
-	MENTRY( _VERSION     )
-
-static const int Ksysconf[] =
-{
-#define MENTRY(_f) LPOSIX_SPLICE(_SC, _f),
-	sysconf_map
-#undef MENTRY
-	-1
-};
-
-static void
-Fsysconf(lua_State *L, int i, const void *LPOSIX_UNUSED (data))
-{
-	lua_pushinteger(L, sysconf(Ksysconf[i]));
-}
-
-static const char *const Ssysconf[] =
-{
-#define MENTRY(_f) LPOSIX_STR_1(_f),
-	sysconf_map
-#undef MENTRY
-	NULL
-};
-
 /***
 Get configuration information at runtime.
 @function sysconf
-@string ... field names, each one of `ARG_MAX`, `CHILD_MAX`, `CLK_TCK`, `NGROUPS_MAX`,
-`STREAM_MAX`, `TZNAME_MAX`, `OPEN_MAX`, `JOB_CONTROL`, `VERSION`
-@return ... values, or table of all fields no option
+@int key system configuration constant
+@itreturn int associated system configuration value
 @see sysconf(3)
 */
 static int
 Psysconf(lua_State *L)
 {
-	return doselection(L, 1, Ssysconf, Fsysconf, NULL);
+	checknargs(L, 1);
+	return pushintresult(sysconf(checkint(L, 1)));
 }
 
 
@@ -1101,12 +1067,22 @@ Constants.
 Standard constants.
 Any constants not available in the underlying system will be `nil` valued.
 @table posix.unistd
-@int STDIN_FILENO standard input file descriptor
-@int STDOUT_FILENO standard output file descriptor
-@int STDERR_FILENO standard error file descriptor
-@int SEEK_SET absolute file pointer position
+@int _SC_ARG_MAX maximum bytes of argument to @{posix.unistd.execp}
+@int _SC_CHILD_MAX maximum number of processes per user
+@int _SC_CLK_TCK statistics clock frequency
+@int _SC_JOB_CONTROL return 1 if system has job control, -1 otherwise
+@int _SC_NGROUPS_MAX maximum number of supplemental groups
+@int _SC_OPEN_MAX maximum number of open files per user
+@int _SC_SAVED_IDS return 1 if system supports saved user and group ids, -1 otherwise
+@int _SC_STREAM_MAX maximum number of streams per process
+@int _SC_TZNAME_MAX maximum number of timezone types
+@int _SC_VERSION POSIX.1 compliance version
 @int SEEK_CUR relative file pointer position
 @int SEEK_END set file pointer to the end of file
+@int SEEK_SET absolute file pointer position
+@int STDERR_FILENO standard error file descriptor
+@int STDIN_FILENO standard input file descriptor
+@int STDOUT_FILENO standard output file descriptor
 @usage
   -- Print unistd constants supported on this host.
   for name, value in pairs (require "posix.unistd") do
@@ -1123,15 +1099,27 @@ luaopen_posix_unistd(lua_State *L)
 	lua_pushliteral(L, "posix.unistd for " LUA_VERSION " / " PACKAGE_STRING);
 	lua_setfield(L, -2, "version");
 
-	/* Miscellaneous */
-	LPOSIX_CONST( STDIN_FILENO	);
-	LPOSIX_CONST( STDOUT_FILENO	);
-	LPOSIX_CONST( STDERR_FILENO	);
+	/* sysconf arguments */
+	LPOSIX_CONST( _SC_ARG_MAX	);
+	LPOSIX_CONST( _SC_CHILD_MAX	);
+	LPOSIX_CONST( _SC_CLK_TCK	);
+	LPOSIX_CONST( _SC_JOB_CONTROL	);
+	LPOSIX_CONST( _SC_OPEN_MAX	);
+	LPOSIX_CONST( _SC_NGROUPS_MAX	);
+	LPOSIX_CONST( _SC_SAVED_IDS	);
+	LPOSIX_CONST( _SC_STREAM_MAX	);
+	LPOSIX_CONST( _SC_TZNAME_MAX	);
+	LPOSIX_CONST( _SC_VERSION	);
 
 	/* lseek arguments */
-	LPOSIX_CONST( SEEK_SET		);
 	LPOSIX_CONST( SEEK_CUR		);
 	LPOSIX_CONST( SEEK_END		);
+	LPOSIX_CONST( SEEK_SET		);
+
+	/* Miscellaneous */
+	LPOSIX_CONST( STDERR_FILENO	);
+	LPOSIX_CONST( STDIN_FILENO	);
+	LPOSIX_CONST( STDOUT_FILENO	);
 
 	return 1;
 }

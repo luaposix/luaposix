@@ -73,7 +73,7 @@ local function checkselection (fname, argi, fields, level)
   level = level or 1
   local field1, type1 = fields[1], type (fields[1])
   if type1 == "table" and #fields > 1 then
-    toomanyargerror (fname, argi, #fields + argi -1, level + 1)
+    toomanyargerror (fname, argi, #fields + argi - 1, level + 1)
   elseif field1 ~= nil and type1 ~= "table" and type1 ~= "string" then
     argtypeerror (fname, argi, "table, string or nil", field1, level + 1)
   end
@@ -107,7 +107,6 @@ local function doselection (name, argoffset, fields, map)
     return unpack (r)
   end
 end
-
 
 
 local st = require "posix.sys.stat"
@@ -195,6 +194,7 @@ local function mode_munch (mode, modestr)
     return nil, "bad mode"
   end
 end
+
 
 local M = {
   argerror        = argerror,
@@ -725,6 +725,47 @@ if _DEBUG ~= false then
   end
 else
   M.lstat = lstat
+end
+
+
+--- Get configuration information at runtime.
+-- @function sysconf
+-- @tparam[opt] table|string key one of "ARG_MAX", "CHILD_MAX",
+--   "CLK_TCK", "JOB_CONTROL", "NGROUPS_MAX", "OPEN_MAX", "SAVED_IDS",
+--   "STREAM_MAX", "TZNAME_MAX" or "VERSION"
+-- @string[opt] ... unless *type* was a table, zero or more additional
+--   type strings
+-- @return ... values, or a table of all fields if no option given
+-- @see sysconf(2)
+-- @usage for a,b in pairs (P.sysconf ()) do print (a, b) end
+-- @usage print (P.sysconf ("STREAM_MAX", "ARG_MAX"))
+
+local unistd = require "posix.unistd"
+
+local _sysconf = unistd.sysconf
+
+local function sysconf (...)
+  return doselection ("sysconf", 0, {...}, {
+    ARG_MAX     = _sysconf (unistd._SC_ARG_MAX),
+    CHILD_MAX   = _sysconf (unistd._SC_CHILD_MAX),
+    CLK_TCK     = _sysconf (unistd._SC_CLK_TCK),
+    JOB_CONTROL = _sysconf (unistd._SC_JOB_CONTROL),
+    NGROUPS_MAX = _sysconf (unistd._SC_NGROUPS_MAX),
+    OPEN_MAX    = _sysconf (unistd._SC_OPEN_MAX),
+    SAVED_IDS   = _sysconf (unistd._SC_SAVED_IDS),
+    STREAM_MAX  = _sysconf (unistd._SC_STREAM_MAX),
+    TZNAME_MAX  = _sysconf (unistd._SC_TZNAME_MAX),
+    VERSION     = _sysconf (unistd._SC_VERSION),
+  })
+end
+
+if _DEBUG ~= false then
+  M.sysconf = function (...)
+    checkselection ("sysconf", 1, {...}, 2)
+    return sysconf (...)
+  end
+else
+  M.sysconf = sysconf
 end
 
 
