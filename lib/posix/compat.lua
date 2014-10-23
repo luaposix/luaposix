@@ -714,7 +714,7 @@ end
 --   "uid", "gid", "rdev", "size", "atime", "mtime", "ctime" or "type"
 -- @string[opt] ... unless *field* was a table, zero or more additional
 --   field names
--- @return values, or table of all fields if no option fiven
+-- @return values, or table of all fields if no option given
 -- @see stat(2)
 -- @usage for a,b in pairs (P,stat "/etc/") do print (a, b) end
 
@@ -771,6 +771,50 @@ if _DEBUG ~= false then
   end
 else
   M.lstat = lstat
+end
+
+
+--- Fetch file system statistics.
+-- @function statvfs
+-- @string path any path within the mounted file system
+-- @tparam[opt] table|string field one of "bsize", "frsize", "blocks",
+--   "bfree", "bavail", "files", "ffree", "favail", "fsid", "flag",
+--   "namemax"
+-- @string[opt] ... unless *field* was a table, zero or more additional
+--   field names
+-- @return values, or table of all fields if no option given
+-- @see statvfs(2)
+-- @usage for a,b in pairs (P,statvfs "/") do print (a, b) end
+
+local sv = require "posix.sys.statvfs"
+
+local _statvfs = sv.statvfs
+
+local function statvfs (path, ...)
+  local info = _statvfs (path)
+  return doselection ("statvfs", 1, {...}, {
+      bsize   = info.f_bsize,
+      frsize  = info.f_frsize,
+      blocks  = info.f_blocks,
+      bfree   = info.f_bfree,
+      bavail  = info.f_bavail,
+      files   = info.f_files,
+      ffree   = info.f_ffree,
+      favail  = info.f_favail,
+      fsid    = info.f_fsid,
+      flag    = info.f_flag,
+      namemax = info.f_namemax,
+  })
+end
+
+if _DEBUG ~= false then
+  M.statvfs = function (path, ...)
+    checkstring ("statvfs", 1, path, 2)
+    checkselection ("statvfs", 2, {...}, 2)
+    return statvfs (path, ...)
+  end
+else
+  M.statvfs = statvfs
 end
 
 

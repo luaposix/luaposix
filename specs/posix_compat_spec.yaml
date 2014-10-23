@@ -460,6 +460,73 @@ specify compat:
       end
 
 
+- describe statvfs:
+  - before:
+      statvfs, badarg = init (posix, "statvfs")
+
+  # posix.statvfs takes an optional string or table as its second
+  # argument, followed by zero or more strings only if the second
+  # argument was a string; since we can't express that with
+  # `badargs.diagnose` do it all manually again...
+  - context with bad arguments: |
+      if statvfs then
+        examples {
+          ["it diagnoses missing argument #1"] = function ()
+            expect (statvfs ()).to_raise (badarg (1, "string"))
+          end
+        }
+        examples {
+          ["it diagnoses argument #1 type not string"] = function ()
+            expect (statvfs (false)).to_raise (badarg (1, "string", "boolean"))
+          end
+        }
+        examples {
+          ["it diagnoses argument #2 type not table, string or nil"] = function ()
+            expect (statvfs (".", false)).
+              to_raise (badarg (2, "?table|string", "boolean"))
+          end
+        }
+        examples {
+          ["it diagnoses argument #2 string invalid"] = function ()
+            expect (statvfs (".", "fubar")).
+              to_raise "bad argument #2 to 'statvfs' (invalid option 'fubar')"
+          end
+        }
+        examples {
+          ["it diagnoses argument #3 type not string"] = function ()
+            expect (statvfs (".", "files", false)).
+              to_raise (badarg (3, "string", "boolean"))
+          end
+        }
+        examples {
+          ["it diagnoses too many arguments"] = function ()
+            expect (statvfs (".", {}, false)).
+              to_raise (badarg (3))
+          end
+        }
+      end
+
+  - it fetches statistics for a mounted file system:
+      if statvfs then
+        sv = statvfs "/"
+        expect (type (sv)).to_be "table"
+        expect (sv.bsize).to_be (statvfs ("/", "bsize"))
+        for _, field in pairs {"bsize", "frsize", "blocks", "bfree", "bavail",
+                               "files", "ffree", "favail", "flag", "namemax"}
+        do
+          expect (type (sv[field])).to_be "number"
+          expect (sv[field] >= 0).to_be (true)
+        end
+      end
+  - it returns a non-negative value from fsid: |
+      -- Merge this back into the previous example when #102 is fixed
+      if statvfs then
+        sv = statvfs "/"
+        pending "issue #102"
+        expect (sv[field] >= 0).to_be (true)
+      end
+
+
 - describe sysconf:
   - before:
       sysconf, badarg = init (posix, "sysconf")
