@@ -675,8 +675,9 @@ Get a value for a configuration option for a filename.
 static int
 Ppathconf(lua_State *L)
 {
+	const char *path = luaL_checkstring(L, 1);
 	checknargs(L, 2);
-	return pushintresult(pathconf(luaL_checkstring(L, 1), checkint(L, 2)));
+	return pushintresult(pathconf(path, checkint(L, 2)));
 }
 
 
