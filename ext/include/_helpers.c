@@ -372,45 +372,6 @@ badoption(lua_State *L, int i, const char *what, int option)
 #define setstringfield(_p, _n) pushstringfield(LPOSIX_STR(_n), _p->_n)
 
 
-typedef void (*Selector)(lua_State *L, int i, const void *data);
-
-static int
-doselection(lua_State *L, int i, int n, const char *const S[], Selector F, const void *data)
-{
-	if (lua_isnoneornil(L, i) || lua_istable(L, i))
-	{
-		int j;
-		checknargs(L, i);
-		if (lua_isnoneornil(L, i))
-			lua_createtable(L,0,n);
-		else
-			lua_settop(L, i);
-		for (j=0; S[j]!=NULL; j++)
-		{
-			F(L, j, data);
-			lua_setfield(L, -2, S[j]);
-		}
-		return 1;
-	}
-	else if (lua_isstring(L, i))
-	{
-		int k,n=lua_gettop(L);
-		for (k=i; k<=n; k++)
-		{
-			int j;
-			luaL_checkstring(L, k);
-			j=luaL_checkoption(L, k, NULL, S);
-			F(L, j, data);
-			lua_replace(L, k);
-		}
-		return n-i+1;
-	}
-
-	return argtypeerror(L, i, "table, string or nil");
-}
-#define doselection(L,i,S,F,d) (doselection)(L,i,sizeof(S)/sizeof(*S)-1,S,F,d)
-
-
 static int
 lookup_symbol(const char * const S[], const int K[], const char *str)
 {

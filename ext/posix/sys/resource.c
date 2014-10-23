@@ -68,7 +68,7 @@ Pgetrlimit(lua_State *L)
 	int rid, rc;
 	const char *rid_str = luaL_checkstring(L, 1);
 	checknargs(L, 1);
-	if ((rid = lookup_symbol(Srlimit, Krlimit, rid_str)) < 0) /* FIXME: Use doselection. */
+	if ((rid = lookup_symbol(Srlimit, Krlimit, rid_str)) < 0)
 		luaL_argerror(L, 1, lua_pushfstring(L, "invalid option '%s'", rid_str));
 	rc = getrlimit(rid, &lim);
 	if (rc < 0)
