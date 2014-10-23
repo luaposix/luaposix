@@ -661,59 +661,22 @@ Pnice(lua_State *L)
 }
 
 
-#define pathconf_map \
-	MENTRY( _LINK_MAX         ) \
-	MENTRY( _MAX_CANON        ) \
-	MENTRY( _MAX_INPUT        ) \
-	MENTRY( _NAME_MAX         ) \
-	MENTRY( _PATH_MAX         ) \
-	MENTRY( _PIPE_BUF         ) \
-	MENTRY( _CHOWN_RESTRICTED ) \
-	MENTRY( _NO_TRUNC         ) \
-	MENTRY( _VDISABLE         )
-
-
-static const int Kpathconf[] =
-{
-#define MENTRY(_f) LPOSIX_SPLICE(_PC, _f),
-	pathconf_map
-#undef MENTRY
-	-1
-};
-
-
-static void
-Fpathconf(lua_State *L, int i, const void *data)
-{
-	const char *path=data;
-	lua_pushinteger(L, pathconf(path, Kpathconf[i]));
-}
-
-
-static const char *const Spathconf[] =
-{
-#define MENTRY(_f) LPOSIX_STR_1(_f),
-	pathconf_map
-#undef MENTRY
-	NULL
-};
-
-
 /***
 Get a value for a configuration option for a filename.
 @function pathconf
-@string path optional (default ".")
-@string ... field names, each one of "LINK\_MAX", "MAX\_CANON", "NAME\_MAX", "PIPE\_BUF",
-"CHOWN\_RESTRICTED", "NO\_TRUNC", "VDISABLE"
-@return ... values, or table of all fields if no option given
+@string path optional
+@int key one of `_PC_LINK_MAX`, `_PC_MAX_CANON`, `_PC_NAME_MAX`,
+  `_PC_PIPE_BUF`, `_PC_CHOWN_RESTRICTED`, `_PC_NO_TRUNC` or
+  `_PC_VDISABLE`
+@treturn int associated path configuration value
 @see pathconf(3)
-@usage for a, b in pairs(P.pathconf("/dev/tty")) do print(a, b) end
+@usage for a, b in pairs (P.pathconf "/dev/tty") do print(a, b) end
 */
 static int
 Ppathconf(lua_State *L)
 {
-	const char *path = optstring(L, 1, ".");
-	return doselection(L, 2, Spathconf, Fpathconf, path);
+	checknargs(L, 2);
+	return pushintresult(pathconf(luaL_checkstring(L, 1), checkint(L, 2)));
 }
 
 
@@ -940,8 +903,10 @@ Psync(lua_State *L)
 /***
 Get configuration information at runtime.
 @function sysconf
-@int key system configuration constant
-@itreturn int associated system configuration value
+@int key one of `_SC_ARG_MAX`, `_SC_CHILD_MAX`, `_SC_CLK_TCK`, `_SC_JOB_CONTROL`,
+  `_SC_OPEN_MAX`, `_SC_NGROUPS_MAX`, `_SC_SAVED_IDS`, `_SC_STREAM_MAX`,
+  `_SC_TZNAME_MAX` or `_SC_VERSION`,
+@treturn int associated system configuration value
 @see sysconf(3)
 */
 static int
@@ -1067,6 +1032,15 @@ Constants.
 Standard constants.
 Any constants not available in the underlying system will be `nil` valued.
 @table posix.unistd
+@int _PC_CHOWN_RESTRICTED return 1 if chown requires appropriate privileges, 0 otherwise
+@int _PC_LINK_MAX maximum file link count
+@int _PC_MAX_CANON maximum bytes in terminal canonical input line
+@int _PC_MAX_INPUT maximum number of bytes in a terminal input queue
+@int _PC_NAME_MAX maximum number of bytes in a file name
+@int _PC_NO_TRUNC return 1 if over-long file names are truncated
+@int _PC_PATH_MAXmaximum number of bytes in a pathname
+@int _PC_PIPE_BUF maximum number of bytes in an atomic pipe write
+@int _PC_VDISABLE terminal character disabling value
 @int _SC_ARG_MAX maximum bytes of argument to @{posix.unistd.execp}
 @int _SC_CHILD_MAX maximum number of processes per user
 @int _SC_CLK_TCK statistics clock frequency
@@ -1098,6 +1072,17 @@ luaopen_posix_unistd(lua_State *L)
 	luaL_register(L, "posix.unistd", posix_unistd_fns);
 	lua_pushliteral(L, "posix.unistd for " LUA_VERSION " / " PACKAGE_STRING);
 	lua_setfield(L, -2, "version");
+
+	/* pathconf arguments */
+	LPOSIX_CONST( _PC_CHOWN_RESTRICTED	);
+	LPOSIX_CONST( _PC_LINK_MAX		);
+	LPOSIX_CONST( _PC_MAX_CANON		);
+	LPOSIX_CONST( _PC_MAX_INPUT		);
+	LPOSIX_CONST( _PC_NAME_MAX		);
+	LPOSIX_CONST( _PC_NO_TRUNC		);
+	LPOSIX_CONST( _PC_PATH_MAX		);
+	LPOSIX_CONST( _PC_PIPE_BUF		);
+	LPOSIX_CONST( _PC_VDISABLE		);
 
 	/* sysconf arguments */
 	LPOSIX_CONST( _SC_ARG_MAX	);

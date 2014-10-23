@@ -98,8 +98,9 @@ Stdlib NEWS - User visible changes
 
 ** Bug fixes:
 
- - `posix.getpasswd`, `posix.getpid`, `posix.stat` and `posix.sysconf`
-   processes a single table argument with a list of types correctly
+ - `posix.getpasswd`, `posix.getpid`, `posix.stat`, `posix.pathconf` and
+   `posix.sysconf` process a single table argument with a list of types
+   correctly.
 
  - `posix.readlink` is much more robust, and reports errors accurately.
 

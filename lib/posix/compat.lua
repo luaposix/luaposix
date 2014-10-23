@@ -659,6 +659,52 @@ else
 end
 
 
+--- Get configuration information at runtime.
+-- @function pathconf
+-- @string[opt="."] path file to act on
+-- @tparam[opt] table|string key one of "CHOWN_RESTRICTED", "LINK_MAX",
+--   "MAX_CANON", "MAX_INPUT", "NAME_MAX", "NO_TRUNC", "PATH_MAX", "PIPE_BUF"
+--   or "VDISABLE"
+-- @string[opt] ... unless *type* was a table, zero or more additional
+--   type strings
+-- @return ... values, or a table of all fields if no option given
+-- @see sysconf(2)
+-- @usage for a,b in pairs (P.pathconf "/dev/tty") do print (a, b) end
+
+local unistd = require "posix.unistd"
+
+local _pathconf = unistd.pathconf
+
+local Spathconf = { CHOWN_RESTRICTED = 1, LINK_MAX = 1, MAX_CANON = 1,
+  MAX_INPUT = 1, NAME_MAX = 1, NO_TRUNC = 1, PATH_MAX = 1, PIPE_BUF = 1,
+  VDISABLE = 1 }
+
+local function pathconf (path, ...)
+  local argt, map = {...}, {}
+  if path ~= nil and Spathconf[path] ~= nil then
+    path, argt = ".", {path, ...}
+  end
+  for k in pairs (Spathconf) do
+    map[k] = _pathconf (path or ".", unistd["_PC_" .. k])
+  end
+  return doselection ("pathconf", 1, {...}, map)
+end
+
+if _DEBUG ~= false then
+  M.pathconf = function (path, ...)
+    if path ~= nil and Spathconf[path] ~= nil then
+      checkselection ("pathconf", 1, {path, ...}, 2)
+    else
+      optstring ("pathconf", 1, path, ".", 2)
+      checkselection ("pathconf", 2, {...}, 2)
+    end
+    return pathconf (path, ...)
+  end
+else
+  M.pathconf = pathconf
+end
+
+
 --- Information about an existing file path.
 -- If the file is a symbolic link, return information about the link
 -- itself.

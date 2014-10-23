@@ -100,6 +100,33 @@ specify posix/unistd:
       expect (getppid ()).not_to_be (unistd.getpid ())
 
 
+- describe pathconf:
+  - before:
+      pathconf = unistd.pathconf
+
+  - context with bad arguments:
+      badargs.diagnose (pathconf, "(string, int)")
+
+  - it returns whether chown can be used on the given file:
+      expect (type (pathconf (".", unistd._PC_CHOWN_RESTRICTED))).to_be "number"
+  - it fetches the maximum number of links to the given file:
+      expect (type (pathconf (".", unistd._PC_LINK_MAX))).to_be "number"
+  - it fetches the maximum formatted line input length for a tty:
+      expect (type (pathconf (".", unistd._PC_MAX_CANON))).to_be "number"
+  - it fetches the maximum raw line input length for a tty:
+      expect (type (pathconf (".", unistd._PC_MAX_INPUT))).to_be "number"
+  - it fetches the maximum filename length in this directory:
+      expect (type (pathconf (".", unistd._PC_NAME_MAX))).to_be "number"
+  - it fetches whether accessing overlong filenames is an error:
+      expect (type (pathconf (".", unistd._PC_NO_TRUNC))).to_be "number"
+  - it fetches the maximum relative path length from this directory:
+      expect (type (pathconf (".", unistd._PC_PATH_MAX))).to_be "number"
+  - it fetches the size of the pipe buffer:
+      expect (type (pathconf (".", unistd._PC_PIPE_BUF))).to_be "number"
+  - it fetches whether special character processing can be disabled:
+      expect (type (pathconf (".", unistd._PC_VDISABLE))).to_be "number"
+
+
 - describe sysconf:
   - before:
       sysconf = unistd.sysconf
