@@ -770,7 +770,7 @@ if _DEBUG ~= false then
     return stat (path, ...)
   end
 else
-  M.lstat = lstat
+  M.stat = stat
 end
 
 
