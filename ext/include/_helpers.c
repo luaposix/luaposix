@@ -382,36 +382,4 @@ lookup_symbol(const char * const S[], const int K[], const char *str)
 	return -1;
 }
 
-static uid_t
-mygetuid(lua_State *L, int i)
-{
-	if (lua_isnoneornil(L, i))
-		return (uid_t)-1;
-	else if (lua_isnumber(L, i))
-		return (uid_t) lua_tonumber(L, i);
-	else if (lua_isstring(L, i))
-	{
-		struct passwd *p=getpwnam(lua_tostring(L, i));
-		return (p==NULL) ? (uid_t)-1 : p->pw_uid;
-	}
-	else
-		return argtypeerror(L, i, "string, int or nil");
-}
-
-static gid_t
-mygetgid(lua_State *L, int i)
-{
-	if (lua_isnoneornil(L, i))
-		return (gid_t)-1;
-	else if (lua_isnumber(L, i))
-		return (gid_t) lua_tonumber(L, i);
-	else if (lua_isstring(L, i))
-	{
-		struct group *g=getgrnam(lua_tostring(L, i));
-		return (g==NULL) ? (uid_t)-1 : g->gr_gid;
-	}
-	else
-		return argtypeerror(L, i, "string, int or nil");
-}
-
 #endif /*LUAPOSIX__HELPERS_C*/
