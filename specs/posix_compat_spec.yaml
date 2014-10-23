@@ -587,6 +587,57 @@ specify compat:
       end
 
 
+- describe times:
+  - before:
+      table.unpack = table.unpack or unpack
+      times, badarg = init (posix, "times")
+
+  # posix.times takes an optional string or table as its first
+  # argument, followed by zero or more strings only if the first
+  # argument was a string; since we can't express that with
+  # `badargs.diagnose` do it all manually again...
+  - context with bad arguments:
+    - 'it diagnoses argument #1 type not table, string or nil':
+        expect (times (false)).to_raise (badarg (1, "?table|string", "boolean"))
+    - 'it diagnoses argument #1 string invalid': |
+        expect (times ("fubar")).
+          to_raise "bad argument #1 to 'times' (invalid option 'fubar')"
+    - 'it diagnoses argument #2 type not string':
+        expect (times ("utime", false)).
+          to_raise (badarg (2, "string", "boolean"))
+    - it diagnoses too many arguments:
+        expect (times ({}, false)).to_raise (badarg (2))
+
+  - it fetches the user time:
+      expect (type (times ().utime)).to_be "number"
+      expect (times ("utime") >= 0).to_be (true)
+  - it fetches the system time:
+      expect (type (times ().stime)).to_be "number"
+      expect (times ("stime") >= 0).to_be (true)
+  - it fetches the children user time:
+      expect (type (times ().cutime)).to_be "number"
+      expect (times ("cutime") >= 0).to_be (true)
+  - it fetches the children system time:
+      expect (type (times ().cstime)).to_be "number"
+      expect (times ("cstime") >= 0).to_be (true)
+  - it fetches the elapsed time:
+      expect (type (times ().elapsed)).to_be "number"
+      expect (times ("elapsed") >= 0).to_be (true)
+  - it fetches a subtable of named fields: |
+      keys = {"utime", "cutime"}
+      t = {times (table.unpack (keys))}
+      for _, v in ipairs (t) do
+        expect (type (v)).to_be "number"
+      end
+  - it fetches everything without an argument:
+      keys = {"utime", "stime", "cutime", "cstime", "elapsed"}
+      t = times ()
+      expect (t).to_contain.all_of (keys)
+      for _, v in ipairs (keys) do
+        expect (type (t[v])).to_be "number"
+      end
+
+
 - describe umask:
   - before:
       stat, umask = posix.stat, posix.umask

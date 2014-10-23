@@ -859,6 +859,42 @@ else
 end
 
 
+--- Get the current process times.
+-- @function times
+-- @tparam[opt] table|string key one of "utime", "stime", "cutime",
+--   "cstime" or "elapsed"
+-- @string[opt] ... unless *key* was a table, zero or more additional
+--   key strings.
+-- @return values, or a table of all fields if no keys given
+-- @see times(2)
+-- @usage for a,b in pairs(P.times ()) do print (a, b) end
+-- @usage print (P.times ("utime", "elapsed")
+
+local tms = require "posix.sys.times"
+
+local _times = tms.times
+
+local function times (...)
+  local info = _times ()
+  return doselection ("times", 0, {...}, {
+    utime   = info.tms_utime,
+    stime   = info.tms_stime,
+    cutime  = info.tms_cutime,
+    cstime  = info.tms_cstime,
+    elapsed = info.elapsed,
+  })
+end
+
+if _DEBUG ~= false then
+  M.times = function (...)
+    checkselection ("times", 1, {...}, 2)
+    return times (...)
+  end
+else
+  M.times = times
+end
+
+
 --- Set file mode creation mask.
 -- @function umask
 -- @string[opt] mode file creation mask string

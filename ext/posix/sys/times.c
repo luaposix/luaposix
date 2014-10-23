@@ -22,54 +22,59 @@
 
 #include "_helpers.c"
 
+#define pushtimefield(k,x) pushnumberfield((k), ((lua_Number)x)/clk_tck)
 
-struct mytimes
-{
-	struct tms t;
-	clock_t elapsed;
-};
-
-#define pushtime(L,x)	lua_pushnumber(L, ((lua_Number)x)/clk_tck)
-
-
-
-static void
-Ftimes(lua_State *L, int i, const void *data)
+/***
+Process times record.
+All times are measured in cpu seconds.
+@table PosixTms
+@int tms_utime time spent executing user instructions
+@int tms_stime time spent in system execution
+@int tms_cutime sum of *tms_utime* for calling process and its children
+@int tms_cstime sum of *tms_stime* for calling process and its children
+*/
+static int
+pushtms(lua_State *L)
 {
 	static long clk_tck = 0;
-	const struct mytimes *t=data;
 
-	if (!clk_tck)
-		clk_tck= sysconf(_SC_CLK_TCK);
-	switch (i)
-	{
-		case 0:	pushtime(L, t->t.tms_utime); break;
-		case 1:	pushtime(L, t->t.tms_stime); break;
-		case 2:	pushtime(L, t->t.tms_cutime); break;
-		case 3:	pushtime(L, t->t.tms_cstime); break;
-		case 4:	pushtime(L, t->elapsed); break;
-	}
+	struct tms t;
+	clock_t elapsed = times(&t);
+
+	if (elapsed == (clock_t) -1)
+		return pusherror(L, "times");
+
+	if (clk_tck == 0)
+		clk_tck = sysconf(_SC_CLK_TCK);
+
+	lua_createtable(L, 0, 5);
+
+	/* record elapsed time, and save accounting to struct */
+	pushtimefield("elapsed", elapsed);
+
+	/* record struct entries */
+	pushtimefield("tms_utime", t.tms_utime);
+	pushtimefield("tms_stime", t.tms_stime);
+	pushtimefield("tms_cutime", t.tms_cutime);
+	pushtimefield("tms_cstime", t.tms_cstime);
+
+	settypemetatable("PosixTms");
+	return 1;
 }
-
-static const char *const Stimes[] =
-{
-	"utime", "stime", "cutime", "cstime", "elapsed", NULL
-};
 
 /***
 Get the current process times.
 @function times
-@string ... field names, each one of "utime", "stime", "cutime", "cstime"
-  or "elapsed"
-@return ... times, or table of all times if no option given
+@treturn[1] PosixTms time accounting for this process, if successful
+@return[2] nil
+@treturn[2] string error message
 @see times(2)
 */
 static int
 Ptimes(lua_State *L)
 {
-	struct mytimes t;
-	t.elapsed = times(&t.t);
-	return doselection(L, 1, Stimes, Ftimes, &t);
+	checknargs(L, 0);
+	return pushtms(L);
 }
 
 
