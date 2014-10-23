@@ -39,38 +39,75 @@ local function argtypeerror (name, i, expect, actual, level)
             fmt:format (expect, type (actual):gsub ("nil", "no value")), level + 1)
 end
 
-local function badoption (name, i, what, option)
+local function badoption (name, i, what, option, level)
+  level = level or 1
   local fmt = "invalid %s option '%s'"
-  argerror (name, i, fmt:format (what, option), 2)
+  argerror (name, i, fmt:format (what, option), level + 1)
 end
 
-local function checkint (name, i, actual)
+local function checkint (name, i, actual, level)
+  level = level or 1
   if type (actual) ~= "number" then
-    argtypeerror (name, i, "int", actual, 2)
+    argtypeerror (name, i, "int", actual, level + 1)
   end
   return actual
 end
 
-local function checkstring (name, i, actual)
+local function checkstring (name, i, actual, level)
+  level = level or 1
   if type (actual) ~= "string" then
-    argtypeerror (name, i, "string", actual, 2)
+    argtypeerror (name, i, "string", actual, level + 1)
   end
   return actual
 end
 
-local function checktable (name, i, actual)
+local function checktable (name, i, actual, level)
+  level = level or 1
   if type (actual) ~= "table" then
-    argtypeerror (name, i, "table", actual, 2)
+    argtypeerror (name, i, "table", actual, level + 1)
   end
   return actual
 end
 
-local function optstring (name, i, actual, def)
+local function checkselection (fname, argi, fields, level)
+  level = level or 1
+  local field1, type1 = fields[1], type (fields[1])
+  if type1 == "table" and #fields > 1 then
+    toomanyargerror (fname, argi, #fields + argi -1, level + 1)
+  elseif field1 ~= nil and type1 ~= "table" and type1 ~= "string" then
+    argtypeerror (fname, argi, "table, string or nil", field1, level + 1)
+  end
+  for i = 2, #fields do
+    checkstring (fname, i + argi - 1, fields[i], level + 1)
+  end
+end
+
+local function optstring (name, i, actual, def, level)
+  level = level or 1
   if actual ~= nil and type (actual) ~= "string" then
-    argtypeerror (name, i, "string or nil", actual, 2)
+    argtypeerror (name, i, "string or nil", actual, level + 1)
   end
   return actual or def
 end
+
+local function doselection (name, argoffset, fields, map)
+  if #fields == 1 and type (fields[1]) == "table" then fields = fields[1] end
+
+  if not (next (fields)) then
+    return map
+  else
+    local r = {}
+    for i, v in ipairs (fields) do
+      if map[v] then
+        r[#r + 1] = map[v]
+      else
+        argerror (name, i + argoffset, "invalid option '" .. v .. "'", 2)
+      end
+    end
+    return unpack (r)
+  end
+end
+
 
 
 local st = require "posix.sys.stat"
@@ -158,25 +195,6 @@ local function mode_munch (mode, modestr)
     return nil, "bad mode"
   end
 end
-
-local function doselection (name, argoffset, fields, map)
-  if #fields == 1 and type (fields[1]) == "table" then fields = fields[1] end
-
-  if not (next (fields)) then
-    return map
-  else
-    local r = {}
-    for i, v in ipairs (fields) do
-      if map[v] then
-        r[#r + 1] = map[v]
-      else
-        argerror (name, i + argoffset, "invalid option '" .. v .. "'")
-      end
-    end
-    return unpack (r)
-  end
-end
-
 
 local M = {
   argerror        = argerror,
@@ -387,9 +405,7 @@ end
 
 if _DEBUG ~= false then
   M.getpasswd = function (user, ...)
-    for i, v in ipairs {...} do
-      checkstring ("getpasswd", i + 1, v)
-    end
+    checkselection ("getpasswd", 2, {...}, 2)
     return getpasswd (user, ...)
   end
 else
@@ -427,17 +443,9 @@ local function getpid (...)
 end
 
 if _DEBUG ~= false then
-  M.getpid = function (t, ...)
-    local argt = {t, ...}
-    if type (t) == "table" and #argt > 1 then
-      toomanyargerror ("getpid", 1, #argt)
-    elseif t ~= nil and type (t) ~= "string" then
-      argtypeerror ("getpid", 1, "table, string or nil", t)
-    end
-    for i = 2, #argt do
-      checkstring ("getpid", i, argt[i])
-    end
-    return getpid (t, ...)
+  M.getpid = function (...)
+    checkselection ("getpid", 1, {...}, 2)
+    return getpid (...)
   end
 else
   M.getpid = getpid
@@ -710,18 +718,10 @@ local function stat (path, ...)
 end
 
 if _DEBUG ~= false then
-  M.stat = function (path, t, ...)
-    local argt = {path, t, ...}
-    checkstring ("stat", 1, path)
-    if type (t) == "table" and #argt > 2 then
-      toomanyargerror ("stat", 2, #argt)
-    elseif t ~= nil and type (t) ~= "string" then
-      argtypeerror ("stat", 2, "table, string or nil", t)
-    end
-    for i = 3, #argt do
-      checkstring ("stat", i, argt[i])
-    end
-    return stat (path, t, ...)
+  M.stat = function (path, ...)
+    checkstring ("stat", 1, path, 2)
+    checkselection ("stat", 2, {...}, 2)
+    return stat (path, ...)
   end
 else
   M.lstat = lstat

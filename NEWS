@@ -98,8 +98,8 @@ Stdlib NEWS - User visible changes
 
 ** Bug fixes:
 
- - `posix.getpid` processes a single table argument with a list of types
-   correctly.
+ - `posix.getpasswd`, `posix.getpid` and `posix.stat` processes a single table
+   argument with a list of types correctly.
 
  - `posix.readlink` is much more robust, and reports errors accurately.
 
