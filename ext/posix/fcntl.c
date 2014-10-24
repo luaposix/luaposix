@@ -58,6 +58,7 @@ Pposix_fadvise(lua_State *L)
 	int offset = checkint(L, 2);
 	int len    = checkint(L, 3);
 	int advice = checkint(L, 4);
+	int r;
 	checknargs(L, 4);
 	r = posix_fadvise(fd, offset, len, advice);
 	return pushresult(L, r == 0 ? 0 : -1, "posix_fadvise");
