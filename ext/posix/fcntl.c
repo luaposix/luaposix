@@ -39,30 +39,28 @@
 #if HAVE_POSIX_FADVISE
 /***
 Instruct kernel on appropriate cache behaviour for a file or file segment.
-@function fadvise
-@param file Lua file object
+@function posix_fadvise
+@int fd open file descriptor
 @int offset start of region
 @int len number of bytes in region
-@int advice one of `POSIX_FADV\_NORMAL`, `POSIX_FADV\_SEQUENTIAL`,
-  `POSIX_FADV\_RANDOM`, `POSIX_FADV_\NOREUSE`, `POSIX_FADV\_WILLNEED` or
-  `POSIX_FADV\_DONTNEED`
+@int advice one of `POSIX_FADV_NORMAL`, `POSIX_FADV_SEQUENTIAL`,
+  `POSIX_FADV_RANDOM`, `POSIX_FADV_NOREUSE`, `POSIX_FADV_WILLNEED` or
+  `POSIX_FADV_DONTNEED`
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
 @see posix_fadvise(2)
 */
-/* FIXME: a minimal interface takes a file descriptor, not a handle! */
 static int
-Pfadvise(lua_State *L)
+Pposix_fadvise(lua_State *L)
 {
-	FILE *f = *(FILE**) luaL_checkudata(L, 1, LUA_FILEHANDLE);
-	const lua_Integer offset = checkint(L, 2);
-	const lua_Integer len    = checkint(L, 3);
-	const lua_Integer advice = checkint(L, 4);
-	int res;
+	int fd     = checkint(L, 1);
+	int offset = checkint(L, 2);
+	int len    = checkint(L, 3);
+	int advice = checkint(L, 4);
 	checknargs(L, 4);
-	res = posix_fadvise(fileno (f), offset, len, advice);
-	return pushresult(L, res == 0 ? 0 : -1, "posix_fadvise");
+	r = posix_fadvise(fd, offset, len, advice);
+	return pushresult(L, r == 0 ? 0 : -1, "posix_fadvise");
 }
 #endif
 
@@ -160,7 +158,7 @@ Popen(lua_State *L)
 static const luaL_Reg posix_fcntl_fns[] =
 {
 #if HAVE_POSIX_FADVISE
-	LPOSIX_FUNC( Pfadvise		),
+	LPOSIX_FUNC( Pposix_fadvise	),
 #endif
 	LPOSIX_FUNC( Pfcntl		),
 	LPOSIX_FUNC( Popen		),

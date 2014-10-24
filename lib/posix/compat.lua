@@ -295,6 +295,47 @@ else
 end
 
 
+--- Instruct kernal on appropriate cache behaviour for a file or file segment.
+-- @function fadvise
+-- @tparam file fh Lua file object
+-- @int offset start of region
+-- @int len number of bytes in region
+-- @int advice one of `POSIX_FADV_NORMAL, `POSIX_FADV_SEQUENTIAL,
+-- `POSIX_FADV_RANDOM`, `POSIX_FADV_\NOREUSE`, `POSIX_FADV_WILLNEED` or
+-- `POSIX_FADV_DONTNEED`
+-- @treturn[1] int `0`, if successful
+-- @return[2] nil
+-- @treturn[2] string error message
+-- @see posix_fadvise(2)
+
+local fc    = require "posix.fcntl"
+local stdio = require "posix.stdio"
+
+local posix_fadvise = fc.posix_fadvise
+local fileno = stdio.fileno
+
+local function fadvise (fh, ...)
+  return posix_fadvise (fileno (fh), ...)
+end
+
+if posix_fadvise == nil then
+  -- Not supported by underlying system
+elseif _DEBUG ~= false then
+  M.fadvise = function (...)
+    argt = {...}
+    if io.type (argt[1]) ~= "file" then
+      argtypeerror ("fadvise", 1, "file", argt[1])
+    end
+    checkint ("fadvise", 2, argt[2])
+    checkint ("fadvise", 3, argt[3])
+    checkint ("fadvise", 4, argt[4])
+    return fadvise (...)
+  end
+else
+  M.fadvise = fadvise
+end
+
+
 --- Match a filename against a shell pattern.
 -- @function fnmatch
 -- @string pat shell pattern

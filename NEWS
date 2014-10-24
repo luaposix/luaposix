@@ -98,6 +98,10 @@ Stdlib NEWS - User visible changes
 
 ** Bug fixes:
 
+ - `posix.fadvise` is now spelled `posix.fcntl.posix_fadvise` and takes a
+   file descriptor first argument rather than a Lua file handle. The old
+   misspelled bad argument type version is undocumented but still works.
+
  - `posix.getpasswd`, `posix.getpid`, `posix.pathconf`, `posix.stat`,
    `posix.statvfs`, `posix.sysconf` and `posix.times` process a single table
    argument with a list of types correctly.

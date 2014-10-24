@@ -59,6 +59,13 @@ specify compat:
       }
 
 
+- describe fadvise:
+  - context with bad arguments:
+      if posix.fadvise then
+        badargs.diagnose (posix.fadvise, "(file, int, int, int)")
+      end
+
+
 - describe fnmatch:
   - before:
       fnmatch, FNM_PATHNAME, FNM_PERIOD =

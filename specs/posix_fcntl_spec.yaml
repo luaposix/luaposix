@@ -36,3 +36,12 @@ specify posix/fcntl:
       expect (fd >= 0).to_be (true)
       expect (write (fd, buf)).to_be (#buf)
       close (fd)
+
+- describe posix_fadvise:
+  - before:
+      posix_fadvise = fc.posix_fadvise
+
+  - context with bad arguments:
+      if posix_fadvise then
+        badargs.diagnose (posix_fadvise, "(int, int, int, int)")
+      end
