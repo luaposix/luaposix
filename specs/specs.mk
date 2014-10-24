@@ -15,6 +15,7 @@ specl_SPECS =						\
 	$(srcdir)/specs/posix_grp_spec.yaml		\
 	$(srcdir)/specs/posix_pwd_spec.yaml		\
 	$(srcdir)/specs/posix_sys_msg_spec.yaml		\
+	$(srcdir)/specs/posix_sys_resource_spec.yaml	\
 	$(srcdir)/specs/posix_sys_stat_spec.yaml	\
 	$(srcdir)/specs/posix_sys_statvfs_spec.yaml	\
 	$(srcdir)/specs/posix_sys_time_spec.yaml	\

@@ -82,6 +82,14 @@ local function checkselection (fname, argi, fields, level)
   end
 end
 
+local function optint (name, i, actual, def, level)
+  level = level or 1
+  if actual ~= nil and type (actual) ~= "number" then
+    argtypeerror (name, i, "int or nil", actual, level + 1)
+  end
+  return actual or def
+end
+
 local function optstring (name, i, actual, def, level)
   level = level or 1
   if actual ~= nil and type (actual) ~= "string" then
@@ -503,6 +511,50 @@ local unistd = require "posix.unistd"
 M.hostid = unistd.gethostid
 
 
+--- Get resource limits for this process.
+-- @function getrlimit
+-- @string resource one of "core", "cpu", "data", "fsize", "nofile",
+--   "stack" or "as"
+-- @treturn[1] int soft limit
+-- @treturn[1] int hard limit, if successful
+-- @return[2] nil
+-- @treturn[2] string error message
+
+local resource = require "posix.sys.resource"
+
+local _getrlimit = resource.getrlimit
+
+local rlimit_map = {
+  core   = resource.RLIMIT_CORE,
+  cpu    = resource.RLIMIT_CPU,
+  data   = resource.RLIMIT_DATA,
+  fsize  = resource.RLIMIT_FSIZE,
+  nofile = resource.RLIMIT_NOFILE,
+  stack  = resource.RLIMIT_STACK,
+  as     = resource.RLIMIT_AS,
+}
+
+local function getrlimit (rcstr)
+  local rc = rlimit_map[string.lower (rcstr)]
+  if rc == nil then
+    argerror("getrlimit", 1, "invalid option '" .. rcstr .. "'")
+  end
+  local rlim = _getrlimit (rc)
+  return rlim.rlim_cur, rlim.rlim_max
+end
+
+if _DEBUG ~= false then
+  M.getrlimit = function (...)
+    local argt = {...}
+    checkstring ("getrlimit", 1, argt[1])
+    if #argt > 1 then toomanyargerror ("getrlimit", 1, #argt) end
+    return getrlimit (...)
+  end
+else
+  M.getrlimit = getrlimit
+end
+
+
 --- Get time of day.
 -- @function gettimeofday
 -- @treturn timeval time elapsed since *epoch*
@@ -744,6 +796,59 @@ if _DEBUG ~= false then
   end
 else
   M.pathconf = pathconf
+end
+
+
+--- Set resource limits for this process.
+-- @function setrlimit
+-- @string resource one of "core", "cpu", "data", "fsize", "nofile",
+--   "stack" or "as"
+-- @int[opt] softlimit process may receive a signal when reached
+-- @int[opt] hardlimit process may be terminated when reached
+-- @treturn[1] int `0`, if successful
+-- @return[2] nil
+-- @treturn[2] string error message
+
+local resource = require "posix.sys.resource"
+
+local _setrlimit = resource.setrlimit
+
+local rlimit_map = {
+  core   = resource.RLIMIT_CORE,
+  cpu    = resource.RLIMIT_CPU,
+  data   = resource.RLIMIT_DATA,
+  fsize  = resource.RLIMIT_FSIZE,
+  nofile = resource.RLIMIT_NOFILE,
+  stack  = resource.RLIMIT_STACK,
+  as     = resource.RLIMIT_AS,
+}
+
+local function setrlimit (rcstr, cur, max)
+  local rc = rlimit_map[string.lower (rcstr)]
+  if rc == nil then
+    argerror("setrlimit", 1, "invalid option '" .. rcstr .. "'")
+  end
+  local lim
+  if cur == nil or max == nil then
+    lim= _getrlimit (rc)
+  end
+  return _setrlimit (rc, {
+    rlim_cur = cur or lim.rlim_cur,
+    rlim_max = max or lim.rlim_max,
+  })
+end
+
+if _DEBUG ~= false then
+  M.setrlimit = function (...)
+    local argt = {...}
+    checkstring ("setrlimit", 1, argt[1])
+    optint ("setrlimit", 2, argt[2])
+    optint ("setrlimit", 3, argt[3])
+    if #argt > 3 then toomanyargerror ("setrlimit", 3, #argt) end
+    return setrlimit (...)
+  end
+else
+  M.getrlimit = getrlimit
 end
 
 

@@ -56,6 +56,13 @@ Stdlib NEWS - User visible changes
    Consequently, `posix.getpasswd` is now reimplemented in Lua over the POSIX
    APIs.
 
+ - Add missing constants from sys/resource.h:
+   `posix.sys.resource.RLIM_INFINITY`, `posix.sys.resource.RLIM_SAVED_CUR`,
+   `posix.sys.resource.RLIM_SAVED_MAX`, `posix.sys.resource.RLIMIT_CORE`,
+   `posix.sys.resource.RLIMIT_CPU`, `posix.sys.resource.RLIMIT_DATA`,
+   `posix.sys.resource.RLIMIT_FSIZE`, `posix.sys.resource.RLIMIT_NOFILE`,
+   `posix.sys.resource.RLIMIT_STACK`, `posix.sys.resource.RLIMIT_AS`.
+
  - Add missing APIs from unistd.h: `posix.unistd.getegid`,
    `posix.unistd.geteuid`, `posix.unistd.getgid`, `posix.unistd.getuid`,
    `posix.unistd.getpgrp`, `posix.unistd.getpid`, `posix.unistd.getppid`.

@@ -846,36 +846,6 @@ specify posix:
         expect (getenv "very_unlikely_to_be_set").to_be (nil)
 
 
-  - describe setrlimit:
-    - before:
-        setrlimit, badarg = init (posix, "setrlimit")
-
-    - context with bad arguments: |
-        examples {
-          ["it diagnoses argument #1 invalid option"] = function ()
-            expect (setrlimit ("fubar")).
-              to_raise "bad argument #1 to 'setrlimit' (invalid option 'fubar')"
-          end
-        }
-
-        badargs.diagnose (setrlimit, "(string, ?int, ?int)")
-
-
-  - describe getrlimit:
-    - before:
-        getrlimit, badarg = init (posix, "getrlimit")
-
-    - context with bad arguments: |
-        examples {
-          ["it diagnoses argument #1 invalid option"] = function ()
-            expect (getrlimit ("fubar")).
-              to_raise "bad argument #1 to 'getrlimit' (invalid option 'fubar')"
-          end
-        }
-
-        badargs.diagnose (getrlimit, "(string)")
-
-
   - describe sched_setscheduler:
     - context with bad arguments:
         if posix.sched_setscheduler then

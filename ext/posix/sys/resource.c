@@ -22,38 +22,33 @@
 #include "_helpers.c"
 
 
-/* get/setrlimit */
-#define rlimit_map \
-	MENTRY( _CORE   ) \
-	MENTRY( _CPU    ) \
-	MENTRY( _DATA   ) \
-	MENTRY( _FSIZE  ) \
-	MENTRY( _NOFILE ) \
-	MENTRY( _STACK  ) \
-	MENTRY( _AS     )
-
-static const int Krlimit[] =
+/***
+Resource limit record.
+@table PosixRlimit
+@int rlim_cur current soft limit
+@int rlim_max hard limit
+*/
+static int
+pushrlimit(lua_State *L, struct rlimit *lim)
 {
-#define MENTRY(_f) LPOSIX_SPLICE(RLIMIT, _f),
-	rlimit_map
-#undef MENTRY
-	-1
-};
+	if (!lim)
+		return lua_pushnil(L), 1;
 
-static const char *const Srlimit[] =
-{
-#define MENTRY(_f) LPOSIX_STR_1(_f),
-	rlimit_map
-#undef MENTRY
-	NULL
-};
+	lua_createtable(L, 0, 2);
+
+	setnumberfield(lim, rlim_cur);
+	setnumberfield(lim, rlim_max);
+
+	settypemetatable("PosixRlimit");
+	return 1;
+}
 
 
 /***
 Get resource limits for this process.
 @function getrlimit
-@string resource one of "core", "cpu", "data", "fsize", "nofile", "stack"
-  or "as"
+@int resource one of `RLIMIT_CORE`, `RLIMIT_CPU`, `RLIMIT_DATA`, `RLIMIT_FSIZE`,
+  `RLIMIT_NOFILE`, `RLIMIT_STACK` or `RLIMIT_AS`
 @treturn[1] int softlimit
 @treturn[1] int hardlimit, if successful
 @return[2] nil
@@ -65,17 +60,12 @@ static int
 Pgetrlimit(lua_State *L)
 {
 	struct rlimit lim;
-	int rid, rc;
-	const char *rid_str = luaL_checkstring(L, 1);
+	int r;
 	checknargs(L, 1);
-	if ((rid = lookup_symbol(Srlimit, Krlimit, rid_str)) < 0)
-		luaL_argerror(L, 1, lua_pushfstring(L, "invalid option '%s'", rid_str));
-	rc = getrlimit(rid, &lim);
-	if (rc < 0)
+	r = getrlimit(checkint(L, 1), &lim);
+	if (r < 0)
 		return pusherror(L, "getrlimit");
-	lua_pushinteger(L, lim.rlim_cur);
-	lua_pushinteger(L, lim.rlim_max);
-	return 2;
+	return pushrlimit(L, &lim);
 }
 
 
@@ -93,36 +83,21 @@ Set a resource limit for subsequent child processes.
 @see limit.lua
 @usage P.setrlimit ("nofile", 1000, 2000)
 */
+
+static const char *Srlimit_fields[] = { "rlim_cur", "rlim_max" };
+
 static int
 Psetrlimit(lua_State *L)
 {
-	int softlimit;
-	int hardlimit;
-	const char *rid_str;
-	int rid = 0;
 	struct rlimit lim;
-	struct rlimit lim_current;
-	int rc;
+	int rid = checkint(L, 1);
 
-	rid_str = luaL_checkstring(L, 1);
-	softlimit = optint(L, 2, -1);
-	hardlimit = optint(L, 3, -1);
-	checknargs(L, 3);
+	luaL_checktype(L, 2, LUA_TTABLE);
+	checknargs(L, 2);
 
-	if ((rid = lookup_symbol(Srlimit, Krlimit, rid_str)) < 0)
-		luaL_argerror(L, 1, lua_pushfstring(L, "invalid option '%s'", rid_str));
-
-	if (softlimit < 0 || hardlimit < 0)
-		if ((rc = getrlimit(rid, &lim_current)) < 0)
-			return pushresult(L, rc, "getrlimit");
-
-	if (softlimit < 0)
-		lim.rlim_cur = lim_current.rlim_cur;
-	else
-		lim.rlim_cur = softlimit;
-	if (hardlimit < 0)
-		lim.rlim_max = lim_current.rlim_max;
-	else lim.rlim_max = hardlimit;
+	lim.rlim_cur = checkintfield(L, 2, "rlim_cur");
+	lim.rlim_max = checkintfield(L, 2, "rlim_max");
+	checkfieldnames(L, 2, Srlimit_fields);
 
 	return pushresult(L, setrlimit(rid, &lim), "setrlimit");
 }
@@ -136,12 +111,50 @@ static const luaL_Reg posix_sys_resource_fns[] =
 };
 
 
+/***
+Constants.
+@section constants
+*/
+
+/***
+Rlimit constants.
+@table posix.sys.resource
+@int RLIM_INFINITY unlimited resource usage
+@int RLIM_SAVED_CUR saved current resource soft limit
+@int RLIM_SAVED_MAX saved resource hard limit
+@int RLIMIT_CORE maximum bytes allowed for a core file
+@int RLIMIT_CPU maximum cputime secconds allowed per process
+@int RLIMIT_DATA maximum data segment bytes per process
+@int RLIMIT_FSIZE maximum bytes in any file
+@int RLIMIT_NOFILE maximum number of open files per process
+@int RLIMIT_STACK maximum stack segment bytes per process
+@int RLIMIT_AS maximum bytes total address space per process
+@usage
+  -- Print resource constants supported on this host.
+  for name, value in pairs (require "posix.sys.resource") do
+    if type (value) == "number" then
+      print (name, value)
+     end
+  end
+*/
+
 LUALIB_API int
 luaopen_posix_sys_resource(lua_State *L)
 {
 	luaL_register(L, "posix.sys.resource", posix_sys_resource_fns);
 	lua_pushliteral(L, "posix.sys.resource for " LUA_VERSION " / " PACKAGE_STRING);
 	lua_setfield(L, -2, "version");
+
+	LPOSIX_CONST( RLIM_INFINITY	);
+	LPOSIX_CONST( RLIM_SAVED_CUR	);
+	LPOSIX_CONST( RLIM_SAVED_MAX	);
+	LPOSIX_CONST( RLIMIT_CORE	);
+	LPOSIX_CONST( RLIMIT_CPU	);
+	LPOSIX_CONST( RLIMIT_DATA	);
+	LPOSIX_CONST( RLIMIT_FSIZE	);
+	LPOSIX_CONST( RLIMIT_NOFILE	);
+	LPOSIX_CONST( RLIMIT_STACK	);
+	LPOSIX_CONST( RLIMIT_AS		);
 
 	return 1;
 }

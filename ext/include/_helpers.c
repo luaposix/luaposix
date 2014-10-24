@@ -22,10 +22,6 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#if HAVE_STRINGS_H
-#  include <strings.h> /* for strcasecmp() */
-#endif
-
 #if HAVE_CURSES
 # if HAVE_NCURSESW_CURSES_H
 #    include <ncursesw/curses.h>
@@ -221,7 +217,7 @@ checkfieldtype(lua_State *L, int index, const char *k, int expect_type, const ch
 		expected = lua_typename(L, expect_type);
 
 	lua_pushfstring(L, "%s expected for field '%s', got %s",
-		expected, k, lua_typename(L, got_type));
+		expected, k, got_type == LUA_TNIL ? "no value" : lua_typename(L, got_type));
 	luaL_argcheck(L, got_type == expect_type, index, lua_tostring(L, -1));
 	lua_pop(L, 1);
 }
@@ -370,16 +366,5 @@ badoption(lua_State *L, int i, const char *what, int option)
 
 #define setnumberfield(_p, _n) pushnumberfield(LPOSIX_STR(_n), _p->_n)
 #define setstringfield(_p, _n) pushstringfield(LPOSIX_STR(_n), _p->_n)
-
-
-static int
-lookup_symbol(const char * const S[], const int K[], const char *str)
-{
-	int i;
-	for (i = 0; S[i] != NULL; i++)
-		if (strcasecmp(S[i], str) == 0)
-			return K[i];
-	return -1;
-}
 
 #endif /*LUAPOSIX__HELPERS_C*/

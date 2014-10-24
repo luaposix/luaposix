@@ -181,6 +181,30 @@ specify compat:
         expect (getpid ({}, false)).to_raise (badarg (2))
 
 
+- describe getrlimit:
+  - before:
+      getrlimit = posix.getrlimit
+
+  - context with bad arguments: |
+      examples {
+        ["it diagnoses argument #1 invalid option"] = function ()
+          expect (getrlimit ("fubar")).
+            to_raise "bad argument #1 to 'getrlimit' (invalid option 'fubar')"
+        end
+      }
+
+      badargs.diagnose (getrlimit, "getrlimit (string)")
+
+  - it fetches resource limits for a process:
+      for _, rc in pairs {"core", "cpu", "data", "fsize", "nofile", "stack", "as"}
+      do
+        cur, max = getrlimit (rc)
+        expect (type (cur)).to_be "number"
+        expect (type (max)).to_be "number"
+      end
+
+
+
 - describe gettimeofday:
   - before:
       gettimeofday = posix.gettimeofday
@@ -378,6 +402,21 @@ specify compat:
       for k, v in pairs (t) do
         expect (t[k]).to_be (pathconf (".", k))
       end
+
+
+- describe setrlimit:
+  - before:
+      setrlimit = posix.setrlimit
+
+  - context with bad arguments: |
+      examples {
+        ["it diagnoses argument #1 invalid option"] = function ()
+          expect (setrlimit ("fubar")).
+            to_raise "bad argument #1 to 'setrlimit' (invalid option 'fubar')"
+        end
+      }
+
+      badargs.diagnose (setrlimit, "setrlimit (string, ?int, ?int)")
 
 
 - describe stat:
