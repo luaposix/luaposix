@@ -62,7 +62,7 @@ specify compat:
 - describe fadvise:
   - context with bad arguments:
       if posix.fadvise then
-        badargs.diagnose (posix.fadvise, "(file, int, int, int)")
+        badargs.diagnose (posix.fadvise, "fadvise (file, int, int, int)")
       end
 
 
