@@ -324,11 +324,12 @@ elseif _DEBUG ~= false then
   M.fadvise = function (...)
     argt = {...}
     if io.type (argt[1]) ~= "file" then
-      argtypeerror ("fadvise", 1, "file", argt[1])
+      argtypeerror ("fadvise", 1, "FILE*", argt[1])
     end
     checkint ("fadvise", 2, argt[2])
     checkint ("fadvise", 3, argt[3])
     checkint ("fadvise", 4, argt[4])
+    if #argt > 4 then toomanyargerror ("fadvise", 4, #argt) end
     return fadvise (...)
   end
 else
