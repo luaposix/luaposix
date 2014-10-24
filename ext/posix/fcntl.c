@@ -36,35 +36,6 @@
 
 
 
-#if HAVE_POSIX_FADVISE
-/***
-Instruct kernel on appropriate cache behaviour for a file or file segment.
-@function posix_fadvise
-@int fd open file descriptor
-@int offset start of region
-@int len number of bytes in region
-@int advice one of `POSIX_FADV_NORMAL`, `POSIX_FADV_SEQUENTIAL`,
-  `POSIX_FADV_RANDOM`, `POSIX_FADV_NOREUSE`, `POSIX_FADV_WILLNEED` or
-  `POSIX_FADV_DONTNEED`
-@treturn[1] int `0`, if successful
-@return[2] nil
-@treturn[2] string error message
-@see posix_fadvise(2)
-*/
-static int
-Pposix_fadvise(lua_State *L)
-{
-	int fd     = checkint(L, 1);
-	int offset = checkint(L, 2);
-	int len    = checkint(L, 3);
-	int advice = checkint(L, 4);
-	int r;
-	checknargs(L, 4);
-	r = posix_fadvise(fd, offset, len, advice);
-	return pushresult(L, r == 0 ? 0 : -1, "posix_fadvise");
-}
-#endif
-
 /***
 Manipulate file descriptor.
 @function fcntl
@@ -151,18 +122,49 @@ static int
 Popen(lua_State *L)
 {
 	const char *path = luaL_checkstring(L, 1);
+	int oflags = checkint(L, 2);
 	checknargs(L, 3);
-	return pushresult(L, open(path, checkint(L, 2), (mode_t) optint(L, 3, 511)), path);
+	return pushresult(L, open(path, oflags, (mode_t) optint(L, 3, 511)), path);
 }
+
+
+#if HAVE_POSIX_FADVISE
+/***
+Instruct kernel on appropriate cache behaviour for a file or file segment.
+@function posix_fadvise
+@int fd open file descriptor
+@int offset start of region
+@int len number of bytes in region
+@int advice one of `POSIX_FADV_NORMAL`, `POSIX_FADV_SEQUENTIAL`,
+  `POSIX_FADV_RANDOM`, `POSIX_FADV_NOREUSE`, `POSIX_FADV_WILLNEED` or
+  `POSIX_FADV_DONTNEED`
+@treturn[1] int `0`, if successful
+@return[2] nil
+@treturn[2] string error message
+@see posix_fadvise(2)
+*/
+static int
+Pposix_fadvise(lua_State *L)
+{
+	int fd     = checkint(L, 1);
+	int offset = checkint(L, 2);
+	int len    = checkint(L, 3);
+	int advice = checkint(L, 4);
+	int r;
+	checknargs(L, 4);
+	r = posix_fadvise(fd, offset, len, advice);
+	return pushresult(L, r == 0 ? 0 : -1, "posix_fadvise");
+}
+#endif
 
 
 static const luaL_Reg posix_fcntl_fns[] =
 {
+	LPOSIX_FUNC( Pfcntl		),
+	LPOSIX_FUNC( Popen		),
 #if HAVE_POSIX_FADVISE
 	LPOSIX_FUNC( Pposix_fadvise	),
 #endif
-	LPOSIX_FUNC( Pfcntl		),
-	LPOSIX_FUNC( Popen		),
 	{NULL, NULL}
 };
 
