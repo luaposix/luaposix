@@ -98,6 +98,14 @@ local function optstring (name, i, actual, def, level)
   return actual or def
 end
 
+local function opttable (name, i, actual, def, level)
+  level = level or 1
+  if actual ~= nil and type (actual) ~= "table" then
+    argtypeerror (name, i, "table or nil", actual, level + 1)
+  end
+  return actual or def
+end
+
 local function doselection (name, argoffset, fields, map)
   if #fields == 1 and type (fields[1]) == "table" then fields = fields[1] end
 
@@ -201,6 +209,39 @@ local function mode_munch (mode, modestr)
   else
     return nil, "bad mode"
   end
+end
+
+-- Convert a legacy API tm table to a posix.time.PosixTm compatible table.
+local function PosixTm (legacytm)
+  return {
+    tm_sec   = legacytm.sec,
+    tm_min   = legacytm.min,
+    tm_hour  = legacytm.hour,
+    -- For compatibility with Lua os.date() use "day" if "monthday" is
+    -- not set.
+    tm_mday  = legacytm.monthday or legacytm.day,
+    tm_mon   = legacytm.month - 1,
+    tm_year  = legacytm.year - 1900,
+    tm_wday  = legacytm.weekday,
+    tm_yday  = legacytm.yearday,
+    tm_isdst = legacytm.is_dst and 1 or 0,
+  }
+end
+
+-- Convert a posix.time.PosixTm into a legacy API tm table.
+local function LegacyTm (posixtm)
+  return {
+    sec      = posixtm.tm_sec,
+    min      = posixtm.tm_min,
+    hour     = posixtm.tm_hour,
+    monthday = posixtm.tm_mday,
+    day      = posixtm.tm_mday,
+    month    = posixtm.tm_mon + 1,
+    year     = posixtm.tm_year + 1900,
+    weekday  = posixtm.tm_wday,
+    yearday  = posixtm.tm_yday,
+    is_dst   = posixtm.tm_isdst ~= 0,
+  }
 end
 
 
@@ -570,6 +611,34 @@ function M.gettimeofday (...)
 end
 
 
+--- Convert epoch time value to a broken-down UTC time.
+-- Here, broken-down time tables the month field is 1-based not
+-- 0-based, and the year field is the full year, not years since
+-- 1900.
+-- @function gmtime
+-- @int[opt=now] t seconds since epoch
+-- @treturn table broken-down time
+
+local tm = require "posix.time"
+
+local _gmtime, time = tm.gmtime, tm.time
+
+local function gmtime (epoch)
+  return LegacyTm (_gmtime (epoch or time ()))
+end
+
+if _DEBUG ~= false then
+  M.gmtime = function (...)
+    local argt = {...}
+    optint ("gmtime", 1, argt[1])
+    if #argt > 1 then toomanyargerror ("gmtime", 1, #argt) end
+    return gmtime (...)
+  end
+else
+  M.gmtime = gmtime
+end
+
+
 --- Check for any printable character except space.
 -- @function isgraph
 -- @see isgraph(3)
@@ -600,6 +669,34 @@ function M.isprint (...)
 end
 
 
+--- Convert epoch time value to a broken-down local time.
+-- Here, broken-down time tables the month field is 1-based not
+-- 0-based, and the year field is the full year, not years since
+-- 1900.
+-- @function localtime
+-- @int[opt=now] t seconds since epoch
+-- @treturn table broken-down time
+
+local tm = require "posix.time"
+
+local _localtime, time = tm.localtime, tm.time
+
+local function localtime (epoch)
+  return LegacyTm (_localtime (epoch or time ()))
+end
+
+if _DEBUG ~= false then
+  M.localtime = function (...)
+    local argt = {...}
+    optint ("localtime", 1, argt[1])
+    if #argt > 1 then toomanyargerror ("localtime", 1, #argt) end
+    return localtime (...)
+  end
+else
+  M.localtime = localtime
+end
+
+
 --- Make a directory.
 -- @function mkdir
 -- @string path location in file system to create directory
@@ -625,7 +722,7 @@ if _DEBUG ~= false then
     return mkdir (...)
   end
 else
-  M.mkdir = _mkdir
+  M.mkdir = mkdir
 end
 
 
@@ -655,6 +752,34 @@ if _DEBUG ~= false then
   end
 else
   M.mkfifo = mkfifo
+end
+
+
+--- Convert a broken-down localtime table into an epoch time.
+-- @function mktime
+-- @tparam tm broken-down localtime table
+-- @treturn in seconds since epoch
+-- @see mktime(3)
+-- @see localtime
+
+local tm = require "posix.time"
+
+local _mktime, localtime, time = tm.mktime, tm.localtime, tm.time
+
+local function mktime (legacytm)
+  local posixtm = legacytm and PosixTm (legacytm) or localtime (time ())
+  return _mktime (posixtm)
+end
+
+if _DEBUG ~= false then
+  M.mktime = function (...)
+    local argt = {...}
+    opttable ("mktime", 1, argt[1])
+    if #argt > 1 then toomanyargerror ("mktime", 1, #argt) end
+    return mktime (...)
+  end
+else
+  M.mktime = mktime
 end
 
 
@@ -962,6 +1087,67 @@ if _DEBUG ~= false then
   end
 else
   M.statvfs = statvfs
+end
+
+
+--- Write a time out according to a format.
+-- @function strftime
+-- @string format specifier with `%` place-holders
+-- @tparam PosixTm tm broken-down local time
+-- @treturn string *format* with place-holders plugged with *tm* values
+-- @see strftime(3)
+
+local tm = require "posix.time"
+
+local _strftime, localtime, time = tm.strftime, tm.localtime, tm.time
+
+local function strftime (fmt, legacytm)
+  local posixtm = legacytm and PosixTm (legacytm) or localtime (time ())
+  return _strftime (fmt, posixtm)
+end
+
+if _DEBUG ~= false then
+  M.strftime = function (...)
+    local argt = {...}
+    checkstring ("strftime", 1, argt[1])
+    opttable ("strftime", 2, argt[2])
+    if #argt > 2 then toomanyargerror ("strftime", 2, #argt) end
+    return strftime (...)
+  end
+else
+  M.strftime = strftime
+end
+
+
+--- Parse a date string.
+-- @function strptime
+-- @string s
+-- @string format same as for `strftime`
+-- @usage posix.strptime('20','%d').monthday == 20
+-- @treturn[1] PosixTm broken-down local time
+-- @treturn[1] int next index of first character not parsed as part of the date
+-- @return[2] nil
+-- @see strptime(3)
+
+local tm = require "posix.time"
+
+local _strptime = tm.strptime
+
+local function strptime (s, fmt)
+  return _strptime (s, fmt)
+end
+
+if _DEBUG ~= false then
+  M.strptime = function (...)
+    local argt = {...}
+    checkstring ("strptime", 1, argt[1])
+    checkstring ("strptime", 2, argt[2])
+    if #argt > 2 then toomanyargerror ("strptime", 2, #argt) end
+    local tm, i = strptime (...)
+    return LegacyTm (tm), i
+  end
+else
+  M.strptime = strptime
 end
 
 

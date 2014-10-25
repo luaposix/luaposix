@@ -40,6 +40,13 @@ Stdlib NEWS - User visible changes
    from a POSIX API, the Lua return tables have an appropriate `_type` field
    metatable entry compatible with lua-stdlib `std.object.type`.
 
+ - The submodule bindings `posix.time.gmtime`, `posix.time.localtime`,
+   `posix.time.mktime`, `posix.time.strftime` and `posix.time.strptime` now
+   accept or create PosixTm tables with 1-to-1 field name mappings with the
+   POSIX `struct tm`.  The old APIs with custom field names is still available
+   as `posix.gmtime`, `posix.localtime`, `posix.mktime`, `posix.strftime` and
+   `posix.strptime`.
+
  - Add `posix.unistd.gethostid`. The old `posix.hostid` API is still available
    as an alias.
 
