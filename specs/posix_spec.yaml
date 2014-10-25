@@ -804,11 +804,6 @@ specify posix:
         badargs.diagnose (posix.sleep, "(int)")
 
 
-  - describe nanosleep:
-    - context with bad arguments:
-        badargs.diagnose (posix.nanosleep, "(int, int)")
-
-
   - describe setenv:
     - before:
         getenv, setenv = posix.getenv, posix.setenv

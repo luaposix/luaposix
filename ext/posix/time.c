@@ -23,6 +23,41 @@
 #include "_helpers.c"
 
 
+static const char *Stimespec_fields[] = { "tv_sec", "tv_nsec" };
+
+static void
+totimespec(lua_State *L, int index, struct timespec *ts)
+{
+	luaL_checktype(L, index, LUA_TTABLE);
+	ts->tv_sec  = optintfield(L, index, "tv_sec", 0);
+	ts->tv_nsec = optintfield(L, index, "tv_nsec", 0);
+
+	checkfieldnames(L, index, Stimespec_fields);
+}
+
+
+/***
+Timespec record.
+@table PosixTimespec
+@int tv_sec seconds
+@int tv_nsec nanoseconds
+@see posix.sys.time.PosixTimeval
+*/
+static int
+pushtimespec(lua_State *L, struct timespec *ts)
+{
+	if (!ts)
+		return lua_pushnil(L), 1;
+
+	lua_createtable(L, 0, 2);
+	setnumberfield(ts, tv_sec);
+	setnumberfield(ts, tv_nsec);
+
+	settypemetatable("PosixTimespec");
+	return 1;
+}
+
+
 static const char *Stm_fields[] = {
   "tm_sec", "tm_min", "tm_hour", "tm_mday", "tm_mon", "tm_year", "tm_wday",
   "tm_yday", "tm_isdst",
@@ -213,14 +248,12 @@ Pmktime(lua_State *L)
 /***
 Sleep with nanosecond precision.
 @function nanosleep
-@int seconds
-@int nanoseconds
+@tparam PosixTimespec requested sleep time
 @treturn[1] int `0` if requested time has elapsed
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errno
-@treturn[2] int unslept seconds remaining, if interrupted
-@treturn[2] int unslept nanoseconds remaining, if interrupted
+@treturn[2] PosixTimespec unslept time remaining, if interrupted
 @see nanosleep(2)
 @see posix.unistd.sleep
 */
@@ -230,16 +263,12 @@ Pnanosleep(lua_State *L)
 	struct timespec req;
 	struct timespec rem;
 	int r;
-	req.tv_sec = checkint(L, 1);
-	req.tv_nsec = checkint(L, 2);
-	checknargs(L, 2);
-	r = pushresult (L, nanosleep(&req, &rem), NULL);
+
+	totimespec(L, 1, &req);
+	checknargs(L, 1);
+	r = pushresult (L, nanosleep(&req, &rem), "nanosleep");
 	if (r == 3 && errno == EINTR)
-	{
-		lua_pushinteger (L, rem.tv_sec);
-		lua_pushinteger (L, rem.tv_nsec);
-		r += 2;
-	}
+		r = r + pushtimespec (L, &rem);
 	return r;
 }
 

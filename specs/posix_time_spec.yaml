@@ -89,6 +89,40 @@ specify posix/time:
       expect (mktime (t)).to_be (epoch)
 
 
+- describe nanosleep:
+  - before:
+      nanosleep = tm.nanosleep
+
+  - context with bad arguments: |
+      badargs.diagnose (nanosleep, "(table)")
+
+      examples {
+        ["context diagnosing timespec table fields"] = {
+          {
+            ["it diagnoses argument #1 tv_sec field type not int"] = function ()
+              expect (nanosleep {tv_sec = false}).
+                to_raise "bad argument #1 to 'nanosleep' (int expected for field 'tv_sec', got boolean)"
+            end
+          },
+          {
+            ["it diagnoses argument #1 tv_nsec field type not int"] = function ()
+              expect (nanosleep {tv_sec = -1, tv_nsec = false}).
+                to_raise "bad argument #1 to 'nanosleep' (int expected for field 'tv_nsec', got boolean)"
+            end
+          },
+          {
+            ["it diagnoses argument #1 spurious fields"] = function ()
+              expect (nanosleep {tv_sec = -1, tv_nsec = -1, bogus = false}).
+                to_raise "bad argument #1 to 'nanosleep' (invalid field name 'bogus')"
+            end
+          },
+        }
+      }
+
+  - it returns an integer:
+     expect (nanosleep {tv_sec = 0, tv_nsec = 10}).to_be (0)
+
+
 - describe strftime:
   - before:
       strftime = tm.strftime

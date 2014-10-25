@@ -383,6 +383,14 @@ specify compat:
       end
 
 
+  - describe nanosleep:
+    - context with bad arguments:
+        badargs.diagnose (posix.nanosleep, "nanosleep (int, int)")
+
+    - it returns an integer:
+        expect (posix.nanosleep (0, 10)).to_be (0)
+
+
 - describe open:
   # posix.open ignores the mode argument if flags does not include
   # O_CREAT, which `badargs.diagnose` can't express; ergo manual

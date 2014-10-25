@@ -829,6 +829,42 @@ else
 end
 
 
+--- Sleep with nanosecond precision.
+-- @function nanosleep
+-- @int seconds requested sleep time
+-- @int nanoseconds requested sleep time
+-- @treturn[1] int `0` if requested time has elapsed
+-- @return[2] nil
+-- @treturn[2] string error message
+-- @treturn[2] int errno
+-- @treturn[2] int unslept seconds remaining, if interrupted
+-- @treturn[2] int unslept nanoseconds remaining, if interrupted
+-- @see nanosleep(2)
+-- @see posix.unistd.sleep
+
+local tm = require "posix.time"
+
+local _nanosleep = tm.nanosleep
+
+local function nanosleep (sec, nsec)
+  local r, errmsg, errno, timespec = _nanosleep {tv_sec = sec, tv_nsec = nsec}
+  if r == 0 then return 0 end
+  return r, errmsg, errno, timespec.tv_sec, timespec.tv_nsec
+end
+
+if _DEBUG ~= false then
+  M.nanosleep = function (...)
+    local argt = {...}
+    checkint ("nanosleep", 1, argt[1])
+    checkint ("nanosleep", 2, argt[2])
+    if #argt > 2 then toomanyargerror ("nanosleep", 2, #argt) end
+    return nanosleep (...)
+  end
+else
+  M.nanosleep = nanosleep
+end
+
+
 --- Open a file.
 -- @function open
 -- @string path file to act on

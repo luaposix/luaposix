@@ -47,6 +47,9 @@ Stdlib NEWS - User visible changes
    as `posix.gmtime`, `posix.localtime`, `posix.mktime`, `posix.strftime` and
    `posix.strptime`.
 
+ - Similarly, `posix.time.nanosleep` now takes and returns a PosixTimespec
+   table.  The old API is still available as `posix.nanosleep`.
+
  - Add `posix.unistd.gethostid`. The old `posix.hostid` API is still available
    as an alias.
 

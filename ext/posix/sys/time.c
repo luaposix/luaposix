@@ -28,6 +28,7 @@ Time value.
 @table PosixTimeval
 @int tv_sec seconds elapsed
 @int tv_usec remainder in microseconds
+@see posix.time.PosixTimespec
 */
 static int
 pushtimeval(lua_State *L, struct timeval *tv)
