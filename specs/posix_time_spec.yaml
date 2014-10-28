@@ -15,7 +15,7 @@ specify posix/time:
 
   - it returns a PosixTimespec:
       if clock_getres then
-        expect (type (clock_getres (tm.CLOCK_REALTIME))).
+        expect (prototype (clock_getres (tm.CLOCK_REALTIME))).
           to_be "PosixTimespec"
       end
 
@@ -30,7 +30,7 @@ specify posix/time:
 
   - it returns a PosixTimespec:
       if clock_getres then
-        expect (type (clock_gettime (tm.CLOCK_REALTIME))).
+        expect (prototype (clock_gettime (tm.CLOCK_REALTIME))).
           to_be "PosixTimespec"
       end
 

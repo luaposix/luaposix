@@ -328,8 +328,8 @@ local function clock_getres (name)
   return ts.tv_sec, ts.tv_nsec
 end
 
-if _clock_gettime == nil then
--- Not supported by underlying system
+if _clock_getres == nil then
+  -- Not supported by underlying system
 elseif _DEBUG ~= false then
   M.clock_getres = function (...)
     local argt = {...}
@@ -350,7 +350,7 @@ end
 -- @treturn[21 int nanoseconds, if successful
 -- @return[2] nil
 -- @treturn[2] string error message
--- @see clock_getres(3)
+-- @see clock_gettime(3)
 
 local tm = require "posix.time"
 
@@ -362,7 +362,7 @@ local function clock_gettime (name)
 end
 
 if _clock_gettime == nil then
--- Not supported by underlying system
+  -- Not supported by underlying system
 elseif _DEBUG ~= false then
   M.clock_gettime = function (...)
     local argt = {...}
