@@ -355,7 +355,7 @@ Initiate a connection on a socket.
 @function connect
 @int fd socket descriptor to act on
 @tparam sockaddr addr socket address
-@treturn[1] bool `true`, if successful
+@treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
 @see connect(2)
@@ -365,16 +365,12 @@ Pconnect(lua_State *L)
 {
 	struct sockaddr_storage sa;
 	socklen_t salen;
-	int fd = checkint(L, 1), r;
+	int fd = checkint(L, 1);
 	checknargs (L, 2);
-	if ((r = sockaddr_from_lua(L, 2, &sa, &salen)) != 0)
-		return pusherror (L, "not a valid IPv4 dotted-decimal or IPv6 address string");
+	if (sockaddr_from_lua(L, 2, &sa, &salen) != 0)
+		return pusherror(L, "not a valid IPv4 dotted-decimal or IPv6 address string");
 
-	r = connect(fd, (struct sockaddr *)&sa, salen);
-	if (r < 0 && errno != EINPROGRESS)
-		return pusherror(L, NULL);
-
-	return pushboolresult(1);
+	return pushresult(L, connect(fd, (struct sockaddr *)&sa, salen), "connect");
 }
 
 
@@ -383,7 +379,7 @@ Bind an address to a socket.
 @function bind
 @int fd socket descriptor to act on
 @tparam sockaddr addr socket address
-@treturn[1] bool `true`, if successful
+@treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
 @see bind(2)
@@ -393,16 +389,13 @@ Pbind(lua_State *L)
 {
 	struct sockaddr_storage sa;
 	socklen_t salen;
-	int fd, r;
+	int fd;
 	checknargs (L, 2);
 	fd = checkint(L, 1);
-	if ((r = sockaddr_from_lua(L, 2, &sa, &salen)) != 0)
-		return pusherror (L, "not a valid IPv4 dotted-decimal or IPv6 address string");
+	if (sockaddr_from_lua(L, 2, &sa, &salen) != 0)
+		return pusherror(L, "not a valid IPv4 dotted-decimal or IPv6 address string");
 
-	r = bind(fd, (struct sockaddr *)&sa, salen);
-	if (r < 0)
-		return pusherror(L, NULL);
-	return pushboolresult(1);
+	return pushresult(L, bind(fd, (struct sockaddr *)&sa, salen), "bind");
 }
 
 
@@ -423,7 +416,7 @@ Plisten(lua_State *L)
 	int backlog = checkint(L, 2);
 	checknargs(L, 2);
 
-	return pushresult(L, listen(fd, backlog), NULL);
+	return pushresult(L, listen(fd, backlog), "listen");
 }
 
 
@@ -451,12 +444,10 @@ Paccept(lua_State *L)
 	salen = sizeof(sa);
 	fd_client = accept(fd, (struct sockaddr *)&sa, &salen);
 	if (fd_client == -1)
-		return pusherror(L, NULL);
+		return pusherror(L, "accept");
 
 	lua_pushnumber(L, fd_client);
-	pushsockaddrinfo(L, sa.ss_family, (struct sockaddr *)&sa);
-
-	return 2;
+	return 1 + pushsockaddrinfo(L, sa.ss_family, (struct sockaddr *)&sa);
 }
 
 
@@ -539,9 +530,7 @@ Precvfrom(lua_State *L)
 
 	lua_pushlstring(L, buf, r);
 	lalloc(ud, buf, count, 0);
-	pushsockaddrinfo(L, sa.ss_family, (struct sockaddr *)&sa);
-
-	return 2;
+	return 1 + pushsockaddrinfo(L, sa.ss_family, (struct sockaddr *)&sa);
 }
 
 
@@ -563,7 +552,7 @@ Psend(lua_State *L)
 	const char *buf = luaL_checklstring(L, 2, &len);
 
 	checknargs(L, 2);
-	return pushresult(L, send(fd, buf, len, 0), NULL);
+	return pushresult(L, send(fd, buf, len, 0), "send");
 }
 
 
@@ -582,16 +571,15 @@ static int
 Psendto(lua_State *L)
 {
 	size_t len;
+	int fd = checkint(L, 1);
+	const char *buf = luaL_checklstring(L, 2, &len);
 	struct sockaddr_storage sa;
 	socklen_t salen;
-	int r, fd = checkint(L, 1);
-	const char *buf = luaL_checklstring(L, 2, &len);
 	checknargs (L, 3);
-	if ((r = sockaddr_from_lua(L, 3, &sa, &salen)) != 0)
+	if (sockaddr_from_lua(L, 3, &sa, &salen) != 0)
 		return pusherror (L, "not a valid IPv4 dotted-decimal or IPv6 address string");
 
-	r = sendto(fd, buf, len, 0, (struct sockaddr *)&sa, salen);
-	return pushresult(L, r, NULL);
+	return pushresult(L, sendto(fd, buf, len, 0, (struct sockaddr *)&sa, salen), "sendto");
 }
 
 
@@ -612,7 +600,7 @@ Pshutdown(lua_State *L)
 	int fd = checkint(L, 1);
 	int how = checkint(L, 2);
 	checknargs(L, 2);
-	return pushresult(L, shutdown(fd, how), NULL);
+	return pushresult(L, shutdown(fd, how), "shutdown");
 }
 
 
@@ -721,7 +709,7 @@ Psetsockopt(lua_State *L)
 		len = sizeof(vint);
 	}
 
-	return pushresult(L, setsockopt(fd, level, optname, val, len), NULL);
+	return pushresult(L, setsockopt(fd, level, optname, val, len), "setsockopt");
 }
 #endif
 
