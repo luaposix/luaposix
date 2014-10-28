@@ -44,6 +44,26 @@ specify compat:
       expect (Emsg (chmod ("xxx", "a=rwx"))).to_contain "No such file or directory"
 
 
+- describe clock_getres:
+  - before:
+      clock_getres = posix.clock_getres
+
+  - context with bad arguments:
+      if clock_getres then
+        badargs.diagnose (clock_getres, "clock_getres (?string)")
+      end
+
+
+- describe clock_gettime:
+  - before:
+      clock_gettime = posix.clock_gettime
+
+  - context with bad arguments:
+      if clock_gettime then
+        badargs.diagnose (clock_gettime, "clock_gettime (?string)")
+      end
+
+
 - describe creat:
   - before:
       creat = posix.creat

@@ -118,69 +118,47 @@ pushtm(lua_State *L, struct tm *t)
 
 
 #if defined _XOPEN_REALTIME && _XOPEN_REALTIME != -1
-static int
-get_clk_id_const(const char *str)
-{
-	if (str == NULL)
-		return CLOCK_REALTIME;
-	else if (STREQ (str, "monotonic"))
-		return CLOCK_MONOTONIC;
-	else if (STREQ (str, "process_cputime_id"))
-		return CLOCK_PROCESS_CPUTIME_ID;
-	else if (STREQ (str, "thread_cputime_id"))
-		return CLOCK_THREAD_CPUTIME_ID;
-	else
-		return CLOCK_REALTIME;
-}
-
-
 /***
 Find the precision of a clock.
 @function clock_getres
-@string name name of clock, one of "monotonic", "process\_cputime\_id", or
-"thread\_cputime\_id", or nil for realtime clock.
-@treturn[1] int seconds
-@treturn[1] int nanoseconds, if successful
-@treturn[2] nil
+@int clk name of clock, one of `CLOCK_REALTIME`, `CLOCK_PROCESS_CPUTIME_ID`,
+  `CLOCK_MONOTONIC` or `CLOCK_THREAD_CPUTIME_ID`
+@treturn[1] PosixTimespec resolution of *clk*, if successful
+@return[2] nil
 @treturn[2] string error message
 @see clock_getres(3)
 */
 static int
 Pclock_getres(lua_State *L)
 {
-	struct timespec res;
-	const char *str = luaL_checkstring(L, 1);
+	struct timespec resolution;
+	int clk = checkint(L, 1);
 	checknargs(L, 1);
-	if (clock_getres(get_clk_id_const(str), &res) == -1)
+	if (clock_getres(clk, &resolution) == -1)
 		return pusherror(L, "clock_getres");
-	lua_pushinteger(L, res.tv_sec);
-	lua_pushinteger(L, res.tv_nsec);
-	return 2;
+	return pushtimespec(L, &resolution);
 }
 
 
 /***
 Read a clock.
 @function clock_gettime
-@string name name of clock, one of "monotonic", "process\_cputime\_id", or
-"thread\_cputime\_id", or nil for realtime clock.
-@treturn[1] int seconds
-@treturn[1] int nanoseconds, if successful
-@treturn[2] nil
+@int clk name of clock, one of `CLOCK_REALTIME`, `CLOCK_PROCESS_CPUTIME_ID`,
+  `CLOCK_MONOTONIC` or `CLOCK_THREAD_CPUTIME_ID`
+@treturn[1] PosixTimespec current value of *clk*, if successful
+@return[2] nil
 @treturn[2] string error message
 @see clock_gettime(3)
 */
 static int
 Pclock_gettime(lua_State *L)
 {
-	struct timespec res;
-	const char *str = luaL_checkstring(L, 1);
+	struct timespec ts;
+	int clk = checkint(L, 1);
 	checknargs(L, 1);
-	if (clock_gettime(get_clk_id_const(str), &res) == -1)
+	if (clock_gettime(clk, &ts) == -1)
 		return pusherror(L, "clock_gettime");
-	lua_pushinteger(L, res.tv_sec);
-	lua_pushinteger(L, res.tv_nsec);
-	return 2;
+	return pushtimespec(L, &ts);
 }
 #endif
 
@@ -369,6 +347,13 @@ luaopen_posix_time(lua_State *L)
 	luaL_register(L, "posix.time", posix_time_fns);
 	lua_pushliteral(L, "posix.time for " LUA_VERSION " / " PACKAGE_STRING);
 	lua_setfield(L, -2, "version");
+
+#if defined _XOPEN_REALTIME && _XOPEN_REALTIME != -1
+	LPOSIX_CONST( CLOCK_MONOTONIC		);
+	LPOSIX_CONST( CLOCK_PROCESS_CPUTIME_ID	);
+	LPOSIX_CONST( CLOCK_REALTIME		);
+	LPOSIX_CONST( CLOCK_THREAD_CPUTIME_ID	);
+#endif
 
 	return 1;
 }

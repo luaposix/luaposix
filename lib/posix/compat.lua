@@ -300,6 +300,81 @@ else
 end
 
 
+--- Find the precision of a clock.
+-- @function clock_getres
+-- @string[opt="realtime"] name name of clock, one of "monotonic",
+--   "process\_cputime\_id", "realtime", or "thread\_cputime\_id"
+-- @treturn[1] int seconds
+-- @treturn[21 int nanoseconds, if successful
+-- @return[2] nil
+-- @treturn[2] string error message
+-- @see clock_getres(3)
+
+local tm = require "posix.time"
+
+local _clock_getres = tm.clock_getres
+
+local function get_clk_id_const (name)
+  local map = {
+    monotonic = tm.CLOCK_MONOTONIC,
+    process_cputime_id = tm.CLOCK_PROCESS_TIME_ID,
+    thread_cputime_id = tm.CLOCK_THREAD_CPUTIME_ID,
+  }
+  return map[name] or tm.CLOCK_REALTIME
+end
+
+local function clock_getres (name)
+  local ts = _clock_getres (get_clk_id_const (name))
+  return ts.tv_sec, ts.tv_nsec
+end
+
+if _clock_gettime == nil then
+-- Not supported by underlying system
+elseif _DEBUG ~= false then
+  M.clock_getres = function (...)
+    local argt = {...}
+    optstring ("clock_getres", 1, argt[1], "realtime")
+    if #argt > 1 then toomanyargerror ("clock_getres", 1, #argt) end
+    return clock_getres (...)
+  end
+else
+  M.clock_getres = clock_getres
+end
+
+
+--- Read a clock
+-- @function clock_gettime
+-- @string[opt="realtime"] name name of clock, one of "monotonic",
+--   "process\_cputime\_id", "realtime", or "thread\_cputime\_id"
+-- @treturn[1] int seconds
+-- @treturn[21 int nanoseconds, if successful
+-- @return[2] nil
+-- @treturn[2] string error message
+-- @see clock_getres(3)
+
+local tm = require "posix.time"
+
+local _clock_gettime = tm.clock_gettime
+
+local function clock_gettime (name)
+  local ts = _clock_gettime (get_clk_id_const (name))
+  return ts.tv_sec, ts.tv_nsec
+end
+
+if _clock_gettime == nil then
+-- Not supported by underlying system
+elseif _DEBUG ~= false then
+  M.clock_gettime = function (...)
+    local argt = {...}
+    optstring ("clock_gettime", 1, argt[1], "realtime")
+    if #argt > 1 then toomanyargerror ("clock_gettime", 1, #argt) end
+    return clock_gettime (...)
+  end
+else
+  M.clock_gettime = clock_gettime
+end
+
+
 --- Create a file.
 -- This function is obsoleted by @{posix.fcntl.open} with `posix.O_CREAT`.
 -- @function creat

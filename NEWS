@@ -50,6 +50,12 @@ Stdlib NEWS - User visible changes
  - Similarly, `posix.time.nanosleep` now takes and returns a PosixTimespec
    table.  The old API is still available as `posix.nanosleep`.
 
+ - Where supported by the underlying system, `posix.time.clock_getres` and
+   `posix.time.clock_gettime` now require a constant inte argument (newly
+   defined in the `posix.time` submodule), and returns a PosixTimespec table.
+   The old APIs are still available as `posix.clock_getres` and
+   `posix.clock_gettime`.
+
  - Add `posix.unistd.gethostid`. The old `posix.hostid` API is still available
    as an alias.
 
@@ -95,6 +101,10 @@ Stdlib NEWS - User visible changes
    `posix.sys.stat.S_IRWXO`, `posix.sys.stat.S_IROTH`,
    `posix.sys.stat.S_IWOTH`, `posix.sys.stat.S_IXOTH`,
    `posix.sys.stat.S_ISGID`, `posix.sys.stat.S_ISUID`.
+
+ - Add missing constants from time.h: `posix.time.CLOCK_MONOTONIC`,
+   `posix.time.CLOCK_PROCESS_CPUTIME_ID`, `posix.time.CLOCK_REALTIME` and
+   `posix.time.CLOCK_THREAD_CPUTIME_ID`.
 
  - All posix APIs now fully and correctly diagnose extraneous and wrong
    type arguments with an error.

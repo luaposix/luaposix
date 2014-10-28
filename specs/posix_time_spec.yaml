@@ -10,9 +10,14 @@ specify posix/time:
 
   - context with bad arguments:
       if clock_getres then
-        badargs.diagnose (clock_getres, "(string)")
+        badargs.diagnose (clock_getres, "(int)")
       end
 
+  - it returns a PosixTimespec:
+      if clock_getres then
+        expect (type (clock_getres (tm.CLOCK_REALTIME))).
+          to_be "PosixTimespec"
+      end
 
 - describe clock_gettime:
   - before:
@@ -20,9 +25,14 @@ specify posix/time:
 
   - context with bad arguments:
       if clock_gettime then
-        badargs.diagnose (clock_gettime, "(string)")
+        badargs.diagnose (clock_gettime, "(int)")
       end
 
+  - it returns a PosixTimespec:
+      if clock_getres then
+        expect (type (clock_gettime (tm.CLOCK_REALTIME))).
+          to_be "PosixTimespec"
+      end
 
 - describe gmtime:
   - before:
