@@ -53,6 +53,7 @@ file = {
   "../ext/posix/utime.c",
 
   "../lib/posix.lua",
+  "../lib/posix/compat.lua",
   "../lib/posix/util.lua",
 }
 examples = "../examples"
