@@ -138,6 +138,10 @@ Stdlib NEWS - User visible changes
  - configured installation installs `posix.so` into the lua cpath directory
    correctly.
 
+ - fixed a long-standing bug where the stdio buffers were not restored after
+   some posix.fcntl() examples, resulting in the `make check` output being
+   truncated -- often before terminal colors were returned to normal.
+
 
 * Noteworthy changes in release 32 (2014-05-30) [stable]
 
