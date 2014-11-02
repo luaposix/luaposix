@@ -11,7 +11,7 @@
 ]]
 
 local _argcheck = require "posix._argcheck"
-local bit      = bit32 or require "bit"
+local bit       = bit32 or require "bit"
 
 local argerror, argtypeerror, badoption =
   _argcheck.argerror, _argcheck.argtypeerror, _argcheck.badoption
