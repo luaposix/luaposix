@@ -1,4 +1,4 @@
-specify posix/fnmatch:
+specify posix.fnmatch:
 - before:
     fnm = require "posix.fnmatch"
 

@@ -1,4 +1,4 @@
-specify posix/time:
+specify posix.time:
 - before:
     tm = require "posix.time"
 

@@ -1,4 +1,4 @@
-specify posix/unistd:
+specify posix.unistd:
 - before: |
     pwd    = require "posix.pwd"
     unistd = require "posix.unistd"

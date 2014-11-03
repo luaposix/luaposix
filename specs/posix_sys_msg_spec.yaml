@@ -1,4 +1,4 @@
-specify posix/sys/msg:
+specify posix.sys.msg:
 - before:
     errno = require "posix.errno"
     msg   = require "posix.sys.msg"

@@ -1,4 +1,4 @@
-specify posix/sys/time:
+specify posix.sys.time:
 - before:
     systime = require "posix.sys.time"
 

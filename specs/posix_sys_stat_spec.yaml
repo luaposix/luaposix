@@ -1,4 +1,4 @@
-specify posix/sys/stat:
+specify posix.sys.stat:
 - before:
     st = require "posix.sys.stat"
 

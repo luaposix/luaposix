@@ -1,4 +1,4 @@
-specify posix/fcntl:
+specify posix.fcntl:
 - before:
     fc = require "posix.fcntl"
 

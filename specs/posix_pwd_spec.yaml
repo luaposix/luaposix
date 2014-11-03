@@ -1,4 +1,4 @@
-specify posix/pwd:
+specify posix.pwd:
 - before:
     pwd = require "posix.pwd"
 

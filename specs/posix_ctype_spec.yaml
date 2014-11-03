@@ -1,4 +1,4 @@
-specify posix/ctype:
+specify posix.ctype:
 - before:
     ctype = require "posix.ctype"
 

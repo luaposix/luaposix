@@ -1,4 +1,4 @@
-specify deprecated:
+specify posix.deprecated:
 - before:
     socket, getaddrinfo, close = posix.socket, posix.getaddrinfo, posix.close
     AF_INET, AF_INET6, AF_UNIX, AF_NETLINK =

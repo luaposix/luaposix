@@ -1,4 +1,4 @@
-specify posix/sys/times:
+specify posix.sys.times:
 - before:
     tms = require "posix.sys.times"
 

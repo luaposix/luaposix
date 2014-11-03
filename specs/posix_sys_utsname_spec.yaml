@@ -1,4 +1,4 @@
-specify posix/sys/utsname:
+specify posix.sys.utsname:
 - before:
     utsname = require "posix.sys.utsname"
 

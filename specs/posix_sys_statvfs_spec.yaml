@@ -1,4 +1,4 @@
-specify posix/sys/statvfs:
+specify posix.sys.statvfs:
 - before:
     sv = require "posix.sys.statvfs"
 

@@ -1,4 +1,4 @@
-specify posix/sys/resource:
+specify posix.sys.resource:
 - before:
     resource = require "posix.sys.resource"
 

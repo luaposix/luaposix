@@ -1,4 +1,4 @@
-specify compat:
+specify posix.compat:
 - before:
     init = function (M, fname)
       return M[fname], function (...) return badargs.format (fname, ...) end
