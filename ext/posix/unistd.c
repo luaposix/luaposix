@@ -294,7 +294,7 @@ Execute a program without using the shell.
 @string path
 @tparam table argt arguments (table can include index 0)
 @return nil
-@return string error message
+@treturn string error message
 @see execve(2)
 @usage exec ("/bin/bash", {[0] = "-sh", "--norc})
 */
@@ -311,7 +311,7 @@ Execute a program using the shell.
 @string path
 @tparam table argt arguments (table can include index 0)
 @return nil
-@return string error message
+@treturn string error message
 @see execve(2)
 */
 static int
