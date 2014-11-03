@@ -241,3 +241,20 @@ specify posix.deprecated:
         expect (table.concat {msg, " ", tostring (ret)}).to_be "exited 0"
       end
   - "it sets argv[0]":
+
+
+- describe openlog:
+  - before:
+      openlog = posix.openlog
+
+  - context with bad arguments: |
+      if openlog then
+        badargs.diagnose (openlog, "openlog (string, ?string, ?int)")
+
+        examples {
+          ["it diagnoses invalid options"] = function ()
+            expect (openlog ("log", "cp*")).
+              to_raise "bad argument #2 to 'openlog' (invalid openlog option '*')"
+          end
+        }
+      end

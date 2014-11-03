@@ -740,6 +740,13 @@ specify posix.compat:
         expect (t.year).to_be (1906)
 
 
+- describe setlogmask:
+  - context with bad arguments:
+      if posix.setlogmask then
+        badargs.diagnose (posix.setlogmask, "setlogmask (?int*)")
+      end
+
+
 - describe sysconf:
   - before:
       sysconf, badarg = init (posix, "sysconf")

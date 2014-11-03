@@ -726,6 +726,58 @@ else
 end
 
 
+--- Open the system logger.
+-- @function openlog
+-- @string ident all messages will start with this
+-- @string[opt] option any combination of 'c' (directly to system console
+--   if an error sending), 'n' (no delay) and 'p' (show PID)
+-- @int [opt=`LOG_USER`] facility one of `LOG_AUTH`, `LOG_AUTHORITY`,
+--   `LOG_CRON`, `LOG_DAEMON`, `LOG_FTP`, `LOG_KERN`, `LOG_LPR`, `LOG_MAIL`,
+--   `LOG_NEWS`, `LOG_SECURITY`, `LOG_SYSLOG`, `LOG_USER`, `LOG_UUCP` or
+--   `LOG_LOCAL0` through `LOG_LOCAL7`
+-- @see syslog(3)
+
+local bit = bit32 or require "bit"
+local log = require "posix.syslog"
+
+local bor = bit.bor
+local _openlog = log.openlog
+
+local optionmap = {
+  [' '] = 0,
+  c = log.LOG_CONS,
+  n = log.LOG_NDELAY,
+  p = log.LOG_PID,
+}
+
+local function openlog (ident, optstr, facility)
+  local option = 0
+  if optstr then
+    for i = 1, #optstr do
+      local c = optstr:sub (i, i)
+      if optionmap[c] == nil then
+	badoption ("openlog", 2, "openlog", c)
+      end
+      option = bor (option, optionmap[c])
+    end
+  end
+  return _openlog (ident, option, facility)
+end
+
+if _DEBUG ~= false then
+  M.openlog = function (...)
+    local argt = {...}
+    checkstring ("openlog", 1, argt[1])
+    optstring ("openlog", 2, argt[2])
+    optint ("openlog", 3, argt[3])
+    if #argt > 3 then toomanyargerror ("openlog", 3, #argt) end
+    return openlog (...)
+  end
+else
+  M.openlog = openlog
+end
+
+
 --- Get configuration information at runtime.
 -- @function pathconf
 -- @string[opt="."] path file to act on

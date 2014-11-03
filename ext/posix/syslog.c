@@ -32,11 +32,11 @@
 Open the system logger.
 @function openlog
 @string ident all messages will start with this
-@string[opt] option any combination of 'c' (directly to system console
-  if an error sending), 'n' (no delay) or 'p' (show PID)
+@int[opt] option bitwise OR of zero or more of `LOG_CONS`, `LOG_NDELAY`,
+  or `LOG_PID`
 @int[opt=`LOG_USER`] facility one of `LOG_AUTH`, `LOG_AUTHPRIV`, `LOG_CRON`,
   `LOG_DAEMON`, `LOG_FTP`, `LOG_KERN`, `LOG_LPR`, `LOG_MAIL`, `LOG_NEWS`,
-  `LOG_SECURITY`, `LOG_SYSLOG`, 'LOG_USER`, `LOG_UUCP` or `LOG_LOCAL0`
+  `LOG_SECURITY`, `LOG_SYSLOG`, `LOG_USER`, `LOG_UUCP` or `LOG_LOCAL0`
   through `LOG_LOCAL7`
 @see syslog(3)
 */
@@ -44,23 +44,9 @@ static int
 Popenlog(lua_State *L)
 {
 	const char *ident = luaL_checkstring(L, 1);
-	const char *s = optstring(L, 2, "");
+	int option = optint(L, 2, 0);
 	int facility = optint(L, 3, LOG_USER);
-	int option = 0;
-
 	checknargs(L, 3);
-	while (*s)
-	{
-		switch (*s)
-		{
-			case ' ':	break;
-			case 'c':	option |= LOG_CONS; break;
-			case 'n':	option |= LOG_NDELAY; break;
-			case 'p':	option |= LOG_PID; break;
-			default:	badoption(L, 2, "openlog", *s); break;
-		}
-		s++;
-	}
 	openlog(ident, option, facility);
 	return 0;
 }
@@ -69,16 +55,8 @@ Popenlog(lua_State *L)
 /***
 Write to the system logger.
 @function syslog
-@int priority one of these values:
-
- * 1  Alert - immediate action
- * 2  Critcal
- * 3  Error
- * 4  Warning
- * 5  Notice
- * 6  Informational
- * 7  Debug
-
+@int priority one of `LOG_EMERG`, `LOG_ALERT`, `LOG_CRIT`, `LOG_WARNING`,
+  `LOG_NOTICE`, `LOG_INFO` or `LOG_DEBUG`
 @string message log message
 @see syslog(3)
 */
@@ -91,6 +69,7 @@ Psyslog(lua_State *L)
 	syslog(priority, "%s", msg);
 	return 0;
 }
+
 
 /***
 Close system log.
@@ -105,24 +84,37 @@ Pcloselog(lua_State *L)
 	return 0;
 }
 
+
 /***
 Set log priority mask.
 @function setlogmask
-@int ...  values from `LOG_EMERG`, `LOG_ALERT`, `LOG_CRIT`, `LOG_WARNING`, `LOG_NOTICE`, `LOG_INFO`, `LOG_DEBUG`
-@return 0 on success, nil otherwise
-@return error message if failed.
+@int mask bitwise OR of @{LOG_MASK} bits.
+@treturn[1] int previous mask, if successful
+@return[2] nil
+@treturn[2] string error message
+@see setlogmask(3)
 */
 static int
 Psetlogmask(lua_State *L)
 {
-	int argno = lua_gettop(L);
-	int mask = 0;
-	int i;
+	checknargs(L, 1);
+	return pushresult(L, setlogmask(optint(L, 1, 0)), "setlogmask");
+}
 
-	for (i=1; i <= argno; i++)
-		mask |= LOG_MASK(optint(L, i, 0));  /*for `int or nil` error*/
 
-	return pushresult(L, setlogmask(mask),"setlogmask");
+/***
+Mask bit for given log priority.
+@function LOG_MASK
+@int priority one of `LOG_EMERG`, `LOG_ALERT`, `LOG_CRIT`, `LOG_WARNING`,
+  `LOG_NOTICE`, `LOG_INFO` or `LOG_DEBUG`
+@treturn int mask bit corresponding to *priority*
+@see setlogmask(3)
+*/
+static int
+PLOG_MASK(lua_State *L)
+{
+	checknargs(L, 1);
+	return pushintresult(LOG_MASK(checkint(L, 1)));
 }
 #endif
 
@@ -130,6 +122,7 @@ Psetlogmask(lua_State *L)
 static const luaL_Reg posix_syslog_fns[] =
 {
 #if _POSIX_VERSION >= 200112L
+	LPOSIX_FUNC( PLOG_MASK		),
 	LPOSIX_FUNC( Popenlog		),
 	LPOSIX_FUNC( Psyslog		),
 	LPOSIX_FUNC( Pcloselog		),
@@ -150,6 +143,7 @@ Any constants not available in the underlying system will be `nil` valued.
 @table posix.syslog
 @int LOG_AUTH security/authorisation messages
 @int LOG_AUTHPRIV private authorisation messages
+@int LOG_CONS write directly to system console
 @int LOG_CRON clock daemon
 @int LOG_DAEMON system daemons
 @int LOG_FTP ftp daemon
@@ -164,7 +158,9 @@ Any constants not available in the underlying system will be `nil` valued.
 @int LOG_LOCAL7 reserved for local use
 @int LOG_LPR line printer subsystem
 @int LOG_MAIL mail system
+@int LOG_NDELAY open the connection immediately
 @int LOG_NEWS network news subsystem
+@int LOG_PID include process id with each log message
 @int LOG_SYSLOG messages generated internally by syslogd
 @int LOG_USER random user-level messages
 @int LOG_UUCP unix-to-unix copy subsystem
@@ -193,6 +189,10 @@ luaopen_posix_syslog(lua_State *L)
 	lua_setfield(L, -2, "version");
 
 #if _POSIX_VERSION >= 200112L
+	LPOSIX_CONST( LOG_CONS		);
+	LPOSIX_CONST( LOG_NDELAY	);
+	LPOSIX_CONST( LOG_PID		);
+
 	LPOSIX_CONST( LOG_AUTH		);
 	LPOSIX_CONST( LOG_AUTHPRIV	);
 	LPOSIX_CONST( LOG_CRON		);

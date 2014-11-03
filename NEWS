@@ -108,6 +108,13 @@ Stdlib NEWS - User visible changes
    `posix.sys.stat.S_IWOTH`, `posix.sys.stat.S_IXOTH`,
    `posix.sys.stat.S_ISGID`, `posix.sys.stat.S_ISUID`.
 
+ - Add missing constants from syslog.h: `posix.syslog.LOG_CONS`,
+   `posix.syslog.LOG_NDELAY` and `posix.syslog.LOG_PID`.
+
+ - Add missing API from syslog.h: `posix.syslog.LOG_MASK`.  Use this to
+   convert syslog priority constants into mask bits suitable for bitwise
+   ORing as the argument to `posix.syslog.setlogmask`.
+
  - Add missing constants from time.h: `posix.time.CLOCK_MONOTONIC`,
    `posix.time.CLOCK_PROCESS_CPUTIME_ID`, `posix.time.CLOCK_REALTIME` and
    `posix.time.CLOCK_THREAD_CPUTIME_ID`.
@@ -145,6 +152,13 @@ Stdlib NEWS - User visible changes
  - `posix.getpasswd`, `posix.getpid`, `posix.pathconf`, `posix.stat`,
    `posix.statvfs`, `posix.sysconf` and `posix.times` process a single table
    argument with a list of types correctly.
+
+ - `posix.syslog.openlog` now takes the bitwise OR of those constants.  The
+   old string option specified API is still available as `posix.openlog`.
+
+ - `posix.syslog.setlogmask` now takes the bitwise OR of bits returned by
+   passing priority constants to `posix.syslog.LOG_MASK`.  The old API will
+   continue to be available as `posix.setlogmask`.
 
  - `posix.readlink` is much more robust, and reports errors accurately.
 

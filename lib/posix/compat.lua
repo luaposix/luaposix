@@ -361,6 +361,40 @@ else
 end
 
 
+--- Set log priority mask
+-- @function setlogmask
+-- @int ... zero or more of `LOG_EMERG`, `LOG_ALERT`, `LOG_CRIT`,
+--   `LOG_WARNING`, `LOG_NOTICE`, `LOG_INFO` and `LOG_DEBUG`
+-- @treturn[1] int `0`, if successful
+-- @return[2] nil
+-- @treturn[2] string error message
+
+local bit = bit32 or require "bit"
+local log = require "posix.syslog"
+
+local bor = bit.bor
+local _setlogmask, LOG_MASK = log.setlogmask, log.LOG_MASK
+
+local function setlogmask (...)
+  local mask = 0
+  for _, v in ipairs {...} do
+    mask = bor (mask, LOG_MASK (v))
+  end
+  return _setlogmask (mask)
+end
+
+if _DEBUG ~= false then
+  M.setlogmask = function (...)
+    for i, v in ipairs {...} do
+      optint ("setlogmask", i, v, 0) -- for "int or nil" error
+    end
+    return setlogmask (...)
+  end
+else
+  M.setlogmask = setlogmask
+end
+
+
 --- Set file mode creation mask.
 -- @function umask
 -- @string[opt] mode file creation mask string

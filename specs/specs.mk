@@ -24,6 +24,7 @@ specl_SPECS =						\
 	$(srcdir)/specs/posix_sys_time_spec.yaml	\
 	$(srcdir)/specs/posix_sys_times_spec.yaml	\
 	$(srcdir)/specs/posix_sys_utsname_spec.yaml	\
+	$(srcdir)/specs/posix_syslog_spec.yaml		\
 	$(srcdir)/specs/posix_time_spec.yaml		\
 	$(srcdir)/specs/posix_unistd_spec.yaml		\
 	$(srcdir)/specs/posix_spec.yaml			\
