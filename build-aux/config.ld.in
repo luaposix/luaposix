@@ -21,6 +21,10 @@ file = {
   "../ext/posix/curses/window.c",
 
   -- Modules
+  "../lib/posix.lua",
+  "../lib/posix/compat.lua",  -- Documents added to posix.lua
+  "../lib/posix/util.lua",
+
   "../ext/posix/ctype.c",
   "../ext/posix/curses.c",
   "../ext/posix/dirent.c",
@@ -51,10 +55,6 @@ file = {
   "../ext/posix/time.c",
   "../ext/posix/unistd.c",
   "../ext/posix/utime.c",
-
-  "../lib/posix.lua",
-  "../lib/posix/compat.lua",
-  "../lib/posix/util.lua",
 }
 examples = "../examples"
 
