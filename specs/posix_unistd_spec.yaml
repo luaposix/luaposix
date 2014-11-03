@@ -7,6 +7,48 @@ specify posix/unistd:
     ids = pwd.getpwnam (os.getenv "USER")
 
 
+- describe exec:
+  - before:
+      exec = unistd.exec
+
+  - context with bad arguments:
+      badargs.diagnose (exec, "(string, table)")
+
+
+- describe execp:
+  - before: |
+      bit = bit32 or require "bit"
+      fcntl = require "posix.fcntl"
+      syswait = require "posix.sys.wait"
+
+      execp = unistd.execp
+
+      dup2, fork, wait = unistd.dup2, unistd.fork, syswait.wait
+      open, O_WRONLY, O_APPEND = fcntl.open, fcntl.O_WRONLY, fcntl.O_APPEND
+      P_CHILD = 0
+
+      -- redirect output to /dev/null
+      function child (...)
+        quietly = open ("/dev/null", bit.bor (O_WRONLY, O_APPEND))
+        dup2 (quietly, 1)
+        execp (...)
+        expect ("not reached").to_be (true)
+      end
+
+  - context with bad arguments:
+      badargs.diagnose (execp, "(string, table)")
+
+  - it overwrites the running process with a shell invocation:
+      process = fork ()
+      if process == P_CHILD then
+        child ("date", {"+[%c]"})
+      else
+        p, msg, ret = wait (process)
+        expect (table.concat {msg, " ", tostring (ret)}).to_be "exited 0"
+      end
+  - "it sets argv[0]":
+
+
 - describe getegid:
   - before:
       getegid = unistd.getegid

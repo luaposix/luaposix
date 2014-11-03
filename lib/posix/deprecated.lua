@@ -223,6 +223,92 @@ function M.connect (...)
 end
 
 
+--- Execute a program without using the shell.
+-- @function exec
+-- @string path
+-- @tparam[opt] table|strings ... table or tuple of arguments (table can include index 0)
+-- @return nil
+-- @treturn string error message
+-- @see execve(2)
+
+local unistd = require "posix.unistd"
+
+local _exec = unistd.exec
+
+local function exec (path, ...)
+  local argt = {...}
+  if #argt == 1 and type (argt[1]) == "table" then
+    argt = argt[1]
+  end
+  return _exec (path, argt)
+end
+
+if _DEBUG ~= false then
+  M.exec = function (...)
+    local argt = {...}
+    checkstring ("exec", 1, argt[1])
+    if type (argt[2]) ~= "table" and type (argt[2]) ~= "string" then
+      argtypeerror ("exec", 2, "string, table or nil", argt[2])
+    end
+    if #argt > 2 then
+      if type (argt[2]) == "table" then
+        toomanyargerror ("exec", 2, #argt)
+      else
+        for i = 3, #argt do
+	  checkstring ("exec", i, argt[i])
+	end
+      end
+    end
+    return exec (...)
+  end
+else
+  M.exec = exec
+end
+
+
+--- Execute a program with the shell.
+-- @function execp
+-- @string path
+-- @tparam[opt] table|strings ... table or tuple of arguments (table can include index 0)
+-- @return nil
+-- @treturn string error message
+-- @see execve(2)
+
+local unistd = require "posix.unistd"
+
+local _execp = unistd.execp
+
+local function execp (path, ...)
+  local argt = {...}
+  if #argt == 1 and type (argt[1]) == "table" then
+    argt = argt[1]
+  end
+  return _execp (path, argt)
+end
+
+if _DEBUG ~= false then
+  M.execp = function (...)
+    local argt = {...}
+    checkstring ("execp", 1, argt[1])
+    if type (argt[2]) ~= "table" and type (argt[2]) ~= "string" then
+      argtypeerror ("execp", 2, "string, table or nil", argt[2])
+    end
+    if #argt > 2 then
+      if type (argt[2]) == "table" then
+        toomanyargerror ("execp", 2, #argt)
+      else
+        for i = 3, #argt do
+	  checkstring ("execp", i, argt[i])
+	end
+      end
+    end
+    return execp (...)
+  end
+else
+  M.execp = execp
+end
+
+
 --- Instruct kernel on appropriate cache behaviour for a file or file segment.
 -- @function fadvise
 -- @tparam file fh Lua file object

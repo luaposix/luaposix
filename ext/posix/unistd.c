@@ -256,47 +256,34 @@ runexec(lua_State *L, int use_shell)
 {
 	char **argv;
 	const char *path = luaL_checkstring(L, 1);
-	int i,n=lua_gettop(L), table = 0;
-	if (n >= 1 && lua_type(L, 2) == LUA_TTABLE)
-	{
-		checknargs(L, 2);
-		n = lua_objlen(L, 2);
-		table = 1;
-	}
-	else if (lua_type(L, 2) == LUA_TSTRING)
-		n--;
-	else
-		argtypeerror(L, 2, "table or string");
+	int i, n;
+	checknargs(L, 2);
 
-	argv = lua_newuserdata(L,(n+2)*sizeof(char*));
+	if (lua_type(L, 2) != LUA_TTABLE)
+		argtypeerror(L, 2, "table");
+
+	n = lua_objlen(L, 2);
+	argv = lua_newuserdata(L, (n + 2) * sizeof(char*));
 
 	/* Set argv[0], defaulting to command */
-	argv[0] = (char*)path;
-	if (table)
-	{
-		lua_pushinteger(L, 0);
-		lua_gettable(L, 2);
-		if (lua_type(L, -1) == LUA_TSTRING)
-			argv[0] = (char*)lua_tostring(L, -1);
-		else
-			lua_pop(L, 1);
-	}
+	argv[0] = (char*) path;
+	lua_pushinteger(L, 0);
+	lua_gettable(L, 2);
+	if (lua_type(L, -1) == LUA_TSTRING)
+		argv[0] = (char*)lua_tostring(L, -1);
+	else
+		lua_pop(L, 1);
 
-	/* Read argv[1..n] from arguments or table. */
+	/* Read argv[1..n] from table. */
 	for (i=1; i<=n; i++)
 	{
-		if (table)
-		{
-			lua_pushinteger(L, i);
-			lua_gettable(L, 2);
-			argv[i] = (char*)lua_tostring(L, -1);
-		}
-		else
-			argv[i] = (char*)luaL_checkstring(L, i+1);
+		lua_pushinteger(L, i);
+		lua_gettable(L, 2);
+		argv[i] = (char*)lua_tostring(L, -1);
 	}
 	argv[n+1] = NULL;
 
-	(use_shell?execvp:execv)(path, argv);
+	(use_shell ? execvp : execv) (path, argv);
 	return pusherror(L, path);
 }
 
@@ -305,11 +292,11 @@ runexec(lua_State *L, int use_shell)
 Execute a program without using the shell.
 @function exec
 @string path
-@tparam table|strings ... table or tuple of arguments (table can include
-  index 0)
+@tparam table argt arguments (table can include index 0)
 @return nil
 @return string error message
 @see execve(2)
+@usage exec ("/bin/bash", {[0] = "-sh", "--norc})
 */
 static int
 Pexec(lua_State *L)
@@ -322,8 +309,7 @@ Pexec(lua_State *L)
 Execute a program using the shell.
 @function execp
 @string path
-@tparam table|strings ... table or tuple of arguments (table can include
-  index 0)
+@tparam table argt arguments (table can include index 0)
 @return nil
 @return string error message
 @see execve(2)
