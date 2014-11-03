@@ -24,7 +24,7 @@ for _, sub in ipairs {
   "libgen", "poll", "pwd", "sched", "signal", "stdio", "stdlib", "sys.msg",
   "sys.resource", "sys.socket", "sys.stat", "sys.statvfs", "sys.time",
   "sys.times", "sys.utsname", "sys.wait", "syslog", "termio", "time",
-  "unistd", "util", "utime"
+  "unistd", "utime"
 } do
   local t = require ("posix." .. sub)
   for k, v in pairs (t) do
@@ -139,6 +139,59 @@ if _DEBUG ~= false then
   end
 else
   M.euidaccess = euidaccess
+end
+
+
+--- Open a pseudo-terminal.
+-- Based on the glibc function of the same name.
+-- @fixme add support for term and win arguments
+-- @treturn[1] int master file descriptor
+-- @treturn[1] int slave file descriptor
+-- @treturn[1] string slave file name
+-- @return[2] nil
+-- @treturn[2] string error message
+
+local bit    = bit32 or require "bit"
+local fcntl  = require "posix.fcntl"
+local stdlib = require "posix.stdlib"
+local unistd = require "posix.unistd"
+
+local bor = bit.bor
+local open, O_RDWR, O_NOCTTY = fcntl.open, fcntl.O_RDWR, fcntl.O_NOCTTY
+local grantpt, openpt, ptsname, unlockpt =
+  stdlib.grantpt, stdlib.openpt, stdlib.ptsname, stdlib.unlockpt
+local close = unistd.close
+
+local function openpty (term, win)
+  local ok, errmsg, master, slave, slave_name
+  master, errmsg = openpt (bor (O_RDWR, O_NOCTTY))
+  if master then
+    ok, errmsg = grantpt (master)
+    if ok then
+      ok, errmsg = unlockpt (master)
+      if ok then
+	slave_name, errmsg = ptsname (master)
+	if slave_name then
+          slave, errmsg = open (slave_name, bor (O_RDWR, O_NOCTTY))
+	  if slave then
+            return master, slave, slave_name
+	  end
+	end
+      end
+    end
+    close (master)
+  end
+  return nil, errmsg
+end
+
+if _DEBUG ~= false then
+  M.openpty = function (...)
+    local argt = {...}
+    if #argt > 0 then toomanyargerror ("openpty", 0, #argt) end
+    return openpty (...)
+  end
+else
+  M.openpty = openpty
 end
 
 

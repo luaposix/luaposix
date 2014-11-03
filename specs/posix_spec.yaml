@@ -44,6 +44,11 @@ specify posix:
       badargs.diagnose (posix.getopt, "(list, string, ?table, ?int, ?int)")
 
 
+- describe openpty:
+  - context with bad arguments:
+      badargs.diagnose (posix.openpty, "openpty ()")
+
+
 - describe pipeline:
   - before: f = posix.pipeline
   - context with bad arguments:

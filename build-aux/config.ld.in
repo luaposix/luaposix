@@ -23,7 +23,6 @@ file = {
   -- Modules
   "../lib/posix.lua",
   "../lib/posix/compat.lua",  -- Documents added to posix.lua
-  "../lib/posix/util.lua",
 
   "../ext/posix/ctype.c",
   "../ext/posix/curses.c",
