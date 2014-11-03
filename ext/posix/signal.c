@@ -188,7 +188,7 @@ Although this is the same API as signal(2), it uses sigaction for guaranteed sem
 @int signum
 @tparam[opt=SIG_DFL] function handler function, or `SIG_IGN` or `SIG_DFL` constants
 @param[opt] flags the `sa_flags` element of `struct sigaction`
-@return previous handler function
+@treturn function previous handler function
 @see sigaction(2)
 */
 static int
