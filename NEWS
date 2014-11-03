@@ -40,6 +40,9 @@ Stdlib NEWS - User visible changes
    from a POSIX API, the Lua return tables have an appropriate `_type` field
    metatable entry compatible with lua-stdlib `std.object.type`.
 
+ - `posix.signal.signal` now accepts the constants `posix.signal.SIG_DFL` or
+   `posix.signal.SIG_IGN` in place of the strings "SIG_DFL" and "SIG_IGN".
+
  - The submodule bindings `posix.time.gmtime`, `posix.time.localtime`,
    `posix.time.mktime`, `posix.time.strftime` and `posix.time.strptime` now
    accept or create PosixTm tables with 1-to-1 field name mappings with the
@@ -84,6 +87,9 @@ Stdlib NEWS - User visible changes
    `posix.unistd.getpgrp`, `posix.unistd.getpid`, `posix.unistd.getppid`.
    Consequently, `posix.getpid` is now reimplemented in Lua over the POSIX
    APIs.
+
+ - Add missing constants from signal.h; `posix.signal.SIG_DFL` and
+   `posix.signal.SIG_IGN'.
 
  - Add missing APIs from sys/stat.h: `posix.sys.stat.S_ISBLK`,
    `posix.sys.stat.S_ISCHR`, `posix.sys.stat.S_ISDIR`,

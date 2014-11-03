@@ -636,11 +636,6 @@ specify posix:
         expect (new).to_be (old + 2)
 
 
-  - describe raise:
-    - context with bad arguments:
-        badargs.diagnose (posix.raise, "(int)")
-
-
   - describe exec:
     - before:
         exec, badarg = init (posix, "exec")
@@ -762,16 +757,6 @@ specify posix:
         badargs.diagnose (posix.wait, "(?int, ?int)")
 
 
-  - describe kill:
-    - context with bad arguments:
-        badargs.diagnose (posix.kill, "(int, ?int)")
-
-
-  - describe killpg:
-    - context with bad arguments:
-        badargs.diagnose (posix.killpg, "(int, ?int)")
-
-
   - describe setpid:
     - before:
         setpid, badarg = init (posix, "setpid")
@@ -853,13 +838,6 @@ specify posix:
         if posix.sched_getscheduler then
           badargs.diagnose (posix.sched_getscheduler, "(?int)")
         end
-
-
-
-- specify signal handling:
-  - describe signal:
-    - context with bad arguments:
-        badargs.diagnose (posix.signal, "(int, ?function|string, ?int)")
 
 
 

@@ -1,0 +1,23 @@
+specify posix.signal:
+- before:
+    sig = require "posix.signal"
+
+
+- describe kill:
+  - context with bad arguments:
+      badargs.diagnose (sig.kill, "(int, ?int)")
+
+
+- describe killpg:
+  - context with bad arguments:
+      badargs.diagnose (sig.killpg, "(int, ?int)")
+
+
+- describe raise:
+  - context with bad arguments:
+      badargs.diagnose (sig.raise, "(int)")
+
+
+- describe signal:
+  - context with bad arguments:
+      badargs.diagnose (sig.signal, "(int, ?function|string, ?int)")

@@ -1,11 +1,11 @@
-local P = require 'posix'
-for k,v in pairs(P) do _G[k] = v end
+local sig     = require "posix.signal"
+local unistd  = require "posix.unistd"
+local syswait = require "posix.sys.wait"
 
-function go(fn,...)
-  local cpid = P.fork()
+local function go (fn, ...)
+  local cpid = unistd.fork ()
   if cpid == 0 then -- run function as child
-    local res = fn(...)
-    P._exit(res or 0)
+    unistd._exit (fn (...) or 0)
   else
     return cpid
   end
@@ -13,45 +13,48 @@ end
 
 local verbose = #arg > 0
 
-function sleepx(secs)
+local function sleepx (secs)
   while true do
-    secs = sleep(secs)
-    if verbose then print('sleep',secs) end
+    secs = unistd.sleep (secs)
+    if verbose then print ("sleep", secs) end
     if secs == 0 then return end
   end
 end
 
-local nchild, nsig = 0,0
+local nchild, nsig = 0, 0
 
-signal(SIGCHLD,function()
-         local  pid,status,code = wait(-1,WNOHANG)
-         while pid do
-           if pid ~= 0 then
-             if verbose then print('wait',pid,status,code) end
-             nchild = nchild + 1
-           end
-           pid,status,code = wait(-1,WNOHANG)
-         end
-               end)
+sig.signal (sig.SIGCHLD, function()
+  local pid, status, code = syswait.wait (-1, syswait.WNOHANG)
+  while pid do
+    if pid ~= 0 then
+      if verbose then print ("wait", pid, status, code) end
+      nchild = nchild + 1
+    end
+    pid, status, code = syswait.wait (-1, syswait.WNOHANG)
+  end
+end)
 
-function handler(signo)
-  if verbose then print('handled',signo) end
+local function handler (signo)
+  if verbose then print ("handled", signo) end
   nsig = nsig + 1
 end
 
-signal(SIGUSR1,handler)
-signal(SIGUSR2,handler)
-signal(60,handler)
+sig.signal (sig.SIGUSR1, handler)
+sig.signal (sig.SIGUSR2, handler)
+sig.signal (60, handler)
 
-function killp(nsig) kill(getpid 'ppid',nsig) end
+local function killp (nsig)
+  return sig.kill (unistd.getppid (), nsig)
+end
 
-c1 = go(function() sleep(1); killp(SIGUSR1); killp(SIGUSR2) end)
-c2 = go(function() sleep(2); killp(SIGUSR2); end)
-c3 = go(function() sleep(2); killp(SIGUSR1) end)
+c1 = go (function() unistd.sleep (1); killp (sig.SIGUSR1); killp (sig.SIGUSR2) end)
+c2 = go (function() unistd.sleep (2); killp (sig.SIGUSR2); end)
+c3 = go (function() unistd.sleep (2); killp (sig.SIGUSR1) end)
 
 sleepx(3)
 
-if verbose then print('children',nchild,'signals',nsig)
+if verbose then
+  print ("children", nchild, "signals", nsig)
 else
   assert (nchild == 3)
   assert (nsig ==  4)

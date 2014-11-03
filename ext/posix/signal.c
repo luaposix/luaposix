@@ -186,7 +186,7 @@ Although this is the same API as signal(2), it uses sigaction for guaranteed sem
 @function signal
 @see signal.lua
 @int signum
-@tparam[opt="SIG_DFL"] function|string handler function, "SIG_IGN" or "SIG_DFL"
+@tparam[opt=SIG_DFL] function handler function, or `SIG_IGN` or `SIG_DFL` constants
 @param[opt] flags the `sa_flags` element of `struct sigaction`
 @return previous handler function
 @see sigaction(2)
@@ -411,6 +411,14 @@ luaopen_posix_signal(lua_State *L)
 #ifdef SIGXFSZ
 	LPOSIX_CONST( SIGXFSZ		);
 #endif
+
+	/* String constants */
+	lua_pushliteral(L, "SIG_DFL");
+	lua_setfield(L, -2, "SIG_DFL");
+
+	lua_pushliteral(L, "SIG_IGN");
+	lua_setfield(L, -2, "SIG_IGN");
+
 
 	/* Signal flags */
 #ifdef SA_NOCLDSTOP
