@@ -245,7 +245,6 @@ dist_modules_DATA +=				\
 	doc/modules/posix.termio.html		\
 	doc/modules/posix.time.html		\
 	doc/modules/posix.unistd.html		\
-	doc/modules/posix.util.html		\
 	doc/modules/posix.utime.html		\
 	$(NOTHING_ELSE)
 
