@@ -50,11 +50,11 @@ for details of available command-line switches.
 Use
 ---
 
-The library is split into two modules. The basic POSIX APIs are in
-`posix` and the curses APIs in `curses`.
+The library is split into submodules according to the POSIX header file
+API declarations.
 
 HTML documentation can be generated with [LDoc] by running `make doc`
-or viewed online at <http://luaposix.github.com/luaposix/>.
+or viewed online at <http://luaposix.github.io/luaposix/>.
 
 The authoritative online POSIX reference is at
 <http://www.opengroup.org/onlinepubs/007904875/toc.htm>.
@@ -77,9 +77,8 @@ bear in mind the following points when writing new code:
 0. Follow existing code. There are a lot of useful patterns and
    avoided traps there.
 
-1. 8-character indentation using TABs. Not my favourite either, but
-   better than reformatting the code and losing much of the ability to
-   follow the version control history.
+1. 8-character indentation using TABs in C sources; 2-character
+   indentation using SPACEs in Lua sources.
 
 2. No non-POSIX APIs; no platform-specific code. When wrapping APIs
    introduced in POSIX 2001 or later, add an appropriate #if. If your
