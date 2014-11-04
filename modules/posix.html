@@ -1,0 +1,823 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luaposix 33.0.0 Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>luaposix 33.0.0</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><strong>posix</strong></li>
+  <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
+  <li><a href="../modules/posix.curses.html">posix.curses</a></li>
+  <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
+  <li><a href="../modules/posix.errno.html">posix.errno</a></li>
+  <li><a href="../modules/posix.fcntl.html">posix.fcntl</a></li>
+  <li><a href="../modules/posix.fnmatch.html">posix.fnmatch</a></li>
+  <li><a href="../modules/posix.getopt.html">posix.getopt</a></li>
+  <li><a href="../modules/posix.glob.html">posix.glob</a></li>
+  <li><a href="../modules/posix.grp.html">posix.grp</a></li>
+  <li><a href="../modules/posix.libgen.html">posix.libgen</a></li>
+  <li><a href="../modules/posix.poll.html">posix.poll</a></li>
+  <li><a href="../modules/posix.pwd.html">posix.pwd</a></li>
+  <li><a href="../modules/posix.sched.html">posix.sched</a></li>
+  <li><a href="../modules/posix.signal.html">posix.signal</a></li>
+  <li><a href="../modules/posix.stdio.html">posix.stdio</a></li>
+  <li><a href="../modules/posix.stdlib.html">posix.stdlib</a></li>
+  <li><a href="../modules/posix.sys.msg.html">posix.sys.msg</a></li>
+  <li><a href="../modules/posix.sys.resource.html">posix.sys.resource</a></li>
+  <li><a href="../modules/posix.sys.socket.html">posix.sys.socket</a></li>
+  <li><a href="../modules/posix.sys.stat.html">posix.sys.stat</a></li>
+  <li><a href="../modules/posix.sys.statvfs.html">posix.sys.statvfs</a></li>
+  <li><a href="../modules/posix.sys.time.html">posix.sys.time</a></li>
+  <li><a href="../modules/posix.sys.times.html">posix.sys.times</a></li>
+  <li><a href="../modules/posix.sys.utsname.html">posix.sys.utsname</a></li>
+  <li><a href="../modules/posix.sys.wait.html">posix.sys.wait</a></li>
+  <li><a href="../modules/posix.syslog.html">posix.syslog</a></li>
+  <li><a href="../modules/posix.termio.html">posix.termio</a></li>
+  <li><a href="../modules/posix.time.html">posix.time</a></li>
+  <li><a href="../modules/posix.unistd.html">posix.unistd</a></li>
+  <li><a href="../modules/posix.utime.html">posix.utime</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../classes/posix.curses.chstr.html">posix.curses.chstr</a></li>
+  <li><a href="../classes/posix.curses.window.html">posix.curses.window</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><a href="../examples/curses.lua.html">curses.lua</a></li>
+  <li><a href="../examples/dir.lua.html">dir.lua</a></li>
+  <li><a href="../examples/fork.lua.html">fork.lua</a></li>
+  <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
+  <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
+  <li><a href="../examples/glob.lua.html">glob.lua</a></li>
+  <li><a href="../examples/limit.lua.html">limit.lua</a></li>
+  <li><a href="../examples/lock.lua.html">lock.lua</a></li>
+  <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><a href="../examples/ping.lua.html">ping.lua</a></li>
+  <li><a href="../examples/poll.lua.html">poll.lua</a></li>
+  <li><a href="../examples/rt_sched.lua.html">rt_sched.lua</a></li>
+  <li><a href="../examples/signal.lua.html">signal.lua</a></li>
+  <li><a href="../examples/socket.lua.html">socket.lua</a></li>
+  <li><a href="../examples/termios.lua.html">termios.lua</a></li>
+  <li><a href="../examples/tree.lua.html">tree.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>posix</code></h1>
+<p>Lua POSIX bindings.</p>
+<p> In addition to the convenience functions documented in this module, all
+ APIs from submodules are copied into the return table for convenience and
+ backwards compatibility.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#chmod">chmod (path, mode)</a></td>
+	<td class="summary">Change the mode of the path.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#creat">creat (path, mode)</a></td>
+	<td class="summary">Create a file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#euidaccess">euidaccess (file, mode)</a></td>
+	<td class="summary">Check permissions like <a href="../modules/posix.unistd.html#access">posix.unistd.access</a>, but for euid.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#mkdir">mkdir (path)</a></td>
+	<td class="summary">Make a directory.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#mkfifo">mkfifo (path)</a></td>
+	<td class="summary">Make a FIFO pipe.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#msgget">msgget (key[, flags=0[, mode="rw-rw-rw-"]])</a></td>
+	<td class="summary">Get a message queue identifier</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#open">open (path, oflags, modestr)</a></td>
+	<td class="summary">Open a file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pipeline">pipeline (t, opt)</a></td>
+	<td class="summary">Perform a series of commands and Lua functions as a pipeline.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pipeline_iterator">pipeline_iterator (t, opt)</a></td>
+	<td class="summary">Perform a series of commands and Lua functions as a pipeline,
+ returning the output of the last stage's <code>stdout</code> as
+ the values of an iterator.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pipeline_slurp">pipeline_slurp (t, opt)</a></td>
+	<td class="summary">Perform a series of commands and Lua functions as a pipeline.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#setlogmask">setlogmask (...)</a></td>
+	<td class="summary">Set log priority mask</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#spawn">spawn (task, ...)</a></td>
+	<td class="summary">Run a command or function in a sub-process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#timeradd">timeradd (x, y)</a></td>
+	<td class="summary">Add one gettimeofday() returned timeval to another.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#timercmp">timercmp (x, y)</a></td>
+	<td class="summary">Compare one gettimeofday() returned timeval with another</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#timersub">timersub (x, y)</a></td>
+	<td class="summary">Subtract one gettimeofday() returned timeval from another.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#umask">umask ([mode])</a></td>
+	<td class="summary">Set file mode creation mask.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "chmod"></a>
+    <strong>chmod (path, mode)</strong>
+    </dt>
+    <dd>
+    Change the mode of the path.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         existing file path
+        </li>
+        <li><span class="parameter">mode</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+
+<p> one of the following formats:</p>
+
+<ul>
+    <li>"rwxrwxrwx" (e.g. "rw-rw-r--")</li>
+    <li>"ugo+-=rwx" (e.g. "u+w")</li>
+    <li>+-=rwx" (e.g. "+w")</li>
+</ul>
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        int <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/chmod.2.html">chmod(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">P.chmod (<span class="string">'bin/dof'</span>, <span class="string">'+x'</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "creat"></a>
+    <strong>creat (path, mode)</strong>
+    </dt>
+    <dd>
+    Create a file.
+ This function is obsoleted by <a href="../modules/posix.fcntl.html#open">posix.fcntl.open</a> with <code>posix.O_CREAT</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         name of file to create
+        </li>
+        <li><span class="parameter">mode</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         permissions with which to create file
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        file descriptor of file at <em>path</em>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/creat.2.html">creat(2)</a></li>
+         <li><a href="../modules/posix.html#chmod">posix.chmod</a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">fd = P.creat (<span class="string">"data"</span>, <span class="string">"rw-r-----"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "euidaccess"></a>
+    <strong>euidaccess (file, mode)</strong>
+    </dt>
+    <dd>
+    Check permissions like <a href="../modules/posix.unistd.html#access">posix.unistd.access</a>, but for euid.
+ Based on the glibc function of the same name. Does not always check
+ for read-only file system, text busy, etc., and does not work with
+ ACLs &amp;c.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">file</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         file to check
+        </li>
+        <li><span class="parameter">mode</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         checks to perform (as for access)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        0 if access allowed; <code>nil</code> otherwise (and errno is set)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "mkdir"></a>
+    <strong>mkdir (path)</strong>
+    </dt>
+    <dd>
+    Make a directory.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         location in file system to create directory
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "mkfifo"></a>
+    <strong>mkfifo (path)</strong>
+    </dt>
+    <dd>
+    Make a FIFO pipe.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         location in file system to create fifo
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "msgget"></a>
+    <strong>msgget (key[, flags=0[, mode="rw-rw-rw-"]])</strong>
+    </dt>
+    <dd>
+    Get a message queue identifier
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">key</span>
+            <span class="types"><span class="type">int</span></span>
+         message queue id, or <code>IPC_PRIVATE</code> for a new queue
+        </li>
+        <li><span class="parameter">flags</span>
+            <span class="types"><span class="type">int</span></span>
+         bitwise OR of zero or more from <code>IPC_CREAT</code> and <code>IPC_EXCL</code>
+         (<em>default</em> 0)
+        </li>
+        <li><span class="parameter">mode</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         execute bits are ignored
+         (<em>default</em> "rw-rw-rw-")
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        message queue identifier, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/msgget.2.html">msgget(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "open"></a>
+    <strong>open (path, oflags, modestr)</strong>
+    </dt>
+    <dd>
+    Open a file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         file to act on
+        </li>
+        <li><span class="parameter">oflags</span>
+            <span class="types"><span class="type">int</span></span>
+         bitwise OR of zero or more of <code>O_RDONLY</code>, <code>O_WRONLY</code>, <code>O_RDWR</code>,
+   <code>O_APPEND</code>, <code>O_CREAT</code>, <code>O_DSYNC</code>, <code>O_EXCL</code>, <code>O_NOCTTY</code>, <code>O_NONBLOCK</code>,
+   <code>O_RSYNC</code>, <code>O_SYNC</code>, <code>O_TRUNC</code>
+        </li>
+        <li><span class="parameter">modestr</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         (used with <code>O_CREAT</code>; see <a href="../modules/posix.html#chmod">chmod</a> for format)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        file descriptor for <em>path</em>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/open.2.html">open(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">fd = P.open (<span class="string">"data"</span>, bit.bor (P.O_CREAT, P.O_RDWR), <span class="string">"rw-r-----"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "pipeline"></a>
+    <strong>pipeline (t, opt)</strong>
+    </dt>
+    <dd>
+    Perform a series of commands and Lua functions as a pipeline.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         tasks for <a href="../modules/posix.html#spawn">spawn</a>
+        </li>
+        <li><span class="parameter">opt</span>
+            <span class="types"><span class="type">func</span></span>
+        =<a href="../modules/posix.unistd.html#pipe">posix.unistd.pipe</a> pipe_fn function returning a paired read and
+   write file descriptor
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        exit code of the chain
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pipeline_iterator"></a>
+    <strong>pipeline_iterator (t, opt)</strong>
+    </dt>
+    <dd>
+    Perform a series of commands and Lua functions as a pipeline,
+ returning the output of the last stage's <code>stdout</code> as
+ the values of an iterator.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         tasks for <a href="../modules/posix.html#spawn">spawn</a>
+        </li>
+        <li><span class="parameter">opt</span>
+            <span class="types"><span class="type">func</span></span>
+        =<a href="../modules/posix.unistd.html#pipe">posix.unistd.pipe</a> pipe_fn function returning a paired read and
+   write file descriptor
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        iterator function returning a chunk of output on each call
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "pipeline_slurp"></a>
+    <strong>pipeline_slurp (t, opt)</strong>
+    </dt>
+    <dd>
+    Perform a series of commands and Lua functions as a pipeline.
+ Return the output of the last stage's <code>stdout</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         tasks for <a href="../modules/posix.html#spawn">spawn</a>
+        </li>
+        <li><span class="parameter">opt</span>
+            <span class="types"><span class="type">func</span></span>
+        =<a href="../modules/posix.unistd.html#pipe">posix.unistd.pipe</a> pipe_fn function returning a paired read and
+   write file descriptor
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+        output of the pipeline
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "setlogmask"></a>
+    <strong>setlogmask (...)</strong>
+    </dt>
+    <dd>
+    Set log priority mask
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+            <span class="types"><span class="type">int</span></span>
+         zero or more of <code>LOG_EMERG</code>, <code>LOG_ALERT</code>, <code>LOG_CRIT</code>,
+   <code>LOG_WARNING</code>, <code>LOG_NOTICE</code>, <code>LOG_INFO</code> and <code>LOG_DEBUG</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "spawn"></a>
+    <strong>spawn (task, ...)</strong>
+    </dt>
+    <dd>
+    Run a command or function in a sub-process.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">task</span>
+        , a string to be executed as a shell command, or a
+   table of arguments to <code>P.execp</code> or a Lua function, which should read
+   from standard input, write to standard output, and return an exit code
+        </li>
+        <li><span class="parameter">...</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         positional arguments to the program or function
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        status exit code, if successful</li>
+        <li>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+        exit type, if wait succeeds</li>
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">nil</span></span>
+
+
+</li>
+        <li>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+        error message</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "timeradd"></a>
+    <strong>timeradd (x, y)</strong>
+    </dt>
+    <dd>
+    Add one gettimeofday() returned timeval to another.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         a timeval
+        </li>
+        <li><span class="parameter">y</span>
+         another timeval
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        x + y, adjusted for usec overflow
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "timercmp"></a>
+    <strong>timercmp (x, y)</strong>
+    </dt>
+    <dd>
+    Compare one gettimeofday() returned timeval with another
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         a timeval
+        </li>
+        <li><span class="parameter">y</span>
+         another timeval
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        0 if x and y are equal, >0 if x is newer, &lt;0 if y is newer
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "timersub"></a>
+    <strong>timersub (x, y)</strong>
+    </dt>
+    <dd>
+    Subtract one gettimeofday() returned timeval from another.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         a timeval
+        </li>
+        <li><span class="parameter">y</span>
+         another timeval
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        x - y, adjusted for usec underflow
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "umask"></a>
+    <strong>umask ([mode])</strong>
+    </dt>
+    <dd>
+    Set file mode creation mask.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">mode</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         file creation mask string
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+        previous umask
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/umask.2.html">umask(2)</a>
+    </ul>
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2014-11-04 16:15:03 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
