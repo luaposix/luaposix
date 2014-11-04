@@ -5,6 +5,7 @@
 *.so
 *.html
 *.rockspec
+*.src.rock
 .deps
 .dirstamp
 .libs
