@@ -4,6 +4,7 @@ luaposix
 By the [luaposix project][GitHub]
 
 [![travis-ci status](https://secure.travis-ci.org/luaposix/luaposix.png?branche=master)](http://travis-ci.org/luaposix/luaposix/builds)
+[![Stories in Ready](https://badge.waffle.io/luaposix/luaposix.png?label=ready&title=Ready)](https://waffle.io/luaposix/luaposix)
 
 luaposix is a POSIX binding, including curses, for [Lua] 5.1 and 5.2;
 like most libraries it simply binds to C APIs on the underlying

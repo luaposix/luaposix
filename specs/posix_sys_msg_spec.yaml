@@ -1,0 +1,45 @@
+specify posix.sys.msg:
+- before:
+    errno = require "posix.errno"
+    msg   = require "posix.sys.msg"
+    st    = require "posix.sys.stat"
+
+    EEXIST = errno.EEXIST
+    msgget, msgsnd, msgrcv = msg.msgget, msg.msgsnd, msg.msgrcv
+    IPC_CREAT, IPC_EXCL = msg.IPC_CREAT, msg.IPC_EXCL
+    S_IRWXU, S_IRWXG, S_IRWXO = st.S_IRWXU, st.S_IRWXG, st.S_IRWXO
+
+    mode = bor (S_IRWXU, S_IRWXG, S_IRWXO)
+    mq, err, errnum = msgget (100, bor (IPC_CREAT, IPC_EXCL, mode))
+    if errnum == EEXIST then
+      mq, err = msgget (100, mode)
+    end
+
+    type = 42
+    data = "Answer to the Ultimate Question of Life"
+
+
+- describe msgget:
+  - context with bad arguments:
+      badargs.diagnose (msgget, "(int, ?int)")
+
+  - it creates a queue:
+      expect (mq).not_to_be (nil)
+      expect (err).to_be (nil)
+
+
+- describe msgsnd:
+  - context with bad arguments:
+      badargs.diagnose (msgsnd, "(int, int, string, ?int)")
+
+  - it sends a message:
+      ok, err = msgsnd (mq, type, data)
+      expect (ok).not_to_be (err)
+
+
+- describe msgrcv:
+  - context with bad arguments:
+      badargs.diagnose (msgrcv, "(int, int, ?int, ?int)")
+
+  - it receives a message:
+      expect ({msgrcv (mq, 128)}).to_equal {type, data, nil}

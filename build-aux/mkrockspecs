@@ -155,7 +155,7 @@ Report bugs to http://github.com/gvvaughan/slingshot/issues.]])
 end
 
 prog["--version"] = function ()
-  print [[mkrockspecs (slingshot) 7
+  print [[mkrockspecs (slingshot) 8
 Written by Gary V. Vaughan <gary@gnu.org>, 2013
 
 Copyright (C) 2013, Gary V. Vaughan
@@ -359,7 +359,7 @@ default.build = default.build or {
     "LUA='$(LUA)' LUA_INCLUDE='-I$(LUA_INCDIR)' " .. configure_flags ..
     "--prefix='$(PREFIX)' --libdir='$(LIBDIR)' --datadir='$(LUADIR)' " ..
     "--datarootdir='$(PREFIX)' && make clean all",
-  install_command = "make install luadir='$(LUADIR)'",
+  install_command = "make install luadir='$(LUADIR)' luaexecdir='$(LIBDIR)'",
   copy_directories = {},
 }
 

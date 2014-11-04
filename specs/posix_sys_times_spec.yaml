@@ -1,0 +1,27 @@
+specify posix.sys.times:
+- before:
+    tms = require "posix.sys.times"
+
+- describe times:
+  - before:
+      table.unpack = table.unpack or unpack
+      times = tms.times
+
+  # posix.times takes an optional string or table as its first
+  # argument, followed by zero or more strings only if the first
+  # argument was a string; since we can't express that with
+  # `badargs.diagnose` do it all manually again...
+  - context with bad arguments:
+      badargs.diagnose (times, "()")
+
+  - it returns a PosixTms:
+      expect (prototype (times ())).to_be "PosixTms"
+  - it fetches everything without an argument:
+      keys = {
+        "tms_utime", "tms_stime", "tms_cutime", "tms_cstime", "elapsed"
+      }
+      t = times ()
+      expect (t).to_contain.a_permutation_of (keys)
+      for _, key in ipairs (keys) do
+        expect (type (t[key])).to_be "number"
+      end

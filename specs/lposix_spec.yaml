@@ -1,23 +1,22 @@
-describe posix:
-- before: |
-    posix = require "posix"
+describe lposix:
+- before:
     fcntl, fileno = posix.fcntl, posix.fileno
     O_NONBLOCK = posix.O_NONBLOCK
 
-    bit = bit32 or require "bit"
-    band, bnot, bor = bit.band, bit.bnot, bit.bor
-
 - context with fcntl F_GETFL:
-  - before: |
+  - before:
       F_GETFL, F_SETFL = posix.F_GETFL, posix.F_SETFL
 
       fdin  = fileno (io.stdin)
       flags = fcntl (fdin, F_GETFL)
+      restore = flags
+  - after:
+      fcntl (fdin, F_SETFL, restore)
 
-  - "it returns flags as a non-negative number":
+  - it returns flags as a non-negative number:
       expect (type (flags)).should_be "number"
       expect (flags >= 0).should_be (true)
-  - "it resets O_NONBLOCK bit, if any": |
+  - it resets O_NONBLOCK bit, if any:
       fcntl (fdin, F_SETFL, band (flags, bnot (O_NONBLOCK)))
       flags = fcntl (fdin, F_GETFL)
       expect (band (flags, O_NONBLOCK)).should_be (0)
@@ -32,4 +31,4 @@ describe posix:
       ret, msg, errno = fcntl (666, F_GETFL)
       expect (ret).should_be (nil)
   - it diagnoses incorrect userdata argument:
-      expect (fcntl ("foobar", F_GETFL)).should_error "number expected"
+      expect (fcntl ("foobar", F_GETFL)).should_error "int expected"

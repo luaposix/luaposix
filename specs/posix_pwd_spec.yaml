@@ -1,0 +1,94 @@
+specify posix.pwd:
+- before:
+    pwd = require "posix.pwd"
+
+
+- describe endpwent:
+  - before:
+      endpwent = pwd.endpwent
+
+  - context with bad arguments:
+      badargs.diagnose (endpwent, "()")
+
+  - it returns 'nil':
+      expect (endpwent ()).to_be (nil)
+  - it rewinds the passwd database:
+      p = pwd.getpwent ()
+      pwd.getpwent ()
+      endpwent ()
+      expect (pwd.getpwent ()).to_equal (p)
+
+
+- describe getpwent:
+  - before:
+      getpwent = pwd.getpwent
+
+  - context with bad arguments:
+      badargs.diagnose (getpwent, "()")
+
+  - it returns a PosixPasswd for an existing user:
+      expect (prototype (getpwent ())).to_be "PosixPasswd"
+  - it fetches a different user on subsequent calls:
+      p = getpwent ()
+      expect (getpwent ()).not_to_equal (p)
+  - it returns nil after the last entry was fetched:
+      p = getpwent ()
+      while (p) do
+        q = getpwent ()
+        expect (p).not_to_equal (q)
+        p = q
+      end
+      expect (p).to_be (nil)
+      pwd.endpwent ()
+
+
+- describe getpwnam:
+  - before:
+      getpwuid, getpwnam = posix.getpwuid, posix.getpwnam
+
+  - context with bad arguments:
+      badargs.diagnose (getpwnam, "(string)")
+
+  - it returns 'nil' for a non-existent user:
+      expect (getpwnam "veryunlikelyusername").to_be (nil)
+  - it returns a PosixPasswd for an existing user:
+      expect (prototype (getpwnam "root")).to_be "PosixPasswd"
+  - it fetches a passwd entry by name:
+      expect (getpwnam ("root").pw_name).to_be "root"
+      expect (getpwnam ("root").pw_uid).to_be (0)
+      expect (getpwnam ("root").pw_gid).to_be (0)
+      expect (type (getpwnam ("root").pw_dir)).to_be "string"
+      expect (type (getpwnam ("root").pw_shell)).to_be "string"
+
+
+- describe getpwuid:
+  - before:
+      getpwuid = posix.getpwuid
+
+  - context with bad arguments:
+      badargs.diagnose (getpwuid, "(int)")
+
+  - it returns a PosixPasswd for an existing user:
+      expect (prototype (getpwuid (0))).to_be "PosixPasswd"
+  - it fetches a passwd entry by gid:
+      expect (getpwuid (0).pw_name).to_be "root"
+      expect (getpwuid (0).pw_uid).to_be (0)
+      expect (getpwuid (0).pw_gid).to_be (0)
+      expect (type (getpwuid (0).pw_dir)).to_be "string"
+      expect (type (getpwuid (0).pw_shell)).to_be "string"
+
+
+- describe setpwent:
+  - before:
+      setpwent = pwd.setpwent
+
+  - context with bad arguments:
+      badargs.diagnose (setpwent, "()")
+
+  - it returns 'nil':
+      expect (setpwent ()).to_be (nil)
+  - it rewinds the passwd database:
+      p = pwd.getpwent ()
+      pwd.getpwent ()
+      setpwent ()
+      expect (pwd.getpwent ()).to_equal (p)

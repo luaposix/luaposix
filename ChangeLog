@@ -1,4 +1,1246 @@
+2014-11-04  Gary V. Vaughan  <gary@gnu.org>
+
+	Release version 33.0.0
+	* NEWS: Record release date.
+
+	configury: adopt semantic versioning.
+	* configure.ac (AC_INIT): Bump version to 33.0.0.
+
+	doc: document returned error numbers in many APIs.
+	* ext/posix/fcntl.c, ext/posix/poll.c, ext/posix/sched.c,
+	ext/posix/signal.c, ext/posix/stdio.c, ext/posix/stdlib.c,
+	ext/posix/sys/msg.c, ext/posix/sys/resource.c,
+	ext/posix/sys/socket.c, ext/posix/sys/stat.c,
+	ext/posix/sys/times.c, ext/posix/sys/utsname.c,
+	ext/posix/sys/wait.c, ext/posix/syslog.c, ext/posix/termio.c,
+	ext/posix/time.c, ext/posix/unistd.c, ext/posix/utime.c,
+	lib/posix/compat.lua, lib/posix/deprecated.lua: Document third
+	returned error number for many APIs.
+
+2014-11-03  Gary V. Vaughan  <gary@gnu.org>
+
+	syslog: add LOG_MASK, and pass bits to openlog and setlogmask.
+	Close #156.
+	* specs/posix_spec.yaml (openlog): Move from here...
+	* specs/posix_deprecated_spec.yaml (openlog): ...to here.
+	* specs/posix_spec.yaml (setlogmask): Move from here...
+	* specs/posix_compat_spec.yaml (setlogmask): ...to here.
+	* specs/posix_spec.yaml (closelog, syslog): Move from here
+	* specs/posix_syslog_spec.yaml (closelog, syslog): New file.
+	...to here.
+	* specs/specs.mk (specl_SPECS): Add posix_syslog_spec.yaml.
+	* specs/posix_syslog_spec.yaml (openlog, setlogmask)
+	(LOG_MASK): Specify behaviour of new minimal bindings.
+	* ext/posix/compat.lua (openlog, setlogmask): Simplify
+	accordingly.
+	* lib/posix/deprecated.lua (openlog): Reimplement old string
+	specified option API in Lua over new minimal binding.
+	* ext/posix/syslog.c (PLOG_MASK): New function for converting
+	option priorities to mask bits.
+	* lib/posix/compat.lua (setlogmask): Reimplement old auto-ORing
+	API over new LOG_MASK and minimal setlogmask bindings.
+	* NEWS: Update.
+
+	doc: remove unused posix.util.html.
+	* local.mk (dist_modules_DATA): Remove doc/modules/posix.util.html.
+
+	posix: move openpty utility into posix and add argchecks.
+	* lib/posix/util.lua (openpty): Move from here...
+	* lib/posix.lua (openpty): ...to here.  Add argcheck wrapper.
+	* lib/posix/util.lua: Reexport openpty for backwards compatibility.
+	* specs/posix_spec.yaml (openpty): Add specs for argchecks.
+	* build-aux/config.ld.in (file): Remove lib/posix/util.lua.
+	* NEWS: Update.
+
+	specs: set initial describe headers consistently.
+	* specs/curses_spec.yaml, specs/posix_compat_spec.yaml,
+	specs/posix_ctype_spec.yaml, specs/posix_deprecated_spec.yaml,
+	specs/posix_fcntl_spec.yaml, specs/posix_fnmatch_spec.yaml,
+	specs/posix_grp_spec.yaml, specs/posix_pwd_spec.yaml,
+	specs/posix_sys_msg_spec.yaml,
+	specs/posix_sys_resource_spec.yaml,
+	specs/posix_sys_stat_spec.yaml,
+	specs/posix_sys_statvfs_spec.yaml,
+	specs/posix_sys_time_spec.yaml, specs/posix_sys_times_spec.yaml,
+	specs/posix_sys_utsname_spec.yaml, specs/posix_time_spec.yaml,
+	specs/posix_unistd_spec.yaml: Use dot delimmited module names
+	consistently in initial describe heading.
+
+	doc: show return type correctly on exec and execp.
+	* ext/posix/unistd.c (Pexec, Pexecp): Show return type correctly.
+
+	doc: show return type of posix.signal.signal.
+	* ext/posix/signal.c (signal): Show return type.
+
+	refactor: move lua docs to the top of LDoc index sidebar.
+	* build-aux/config.ld.in (files): Move Lua files to the top of
+	the list.
+
+	unistd: deprecate exec with string tuple args.
+	Close #167.
+	* specs/posix_spec.yaml (exec, execp): Move from here...
+	* specs/posix_deprecated.yaml (exec, execp): ...to here.
+	* specs/posix_unistd.yaml (exec, execp): ...and much simplified
+	specification here.
+	* ext/posix/unistd.c (runexec): Simplify accordingly.
+	* lib/posix/deprecated (exec, execp): Reimplement string tuple
+	passing, [0]-crippled API again over C binding.
+	* NEWS: Update.
+
+	signal: modernize posix.signal.
+	Close #161.
+	* specs/posix_spec.yaml (kill, killpg, raise, signal): Move from
+	here...
+	* specs/posix_signal_spec.yaml (kill, killpg, raise, signal):
+	New file.  ...to here.
+	* specs/specs.mk (specl_SPECS): Add specs/posix_signal_spec,yaml.
+	* examples/signal.lua: Rewrite in modern style.
+	* ext/posix/signal.c (Psignal): Update LDocs.
+	(luaopen_posix_signal): Add SIG_DFL and SIG_IGN constants.
+	* NEWS: Update.
+
+2014-11-02  Gary V. Vaughan  <gary@gnu.org>
+
+	specs: don't truncate output after fcntl examples.
+	* specs/lposix_spec.yaml (fcntl F_GETFL): Make sure to save and
+	correctly restore stdio buffering correctly around examples.
+	* NEWS: Update.
+
+	deprecated: make sure bitwise operations are defined.
+	* lib/posix/deprecated.lau (bit): Require a bit operation lib.
+	(band, bnot, bor): Define local bitwise operators.
+
+	refactor: separate undocumented compat APIs.
+	* lib/posix/compat.lua (doselection, PosixTm, LegacyTm, pushmode)
+	(bind, clock_getres, clock_gettime, connect, fadvise, fnmatch)
+	(getgroup, getpasswd, getpid, getrimit, gettimeofday, gmtime)
+	(hostid, isgraph, isprint, localtime, mktime, nanosleep, pathconf)
+	(setrlimit, stat, statvfs, strftime, strptime, sysconf, times)
+	(uname): Move from here...
+	* lib/posix/deprecated.lua (doselection, PosixTm, LegacyTm)
+	(pushmode, bind, clock_getres, clock_gettime, connect, fadvise)
+	(fnmatch, getgroup, getpasswd, getpid, getrimit, gettimeofday)
+	(gmtime, hostid, isgraph, isprint, localtime, mktime, nanosleep)
+	(pathconf, setrlimit, stat, statvfs, strftime, strptime, sysconf)
+	(times, uname): New file.  ...to here.
+	* build-aux/sanity-cfg.mk (sc_error_message_uppercase): Adjust
+	accordingly.
+	* build-aux/config.ld.in (file): Add lib/posix/compat.lua.
+	* lib/posix/compat.lua: Document within posix module.
+
+2014-10-28  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: separate private argument checking helpers.
+	* lib/posix/compat.lua (argerror, argtypeerror, badoption)
+	(checkint, checkselection, checkstring, checktable, optint)
+	(optstring, opttable, toomanyargerror): Move from here...
+	* lib/posix/_argcheck.lua (argerror, argtypeerror, badoption)
+	(checkint, checkselection, checkstring, checktable, optint)
+	(optstring, opttable, toomanyargerror): New file.  ...to here.
+	* local.mk (dist_luaposix_DATA): Add lib/posix/_argcheck.lua.
+
+	socket: bind connect and bind minimally.
+	Close #158.
+	* specs/posix_spec.yaml (accept, bind, connect, getaddrinfo)
+	(listen, recv, recvfrom, send, sendto, setsockopt, shutdown)
+	(socket, socketpair): Move from here...
+	* specs/posix_sys_socket_spec.yaml (accept, bind, connect)
+	(getaddrinfo, listen, recv, recvfrom, send, sendto, setsockopt)
+	(shutdown, socket, socketpair): New file. ...to here.
+	(bind, connect): Adjust specifications to expect 0 returned upon
+	success.
+	* specs/posix_deprecated_spec.yaml (bind, connect): New file.
+	Check for backward compatible return types when imported from
+	posix module.
+	* specs/specs.mk (specl_SPECS): Add
+	specs/posix_sys_socket_spec.yaml and
+	specs/posix_deprecated_spec.yaml.
+	* ext/posix/sys/socket.c (bind, connect): Simplify accordingly.
+	* examples/socket.lua: Adjust to new style submodule imports.
+	* lib/posix/deprecated.lua (bind, connect): Write wrapper
+	functions to implement `true` return API.
+	* local.mk (dist_luaposix_DATA): Add lib/posix/deprecated.lua.
+	* lib/posix.lua.in: Import deprecated APIs.
+
+	time: remote debugging with Travis!!
+	* lib/posix/compat.lua (clock_getres): Fix if guard for
+	undefined clock_getres.
+	(clock_gettime): Fix indentation.
+	* specs/psoix_time_spec.yaml (clock_getres, clock_gettime): Use
+	prototype instead of type to get metatable _type!
+
+	time: bind clock_getres and clock_gettime minimally.
+	Close #159.
+	* specs/posix_time_spec.yaml (clock_getres, clock_gettime): Adjust
+	to specify passing of integer constants and return PosixTimespec
+	tables.
+	* specs/posix_compat_spec.yaml (clock_getres, clock_gettime):
+	Specify backwards compatible behaviours accepting optional name
+	and returning separate sec, nanosec results.
+	* ext/posix/time.c (get_clk_id_const): Remove.
+	(clock_getres, clock_gettime): Simplify.
+	* lib/posix/compat.lua (clock_getres, clock_gettime): Reimplement
+	old API over new minimal binding.
+	* NEWS: Update
+
+2014-10-25  Gary V. Vaughan  <gary@gnu.org>
+
+	time: bind nanosleep minimally.
+	Close #162.
+	* specs/posix_spec.yaml (nanosleep): Move from here...
+	* specs/posix_compat_spec.yaml (nanosleep): ...to here.
+	* specs/posix_time_spec.yaml (nanosleep): Specify behaviour of
+	minimal binding.
+	* ext/posix/time.c (totimespec, pushtimespec): New functions.
+	Convert between C struct timespec and Lua PosixTimespec table.
+	(nanosleep): Simplify accordingly.
+	* lib/posix/compat.lua (nanosleep): Reimplement old API over new
+	minimal binding.
+	* NEWS: Update.
+
+	time: pass struct tm equivalent tables with POSIX field names.
+	* specs/posix_spec.yaml (gmtime, localtime, mktime, strftime)
+	(strptime): Move from here...
+	* specs/posix_compat_spec.yaml (gmtime, localtime, mktime)
+	(strftime, strptime): ...to here.  Add full specifications.
+	* specs/posix_time_spec.yaml (clock_getres, clock_gettime, gmtime)
+	(localtime, mktime, strftime, strptime, time): Specify behaviours
+	of thin bindings for these APIs.
+	* specs/specs.mk (specl_SPECS): Add specs/posix_time_spec.yaml.
+	* ext/posix/time.c (Stm_fileds, totm, pushtm): Convert and verify
+	C struct tm records and Lua PosixTm tables.
+	(gmtime, localtime, mktime, strftime, strptime): Simplify
+	accordingly.
+	* lib/posix/compat.lua (PosixTm, LegacyTm): Convert between new
+	PosixTm tables and old custom field name `struct tm` tables.
+	(gmtime, localtime, mktime, strftime, strptime): Reimplement
+	legacy table manipulation APIs over new thin bindings.
+	* NEWS: Update.
+
+	maint: tidy up sanity check configuration.
+	* build-aux/sanity-cfg.mk: Escape '.' in regexps properly.
+	Add lib/posix/compat.lua to sc_error_message_uppercase.
+
+2014-10-24  Gary V. Vaughan  <gary@gnu.org>
+
+	resource: bind getrlimit and setrlimit minimally.
+	Close #164.
+	* specs/posix_spec.yaml (getrlimit, setrlimit): Move from here...
+	* specs/posix_compat_spec.yaml (getrlimit, setrlimit): ...to here.
+	* specs/posix_sys_resource_spec.yaml (getrlimit, setrlimit): New
+	file. Specify minimal binding behaviours.
+	* specs/specs.mk (specl_SPECS): Add
+	specs/posix_sys_resource_spec.yaml.
+	* ext/include/_helpers.c (checkfieldtype): Improve nil diagnostic
+	to read 'no value'.
+	(lookup_symbol): Remove unused function.
+	* ext/posix/sys/resource.c (rlimit_map, Krlimit, Srlimit): Remove
+	unused internal APIs.
+	(pushrlimit): Push a PosixRlimit table onto the stack.
+	(getrlimit, setrlimit): Simplify accordingly.
+	* lib/posix/compat.lua (optint): New helper function.
+	(getrlimit, setrlimit): Reimplement string resource multi-return
+	API in Lua.
+	* NEWS: Update.
+
+	refactor: reorder renamed fcntl functions alphabetically.
+	* ext/posix/fcntl.c: Order functions alphabetically.
+
+	compat: adjust argerror diagnostics for backwards compatibility.
+	* lib/posix/compat.lua (fadvise): Adjust argerror diagnostics.
+
+	maint: adjust badarguments example generation for fadvise.
+	* specs/posix_compat_spec.yaml (fadvise): Adjust fadvise
+	generation specifier.
+
+	maint: missing declaration.
+	* ext/posix/fcntl.c (Pposix_fadvise): Add missing declaration.
+
+	fcntl: bind posix_fadvise minimally.
+	Close #169.
+	* specs/posix_spec.yaml (fadvise): Move from here...
+	* specs/posix_compat_spec.yaml (fadvise): ...to here.
+	* specs/posix_fcntl_spec.yaml (posix_fadvise): Specify argcheck
+	behaviours on supporting systems.
+	* ext/posix/fcntl.c (Pfadvise): Rename from this...
+	(Pposix_fadvise): ...to this.  Change first argument to a file
+	descriptor to match POSIX API.
+	* lib/posix/compat.lua (fadvise): Reimplement file handle
+	argument version in Lua.
+	* NEWS: Update.
+
+	refactor: move _helper.c functions into only calling submodule.
+	* ext/include/_helpers.c (mygetuid, mygetgid): Move from here...
+	* ext/posix/unistd.c (mygetuid, mygetgid): ...to here.
+
+	maint: remove unused doselection helper.
+	* ext/include/_helpers.c (Selector, doselection): Remove.
+	* ext/posix/sys/resource.c (Pgetrlimit): Remove unsolvable FIXME
+	comment.
+
+	times: bind times minimally.
+	Close #165.
+	* specs/posix_spec.yaml (times): Move from here...
+	* specs/posix_compat_spec.yaml (times): ...to here.
+	* specs/posix_sys_times_spec.yaml (times): New file. Specify
+	minimal binding of times(2).
+	* specs/specs.mk (specl_SPECS): Add
+	specs/posix_sys_times_spec.yaml.
+	* ext/posix/sys/times.c (struct mytimes, Ftimes, Stimes): Remove.
+	(Ptimes): Simplify accordingly.
+	* lib/posix/compat.lua (times): Reimplement legacy multi-string
+	or table io/API over minimal C binding.
+	* NEWS: Update.
+
+2014-10-23  Gary V. Vaughan  <gary@gnu.org>
+
+	compat: fix a typo, so stat is wrapped with _DEBUG false.
+	* lib/posix/compat.lua (stat): When _DEBUG is false, make sure to
+	still add a stat function entry to the export table!
+
+	statvfs: bind statvfs minimally.
+	* specs/posix_spec.yaml (statvfs): Move from here...
+	* specs/posix_compat_spec.yaml (statvfs): ...to here.
+	* specs/posix_sys_statvfs_spec.yaml (statvfs): New file. Specify
+	a minimal binding of statvfs(2).
+	* specs/specs.mk (specl_SPECS): Add
+	specs/posix_sys_statvfs_spec.yaml.
+	* ext/posix/sys/statvfs.c (Fstatvfs, Kpathvfs, Sstatvfs): Remove.
+	(Pstatvfs): Simplify drastically.
+	(luaopen_posix_sys_vfs): Add statvfs f_flags bitmasks.
+	* lib/posix/compat.lua (statvfs): Reimplement legacy multi-string
+	or table io/API over minimal C binding.
+	* NEWS: Update.
+
+	maint: don't rely on undefined evaluation order.
+	* ext/posix/unistd.c (Ppathconf): The C standard allows arguments
+	to be evaluated in any order, and we have specl examples that
+	require argchecks proceed from left to right, so hoist the first
+	argument out of the nested call to satisfy that.
+
+	unistd: wrap pathconf minimally.
+	* specs/posix_spec.yaml (pathconf): Move from here...
+	* specs/posix_compat_spec.yaml (pathconf): ...to here.
+	* specs/posix_unistd_spec.yaml (pathconf): Specify a minimal
+	binding of pathconf(2).
+	* ext/posix/unistd.c (pathconf_map, Fpathconf, Kpathconf)
+	(Spathconf): Remove.
+	(pathconf): Simplify drastically.
+	(luaopen_posix_unistd): Add pathconf argument constants.
+	* lib/posix/compat.lua (pathconf): Reimplement legacy multi-
+	string or table i/o API over minimal C binding.
+	* NEWS: Update.
+
+	unistd: wrap sysconf minimally.
+	* specs/posix_spec.yaml (sysconf): Move from here...
+	* specs/posix_compat_spec.yaml (sysconf): ...to here.
+	* specs/posix_unist_spec.yaml (sysconf): Specify minimal
+	binding of sysconf(2).
+	* ext/posix/unistd.c (sysconf_map, Fsysconf, Ksysconf, Ssysconf):
+	Remove.
+	(sysconf): Simplify drastically.
+	(luaopen_posix_unistd): Add sysconf argument constants.
+	* lib/posix/compat.lua (sysconf): Reimplement legacy multi-string
+	or table i/o API over minimal C binding.
+	* NEWS: Update.
+
+	posix: factor out doselection argument checking function.
+	* lib/posix/compat.lua (badoption, checkint, checkstring)
+	(checktable, optstring): Accept and propagate new error level
+	parameter.
+	(checkselection): Use them to factor out argument checking for
+	doselection argchecking wrappers.
+	(getpasswd, getpid, stat): Simplify argchecking wrappers
+	accordingly.
+	* NEWS: Update.
+
+2014-10-22  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: factor out doselection-like functionality.
+	* lib/posix/compat.lua (doselection): Given a table of field
+	names, and a mapping table return a tuple of remapped names, or
+	the whole table when no fields are passed.
+	(getpasswd, getpid, stat): Simplify accordingly.
+
+	specs: specify posix.sys.stat.stat behaviour.
+	* specs/posix_sys_stat_spec.yaml (stat): New examples based on
+	lstat.
+
+	specs: add missing file.
+	* specs/posix_fcntl_spec.yaml: New file.
+
+	posix: move mode munching from C to Lua.
+	Close #147.
+	* specs/posix_spec.yaml (chmod, mkdir, mkfifo, msgget, open):
+	Move from here...
+	* specs/posix_compat_spec.yaml (chmod, mkdir, mkfifo, msgget)
+	(open): ...to here, and add functionality examples.
+	* specs/posix_sys_msg_spec.yaml (msgget),
+	specs/posix_sys_stat_spec.yaml (chmod, mkdir, mkfifo): Updated
+	versions of original examples, tailored to work with integer mode
+	arguments.
+	* local.mk (specl_SPECS): Add specs/posix_fcntl_spec.yaml and
+	specs/posix_sys_msg_spec.yaml.
+	* ext/posix/fcntl.c (Popen): Drastically simplified, to a
+	minimal POSIX binding.
+	* ext/posix/sys/msg.c (Pmsgget): Likewise.
+	* ext/posix/sys/stat.c (Pchomd, Pmkdir, Pmkfifo): Likewise.
+	* ext/include/_helpers.c (M, rwxrwxrwx, octal_mode, mode_munch):
+	Remove.  No longer in use.
+	* lib/posix/compat.lua (checkint): New support function.
+	(chmod, mkdir, mkfifo, msgget, open): Reimplement legacy mode
+	munching APIs over minimal C bindings.
+	(create): Adjust to use new minimal open binding.
+
+2014-10-21  Gary V. Vaughan  <gary@gnu.org>
+
+	sys.stat: wrap umask minimally.
+	* specs/posix_spec.yaml (umask): Move from here...
+	* specs/posix_compat_spec.yaml (umask): ...to here.
+	* specs/posix_sys_stat_spec.yaml (umask): Specify minimal binding
+	for umask(2).
+	* ext/posix/sys/stat.c (umask): Simplify drastically.
+	* ext/include/_helpers.c (pushmode): Remove.  No longer used.
+	* lib/posix/compat.lua (rwxrwxrwx, octal_mode, mode_munch):
+	Translated from C equivalents in ext/include/_helpers.c.
+	(umask): Use them to reimplement legacy modestring based API.
+
+	refactor: move pushtimeval function to ext/posix/sys/time.c.
+	There's only one call-site for this function, so no need to keep
+	it in the shared helpers file.
+	* ext/include/_helpers.c (pushtimeval): Move from here...
+	* ext/posix/sys/time.c (pushtimeval): ...to here.
+
+	maint: retain backwards compatibility with v32 posix.stat.
+	We now have `posix.sys.stat` for thin bindings of stat and lstat,
+	so maintain backwards compatibility with v32 in `posix.stat`.
+	* specs/posix_compat_spec.yaml (lstat): Remove.
+	(stat): Adjust to expect lstat under the hood.
+	* specs/posix_spec.yaml: Adjust stat/lstat clients.
+	* lib/posix/compat.lua (lstat): Remove.
+	(stat): Adjust to use lstat under the hood.
+	* NEWS: Update.
+
+	specs: fix a bug in lstat.st_blocks example.
+	* specs/posix_sys_stat_spec.yaml (lstat): Don't expect number
+	of disk blocks used by a file to equal the number used by the
+	directory that file is in!
+
+	compat: import bitwise operations before use.
+	* lib/posix/compat.lua: Import bitwise operations before use.
+
+	maint: disable prohibit_stat_st_blocks sanity check.
+	* build-aux/sanity-cfg.mk (local-checks-to-skip): Add
+	sc_prohibit_stat_st_blocks, because we need to use st_blocks
+	here until licensing allows using the gnulib/module/stat-size.
+
+	maint: add missing file.
+	* specs/posix_sys_stat_spec.yaml: New file, forgotten from last
+	commit.
+
+	sys.stat: wrap stat and lstat properly.
+	* specs/posix_spec.yaml (lstat, stat): Move from here...
+	* specs/posix_compat_spec.yaml (lstat, stat): ...to here.
+	* specs/posix_sys_stat_spec.yaml: New file. Specify correct thin
+	binding for stat(2) and lstat(2).
+	* specs/specs.mk (specl_SPECS): Add posix_sys_stat_spec.yaml.
+	* ext/posix/sys/stat.c (pushstat): New function. Push a struct
+	stat-like table on top of the stack.
+	(S_ISBLK, S_ISCHR, S_ISDIR, S_ISFIFO, S_ISLNK, S_ISREG)
+	(S_ISSOCK): New APIs.
+	(S_IFMT, S_IFBLK, S_IFCHR, S_IFDIR, S_IFIFO, S_IFLNK, S_IFREG)
+	(S_IRWXU, S_IRUSR, S_IWUSR, S_IXUSR, S_IRWXG, S_IRGRP, S_IWGRP)
+	(S_IXGRP, S_IRWXO, S_IROTH, S_IWOTH, S_IXOTH, S_ISGID, S_ISUID):
+	New constants.
+	(Plstat, Pstat): Simplify accordingly.
+	(filetype, Fstat, Sstat): Remove.
+	* specs/spec_helper.lua (rmtmp): Update to use low-level stat
+	call.
+	* lib/posix/compat.lua (lstat, stat): Reimplement wierd multi-
+	return value, table or tuple input APIs over new lean bindings.
+	* NEWS: Update.
+
+	maint: name posix_compat_spec.yaml correctly.
+	* specs/posix_compat.yaml: Move from here...
+	* specs/posix_compat_spec.yaml: ...to here.
+	* specs/specs.mk (specl_SPECS): Adjust accordingly.
+
+	refactor: use std.object.type compatible metatables.
+	* specs/spec_helper.lua (prototype): Copied from lua-stdlib.
+	* specs/posix_grp_spec.yaml (getgrent, getgrgid, getgrnam):
+	Specify prototype responses for return tables.
+	* specs/posix_pwd_spec.yaml (getpwent, getpwnam, getpwuid):
+	Likewise.,
+	* specs/posix_sys_time_spec.yaml (gettimeofday): Likewise.
+	* specs/posix_sys_utsname_spec.yaml (uname): Likewise.
+	* ext/include/_helpers.c (LPOSIX_STMT_BEG, LPOSIX_STMT_END): New
+	macros for safe compound statement macro definitions.
+	(LPOSIX_CONST, pushnumberfield, pushstringfield): Use them here.
+	(pushliteralfield): New macro for literal fields.
+	(setnumberfield, setstringfield, settypemetatable): New macros
+	for easy return table creation.
+	(pushtimeval): Simplify accordingly. Set metatable._type.
+	* ext/posix/curses/chstr.c (luaopen_posix_curses_chstr): Ditto.
+	* ext/posix/curses/window.c (luaopen_posix_curses_window): Ditto.
+	* ext/posix/grp.c (pushgroup): Ditto.
+	* ext/posix/pwd.c (pushpasswd): Ditto.
+	* ext/posix/sys/socket.c (pushsockaddrinfo): Ditto.
+	* ext/posix/sys/utsname.c (pushutsname): Ditto.
+	* NEWS: Update.
+
+	maint: add missing file.
+	* specs/posix_sys_time_spec.yaml: Add missing file.
+
+	doc: name timeval fields correctly.
+	* ext/posix/sys/time.c (timeval): Prefix both field names with
+	`tv_` per C struct timeval, and pushtimeval table.
+
+	sys.time: wrap gettimeofday properly.
+	* specs/posix_spec.yaml (gettimeofday): Move from here...
+	* specs/posix_compat.yaml (gettimeofday): ...to here.
+	* specs/posix_sys_time_spec.yaml (gettimeofday): Specify correct
+	thin binding for gettimeofday(2).
+	* specs/specs.mk (specl_SPECS): Add posix_sys_time_spec.yaml.
+	* ext/include/_helpers.c (pushtimeval): New function. Push a
+	struct timeval-like table on top of the stack.
+	* ext/posix/sys/time.c (Pgettimeofday): Simplify accordingly.
+	* lib/posix/compat.lua (gettimeofday): Rewrite misnamed table
+	fields returning API here for backwards compatibility.
+
+2014-10-20  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: simplify push{string,number}field and clients.
+	* ext/include/_helpers.c (pushnumberfield, pushstringfield):
+	Reimplement as macros, with fewer arguments required.  Adjust all
+	callers.
+	* ext/posix/sys/socket.c (sockaddr_to_lua): Renamed from this...
+	(pushsockaddrinfo): ...to this, and simplify considerably.  Adjust
+	all callers.
+
+	socket: allow getaddrinfo results as connect address argument.
+	Undo overzealous rejection of misnamed fields to socket.connect.
+	* ext/posix/sys/socket.c (Safinet_fields): Also permit fields
+	written to getaddrinfo results.
+
+	maint: move stat and lstat from posix.unistd to posix.sys.std.
+	* ext/posix/unistd.c (filetype, Fstat, Sstat, Plstat, Pstat):
+	Move from here...
+	* ext/posix/sys/stat.c (filetype, Fstat, Sstat, Plstat, Pstat):
+	...to here.
+
+	utsname: wrap uname properly.
+	Close #154.
+	* specs/posix_spec.yaml (uname): Move from here...
+	* specs/posix_compat.yaml (uname): ...to here. Add diagnose bad
+	option example.
+	* specs/posix_sys_utsname_spec.yaml (uname): Specify correct thin
+	binding for uname(2).
+	* specs/specs.mk (specl_SPECS): Add posix_sys_utsname_spec.yaml.
+	* ext/posix/sys/utsname.c (pushutsname): New function to push
+	a table with struct utsname fields.
+	(uname): Use it to push the actual results of the call.
+	* lib/posix/compat.lua (uname): Rewrite old format specifier
+	replacing API here for backwards compatibility.
+
+	ctype: wrap isprint and isgraph properly.
+	Close #160.
+	* specs/posix_spec.yaml (isprint, isgraph): Move from here...
+	* specs/posix_compat.yaml (isprint, isgraph): ...to here.  Add
+	result specifications.
+	* specs/posix_ctype_spec.yaml (isprint, isgraph): Specify correct
+	thin binding for these functions.
+	* specs/specs.mk (specl_SPECS): Add posix_ctype_spec.yaml.
+	* ext/posix/ctype.c (isprint, isgraph): Return the actual result
+	of calling these functions.
+	* lib/posix/compat.lua (isprint, isgraph): Rewrite the weird true/
+	false return API here for backwards compatibility.
+
+	fnmatch: wrap fnmatch(3) properly.
+	Close #168.
+	* specs/posix_spec.yaml (fnmatch): Move from here...
+	* specs/posix_compat.yaml (fnmatch): ...to here.
+	* specs/posix_fnmatch_spec.yaml (fnmatch): Specify correct thin
+	binding for fnmatch(3).
+	* specs/specs.mk (specl_SPECS): Add posix_fnmatch_spec.yaml.
+	* ext/posix/fnmatch.c (fnmatch): Return the actual result of
+	the call.
+	(luaopen_posix_fnmatch): Export FNM_NOMATCH constant.
+	* lib/posix/compat.lua (fnmatch): Rewrite the weird true/false
+	error raising API here for backwards compatibility.
+
+	doc: add curses constants LDocs.
+	* ext/posix/curses.c: Document constants.
+	(register curses constants): Fix a typo so that KEY_F31 is
+	defined as advertised.
+	* NEWS: Update.
+
+	doc: LDoc config improvements.
+	* build-aux/config.ld.in (title): Display package name as well as
+	release number.
+	(description): Mention inclusion of curses bindings explicitly.
+	(backtick_references): Require @{...} for cross-references,
+	leaving backticks for terminal font markup.
+
+	doc: tidy up LDoc output for posix.termio.
+	* ext/posix/termio.c: Tidy up formatting for LDocs.
+
+2014-10-19  Gary V. Vaughan  <gary@gnu.org>
+
+	slingshot: sync with upstream, for git submodule fixes.
+	* slingshot: Sync with upstream.
+	* bootstrap: Import from slingshot.
+
+	doc: add LDocs for submodule constants.
+	* ext/posix/errno.c, ext/posix/fcntl.c, ext/posix/fnmatch.c,
+	ext/posix/sched.c, ext/posix/signal.c, ext/posix/stdio.c,
+	ext/posix/sys/msg.c, ext/posix/sys/socket.c, ext/posix/sys/wait.c,
+	ext/posix/syslog.c, ext/posix/unistd.c: Add LDocs for constants.
+	* NEWS: Update.
+
+2014-10-17  Gary V. Vaughan  <gary@gnu.org>
+
+	posix: use correct POSIX gethostid API.
+	Closes #153.
+	* specs/posix_spec.yaml (hostid): Move from here...
+	* specs/posix_compat.yaml (hostid): ...to here.
+	* specs/posix_unistd_spect.yaml (gethostid): Specify with correct
+	POSIX API name.
+	* ext/posix/unistd.c (Phostid): Rename from this...
+	(Pgethostid): ...to this.
+	* lib/posix/compat.lua (hostid): An alias to gethostid for
+	backwards compatibility.
+	* NEWS: Update.
+
+	maint: add missing lib/posix/compat.lua file.
+	* lib/posix/compat.lua: New file, forgotten from an earlier
+	commit.
+
+	maint: add missing specs/posix_compat.yaml file.
+	* specs/posix_compat.yaml: New file, forgotten from previous
+	commit.
+
+2014-10-16  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: maintain backwards compatibility for getpasswd.
+	Closes #148.
+	Separate backwards compatibility functions so that they still
+	work as before, but do not appear in the documentation.
+	* specs/posix_spec.yaml (creat, getgroup, getpasswd, getpid):
+	Move from here...
+	* specs/posix_compat_spec.yaml (creat, getgroup, getpasswd)
+	(getpid): New file. ...to here.
+	* lib/posix.lua.in (argerror, argtypeerror, checkstring)
+	(checktable, toomanyargerror, creat, getgroup, getpasswd)
+	(getpid): Move from here...
+	* lib/posix/compat.lua (argerror, argtypeerror, checkstring)
+	(checktable, toomanyargerror, creat, getgroup, getpasswd)
+	(getpid): New file. ...to here.
+	* NEWS: Update.
+
+	refactor: simplify posix.getpasswd for consistency.
+	* specs/posix_spec.yaml (getpasswd): Simplify behaviours for
+	consistency with pasix.getgroup.
+	* lib/posix.lua.in (getpasswd): Simplify accordingly.
+	* NEWS: Update.
+
+	unistd: implement getpid and similar APIs.
+	Closes #152.
+	* specs/posix_unistd_spec.yaml: New file. Specify behaviours for
+	getegid, geteuid, getgid, getpgrp, getpid, getppid, getuid.
+	* specs/specs.mk (specs_SPECS): Add specs/posix_unistd_spec.yaml.
+	* ext/posix/unistd.c (getpid): Delete.
+	(setegid, geteuid, getgid, getpgrp, getpid, getppid, getuid): New
+	functions. Satisfy specifications.
+	* lib/posix.lua.in (getpid): Reimplement legacy API over new
+	POSIX bindings.
+	* NEWS: Update.
+
+	posix: getgroup argument defaults to egid.
+	* specs/posix_spec.yaml (getgroup): Specify behaviour with no
+	arguments.
+	* lib/posix.lua.in (group): New LDocs for getgroup return table
+	fields.
+	(getgroup): Adjust LDocs accordingly.
+	Default to egid with no argument.
+	* NEWS: Update.
+
+	pwd: implement POSIX pwd APIs.
+	Closes #150.
+	(getpwuid, setpwent): Specify correct behaviours.
+	* ext/posix/pwd.c (endpwent, getpwent, getpwnam, getpwuid)
+	(setpwent): Implement bindings to these POSIX pwd APIs.
+	* ext/posix/pwd.c (getpasswd): Remove.
+	* lib/posix.lua.in (getpasswd): Reimplement over POSIX APIs to
+	continue satisfying specifications.
+	* NEWS: Update.
+
+	refactor: tidy up formatting in grp.c.
+	* ext/posix/grp.c: Tidy up formatting.
+
+2014-10-14  Gary V. Vaughan  <gary@gnu.org>
+
+	specs: specify timer math behaviours.
+	* specs/posix_spec.yaml (timeradd, timercmp, timersub): Specify
+	behaviours.
+	* lib/posix.lua.in (timeradd, timercmp, timersub): Argcheck
+	wrappers return inner function results.
+	(timercmp, timersub): Fix typo with initial definition scopes.
+
+	refactor: reorder posix.lua.in functions alphabetically.
+	* lib/posix.lua.in: Reorder functions alphabetically.
+
+	specs: add argument checking to Lua language posix functions.
+	* specs/posix_spec.yaml (creat, getgroup, spawn, pipeline)
+	(pipeline_iterator, pipeline_slurp, euidaccess, timeradd)
+	(timercmp, timersub): Add basic argument checking behaviour
+	specifications.
+	* lib/posix.lua.in: Move submodule imports to the start, so they
+	are available to local Lua functions.
+	Cache import table lookups into upvalues for fast access.
+	(creat, getgroup, spawn, pipeline, pipeline_iterator)
+	(pipeline_slurp, euidaccess, timeradd, timercmp, timersub):
+	Use cached upvalues everywhere.
+	Split argument type checking into wrapper function which is not
+	used when global `_DEBUG` is false.
+
+	refactor: factor Lua argument checking into helper functions.
+	* lib/posix.lua.in (argerror, toomanyargerror, argtyperror):
+	Argument error message management, inspired by stdlib.
+	(checkstring, checktable): Check argument types, inspired by Lua
+	C API.
+	(creat, getgroup, pipeline): Simplify accordingly.
+
+	maint: revert a1f9049 'move creat from Lua to C'.
+	* ext/posix/fcntl.c (creat): Remove.
+	* lib/posix.lua (creat): Implement in Lua.
+	* specs/posix_spec.yaml (creat): Adjust.
+	* NEWS: Update.
+
+	specs: allow empty root group membership.
+	* specs/posix_grp_spec.yaml (getgrgid, getgrnam): Allow empty
+	root group membership.
+	* specs/posix_spec.yaml (getgroup): Likewise.
+
+	maint: remove trailing blanks.
+	* specs/posix_grp_spec.yaml: Remove trailing blanks.
+
+	grp: implement POSIX group APIs.
+	Closes #151.
+	* specs/posix_grp_spec.yaml (endgrent, getgrent, getgrgid)
+	(getgrnam, setgrent): Specify correct behaviours.
+	* ext/posix/grp.c (endgrent, getgrent, getgrgid, getgrnam)
+	(setgrent): Implement bindings to these POSIX group APIs.
+	* specs/posix_spec.yaml (getgroup): Specify expected behaviour.
+	* ext/posix/grp.c (getgroup): Remove.
+	* lib/posix.lua (getgroup): Reimplement over POSIX APIs to
+	continue satisfying specifications.
+	* NEWS: Update.
+
+	specs: remove unused curses subdirectory paths.
+	* specs/spec_helper.lua (package.cpath): Remove unused curses
+	subdirectory paths.
+
+2014-10-13  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: write final semi-colons at expansion site.
+	Give text editors a fighting chance of doing auto-indentation
+	properly.
+	* ext/posix/curses.c (CCR): Remove final semi-colon from macro
+	expansion.
+	Write a literal semi-colon at each expansion site.
+
+	curses: add curses.A_COLOR constant where supported.
+	* ext/posix/curses.c (register_curses_constants): Define A_COLOR.
+	* NEWS: Update.
+
+	doc: add summary sentence to each curses API.
+	* ext/posix/curses.c, ext/posix/curses/window.c: Add API summary
+	lines.
+
+2014-10-11  Gary V. Vaughan  <gary@gnu.org>
+
+	doc: put release number in index.html.
+	* build-aux/config.ld.in (project): Add release number.
+
+	configury: fix documentation dependencies.
+	* local.mk (allhtml): All generated documentation.
+	Use it to ensure we regenerate as necessary.
+
+	maint: add missing boilerplate copyright to lua sources.
+	* lib/posix.lua.in, lib/posix/util.lua: Add boilerplate copyright
+
+	doc: add per-module overview.
+	* build-aux/config.ld.in (boilerplate): Set to true so we can put
+	a copyright comment at the very top of each file.
+	* ext/posix/ctype.c, ext/posix/curses.c,
+	ext/posix/curses/chstr.c, ext/posix/curses/window.c,
+	ext/posix/dirent.c, ext/posix/errno.c, ext/posix/fcntl.c,
+	ext/posix/fnmatch.c, ext/posix/getopt.c, ext/posix/glob.c,
+	ext/posix/grp.c, ext/posix/libgen.c, ext/posix/poll.c,
+	ext/posix/pwd.c, ext/posix/sched.c, ext/posix/signal.c,
+	ext/posix/stdio.c, ext/posix/stdlib.c, ext/posix/sys/msg.c,
+	ext/posix/sys/resource.c, ext/posix/sys/socket.c,
+	ext/posix/sys/stat.c, ext/posix/sys/statvfs.c,
+	ext/posix/sys/time.c, ext/posix/sys/times.c,
+	ext/posix/sys/utsname.c, ext/posix/sys/wait.c,
+	ext/posix/syslog.c, ext/posix/termio.c, ext/posix/time.c,
+	ext/posix/unistd.c, ext/posix/utime.c: Move copyright comments
+	to the very top of the file.  Add a short overview description.
+
+	curses: remove separate curses doc generation.
+	* build-aux/make_lcurses_doc.pl: Remove.
+	* local.mk (DIST_DOC_DATA, EXTRA_DIST): Adjust accordingly.
+	(classesdir): Location for ldoc class html files.
+	(dist_classes_DATA): Add new generated curses class docs.
+	* ext/posix/curses.c: Rewrite equivalent docs here.
+	* NEWS: Update.
+
+	doc: add updated curses example.
+	* examples/curses.lua: Updated example from old lcurses docs.
+
+	curses: don't forget to open curses submodules.
+	* ext/posix/curses.c (luaopen_posix_curses): Open submodules.
+
+	curses: factor out chstr and window objects.
+	* ext/posix/curses.c: Factor out chstr and window objects,
+	methods and support functions from here...
+	* ext/posix/curses/chstr.c, ext/posix/curses/window.c: ...to
+	here.
+	* ext/posix/curses.c, ext/posix/curses/chstr.c,
+	ext/posix/curses/window.c: Add rudimentary LDocs to every API.
+	* build-aux/config.ld.in (file): Add ext/posix/curses/window.c,
+	ext/posix/curses/chstr.c and ext/posix/curses.c.
+	* ext/posix/curses/chstr.c: Add __call metamethod for creating
+	new objects.
+	* ext/posix/curses/chstr.c, ext/posix/curses/window.c: Add _type
+	field for compatibility with `std.object.type`.
+	* local.mk (EXTRA_ext_posix_posix_la_SOURCES): Add
+	ext/posix/curses/chstr.c and ext/posix/curses/window.c.
+	(posix_submodules): Add ext/posix/curses/chstr.la and
+	ext/posix/curses/window.la.
+	* build-aux/config.ld.in (custom_see_handler): Adjust to create
+	working URLs for curses 3X manual pages.
+
+2014-10-10  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: rename chstr_ prefixed functions to C prefix.
+	* ext/posix/curses.c: Rename chstr_ prefixed function to C
+	prefix.
+	(chstrlib): Use LUAPOSIX_FUNC instead of MENTRY.
+
+	refactor: rename curses api function with P prefix.
+	* ext/posix/curses.c: Rename C prefixed functions with P prefix.
+
+	refactor: use _helpers.c checkint and optint in curses submodule.
+	* ext/posix/curses.c: Use checkint and optint throughout instead
+	of luaL_checkint & luaL_checknumber and luaL_optint resp.
+
+	refactor: reformat curses.c to match posix sources.
+	* ext/posix/curses.c: Reformat.
+
+	refactor: unroll curses submodule function generator macros.
+	* ext/posix/curses.c: Unroll obfuscating function generating
+	macros.
+	(LC_NUMBER, LC_NUMBER2, LC_STRING, LC_STRING2, LC_BOOL)
+	(LC_BOOLOK, LCW_BOOLOK, LCW_BOOLOK2, LCW_WIN2, LCW_WIN2YX)
+	(LC_ATTROK, LC_TOGGLEOK, LCW_WINBOOLOK, LCW_WININTOK): Remove.
+	* ext/include/_helpers.c (pushboolresult, pushintresult)
+	(pushstringresult): New macros to simplify returning a single
+	object on the stack.
+	* ext/include/curses.c (pushokresult): Likewise.
+	* ext/posix/ctype.c, ext/posix/curses.c, ext/posix/dirent.c,
+	ext/posix/fnmatch.c, ext/posix/signal.c, ext/posix/stdio.c,
+	ext/posix/stdlib.c, ext/posix/sys/socket.c, ext/posix/time.c,
+	ext/posix/unistd.c: Simplify accordingly.
+
+	curses: use _helpers.c macros.
+	* ext/posix/curses.c (LCURSES_SPLICE, LCURSES_STR, LCURSES_STR_1):
+	Remove. Adjust all callers to use LPOSIX equivalents from
+	ext/include/_helpers.c.
+	(curseslib, windowlib): Use LPOSIX_FUNC to declare table entries
+	rather than custom MENTRY macros.
+
+	posix: consolidate included C sources.
+	* ext/include/strlcpy.c: Add multiple include guards.
+	* ext/posix/_helpers.c: Move from here...
+	* ext/include/_helpers.c: ...to here.
+	* local.mk (EXTRA_ext_posix_posix_la_SOURCES)
+	(EXTRA_DIST): Adjust accordingly.
+
+	curses: integrate into posix tree.
+	* ext/curses/curses.c: Move from here...
+	* ext/posix/curses.c: ...to here.
+	* local.mk
+	* ext/posix/curses.c (luaopen_curses_c): Rename from this...
+	(luaopen_posix_curses): ...to this.
+	* lib/curses.lua: Adjust accordingly.
+	* local.mk (curses_cpath, ext_curses_curses_c_la_SOURCES)
+	(ext_curses_curses_c_la_LDFLAGS): Remove.
+	(std_cpath): Simplify accordingly.
+	(EXTRA_ext_posix_posix_la_SOURCES): Add ext/posix/curses.c.
+	(ex_posix_curses_la_LDFLAGS, ext_posix_posix_la_LDFLAGS): Add
+	$(CURSES_LIB).
+	(posix_submodules): Add ext/posix/curses.la.
+	* ext/posix/curses.c (luaopen_posix_curses): Add a version
+	entry to the returned table to match other posix modules.
+	* build-aux/make_lcurses_doc.pl: Adjust accordingly.
+	* ext/posix/posix.c: Include curses.c module.
+	* configure.ac (WANTEDLIBS, WANTEDLUA): Remove. Treat it like
+	other posix modules with no OS support.
+	* local.mk (dist_lua_DATA, luaexec_LTLIBRARIES): Adjust
+	accordingly.
+
+2014-10-09  Gary V. Vaughan  <gary@gnu.org>
+
+	configury: make posix module version dynamic.
+	* lib/posix.lua: Move from here...
+	* lib/posix.lua.in: ...to here.
+	(version): Use @PACKAGE_STRING@ in place of hard-coded 33.
+	* configure.ac (AC_CONFIG_FILES): Add lib/posix.lua.
+	* .gitignore: Add lib/posix.lua.
+
+	configury: add missing fdatasync declaration if necessary.
+	Fixes #172.
+	* configure.ac (AC_CHECK_DECLS_ONCE): Check for missing fdatasync
+	declaration, e.g. on Mac OS 10.9.
+	* ext/posix/unistd.c (Pfdatasync): Roll our own to save a compiler
+	warning if the system didn't supply one.
+
+	posix: build and install modules correctly.
+	* configure.ac (POSIX_EXTRA_LDFLAGS): Rename from this...
+	(LIBRT): ...to this.
+	(LIBCRYPT): Set according to results of AC_SEARCH_LIBS.
+	* local.mk (lib_LTLIBRARIES): Moved from the C library tree...
+	(luaexec_LTLIBRARIES): ...to the Lua cpath tree.
+	(check_LTLIBRARIES): Move from here...
+	(EXTRA_LTLIBRARIES): ...to here.
+	(check_local): Ensure standalone modules build correctly...
+	(clean_local): ...and that file droppings are removed.
+	* NEWS: Update.
+
+	posix: allow standalone reuse of posix submodules.
+	* ext/posix/sys/msg.c, ext/posix/sys/socket.c,
+	ext/posix/syslog.c: Move guards to ensure even on hosts with no
+	sys/msg.h, we don't get an empty object file.
+	* local.mk (noinst_LTLIBRARIES): Add standalone compilations to
+	ensure the submodules really build as separate compilation units.
+	* NEWS: Update.
+
+	posix: split posix subfiles into separate modules.
+	* ext/posix/_helpers.h: Removed.  Content moved from here...
+	* ext/posix/_helpers.c: ...to here. Adjust all callers.
+	* ext/posix/posix.c (R, luaopen_posix_c): Move registered
+	functions and constants from here...
+	* ext/posix/ctype.c, ext/posix/dirent.c, ext/posix/errno.c,
+	ext/posix/fcntl.c, ext/posix/fnmatch.c, ext/posix/getopt.c,
+	ext/posix/glob.c, ext/posix/grp.c, ext/posix/libgen.c,
+	ext/posix/poll.c, ext/posix/pwd.c, ext/posix/sched.c,
+	ext/posix/signal.c, ext/posix/stdio.c, ext/posix/stdlib.c,
+	ext/posix/sys/msg.c, ext/posix/sys/resource.c,
+	ext/posix/sys/socket.c, ext/posix/sys/stat.c,
+	ext/posix/sys/statvfs.c, ext/posix/sys/time.c,
+	ext/posix/sys/times.c, ext/posix/sys/utsname.c,
+	ext/posix/sys/wait.c, ext/posix/syslog.c, ext/posix/termio.c,
+	ext/posix/time.c, ext/posix/unistd.c, ext/posix/utime.c: ...to
+	here. Provide individual `luaopen_<submodule>` entry functions.
+	build-aux/config.ld.in, build-aux/sanity-cfg.mk: Adjust
+	accordingly.
+	* ext/posix/posix.c: Reduce to a single compilation unit that
+	includes the sources for all the other submodules.
+	* lib/posix.lua (openpty): Move from here...
+	* lib/posix/util.lua (openpty): New file. ...to here.
+	* lib/posix/sys.lua: Move definitions from here...
+	* lib/posix.lua: ...to here.
+	* lib/posix/sys.lua: Re-export backwards compatibility APIs from
+	here too.
+	* lib/posix.lua: Re-export all submodule entry points from here
+	too to retain the flat namespace of old releases.
+	* local.mk: Adjust accordingly.
+	* NEWS: Update.
+
+	posix: missing headers for Linux portability.
+	* ext/posix/pwd.c: Include unistd.h for geteuid and others.
+	* ext/posix/stdlib.c: Include fcntl.h for open.
+	* ext/posix/sched.c: Include unistd.h for
+	_POSIX_PRIORITY_SCHEDULING.
+	* ext/posix/sys/msg.c, ext/posix/sys/socket.c,
+	ext/posix/syslog.c: Include unistd.h for _POSIX_VERSION.
+	* ext/posix/sys/times.h: Include unistd.h for sysconf.
+
+	maint: split giant posix.c file into manageable chunks.
+	* ext/posix/posix.c: Separate into sections...
+	* ext/posix/_helpers.c, ext/posix/_helpers.h, ext/posix/ctype.c,
+	ext/posix/dirent.c, ext/posix/errno.c, ext/posix/fcntl.c,
+	ext/posix/fnmatch.c, ext/posix/getopt.c, ext/posix/glob.c,
+	ext/posix/grp.c, ext/posix/libgen.c, ext/posix/poll.c,
+	ext/posix/pwd.c, ext/posix/sched.c, ext/posix/signal.c,
+	ext/posix/stdio.c, ext/posix/stdlib.c, ext/posix/syslog.c,
+	ext/posix/termio.c, ext/posix/time.c, ext/posix/unistd.c,
+	ext/posix/utime.c: ...here.
+	* ext/posix/posix.c: #include sources back into here.
+	* build-aux/config.ld.in (file): Adjust accordingly.
+	* build-aux/sanity-cfg.mk: Likewise.
+	* lib/posix.lua: Likewise.
+
+2014-10-09  Gary V. Vaughan  <gary@vaughan.pe>
+
+	Merge pull request #173 from tylerneylon/master
+	doc: gettimeofday uses microsec, not nano.
+	
+	* ext/posix/posix.c (gettimeofday): Fix a typo in usec documentation.
+	Reported by Tyler Neylon
+
+2014-10-09  Tyler Neylon  <tylerneylon@gmail.com>
+
+	Fix a typo: gettimeofday uses microsec, not nano.
+
+2014-10-09  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: git ignore .dirstamp files.
+	* .gitignore: Add .dirstamp catch all.  Remove per-directory
+	duplicates of the same.
+
+	slingshot: resync with upstream for yaml bugfix.
+	* slingshot: Resync with upstream for yaml quoting bugfix.
+	* .travis.yml: Regenerate.
+
+	slingshot: sync with upstream for mkrockspecs bugfix.
+	* slingshot: Sync with upstream for mkrocspecs bugfix.
+	* .travis.yml: Regenerate.
+
+2014-10-06  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: simplify installation instructions in README.md.
+	* README.md (Installation): Remove --server flag; moonscript.org
+	is checked automatically now.
+
+	maint: add myself to the copyright holders in posix.c.
+	* ext/posix/posix.c: Add myself to the copyright holders.
+
+	specs: compare file size rather than racey modification times.
+	Fix #145.
+	* specs/posix_spec.yaml (stat): Compare the size statistic
+	rather than mtime to avoid a race condition.
+
+	posix: remove call to 5.2-only lua_tointegerx and simplify.
+	* ext/posix/posix.c (interror): Remove, and fold functionality
+	from here...
+	(checkinteger): ...to here.
+	(argtypeerror): Simplify accordingly.
+
+	specs: don't fail tty tests when run from /dev/console
+	* specs/posix_spec.yaml (ttyname): Allow /dev/console.
+
+	posix: enforce argument types for clock_getres and clock_gettime.
+	* ext/posix/posix.c (Pclock_getres, Pclock_gettime): Use
+	luaL_checkstring instead of lua_tostring to enforce argument
+	type checking.
+
+2014-10-05  Gary V. Vaughan  <gary@gnu.org>
+
+	posix: add posix.IPPROTO_UDP.
+	* ext/posix/posix.c: Add IPPROTO_UDP definition.
+
+	doc: improve posix LDocs.
+	* expt/posix/posix.c: Use [opt] annotations, and add missing
+	manual references.
+
+	configury: remove duplicated SPECL_ENV settings.
+	* specs/specs.mk (SPECL_ENV): Remove - these same valuas are
+	already propagated automatically by slingshot.
+
+	posix: show correct argument errors for fadvise and setsockopt.
+	* ext/posix/posix.c (Pfadvise): Use checkint rather than
+	luaL_checkinteger for correct argument error formatting.
+	(Psetsockopt): Likewise for luaL_checknumber.
+
+	slingshot: sync with upstream for SPECL_ENV improvements.
+	* slingshot: Sync with upstream.
+	* specs/specs.mk (SPECL_ENV): Set according to slingshot
+	recommendations.
+	* specs/specs_helper.lua (package.path): Likewise.
+
+	posix: argument errors overhaul.
+	* specs/spec_helper.lua (bind, init): Remove.
+	* specs/lposix_spec.yaml, specs/posix_spec.yaml: Specify argument
+	error diagnostics for all APIs.
+	* ext/posix/posix.c: Use checknargs, or other means to diagnose
+	argument type and arity errors for all APIs.
+	* NEWS: Update.
+
+	maint: reformat for consistency and GNU style function headers.
+	* ext/posix/posix.c: Put function return types on a separate
+	line for easy function name grepping; don't use cuddle braces;
+	indent case branches one tab; exdent labels one tab; don't put a
+	space between function call and arguments; do put a space between
+	flow control keyword and arguments.
+
+	maint: add buildreq tools to bootstrap.conf.
+	* bootstrap.conf (buildreq): List bootstrap build requirements.
+
+2014-10-01  Gary V. Vaughan  <gary@gnu.org>
+
+	docs: move lseek, sync and nice to the correct sections.
+	* ext/posix/posix.c (lseek): Move to "File descriptors" section.
+	(sync): Move to "File system" section.
+	(nice): Move to "Process management" section.
+
+	maint: fix a type name typo.
+	* ext/posix/posix.c (poll_fd_list_from_table): Replace missing
+	'e' in lua_State from last commit.
+
+	maint: reformat for consistency.
+	* ext/posix/posix.c: Use TAB indents, comma-space argument
+	separators and function declarations all-on-one-line consistently.
+
+	doc: modernize LDocs.
+	* ext/posix/posix.c (Pgetopt, Ppoll, Pfcntl, Pdirname, Pfnmatch)
+	(Pglob, Psymlink, Paccess, Pfadvise, Pumask, Putime, Pwaitpid)
+	(Psetlogmask): Modernize LDocs.
+
+	doc: use correct manual references for isprint and isgraph.
+	* ext/posix/posix.c (isgraph, isprint): Use correct manual page
+	references.
+
+2014-09-21  Gary V. Vaughan  <gary@gnu.org>
+
+	specs: expect sockaddr.groups type to be number, not string.
+	* specs/posix_spec.yaml (bind, connect, sendto): Expect correct
+	type for AF_NETLINK socket groups field.
+
+	Merge branch 'zevv-sockaddr-errors'
+
+	posix: provide idiomatic argument errors from sockaddr calls.
+	* specs/spec_helper.lua (init): New helper to return a partial
+	application of expected argument error call.
+	* specs/posix_spec.yaml (bind, connect, sendto): Use it to
+	specify expected bad argument errors.
+	* ext/posix/posix.c (try_getfield): Move from here...
+	(checkfieldtype): ...to here.  Lua functions normally throw an
+	error for bad arguments, so do that for posix API argument errors
+	too.
+	(sockaddr_from_lua): Use it.
+	Provide a default case branch to report unsupported socket family
+	arguments.
+	(checknargs): Throw an error for too many arguments.
+	(Pbind, Pconnect, Psendto): Use it.
+	Revert to reporting invalid socket address if sockaddr_from_lua
+	fails without diagnosing a type error.
+
+2014-09-20  Ico Doornekamp  <ico@pruts.nl>
+
+	posix: add better error reporting on sockaddr table member fields.
+	* ext/posix/posix.c (try_getfield): New function.  Wrap
+	`lua_getfield`, but push more accurate error diagnostics in case
+	of type mismatch.
+	(sockaddr_from_lua, Pconnect, Pbind, Psendto): Use it.
+
+2014-08-26  Gary V. Vaughan  <gary@gnu.org>
+
+	slingshot: synch with upstream, for slack integrations.
+	* slingshot: Synch with upstream.
+	* .slackid: Add slack id.
+	* .travis.yml: Regenerate.
+
+	Merge branch 'hjelmeland-f_sched_setscheduler'
+
+	posix: tidy up rt_sched patches for merging.
+	* configure.ac (AC_CHECK_FUNCS): Add sched_getscheduler and
+	sched_setscheduler.
+	* ext/posix/posix.c (Psched_setscheduler, Psched_getscheduler):
+	Improve compilation guards to also require HAVE_SCHED_GETSCHEDULER
+	and HAVE_SCHED_SETSCHEDULER before exposing to Lua.
+	* examples/rt_sched.lua: Remove trailing tabs.
+
+2014-08-26  Egil Hjelmeland  <egil.hjelmeland@zenitel.com>
+
+	whitespace polish
+
+	whitespace polish
+
+	Added sched_setscheduler example/test
+
+	Use ifdef _POSIX_PRIORITY_SCHEDULING to protect sched_setscheduler
+
+	merge upstream
+
+2014-08-19  Gary V. Vaughan  <gary@gnu.org>
+
+	posix: support IPC_NOWAIT constant.
+	Closes #140.
+	* ext/posix/posix.c (luaopen_posix_c): Add IPC_NOWAIT constant.
+	Reported by Bernd Eggink.
+
+2014-07-31  Gary V. Vaughan  <gary@gnu.org>
+
+	travis: use luarocks beta with rocks.moonscript.org.
+	* .travis.yml: Regenerate with latest slingshot.
+
+	maint: upgrade slingshot to work even when luarocks.org is down.
+	* slingshot: Upgrade to latest upstream.
+
+	doc: update luarocks install instructions.
+	* README.md (Installation): Update to reference moonscript rocks
+	repository, which has better uptime than the default luarocks
+	domain used by released LuaRocks.
+
+2014-07-26  Egil Hjelmeland  <egil.hjelmeland@zenitel.com>
+
+	Added sched_setscheduler()/sched_getscheduler()
+
+2014-07-17  Gary V. Vaughan  <gary@gnu.org>
+
+	Merge branch 'waffle-iron-master'
+
+2014-07-17  Making GitHub Delicious.  <iron@waffle.io>
+
+	add waffle.io badge
+
+2014-06-29  Gary V. Vaughan  <gary@gnu.org>
+
+	refactor: move common spec initialisation to spec_helper.lua.
+	This also allows running the latest (unreleased) specl directly
+	from the bulid directory without having to call `make check`.
+	* specs/spec_helper.lua: New file.  Set package.path and
+	package.cpath so that specl can find specified modules without
+	LUA_PATH and LUA_CPATH.
+	Add common code...
+	* specs/lposix_spec.yaml, specs/posix_spec.yaml: ...from here.
+	* specs/specs.mk (EXTRA_DIST): Add specs/spec_helper.lua.
+
+	posix: move creat from Lua to C.
+	Better support for projects that copy posix.c into their own tree
+	and compile directly.
+	* lib/posix.lua (creat): Move from here...
+	* ext/posix/posix.c (creat): ...to here.
+	* NEWS: Update.
+
+2014-06-28  Gary V. Vaughan  <gary@gnu.org>
+
+	posix: tighten up readlink call.
+	* specs/posix_spec.yaml (readlink): New specifications for
+	readlink behaviours and error handling.
+	* ext/posix/posix.c (Preadlink): Implement better error handling,
+	and robustness.
+	* NEWS: Update.
+
+	posix: wrap stat and lstat correctly.
+	* specs/posix_spec.yaml (describe stat): Adjust specs for correct
+	behaviour of stat.
+	(describe lstat): New examples to specify behaviour of new lstat
+	wrapper.
+	* ext/posix/posix.c (Pstat): Call stat(2), not lstat(2)!
+	(Plstat): New wrapper for lstat(2).
+	(R): Add Plstat.
+	* NEWS: Update.
+
 2014-05-30  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: post-release administrivia.
+	* configure.ac (AC_INIT): Bump release number to 33.
+	* NEWS: Add header line for next release.
+	* .prev-version: Record previous version.
+	* ./local.mk (old_NEWS_hash): Auto-update.
 
 	Release version 32
 	* NEWS: Record release date.
@@ -257,7 +1499,7 @@
 	* .travis.yml: Until github.com/stevedonovan/LDoc catches up with
 	require fixes for luaposix, use gvvaughan/LDoc on Travis.
 
-2013-12-12  Gary V. Vaughan  <gary@gnu.org>
+2013-12-11  Gary V. Vaughan  <gary@gnu.org>
 
 	doc: add missing LDoc function tag.
 	* ext/posix/posix.c (strptime): Add missing @function tag.
@@ -266,8 +1508,6 @@
 	* ext/posix/config.ld (custom_see_handler): Add a missing closing
 	`%)`.
 	(upat): Pull the format string up per LDoc documentation.
-
-2013-12-11  Gary V. Vaughan  <gary@gnu.org>
 
 	slingshot: sync with upstream.
 	* slingshot: Update from latest upstream, particularly for an
@@ -297,11 +1537,11 @@
 	Merge pull request #117 from fperrad/master
 	fix without IPv6
 
-2013-11-26  Cathal Garvey  <cathalgarvey@cathalgarvey.me>
+2013-11-25  Cathal Garvey  <cathalgarvey@cathalgarvey.me>
 
 	Added Pfadvise and constant advise values. Untested.
 
-2013-11-01  Ico Doornekamp  <ico@pruts.nl>
+2013-10-31  Ico Doornekamp  <ico@pruts.nl>
 
 	Added socketpair() and AF_UNIX domain
 
@@ -356,11 +1596,11 @@
 	Merge pull request #116 from zevv/termios-cc-flags
 	Added missing termios cc flags
 
-2013-09-04  Ico Doornekamp  <ico@pruts.nl>
+2013-09-03  Ico Doornekamp  <ico@pruts.nl>
 
 	all termios c_cc flags available are now used in tcgetattr() and tcsetattr(), even though no symbols may be available for each flag. this makes sure a tcsetattr() after a tcgetattr() preserves all flags, even the non POSIX cmplient ones
 
-2013-09-03  Ico Doornekamp  <ico@pruts.nl>
+2013-09-02  Ico Doornekamp  <ico@pruts.nl>
 
 	Added missing termios cc flags
 
@@ -502,7 +1742,7 @@
 
 	Lock or unlock files with fcntl()
 
-2013-06-28  Gary V. Vaughan  <gary@gnu.org>
+2013-06-27  Gary V. Vaughan  <gary@gnu.org>
 
 	typo: fix target URL of Travis badge link in README.md.
 	* README.md: Fix target URL of Travis badge link.
@@ -535,12 +1775,12 @@
 
 	NEWS: update.
 
-2013-06-28  Gary V. Vaughan  <gary@vaughan.pe>
+2013-06-27  Gary V. Vaughan  <gary@vaughan.pe>
 
 	Merge pull request #105 from aeron005/master
 	Added wresize binding in curses library
 
-2013-06-28  Gary V. Vaughan  <gary@gnu.org>
+2013-06-27  Gary V. Vaughan  <gary@gnu.org>
 
 	slingshot: update.
 	* slingshot: Update to version with ax_lua.m4 cross compilation
@@ -759,7 +1999,7 @@
 
 	Added missing 57k6 baudrate to termios table
 
-2013-04-18  Ico Doornekamp  <ico@pruts.nl>
+2013-04-17  Ico Doornekamp  <ico@pruts.nl>
 
 	Fixed glob example, added missing 'posix ='. Also removed the readlink() part because /proc on linux violates posix and does not properly fill in st_size on lstat(), causing readlink() to fail with EINVAL.
 
@@ -807,13 +2047,13 @@
 
 	Added termios and test script
 
-2013-04-15  Reuben Thomas  <rrt@sc3d.org>
+2013-04-14  Reuben Thomas  <rrt@sc3d.org>
 
 	Copy stdlib code into posix.lua, minimally modified
 	Solves the discussion in already-closed issue #80, and closes pull
 	request #88 and closes pull request #89.
 
-2013-04-14  Reuben Thomas  <rrt@sc3d.org>
+2013-04-13  Reuben Thomas  <rrt@sc3d.org>
 
 	Merge pull request #85 from zevv/poll-only-triggered-revents
 	poll only returns active events in revents table, increases performance
@@ -829,6 +2069,8 @@
 2013-04-12  Reuben Thomas  <rrt@sc3d.org>
 
 	Require stdlib; fixes #80
+
+2013-04-11  Reuben Thomas  <rrt@sc3d.org>
 
 	.gitignore: add TAGS
 
@@ -895,6 +2137,8 @@
 
 	posix.lua: tidy up pipeline and add pipeline_iterator and pipeline_slurp
 
+2013-03-13  Reuben Thomas  <rrt@sc3d.org>
+
 	Merge pull request #72 from nmcveity/fix-5.1-compat
 	Removed Lua 5.2 functions lua_len and lua_tointegerx
 
@@ -907,11 +2151,11 @@
 	Removed Lua 5.2 functions lua_len and lua_tointegerx
 	This fixes issue #71.
 
-2013-03-05  Reuben Thomas  <rrt@sc3d.org>
+2013-03-04  Reuben Thomas  <rrt@sc3d.org>
 
 	Makefile.am: stop making unnecessary ChangeLog.
 
-2013-03-04  Reuben Thomas  <rrt@sc3d.org>
+2013-03-03  Reuben Thomas  <rrt@sc3d.org>
 
 	lposix.c: fix a space leak in realpath
 
@@ -935,7 +2179,7 @@
 
 	lposix.c: add killpg
 
-2013-02-21  Reuben Thomas  <rrt@sc3d.org>
+2013-02-20  Reuben Thomas  <rrt@sc3d.org>
 
 	Makefile.am: release directory should already be on release branch; remove checkout command
 
@@ -955,11 +2199,11 @@
 
 	When no LDoc installed, create docs directory before touching files in it; fixes issue #66
 
-2013-02-19  Sam Roberts  <vieuxtech@gmail.com>
+2013-02-18  Sam Roberts  <vieuxtech@gmail.com>
 
 	Fix posix.openpt() requireing and ignoring a path.
 
-2013-02-19  Serge Zaitsev  <zaitsev.serge@gmail.com>
+2013-02-18  Serge Zaitsev  <zaitsev.serge@gmail.com>
 
 	added basic message queues support
 
@@ -979,7 +2223,7 @@
 	fd can be created by calling  openpt(), or by opening "/dev/ptmx" (as
 	specified by POSIX).
 
-2013-02-16  Reuben Thomas  <rrt@sc3d.org>
+2013-02-15  Reuben Thomas  <rrt@sc3d.org>
 
 	Makefile.am: fix woger command for new rockspec arrangement.
 
@@ -990,8 +2234,6 @@
 	rockspecs.lua: don't need to turn dots in version into dashes to get release tag.
 
 	.gitignore: remove tarball pattern, as we no longer have tarballs.
-
-2013-02-15  Reuben Thomas  <rrt@sc3d.org>
 
 	Revert 31671409e62e: bit32 doesn't build with Lua 5.2, so require luabitop instead.
 
@@ -1019,7 +2261,7 @@
 
 	Add isatty.
 
-2013-02-13  Reuben Thomas  <rrt@sc3d.org>
+2013-02-12  Reuben Thomas  <rrt@sc3d.org>
 
 	Use bit32 (now available for 5.1) rather than luabitop: slightly simplifies things.
 
@@ -1143,11 +2385,11 @@
 	* configure.ac (AM_PROG_AR): Required by recent automake releases,
 	but not available in very old releases.
 
-2012-12-25  Reuben Thomas  <rrt@sc3d.org>
+2012-12-24  Reuben Thomas  <rrt@sc3d.org>
 
 	configure.ac: fix regeneration of luaposix.rockspec
 
-2012-12-24  Reuben Thomas  <rrt@sc3d.org>
+2012-12-23  Reuben Thomas  <rrt@sc3d.org>
 
 	configure.ac: fix a comment
 
@@ -1165,7 +2407,7 @@
 	Merge pull request #48 from Keen-github/vs/2230/fix_hack_for_luaposix_compatibility
 	Added 'day' field for compatibility to Lua os.date(); fixed issue #32.
 
-2012-11-15  Valeriy Skurikhin  <Keen.vs@gmail.com>
+2012-11-14  Valeriy Skurikhin  <Keen.vs@gmail.com>
 
 	Added 'day' field for compatibility to Lua os.date(); fixed issue #32.
 
@@ -1191,6 +2433,8 @@
 
 	release: automatically check the rockspec before making a release
 
+2012-10-03  Reuben Thomas  <rrt@sc3d.org>
+
 	Make Lua 5.2-compatibility more Lua 5.2-ish.
 
 	tree.lua: make Lua 5.2-compatible
@@ -1201,7 +2445,7 @@
 
 	build: install documentation with 'make install' and from luarocks
 
-2012-09-24  Reuben Thomas  <rrt@sc3d.org>
+2012-09-23  Reuben Thomas  <rrt@sc3d.org>
 
 	lposix.c: improve comment of mkstemp
 
@@ -1209,13 +2453,13 @@
 
 	configure.ac: bump version to 5.1.23
 
+2012-09-20  Reuben Thomas  <rrt@sc3d.org>
+
 	lcurses.c: define LUA_COMPAT_ALL to get luaL_register.
 
-2012-09-14  Reuben Thomas  <rrt@sc3d.org>
+2012-09-13  Reuben Thomas  <rrt@sc3d.org>
 
 	dummy.c: fix copyright notice to be public domain
-
-2012-09-13  Reuben Thomas  <rrt@sc3d.org>
 
 	version: bump to 5.1.22.
 
@@ -1225,7 +2469,7 @@
 
 	configure.ac: enable automake to generate dependencies for rockspec (thanks, Hisham Muhammad).
 
-2012-09-08  Reuben Thomas  <rrt@sc3d.org>
+2012-09-07  Reuben Thomas  <rrt@sc3d.org>
 
 	Merge pull request #45 from wcmaier/fix/github-url
 	Update Github URL.
@@ -1234,17 +2478,17 @@
 
 	Update Github URL.
 
-2012-09-04  Reuben Thomas  <rrt@sc3d.org>
+2012-09-03  Reuben Thomas  <rrt@sc3d.org>
 
 	Bump version to 5.1.21.
 
-2012-09-02  Reuben Thomas  <rrt@sc3d.org>
+2012-09-01  Reuben Thomas  <rrt@sc3d.org>
 
 	README: Add link to online HTML docs.
 
 	README: Update location of repo and contact details.
 
-2012-09-01  Reuben Thomas  <rrt@sc3d.org>
+2012-08-31  Reuben Thomas  <rrt@sc3d.org>
 
 	bootstrap.conf: no longer require now-defunct `missing' script.
 
@@ -1259,29 +2503,29 @@
 	Make rpoll use file descriptors, not Lua file objects, so it can be
 	used with both (via fileno).
 
-2012-06-29  Reuben Thomas  <rrt@sc3d.org>
+2012-06-28  Reuben Thomas  <rrt@sc3d.org>
 
 	Document dependency on bitop library with Lua 5.1 (thanks to Bernd Eggink).
 
 	Remove documentation of configure options, one of which was obsolete.
 
-2012-06-23  Reuben Thomas  <rrt@sc3d.org>
+2012-06-22  Reuben Thomas  <rrt@sc3d.org>
 
 	Simplify Lua 5.2 compatibility
 
 	lposix.c: revert to using MYNAME, as it is different from PACKAGE.
 
-2012-06-22  Reuben Thomas  <rrt@sc3d.org>
-
 	build: don't unset LUA_INIT, as it may be needed to set Lua paths.
 
 	Update bug reporting advice (thanks, Yuri Takhteyev).
+
+2012-06-21  Reuben Thomas  <rrt@sc3d.org>
 
 	Fix some incorrectly-named references to posix module.
 
 	Simplify construction of messages with autoconf variables.
 
-2012-06-06  Reuben Thomas  <rrt@sc3d.org>
+2012-06-05  Reuben Thomas  <rrt@sc3d.org>
 
 	build: don't include non-MIT-licensed dummy.c from gnulib (fixes issue #42).
 
@@ -1364,6 +2608,8 @@
 
 	lposix.c: make file & creation flags public; pass flags to open as an integer mask, not a table.
 
+2012-05-22  Reuben Thomas  <rrt@sc3d.org>
+
 	Fix some comments.
 
 2012-05-21  Reuben Thomas  <rrt@sc3d.org>
@@ -1372,27 +2618,27 @@
 
 	Add a pointer to documentation and some basic coding principles.
 
-2012-05-14  Reuben Thomas  <rrt@sc3d.org>
+2012-05-13  Reuben Thomas  <rrt@sc3d.org>
 
 	Update web site URL and be more explicit about system requirements.
 
-2012-05-13  Alexander V. Nikolaev  <avn@daemon.hole.ru>
+2012-05-12  Alexander V. Nikolaev  <avn@daemon.hole.ru>
 
 	Rework test for glob() -- use temporary directory
 	This allow us to not depend from *.la files from build.
 
 	Simple tests for mkdtemp and mkstemp
 
-2012-05-13  Your Name  <7hemroc@gmail.com>
+2012-05-12  Your Name  <7hemroc@gmail.com>
 
 	Add mkdtemp()
 
-2012-05-13  Alexander V. Nikolaev  <avn@daemon.hole.ru>
+2012-05-12  Alexander V. Nikolaev  <avn@daemon.hole.ru>
 
 	Memory leak in mkstemp
 	Pmkstemp not release temporary string buffer, if mkstemp() raise an error
 
-2012-05-13  Reuben Thomas  <rrt@sc3d.org>
+2012-05-12  Reuben Thomas  <rrt@sc3d.org>
 
 	Merge pull request #35 from likema/master
 	Add statvfs and crypt_r.
@@ -1405,7 +2651,7 @@
 
 	strlcpy.c: Make function declaration ANSI.
 
-2012-05-01  Like Ma  <likemartinma@gmail.com>
+2012-04-30  Like Ma  <likemartinma@gmail.com>
 
 	Add AC_USE_SYSTEM_EXTENSIONS to configure.ac for define _GNU_SOURCE in config.h.in
 
@@ -1443,6 +2689,8 @@
 
 	Back to using only a double fork of lunit.
 
+2012-03-25  Reuben Thomas  <rrt@sc3d.org>
+
 	README: Update URL to lunit: for now need my version.
 
 	Makefile.am: tell lunit which Lua interpreter to use.
@@ -1450,8 +2698,6 @@
 	tests-fcntl.lua: make them work with Lua 5.2.
 
 	Improve documentation for use with Lua 5.2.
-
-2012-03-25  Reuben Thomas  <rrt@sc3d.org>
 
 	Bump version to 5.1.18.
 
@@ -1467,11 +2713,11 @@
 
 	Return old C handler from signal, so it can be chained; fix masking of signals during Lua handler.
 
-2012-02-22  Reuben Thomas  <rrt@sc3d.org>
+2012-02-21  Reuben Thomas  <rrt@sc3d.org>
 
 	Make curses module work with Lua 5.2 module system (patch by StarWing).
 
-2012-02-19  Reuben Thomas  <rrt@sc3d.org>
+2012-02-18  Reuben Thomas  <rrt@sc3d.org>
 
 	Makefile.am: update woger call.
 
@@ -1479,12 +2725,12 @@
 
 	Makefile.am: add lua52compat.h to EXTRA_DIST.
 
-2012-02-13  Reuben Thomas  <rrt@sc3d.org>
+2012-02-12  Reuben Thomas  <rrt@sc3d.org>
 
 	Merge pull request #28 from likema/HEAD~~
 	Use AC_SEARCH_LIBS instead of AC_CHECK_LIBS in configure.ac.
 
-2012-02-12  Like Ma  <likemartinma@gmail.com>
+2012-02-11  Like Ma  <likemartinma@gmail.com>
 
 	Use crypt_r instead of crypt if it exists for thread-safe.
 
@@ -1508,11 +2754,13 @@
 
 	Fix signal handling so all signals are handled, one at a time.
 
+2012-02-01  Reuben Thomas  <rrt@sc3d.org>
+
 	lposix.c: overhaul time struct functions; add mktime.
 
 	lposix.c: fix whitespace typo.
 
-2012-02-02  Reuben Thomas  <rrt@sc3d.org>
+2012-02-01  Reuben Thomas  <rrt@sc3d.org>
 
 	Overhaul use of numeric types going to Lua.
 	Use lua_pushinteger rather than lua_pushnumber where it makes sense.
@@ -1525,16 +2773,18 @@
 
 	Fix a docstring mistake: refer to os.execute, not os.system.
 
+2012-01-31  Reuben Thomas  <rrt@sc3d.org>
+
 	Remove setting _POSIX_C_SOURCE on Darwin, as apparently this only restricts APIs, or instates obsolescent APIs.
 	Remove some pointless quotes.
 
 	Remove SIGPROF and SIGPOLL, which are marked obsolescent.
 
-2012-01-28  Reuben Thomas  <rrt@sc3d.org>
+2012-01-27  Reuben Thomas  <rrt@sc3d.org>
 
 	curses: update ax_with_curses.m4 to latest version.
 
-2012-01-18  Reuben Thomas  <rrt@sc3d.org>
+2012-01-17  Reuben Thomas  <rrt@sc3d.org>
 
 	In strftime, make isdst optional like all other fields.
 
@@ -1547,15 +2797,15 @@
 	Merge pull request #23 from hishamhm/master
 	Add support of octal stat modes in mode_munch
 
-2012-01-17  Hisham Muhammad  <hisham@gobolinux.org>
+2012-01-16  Hisham Muhammad  <hisham@gobolinux.org>
 
 	Make octal_mode use strtol, as requested by rrthomas.
 
-2011-12-30  Hisham Muhammad  <hisham@gobolinux.org>
+2011-12-29  Hisham Muhammad  <hisham@gobolinux.org>
 
 	Add support of octal stat modes in mode_munch
 
-2011-12-29  Reuben Thomas  <rrt@sc3d.org>
+2011-12-28  Reuben Thomas  <rrt@sc3d.org>
 
 	Update and make precise the versions of Lua catered to.
 
@@ -1569,7 +2819,7 @@
 
 	Add a comment explaining that posix.signal has sensible semantics.
 
-2011-12-27  Reuben Thomas  <rrt@sc3d.org>
+2011-12-26  Reuben Thomas  <rrt@sc3d.org>
 
 	Fix an egregious bug in the previous commit which only updated a Lua handler when the previous handler was also a Lua function.
 
@@ -1579,7 +2829,7 @@
 	Merge pull request #21 from gvvaughan/pull-request/refactor-lcurses-with-cpp
 	refactor: use lposix-style macro splicing in lcurses.
 
-2011-12-27  Gary V. Vaughan  <gary@gnu.org>
+2011-12-26  Gary V. Vaughan  <gary@gnu.org>
 
 	curses: expose use_default_colors to lua.
 	* lcurses.c (Cuse_default_colors): Marshalling for
@@ -1636,13 +2886,11 @@
 
 	Make setting handler to nil indistinguishable from setting to SIG_DFL.
 
-2011-12-25  Reuben Thomas  <rrt@sc3d.org>
+2011-12-24  Reuben Thomas  <rrt@sc3d.org>
 
 	Explain why we don’t use an upvalue in an obvious situation.
 
 	Redo signal API to be more conventional, allowing signal handlers to be reset (no __newindex nonsense).
-
-2011-12-24  Reuben Thomas  <rrt@sc3d.org>
 
 	Use LPOSIX_STR_1 to prevent premature expansion of signal handler macro names.
 
@@ -1677,7 +2925,7 @@
 
 	Fix some deviant indentation.
 
-2011-11-19  Reuben Thomas  <rrt@sc3d.org>
+2011-11-18  Reuben Thomas  <rrt@sc3d.org>
 
 	Merge pull request #19 from spbnick/master
 	Fix corner cases in Pread and Pgetgroups. Thanks to Nikolai Kondrashov.
@@ -1690,6 +2938,8 @@
 	Handle getgroups(0, NULL) returning 0 - although practically impossible,
 	documentation doesn't say it can't happen.
 	Handle getgroups returning negative values (reporting errors).
+
+2011-11-17  Nikolai Kondrashov  <nkondrashov@nvidia.com>
 
 	Handle and report Pread allocation errors properly
 	Report Pread buffer allocation errors with pusherror, account for allocation
@@ -1706,7 +2956,7 @@
 	Merge pull request #17 from ittner/add-fnmatch
 	Add function fnmatch() (thanks, Alexandre Ittner).
 
-2011-10-28  Alexandre Erwin Ittner  <alexandre@ittner.com.br>
+2011-10-27  Alexandre Erwin Ittner  <alexandre@ittner.com.br>
 
 	Remove unused variable in the poll interface
 
@@ -1715,7 +2965,7 @@
 	http://pubs.opengroup.org/onlinepubs/9699919799/functions/fnmatch.html
 	plus GNU extensions (if available)
 
-2011-10-26  Reuben Thomas  <rrt@sc3d.org>
+2011-10-25  Reuben Thomas  <rrt@sc3d.org>
 
 	Merge pull request #16 from spbnick/master
 	Add full poll(2) interface
@@ -1831,7 +3081,7 @@
 
 	Makefile.am: replace literal name of package with $(PACKAGE) once more.
 
-2011-09-20  Reuben Thomas  <rrt@sc3d.org>
+2011-09-19  Reuben Thomas  <rrt@sc3d.org>
 
 	Makefile.am: fix deps of the rockspec.
 
@@ -1844,8 +3094,6 @@
 	Bump version to 5.1.14.
 
 	Make some symbolic constants case-insensitive in Lua.
-
-2011-09-19  Reuben Thomas  <rrt@sc3d.org>
 
 	configure.ac: use $PACKAGE rather than spelling out the name.
 
@@ -1867,6 +3115,8 @@
 
 	rockspec: auto-generate (except for part of download URL, argh).
 
+2011-09-16  Reuben Thomas  <rrt@sc3d.org>
+
 	Bump version to 5.1.13.
 
 	tests-posix.lua: Fix glob test again; we seem to have no .o files, so use .la files.
@@ -1875,7 +3125,7 @@
 
 	Don't build or install useless static libs or versioned symlinks.
 
-2011-09-12  Reuben Thomas  <rrt@sc3d.org>
+2011-09-11  Reuben Thomas  <rrt@sc3d.org>
 
 	Update curses documentation for luaposix integration.
 
@@ -1886,12 +3136,14 @@
 	instead expand documentation so it covers the standard Debian/Ubuntu
 	case.
 
+2011-09-09  Reuben Thomas  <rrt@sc3d.org>
+
 	.gitignore: Add distribution tarball.
 
 	Merge pull request #10 from gvvaughan/pull-request/refactor-lookup_symbol-mappings
 	refactor: lookup_symbol mappings with macro splicing
 
-2011-09-10  Gary V. Vaughan  <gary@vaughan.pe>
+2011-09-09  Gary V. Vaughan  <gary@vaughan.pe>
 
 	refactor: lookup_symbol mappings with macro splicing
 	Tabulate just the basename for each mapping, and then stringify with an
@@ -1911,6 +3163,8 @@
 	configury: Make building curses optional.
 
 	Merge lcurses into luaposix.
+
+2011-09-08  Reuben Thomas  <rrt@sc3d.org>
 
 	Merge pull request #9 from gvvaughan/pull-request/tabulate-lookup_symbol-mappings
 	bugfix: tabulate lookup_symbol mappings
@@ -1968,7 +3222,7 @@
 	of a comparison, and avoid the potential for uname returning something
 	that test might interpret as an argument.
 
-2011-09-08  Reuben Thomas  <rrt@sc3d.org>
+2011-09-07  Reuben Thomas  <rrt@sc3d.org>
 
 	lposix.c: Include config.h.
 
@@ -1980,8 +3234,6 @@
 
 	autotoolize the build system.
 
-2011-09-07  Reuben Thomas  <rrt@sc3d.org>
-
 	Add read and write.
 
 2011-09-07  Reuben Thomas  <rrt@sc3d.org>
@@ -1992,16 +3244,16 @@
 
 	Add a FIXME.
 
-2011-09-07  Reuben Thomas  <rrt@sc3d.org>
+2011-09-06  Reuben Thomas  <rrt@sc3d.org>
 
 	Tidy up whitespace and comments a bit for consistency.
 
-2011-06-21  Reuben Thomas  <rrt@sc3d.org>
+2011-06-20  Reuben Thomas  <rrt@sc3d.org>
 
 	Merge pull request #3 from jdegges/master
 	Add nanosleep.
 
-2011-06-21  Joey Degges  <jdegges@gmail.com>
+2011-06-20  Joey Degges  <jdegges@gmail.com>
 
 	Add nanosleep.
 
@@ -2009,11 +3261,9 @@
 
 	Remove unneeded shim for luaL_register; Lua 5.2 still has compatibility code for this.
 
-2011-05-12  Reuben Thomas  <rrt@sc3d.org>
+2011-05-11  Reuben Thomas  <rrt@sc3d.org>
 
 	Remove pushfile, which uses undocumented tricks which don’t work on LuaJIT, and hence dup, fdopen and pipe.
-
-2011-05-11  Reuben Thomas  <rrt@sc3d.org>
 
 	Reformat test.lua a bit more consistently.
 
@@ -2050,13 +3300,11 @@
 	 * Added --no-times command-line option since that test is a bear to wait for.
 	 * Added new tests: dup(), fdopen().
 
-2011-04-28  Reuben Thomas  <rrt@sc3d.org>
+2011-04-27  Reuben Thomas  <rrt@sc3d.org>
 
 	Bump version to 5.1.11.
 
 	Fix a typo which caused a buffer overrun.
-
-2011-04-27  Reuben Thomas  <rrt@sc3d.org>
 
 	Bump version to 5.1.10.
 
@@ -2084,9 +3332,11 @@
 
 	Remove non-POSIX rlimit resources, and as missing RLIMIT_AS.
 
+2011-03-29  Reuben Thomas  <rrt@sc3d.org>
+
 	Test _XOPEN_REALTIME correctly (!= -1, not merely defined).
 
-2011-03-25  Reuben Thomas  <rrt@sc3d.org>
+2011-03-24  Reuben Thomas  <rrt@sc3d.org>
 
 	Update maintainer and git repo location.
 
@@ -2215,7 +3465,7 @@
 
 	release 5.1.7
 
-2010-08-12  Tim Niemueller  <niemueller@kbsg.rwth-aachen.de>
+2010-08-11  Tim Niemueller  <niemueller@kbsg.rwth-aachen.de>
 
 	Make clock_* arguments optional
 	With the last change the clock id argument was no longer optional as
@@ -2226,7 +3476,7 @@
 	set LIBVERSION=6
 	should have been done before the 5.1.5 release :-(
 
-2010-08-11  Tim Niemueller  <niemueller@kbsg.rwth-aachen.de>
+2010-08-10  Tim Niemueller  <niemueller@kbsg.rwth-aachen.de>
 
 	Make clock_get* functions take string argument
 	For consistency with existing functions.
@@ -2235,11 +3485,9 @@
 
 	added function definitions for 'make show-funcs'
 
-2010-08-10  Tim Niemueller  <niemueller@kbsg.rwth-aachen.de>
+2010-08-09  Tim Niemueller  <niemueller@kbsg.rwth-aachen.de>
 
 	Use realtime clock by default in clock_get*
-
-2010-08-09  Tim Niemueller  <niemueller@kbsg.rwth-aachen.de>
 
 	Added strftime
 
@@ -2252,7 +3500,7 @@
 
 	Add gettimeofday, clock_getres, clock_gettime
 
-2010-03-30  Natanael Copa  <ncopa@alpinelinux.org>
+2010-03-29  Natanael Copa  <ncopa@alpinelinux.org>
 
 	release 5.1.5
 

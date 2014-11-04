@@ -1,0 +1,206 @@
+specify posix.time:
+- before:
+    tm = require "posix.time"
+
+    now = tm.time ()
+
+- describe clock_getres:
+  - before:
+      clock_getres = tm.clock_getres
+
+  - context with bad arguments:
+      if clock_getres then
+        badargs.diagnose (clock_getres, "(int)")
+      end
+
+  - it returns a PosixTimespec:
+      if clock_getres then
+        expect (prototype (clock_getres (tm.CLOCK_REALTIME))).
+          to_be "PosixTimespec"
+      end
+
+- describe clock_gettime:
+  - before:
+      clock_gettime = tm.clock_gettime
+
+  - context with bad arguments:
+      if clock_gettime then
+        badargs.diagnose (clock_gettime, "(int)")
+      end
+
+  - it returns a PosixTimespec:
+      if clock_getres then
+        expect (prototype (clock_gettime (tm.CLOCK_REALTIME))).
+          to_be "PosixTimespec"
+      end
+
+- describe gmtime:
+  - before:
+      gmtime = tm.gmtime
+
+  - context with bad arguments:
+      badargs.diagnose (gmtime, "(int)")
+
+  - it returns a PosixTm:
+      expect (prototype (gmtime (now))).to_be "PosixTm"
+  - it fetches broken-down time values:
+      t = gmtime (now)
+      fields = {"tm_sec", "tm_min", "tm_hour", "tm_mday",
+                "tm_mon", "tm_year", "tm_wday", "tm_yday", "tm_isdst"}
+      expect (t).to_contain.a_permutation_of (fields)
+      for _, field in pairs (fields) do
+        expect (type (t[field])).to_be "number"
+        expect (t[field] >= 0).to_be (true)
+      end
+  - it returns a month in the range 1-12:
+      t = gmtime (now)
+      expect (t.tm_mon > 0 and t.tm_mon <= 12).to_be (true)
+  - it returns years since 1900:
+      expect (gmtime (now).tm_year < 1900).to_be (true)
+
+
+- describe localtime:
+  - before:
+      localtime = tm.localtime
+
+  - context with bad arguments:
+      badargs.diagnose (localtime, "(int)")
+
+  - it returns a PosixTm:
+      expect (prototype (localtime (now))).to_be "PosixTm"
+  - it fetches broken-down time values:
+      t = localtime (now)
+      fields = {"tm_sec", "tm_min", "tm_hour", "tm_mday",
+                "tm_mon", "tm_year", "tm_wday", "tm_yday", "tm_isdst"}
+      expect (t).to_contain.a_permutation_of (fields)
+      for _, field in pairs (fields) do
+        expect (type (t[field])).to_be "number"
+        expect (t[field] >= 0).to_be (true)
+      end
+  - it returns a month in the range 1-12:
+      t = localtime (now)
+      expect (t.tm_mon > 0 and t.tm_mon <= 12).to_be (true)
+  - it returns years since 1900:
+      expect (localtime (now).tm_year < 1900).to_be (true)
+
+
+- describe mktime:
+  - before:
+      localtime, mktime, time = tm.localtime, tm.mktime, tm.time
+      epoch = time ()
+      t = localtime (epoch)
+
+  - context with bad arguments:
+      badargs.diagnose (mktime, "(table)")
+
+  - it returns an epoch time:
+      expect (prototype (mktime (t))).to_be "number"
+  - it is the inverse of localtime:
+      expect (mktime (t)).to_be (epoch)
+
+
+- describe nanosleep:
+  - before:
+      nanosleep = tm.nanosleep
+
+  - context with bad arguments: |
+      badargs.diagnose (nanosleep, "(table)")
+
+      examples {
+        ["context diagnosing timespec table fields"] = {
+          {
+            ["it diagnoses argument #1 tv_sec field type not int"] = function ()
+              expect (nanosleep {tv_sec = false}).
+                to_raise "bad argument #1 to 'nanosleep' (int expected for field 'tv_sec', got boolean)"
+            end
+          },
+          {
+            ["it diagnoses argument #1 tv_nsec field type not int"] = function ()
+              expect (nanosleep {tv_sec = -1, tv_nsec = false}).
+                to_raise "bad argument #1 to 'nanosleep' (int expected for field 'tv_nsec', got boolean)"
+            end
+          },
+          {
+            ["it diagnoses argument #1 spurious fields"] = function ()
+              expect (nanosleep {tv_sec = -1, tv_nsec = -1, bogus = false}).
+                to_raise "bad argument #1 to 'nanosleep' (invalid field name 'bogus')"
+            end
+          },
+        }
+      }
+
+  - it returns an integer:
+     expect (nanosleep {tv_sec = 0, tv_nsec = 10}).to_be (0)
+
+
+- describe strftime:
+  - before:
+      strftime = tm.strftime
+
+      t = {
+        tm_wday = 0, tm_isdst = 1, tm_sec = 2, tm_min = 3, tm_hour = 4,
+        tm_mday = 5, tm_mon = 6, tm_year = 7, tm_yday = 8
+      }
+
+  - context with bad arguments:
+      badargs.diagnose (strftime, "(string, table)")
+
+  - context with place-holders:
+    - it plugs tm_wday:
+        expect (strftime ("%w", t)).to_be "0"
+    - it plugs tm_sec:
+        expect (strftime ("%S", t)).to_be "02"
+    - it plugs tm_min:
+        expect (strftime ("%M", t)).to_be "03"
+    - it plugs tm_hour:
+        expect (strftime ("%H", t)).to_be "04"
+    - it plugs tm_mday:
+        expect (strftime ("%d", t)).to_be "05"
+    - it plugs tm_mon:
+        expect (strftime ("%m", t)).to_be "07"
+    - it plugs tm_year:
+        expect (strftime ("%y", t)).to_be "07"
+    - it plugs tm_yday:
+        expect (strftime ("%j", t)).to_be "009"
+
+
+- describe strptime:
+  - before:
+      strptime = tm.strptime
+
+  - context with bad arguments:
+      badargs.diagnose (strptime, "(string, string)")
+
+  - context with place-holders:
+    - before:
+        t, i = strptime ("Mon Jun  4 03:02:01 BST 1906 garbage",
+                         "%a %b %d %H:%M:%S BST %Y")
+    - it returns the first unconsumed character:
+        expect (i).to_be (29)
+    # tm_yday and tm_isdst are not set by strptime
+    - it scans into tm_wday:
+        expect (t.tm_wday).to_be (1)
+    - it scans into tm_sec:
+        expect (t.tm_sec).to_be (1)
+    - it scans into tm_min:
+        expect (t.tm_min).to_be (2)
+    - it scans into tm_hour:
+        expect (t.tm_hour).to_be (3)
+    - it scans into tm_mday:
+        expect (t.tm_mday).to_be (4)
+    - it scans into tm_mon:
+        expect (t.tm_mon).to_be (5)
+    - it scans into tm_year:
+        expect (t.tm_year).to_be (6)
+
+
+- describe time:
+  - before:
+      time = tm.time
+
+  - context with bad arguments:
+      badargs.diagnose (time, "()")
+
+  - it returns epoch seconds:
+      expect (type (time ())).to_be "number"
+      expect (time () > 0).to_be (true)

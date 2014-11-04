@@ -1,0 +1,19 @@
+specify posix.sys.time:
+- before:
+    systime = require "posix.sys.time"
+
+
+- describe gettimeofday:
+  - before:
+      gettimeofday = systime.gettimeofday
+
+  - context with bad arguments:
+      badargs.diagnose (gettimeofday, "()")
+
+  - it returns a PosixTimeval:
+      expect (prototype (gettimeofday ())).to_be "PosixTimeval"
+  - it fetches the current epoch time:
+      tv, epoch = gettimeofday (), posix.time ()
+      expect (tv.tv_sec).to_be (epoch)
+      expect (type (tv.tv_usec)).to_be "number"
+      expect (tv.tv_usec >= 0).to_be (true)

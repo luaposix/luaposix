@@ -21,6 +21,10 @@
 /* Define to 1 if library supports certain obsolete features */
 #undef HAVE_CURSES_OBSOLETE
 
+/* Define to 1 if you have the declaration of `fdatasync', and to 0 if you
+   don't. */
+#undef HAVE_DECL_FDATASYNC
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
@@ -71,6 +75,12 @@
 
 /* Define to 1 if you have the `resizeterm' function. */
 #undef HAVE_RESIZETERM
+
+/* Define to 1 if you have the `sched_getsheduler' function. */
+#undef HAVE_SCHED_GETSHEDULER
+
+/* Define to 1 if you have the `sched_setscheduler' function. */
+#undef HAVE_SCHED_SETSCHEDULER
 
 /* Define to 1 if you have the `statvfs' function. */
 #undef HAVE_STATVFS

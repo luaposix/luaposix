@@ -1,5 +1,175 @@
 Stdlib NEWS - User visible changes
 
+* Noteworthy changes in release 33.0.0 (2014-11-04) [stable]
+
+** New features:
+
+ - The curses library is fully integrated into luaposix, including reasonably
+   comprehensive LDoc documentation (certainly much better than the single
+   wooly web-page in previous releases).  For backwards compatibility, all
+   APIs are re-exported from the `curses` module.
+
+ - Most constants available through luaposix are now listed in the LDocs of
+   the submodule that defines them.
+
+ - For backwards compatibility, everything is still lumped together in the
+   `posix.???` namespace, but, now raw APIs have been reorganised according to
+   the POSIX header files they belong to:
+
+      local posix  = require "posix"
+      local fcntl  = require "posix.fcntl"
+      local unistd = require "posix.unistd"
+
+      local fd = fcntl.open ("x",
+         bit32.bor (posix.O_WRONLY, posix.O_CREAT), "u=rw")
+      unistd.write (fd, "Hello, World!\n")
+      unistd.close (fd)
+
+   This makes the documentation easier to navigate, and for a better mapping
+   between luaposix APIs and the C functions they wrap, so translating from
+   C is now easier than ever.
+
+ - Each of the newly separated submodules is self-contained, and can be copied
+   to another project for compiling and/or loading in a custom Lua runtime. If
+   you want to make use of this, in addition to the source for the modules you
+   copy, you'll also need at least the files `ext/posix/_helpers.c` and
+   `ext/include/lua52compat.c`, and also `ext/include/strlcat.c` for one or
+   two of them.
+
+ - Where submodule calls return a table representation of a similar C struct
+   from a POSIX API, the Lua return tables have an appropriate `_type` field
+   metatable entry compatible with lua-stdlib `std.object.type`.
+
+ - `posix.signal.signal` now accepts the constants `posix.signal.SIG_DFL` or
+   `posix.signal.SIG_IGN` in place of the strings "SIG_DFL" and "SIG_IGN".
+
+ - The submodule bindings `posix.time.gmtime`, `posix.time.localtime`,
+   `posix.time.mktime`, `posix.time.strftime` and `posix.time.strptime` now
+   accept or create PosixTm tables with 1-to-1 field name mappings with the
+   POSIX `struct tm`.  The old APIs with custom field names is still available
+   as `posix.gmtime`, `posix.localtime`, `posix.mktime`, `posix.strftime` and
+   `posix.strptime`.
+
+ - Similarly, `posix.time.nanosleep` now takes and returns a PosixTimespec
+   table.  The old API is still available as `posix.nanosleep`.
+
+ - Where supported by the underlying system, `posix.time.clock_getres` and
+   `posix.time.clock_gettime` now require a constant inte argument (newly
+   defined in the `posix.time` submodule), and returns a PosixTimespec table.
+   The old APIs are still available as `posix.clock_getres` and
+   `posix.clock_gettime`.
+
+ - Add `posix.unistd.gethostid`. The old `posix.hostid` API is still available
+   as an alias.
+
+ - Add group APIs from grp.h: `posix.grp.endgrent`, `posix.grp.getgrent`,
+   `posix.grp.getgrgid`, `posix.grp.getgrnam` and `posix.grp.setgrent`.
+   Consequently, `posix.getgroup` is now reimplemented in Lua over the POSIX
+   APIs.
+
+ - `posix.getgroup` defaults to current effective group when called with no
+   arguments, for consistency with `posix.getpasswd` API.
+
+ - Add pwd APIs from pwd.h: `posix.pwd.endpwent`, `posix.grp.getpwent`,
+   `posix.pwd.getpwnam`, `posix.pwd.getpwuid` and `posix.pwd.setpwent`.
+   Consequently, `posix.getpasswd` is now reimplemented in Lua over the POSIX
+   APIs.
+
+ - Add missing constants from sys/resource.h:
+   `posix.sys.resource.RLIM_INFINITY`, `posix.sys.resource.RLIM_SAVED_CUR`,
+   `posix.sys.resource.RLIM_SAVED_MAX`, `posix.sys.resource.RLIMIT_CORE`,
+   `posix.sys.resource.RLIMIT_CPU`, `posix.sys.resource.RLIMIT_DATA`,
+   `posix.sys.resource.RLIMIT_FSIZE`, `posix.sys.resource.RLIMIT_NOFILE`,
+   `posix.sys.resource.RLIMIT_STACK`, `posix.sys.resource.RLIMIT_AS`.
+
+ - Add missing APIs from unistd.h: `posix.unistd.getegid`,
+   `posix.unistd.geteuid`, `posix.unistd.getgid`, `posix.unistd.getuid`,
+   `posix.unistd.getpgrp`, `posix.unistd.getpid`, `posix.unistd.getppid`.
+   Consequently, `posix.getpid` is now reimplemented in Lua over the POSIX
+   APIs.
+
+ - Add missing constants from signal.h; `posix.signal.SIG_DFL` and
+   `posix.signal.SIG_IGN'.
+
+ - Add missing APIs from sys/stat.h: `posix.sys.stat.S_ISBLK`,
+   `posix.sys.stat.S_ISCHR`, `posix.sys.stat.S_ISDIR`,
+   `posix.sys.stat.S_ISFIFO`, `posix.sys.stat.S_ISLNK`,
+   `posix.sys.stat.S_ISREG`, `posix.sys.stat.S_ISSOCK`.
+
+ - Add missing constants from sys/stat.h: `posix.sys.stat.S_IFMT`,
+   `posix.sys.stat.S_IFBLK`, `posix.sys.stat.S_IFCHR`,
+   `posix.sys.stat.S_IFDIR`, `posix.sys.stat.S_IFIFO`,
+   `posix.sys.stat.S_IFLNK`, `posix.sys.stat.S_IFREG`,
+   `posix.sys.stat.S_IRWXU`, `posix.sys.stat.S_IRUSR`,
+   `posix.sys.stat.S_IWUSR`, `posix.sys.stat.S_IXUSR`,
+   `posix.sys.stat.S_IRWXG`, `posix.sys.stat.S_IRGRP`,
+   `posix.sys.stat.S_IWGRP`, `posix.sys.stat.S_IXGRP`,
+   `posix.sys.stat.S_IRWXO`, `posix.sys.stat.S_IROTH`,
+   `posix.sys.stat.S_IWOTH`, `posix.sys.stat.S_IXOTH`,
+   `posix.sys.stat.S_ISGID`, `posix.sys.stat.S_ISUID`.
+
+ - Add missing constants from syslog.h: `posix.syslog.LOG_CONS`,
+   `posix.syslog.LOG_NDELAY` and `posix.syslog.LOG_PID`.
+
+ - Add missing API from syslog.h: `posix.syslog.LOG_MASK`.  Use this to
+   convert syslog priority constants into mask bits suitable for bitwise
+   ORing as the argument to `posix.syslog.setlogmask`.
+
+ - Add missing constants from time.h: `posix.time.CLOCK_MONOTONIC`,
+   `posix.time.CLOCK_PROCESS_CPUTIME_ID`, `posix.time.CLOCK_REALTIME` and
+   `posix.time.CLOCK_THREAD_CPUTIME_ID`.
+
+ - New `posix.unistd.exec` and `posix.unistd.execp` require a table of
+   arguments, with [0] defaulting to the command name.  The old string
+   tuple passing API is still available as `posix.exec` and `posix.execp`.
+
+ - `posix.util.openpty` has moved to `posix.openpty`.  The old API is still
+   available as an alias.
+
+ - All posix APIs now fully and correctly diagnose extraneous and wrong
+   type arguments with an error.
+
+ - Add `posix.IPC_NOWAIT`, `posix.MSG_EXCEPT` and `posix.MSG_NOERROR`
+   constants for message queues.
+
+ - Add `posix.IPPROTO_UDP` for socket programming.
+
+ - Add `posix.AI_NUMERICSERV` for posix.getaddrinfo hints flags.
+
+ - Add `posix.WUNTRACED` for posix.wait flags.
+
+ - Add `curses.A_COLOR` (where supported by the underlying curses library) for
+   extracting color pair assignments from the results of `curses.window.winch`.
+
+ - Add missing `curses.KEY_F31` constant.
+
+** Bug fixes:
+
+ - `posix.fadvise` is now spelled `posix.fcntl.posix_fadvise` and takes a
+   file descriptor first argument rather than a Lua file handle. The old
+   misspelled bad argument type version is undocumented but still works.
+
+ - `posix.getpasswd`, `posix.getpid`, `posix.pathconf`, `posix.stat`,
+   `posix.statvfs`, `posix.sysconf` and `posix.times` process a single table
+   argument with a list of types correctly.
+
+ - `posix.syslog.openlog` now takes the bitwise OR of those constants.  The
+   old string option specified API is still available as `posix.openlog`.
+
+ - `posix.syslog.setlogmask` now takes the bitwise OR of bits returned by
+   passing priority constants to `posix.syslog.LOG_MASK`.  The old API will
+   continue to be available as `posix.setlogmask`.
+
+ - `posix.readlink` is much more robust, and reports errors accurately.
+
+ - configured installation installs `posix.so` into the lua cpath directory
+   correctly.
+
+ - fixed a long-standing bug where the stdio buffers were not restored after
+   some posix.fcntl() examples, resulting in the `make check` output being
+   truncated -- often before terminal colors were returned to normal.
+
+
 * Noteworthy changes in release 32 (2014-05-30) [stable]
 
 ** New features:

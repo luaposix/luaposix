@@ -6,7 +6,7 @@ dnl Copyright (c) 2012-2014 Gary V. Vaughan
 dnl This file is part of luaposix.
 dnl See README for license.
 
-AC_INIT([luaposix], [32], [http://github.com/luaposix/luaposix/issues])
+AC_INIT([luaposix], [33.0.0], [http://github.com/luaposix/luaposix/issues])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -88,32 +88,30 @@ dnl Check for header files
 AC_HEADER_STDC
 AC_CHECK_HEADERS([crypt.h strings.h sys/statvfs.h net/if.h linux/netlink.h])
 
+AC_CHECK_DECLS_ONCE([fdatasync])
+
 dnl Search libs
+save_LIBS=$LIBS
+LIBS=
 AC_SEARCH_LIBS([crypt], [crypt],
   [AC_DEFINE([HAVE_CRYPT], [], [Define this if your system has a crypt() function])])
+AC_SUBST([LIBCRYPT], [$LIBS])
+LIBS=$save_LIBS
 
 dnl Check for functions
-AC_CHECK_FUNCS([strlcpy statvfs posix_fadvise])
+AC_CHECK_FUNCS([strlcpy statvfs posix_fadvise sched_getsheduler sched_setscheduler])
 
 dnl Compiler flags for POSIX
 dnl Get this from autotools/gnulib
 if test Darwin != `uname`; then
   # FIXME: Make -lrt conditional on _XOPEN_REALTIME
-  POSIX_EXTRA_CFLAGS=-D_XOPEN_SOURCE=700
-  POSIX_EXTRA_LDFLAGS=-lrt
+  AC_SUBST([POSIX_EXTRA_CFLAGS], [-D_XOPEN_SOURCE=700])
+  AC_SUBST([LIBRT], [-lrt])
 fi
-AC_SUBST(POSIX_EXTRA_CFLAGS)
-AC_SUBST(POSIX_EXTRA_LDFLAGS)
 
 dnl Curses
 AX_WITH_CURSES
-if test "$ax_cv_curses" = "yes"; then
-  WANTEDLIBS=ext/curses/curses_c.la
-  WANTEDLUA=lib/curses.lua
-fi
 AC_ARG_VAR(CURSES_LIB, [linker flags for curses library])
-AC_SUBST(WANTEDLIBS)
-AC_SUBST(WANTEDLUA)
 
 save_LIBS=$LIBS
 LIBS="$CURSES_LIB $LIBS"
@@ -138,5 +136,5 @@ AM_CONDITIONAL([HAVE_LDOC], [test false != "$LDOC"])
 dnl Generate output files
 SS_CONFIG_TRAVIS([ldoc specl])
 AC_CONFIG_HEADER(config.h)
-AC_CONFIG_FILES([Makefile build-aux/config.ld])
+AC_CONFIG_FILES([Makefile build-aux/config.ld lib/posix.lua])
 AC_OUTPUT

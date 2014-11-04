@@ -1,0 +1,73 @@
+specify posix.sys.resource:
+- before:
+    resource = require "posix.sys.resource"
+
+
+- describe getrlimit:
+  - before:
+      getrlimit = resource.getrlimit
+
+  - context with bad arguments:
+      badargs.diagnose (getrlimit, "(int)")
+
+  - it returns a PosixRlimit:
+      expect (prototype (getrlimit (resource.RLIMIT_AS))).to_be "PosixRlimit"
+  - it fetches resource limits for a process:
+      for _, rc in pairs {"RLIMIT_CORE", "RLIMIT_CPU", "RLIMIT_DATA", "RLIMIT_FSIZE",
+          "RLIMIT_NOFILE", "RLIMIT_STACK", "RLIMIT_AS"}
+      do
+        rlim = getrlimit (resource[rc])
+        expect (type (rlim.rlim_cur)).to_be "number"
+        expect (type (rlim.rlim_max)).to_be "number"
+      end
+
+
+- describe setrlimit:
+  - before:
+      getrlimit, setrlimit = resource.getrlimit, resource.setrlimit
+
+  - context with bad arguments: |
+      badargs.diagnose (setrlimit, "(int, table)")
+
+      examples {
+        ["context diagnosing rlimit table fields"] = {
+          {
+            ["it diagnoses argument #2 missing rlim_cur field"] = function ()
+              expect (setrlimit (-1, {})).
+                to_raise "bad argument #2 to 'setrlimit' (int expected for field 'rlim_cur', got no value)"
+            end
+          },
+          {
+            ["it diagnoses argument #2 rlim_cur field type not int"] = function ()
+              expect (setrlimit (-1, {rlim_cur = false})).
+                to_raise "bad argument #2 to 'setrlimit' (int expected for field 'rlim_cur', got boolean)"
+            end
+          },
+          {
+            ["it diagnoses argument #2 missing rlim_max field"] = function ()
+              expect (setrlimit (-1, {rlim_cur = -1})).
+                to_raise "bad argument #2 to 'setrlimit' (int expected for field 'rlim_max', got no value)"
+            end
+          },
+          {
+            ["it diagnoses argument #2 rlim_max field type not int"] = function ()
+              expect (setrlimit (-1, {rlim_cur = -1, rlim_max = false})).
+                to_raise "bad argument #2 to 'setrlimit' (int expected for field 'rlim_max', got boolean)"
+            end
+          },
+          {
+            ["it diagnoses argument #2 spurious fields"] = function ()
+              expect (setrlimit (-1, {rlim_cur = -1, rlim_max = -1, bogus = false})).
+                to_raise "bad argument #2 to 'setrlimit' (invalid field name 'bogus')"
+            end
+          },
+        }
+      }
+  - it accepts PosixRlimit argument:
+      pending "requires elevated privileges"
+      for _, rc in pairs {"RLIMIT_CORE", "RLIMIT_CPU", "RLIMIT_DATA", "RLIMIT_FSIZE",
+          "RLIMIT_NOFILE", "RLIMIT_STACK", "RLIMIT_AS"}
+      do
+        rlim = getrlimit (resource[rc])
+        expect ({setrlimit (resource[rc], rlim)}).to_be (0)
+      end

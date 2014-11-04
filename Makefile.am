@@ -24,6 +24,8 @@
 LUA_PATH  ?= ;
 LUA_CPATH ?= ;
 
+SPECL_ENV =
+
 
 ## ---------- ##
 ## Bootstrap. ##

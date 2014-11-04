@@ -38,5 +38,12 @@ AC_DEFUN([SS_CONFIG_TRAVIS], [
   AC_SUBST([EXTRA_ROCKS])
   AC_CONFIG_FILES([.travis.yml:travis.yml.in], [
     # Remove trailing blanks so as not to trip sc_trailing_blank in syntax check
-    sed 's|  *$||' < .travis.yml > ss_tmp && mv ss_tmp .travis.yml; rm -f ss_tmp])
+    sed 's|  *$||' < .travis.yml > ss_tmp && {
+      if test -f .slackid; then
+        read slackid < .slackid
+        printf '%s\n' '' 'notifications:' "  slack: $slackid" >> ss_tmp
+      fi
+      mv ss_tmp .travis.yml
+      rm -f ss_tmp
+    }])
 ])

@@ -178,7 +178,8 @@ DIST_COMMON = $(srcdir)/local.mk $(srcdir)/specs/specs.mk \
 	$(srcdir)/Makefile.am $(top_srcdir)/configure \
 	$(am__configure_deps) $(srcdir)/config.h.in \
 	$(srcdir)/travis.yml.in $(top_srcdir)/build-aux/config.ld.in \
-	$(dist_bin_SCRIPTS) $(top_srcdir)/build-aux/depcomp \
+	$(top_srcdir)/lib/posix.lua.in $(dist_bin_SCRIPTS) \
+	$(top_srcdir)/build-aux/depcomp $(dist_classes_DATA) \
 	$(dist_data_DATA) $(dist_doc_DATA) $(dist_examples_DATA) \
 	$(dist_lua_DATA) $(dist_luaposix_DATA) $(dist_modules_DATA) \
 	COPYING build-aux/ar-lib build-aux/compile \
@@ -198,15 +199,16 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/00gnulib.m4 \
 	$(top_srcdir)/m4/gnulib-comp.m4 $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
 	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
-	$(top_srcdir)/m4/manywarnings.m4 $(top_srcdir)/m4/slingshot.m4 \
-	$(top_srcdir)/m4/warnings.m4 $(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/manywarnings.m4 $(top_srcdir)/m4/onceonly.m4 \
+	$(top_srcdir)/m4/slingshot.m4 $(top_srcdir)/m4/warnings.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = config.h
-CONFIG_CLEAN_FILES = .travis.yml build-aux/config.ld
+CONFIG_CLEAN_FILES = .travis.yml build-aux/config.ld lib/posix.lua
 CONFIG_CLEAN_VPATH_FILES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
@@ -235,34 +237,243 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
-	"$(DESTDIR)$(bindir)" "$(DESTDIR)$(datadir)" \
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(luaexecdir)" \
+	"$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" \
+	"$(DESTDIR)$(classesdir)" "$(DESTDIR)$(datadir)" \
 	"$(DESTDIR)$(docdir)" "$(DESTDIR)$(examplesdir)" \
 	"$(DESTDIR)$(luadir)" "$(DESTDIR)$(luaposixdir)" \
 	"$(DESTDIR)$(modulesdir)" "$(DESTDIR)$(docdir)"
-LTLIBRARIES = $(lib_LTLIBRARIES)
-ext_curses_curses_c_la_LIBADD =
+LTLIBRARIES = $(lib_LTLIBRARIES) $(luaexec_LTLIBRARIES)
+ext_posix_ctype_la_LIBADD =
+ext_posix_ctype_la_SOURCES = ext/posix/ctype.c
 am__dirstamp = $(am__leading_dot)dirstamp
-am__objects_1 =
-am_ext_curses_curses_c_la_OBJECTS = ext/curses/curses.lo \
-	$(am__objects_1)
-ext_curses_curses_c_la_OBJECTS = $(am_ext_curses_curses_c_la_OBJECTS)
+ext_posix_ctype_la_OBJECTS = ext/posix/ctype.lo
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-ext_curses_curses_c_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+ext_posix_ctype_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
-	$(AM_CFLAGS) $(CFLAGS) $(ext_curses_curses_c_la_LDFLAGS) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_ctype_la_LDFLAGS) \
 	$(LDFLAGS) -o $@
-ext_posix_posix_c_la_LIBADD =
-am_ext_posix_posix_c_la_OBJECTS =  \
-	ext/posix/ext_posix_posix_c_la-posix.lo $(am__objects_1)
-ext_posix_posix_c_la_OBJECTS = $(am_ext_posix_posix_c_la_OBJECTS)
-ext_posix_posix_c_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+ext_posix_curses_la_LIBADD =
+ext_posix_curses_la_SOURCES = ext/posix/curses.c
+ext_posix_curses_la_OBJECTS = ext/posix/curses.lo
+ext_posix_curses_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
-	$(ext_posix_posix_c_la_CFLAGS) $(CFLAGS) \
-	$(ext_posix_posix_c_la_LDFLAGS) $(LDFLAGS) -o $@
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_curses_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_curses_chstr_la_LIBADD =
+ext_posix_curses_chstr_la_SOURCES = ext/posix/curses/chstr.c
+ext_posix_curses_chstr_la_OBJECTS = ext/posix/curses/chstr.lo
+ext_posix_curses_window_la_LIBADD =
+ext_posix_curses_window_la_SOURCES = ext/posix/curses/window.c
+ext_posix_curses_window_la_OBJECTS = ext/posix/curses/window.lo
+ext_posix_dirent_la_LIBADD =
+ext_posix_dirent_la_SOURCES = ext/posix/dirent.c
+ext_posix_dirent_la_OBJECTS = ext/posix/dirent.lo
+ext_posix_dirent_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_dirent_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_errno_la_LIBADD =
+ext_posix_errno_la_SOURCES = ext/posix/errno.c
+ext_posix_errno_la_OBJECTS = ext/posix/errno.lo
+ext_posix_errno_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_errno_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_fcntl_la_LIBADD =
+ext_posix_fcntl_la_SOURCES = ext/posix/fcntl.c
+ext_posix_fcntl_la_OBJECTS = ext/posix/fcntl.lo
+ext_posix_fcntl_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_fcntl_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_fnmatch_la_LIBADD =
+ext_posix_fnmatch_la_SOURCES = ext/posix/fnmatch.c
+ext_posix_fnmatch_la_OBJECTS = ext/posix/fnmatch.lo
+ext_posix_fnmatch_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_fnmatch_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_getopt_la_LIBADD =
+ext_posix_getopt_la_SOURCES = ext/posix/getopt.c
+ext_posix_getopt_la_OBJECTS = ext/posix/getopt.lo
+ext_posix_getopt_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_getopt_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_glob_la_LIBADD =
+ext_posix_glob_la_SOURCES = ext/posix/glob.c
+ext_posix_glob_la_OBJECTS = ext/posix/glob.lo
+ext_posix_glob_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_glob_la_LDFLAGS) $(LDFLAGS) \
+	-o $@
+ext_posix_grp_la_LIBADD =
+ext_posix_grp_la_SOURCES = ext/posix/grp.c
+ext_posix_grp_la_OBJECTS = ext/posix/grp.lo
+ext_posix_grp_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_grp_la_LDFLAGS) $(LDFLAGS) \
+	-o $@
+ext_posix_libgen_la_LIBADD =
+ext_posix_libgen_la_SOURCES = ext/posix/libgen.c
+ext_posix_libgen_la_OBJECTS = ext/posix/libgen.lo
+ext_posix_libgen_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_libgen_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_poll_la_LIBADD =
+ext_posix_poll_la_SOURCES = ext/posix/poll.c
+ext_posix_poll_la_OBJECTS = ext/posix/poll.lo
+ext_posix_poll_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_poll_la_LDFLAGS) $(LDFLAGS) \
+	-o $@
+ext_posix_posix_la_LIBADD =
+am__objects_1 =
+am_ext_posix_posix_la_OBJECTS = ext/posix/ext_posix_posix_la-posix.lo \
+	$(am__objects_1)
+ext_posix_posix_la_OBJECTS = $(am_ext_posix_posix_la_OBJECTS)
+ext_posix_posix_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(ext_posix_posix_la_CFLAGS) $(CFLAGS) \
+	$(ext_posix_posix_la_LDFLAGS) $(LDFLAGS) -o $@
+ext_posix_pwd_la_LIBADD =
+ext_posix_pwd_la_SOURCES = ext/posix/pwd.c
+ext_posix_pwd_la_OBJECTS = ext/posix/pwd.lo
+ext_posix_pwd_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_pwd_la_LDFLAGS) $(LDFLAGS) \
+	-o $@
+ext_posix_sched_la_LIBADD =
+ext_posix_sched_la_SOURCES = ext/posix/sched.c
+ext_posix_sched_la_OBJECTS = ext/posix/sched.lo
+ext_posix_sched_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_sched_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_signal_la_LIBADD =
+ext_posix_signal_la_SOURCES = ext/posix/signal.c
+ext_posix_signal_la_OBJECTS = ext/posix/signal.lo
+ext_posix_signal_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_signal_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_stdio_la_LIBADD =
+ext_posix_stdio_la_SOURCES = ext/posix/stdio.c
+ext_posix_stdio_la_OBJECTS = ext/posix/stdio.lo
+ext_posix_stdio_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_stdio_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_stdlib_la_LIBADD =
+ext_posix_stdlib_la_SOURCES = ext/posix/stdlib.c
+ext_posix_stdlib_la_OBJECTS = ext/posix/stdlib.lo
+ext_posix_stdlib_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_stdlib_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_sys_msg_la_LIBADD =
+ext_posix_sys_msg_la_SOURCES = ext/posix/sys/msg.c
+ext_posix_sys_msg_la_OBJECTS = ext/posix/sys/msg.lo
+ext_posix_sys_msg_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_sys_msg_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_sys_resource_la_LIBADD =
+ext_posix_sys_resource_la_SOURCES = ext/posix/sys/resource.c
+ext_posix_sys_resource_la_OBJECTS = ext/posix/sys/resource.lo
+ext_posix_sys_resource_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_sys_resource_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_sys_socket_la_LIBADD =
+ext_posix_sys_socket_la_SOURCES = ext/posix/sys/socket.c
+ext_posix_sys_socket_la_OBJECTS = ext/posix/sys/socket.lo
+ext_posix_sys_socket_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_sys_socket_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_sys_stat_la_LIBADD =
+ext_posix_sys_stat_la_SOURCES = ext/posix/sys/stat.c
+ext_posix_sys_stat_la_OBJECTS = ext/posix/sys/stat.lo
+ext_posix_sys_stat_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_sys_stat_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_sys_statvfs_la_LIBADD =
+ext_posix_sys_statvfs_la_SOURCES = ext/posix/sys/statvfs.c
+ext_posix_sys_statvfs_la_OBJECTS = ext/posix/sys/statvfs.lo
+ext_posix_sys_statvfs_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_sys_statvfs_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_sys_time_la_LIBADD =
+ext_posix_sys_time_la_SOURCES = ext/posix/sys/time.c
+ext_posix_sys_time_la_OBJECTS = ext/posix/sys/time.lo
+ext_posix_sys_time_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_sys_time_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_sys_times_la_LIBADD =
+ext_posix_sys_times_la_SOURCES = ext/posix/sys/times.c
+ext_posix_sys_times_la_OBJECTS = ext/posix/sys/times.lo
+ext_posix_sys_times_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_sys_times_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_sys_utsname_la_LIBADD =
+ext_posix_sys_utsname_la_SOURCES = ext/posix/sys/utsname.c
+ext_posix_sys_utsname_la_OBJECTS = ext/posix/sys/utsname.lo
+ext_posix_sys_utsname_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_sys_utsname_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_sys_wait_la_LIBADD =
+ext_posix_sys_wait_la_SOURCES = ext/posix/sys/wait.c
+ext_posix_sys_wait_la_OBJECTS = ext/posix/sys/wait.lo
+ext_posix_sys_wait_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_sys_wait_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_syslog_la_LIBADD =
+ext_posix_syslog_la_SOURCES = ext/posix/syslog.c
+ext_posix_syslog_la_OBJECTS = ext/posix/syslog.lo
+ext_posix_syslog_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_syslog_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_termio_la_LIBADD =
+ext_posix_termio_la_SOURCES = ext/posix/termio.c
+ext_posix_termio_la_OBJECTS = ext/posix/termio.lo
+ext_posix_termio_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_termio_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_time_la_LIBADD =
+ext_posix_time_la_SOURCES = ext/posix/time.c
+ext_posix_time_la_OBJECTS = ext/posix/time.lo
+ext_posix_time_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_time_la_LDFLAGS) $(LDFLAGS) \
+	-o $@
+ext_posix_unistd_la_LIBADD =
+ext_posix_unistd_la_SOURCES = ext/posix/unistd.c
+ext_posix_unistd_la_OBJECTS = ext/posix/unistd.lo
+ext_posix_unistd_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_unistd_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+ext_posix_utime_la_LIBADD =
+ext_posix_utime_la_SOURCES = ext/posix/utime.c
+ext_posix_utime_la_OBJECTS = ext/posix/utime.lo
+ext_posix_utime_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(ext_posix_utime_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
 SCRIPTS = $(bin_SCRIPTS) $(dist_bin_SCRIPTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -298,18 +509,44 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(ext_curses_curses_c_la_SOURCES) \
-	$(ext_posix_posix_c_la_SOURCES)
-DIST_SOURCES = $(ext_curses_curses_c_la_SOURCES) \
-	$(ext_posix_posix_c_la_SOURCES)
+SOURCES = ext/posix/ctype.c ext/posix/curses.c \
+	ext/posix/curses/chstr.c ext/posix/curses/window.c \
+	ext/posix/dirent.c ext/posix/errno.c ext/posix/fcntl.c \
+	ext/posix/fnmatch.c ext/posix/getopt.c ext/posix/glob.c \
+	ext/posix/grp.c ext/posix/libgen.c ext/posix/poll.c \
+	$(ext_posix_posix_la_SOURCES) \
+	$(EXTRA_ext_posix_posix_la_SOURCES) ext/posix/pwd.c \
+	ext/posix/sched.c ext/posix/signal.c ext/posix/stdio.c \
+	ext/posix/stdlib.c ext/posix/sys/msg.c \
+	ext/posix/sys/resource.c ext/posix/sys/socket.c \
+	ext/posix/sys/stat.c ext/posix/sys/statvfs.c \
+	ext/posix/sys/time.c ext/posix/sys/times.c \
+	ext/posix/sys/utsname.c ext/posix/sys/wait.c \
+	ext/posix/syslog.c ext/posix/termio.c ext/posix/time.c \
+	ext/posix/unistd.c ext/posix/utime.c
+DIST_SOURCES = ext/posix/ctype.c ext/posix/curses.c \
+	ext/posix/curses/chstr.c ext/posix/curses/window.c \
+	ext/posix/dirent.c ext/posix/errno.c ext/posix/fcntl.c \
+	ext/posix/fnmatch.c ext/posix/getopt.c ext/posix/glob.c \
+	ext/posix/grp.c ext/posix/libgen.c ext/posix/poll.c \
+	$(ext_posix_posix_la_SOURCES) \
+	$(EXTRA_ext_posix_posix_la_SOURCES) ext/posix/pwd.c \
+	ext/posix/sched.c ext/posix/signal.c ext/posix/stdio.c \
+	ext/posix/stdlib.c ext/posix/sys/msg.c \
+	ext/posix/sys/resource.c ext/posix/sys/socket.c \
+	ext/posix/sys/stat.c ext/posix/sys/statvfs.c \
+	ext/posix/sys/time.c ext/posix/sys/times.c \
+	ext/posix/sys/utsname.c ext/posix/sys/wait.c \
+	ext/posix/syslog.c ext/posix/termio.c ext/posix/time.c \
+	ext/posix/unistd.c ext/posix/utime.c
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-DATA = $(dist_data_DATA) $(dist_doc_DATA) $(dist_examples_DATA) \
-	$(dist_lua_DATA) $(dist_luaposix_DATA) $(dist_modules_DATA) \
-	$(doc_DATA)
+DATA = $(dist_classes_DATA) $(dist_data_DATA) $(dist_doc_DATA) \
+	$(dist_examples_DATA) $(dist_lua_DATA) $(dist_luaposix_DATA) \
+	$(dist_modules_DATA) $(doc_DATA)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) \
 	$(LISP)config.h.in
 # Read a list of newline-separated strings from the standard input,
@@ -386,7 +623,9 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LDOC = @LDOC@
+LIBCRYPT = @LIBCRYPT@
 LIBOBJS = @LIBOBJS@
+LIBRT = @LIBRT@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
 LIBTOOL_DEPS = @LIBTOOL_DEPS@
@@ -419,7 +658,6 @@ PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
 POSIX_EXTRA_CFLAGS = @POSIX_EXTRA_CFLAGS@
-POSIX_EXTRA_LDFLAGS = @POSIX_EXTRA_LDFLAGS@
 RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
@@ -427,8 +665,6 @@ SHELL = @SHELL@
 SPECL = @SPECL@
 STRIP = @STRIP@
 VERSION = @VERSION@
-WANTEDLIBS = @WANTEDLIBS@
-WANTEDLUA = @WANTEDLUA@
 WARN_CFLAGS = @WARN_CFLAGS@
 WERROR_CFLAGS = @WERROR_CFLAGS@
 abs_builddir = @abs_builddir@
@@ -494,39 +730,45 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+SPECL_ENV = LUA='$(LUA)' abs_top_builddir='$(abs_top_builddir)' \
+	abs_top_srcdir='$(abs_top_srcdir)' \
+	top_builddir='$(top_builddir)' top_srcdir='$(top_srcdir)' \
+	$(NOTHING_ELSE)
 ACLOCAL_AMFLAGS = -I m4
-AM_CPPFLAGS = $(LUA_INCLUDE) -I $(srcdir)/ext/include
-EXTRA_DIST = $(specl_SPECS) $(NOTHING_ELSE) build-aux/config.ld.in \
-	build-aux/make_lcurses_doc.pl examples/dir.lua \
-	examples/fork.lua examples/fork2.lua examples/getopt.lua \
-	examples/glob.lua examples/limit.lua examples/lock.lua \
-	examples/netlink-uevent.lua examples/ping.lua \
-	examples/poll.lua examples/signal.lua examples/socket.lua \
-	examples/termios.lua examples/tree.lua ext/include/strlcpy.c \
+AM_CPPFLAGS = $(LUA_INCLUDE) -I $(srcdir)/ext/include -I \
+	$(srcdir)/ext/posix
+EXTRA_DIST = $(srcdir)/specs/spec_helper.lua $(NOTHING_ELSE) \
+	$(specl_SPECS) $(NOTHING_ELSE) build-aux/config.ld.in \
+	examples/dir.lua examples/fork.lua examples/fork2.lua \
+	examples/getopt.lua examples/glob.lua examples/limit.lua \
+	examples/lock.lua examples/netlink-uevent.lua \
+	examples/ping.lua examples/poll.lua examples/signal.lua \
+	examples/socket.lua examples/termios.lua examples/tree.lua \
+	ext/include/_helpers.c ext/include/strlcpy.c \
 	ext/include/lua52compat.h $(NOTHING_ELSE) $(mkrockspecs) \
 	$(package_rockspec) $(rockspec_conf) $(NOTHING_ELSE)
-EXTRA_LTLIBRARIES = ext/curses/curses_c.la
+EXTRA_LTLIBRARIES = $(posix_submodules)
 CLEANFILES = 
 DISTCLEANFILES = $(luarocks_config) $(NOTHING_ELSE)
 MAINTAINERCLEANFILES = doc/index.html doc/ldoc.css \
 	$(dist_examples_DATA) $(dist_modules_DATA) $(NOTHING_ELSE)
 NOTHING_ELSE = 
 bin_SCRIPTS = 
-check_local = specl-check-local
+check_local = specl-check-local $(posix_submodules)
 dist_bin_SCRIPTS = 
-dist_lua_DATA = lib/posix.lua $(WANTEDLUA) $(NOTHING_ELSE)
+dist_lua_DATA = lib/posix.lua lib/curses.lua $(NOTHING_ELSE)
 doc_DATA = 
 install_exec_hooks = 
-lib_LTLIBRARIES = ext/posix/posix_c.la $(WANTEDLIBS)
+lib_LTLIBRARIES = 
 man_MANS = 
 save_release_files = $(scm_rockspec)
-curses_cpath = $(abs_builddir)/ext/curses/$(objdir)/?$(shrext)
 posix_cpath = $(abs_builddir)/ext/posix/$(objdir)/?$(shrext)
-std_cpath = $(curses_cpath);$(posix_cpath);$(LUA_CPATH)
+std_cpath = $(posix_cpath);$(LUA_CPATH)
 std_path = $(abs_srcdir)/lib/?.lua;$(LUA_PATH)
 LUA_ENV = LUA_PATH="$(std_path)" LUA_CPATH="$(std_cpath)"
 AM_CFLAGS = $(WERROR_CFLAGS) $(WARN_CFLAGS)
-old_NEWS_hash = 0892063d70673912ae06083cb59215a5
+AM_LDFLAGS = -module -avoid-version
+old_NEWS_hash = 7416f7c2db8d17f396b49cf2386f93a6
 update_copyright_env = \
 	UPDATE_COPYRIGHT_HOLDER='(Gary V. Vaughan|Reuben Thomas|luaposix authors)' \
 	UPDATE_COPYRIGHT_USE_INTERVALS=1 \
@@ -534,49 +776,194 @@ update_copyright_env = \
 
 examplesdir = $(docdir)/examples
 modulesdir = $(docdir)/modules
+classesdir = $(docdir)/classes
 dist_data_DATA = 
-dist_doc_DATA = doc/curses.html doc/curses_c.html doc/index.html \
-	doc/ldoc.css $(NOTHING_ELSE)
-dist_examples_DATA = doc/examples/dir.lua.html \
-	doc/examples/fork.lua.html doc/examples/fork2.lua.html \
-	doc/examples/getopt.lua.html doc/examples/glob.lua.html \
-	doc/examples/limit.lua.html doc/examples/lock.lua.html \
+dist_doc_DATA = doc/index.html doc/ldoc.css $(NOTHING_ELSE)
+dist_examples_DATA = doc/examples/curses.lua.html \
+	doc/examples/dir.lua.html doc/examples/fork.lua.html \
+	doc/examples/fork2.lua.html doc/examples/getopt.lua.html \
+	doc/examples/glob.lua.html doc/examples/limit.lua.html \
+	doc/examples/lock.lua.html \
 	doc/examples/netlink-uevent.lua.html \
 	doc/examples/ping.lua.html doc/examples/poll.lua.html \
 	doc/examples/signal.lua.html doc/examples/socket.lua.html \
 	doc/examples/termios.lua.html doc/examples/tree.lua.html \
 	$(NOTHING_ELSE)
-dist_modules_DATA = doc/modules/posix.html doc/modules/posix.sys.html \
+dist_modules_DATA = doc/modules/posix.ctype.html \
+	doc/modules/posix.dirent.html doc/modules/posix.errno.html \
+	doc/modules/posix.fcntl.html doc/modules/posix.fnmatch.html \
+	doc/modules/posix.getopt.html doc/modules/posix.glob.html \
+	doc/modules/posix.grp.html doc/modules/posix.html \
+	doc/modules/posix.libgen.html doc/modules/posix.poll.html \
+	doc/modules/posix.pwd.html doc/modules/posix.sched.html \
+	doc/modules/posix.signal.html doc/modules/posix.stdio.html \
+	doc/modules/posix.stdlib.html doc/modules/posix.sys.msg.html \
+	doc/modules/posix.sys.resource.html \
+	doc/modules/posix.sys.socket.html \
+	doc/modules/posix.sys.stat.html \
+	doc/modules/posix.sys.statvfs.html \
+	doc/modules/posix.sys.time.html \
+	doc/modules/posix.sys.times.html \
+	doc/modules/posix.sys.utsname.html \
+	doc/modules/posix.sys.wait.html doc/modules/posix.syslog.html \
+	doc/modules/posix.termio.html doc/modules/posix.time.html \
+	doc/modules/posix.unistd.html doc/modules/posix.utime.html \
 	$(NOTHING_ELSE)
-SPECL_ENV = $(LUA_ENV)
+dist_classes_DATA = doc/classes/posix.curses.chstr.html \
+	doc/classes/posix.curses.window.html $(NOTHING_ELSE)
 specl_SPECS = \
-	$(srcdir)/specs/curses_spec.yaml	\
-	$(srcdir)/specs/lposix_spec.yaml	\
-	$(srcdir)/specs/posix_spec.yaml		\
+	$(srcdir)/specs/curses_spec.yaml		\
+	$(srcdir)/specs/lposix_spec.yaml		\
+	$(srcdir)/specs/posix_compat_spec.yaml		\
+	$(srcdir)/specs/posix_ctype_spec.yaml		\
+	$(srcdir)/specs/posix_deprecated_spec.yaml	\
+	$(srcdir)/specs/posix_fcntl_spec.yaml		\
+	$(srcdir)/specs/posix_fnmatch_spec.yaml		\
+	$(srcdir)/specs/posix_grp_spec.yaml		\
+	$(srcdir)/specs/posix_pwd_spec.yaml		\
+	$(srcdir)/specs/posix_signal_spec.yaml		\
+	$(srcdir)/specs/posix_sys_msg_spec.yaml		\
+	$(srcdir)/specs/posix_sys_resource_spec.yaml	\
+	$(srcdir)/specs/posix_sys_socket_spec.yaml	\
+	$(srcdir)/specs/posix_sys_stat_spec.yaml	\
+	$(srcdir)/specs/posix_sys_statvfs_spec.yaml	\
+	$(srcdir)/specs/posix_sys_time_spec.yaml	\
+	$(srcdir)/specs/posix_sys_times_spec.yaml	\
+	$(srcdir)/specs/posix_sys_utsname_spec.yaml	\
+	$(srcdir)/specs/posix_syslog_spec.yaml		\
+	$(srcdir)/specs/posix_time_spec.yaml		\
+	$(srcdir)/specs/posix_unistd_spec.yaml		\
+	$(srcdir)/specs/posix_spec.yaml			\
 	$(NOTHING_ELSE)
 
 luaposixdir = $(luadir)/posix
 dist_luaposix_DATA = \
+	lib/posix/_argcheck.lua		\
+	lib/posix/compat.lua		\
+	lib/posix/deprecated.lua	\
 	lib/posix/sys.lua		\
+	lib/posix/util.lua		\
 	$(NOTHING_ELSE)
 
-ext_posix_posix_c_la_SOURCES = \
+luaexec_LTLIBRARIES = ext/posix/posix.la
+ext_posix_posix_la_SOURCES = \
 	ext/posix/posix.c		\
 	$(NOTHING_ELSE)
 
-ext_posix_posix_c_la_CFLAGS = \
-	$(POSIX_EXTRA_CFLAGS)
-
-ext_posix_posix_c_la_LDFLAGS = \
-	-module -avoid-version $(POSIX_EXTRA_LDFLAGS)
-
-ext_curses_curses_c_la_SOURCES = \
-	ext/curses/curses.c		\
+EXTRA_ext_posix_posix_la_SOURCES = \
+	ext/posix/ctype.c		\
+	ext/posix/curses.c		\
+	ext/posix/curses/chstr.c	\
+	ext/posix/curses/window.c	\
+	ext/posix/dirent.c		\
+	ext/posix/errno.c		\
+	ext/posix/fcntl.c		\
+	ext/posix/fnmatch.c		\
+	ext/posix/getopt.c		\
+	ext/posix/glob.c		\
+	ext/posix/grp.c			\
+	ext/posix/libgen.c		\
+	ext/posix/poll.c		\
+	ext/posix/pwd.c			\
+	ext/posix/sched.c		\
+	ext/posix/signal.c		\
+	ext/posix/stdio.c		\
+	ext/posix/stdlib.c		\
+	ext/posix/sys/msg.c		\
+	ext/posix/sys/resource.c	\
+	ext/posix/sys/socket.c		\
+	ext/posix/sys/stat.c		\
+	ext/posix/sys/statvfs.c		\
+	ext/posix/sys/time.c		\
+	ext/posix/sys/times.c		\
+	ext/posix/sys/utsname.c		\
+	ext/posix/sys/wait.c		\
+	ext/posix/syslog.c		\
+	ext/posix/termio.c		\
+	ext/posix/time.c		\
+	ext/posix/unistd.c		\
+	ext/posix/utime.c		\
 	$(NOTHING_ELSE)
 
-ext_curses_curses_c_la_LDFLAGS = \
-	-module -avoid-version $(CURSES_LIB) -rpath '$(libdir)'
+ext_posix_posix_la_CFLAGS = $(AM_CFLAGS) $(POSIX_EXTRA_CFLAGS)
+ext_posix_posix_la_LDFLAGS = $(AM_LDFLAGS) $(LIBCRYPT) $(LIBRT) $(CURSES_LIB)
+luaexecposixdir = $(luaexecdir)/posix
+luaexecposixsysdir = $(luaexecposixdir)/sys
 
+# EXTRA_LTLIBRARIES don't have an RPATH by default.
+luaexec_LDFLAGS = $(AM_LDFLAGS) -rpath '$(luaexecdir)'
+luaexecposix_LDFLAGS = $(AM_LDFLAGS) -rpath '$(luaexecposixdir)'
+luaexecposixsys_LDFLAGS = $(AM_LDFLAGS) -rpath '$(luaexecposixsysdir)'
+
+# We don't install these, but we do need to make sure they compile
+# for people who want to copy some of the sources into their own
+# projects for custom interpreters/libraries.
+posix_submodules = \
+	ext/posix/ctype.la		\
+	ext/posix/curses.la		\
+	ext/posix/curses/chstr.la	\
+	ext/posix/curses/window.la	\
+	ext/posix/dirent.la		\
+	ext/posix/errno.la		\
+	ext/posix/fcntl.la		\
+	ext/posix/fnmatch.la		\
+	ext/posix/getopt.la		\
+	ext/posix/glob.la		\
+	ext/posix/grp.la		\
+	ext/posix/libgen.la		\
+	ext/posix/poll.la		\
+	ext/posix/pwd.la		\
+	ext/posix/sched.la		\
+	ext/posix/signal.la		\
+	ext/posix/stdio.la		\
+	ext/posix/stdlib.la		\
+	ext/posix/sys/msg.la		\
+	ext/posix/sys/resource.la	\
+	ext/posix/sys/socket.la		\
+	ext/posix/sys/stat.la		\
+	ext/posix/sys/statvfs.la	\
+	ext/posix/sys/time.la		\
+	ext/posix/sys/times.la		\
+	ext/posix/sys/utsname.la	\
+	ext/posix/sys/wait.la		\
+	ext/posix/syslog.la		\
+	ext/posix/termio.la		\
+	ext/posix/time.la		\
+	ext/posix/unistd.la		\
+	ext/posix/utime.la		\
+	$(NOTHING_ELSE)
+
+ext_posix_ctype_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_curses_la_LDFLAGS = $(luaexecposix_LDFLAGS) $(CURSES_LIB)
+ext_posix_dirent_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_errno_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_fcntl_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_fnmatch_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_getopt_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_glob_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_grp_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_libgen_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_poll_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_pwd_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_sched_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_signal_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_stdio_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_stdlib_la_LDFLAGS = $(luaexecposix_LDFLAGS) $(LIBCRYPT)
+ext_posix_syslog_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_termio_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_time_la_LDFLAGS = $(luaexecposix_LDFLAGS) $(LIBRT)
+ext_posix_unistd_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_utime_la_LDFLAGS = $(luaexecposix_LDFLAGS)
+ext_posix_sys_msg_la_LDFLAGS = $(luaexecposixsys_LDFLAGS)
+ext_posix_sys_resource_la_LDFLAGS = $(luaexecposixsys_LDFLAGS)
+ext_posix_sys_socket_la_LDFLAGS = $(luaexecposixsys_LDFLAGS)
+ext_posix_sys_stat_la_LDFLAGS = $(luaexecposixsys_LDFLAGS)
+ext_posix_sys_statvfs_la_LDFLAGS = $(luaexecposixsys_LDFLAGS)
+ext_posix_sys_time_la_LDFLAGS = $(luaexecposixsys_LDFLAGS)
+ext_posix_sys_times_la_LDFLAGS = $(luaexecposixsys_LDFLAGS)
+ext_posix_sys_utsname_la_LDFLAGS = $(luaexecposixsys_LDFLAGS)
+ext_posix_sys_wait_la_LDFLAGS = $(luaexecposixsys_LDFLAGS)
+allhtml = $(dist_doc_DATA) $(dist_examples_DATA) $(dist_modules_DATA) $(dist_classes_DATA)
 luarocks_config = build-aux/luarocks-config.lua
 rockspec_conf = $(srcdir)/rockspec.conf
 mkrockspecs = $(srcdir)/build-aux/mkrockspecs
@@ -658,6 +1045,8 @@ distclean-hdr:
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 build-aux/config.ld: $(top_builddir)/config.status $(top_srcdir)/build-aux/config.ld.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
+lib/posix.lua: $(top_builddir)/config.status $(top_srcdir)/lib/posix.lua.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
 
 install-libLTLIBRARIES: $(lib_LTLIBRARIES)
 	@$(NORMAL_INSTALL)
@@ -693,28 +1082,299 @@ clean-libLTLIBRARIES:
 	  echo rm -f $${locs}; \
 	  rm -f $${locs}; \
 	}
-ext/curses/$(am__dirstamp):
-	@$(MKDIR_P) ext/curses
-	@: > ext/curses/$(am__dirstamp)
-ext/curses/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ext/curses/$(DEPDIR)
-	@: > ext/curses/$(DEPDIR)/$(am__dirstamp)
-ext/curses/curses.lo: ext/curses/$(am__dirstamp) \
-	ext/curses/$(DEPDIR)/$(am__dirstamp)
 
-ext/curses/curses_c.la: $(ext_curses_curses_c_la_OBJECTS) $(ext_curses_curses_c_la_DEPENDENCIES) $(EXTRA_ext_curses_curses_c_la_DEPENDENCIES) ext/curses/$(am__dirstamp)
-	$(AM_V_CCLD)$(ext_curses_curses_c_la_LINK)  $(ext_curses_curses_c_la_OBJECTS) $(ext_curses_curses_c_la_LIBADD) $(LIBS)
+install-luaexecLTLIBRARIES: $(luaexec_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	@list='$(luaexec_LTLIBRARIES)'; test -n "$(luaexecdir)" || list=; \
+	list2=; for p in $$list; do \
+	  if test -f $$p; then \
+	    list2="$$list2 $$p"; \
+	  else :; fi; \
+	done; \
+	test -z "$$list2" || { \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(luaexecdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(luaexecdir)" || exit 1; \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(luaexecdir)'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(luaexecdir)"; \
+	}
+
+uninstall-luaexecLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	@list='$(luaexec_LTLIBRARIES)'; test -n "$(luaexecdir)" || list=; \
+	for p in $$list; do \
+	  $(am__strip_dir) \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(luaexecdir)/$$f'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(luaexecdir)/$$f"; \
+	done
+
+clean-luaexecLTLIBRARIES:
+	-test -z "$(luaexec_LTLIBRARIES)" || rm -f $(luaexec_LTLIBRARIES)
+	@list='$(luaexec_LTLIBRARIES)'; \
+	locs=`for p in $$list; do echo $$p; done | \
+	      sed 's|^[^/]*$$|.|; s|/[^/]*$$||; s|$$|/so_locations|' | \
+	      sort -u`; \
+	test -z "$$locs" || { \
+	  echo rm -f $${locs}; \
+	  rm -f $${locs}; \
+	}
 ext/posix/$(am__dirstamp):
 	@$(MKDIR_P) ext/posix
 	@: > ext/posix/$(am__dirstamp)
 ext/posix/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ext/posix/$(DEPDIR)
 	@: > ext/posix/$(DEPDIR)/$(am__dirstamp)
-ext/posix/ext_posix_posix_c_la-posix.lo: ext/posix/$(am__dirstamp) \
+ext/posix/ctype.lo: ext/posix/$(am__dirstamp) \
 	ext/posix/$(DEPDIR)/$(am__dirstamp)
 
-ext/posix/posix_c.la: $(ext_posix_posix_c_la_OBJECTS) $(ext_posix_posix_c_la_DEPENDENCIES) $(EXTRA_ext_posix_posix_c_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
-	$(AM_V_CCLD)$(ext_posix_posix_c_la_LINK) -rpath $(libdir) $(ext_posix_posix_c_la_OBJECTS) $(ext_posix_posix_c_la_LIBADD) $(LIBS)
+ext/posix/ctype.la: $(ext_posix_ctype_la_OBJECTS) $(ext_posix_ctype_la_DEPENDENCIES) $(EXTRA_ext_posix_ctype_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_ctype_la_LINK)  $(ext_posix_ctype_la_OBJECTS) $(ext_posix_ctype_la_LIBADD) $(LIBS)
+ext/posix/curses.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/curses.la: $(ext_posix_curses_la_OBJECTS) $(ext_posix_curses_la_DEPENDENCIES) $(EXTRA_ext_posix_curses_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_curses_la_LINK)  $(ext_posix_curses_la_OBJECTS) $(ext_posix_curses_la_LIBADD) $(LIBS)
+ext/posix/curses/$(am__dirstamp):
+	@$(MKDIR_P) ext/posix/curses
+	@: > ext/posix/curses/$(am__dirstamp)
+ext/posix/curses/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) ext/posix/curses/$(DEPDIR)
+	@: > ext/posix/curses/$(DEPDIR)/$(am__dirstamp)
+ext/posix/curses/chstr.lo: ext/posix/curses/$(am__dirstamp) \
+	ext/posix/curses/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/curses/chstr.la: $(ext_posix_curses_chstr_la_OBJECTS) $(ext_posix_curses_chstr_la_DEPENDENCIES) $(EXTRA_ext_posix_curses_chstr_la_DEPENDENCIES) ext/posix/curses/$(am__dirstamp)
+	$(AM_V_CCLD)$(LINK)  $(ext_posix_curses_chstr_la_OBJECTS) $(ext_posix_curses_chstr_la_LIBADD) $(LIBS)
+ext/posix/curses/window.lo: ext/posix/curses/$(am__dirstamp) \
+	ext/posix/curses/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/curses/window.la: $(ext_posix_curses_window_la_OBJECTS) $(ext_posix_curses_window_la_DEPENDENCIES) $(EXTRA_ext_posix_curses_window_la_DEPENDENCIES) ext/posix/curses/$(am__dirstamp)
+	$(AM_V_CCLD)$(LINK)  $(ext_posix_curses_window_la_OBJECTS) $(ext_posix_curses_window_la_LIBADD) $(LIBS)
+ext/posix/dirent.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/dirent.la: $(ext_posix_dirent_la_OBJECTS) $(ext_posix_dirent_la_DEPENDENCIES) $(EXTRA_ext_posix_dirent_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_dirent_la_LINK)  $(ext_posix_dirent_la_OBJECTS) $(ext_posix_dirent_la_LIBADD) $(LIBS)
+ext/posix/errno.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/errno.la: $(ext_posix_errno_la_OBJECTS) $(ext_posix_errno_la_DEPENDENCIES) $(EXTRA_ext_posix_errno_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_errno_la_LINK)  $(ext_posix_errno_la_OBJECTS) $(ext_posix_errno_la_LIBADD) $(LIBS)
+ext/posix/fcntl.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/fcntl.la: $(ext_posix_fcntl_la_OBJECTS) $(ext_posix_fcntl_la_DEPENDENCIES) $(EXTRA_ext_posix_fcntl_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_fcntl_la_LINK)  $(ext_posix_fcntl_la_OBJECTS) $(ext_posix_fcntl_la_LIBADD) $(LIBS)
+ext/posix/fnmatch.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/fnmatch.la: $(ext_posix_fnmatch_la_OBJECTS) $(ext_posix_fnmatch_la_DEPENDENCIES) $(EXTRA_ext_posix_fnmatch_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_fnmatch_la_LINK)  $(ext_posix_fnmatch_la_OBJECTS) $(ext_posix_fnmatch_la_LIBADD) $(LIBS)
+ext/posix/getopt.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/getopt.la: $(ext_posix_getopt_la_OBJECTS) $(ext_posix_getopt_la_DEPENDENCIES) $(EXTRA_ext_posix_getopt_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_getopt_la_LINK)  $(ext_posix_getopt_la_OBJECTS) $(ext_posix_getopt_la_LIBADD) $(LIBS)
+ext/posix/glob.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/glob.la: $(ext_posix_glob_la_OBJECTS) $(ext_posix_glob_la_DEPENDENCIES) $(EXTRA_ext_posix_glob_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_glob_la_LINK)  $(ext_posix_glob_la_OBJECTS) $(ext_posix_glob_la_LIBADD) $(LIBS)
+ext/posix/grp.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/grp.la: $(ext_posix_grp_la_OBJECTS) $(ext_posix_grp_la_DEPENDENCIES) $(EXTRA_ext_posix_grp_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_grp_la_LINK)  $(ext_posix_grp_la_OBJECTS) $(ext_posix_grp_la_LIBADD) $(LIBS)
+ext/posix/libgen.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/libgen.la: $(ext_posix_libgen_la_OBJECTS) $(ext_posix_libgen_la_DEPENDENCIES) $(EXTRA_ext_posix_libgen_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_libgen_la_LINK)  $(ext_posix_libgen_la_OBJECTS) $(ext_posix_libgen_la_LIBADD) $(LIBS)
+ext/posix/poll.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/poll.la: $(ext_posix_poll_la_OBJECTS) $(ext_posix_poll_la_DEPENDENCIES) $(EXTRA_ext_posix_poll_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_poll_la_LINK)  $(ext_posix_poll_la_OBJECTS) $(ext_posix_poll_la_LIBADD) $(LIBS)
+ext/posix/ext_posix_posix_la-posix.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+ext/posix/ext_posix_posix_la-ctype.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+ext/posix/ext_posix_posix_la-curses.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+ext/posix/curses/ext_posix_posix_la-chstr.lo:  \
+	ext/posix/curses/$(am__dirstamp) \
+	ext/posix/curses/$(DEPDIR)/$(am__dirstamp)
+ext/posix/curses/ext_posix_posix_la-window.lo:  \
+	ext/posix/curses/$(am__dirstamp) \
+	ext/posix/curses/$(DEPDIR)/$(am__dirstamp)
+ext/posix/ext_posix_posix_la-dirent.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+ext/posix/ext_posix_posix_la-errno.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+ext/posix/ext_posix_posix_la-fcntl.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+ext/posix/ext_posix_posix_la-fnmatch.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+ext/posix/ext_posix_posix_la-getopt.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+ext/posix/ext_posix_posix_la-glob.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+ext/posix/ext_posix_posix_la-grp.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+ext/posix/ext_posix_posix_la-libgen.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+ext/posix/ext_posix_posix_la-poll.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+ext/posix/ext_posix_posix_la-pwd.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+ext/posix/ext_posix_posix_la-sched.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+ext/posix/ext_posix_posix_la-signal.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+ext/posix/ext_posix_posix_la-stdio.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+ext/posix/ext_posix_posix_la-stdlib.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+ext/posix/sys/$(am__dirstamp):
+	@$(MKDIR_P) ext/posix/sys
+	@: > ext/posix/sys/$(am__dirstamp)
+ext/posix/sys/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) ext/posix/sys/$(DEPDIR)
+	@: > ext/posix/sys/$(DEPDIR)/$(am__dirstamp)
+ext/posix/sys/ext_posix_posix_la-msg.lo:  \
+	ext/posix/sys/$(am__dirstamp) \
+	ext/posix/sys/$(DEPDIR)/$(am__dirstamp)
+ext/posix/sys/ext_posix_posix_la-resource.lo:  \
+	ext/posix/sys/$(am__dirstamp) \
+	ext/posix/sys/$(DEPDIR)/$(am__dirstamp)
+ext/posix/sys/ext_posix_posix_la-socket.lo:  \
+	ext/posix/sys/$(am__dirstamp) \
+	ext/posix/sys/$(DEPDIR)/$(am__dirstamp)
+ext/posix/sys/ext_posix_posix_la-stat.lo:  \
+	ext/posix/sys/$(am__dirstamp) \
+	ext/posix/sys/$(DEPDIR)/$(am__dirstamp)
+ext/posix/sys/ext_posix_posix_la-statvfs.lo:  \
+	ext/posix/sys/$(am__dirstamp) \
+	ext/posix/sys/$(DEPDIR)/$(am__dirstamp)
+ext/posix/sys/ext_posix_posix_la-time.lo:  \
+	ext/posix/sys/$(am__dirstamp) \
+	ext/posix/sys/$(DEPDIR)/$(am__dirstamp)
+ext/posix/sys/ext_posix_posix_la-times.lo:  \
+	ext/posix/sys/$(am__dirstamp) \
+	ext/posix/sys/$(DEPDIR)/$(am__dirstamp)
+ext/posix/sys/ext_posix_posix_la-utsname.lo:  \
+	ext/posix/sys/$(am__dirstamp) \
+	ext/posix/sys/$(DEPDIR)/$(am__dirstamp)
+ext/posix/sys/ext_posix_posix_la-wait.lo:  \
+	ext/posix/sys/$(am__dirstamp) \
+	ext/posix/sys/$(DEPDIR)/$(am__dirstamp)
+ext/posix/ext_posix_posix_la-syslog.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+ext/posix/ext_posix_posix_la-termio.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+ext/posix/ext_posix_posix_la-time.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+ext/posix/ext_posix_posix_la-unistd.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+ext/posix/ext_posix_posix_la-utime.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/posix.la: $(ext_posix_posix_la_OBJECTS) $(ext_posix_posix_la_DEPENDENCIES) $(EXTRA_ext_posix_posix_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_posix_la_LINK) -rpath $(luaexecdir) $(ext_posix_posix_la_OBJECTS) $(ext_posix_posix_la_LIBADD) $(LIBS)
+ext/posix/pwd.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/pwd.la: $(ext_posix_pwd_la_OBJECTS) $(ext_posix_pwd_la_DEPENDENCIES) $(EXTRA_ext_posix_pwd_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_pwd_la_LINK)  $(ext_posix_pwd_la_OBJECTS) $(ext_posix_pwd_la_LIBADD) $(LIBS)
+ext/posix/sched.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/sched.la: $(ext_posix_sched_la_OBJECTS) $(ext_posix_sched_la_DEPENDENCIES) $(EXTRA_ext_posix_sched_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_sched_la_LINK)  $(ext_posix_sched_la_OBJECTS) $(ext_posix_sched_la_LIBADD) $(LIBS)
+ext/posix/signal.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/signal.la: $(ext_posix_signal_la_OBJECTS) $(ext_posix_signal_la_DEPENDENCIES) $(EXTRA_ext_posix_signal_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_signal_la_LINK)  $(ext_posix_signal_la_OBJECTS) $(ext_posix_signal_la_LIBADD) $(LIBS)
+ext/posix/stdio.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/stdio.la: $(ext_posix_stdio_la_OBJECTS) $(ext_posix_stdio_la_DEPENDENCIES) $(EXTRA_ext_posix_stdio_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_stdio_la_LINK)  $(ext_posix_stdio_la_OBJECTS) $(ext_posix_stdio_la_LIBADD) $(LIBS)
+ext/posix/stdlib.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/stdlib.la: $(ext_posix_stdlib_la_OBJECTS) $(ext_posix_stdlib_la_DEPENDENCIES) $(EXTRA_ext_posix_stdlib_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_stdlib_la_LINK)  $(ext_posix_stdlib_la_OBJECTS) $(ext_posix_stdlib_la_LIBADD) $(LIBS)
+ext/posix/sys/msg.lo: ext/posix/sys/$(am__dirstamp) \
+	ext/posix/sys/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/sys/msg.la: $(ext_posix_sys_msg_la_OBJECTS) $(ext_posix_sys_msg_la_DEPENDENCIES) $(EXTRA_ext_posix_sys_msg_la_DEPENDENCIES) ext/posix/sys/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_sys_msg_la_LINK)  $(ext_posix_sys_msg_la_OBJECTS) $(ext_posix_sys_msg_la_LIBADD) $(LIBS)
+ext/posix/sys/resource.lo: ext/posix/sys/$(am__dirstamp) \
+	ext/posix/sys/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/sys/resource.la: $(ext_posix_sys_resource_la_OBJECTS) $(ext_posix_sys_resource_la_DEPENDENCIES) $(EXTRA_ext_posix_sys_resource_la_DEPENDENCIES) ext/posix/sys/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_sys_resource_la_LINK)  $(ext_posix_sys_resource_la_OBJECTS) $(ext_posix_sys_resource_la_LIBADD) $(LIBS)
+ext/posix/sys/socket.lo: ext/posix/sys/$(am__dirstamp) \
+	ext/posix/sys/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/sys/socket.la: $(ext_posix_sys_socket_la_OBJECTS) $(ext_posix_sys_socket_la_DEPENDENCIES) $(EXTRA_ext_posix_sys_socket_la_DEPENDENCIES) ext/posix/sys/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_sys_socket_la_LINK)  $(ext_posix_sys_socket_la_OBJECTS) $(ext_posix_sys_socket_la_LIBADD) $(LIBS)
+ext/posix/sys/stat.lo: ext/posix/sys/$(am__dirstamp) \
+	ext/posix/sys/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/sys/stat.la: $(ext_posix_sys_stat_la_OBJECTS) $(ext_posix_sys_stat_la_DEPENDENCIES) $(EXTRA_ext_posix_sys_stat_la_DEPENDENCIES) ext/posix/sys/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_sys_stat_la_LINK)  $(ext_posix_sys_stat_la_OBJECTS) $(ext_posix_sys_stat_la_LIBADD) $(LIBS)
+ext/posix/sys/statvfs.lo: ext/posix/sys/$(am__dirstamp) \
+	ext/posix/sys/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/sys/statvfs.la: $(ext_posix_sys_statvfs_la_OBJECTS) $(ext_posix_sys_statvfs_la_DEPENDENCIES) $(EXTRA_ext_posix_sys_statvfs_la_DEPENDENCIES) ext/posix/sys/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_sys_statvfs_la_LINK)  $(ext_posix_sys_statvfs_la_OBJECTS) $(ext_posix_sys_statvfs_la_LIBADD) $(LIBS)
+ext/posix/sys/time.lo: ext/posix/sys/$(am__dirstamp) \
+	ext/posix/sys/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/sys/time.la: $(ext_posix_sys_time_la_OBJECTS) $(ext_posix_sys_time_la_DEPENDENCIES) $(EXTRA_ext_posix_sys_time_la_DEPENDENCIES) ext/posix/sys/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_sys_time_la_LINK)  $(ext_posix_sys_time_la_OBJECTS) $(ext_posix_sys_time_la_LIBADD) $(LIBS)
+ext/posix/sys/times.lo: ext/posix/sys/$(am__dirstamp) \
+	ext/posix/sys/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/sys/times.la: $(ext_posix_sys_times_la_OBJECTS) $(ext_posix_sys_times_la_DEPENDENCIES) $(EXTRA_ext_posix_sys_times_la_DEPENDENCIES) ext/posix/sys/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_sys_times_la_LINK)  $(ext_posix_sys_times_la_OBJECTS) $(ext_posix_sys_times_la_LIBADD) $(LIBS)
+ext/posix/sys/utsname.lo: ext/posix/sys/$(am__dirstamp) \
+	ext/posix/sys/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/sys/utsname.la: $(ext_posix_sys_utsname_la_OBJECTS) $(ext_posix_sys_utsname_la_DEPENDENCIES) $(EXTRA_ext_posix_sys_utsname_la_DEPENDENCIES) ext/posix/sys/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_sys_utsname_la_LINK)  $(ext_posix_sys_utsname_la_OBJECTS) $(ext_posix_sys_utsname_la_LIBADD) $(LIBS)
+ext/posix/sys/wait.lo: ext/posix/sys/$(am__dirstamp) \
+	ext/posix/sys/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/sys/wait.la: $(ext_posix_sys_wait_la_OBJECTS) $(ext_posix_sys_wait_la_DEPENDENCIES) $(EXTRA_ext_posix_sys_wait_la_DEPENDENCIES) ext/posix/sys/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_sys_wait_la_LINK)  $(ext_posix_sys_wait_la_OBJECTS) $(ext_posix_sys_wait_la_LIBADD) $(LIBS)
+ext/posix/syslog.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/syslog.la: $(ext_posix_syslog_la_OBJECTS) $(ext_posix_syslog_la_DEPENDENCIES) $(EXTRA_ext_posix_syslog_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_syslog_la_LINK)  $(ext_posix_syslog_la_OBJECTS) $(ext_posix_syslog_la_LIBADD) $(LIBS)
+ext/posix/termio.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/termio.la: $(ext_posix_termio_la_OBJECTS) $(ext_posix_termio_la_DEPENDENCIES) $(EXTRA_ext_posix_termio_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_termio_la_LINK)  $(ext_posix_termio_la_OBJECTS) $(ext_posix_termio_la_LIBADD) $(LIBS)
+ext/posix/time.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/time.la: $(ext_posix_time_la_OBJECTS) $(ext_posix_time_la_DEPENDENCIES) $(EXTRA_ext_posix_time_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_time_la_LINK)  $(ext_posix_time_la_OBJECTS) $(ext_posix_time_la_LIBADD) $(LIBS)
+ext/posix/unistd.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/unistd.la: $(ext_posix_unistd_la_OBJECTS) $(ext_posix_unistd_la_DEPENDENCIES) $(EXTRA_ext_posix_unistd_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_unistd_la_LINK)  $(ext_posix_unistd_la_OBJECTS) $(ext_posix_unistd_la_LIBADD) $(LIBS)
+ext/posix/utime.lo: ext/posix/$(am__dirstamp) \
+	ext/posix/$(DEPDIR)/$(am__dirstamp)
+
+ext/posix/utime.la: $(ext_posix_utime_la_OBJECTS) $(ext_posix_utime_la_DEPENDENCIES) $(EXTRA_ext_posix_utime_la_DEPENDENCIES) ext/posix/$(am__dirstamp)
+	$(AM_V_CCLD)$(ext_posix_utime_la_LINK)  $(ext_posix_utime_la_OBJECTS) $(ext_posix_utime_la_LIBADD) $(LIBS)
 install-binSCRIPTS: $(bin_SCRIPTS)
 	@$(NORMAL_INSTALL)
 	@list='$(bin_SCRIPTS)'; test -n "$(bindir)" || list=; \
@@ -788,16 +1448,81 @@ uninstall-dist_binSCRIPTS:
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f ext/curses/*.$(OBJEXT)
-	-rm -f ext/curses/*.lo
 	-rm -f ext/posix/*.$(OBJEXT)
 	-rm -f ext/posix/*.lo
+	-rm -f ext/posix/curses/*.$(OBJEXT)
+	-rm -f ext/posix/curses/*.lo
+	-rm -f ext/posix/sys/*.$(OBJEXT)
+	-rm -f ext/posix/sys/*.lo
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@ext/curses/$(DEPDIR)/curses.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_c_la-posix.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ctype.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/curses.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/dirent.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/errno.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_la-ctype.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_la-curses.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_la-dirent.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_la-errno.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_la-fcntl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_la-fnmatch.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_la-getopt.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_la-glob.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_la-grp.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_la-libgen.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_la-poll.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_la-posix.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_la-pwd.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_la-sched.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_la-signal.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_la-stdio.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_la-stdlib.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_la-syslog.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_la-termio.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_la-time.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_la-unistd.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/ext_posix_posix_la-utime.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/fcntl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/fnmatch.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/getopt.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/glob.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/grp.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/libgen.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/poll.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/pwd.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/sched.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/signal.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/stdio.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/stdlib.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/syslog.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/termio.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/time.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/unistd.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/$(DEPDIR)/utime.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/curses/$(DEPDIR)/chstr.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/curses/$(DEPDIR)/ext_posix_posix_la-chstr.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/curses/$(DEPDIR)/ext_posix_posix_la-window.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/curses/$(DEPDIR)/window.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-msg.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-resource.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-socket.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-stat.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-statvfs.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-time.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-times.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-utsname.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-wait.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/sys/$(DEPDIR)/msg.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/sys/$(DEPDIR)/resource.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/sys/$(DEPDIR)/socket.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/sys/$(DEPDIR)/stat.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/sys/$(DEPDIR)/statvfs.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/sys/$(DEPDIR)/time.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/sys/$(DEPDIR)/times.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/sys/$(DEPDIR)/utsname.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@ext/posix/sys/$(DEPDIR)/wait.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -823,23 +1548,269 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
-ext/posix/ext_posix_posix_c_la-posix.lo: ext/posix/posix.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_c_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_c_la-posix.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_c_la-posix.Tpo -c -o ext/posix/ext_posix_posix_c_la-posix.lo `test -f 'ext/posix/posix.c' || echo '$(srcdir)/'`ext/posix/posix.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_c_la-posix.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_c_la-posix.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/posix.c' object='ext/posix/ext_posix_posix_c_la-posix.lo' libtool=yes @AMDEPBACKSLASH@
+ext/posix/ext_posix_posix_la-posix.lo: ext/posix/posix.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_la-posix.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_la-posix.Tpo -c -o ext/posix/ext_posix_posix_la-posix.lo `test -f 'ext/posix/posix.c' || echo '$(srcdir)/'`ext/posix/posix.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_la-posix.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_la-posix.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/posix.c' object='ext/posix/ext_posix_posix_la-posix.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_c_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_c_la-posix.lo `test -f 'ext/posix/posix.c' || echo '$(srcdir)/'`ext/posix/posix.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_la-posix.lo `test -f 'ext/posix/posix.c' || echo '$(srcdir)/'`ext/posix/posix.c
+
+ext/posix/ext_posix_posix_la-ctype.lo: ext/posix/ctype.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_la-ctype.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_la-ctype.Tpo -c -o ext/posix/ext_posix_posix_la-ctype.lo `test -f 'ext/posix/ctype.c' || echo '$(srcdir)/'`ext/posix/ctype.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_la-ctype.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_la-ctype.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/ctype.c' object='ext/posix/ext_posix_posix_la-ctype.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_la-ctype.lo `test -f 'ext/posix/ctype.c' || echo '$(srcdir)/'`ext/posix/ctype.c
+
+ext/posix/ext_posix_posix_la-curses.lo: ext/posix/curses.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_la-curses.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_la-curses.Tpo -c -o ext/posix/ext_posix_posix_la-curses.lo `test -f 'ext/posix/curses.c' || echo '$(srcdir)/'`ext/posix/curses.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_la-curses.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_la-curses.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/curses.c' object='ext/posix/ext_posix_posix_la-curses.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_la-curses.lo `test -f 'ext/posix/curses.c' || echo '$(srcdir)/'`ext/posix/curses.c
+
+ext/posix/curses/ext_posix_posix_la-chstr.lo: ext/posix/curses/chstr.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/curses/ext_posix_posix_la-chstr.lo -MD -MP -MF ext/posix/curses/$(DEPDIR)/ext_posix_posix_la-chstr.Tpo -c -o ext/posix/curses/ext_posix_posix_la-chstr.lo `test -f 'ext/posix/curses/chstr.c' || echo '$(srcdir)/'`ext/posix/curses/chstr.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/curses/$(DEPDIR)/ext_posix_posix_la-chstr.Tpo ext/posix/curses/$(DEPDIR)/ext_posix_posix_la-chstr.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/curses/chstr.c' object='ext/posix/curses/ext_posix_posix_la-chstr.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/curses/ext_posix_posix_la-chstr.lo `test -f 'ext/posix/curses/chstr.c' || echo '$(srcdir)/'`ext/posix/curses/chstr.c
+
+ext/posix/curses/ext_posix_posix_la-window.lo: ext/posix/curses/window.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/curses/ext_posix_posix_la-window.lo -MD -MP -MF ext/posix/curses/$(DEPDIR)/ext_posix_posix_la-window.Tpo -c -o ext/posix/curses/ext_posix_posix_la-window.lo `test -f 'ext/posix/curses/window.c' || echo '$(srcdir)/'`ext/posix/curses/window.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/curses/$(DEPDIR)/ext_posix_posix_la-window.Tpo ext/posix/curses/$(DEPDIR)/ext_posix_posix_la-window.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/curses/window.c' object='ext/posix/curses/ext_posix_posix_la-window.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/curses/ext_posix_posix_la-window.lo `test -f 'ext/posix/curses/window.c' || echo '$(srcdir)/'`ext/posix/curses/window.c
+
+ext/posix/ext_posix_posix_la-dirent.lo: ext/posix/dirent.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_la-dirent.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_la-dirent.Tpo -c -o ext/posix/ext_posix_posix_la-dirent.lo `test -f 'ext/posix/dirent.c' || echo '$(srcdir)/'`ext/posix/dirent.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_la-dirent.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_la-dirent.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/dirent.c' object='ext/posix/ext_posix_posix_la-dirent.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_la-dirent.lo `test -f 'ext/posix/dirent.c' || echo '$(srcdir)/'`ext/posix/dirent.c
+
+ext/posix/ext_posix_posix_la-errno.lo: ext/posix/errno.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_la-errno.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_la-errno.Tpo -c -o ext/posix/ext_posix_posix_la-errno.lo `test -f 'ext/posix/errno.c' || echo '$(srcdir)/'`ext/posix/errno.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_la-errno.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_la-errno.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/errno.c' object='ext/posix/ext_posix_posix_la-errno.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_la-errno.lo `test -f 'ext/posix/errno.c' || echo '$(srcdir)/'`ext/posix/errno.c
+
+ext/posix/ext_posix_posix_la-fcntl.lo: ext/posix/fcntl.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_la-fcntl.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_la-fcntl.Tpo -c -o ext/posix/ext_posix_posix_la-fcntl.lo `test -f 'ext/posix/fcntl.c' || echo '$(srcdir)/'`ext/posix/fcntl.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_la-fcntl.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_la-fcntl.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/fcntl.c' object='ext/posix/ext_posix_posix_la-fcntl.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_la-fcntl.lo `test -f 'ext/posix/fcntl.c' || echo '$(srcdir)/'`ext/posix/fcntl.c
+
+ext/posix/ext_posix_posix_la-fnmatch.lo: ext/posix/fnmatch.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_la-fnmatch.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_la-fnmatch.Tpo -c -o ext/posix/ext_posix_posix_la-fnmatch.lo `test -f 'ext/posix/fnmatch.c' || echo '$(srcdir)/'`ext/posix/fnmatch.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_la-fnmatch.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_la-fnmatch.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/fnmatch.c' object='ext/posix/ext_posix_posix_la-fnmatch.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_la-fnmatch.lo `test -f 'ext/posix/fnmatch.c' || echo '$(srcdir)/'`ext/posix/fnmatch.c
+
+ext/posix/ext_posix_posix_la-getopt.lo: ext/posix/getopt.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_la-getopt.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_la-getopt.Tpo -c -o ext/posix/ext_posix_posix_la-getopt.lo `test -f 'ext/posix/getopt.c' || echo '$(srcdir)/'`ext/posix/getopt.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_la-getopt.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_la-getopt.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/getopt.c' object='ext/posix/ext_posix_posix_la-getopt.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_la-getopt.lo `test -f 'ext/posix/getopt.c' || echo '$(srcdir)/'`ext/posix/getopt.c
+
+ext/posix/ext_posix_posix_la-glob.lo: ext/posix/glob.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_la-glob.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_la-glob.Tpo -c -o ext/posix/ext_posix_posix_la-glob.lo `test -f 'ext/posix/glob.c' || echo '$(srcdir)/'`ext/posix/glob.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_la-glob.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_la-glob.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/glob.c' object='ext/posix/ext_posix_posix_la-glob.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_la-glob.lo `test -f 'ext/posix/glob.c' || echo '$(srcdir)/'`ext/posix/glob.c
+
+ext/posix/ext_posix_posix_la-grp.lo: ext/posix/grp.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_la-grp.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_la-grp.Tpo -c -o ext/posix/ext_posix_posix_la-grp.lo `test -f 'ext/posix/grp.c' || echo '$(srcdir)/'`ext/posix/grp.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_la-grp.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_la-grp.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/grp.c' object='ext/posix/ext_posix_posix_la-grp.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_la-grp.lo `test -f 'ext/posix/grp.c' || echo '$(srcdir)/'`ext/posix/grp.c
+
+ext/posix/ext_posix_posix_la-libgen.lo: ext/posix/libgen.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_la-libgen.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_la-libgen.Tpo -c -o ext/posix/ext_posix_posix_la-libgen.lo `test -f 'ext/posix/libgen.c' || echo '$(srcdir)/'`ext/posix/libgen.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_la-libgen.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_la-libgen.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/libgen.c' object='ext/posix/ext_posix_posix_la-libgen.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_la-libgen.lo `test -f 'ext/posix/libgen.c' || echo '$(srcdir)/'`ext/posix/libgen.c
+
+ext/posix/ext_posix_posix_la-poll.lo: ext/posix/poll.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_la-poll.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_la-poll.Tpo -c -o ext/posix/ext_posix_posix_la-poll.lo `test -f 'ext/posix/poll.c' || echo '$(srcdir)/'`ext/posix/poll.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_la-poll.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_la-poll.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/poll.c' object='ext/posix/ext_posix_posix_la-poll.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_la-poll.lo `test -f 'ext/posix/poll.c' || echo '$(srcdir)/'`ext/posix/poll.c
+
+ext/posix/ext_posix_posix_la-pwd.lo: ext/posix/pwd.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_la-pwd.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_la-pwd.Tpo -c -o ext/posix/ext_posix_posix_la-pwd.lo `test -f 'ext/posix/pwd.c' || echo '$(srcdir)/'`ext/posix/pwd.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_la-pwd.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_la-pwd.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/pwd.c' object='ext/posix/ext_posix_posix_la-pwd.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_la-pwd.lo `test -f 'ext/posix/pwd.c' || echo '$(srcdir)/'`ext/posix/pwd.c
+
+ext/posix/ext_posix_posix_la-sched.lo: ext/posix/sched.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_la-sched.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_la-sched.Tpo -c -o ext/posix/ext_posix_posix_la-sched.lo `test -f 'ext/posix/sched.c' || echo '$(srcdir)/'`ext/posix/sched.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_la-sched.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_la-sched.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/sched.c' object='ext/posix/ext_posix_posix_la-sched.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_la-sched.lo `test -f 'ext/posix/sched.c' || echo '$(srcdir)/'`ext/posix/sched.c
+
+ext/posix/ext_posix_posix_la-signal.lo: ext/posix/signal.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_la-signal.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_la-signal.Tpo -c -o ext/posix/ext_posix_posix_la-signal.lo `test -f 'ext/posix/signal.c' || echo '$(srcdir)/'`ext/posix/signal.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_la-signal.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_la-signal.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/signal.c' object='ext/posix/ext_posix_posix_la-signal.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_la-signal.lo `test -f 'ext/posix/signal.c' || echo '$(srcdir)/'`ext/posix/signal.c
+
+ext/posix/ext_posix_posix_la-stdio.lo: ext/posix/stdio.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_la-stdio.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_la-stdio.Tpo -c -o ext/posix/ext_posix_posix_la-stdio.lo `test -f 'ext/posix/stdio.c' || echo '$(srcdir)/'`ext/posix/stdio.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_la-stdio.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_la-stdio.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/stdio.c' object='ext/posix/ext_posix_posix_la-stdio.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_la-stdio.lo `test -f 'ext/posix/stdio.c' || echo '$(srcdir)/'`ext/posix/stdio.c
+
+ext/posix/ext_posix_posix_la-stdlib.lo: ext/posix/stdlib.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_la-stdlib.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_la-stdlib.Tpo -c -o ext/posix/ext_posix_posix_la-stdlib.lo `test -f 'ext/posix/stdlib.c' || echo '$(srcdir)/'`ext/posix/stdlib.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_la-stdlib.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_la-stdlib.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/stdlib.c' object='ext/posix/ext_posix_posix_la-stdlib.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_la-stdlib.lo `test -f 'ext/posix/stdlib.c' || echo '$(srcdir)/'`ext/posix/stdlib.c
+
+ext/posix/sys/ext_posix_posix_la-msg.lo: ext/posix/sys/msg.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/sys/ext_posix_posix_la-msg.lo -MD -MP -MF ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-msg.Tpo -c -o ext/posix/sys/ext_posix_posix_la-msg.lo `test -f 'ext/posix/sys/msg.c' || echo '$(srcdir)/'`ext/posix/sys/msg.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-msg.Tpo ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-msg.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/sys/msg.c' object='ext/posix/sys/ext_posix_posix_la-msg.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/sys/ext_posix_posix_la-msg.lo `test -f 'ext/posix/sys/msg.c' || echo '$(srcdir)/'`ext/posix/sys/msg.c
+
+ext/posix/sys/ext_posix_posix_la-resource.lo: ext/posix/sys/resource.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/sys/ext_posix_posix_la-resource.lo -MD -MP -MF ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-resource.Tpo -c -o ext/posix/sys/ext_posix_posix_la-resource.lo `test -f 'ext/posix/sys/resource.c' || echo '$(srcdir)/'`ext/posix/sys/resource.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-resource.Tpo ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-resource.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/sys/resource.c' object='ext/posix/sys/ext_posix_posix_la-resource.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/sys/ext_posix_posix_la-resource.lo `test -f 'ext/posix/sys/resource.c' || echo '$(srcdir)/'`ext/posix/sys/resource.c
+
+ext/posix/sys/ext_posix_posix_la-socket.lo: ext/posix/sys/socket.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/sys/ext_posix_posix_la-socket.lo -MD -MP -MF ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-socket.Tpo -c -o ext/posix/sys/ext_posix_posix_la-socket.lo `test -f 'ext/posix/sys/socket.c' || echo '$(srcdir)/'`ext/posix/sys/socket.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-socket.Tpo ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-socket.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/sys/socket.c' object='ext/posix/sys/ext_posix_posix_la-socket.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/sys/ext_posix_posix_la-socket.lo `test -f 'ext/posix/sys/socket.c' || echo '$(srcdir)/'`ext/posix/sys/socket.c
+
+ext/posix/sys/ext_posix_posix_la-stat.lo: ext/posix/sys/stat.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/sys/ext_posix_posix_la-stat.lo -MD -MP -MF ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-stat.Tpo -c -o ext/posix/sys/ext_posix_posix_la-stat.lo `test -f 'ext/posix/sys/stat.c' || echo '$(srcdir)/'`ext/posix/sys/stat.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-stat.Tpo ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-stat.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/sys/stat.c' object='ext/posix/sys/ext_posix_posix_la-stat.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/sys/ext_posix_posix_la-stat.lo `test -f 'ext/posix/sys/stat.c' || echo '$(srcdir)/'`ext/posix/sys/stat.c
+
+ext/posix/sys/ext_posix_posix_la-statvfs.lo: ext/posix/sys/statvfs.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/sys/ext_posix_posix_la-statvfs.lo -MD -MP -MF ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-statvfs.Tpo -c -o ext/posix/sys/ext_posix_posix_la-statvfs.lo `test -f 'ext/posix/sys/statvfs.c' || echo '$(srcdir)/'`ext/posix/sys/statvfs.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-statvfs.Tpo ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-statvfs.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/sys/statvfs.c' object='ext/posix/sys/ext_posix_posix_la-statvfs.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/sys/ext_posix_posix_la-statvfs.lo `test -f 'ext/posix/sys/statvfs.c' || echo '$(srcdir)/'`ext/posix/sys/statvfs.c
+
+ext/posix/sys/ext_posix_posix_la-time.lo: ext/posix/sys/time.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/sys/ext_posix_posix_la-time.lo -MD -MP -MF ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-time.Tpo -c -o ext/posix/sys/ext_posix_posix_la-time.lo `test -f 'ext/posix/sys/time.c' || echo '$(srcdir)/'`ext/posix/sys/time.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-time.Tpo ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-time.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/sys/time.c' object='ext/posix/sys/ext_posix_posix_la-time.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/sys/ext_posix_posix_la-time.lo `test -f 'ext/posix/sys/time.c' || echo '$(srcdir)/'`ext/posix/sys/time.c
+
+ext/posix/sys/ext_posix_posix_la-times.lo: ext/posix/sys/times.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/sys/ext_posix_posix_la-times.lo -MD -MP -MF ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-times.Tpo -c -o ext/posix/sys/ext_posix_posix_la-times.lo `test -f 'ext/posix/sys/times.c' || echo '$(srcdir)/'`ext/posix/sys/times.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-times.Tpo ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-times.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/sys/times.c' object='ext/posix/sys/ext_posix_posix_la-times.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/sys/ext_posix_posix_la-times.lo `test -f 'ext/posix/sys/times.c' || echo '$(srcdir)/'`ext/posix/sys/times.c
+
+ext/posix/sys/ext_posix_posix_la-utsname.lo: ext/posix/sys/utsname.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/sys/ext_posix_posix_la-utsname.lo -MD -MP -MF ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-utsname.Tpo -c -o ext/posix/sys/ext_posix_posix_la-utsname.lo `test -f 'ext/posix/sys/utsname.c' || echo '$(srcdir)/'`ext/posix/sys/utsname.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-utsname.Tpo ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-utsname.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/sys/utsname.c' object='ext/posix/sys/ext_posix_posix_la-utsname.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/sys/ext_posix_posix_la-utsname.lo `test -f 'ext/posix/sys/utsname.c' || echo '$(srcdir)/'`ext/posix/sys/utsname.c
+
+ext/posix/sys/ext_posix_posix_la-wait.lo: ext/posix/sys/wait.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/sys/ext_posix_posix_la-wait.lo -MD -MP -MF ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-wait.Tpo -c -o ext/posix/sys/ext_posix_posix_la-wait.lo `test -f 'ext/posix/sys/wait.c' || echo '$(srcdir)/'`ext/posix/sys/wait.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-wait.Tpo ext/posix/sys/$(DEPDIR)/ext_posix_posix_la-wait.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/sys/wait.c' object='ext/posix/sys/ext_posix_posix_la-wait.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/sys/ext_posix_posix_la-wait.lo `test -f 'ext/posix/sys/wait.c' || echo '$(srcdir)/'`ext/posix/sys/wait.c
+
+ext/posix/ext_posix_posix_la-syslog.lo: ext/posix/syslog.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_la-syslog.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_la-syslog.Tpo -c -o ext/posix/ext_posix_posix_la-syslog.lo `test -f 'ext/posix/syslog.c' || echo '$(srcdir)/'`ext/posix/syslog.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_la-syslog.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_la-syslog.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/syslog.c' object='ext/posix/ext_posix_posix_la-syslog.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_la-syslog.lo `test -f 'ext/posix/syslog.c' || echo '$(srcdir)/'`ext/posix/syslog.c
+
+ext/posix/ext_posix_posix_la-termio.lo: ext/posix/termio.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_la-termio.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_la-termio.Tpo -c -o ext/posix/ext_posix_posix_la-termio.lo `test -f 'ext/posix/termio.c' || echo '$(srcdir)/'`ext/posix/termio.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_la-termio.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_la-termio.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/termio.c' object='ext/posix/ext_posix_posix_la-termio.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_la-termio.lo `test -f 'ext/posix/termio.c' || echo '$(srcdir)/'`ext/posix/termio.c
+
+ext/posix/ext_posix_posix_la-time.lo: ext/posix/time.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_la-time.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_la-time.Tpo -c -o ext/posix/ext_posix_posix_la-time.lo `test -f 'ext/posix/time.c' || echo '$(srcdir)/'`ext/posix/time.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_la-time.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_la-time.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/time.c' object='ext/posix/ext_posix_posix_la-time.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_la-time.lo `test -f 'ext/posix/time.c' || echo '$(srcdir)/'`ext/posix/time.c
+
+ext/posix/ext_posix_posix_la-unistd.lo: ext/posix/unistd.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_la-unistd.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_la-unistd.Tpo -c -o ext/posix/ext_posix_posix_la-unistd.lo `test -f 'ext/posix/unistd.c' || echo '$(srcdir)/'`ext/posix/unistd.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_la-unistd.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_la-unistd.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/unistd.c' object='ext/posix/ext_posix_posix_la-unistd.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_la-unistd.lo `test -f 'ext/posix/unistd.c' || echo '$(srcdir)/'`ext/posix/unistd.c
+
+ext/posix/ext_posix_posix_la-utime.lo: ext/posix/utime.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -MT ext/posix/ext_posix_posix_la-utime.lo -MD -MP -MF ext/posix/$(DEPDIR)/ext_posix_posix_la-utime.Tpo -c -o ext/posix/ext_posix_posix_la-utime.lo `test -f 'ext/posix/utime.c' || echo '$(srcdir)/'`ext/posix/utime.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) ext/posix/$(DEPDIR)/ext_posix_posix_la-utime.Tpo ext/posix/$(DEPDIR)/ext_posix_posix_la-utime.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ext/posix/utime.c' object='ext/posix/ext_posix_posix_la-utime.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(ext_posix_posix_la_CFLAGS) $(CFLAGS) -c -o ext/posix/ext_posix_posix_la-utime.lo `test -f 'ext/posix/utime.c' || echo '$(srcdir)/'`ext/posix/utime.c
 
 mostlyclean-libtool:
 	-rm -f *.lo
 
 clean-libtool:
 	-rm -rf .libs _libs
-	-rm -rf ext/curses/.libs ext/curses/_libs
 	-rm -rf ext/posix/.libs ext/posix/_libs
+	-rm -rf ext/posix/curses/.libs ext/posix/curses/_libs
+	-rm -rf ext/posix/sys/.libs ext/posix/sys/_libs
 
 distclean-libtool:
 	-rm -f libtool config.lt
+install-dist_classesDATA: $(dist_classes_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(dist_classes_DATA)'; test -n "$(classesdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(classesdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(classesdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(classesdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(classesdir)" || exit $$?; \
+	done
+
+uninstall-dist_classesDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(dist_classes_DATA)'; test -n "$(classesdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(classesdir)'; $(am__uninstall_files_from_dir)
 install-dist_dataDATA: $(dist_data_DATA)
 	@$(NORMAL_INSTALL)
 	@list='$(dist_data_DATA)'; test -n "$(datadir)" || list=; \
@@ -1215,7 +2186,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(LTLIBRARIES) $(SCRIPTS) $(DATA) config.h
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(datadir)" "$(DESTDIR)$(docdir)" "$(DESTDIR)$(examplesdir)" "$(DESTDIR)$(luadir)" "$(DESTDIR)$(luaposixdir)" "$(DESTDIR)$(modulesdir)" "$(DESTDIR)$(docdir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(luaexecdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(classesdir)" "$(DESTDIR)$(datadir)" "$(DESTDIR)$(docdir)" "$(DESTDIR)$(examplesdir)" "$(DESTDIR)$(luadir)" "$(DESTDIR)$(luaposixdir)" "$(DESTDIR)$(modulesdir)" "$(DESTDIR)$(docdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -1245,10 +2216,12 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f ext/curses/$(DEPDIR)/$(am__dirstamp)
-	-rm -f ext/curses/$(am__dirstamp)
 	-rm -f ext/posix/$(DEPDIR)/$(am__dirstamp)
 	-rm -f ext/posix/$(am__dirstamp)
+	-rm -f ext/posix/curses/$(DEPDIR)/$(am__dirstamp)
+	-rm -f ext/posix/curses/$(am__dirstamp)
+	-rm -f ext/posix/sys/$(DEPDIR)/$(am__dirstamp)
+	-rm -f ext/posix/sys/$(am__dirstamp)
 	-test -z "$(DISTCLEANFILES)" || rm -f $(DISTCLEANFILES)
 
 maintainer-clean-generic:
@@ -1257,12 +2230,12 @@ maintainer-clean-generic:
 	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
 clean: clean-am
 
-clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
-	mostlyclean-am
+clean-am: clean-generic clean-libLTLIBRARIES clean-libtool clean-local \
+	clean-luaexecLTLIBRARIES mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf ext/curses/$(DEPDIR) ext/posix/$(DEPDIR)
+	-rm -rf ext/posix/$(DEPDIR) ext/posix/curses/$(DEPDIR) ext/posix/sys/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-libtool distclean-tags
@@ -1279,17 +2252,17 @@ info: info-am
 
 info-am:
 
-install-data-am: install-dist_dataDATA install-dist_docDATA \
-	install-dist_examplesDATA install-dist_luaDATA \
-	install-dist_luaposixDATA install-dist_modulesDATA \
-	install-docDATA
+install-data-am: install-dist_classesDATA install-dist_dataDATA \
+	install-dist_docDATA install-dist_examplesDATA \
+	install-dist_luaDATA install-dist_luaposixDATA \
+	install-dist_modulesDATA install-docDATA
 
 install-dvi: install-dvi-am
 
 install-dvi-am:
 
 install-exec-am: install-binSCRIPTS install-dist_binSCRIPTS \
-	install-libLTLIBRARIES
+	install-libLTLIBRARIES install-luaexecLTLIBRARIES
 	@$(NORMAL_INSTALL)
 	$(MAKE) $(AM_MAKEFLAGS) install-exec-hook
 install-html: install-html-am
@@ -1315,7 +2288,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf ext/curses/$(DEPDIR) ext/posix/$(DEPDIR)
+	-rm -rf ext/posix/$(DEPDIR) ext/posix/curses/$(DEPDIR) ext/posix/sys/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -1333,54 +2306,60 @@ ps: ps-am
 ps-am:
 
 uninstall-am: uninstall-binSCRIPTS uninstall-dist_binSCRIPTS \
-	uninstall-dist_dataDATA uninstall-dist_docDATA \
-	uninstall-dist_examplesDATA uninstall-dist_luaDATA \
-	uninstall-dist_luaposixDATA uninstall-dist_modulesDATA \
-	uninstall-docDATA uninstall-libLTLIBRARIES
+	uninstall-dist_classesDATA uninstall-dist_dataDATA \
+	uninstall-dist_docDATA uninstall-dist_examplesDATA \
+	uninstall-dist_luaDATA uninstall-dist_luaposixDATA \
+	uninstall-dist_modulesDATA uninstall-docDATA \
+	uninstall-libLTLIBRARIES uninstall-luaexecLTLIBRARIES
 
 .MAKE: all check-am install-am install-exec-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am am--refresh check check-am \
 	check-local clean clean-cscope clean-generic \
-	clean-libLTLIBRARIES clean-libtool cscope cscopelist-am ctags \
-	ctags-am dist dist-all dist-bzip2 dist-gzip dist-lzip \
-	dist-shar dist-tarZ dist-xz dist-zip distcheck distclean \
+	clean-libLTLIBRARIES clean-libtool clean-local \
+	clean-luaexecLTLIBRARIES cscope cscopelist-am ctags ctags-am \
+	dist dist-all dist-bzip2 dist-gzip dist-lzip dist-shar \
+	dist-tarZ dist-xz dist-zip distcheck distclean \
 	distclean-compile distclean-generic distclean-hdr \
 	distclean-libtool distclean-tags distcleancheck distdir \
 	distuninstallcheck dvi dvi-am html html-am info info-am \
 	install install-am install-binSCRIPTS install-data \
-	install-data-am install-dist_binSCRIPTS install-dist_dataDATA \
+	install-data-am install-dist_binSCRIPTS \
+	install-dist_classesDATA install-dist_dataDATA \
 	install-dist_docDATA install-dist_examplesDATA \
 	install-dist_luaDATA install-dist_luaposixDATA \
 	install-dist_modulesDATA install-docDATA install-dvi \
 	install-dvi-am install-exec install-exec-am install-exec-hook \
 	install-html install-html-am install-info install-info-am \
-	install-libLTLIBRARIES install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am uninstall-binSCRIPTS \
-	uninstall-dist_binSCRIPTS uninstall-dist_dataDATA \
+	install-libLTLIBRARIES install-luaexecLTLIBRARIES install-man \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am tags tags-am uninstall uninstall-am \
+	uninstall-binSCRIPTS uninstall-dist_binSCRIPTS \
+	uninstall-dist_classesDATA uninstall-dist_dataDATA \
 	uninstall-dist_docDATA uninstall-dist_examplesDATA \
 	uninstall-dist_luaDATA uninstall-dist_luaposixDATA \
 	uninstall-dist_modulesDATA uninstall-docDATA \
-	uninstall-libLTLIBRARIES
+	uninstall-libLTLIBRARIES uninstall-luaexecLTLIBRARIES
 
 
 LUA_PATH  ?= ;
 LUA_CPATH ?= ;
 specl-check-local: $(specl_SPECS)
-	$(SPECL_ENV) LUA=$(LUA) $(SPECL) $(SPECL_OPTS) $(specl_SPECS)
+	$(SPECL_ENV) $(SPECL) $(SPECL_OPTS) $(specl_SPECS)
 
-$(dist_doc_DATA): ext/curses/curses.c build-aux/make_lcurses_doc.pl
+clean-local:
+	rm -f $(posix_submodules)
+
+$(allhtml): $(EXTRA_ext_posix_posix_la_SOURCES) $(ext_posix_posix_la_SOURCES)
 	test -d $(builddir)/doc || mkdir $(builddir)/doc
-	$(PERL) build-aux/make_lcurses_doc.pl
 @HAVE_LDOC_TRUE@	$(LDOC) -c build-aux/config.ld -d $(abs_srcdir)/doc .
 @HAVE_LDOC_FALSE@	$(MKDIR_P) doc
 @HAVE_LDOC_FALSE@	touch doc/index.html doc/ldoc.css
 
-doc: $(dist_doc_DATA) $(dist_examples_DATA) $(dist_modules_DATA)
+doc: $(allhtml)
 
 $(luarocks_config): Makefile.am
 	@test -d build-aux || mkdir build-aux

@@ -1,6 +1,6 @@
 --- Lua bindings for curses
-local M = require "curses_c"
-local curses = M
+local curses = require "posix.curses"
+local M = curses
 
 -- These Lua functions detect number of args, like Unified Funcs in Perl Curses
 -- see http://pjb.com.au/comp/lua/lcurses.html

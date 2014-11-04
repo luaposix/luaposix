@@ -1,0 +1,92 @@
+specify posix:grp:
+- before:
+    grp = require "posix.grp"
+
+
+- describe endgrent:
+  - before:
+      endgrent = grp.endgrent
+
+  - context with bad arguments:
+      badargs.diagnose (endgrent, "()")
+
+  - it returns 'nil':
+      expect (endgrent ()).to_be (nil)
+  - it rewinds the group database:
+      g = grp.getgrent ()
+      grp.getgrent ()
+      endgrent ()
+      expect (grp.getgrent ()).to_equal (g)
+
+
+- describe getgrent:
+  - before:
+      getgrent = grp.getgrent
+
+  - context with bad arguments:
+      badargs.diagnose (getgrent, "()")
+
+  - it returns a PosixGroup for an existing group:
+      expect (prototype (getgrent ())).to_be "PosixGroup"
+  - it fetches a different group on subsequent calls:
+      g = getgrent ()
+      expect (getgrent ()).not_to_equal (g)
+  - it returns nil after the last entry was fetched:
+      g = getgrent ()
+      while (g) do
+        h = getgrent ()
+        expect (g).not_to_equal (h)
+        g = h
+      end
+      expect (g).to_be (nil)
+      grp.endgrent ()
+
+
+- describe getgrgid:
+  - before:
+      getgrgid = posix.getgrgid
+      groot = getgrgid (0).gr_name
+
+  - context with bad arguments:
+      badargs.diagnose (getgrgid, "(int)")
+
+  - it returns a PosixGroup for an existing group:
+      expect (prototype (getgrgid (0))).to_be "PosixGroup"
+  - it fetches a group by gid:
+      expect (getgrgid (0).gr_name).to_be (groot)
+      expect (getgrgid (0).gr_gid).to_be (0)
+      expect (type (getgrgid (0).gr_mem)).to_be "table"
+
+
+- describe getgrnam:
+  - before:
+      getgrgid, getgrnam = posix.getgrgid, posix.getgrnam
+      groot = getgrgid (0).gr_name
+
+  - context with bad arguments:
+      badargs.diagnose (getgrnam, "(string)")
+
+  - it returns 'nil' for a non-existent group:
+      expect (getgrnam "veryunlikelygroupname").to_be (nil)
+  - it returns a PosixGroup for an existing group:
+      expect (prototype (getgrnam (groot))).to_be "PosixGroup"
+  - it fetches a group by name:
+      expect (getgrnam (groot).gr_name).to_be (groot)
+      expect (getgrnam (groot).gr_gid).to_be (0)
+      expect (type (getgrnam (groot).gr_mem)).to_be "table"
+
+
+- describe setgrent:
+  - before:
+      setgrent = grp.setgrent
+
+  - context with bad arguments:
+      badargs.diagnose (setgrent, "()")
+
+  - it returns 'nil':
+      expect (setgrent ()).to_be (nil)
+  - it rewinds the group database:
+      g = grp.getgrent ()
+      grp.getgrent ()
+      setgrent ()
+      expect (grp.getgrent ()).to_equal (g)

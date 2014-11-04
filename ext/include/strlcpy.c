@@ -27,7 +27,11 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "config.h"
+#ifndef LUAPOSIX_STRLCPY_C
+#define LUAPOSIX_STRLCPY_C 1
+
+#include <config.h>
+
 #ifndef HAVE_STRLCPY
 
 #if defined LIBC_SCCS && ! defined lint
@@ -70,3 +74,5 @@ static size_t strlcpy(char *dst, const char *src, size_t siz)
 }
 
 #endif /* !HAVE_STRLCPY */
+
+#endif /* !LUAPOSIX_STRLCPY_C */

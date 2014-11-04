@@ -1,0 +1,922 @@
+specify posix.compat:
+- before:
+    init = function (M, fname)
+      return M[fname], function (...) return badargs.format (fname, ...) end
+    end
+
+
+- describe chmod:
+  - before:
+      chmod, stat = posix.chmod, posix.stat
+      touch "xxx"
+      chmod ("xxx", "rwxr-x---")
+  - after:
+      os.remove "xxx"
+
+  - context with bad arguments: |
+      examples {
+        ["it diagnoses argument #2 invalid mode"] = function ()
+          expect (chmod (".", "g+vv")).
+            to_raise "bad argument #2 to 'chmod' (bad mode)"
+        end
+      }
+
+      badargs.diagnose (chmod, "chmod (string, string)")
+
+  - it sets file mode with longhand mode string:
+      mode = "rw---xr--"
+      expect (Emsg (chmod ("xxx", mode))).to_be ""
+      expect (stat ("xxx", "mode")).to_be (mode)
+  - "it sets attributes with '='":
+      expect (Emsg (chmod ("xxx", "o=w"))).to_be ""
+      expect (stat ("xxx", "mode")).to_be "rwxr-x-w-"
+  - "it adds attributes with '+'":
+      expect (Emsg (chmod ("xxx", "g+w"))).to_be ""
+      expect (stat ("xxx", "mode")).to_be "rwxrwx---"
+  - "it removes attributes with '-'":
+      expect (Emsg (chmod ("xxx",  "u-r"))).to_be ""
+      expect (stat ("xxx", "mode")).to_be "-wxr-x---"
+  - it accepts comma separated attribute specifications:
+      expect (Emsg (chmod ("xxx", "a+x,g+w,u-w"))).to_be ""
+      expect (stat ("xxx", "mode")).to_be "r-xrwx--x"
+  - it diagnoses missing files:
+      os.remove "xxx"
+      expect (Emsg (chmod ("xxx", "a=rwx"))).to_contain "No such file or directory"
+
+
+- describe clock_getres:
+  - before:
+      clock_getres = posix.clock_getres
+
+  - context with bad arguments:
+      if clock_getres then
+        badargs.diagnose (clock_getres, "clock_getres (?string)")
+      end
+
+
+- describe clock_gettime:
+  - before:
+      clock_gettime = posix.clock_gettime
+
+  - context with bad arguments:
+      if clock_gettime then
+        badargs.diagnose (clock_gettime, "clock_gettime (?string)")
+      end
+
+
+- describe creat:
+  - before:
+      creat = posix.creat
+
+  - context with bad arguments: |
+      badargs.diagnose (creat, "creat (string, string)")
+
+      examples {
+        ["it diagnoses argument #2 invalid mode"] = function ()
+          expect (creat ("not/existing", "g+vv")).
+            to_raise "bad argument #2 to 'creat' (bad mode)"
+        end
+      }
+
+
+- describe fadvise:
+  - context with bad arguments:
+      if posix.fadvise then
+        badargs.diagnose (posix.fadvise, "fadvise (file, int, int, int)")
+      end
+
+
+- describe fnmatch:
+  - before:
+      fnmatch, FNM_PATHNAME, FNM_PERIOD =
+        posix.fnmatch, posix.FNM_PATHNAME, posix.FNM_PERIOD
+
+  - context with bad arguments:
+      badargs.diagnose (fnmatch, "fnmatch (string, string, ?int)")
+
+  - it matches a file path against itself:
+      expect (fnmatch ("test", "test")).to_be (true)
+  - "it matches * against any filename characters":
+      expect (fnmatch ("tes*", "test")).to_be (true)
+      expect (fnmatch ("tes*", "test2")).to_be (true)
+      expect (fnmatch ("*t*", "test")).to_be (true)
+  - "it matches ? against a single filename character":
+      expect (fnmatch ("tes?", "test")).to_be (true)
+      expect (fnmatch ("t???", "test")).to_be (true)
+      expect (fnmatch ("tes?", "tes")).to_be (false)
+      expect (fnmatch ("tes?", "test2")).to_be (false)
+  - "it doesn't match path separators with FNM_PATHNAME":
+      expect (fnmatch ("*test", "/test")).to_be (true)
+      expect (fnmatch ("*test", "/test", FNM_PATHNAME)).to_be (false)
+  - "it doesn't match periods with FNM_PERIOD":
+      expect (fnmatch ("*test", ".test")).to_be (true)
+      expect (fnmatch ("*test", ".test", FNM_PERIOD)).to_be (false)
+
+
+- describe getgroup:
+  - before:
+      getgrgid, getgroup, getegid =
+        posix.getgrgid, posix.getgroup, posix.getegid
+      groot = getgrgid (0).gr_name
+
+  - context with bad arguments:
+      badargs.diagnose (posix.getgroup, "getgroup (?string|int)")
+
+  - it returns a table for an existing group:
+      expect (type (getgroup (groot))).to_be "table"
+  - it fetches current group by default:
+      expect (getgroup ()).to_equal (getgroup (getegid ()))
+  - it fetches a group by gid:
+      expect (getgroup (0).name).to_be (groot)
+      expect (getgroup (0).gid).to_be (0)
+      expect (type (getgroup (0).mem)).to_be "table"
+  - it fetches a group by name:
+      expect (getgroup (groot).name).to_be (groot)
+      expect (getgroup (groot).gid).to_be (0)
+      expect (type (getgroup (groot).mem)).to_be "table"
+
+
+- describe getpasswd:
+  - before:
+      getenv, getgid, getpasswd, getuid =
+        posix.getenv, posix.getgid, posix.getpasswd, posix.getuid
+      user = getpasswd ((getenv "USER"), "name")
+      root = getpasswd (0, "name")
+
+  - context with bad arguments:
+    - before:
+        getpasswd, badarg = init (posix, "getpasswd")
+
+    - 'it diagnoses argument #1 type not string, int or nil':
+        expect (getpasswd (false)).
+          to_raise (badarg (1, "?string|int", "boolean"))
+
+  - it fetches the user uid:
+      expect (getpasswd (user).uid).to_be (getuid ())
+      expect (getpasswd (root, "uid")).to_be (0)
+  - it fetches the user name:
+      expect (getpasswd (user).name).to_be (user)
+      expect (getpasswd (0, "name")).to_be (root)
+      expect (getpasswd (root, "name")).to_be (root)
+  - it fetches the user gid:
+      expect (getpasswd (user).gid).to_be (getgid ())
+      expect (getpasswd (0, "gid")).to_be (0)
+      expect (getpasswd (root, "gid")).to_be (0)
+  - it fetches the user password:
+      expect (getpasswd (user).passwd).to_match.any_of {"x", "%*+"}
+      expect (getpasswd (0, "passwd")).to_match.any_of {"x", "%*+"}
+      expect (getpasswd (root, "passwd")).to_match.any_of {"x", "%*+"}
+  - it fetches the user home directory:
+      expect (getpasswd (user, "dir")).to_be (getenv "HOME")
+  - it fetches the user shell:
+      expect (getpasswd (user, "shell")).to_be (getenv "SHELL")
+  - it fetches a subtable of named fields:
+      expect ({getpasswd (user, "name", "shell", "dir")}).
+        to_equal {user, getenv "SHELL", getenv "HOME"}
+  - it fetches everything without an argument:
+      t = getpasswd (user)
+      for k, v in pairs (t) do
+        expect (t[k]).to_be (getpasswd (user, k))
+      end
+
+
+- describe getpid:
+  - before:
+      getpid, badarg = init (posix, "getpid")
+
+  # posix.getpid takes an optional string or table as its first
+  # argument, followed by zero or more strings only if the first
+  # argument was a string; since we can't express that with
+  # `badargs.diagnose` do it all manually again...
+  - context with bad arguments:
+    - 'it diagnoses argument #1 type not table, string or nil':
+        expect (getpid (false)).to_raise (badarg (1, "?table|string", "boolean"))
+    - 'it diagnoses argument #1 string invalid': |
+        expect (getpid ("fubar")).
+          to_raise "bad argument #1 to 'getpid' (invalid option 'fubar')"
+    - 'it diagnoses argument #2 type not string':
+        expect (getpid ("ppid", false)).
+          to_raise (badarg (2, "string", "boolean"))
+    - it diagnoses too many arguments:
+        expect (getpid ({}, false)).to_raise (badarg (2))
+
+
+- describe getrlimit:
+  - before:
+      getrlimit = posix.getrlimit
+
+  - context with bad arguments: |
+      examples {
+        ["it diagnoses argument #1 invalid option"] = function ()
+          expect (getrlimit ("fubar")).
+            to_raise "bad argument #1 to 'getrlimit' (invalid option 'fubar')"
+        end
+      }
+
+      badargs.diagnose (getrlimit, "getrlimit (string)")
+
+  - it fetches resource limits for a process:
+      for _, rc in pairs {"core", "cpu", "data", "fsize", "nofile", "stack", "as"}
+      do
+        cur, max = getrlimit (rc)
+        expect (type (cur)).to_be "number"
+        expect (type (max)).to_be "number"
+      end
+
+
+- describe gettimeofday:
+  - before:
+      gettimeofday = posix.gettimeofday
+
+  - context with bad arguments:
+      badargs.diagnose (gettimeofday, "gettimeofday ()")
+
+  - it fetches the current epoch time:
+      t, epoch = gettimeofday (), posix.time ()
+      expect (t.sec).to_be (epoch)
+      expect (type (t.usec)).to_be "number"
+      expect (t.usec >= 0).to_be (true)
+
+
+- describe gmtime:
+  - before:
+      gmtime = posix.gmtime
+
+  - context with bad arguments:
+      badargs.diagnose (gmtime, "gmtime (?int)")
+
+  - it returns a PosixTm:
+      expect (prototype (gmtime (now))).to_be "table"
+  - it fetches broken-down time values:
+      t = gmtime (now)
+      fields = {"sec", "min", "hour", "day", "monthday", "month", "year",
+                "weekday", "yearday", "is_dst"}
+      expect (t).to_contain.a_permutation_of (fields)
+      for _, field in pairs (fields) do
+        if field == "is_dst" then
+          expect (type (t.is_dst)).to_be "boolean"
+        else
+          expect (type (t[field])).to_be "number"
+          expect (t[field] >= 0).to_be (true)
+        end
+      end
+  - it returns a month in the range 0-11:
+      t = gmtime (now)
+      expect (t.month >= 0 and t.month < 12).to_be (true)
+  - it returns full year:
+      expect (gmtime (now).year > 2000).to_be (true)
+
+
+- describe hostid:
+  - context with bad arguments:
+      badargs.diagnose (posix.hostid, "()")
+
+
+- describe isgraph:
+  - before:
+      isgraph = posix.isgraph
+
+  - context with bad arguments:
+      badargs.diagnose (isgraph, "isgraph (string)")
+
+  - it returns true for successful tests:
+      expect (isgraph 'a').to_be (true)
+  - it returns false for failed tests:
+      expect (isgraph ' ').to_be (false)
+
+
+- describe isprint:
+  - before:
+      isprint = posix.isprint
+
+  - context with bad arguments:
+      badargs.diagnose (isprint, "isprint (string)")
+
+  - it returns true for successful tests:
+      expect (isprint 'a').to_be (true)
+  - it returns false for failed tests:
+      expect (isprint (string.char (0))).to_be (false)
+
+
+- describe localtime:
+  - before:
+      localtime = posix.localtime
+
+  - context with bad arguments:
+      badargs.diagnose (localtime, "localtime (?int)")
+
+  - it returns a PosixTm:
+      expect (prototype (localtime (now))).to_be "table"
+  - it fetches broken-down time values:
+      t = localtime (now)
+      fields = {"sec", "min", "hour", "day", "monthday", "month", "year",
+                "weekday", "yearday", "is_dst"}
+      expect (t).to_contain.a_permutation_of (fields)
+      for _, field in pairs (fields) do
+        if field == "is_dst" then
+          expect (type (t.is_dst)).to_be "boolean"
+        else
+          expect (type (t[field])).to_be "number"
+          expect (t[field] >= 0).to_be (true)
+        end
+      end
+  - it returns a month in the range 0-11:
+      t = localtime (now)
+      expect (t.month >= 0 and t.month < 12).to_be (true)
+  - it returns years since 1900:
+      expect (localtime (now).year > 2000).to_be (true)
+
+
+- describe mkdir:
+  - before:
+      dir = posix.mkdtemp (template)
+      chdir, mkdir = posix.chdir, posix.mkdir
+      cwd = posix.getcwd ()
+
+  - after:
+      chdir (cwd)
+      rmtmp (dir)
+
+  - context with bad arguments:
+      badargs.diagnose (mkdir, "mkdir (string)")
+
+  - it creates the named directory:
+      expect (Emsg (mkdir (dir .. "/subdir"))).not_to_contain "exists"
+      expect (Emsg (chdir (dir .. "/subdir"))).not_to_contain "No such flle or directory"
+  - it diagnoses already existing directory:
+      expect (Emsg (mkdir (dir))).to_contain "exists"
+
+
+- describe mkfifo:
+  - before:
+      dir    = posix.mkdtemp (template)
+      mkfifo = posix.mkfifo
+
+  - after:
+      rmtmp (dir)
+
+  - context with bad arguments:
+      badargs.diagnose (mkfifo, "mkfifo (string)")
+
+  - it creates the named fifo:
+      expect (Emsg (mkfifo (dir .. "/fifo"))).not_to_contain "exists"
+      expect (posix.stat (dir .. "/fifo").type).to_be "fifo"
+  - it diagnoses already existing fifo:
+      expect (Emsg (mkfifo (dir))).to_contain "exists"
+
+
+- describe mktime:
+  - before:
+      localtime, mktime, time = posix.localtime, posix.mktime, posix.time
+      epoch = time ()
+      t = localtime (epoch)
+
+  - context with bad arguments:
+      badargs.diagnose (mktime, "mktime (?table)")
+
+  - it returns an epoch time:
+      expect (prototype (mktime (t))).to_be "number"
+  - it is the inverse of localtime:
+      expect (mktime (t)).to_be (epoch)
+  - it defaults to current time: |
+      -- avoid a race by discarding the unit seconds
+      expect (mktime () / 10).to_be (epoch / 10)
+
+
+- describe msgget:
+  - before:
+      msgget = posix.msgget
+      EEXIST, IPC_CREAT, IPC_EXCL = posix.EEXIST, posix.IPC_CREAT, posix.IPC_EXCL
+
+  - context with bad arguments:
+      badargs.diagnose (msgget, "msgget (int, ?int, ?string)")
+
+  - it creates a queue:
+      if msgget then
+        modestr = "rwxrwxrwx"
+        mq, err, errnum = msgget (100, bor (IPC_CREAT, IPC_EXCL), modestr)
+        if errnum == EEXIST then
+          mq, err = msgget (100, 0, modestr)
+        end
+        expect (mq).not_to_be (nil)
+        expect (err).to_be (nil)
+      end
+
+
+  - describe nanosleep:
+    - context with bad arguments:
+        badargs.diagnose (posix.nanosleep, "nanosleep (int, int)")
+
+    - it returns an integer:
+        expect (posix.nanosleep (0, 10)).to_be (0)
+
+
+- describe open:
+  # posix.open ignores the mode argument if flags does not include
+  # O_CREAT, which `badargs.diagnose` can't express; ergo manual
+  # checks here...
+  - before:
+      O_CREAT = posix.O_CREAT
+      open, badarg = init (posix, "open")
+
+  - 'it diagnoses missing argument #1':
+      expect (open ()).to_raise (badarg (1, "string"))
+  - 'it diagnoses argument #1 type not string':
+      expect (open (false)).to_raise (badarg (1, "string", "boolean"))
+  - 'it diagnoses missing argument #2':
+      expect (open ("not/existing")).to_raise (badarg (2, "int"))
+  - 'it diagnoses argument #2 type not int':
+      expect (open ("not/existing", false)).
+        to_raise (badarg (2, "int", "boolean"))
+  - 'it diagnoses missing argument #3':
+      expect (open ("not/existing", O_CREAT)).to_raise (badarg (3, "string"))
+  - 'it diagnoses argument #3 type not string':
+      expect (open ("not/existing", O_CREAT, false)).
+        to_raise (badarg (3, "string", "boolean"))
+  - 'it diagnoses argument #3 invalid mode': |
+      expect (open ("not/existing", O_CREAT, "g+vv")).
+        to_raise "bad argument #3 to 'open' (bad mode)"
+  - 'it diagnoses too many arguments':
+      expect (open ("not/existing", -1, "o-s", false)).to_raise (badarg (4))
+
+
+- describe pathconf:
+  - before:
+      pathconf, badarg = init (posix, "pathconf")
+
+  # posix.pathconf takes an optional string or table as its second
+  # argument, followed by zero or more strings only if the second
+  # argument was a string; since we can't express that with
+  # `badargs.diagnose` do it all manually again...
+  - context with bad arguments:
+    - 'it diagnoses argument #1 type not string':
+        expect (pathconf (false)).to_raise (badarg (1, "?string", "boolean"))
+    - 'it diagnoses argument #2 type not table, string or nil':
+        expect (pathconf (".", false)).
+          to_raise (badarg (2, "?table|string", "boolean"))
+    - 'it diagnoses argument #2 string invalid': |
+        expect (pathconf (".", "fubar")).
+          to_raise "bad argument #2 to 'pathconf' (invalid option 'fubar')"
+    - 'it diagnoses argument #3 type not string':
+        expect (pathconf (".", "NAME_MAX", false)).
+          to_raise (badarg (3, "string", "boolean"))
+    - it diagnoses too many arguments:
+        expect (pathconf (".", {}, false)).
+          to_raise (badarg (3))
+
+  - it returns whether chown can be used on the given file:
+      expect (type (pathconf ().CHOWN_RESTRICTED)).to_be "number"
+      expect (pathconf (".", "CHOWN_RESTRICTED") >= 0).to_be (true)
+  - it fetches the maximum number of links to the given file:
+      expect (type (pathconf ().LINK_MAX)).to_be "number"
+      expect (pathconf (".", "LINK_MAX") >= 0).to_be (true)
+  - it fetches the maximum formatted line input length for a tty: |
+      -- not passing a tty, so should return -1
+      expect (type (pathconf ().MAX_CANON)).to_be "number"
+      pending "issue #102"
+      expect (pathconf (".", "MAX_CANON")).to_be (-1)
+  - it fetches the maximum raw line input length for a tty: |
+      -- not passing a tty, so should return -1
+      expect (type (pathconf ().MAX_INPUT)).to_be "number"
+      pending "issue #102"
+      expect (pathconf (".", "MAX_INPUT")).to_be (-1)
+  - it fetches the maximum filename length in this directory:
+      expect (type (pathconf ().NAME_MAX)).to_be "number"
+      expect (pathconf (".", "NAME_MAX") >= 0).to_be (true)
+  - it fetches whether accessing overlong filenames is an error:
+      expect (type (pathconf ().NO_TRUNC)).to_be "number"
+      expect (pathconf (".", "NO_TRUNC") >= 0).to_be (true)
+  - it fetches the maximum relative path length from this directory:
+      expect (type (pathconf ().PATH_MAX)).to_be "number"
+      expect (pathconf (".", "PATH_MAX") >= 0).to_be (true)
+  - it fetches the size of the pipe buffer:
+      expect (type (pathconf ().PIPE_BUF)).to_be "number"
+      expect (pathconf (".", "PIPE_BUF") >= 0).to_be (true)
+  - it fetches whether special character processing can be disabled: |
+      -- not passing a tty, so should return -1
+      expect (type (pathconf ().VDISABLE)).to_be "number"
+      pending "issue #102"
+      expect (pathconf (".", "VDISABLE")).to_be (-1)
+  - it fetches a subtable of named fields:
+      expect ({pathconf (".", "VDISABLE", "NAME_MAX")}).
+        to_equal {pathconf (".", "VDISABLE"), pathconf (".", "NAME_MAX")}
+  - it fetches everything without an argument:
+      t = pathconf ()
+      for k, v in pairs (t) do
+        expect (t[k]).to_be (pathconf (".", k))
+      end
+
+
+- describe setrlimit:
+  - before:
+      setrlimit = posix.setrlimit
+
+  - context with bad arguments: |
+      examples {
+        ["it diagnoses argument #1 invalid option"] = function ()
+          expect (setrlimit ("fubar")).
+            to_raise "bad argument #1 to 'setrlimit' (invalid option 'fubar')"
+        end
+      }
+
+      badargs.diagnose (setrlimit, "setrlimit (string, ?int, ?int)")
+
+
+- describe stat:
+  - before:
+      # choose a format without seconds, that won't cause a race condition
+      fmt = "%b %d %H:%M"
+      getegid, geteuid = posix.getegid, posix.geteuid
+      stat, badarg = init (posix, "stat")
+
+      dir = posix.mkdtemp (template)
+      posix.mkdir (dir .. "/subdir")
+      posix.link ("subdir", dir .. "/soft", true)
+      touch (dir .. "/file")
+      posix.link (dir .. "/file", dir .. "/hard")
+      posix.link ("no such destination", dir .. "/dangling", true)
+      posix.mkfifo (dir .. "/fifo")
+
+  - after:
+      rmtmp (dir)
+
+  # posix.stat takes an optional string or table as its second
+  # argument, followed by zero or more strings only if the second
+  # argument was a string; since we can't express that with
+  # `badargs.diagnose` do it all manually again...
+  - context with bad arguments:
+    - 'it diagnoses missing argument #1':
+        expect (stat ()).to_raise (badarg (1, "string"))
+    - 'it diagnoses argument #1 type not string':
+        expect (stat (false)).to_raise (badarg (1, "string", "boolean"))
+    - 'it diagnoses argument #2 type not table, string or nil':
+        expect (stat (".", false)).
+          to_raise (badarg (2, "?table|string", "boolean"))
+    - 'it diagnoses argument #2 string invalid': |
+        expect (stat (".", "fubar")).
+          to_raise "bad argument #2 to 'stat' (invalid option 'fubar')"
+    - 'it diagnoses argument #3 type not string':
+        expect (stat (".", "type", false)).
+          to_raise (badarg (3, "string", "boolean"))
+    - it diagnoses too many arguments:
+        expect (stat (".", {}, false)).
+          to_raise (badarg (3))
+
+  - it fetches the file inode:
+      expect (stat (dir .. "/hard").ino).to_be (stat (dir .. "/file").ino)
+  - it fetches the file type:
+      expect (stat (dir).type).to_be "directory"
+      expect (stat (dir .. "/file", "type")).to_be "regular"
+      expect (stat (dir .. "/soft", "type")).to_be "link"
+      expect (stat (dir .. "/hard", "type")).to_be "regular"
+  - it fetches the file size:
+      # skip directory size, which is system dependent
+      expect (stat (dir .. "/file").size).to_be (0)
+      expect (stat (dir .. "/soft", "size")).to_be (string.len ("subdir"))
+      expect (stat (dir .. "/hard", "size")).
+        to_be (stat (dir .. "/file", "size"))
+  - it fetches the file access time:
+      expect (os.date (fmt, stat (dir .. "/file", "atime"))).
+        to_be (os.date (fmt))
+  - it fetches the file modification time:
+      expect (os.date (fmt, stat (dir .. "/file", "mtime"))).
+        to_be (os.date (fmt))
+  - it fetches the file creation time:
+      expect (os.date (fmt, stat (dir .. "/file", "ctime"))).
+        to_be (os.date (fmt))
+  - it fetches the file access mode:
+      expect (stat (dir .. "/file").mode).to_match ("^[-rwx]+$")
+      expect (stat (dir .. "/subdir", "mode")).to_match ("^[-rwx]+$")
+  - it fetches the number of links:
+      expect (stat (dir .. "/file").nlink).to_be (2)
+      expect (stat (dir .. "/soft", "nlink")).to_be (1)
+      expect (stat (dir .. "/hard", "nlink")).
+        to_be (stat (dir .. "/file", "nlink"))
+      expect (stat (dir .. "/subdir", "nlink")).to_be (2)
+  - it fetches the owner id:
+      expect (stat (dir .. "/file").uid).to_be (geteuid ())
+      expect (stat (dir .. "/subdir", "uid")).to_be (geteuid ())
+  - it fetches the owner group id:
+      expect (stat (dir .. "/file").gid).to_be (getegid ())
+      expect (stat (dir .. "/subdir", "gid")).to_be (getegid ())
+  - it fetches a subtable of named fields:
+      expect ({stat (dir .. "/file", "type", "size", "nlink")}).
+        to_equal {"regular", 0, 2}
+  - it fetches everything without an argument:
+      t = stat (dir .. "/file")
+      for k, v in pairs (t) do
+        expect (t[k]).to_be (stat (dir .. "/file", k))
+      end
+
+
+- describe statvfs:
+  - before:
+      statvfs, badarg = init (posix, "statvfs")
+
+  # posix.statvfs takes an optional string or table as its second
+  # argument, followed by zero or more strings only if the second
+  # argument was a string; since we can't express that with
+  # `badargs.diagnose` do it all manually again...
+  - context with bad arguments: |
+      if statvfs then
+        examples {
+          ["it diagnoses missing argument #1"] = function ()
+            expect (statvfs ()).to_raise (badarg (1, "string"))
+          end
+        }
+        examples {
+          ["it diagnoses argument #1 type not string"] = function ()
+            expect (statvfs (false)).to_raise (badarg (1, "string", "boolean"))
+          end
+        }
+        examples {
+          ["it diagnoses argument #2 type not table, string or nil"] = function ()
+            expect (statvfs (".", false)).
+              to_raise (badarg (2, "?table|string", "boolean"))
+          end
+        }
+        examples {
+          ["it diagnoses argument #2 string invalid"] = function ()
+            expect (statvfs (".", "fubar")).
+              to_raise "bad argument #2 to 'statvfs' (invalid option 'fubar')"
+          end
+        }
+        examples {
+          ["it diagnoses argument #3 type not string"] = function ()
+            expect (statvfs (".", "files", false)).
+              to_raise (badarg (3, "string", "boolean"))
+          end
+        }
+        examples {
+          ["it diagnoses too many arguments"] = function ()
+            expect (statvfs (".", {}, false)).
+              to_raise (badarg (3))
+          end
+        }
+      end
+
+  - it fetches statistics for a mounted file system:
+      if statvfs then
+        sv = statvfs "/"
+        expect (type (sv)).to_be "table"
+        expect (sv.bsize).to_be (statvfs ("/", "bsize"))
+        for _, field in pairs {"bsize", "frsize", "blocks", "bfree", "bavail",
+                               "files", "ffree", "favail", "flag", "namemax"}
+        do
+          expect (type (sv[field])).to_be "number"
+          expect (sv[field] >= 0).to_be (true)
+        end
+      end
+  - it returns a non-negative value from fsid: |
+      -- Merge this back into the previous example when #102 is fixed
+      if statvfs then
+        sv = statvfs "/"
+        pending "issue #102"
+        expect (sv[field] >= 0).to_be (true)
+      end
+
+
+- describe strftime:
+  - before:
+      strftime = posix.strftime
+
+      t = {
+        is_dst = true, weekday = 0, sec = 2, min = 3, hour = 4,
+        monthday = 5, month = 6, year = 7, yearday = 8
+      }
+
+  - context with bad arguments:
+      badargs.diagnose (strftime, "strftime (string, ?table)")
+
+  - context with place-holders:
+    - it plugs weekday:
+        expect (strftime ("%w", t)).to_be "0"
+    - it plugs sec:
+        expect (strftime ("%S", t)).to_be "02"
+    - it plugs min:
+        expect (strftime ("%M", t)).to_be "03"
+    - it plugs hour:
+        expect (strftime ("%H", t)).to_be "04"
+    - it plugs monthday:
+        expect (strftime ("%d", t)).to_be "05"
+    - it plugs month:
+        expect (strftime ("%m", t)).to_be "06"
+    - it plugs year:
+        expect (strftime ("%y", t)).to_be "07"
+    - it plugs yearday:
+        expect (strftime ("%j", t)).to_be "009"
+  - it defaults to current time:
+      expect (strftime "%Y-%m-%d\n").
+        to_be (io.popen ("date +'%Y-%m-%d'", "r"):read "*a")
+
+
+- describe strptime:
+  - before:
+      strptime = posix.strptime
+
+  - context with bad arguments:
+      badargs.diagnose (strptime, "strptime (string, string)")
+
+  - context with place-holders:
+    - before:
+        t, i = strptime ("Mon Jun  4 03:02:01 BST 1906 garbage",
+                         "%a %b %d %H:%M:%S BST %Y")
+    - it returns the first unconsumed character:
+        expect (i).to_be (29)
+    # tm_yday and tm_isdst are not set by strptime
+    - it scans into weekday:
+        expect (t.weekday).to_be (1)
+    - it scans into sec:
+        expect (t.sec).to_be (1)
+    - it scans into min:
+        expect (t.min).to_be (2)
+    - it scans into hour:
+        expect (t.hour).to_be (3)
+    - it scans into monthday:
+        expect (t.monthday).to_be (4)
+    - it scans into month:
+        expect (t.month).to_be (6)
+    - it scans into year:
+        expect (t.year).to_be (1906)
+
+
+- describe setlogmask:
+  - context with bad arguments:
+      if posix.setlogmask then
+        badargs.diagnose (posix.setlogmask, "setlogmask (?int*)")
+      end
+
+
+- describe sysconf:
+  - before:
+      sysconf, badarg = init (posix, "sysconf")
+
+  # posix.sysconf takes an optional string or table as its first
+  # argument, followed by zero or more strings only if the first
+  # argument was a string; since we can't express that with
+  # `badargs.diagnose` do it all manually again...
+  - context with bad arguments:
+    - 'it diagnoses argument #1 type not table, string or nil':
+        expect (sysconf (false)).to_raise (badarg (1, "?table|string", "boolean"))
+    - 'it diagnoses argument #1 string invalid': |
+        expect (sysconf ("fubar")).
+          to_raise "bad argument #1 to 'sysconf' (invalid option 'fubar')"
+    - 'it diagnoses argument #2 type not string':
+        expect (sysconf ("ARG_MAX", false)).
+          to_raise (badarg (2, "string", "boolean"))
+    - it diagnoses too many arguments:
+        expect (sysconf ({}, false)).to_raise (badarg (2))
+
+  - it fetches the maximum number of exec arguments:
+      expect (type (sysconf ().ARG_MAX)).to_be "number"
+      expect (sysconf "ARG_MAX" >= 0).to_be (true)
+  - it fetches the number processes per user:
+      expect (type (sysconf ().CHILD_MAX)).to_be "number"
+      expect (sysconf "CHILD_MAX" >= 0).to_be (true)
+  - it fetches the number of clock ticks per second:
+      expect (type (sysconf ().CLK_TCK)).to_be "number"
+      expect (sysconf "CLK_TCK" >= 0).to_be (true)
+  - it fetches the job control version:
+      expect (type (sysconf ().JOB_CONTROL)).to_be "number"
+      expect (sysconf "JOB_CONTROL" >= 0).to_be (true)
+  - it fetches the maximum number of groups:
+      expect (type (sysconf ().NGROUPS_MAX)).to_be "number"
+      expect (sysconf "NGROUPS_MAX" >= 0).to_be (true)
+  - it fetches the maximum number of open descriptors:
+      expect (type (sysconf ().OPEN_MAX)).to_be "number"
+      expect (sysconf "OPEN_MAX" >= 0).to_be (true)
+  - it fetches the number of saved ids:
+      expect (type (sysconf ().SAVED_IDS)).to_be "number"
+      expect (sysconf "SAVED_IDS" >= 0).to_be (true)
+  - it fetches the maximum number of open streams:
+      expect (type (sysconf ().STREAM_MAX)).to_be "number"
+      expect (sysconf "STREAM_MAX" >= 0).to_be (true)
+  - it fetches the maximum length of a timezone name:
+      expect (type (sysconf ().TZNAME_MAX)).to_be "number"
+      expect (sysconf "TZNAME_MAX" >= 0).to_be (true)
+  - "it fetches the POSIX.1 version":
+      expect (type (sysconf ().VERSION)).to_be "number"
+      expect (sysconf "VERSION" >= 0).to_be (true)
+  - it fetches a subtable of named fields:
+      expect ({sysconf ("VERSION", "ARG_MAX", "OPEN_MAX")}).
+        to_equal {sysconf "VERSION", sysconf "ARG_MAX", sysconf "OPEN_MAX"}
+  - it fetches everything without an argument:
+      t = sysconf ()
+      for k, v in pairs (t) do
+        expect (t[k]).to_be (sysconf (k))
+      end
+
+
+- describe times:
+  - before:
+      table.unpack = table.unpack or unpack
+      times, badarg = init (posix, "times")
+
+  # posix.times takes an optional string or table as its first
+  # argument, followed by zero or more strings only if the first
+  # argument was a string; since we can't express that with
+  # `badargs.diagnose` do it all manually again...
+  - context with bad arguments:
+    - 'it diagnoses argument #1 type not table, string or nil':
+        expect (times (false)).to_raise (badarg (1, "?table|string", "boolean"))
+    - 'it diagnoses argument #1 string invalid': |
+        expect (times ("fubar")).
+          to_raise "bad argument #1 to 'times' (invalid option 'fubar')"
+    - 'it diagnoses argument #2 type not string':
+        expect (times ("utime", false)).
+          to_raise (badarg (2, "string", "boolean"))
+    - it diagnoses too many arguments:
+        expect (times ({}, false)).to_raise (badarg (2))
+
+  - it fetches the user time:
+      expect (type (times ().utime)).to_be "number"
+      expect (times ("utime") >= 0).to_be (true)
+  - it fetches the system time:
+      expect (type (times ().stime)).to_be "number"
+      expect (times ("stime") >= 0).to_be (true)
+  - it fetches the children user time:
+      expect (type (times ().cutime)).to_be "number"
+      expect (times ("cutime") >= 0).to_be (true)
+  - it fetches the children system time:
+      expect (type (times ().cstime)).to_be "number"
+      expect (times ("cstime") >= 0).to_be (true)
+  - it fetches the elapsed time:
+      expect (type (times ().elapsed)).to_be "number"
+      expect (times ("elapsed") >= 0).to_be (true)
+  - it fetches a subtable of named fields: |
+      keys = {"utime", "cutime"}
+      t = {times (table.unpack (keys))}
+      for _, v in ipairs (t) do
+        expect (type (v)).to_be "number"
+      end
+  - it fetches everything without an argument:
+      keys = {"utime", "stime", "cutime", "cstime", "elapsed"}
+      t = times ()
+      expect (t).to_contain.all_of (keys)
+      for _, v in ipairs (keys) do
+        expect (type (t[v])).to_be "number"
+      end
+
+
+- describe umask:
+  - before:
+      stat, umask = posix.stat, posix.umask
+      saved = umask ()
+      umask "rwxr-x---"
+
+      dir = posix.mkdtemp (template)
+
+  - after:
+      rmtmp (dir)
+      umask (saved)
+
+  - context with bad arguments: |
+      examples {
+        ["it diagnoses argument #1 invalid mode"] = function ()
+          expect (umask ("g+vv")).
+            to_raise "bad argument #1 to 'umask' (bad mode)"
+        end
+      }
+
+      badargs.diagnose (umask, "umask (?string)")
+
+  - it returns current umask:
+      expect (umask ()).to_be "rwxr-x---"
+  - "it sets attributes with '='":
+      expect (umask "a=r").to_be "r--r--r--"
+  - "it adds attributes with '+'":
+      expect (umask "g+w").to_be "rwxrwx---"
+  - "it removes attributes with '-'":
+      expect (umask "u-r").to_be "-wxr-x---"
+  - it accepts comma separated attribute specifications:
+      expect (umask "a+r,g+w,u-x").to_be "rw-rwxr--"
+  - it controls the mode of newly created files:
+      xxx, mode = dir .. "/xxx", "rw--w-r--"
+      umask (mode)
+      touch (xxx)
+      expect (stat (xxx, "mode")).to_be (mode)
+      os.remove (xxx)
+
+
+- describe uname:
+  - before:
+      uname = posix.uname
+
+  - context with bad arguments: |
+      badargs.diagnose (uname, "uname (?string)")
+
+      examples {
+        ['it diagnoses bad specifier format options'] = function ()
+          expect (uname ("foo %_")).
+            to_error "bad argument #1 to 'uname' (invalid format option '_')"
+        end
+      }
+
+  - it substitutes %n:
+      expect (uname "%n").to_be (cmd_output "uname -n")
+  - it substitutes %m:
+      expect (uname "%m").to_be (cmd_output "uname -m")
+  - it substitutes %r:
+      expect (uname "%r").to_be (cmd_output "uname -r")
+  - it outputs everything with no arguments:
+      expect (uname ()).to_be (cmd_output "uname -s -n -r -v -m")

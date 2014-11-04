@@ -1,0 +1,41 @@
+specify posix.syslog:
+- before:
+    log = require "posix.syslog"
+
+
+- describe LOG_MASK:
+  - context with bad arguments:
+      if log.LOG_MASK then
+        badargs.diagnose (log.LOG_MASK, "(int)")
+      end
+
+
+- describe closelog:
+  - context with bad arguments:
+      if log.closelog then
+        badargs.diagnose (log.closelog, "()")
+      end
+
+
+- describe openlog:
+  - before:
+      openlog = log.openlog
+
+  - context with bad arguments: |
+      if openlog then
+        badargs.diagnose (openlog, "(string, ?int, ?int)")
+      end
+
+
+- describe setlogmask:
+  - context with bad arguments:
+      if log.setlogmask then
+        badargs.diagnose (log.setlogmask, "(?int)")
+      end
+
+
+- describe syslog:
+  - context with bad arguments:
+      if log.syslog then
+        badargs.diagnose (log.syslog, "(int, string)")
+      end

@@ -57,9 +57,10 @@ include Makefile
 ## Defaults. ##
 ## --------- ##
 
-GIT	?= git
-LUA	?= lua
-TAR	?= tar
+GIT	 ?= git
+LUA	 ?= lua
+LUAROCKS ?= luarocks
+TAR	 ?= tar
 
 # Override this in cfg.mk if you are using a different format in your
 # NEWS file.
@@ -142,6 +143,7 @@ release-type = $(call member-check,RELEASE_TYPE,$(RELEASE_TYPES))
 release:
 	$(AM_V_GEN)$(MAKE) $(release-type)
 	$(AM_V_GEN)$(MAKE) push
+	$(AM_V_GEN)$(MAKE) upload
 	$(AM_V_GEN)$(MAKE) mail
 
 submodule-checks ?= no-submodule-changes public-submodule-commit
@@ -311,7 +313,7 @@ announcement: NEWS
 	$(AM_V_at)printf '%s\n'						\
 	  'Install it with LuaRocks, using:' ''				\
 	  '    luarocks install $(PACKAGE) $(VERSION)' ''		\
-	  'Until the rocks are available from the official repository in a few days,' \
+	  'If the latest rocks are not yet available from the official repository,' \
 	  'you can install directly from the $(PACKAGE) release branch, with:' \
 	  '' '    $$ luarocks install '\\
 	$(AM_V_at)$(ANNOUNCE_PRINT) 'print ($(GITHUB_ROCKSPEC))'
@@ -358,8 +360,8 @@ check-in-release-branch:
 	$(AM_V_at)$(TAR) zxf '$(release-tarball)'
 	$(AM_V_at)rm -f '$(my_distdir)' '$(release-tarball)'
 	$(AM_V_at)$(GIT) add .
-	$(AM_V_at)$(GIT) commit -s -a -m "Release v$(VERSION)."
-	$(AM_V_at)$(GIT) tag -s -a -m "Full source $(VERSION) release" release-v$(VERSION)
+	$(AM_V_at)$(GIT) commit -s -a -m 'Release v$(VERSION).'
+	$(AM_V_at)$(GIT) tag -s -a -m 'Full source release v$(VERSION)' release-v$(VERSION)
 	$(AM_V_at)$(GCO) $(branch)
 
 .PHONY: push
@@ -369,16 +371,15 @@ push:
 	$(AM_V_at)$(GIT) push origin v$(VERSION)
 	$(AM_V_at)$(GIT) push origin release-v$(VERSION)
 
+.PHONY: upload
+upload: rockspecs
+	$(AM_V_at)$(LUAROCKS) upload $${API_KEY+--api-key=$$API_KEY} \
+	    '$(PACKAGE)-$(VERSION)-$(rockspec_revision).rockspec'
+
 announce_emails ?= lua-l@lists.lua.org
-rockspec_emails ?= luarocks-developers@lists.sourceforge.net
 
 .PHONY: mail
 mail: rockspecs
 	$(AM_V_at)cat ~/announce-$(my_distdir)				\
 	  | mail -s '[ANN] $(PACKAGE) $(VERSION) released' --		\
 	    $(announce_emails)
-	$(AM_V_at)printf '%s\n'						\
-	  'Rockspec for $(PACKAGE) version $(VERSION) at:'		\
-	  `$(ANNOUNCE_PRINT) 'print ($(GITHUB_ROCKSPEC))'`		\
-	  | mail -s '[ANN] $(PACKAGE) $(VERSION) released; rockspec url included' -- \
-	    $(rockspec_emails)

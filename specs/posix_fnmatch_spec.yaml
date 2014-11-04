@@ -1,0 +1,29 @@
+specify posix.fnmatch:
+- before:
+    fnm = require "posix.fnmatch"
+
+- describe fnmatch:
+  - before:
+      fnmatch, FNM_PATHNAME, FNM_PERIOD, FNM_NOMATCH =
+        fnm.fnmatch, fnm.FNM_PATHNAME, fnm.FNM_PERIOD, fnm.FNM_NOMATCH
+
+  - context with bad arguments:
+      badargs.diagnose (fnmatch, "(string, string, ?int)")
+
+  - it matches a file path against itself:
+      expect (fnmatch ("test", "test")).to_be (0)
+  - "it matches * against any filename characters":
+      expect (fnmatch ("tes*", "test")).to_be (0)
+      expect (fnmatch ("tes*", "test2")).to_be (0)
+      expect (fnmatch ("*t*", "test")).to_be (0)
+  - "it matches ? against a single filename character":
+      expect (fnmatch ("tes?", "test")).to_be (0)
+      expect (fnmatch ("t???", "test")).to_be (0)
+      expect (fnmatch ("tes?", "tes")).to_be (FNM_NOMATCH)
+      expect (fnmatch ("tes?", "test2")).to_be (FNM_NOMATCH)
+  - "it doesn't match path separators with FNM_PATHNAME":
+      expect (fnmatch ("*test", "/test")).to_be (0)
+      expect (fnmatch ("*test", "/test", FNM_PATHNAME)).to_be (FNM_NOMATCH)
+  - "it doesn't match periods with FNM_PERIOD":
+      expect (fnmatch ("*test", ".test")).to_be (0)
+      expect (fnmatch ("*test", ".test", FNM_PERIOD)).to_be (FNM_NOMATCH)

@@ -1,0 +1,198 @@
+specify posix.unistd:
+- before: |
+    pwd    = require "posix.pwd"
+    unistd = require "posix.unistd"
+
+    -- Assume $USER is the process owner, egid is gid and euid is uid
+    ids = pwd.getpwnam (os.getenv "USER")
+
+
+- describe exec:
+  - before:
+      exec = unistd.exec
+
+  - context with bad arguments:
+      badargs.diagnose (exec, "(string, table)")
+
+
+- describe execp:
+  - before: |
+      bit = bit32 or require "bit"
+      fcntl = require "posix.fcntl"
+      syswait = require "posix.sys.wait"
+
+      execp = unistd.execp
+
+      dup2, fork, wait = unistd.dup2, unistd.fork, syswait.wait
+      open, O_WRONLY, O_APPEND = fcntl.open, fcntl.O_WRONLY, fcntl.O_APPEND
+      P_CHILD = 0
+
+      -- redirect output to /dev/null
+      function child (...)
+        quietly = open ("/dev/null", bit.bor (O_WRONLY, O_APPEND))
+        dup2 (quietly, 1)
+        execp (...)
+        expect ("not reached").to_be (true)
+      end
+
+  - context with bad arguments:
+      badargs.diagnose (execp, "(string, table)")
+
+  - it overwrites the running process with a shell invocation:
+      process = fork ()
+      if process == P_CHILD then
+        child ("date", {"+[%c]"})
+      else
+        p, msg, ret = wait (process)
+        expect (table.concat {msg, " ", tostring (ret)}).to_be "exited 0"
+      end
+  - "it sets argv[0]":
+
+
+- describe getegid:
+  - before:
+      getegid = unistd.getegid
+
+  - context with bad arguments:
+      badargs.diagnose (getegid, "()")
+
+  - it returns the effective group id:
+      expect (getegid ()).to_be (ids.pw_gid)
+
+
+- describe geteuid:
+  - before:
+      geteuid = unistd.geteuid
+
+  - context with bad arguments:
+      badargs.diagnose (geteuid, "()")
+
+  - it returns the effective user id:
+      expect (geteuid ()).to_be (ids.pw_uid)
+
+
+- describe getgid:
+  - before:
+      getgid = unistd.getgid
+
+  - context with bad arguments:
+      badargs.diagnose (getgid, "()")
+
+  - it returns the group id:
+      expect (getgid ()).to_be (ids.pw_gid)
+
+
+- describe gethostid:
+  - before:
+      gethostid = unistd.gethostid
+
+  - context with bad arguments:
+      badargs.diagnose (gethostid, "()")
+
+  - it returns an integer:
+      expect (math.floor (gethostid ())).to_be (gethostid ())
+
+
+- describe getuid:
+  - before:
+      getuid = unistd.getuid
+
+  - context with bad arguments:
+      badargs.diagnose (getuid, "()")
+
+  - it returns the user id:
+      expect (getuid ()).to_be (ids.pw_uid)
+
+
+- describe getpgrp:
+  - before:
+      getpgrp = unistd.getpgrp
+
+  - context with bad arguments:
+      badargs.diagnose (getpgrp, "()")
+
+  - it returns a positive integer:
+      expect (math.floor (getpgrp ())).to_be (getpgrp ())
+      expect (getpgrp () > 0).to_be (true)
+
+
+- describe getpid:
+  - before:
+      getpid = unistd.getpid
+
+  - context with bad arguments:
+      badargs.diagnose (getpid, "()")
+
+  - it returns the a positive integer:
+      expect (math.floor (getpid ())).to_be (getpid ())
+      expect (getpid () > 0).to_be (true)
+
+
+- describe getppid:
+  - before:
+      getppid = unistd.getppid
+
+  - context with bad arguments:
+      badargs.diagnose (getppid, "()")
+
+  - it returns a positive integer:
+      expect (math.floor (getppid ())).to_be (getppid ())
+      expect (getppid () > 0).to_be (true)
+  - it does not return the process id:
+      expect (getppid ()).not_to_be (unistd.getpid ())
+
+
+- describe pathconf:
+  - before:
+      pathconf = unistd.pathconf
+
+  - context with bad arguments:
+      badargs.diagnose (pathconf, "(string, int)")
+
+  - it returns whether chown can be used on the given file:
+      expect (type (pathconf (".", unistd._PC_CHOWN_RESTRICTED))).to_be "number"
+  - it fetches the maximum number of links to the given file:
+      expect (type (pathconf (".", unistd._PC_LINK_MAX))).to_be "number"
+  - it fetches the maximum formatted line input length for a tty:
+      expect (type (pathconf (".", unistd._PC_MAX_CANON))).to_be "number"
+  - it fetches the maximum raw line input length for a tty:
+      expect (type (pathconf (".", unistd._PC_MAX_INPUT))).to_be "number"
+  - it fetches the maximum filename length in this directory:
+      expect (type (pathconf (".", unistd._PC_NAME_MAX))).to_be "number"
+  - it fetches whether accessing overlong filenames is an error:
+      expect (type (pathconf (".", unistd._PC_NO_TRUNC))).to_be "number"
+  - it fetches the maximum relative path length from this directory:
+      expect (type (pathconf (".", unistd._PC_PATH_MAX))).to_be "number"
+  - it fetches the size of the pipe buffer:
+      expect (type (pathconf (".", unistd._PC_PIPE_BUF))).to_be "number"
+  - it fetches whether special character processing can be disabled:
+      expect (type (pathconf (".", unistd._PC_VDISABLE))).to_be "number"
+
+
+- describe sysconf:
+  - before:
+      sysconf = unistd.sysconf
+
+  - context with bad arguments:
+      badargs.diagnose (sysconf, "(int)")
+
+  - it fetches the maximum number of exec arguments:
+      expect (type (sysconf (unistd._SC_ARG_MAX))).to_be "number"
+  - it fetches the number processes per user:
+      expect (type (sysconf (unistd._SC_CHILD_MAX))).to_be "number"
+  - it fetches the number of clock ticks per second:
+      expect (type (sysconf (unistd._SC_CLK_TCK))).to_be "number"
+  - it fetches the job control version:
+      expect (type (sysconf (unistd._SC_JOB_CONTROL))).to_be "number"
+  - it fetches the maximum number of groups:
+      expect (type (sysconf (unistd._SC_NGROUPS_MAX))).to_be "number"
+  - it fetches the maximum number of open descriptors:
+      expect (type (sysconf (unistd._SC_OPEN_MAX))).to_be "number"
+  - it fetches the number of saved ids:
+      expect (type (sysconf (unistd._SC_SAVED_IDS))).to_be "number"
+  - it fetches the maximum number of open streams:
+      expect (type (sysconf (unistd._SC_STREAM_MAX))).to_be "number"
+  - it fetches the maximum length of a timezone name:
+      expect (type (sysconf (unistd._SC_TZNAME_MAX))).to_be "number"
+  - it fetches the POSIX.1 version:
+      expect (type (sysconf (unistd._SC_VERSION))).to_be "number"

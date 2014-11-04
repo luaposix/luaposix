@@ -1,0 +1,47 @@
+specify posix.fcntl:
+- before:
+    fc = require "posix.fcntl"
+
+
+- describe open:
+  - before: |
+      unistd = require "posix.unistd"
+
+      O_CREAT, O_RDONLY, O_WRONLY = fc.O_CREAT, fc.O_RDONLY, fc.O_WRONLY
+      open = fc.open
+      close, read, write = unistd.close, unistd.read, unistd.write
+
+      dir = posix.mkdtemp (template)
+      fh = io.open (dir .. "/file", "w")
+      fh:write "garbage\n"
+      fh:close ()
+
+  - after:
+      rmtmp (dir)
+
+  - context with bad arguments:
+      badargs.diagnose (open, "(string, int, ?int)")
+
+  - it opens an existing file:
+      fd, err = open (dir .. "/file", O_RDONLY)
+      expect (type (fd)).to_be "number"
+      expect (fd >= 0).to_be (true)
+      expect (read (fd, 10)).to_be "garbage\n"
+      close (fd)
+
+  - it opens a new file:
+      buf = "more garbage\n"
+      fd, err = open (dir .. "/creat", bor (O_CREAT, O_WRONLY))
+      expect (type (fd)).to_be "number"
+      expect (fd >= 0).to_be (true)
+      expect (write (fd, buf)).to_be (#buf)
+      close (fd)
+
+- describe posix_fadvise:
+  - before:
+      posix_fadvise = fc.posix_fadvise
+
+  - context with bad arguments:
+      if posix_fadvise then
+        badargs.diagnose (posix_fadvise, "(int, int, int, int)")
+      end

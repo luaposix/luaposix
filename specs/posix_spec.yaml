@@ -7,447 +7,305 @@
 # If you get a series of failed expectations, fixing the earliest failures
 # first will often clear up later failures automatically!
 
-before:
-  hell = require "specl.shell"
-
-specify lposix:
-- before: |
-    posix = require "posix_c"
-    files, getenv, stat = posix.files, posix.getenv, posix.stat
-
-    bit = bit32 or require "bit"
-    band, bnot, bor = bit.band, bit.bnot, bit.bor
-
-    -- Use a consistent template for all temporary files.
-    TMPDIR = getenv ("TMPDIR") or "/tmp"
-    template = TMPDIR .. "/luaposix-test-XXXXXX"
-
-    -- Allow comparison against the error message of a function call result.
-    function Emsg (_, msg) return msg or "" end
-
-    -- Collect stdout from a shell command, and strip surrounding whitespace.
-    function cmd_output (cmd)
-      return hell.spawn (cmd).output:gsub ("^%s+", ""):gsub ("%s+$", "")
+specify posix:
+- before:
+    init = function (M, fname)
+      return M[fname], function (...) return badargs.format (fname, ...) end
     end
-
-    -- Recursively remove a temporary directory.
-    function rmtmp (dir)
-      for f in files (dir) do
-        if f ~= "." and f ~= ".." then
-          path = dir .. "/" .. f
-          if stat (path, "type") == "directory" then
-            rmtmp (path)
-          else
-            os.remove (path)
-          end
-        end
-      end
-    end
-
-    -- Create an empty file at PATH.
-    function touch (path) io.open (path, "w+"):close () end
 
 - describe version:
-  - before:
-      version = posix.version
   - it is set:
-      expect (version).should_not_be (nil)
+      expect (posix.version).not_to_be (nil)
 
-- describe uname:
+
+- describe abort:
+  - context with bad arguments:
+      badargs.diagnose (posix.abort, "()")
+
+
+- describe euidaccess:
+  - before: f = posix.euidaccess
+  - context with bad arguments:
+      badargs.diagnose (f, "euidaccess (string, string)")
+
+
+- describe errno:
+  - context with bad arguments:
+      badargs.diagnose (posix.errno, "(?int)")
+
+
+- describe set_errno:
+  - context with bad arguments:
+      badargs.diagnose (posix.set_errno, "(int)")
+
+
+- describe getopt:
+  - context with bad arguments:
+      badargs.diagnose (posix.getopt, "(list, string, ?table, ?int, ?int)")
+
+
+- describe openpty:
+  - context with bad arguments:
+      badargs.diagnose (posix.openpty, "openpty ()")
+
+
+- describe pipeline:
+  - before: f = posix.pipeline
+  - context with bad arguments:
+      badargs.diagnose (f, "pipeline (table, ?function)")
+
+
+- describe pipeline_iterator:
+  - before: f = posix.pipeline_iterator
+  - context with bad arguments:
+      badargs.diagnose (f, "pipeline_iterator (table, ?function)")
+
+
+- describe pipeline_slurp:
+  - before: f = posix.pipeline_slurp
+  - context with bad arguments:
+      badargs.diagnose (f, "pipeline_slurp (table, ?function)")
+
+
+- describe spawn:
+  - before: f = posix.spawn
+  - context with bad arguments:
+      badargs.diagnose (f, "spawn (string|table|function, string*)")
+
+
+- describe timeradd:
   - before:
-      uname = posix.uname
-  - "it substitutes %n":
-      expect (uname "%n").should_be (cmd_output "uname -n")
-  - "it substitutes %m":
-      expect (uname "%m").should_be (cmd_output "uname -m")
-  - "it substitutes %r":
-      expect (uname "%r").should_be (cmd_output "uname -r")
-  - it outputs everything with no arguments:
-      expect (uname ()).should_be (cmd_output "uname -s -n -r -v -m")
+      tv1 = { sec = 2, usec = 123456 }
+      tv2 = { sec = 1, usec = 876543 }
+      f = posix.timeradd
 
-- context terminal:
-  - describe ttyname:
-    - before:
-        ttyname = posix.ttyname
-    - it takes a file descriptor argument:
-        expect (ttyname (2)).should_contain.any_of {"pts", "tty"}
-    - it returns a string:
-        expect (type (ttyname (1))).should_be "string"
-    - it defaults the first argument to 0:
-        expect (ttyname ()).should_be (ttyname (0))
+  - context with bad arguments:
+      badargs.diagnose (f, "timeradd (table, table)")
 
-  - describe ctermid:
-    - before:
-        ctermid = posix.ctermid
-    - it returns the pathname of the controlling terminal:
-        expect (ctermid ()).should_match.any_of {"/.*pts.*", "/.*tty.*"}
+  - it adds both fields of a timerval:
+      expect (f (tv1, tv2)).to_equal { sec = 3, usec = 999999 }
+  - it carries overflow second:
+      expect (f (tv2, tv2)).to_equal { sec = 3, usec = 753086 }
+  - it does not require 'sec' field:
+      expect (f (tv1, {usec = 876543})).to_equal { sec = 2, usec = 999999 }
+      expect (f ({usec = 123456}, {usec = 876543})).to_equal { sec = 0, usec = 999999}
+  - it does not require 'usec' field:
+      expect (f (tv1, {sec = 1})).to_equal { sec = 3, usec = 123456 }
+      expect (f ({sec = 2}, {sec = 1})).to_equal { sec = 3, usec = 0 }
 
-  - describe openpt:
-    - before:
-        grantpt, openpt, ptsname, stat, unlockpt =
-          posix.grantpt, posix.openpt, posix.ptsname, posix.stat, posix.unlockpt
-        open, close = posix.open, posix.close
-        O_RDWR, O_NOCTTY = posix.O_RDWR, posix.O_NOCTTY
-    - it can create a pseudoterminal: |
-        masterfd = openpt (bor (O_RDWR, O_NOCTTY))
-        expect (type (masterfd)).should_be "number"
-        expect (masterfd > 0).should_be (true)
-        expect (Emsg (grantpt (masterfd))).should_be ""
-        expect (Emsg (unlockpt (masterfd))).should_be ""
-        slavename = ptsname (masterfd)
-        expect (stat (slavename, "type")).should_be "character device"
-        slavefd = open (slavename, bor (O_RDWR, O_NOCTTY))
-        expect (type (slavefd)).should_be "number"
-        expect (slavefd > 0).should_be (true)
-        close (slavefd)
-        close (masterfd)
 
-- context process environment:
+- describe timercmp:
   - before:
-      getenv, setenv = posix.getenv, posix.setenv
+      tv1 = { sec = 2, usec = 123456 }
+      tv2 = { sec = 1, usec = 876543 }
+      f = posix.timercmp
 
-  - describe getenv:
-    - it fetches a table of process environment variables: |
-        volatile = { _ = true, LUA_PATH = true, SHLVL = true, }
-        for k,v in pairs (getenv ()) do
-           if not volatile[k] then
-             expect (hell.spawn ('echo "' .. k .. '=$' .. k .. '"')).should_contain_output (k.."="..v)
-           end
-        end
-    - it fetches a named process environment variable:
-        expect (getenv "USER").should_be (cmd_output ('echo "$USER"'))
-        expect (getenv "HOME").should_be (cmd_output ('echo "$HOME"'))
-        expect (getenv "SHELL").should_be (cmd_output ('echo "$SHELL"'))
-    - it returns nil for an absent environment setting:
-        expect (getenv "very_unlikely_to_be_set").should_be (nil)
+  - context with bad arguments:
+      badargs.diagnose (f, "timercmp (table, table)")
 
-  - describe setenv:
-    - it sets a new value in the process environment:
-        setenv ("MYVAR", "123")
-        expect (getenv "MYVAR").should_be "123"
-        setenv ("MYVAR", nil)
-        expect (getenv "MYVAR").should_be (nil)
+  - it returns 0 if timers are equal:
+      expect (f (tv1, tv1)).to_equal (0)
+  - it returns positive integer if second timer is greater than first:
+      expect (f (tv1, tv2) > 0).to_be (true)
+  - it returns negative integer if first timer is greater than the second:
+      expect (f (tv2, tv1) < 0).to_be (true)
 
-- context process handling:
+
+- describe timersub:
   - before:
-      nice, execp, fork, getpid, wait =
-        posix.nice, posix.execp, posix.fork, posix.getpid, posix.wait
-      P_CHILD = 0
+      tv1 = { sec = 2, usec = 876543 }
+      tv2 = { sec = 1, usec = 123456 }
+      f = posix.timersub
 
-  - describe nice:
-    - it adjusts the process priority:
-        old = nice (1)
-        expect (old).should_not_be (nil)
-        new = nice (2)
-        expect (new).should_be (old + 2)
-        expect (nice (-1)).should_be (nil)
+  - context with bad arguments:
+      badargs.diagnose (f, "timersub (table, table)")
 
-  - describe fork:
-    # NOTE: Calling expect in a child process does not report results
-    #       back to parent, so we send test data over a pipe.
-    - before:
-        _exit, close, pipe, read, write =
-          posix._exit, posix.close, posix.pipe, posix.read, posix.write
-    - it copies itself to a new child process: |
-        r, w = pipe ()
-        process, status = fork (), 67
-        if process == P_CHILD then
-          close (r) -- close unused read end
-          -- write parent pid and child pid to shared pipe.
-          write (w, tostring (getpid "ppid").."\n")
-          write (w, tostring (getpid "pid").."\n")
-          close (w)
-          _exit (status)
-        else
-          posix.close (w) -- close unused write end
-          p, msg, ret = wait (process)
-          expect (p).should_be (process)
-          expect (msg).should_be "exited"
-          expect (ret).should_be (status)
-          -- check pids from child process.
-          buf = posix.read (r, 1024)
-          cppid, cpid = string.match (buf, "(%d+)\n(%d+)\n")
-          close (r)
-          expect (cppid).should_be (tostring (getpid "pid"))
-          expect (cpid).should_be (tostring (process))
-        end
+  - it subtracts both fields of a timerval:
+      expect (f (tv1, tv2)).to_equal { sec = 1, usec = 753087 }
+  - it carries overflow second:
+      expect (f (tv2, tv1)).to_equal { sec = -2, usec = 246913 }
+  - it does not require 'sec' field:
+      expect (f (tv1, {usec = 123456})).to_equal { sec = 2, usec = 753087 }
+      expect (f ({usec = 876543}, {usec = 123456})).
+        to_equal { sec = 0, usec = 753087}
+  - it does not require 'usec' field:
+      expect (f (tv1, {sec = 1})).to_equal { sec = 1, usec = 876543 }
+      expect (f ({sec = 2}, {sec = 1})).to_equal { sec = 1, usec = 0 }
 
-  - describe exec:
 
-  - describe execp:
-    - before:
-        # redirect output to /dev/null
-        dup2, open, O_WRONLY, O_APPEND =
-          posix.dup2, posix.open, posix.O_WRONLY, posix.O_APPEND
-        function child (...)
-          quietly = open ("/dev/null", bor (O_WRONLY, O_APPEND))
-          dup2 (quietly, 1)
-          execp (...)
-          expect ("not reached").should_be (true)
-        end
-    - it overwrites the running process with a shell invocation:
-        process = fork ()
-        if process == P_CHILD then
-          child ("date", "+[%c]")
-        else
-          p, msg, ret = wait (process)
-          expect (table.concat {msg, " ", tostring (ret)}).should_be "exited 0"
-        end
-    - it accepts a table of arguments:
-        process = fork ()
-        if process == P_CHILD then
-          child ("date", {"+[%c]"})
-        else
-          p, msg, ret = wait (process)
-          expect (table.concat {msg, " ", tostring (ret)}).should_be "exited 0"
-        end
-    - "it sets argv[0]":
+- specify file descriptors:
+  - describe fileno:
+    - context with bad arguments:
+        badargs.diagnose (posix.fileno, "(file)")
+
+
+  - describe rpoll:
+    - context with bad arguments:
+        badargs.diagnose (posix.rpoll, "(int, int)")
+
+
+  - describe poll:
+    - context with bad arguments:
+        badargs.diagnose (posix.poll, "(table, ?int)")
+
+
+  - describe close:
+    - context with bad arguments:
+        badargs.diagnose (posix.close, "(int)")
+
+
+  - describe dup:
+    - context with bad arguments:
+        badargs.diagnose (posix.dup, "(int)")
+
+
+  - describe dup2:
+    - context with bad arguments:
+        badargs.diagnose (posix.dup2, "(int, int)")
+
 
   - describe pipe:
     - before:
         pipe, read, write = posix.pipe, posix.read, posix.write
+
+    - context with bad arguments:
+        badargs.diagnose (pipe, "()")
+
     - it creates a pipe:
         pout, pin = pipe ()
-        expect (pout > 0).should_be (true)
-        expect (pin > 0).should_be (true)
+        expect (pout > 0).to_be (true)
+        expect (pin > 0).to_be (true)
     - it can buffer characters:
         pout, pin = pipe ()
         data = "test characters"
         write (pin, data)
-        expect (read (pout, data:len ())).should_be (data)
+        expect (read (pout, data:len ())).to_be (data)
 
-- context temporary files:
-  - before:
-      mkdtemp, mkstemp, stat = posix.mkdtemp, posix.mkstemp, posix.stat
 
-  - describe mkdtemp:
-    - it creates a temporary directory from a template:
-        dir, errmsg = mkdtemp (template)
-        expect (dir).should_not_be (nil)
-        expect (stat (dir, "type")).should_be "directory"
-        expect (stat (dir, "mode")).should_be "rwx------"
-        rmtmp (dir)
+  - describe read:
+    - context with bad arguments:
+        badargs.diagnose (posix.read, "(int, int)")
 
-  - describe mkstemp:
+
+  - describe write:
+    - context with bad arguments:
+        badargs.diagnose (posix.write, "(int, string)")
+
+
+  - describe fcntl:
     - before:
-        close, isatty, open, read, write, O_RDONLY =
-          posix.close, posix.isatty, posix.open, posix.read, posix.write, posix.O_RDONLY
-        fd, path = mkstemp (template)
-    - after:
-        close (fd)
-        os.remove (path)
-    - it creates a temporary file from a template:
-        expect (fd).should_not_be (nil)
-        write (fd, "12345")
-        expect (isatty (fd)).should_not_be (true)
-        expect (stat (path, "type")).should_be "regular"
-        expect (stat (path, "mode")).should_be "rw-------"
-        expect (stat (path, "size")).should_be (5)
-        fd2 = open (path, O_RDONLY)
-        expect (read (fd2, 5)).should_be "12345"
-        close (fd2)
-    - it creates a new temporary file on each call:
-        fd2, another = mkstemp (template)
-        expect (fd2).should_not_be (fd)
-        expect (another).should_not_be (path)
-        close (fd2)
-        os.remove (another)
+        F_GETLK, F_SETLK, F_SETLKW = posix.F_GETLK, posix.F_SETLK, posix.F_SETLKW
+        F_RDLCK, F_WRLCK, F_UNLCK = posix.F_RDLCK, posix.F_WRLCK, posix.F_UNLCK
+        SEEK_SET, SEEK_CUR, SEEK_END = posix.SEEK_SET, posix.SEEK_CUR, posix.SEEK_END
 
-- context disk synchronisation:
-  - describe sync:
-  - describe fsync:
-  - describe fdatasync:
+        fcntl, badarg = init (posix, "fcntl")
 
-- context file handling:
-  - before:
-      link, mkdir, mkdtemp = posix.link, posix.mkdir, posix.mkdtemp
-      dir, errmsg = mkdtemp (template)
-      mkdir (dir .. "/subdir")
-      link ("subdir", dir .. "/soft", true)
-      touch (dir .. "/file")
-      link (dir .. "/file", dir .. "/hard")
-  - after:
-      rmtmp (dir)
+    # posix.fcntl diagnoses the third arg differently depending on
+    # the value of `cmd`, which `diagnose_badargs` can't express; ergo
+    # manual checks here...
+    - context with bad arguments:
+      - 'it diagnoses missing argument #1':
+          expect (fcntl ()).to_raise (badarg (1, "int"))
+      - 'it diagnoses argument #1 type not int':
+          expect (fcntl (false)).to_raise (badarg (1, "int", "boolean"))
+      - 'it diagnoses missing argument #2':
+          expect (fcntl (-1)).to_raise (badarg (2, "int"))
+      - 'it diagnoses argument #2 type not int':
+          expect (fcntl (-1, false)).to_raise (badarg (2, "int", "boolean"))
+      - 'it diagnoses missing argument #3 to F_GETLK':
+          expect (fcntl (-1, F_GETLK)).to_raise (badarg (3, "table"))
+      - 'it diagnoses argument #3 type to F_GETLK not table':
+          expect (fcntl (-1, F_GETLK, false)).
+            to_raise (badarg (3, "table", "boolean"))
+      - 'it diagnoses argument #3 type to non-F_GETLK not int':
+          expect (fcntl (-1, 0, false)).
+            to_raise (badarg (3, "?int", "boolean"))
+      - 'it diagnoses too many arguments':
+          expect (fcntl (-1, F_GETLK, {}, false)).to_raise (badarg (4))
+          expect (fcntl (-1, 0, -1, false)).to_raise (badarg (4))
 
-  - describe access:
-    - before:
-        access = posix.access
-        touch "xxx"
-    - after:
-        os.remove "xxx"
-    - it checks whether a file is visible to the real user:
-        expect (Emsg (access ("xxx", "f"))).should_be ""
-    - it checks whether a file is readable by the real user:
-        expect (Emsg (access ("xxx", "r"))).should_be ""
-    - it checks whether a file is writable by the real user:
-        expect (Emsg (access ("xxx", "w"))).should_be ""
-    - "it defaults to 'f' with no mode argument":
-        expect (access ("xxx")).should_be (access ("xxx", "f"))
-    - it diagnoses missing files:
-        os.remove "xxx"
-        expect (Emsg (access "xxx")).should_contain "No such file or directory"
+    - it has all needed constants:
+        expect (type (F_GETLK)).to_be "number"
+        expect (type (F_SETLK)).to_be "number"
+        expect (type (F_SETLKW)).to_be "number"
+        expect (type (F_RDLCK)).to_be "number"
+        expect (type (F_WRLCK)).to_be "number"
+        expect (type (F_UNLCK)).to_be "number"
+        expect (type (SEEK_SET)).to_be "number"
+        expect (type (SEEK_CUR)).to_be "number"
+        expect (type (SEEK_END)).to_be "number"
 
-  - describe files:
-    - before:
-        files = posix.files
-    - it returns a table of files in the given directory:
-        t = {}
-        for f in files (dir) do
-          table.insert (t, f)
-        end
-        table.sort (t)
-        expect (t).should_equal {".", "..", "file", "hard", "soft", "subdir"}
+    - context when file locking:
+      - before:
+          mkstemp, open, close = posix.mkstemp, posix.open, posix.close
+          fork, wait, errno = posix.fork, posix.wait, posix.errno
+          O_RDWR, EAGAIN, EACCES = posix.O_RDWR, posix.EAGAIN, posix.EACCES
+          P_CHILD = 0
+          SUCCESS = 0
+          fd, path = mkstemp "tmpXXXXXX"
+          close (fd)
+          parent_pid = posix.getpid "pid"
 
-  - describe stat:
-    - before:
-        # choose a format without seconds, that won't cause a race condition
-        fmt = "%b %d %H:%M"
-        getpid, stat = posix.getpid, posix.stat
-    - it fetches the file inode:
-        expect (stat (dir .. "/hard").ino).should_be (stat (dir .. "/file").ino)
-    - it fetches the file type:
-        expect (stat (dir).type).should_be "directory"
-        expect (stat (dir .. "/file", "type")).should_be "regular"
-        expect (stat (dir .. "/soft", "type")).should_be "link"
-        expect (stat (dir .. "/hard", "type")).should_be "regular"
-    - it fetches the file size:
-        # skip directory size, which is system dependent
-        expect (stat (dir .. "/file").size).should_be (0)
-        expect (stat (dir .. "/soft", "size")).should_be (string.len ("subdir"))
-        expect (stat (dir .. "/hard", "size")).
-          should_be (stat (dir .. "/file", "size"))
-    - it fetches the file access time:
-        expect (os.date (fmt, stat (dir .. "/file", "atime"))).
-          should_be (os.date (fmt))
-    - it fetches the file modification time:
-        expect (os.date (fmt, stat (dir .. "/file", "mtime"))).
-          should_be (os.date (fmt))
-    - it fetches the file creation time:
-        expect (os.date (fmt, stat (dir .. "/file", "ctime"))).
-          should_be (os.date (fmt))
-    - it fetches the file access mode:
-        expect (stat (dir .. "/file").mode).should_match ("^[-rwx]+$")
-        expect (stat (dir .. "/subdir", "mode")).should_match ("^[-rwx]+$")
-    - it fetches the number of links:
-        expect (stat (dir .. "/file").nlink).should_be (2)
-        expect (stat (dir .. "/soft", "nlink")).should_be (1)
-        expect (stat (dir .. "/hard", "nlink")).
-          should_be (stat (dir .. "/file", "nlink"))
-        expect (stat (dir .. "/subdir", "nlink")).should_be (2)
-    - it fetches the owner id:
-        expect (stat (dir .. "/file").uid).should_be (getpid "euid")
-        expect (stat (dir .. "/subdir", "uid")).should_be (getpid "euid")
-    - it fetches the owner group id:
-    - it fetches a subtable of named fields:
-        expect ({stat (dir .. "/file", "type", "mtime", "nlink")}).
-          should_equal {"regular", posix.time (), 2}
-    - it fetches everything without an argument:
-        t = stat (dir .. "/file")
-        for k, v in pairs (t) do
-          expect (t[k]).should_be (stat (dir .. "/file", k))
-        end
+          query_lock = {
+            l_type = F_RDLCK, l_whence = SEEK_SET, l_start = 0, l_len = 0,
+          }
+          write_lock = {
+            l_type = F_WRLCK, l_whence = SEEK_SET, l_start = 0, l_len = 0,
+          }
+      - after:
+          os.remove (path)
 
-  - describe statvfs:
-    - before:
-        statvfs = posix.statvfs
-    - it fetches statistics for a mounted file system:
-        st = statvfs "/"
-        expect (type (st)).should_be "table"
-        expect (st.bsize).should_be (statvfs ("/", "bsize"))
-        for _, field in pairs {"bsize", "frsize", "blocks", "bfree", "bavail",
-                               "files", "ffree", "favail", "flag", "namemax"}
-        do
-          expect (type (st[field])).should_be "number"
-          expect (st[field] >= 0).should_be (true)
-        end
-    - it returns a non-negative value from fsid: |
-        -- Merge this back into the previous example when #102 is fixed
-        st = statvfs "/"
-        pending "issue #102"
-        expect (st[field] >= 0).should_be (true)
+      - it checks whether lock is possible with F_GETLK:
+          fd = open (path, O_RDWR)
+          result = fcntl (fd, F_GETLK, query_lock)
+          expect (result).to_be (SUCCESS)
+          expect (query_lock.l_type).to_be (F_UNLCK)
+          close (fd)
+      - it can lock file with F_SETLK: |
+          parent_fd = open (path, O_RDWR)
+          result = fcntl (parent_fd, F_SETLK, write_lock)
+          expect (result).to_be (SUCCESS)
+          process = fork ()
+          if process == P_CHILD then
+            child_fd = open (path, O_RDWR)
+            result = fcntl (child_fd, F_GETLK, query_lock)
+            close (child_fd)
+            -- (not sure how to expect () in subprocess)
+            if result ~= SUCCESS then
+              os.exit (10)
+            elseif query_lock.l_pid ~= parent_pid then
+              os.exit (11)
+            else
+              os.exit (12)
+            end
+          else
+            _, _, exit_code = wait (process)
+            expect (exit_code).to_be (12)
+          end
+          close (parent_fd)
+      - it returns error if cannot lock file with F_SETLK: |
+          parent_fd = open (path, O_RDWR)
+          result = fcntl (parent_fd, F_SETLK, write_lock)
+          expect (result).to_be (0)
+          process = fork ()
+          if process == P_CHILD then
+            child_fd = open (path, O_RDWR)
+            result = fcntl (child_fd, F_SETLK, write_lock)
+            close (child_fd)
+            -- (not sure how to expect () in subprocess)
+            if result == SUCCESS then
+              os.exit (10)
+            elseif errno () ~= errno (EACCES) and errno () ~= errno (EAGAIN) then
+              os.exit (11)
+            else
+              os.exit (12)
+            end
+          else
+            _, _, exit_code = wait (process)
+            expect (exit_code).to_be (12)
+          end
+          close (parent_fd)
 
-  - describe umask:
-    - before:
-        umask = posix.umask
-        saved = umask ()
-        umask "rwxr-x---"
-    - after:
-        umask (saved)
-    - it returns current umask:
-        expect (umask ()).should_be "rwxr-x---"
-    - "it sets attributes with '='":
-        expect (umask "a=r").should_be "r--r--r--"
-    - "it adds attributes with '+'":
-        expect (umask "g+w").should_be "rwxrwx---"
-    - "it removes attributes with '-'":
-        expect (umask "u-r").should_be "-wxr-x---"
-    - it accepts comma separated attribute specifications:
-        expect (umask "a+r,g+w,u-x").should_be "rw-rwxr--"
-    - it controls the mode of newly created files:
-        xxx, mode = dir .. "/xxx", "rw--w-r--"
-        umask (mode)
-        touch (xxx)
-        expect (stat (xxx, "mode")).should_be (mode)
-        os.remove (xxx)
-
-  - describe chmod:
-    - before:
-        chmod, stat = posix.chmod, posix.stat
-        touch "xxx"
-        chmod ("xxx", "rwxr-x---")
-    - after:
-        os.remove "xxx"
-    - it sets file mode with longhand mode string:
-        mode = "rw---xr--"
-        expect (Emsg (chmod ("xxx", mode))).should_be ""
-        expect (stat ("xxx", "mode")).should_be (mode)
-    - "it sets attributes with '='":
-        expect (Emsg (chmod ("xxx", "o=w"))).should_be ""
-        expect (stat ("xxx", "mode")).should_be "rwxr-x-w-"
-    - "it adds attributes with '+'":
-        expect (Emsg (chmod ("xxx", "g+w"))).should_be ""
-        expect (stat ("xxx", "mode")).should_be "rwxrwx---"
-    - "it removes attributes with '-'":
-        expect (Emsg (chmod ("xxx",  "u-r"))).should_be ""
-        expect (stat ("xxx", "mode")).should_be "-wxr-x---"
-    - it accepts comma separated attribute specifications:
-        expect (Emsg (chmod ("xxx", "a+x,g+w,u-w"))).should_be ""
-        expect (stat ("xxx", "mode")).should_be "r-xrwx--x"
-    - it diagnoses missing files:
-        os.remove "xxx"
-        expect (Emsg (chmod ("xxx", "a=rwx"))).should_contain "No such file or directory"
-
-  - describe utime:
-    - before:
-        stat, utime = posix.stat, posix.utime
-        touch "xxx"
-    - after:
-        os.remove "xxx"
-    - it sets the last file modification time:
-        mtime = stat ("/etc", "mtime")
-        expect (stat ("xxx", "mtime")).should_not_equal (mtime)
-        expect (Emsg (utime ("xxx", mtime))).should_be ""
-        expect (stat ("xxx", "mtime")).should_equal (mtime)
-    - it sets the last file access time:
-        atime = stat ("/etc", "atime")
-        expect (stat ("xxx", "atime")).should_not_equal (atime)
-        expect (Emsg (utime ("xxx", nil, atime))).should_be ""
-        expect (stat ("xxx", "atime")).should_equal (atime)
-
-  - describe link:
-    - before:
-        link, stat = posix.link, posix.stat
-        touch "xxx"
-    - after:
-        os.remove "xxx"
-    - it creates hard links:
-        expect (Emsg (link ("xxx", "xxx-hard"))).should_be ""
-        expect (stat ("xxx-hard", "ino")).should_be (stat ("xxx", "ino"))
-        os.remove "xxx-hard"
-    - it creates soft links:
-        expect (Emsg (link ("xxx", "xxx-soft", true))).should_be ""
-        expect (stat ("xxx-soft", "type")).should_be "link"
-        os.remove "xxx-soft"
 
   - describe lseek:
     - before:
@@ -456,106 +314,98 @@ specify lposix:
         SEEK_SET, SEEK_CUR, SEEK_END =
           posix.SEEK_SET, posix.SEEK_CUR, posix.SEEK_END
 
+    - context with bad arguments:
+        badargs.diagnose (lseek, "(int, int, int)")
+
     - it changes the current position of a file descriptor:
         _, path = posix.mkstemp (template)
         fd = open (path, posix.O_RDWR)
-        expect (fd).should_not_be (nil)
+        expect (fd).not_to_be (nil)
         write (fd, "0123456789")
         lseek (fd, 3, SEEK_SET)
-        expect (read (fd, 3)).should_be "345"
+        expect (read (fd, 3)).to_be "345"
         lseek (fd, -2, SEEK_CUR)
-        expect (read (fd, 3)).should_be "456"
+        expect (read (fd, 3)).to_be "456"
         lseek (fd, -5, SEEK_END)
-        expect (read (fd, 3)).should_be "567"
+        expect (read (fd, 3)).to_be "567"
         close (fd)
         os.remove (path)
 
-- context directory handling:
+
+
+- specify file system:
   - before:
-      basename, chdir, dirname, getcwd, mkdir, rmdir =
-        posix.basename, posix.chdir, posix.dirname, posix.getcwd, posix.mkdir, posix.rmdir
-      cwd = getcwd ()
+      # Make and change into a temporary subdirectory where we can
+      # control all the contents for self-contained examples.
+      link, mkdir, mkdtemp = posix.link, posix.mkdir, posix.mkdtemp
+      origwd = posix.getcwd ()
+      dir, errmsg = mkdtemp (template)
+      mkdir (dir .. "/subdir")
+      link ("subdir", dir .. "/soft", true)
+      touch (dir .. "/file")
+      link (dir .. "/file", dir .. "/hard")
+      link ("no such destination", dir .. "/dangling", true)
   - after:
-      chdir (cwd)
-      pcall (rmdir, "x")
+      posix.chdir (origwd)
+      rmtmp (dir)
+
+
+  - describe sync:
+    - context with bad arguments:
+        badargs.diagnose (posix.sync, "()")
+
+
+  - describe fsync:
+    - context with bad arguments:
+        badargs.diagnose (posix.fsync, "(int)")
+
+
+  - describe fdatasync:
+    - context with bad arguments:
+        if posix.fdatasync then
+          badargs.diagnose (posix.fdatasync, "(int)")
+        end
+
+
+  - describe realpath:
+    - context with bad arguments:
+        badargs.diagnose (posix.realpath, "(string)")
+
 
   - describe basename:
+    - before:
+        basename = posix.basename
+
+    - context with bad arguments:
+        badargs.diagnose (basename, "(string)")
+
     - it returns a path without leading directories:
-        expect (basename "/foo/bar").should_be "bar"
+        expect (basename "/foo/bar").to_be "bar"
+
 
   - describe dirname:
+    - before:
+        dirname = posix.dirname
+
+    - context with bad arguments:
+        badargs.diagnose (dirname, "(string)")
+
     - it return a path without final element:
-        expect (dirname "/foo/bar").should_be "/foo"
+        expect (dirname "/foo/bar").to_be "/foo"
 
-  - describe mkdir:
-    - it creates the named directory:
-        expect (Emsg (mkdir "x")).should_not_contain "exists"
-        expect (Emsg (chdir "x")).should_not_contain "No such flle or directory"
-    - it diagnoses already existing directory:
-        expect (Emsg (mkdir ".")).should_contain "exists"
 
-  - describe rmdir:
-    - it removes the named directory:
-        mkdir "x"
-        expect (Emsg (rmdir "x")).should_not_contain "No such file or directory"
-    - it diagnoses missing directory:
-        expect (Emsg (rmdir ".")).should_contain "Invalid argument"
+  - describe dir:
+    - context with bad arguments:
+        badargs.diagnose (posix.dir, "(?string)")
 
-  - describe chdir:
-    - it changes to a relative directory:
-        thisdir = basename (getcwd ())
-        expect (Emsg (chdir ("../" .. thisdir))).
-          should_not_contain "No such file or directory"
-        expect (Emsg (chdir "..")).should_not_contain "No such file or directory"
-    - it changes to an absolute directory:
-        expect (Emsg (chdir "/var/tmp/")).
-          should_not_contain "No such file or directory"
-    - it diagnoses missing directory:
-        expect (Emsg (chdir "very_unlikely_to_exist")).
-          should_contain "No such file or directory"
-    - it diagnoses insufficient permissions:
-        mkdir "x"
-        posix.chmod ("x", "a-rwx")
-        expect (Emsg (chdir "x")).
-          should_contain "Permission denied"
-        rmdir "x"
-
-  - describe getcwd:
-    - it returns the current directory path:
-        expect (getcwd ()).should_be (cmd_output "pwd")
-    - it diagnoses missing directory:
-        mkdir "x"
-        chdir "x"
-        rmdir "../x"
-        expect (Emsg (getcwd ())).should_contain "No such file or directory"
-
-- context file globbing:
-  - before:
-      fnmatch, FNM_PATHNAME, FNM_PERIOD =
-        posix.fnmatch, posix.FNM_PATHNAME, posix.FNM_PERIOD
-
-  - describe fnmatch:
-    - it matches a file path against itself:
-        expect (fnmatch ("test", "test")).should_be (true)
-    - "it matches * against any filename characters":
-        expect (fnmatch ("tes*", "test")).should_be (true)
-        expect (fnmatch ("tes*", "test2")).should_be (true)
-        expect (fnmatch ("*t*", "test")).should_be (true)
-    - "it matches ? against a single filename character":
-        expect (fnmatch ("tes?", "test")).should_be (true)
-        expect (fnmatch ("t???", "test")).should_be (true)
-        expect (fnmatch ("tes?", "tes")).should_be (false)
-        expect (fnmatch ("tes?", "test2")).should_be (false)
-    - "it doesn't match path separators with FNM_PATHNAME":
-        expect (fnmatch ("*test", "/test")).should_be (true)
-        expect (fnmatch ("*test", "/test", FNM_PATHNAME)).should_be (false)
-    - "it doesn't match periods with FNM_PERIOD":
-        expect (fnmatch ("*test", ".test")).should_be (true)
-        expect (fnmatch ("*test", ".test", FNM_PERIOD)).should_be (false)
 
   - describe glob:
-    - before: |
+    - before:
         chdir, glob, mkdtemp = posix.chdir, posix.glob, posix.mkdtemp
+
+    - context with bad arguments:
+        badargs.diagnose (glob, "(?string)")
+
     - it matches files in the given directory:
         dir = mkdtemp (template)
         touch (dir .. "/test.1")
@@ -563,350 +413,494 @@ specify lposix:
         touch (dir .. "/extra_file")
         chdir (dir)
         globlist, errmsg = glob "test.*"
-        expect (errmsg).should_be (nil)
-        expect (type (globlist)).should_be "table"
+        expect (errmsg).to_be (nil)
+        expect (type (globlist)).to_be "table"
         rmtmp (dir)
 
-- describe getpasswd:
-  - before:
-      getenv, getpasswd, getpid = posix.getenv, posix.getpasswd, posix.getpid
-      user = getpasswd ((getenv "USER"), "name")
-      root = getpasswd (0, "name")
-  - it fetches the user uid:
-      expect (getpasswd (user).uid).should_be (getpid "uid")
-      expect (getpasswd (root, "uid")).should_be (0)
-  - it fetches the user name:
-      expect (getpasswd (user).name).should_be (user)
-      expect (getpasswd (0, "name")).should_be (root)
-      expect (getpasswd (root, "name")).should_be (root)
-  - it fetches the user gid:
-      expect (getpasswd (user).gid).should_be (getpid "gid")
-      expect (getpasswd (0, "gid")).should_be (0)
-      expect (getpasswd (root, "gid")).should_be (0)
-  - it fetches the user password:
-      expect (getpasswd (user).passwd).should_match.any_of {"x", "%*+"}
-      expect (getpasswd (0, "passwd")).should_match.any_of {"x", "%*+"}
-      expect (getpasswd (root, "passwd")).should_match.any_of {"x", "%*+"}
-  - it fetches the user home directory:
-      expect (getpasswd (user, "dir")).should_be (getenv "HOME")
-  - it fetches the user shell:
-      expect (getpasswd (user, "shell")).should_be (getenv "SHELL")
-  - it fetches a subtable of named fields:
-      expect ({getpasswd (user, "name", "shell", "dir")}).
-        should_equal {user, getenv "SHELL", getenv "HOME"}
-  - it fetches everything without an argument:
-      t = getpasswd (user)
-      for k, v in pairs (t) do
-        expect (t[k]).should_be (getpasswd (user, k))
-      end
 
-- context system configuration:
-  - describe pathconf:
+  - describe files:
     - before:
-        pathconf = posix.pathconf
-    - it returns whether chown can be used on the given file:
-        expect (type (pathconf ().CHOWN_RESTRICTED)).should_be "number"
-        expect (pathconf (".", "CHOWN_RESTRICTED") >= 0).should_be (true)
-    - it fetches the maximum number of links to the given file:
-        expect (type (pathconf ().LINK_MAX)).should_be "number"
-        expect (pathconf (".", "LINK_MAX") >= 0).should_be (true)
-    - it fetches the maximum formatted line input length for a tty: |
-        -- not passing a tty, so should return -1
-        expect (type (pathconf ().MAX_CANON)).should_be "number"
-        pending "issue #102"
-        expect (pathconf (".", "MAX_CANON")).should_be (-1)
-    - it fetches the maximum raw line input length for a tty: |
-        -- not passing a tty, so should return -1
-        expect (type (pathconf ().MAX_INPUT)).should_be "number"
-        pending "issue #102"
-        expect (pathconf (".", "MAX_INPUT")).should_be (-1)
-    - it fetches the maximum filename length in this directory:
-        expect (type (pathconf ().NAME_MAX)).should_be "number"
-        expect (pathconf (".", "NAME_MAX") >= 0).should_be (true)
-    - it fetches whether accessing overlong filenames is an error:
-        expect (type (pathconf ().NO_TRUNC)).should_be "number"
-        expect (pathconf (".", "NO_TRUNC") >= 0).should_be (true)
-    - it fetches the maximum relative path length from this directory:
-        expect (type (pathconf ().PATH_MAX)).should_be "number"
-        expect (pathconf (".", "PATH_MAX") >= 0).should_be (true)
-    - it fetches the size of the pipe buffer:
-        expect (type (pathconf ().PIPE_BUF)).should_be "number"
-        expect (pathconf (".", "PIPE_BUF") >= 0).should_be (true)
-    - it fetches whether special character processing can be disabled: |
-        -- not passing a tty, so should return -1
-        expect (type (pathconf ().VDISABLE)).should_be "number"
-        pending "issue #102"
-        expect (pathconf (".", "VDISABLE")).should_be (-1)
-    - it fetches a subtable of named fields:
-        expect ({pathconf (".", "VDISABLE", "NAME_MAX")}).
-          should_equal {pathconf (".", "VDISABLE"), pathconf (".", "NAME_MAX")}
-    - it fetches everything without an argument:
-        t = pathconf ()
-        for k, v in pairs (t) do
-          expect (t[k]).should_be (pathconf (".", k))
-        end
+        files = posix.files
 
-  - describe sysconf:
+    - context with bad arguments:
+        badargs.diagnose (files, "(?string)")
+
+    - it returns a table of files in the given directory:
+        t = {}
+        for f in files (dir) do
+          table.insert (t, f)
+        end
+        table.sort (t)
+        expect (t).to_equal {".", "..", "dangling", "file", "hard", "soft", "subdir"}
+
+
+  - describe getcwd:
+    - context with bad arguments:
+        badargs.diagnose (posix.getcwd, "()")
+
+
+  - describe chdir:
     - before:
-        sysconf = posix.sysconf
-    - it fetches the maximum number of exec arguments:
-        expect (type (sysconf ().ARG_MAX)).should_be "number"
-        expect (sysconf ("ARG_MAX") >= 0).should_be (true)
-    - it fetches the number processes per user:
-        expect (type (sysconf ().CHILD_MAX)).should_be "number"
-        expect (sysconf ("CHILD_MAX") >= 0).should_be (true)
-    - it fetches the number of clock ticks per second:
-        expect (type (sysconf ().CLK_TCK)).should_be "number"
-        expect (sysconf ("CLK_TCK") >= 0).should_be (true)
-    - it fetches the job control version:
-        expect (type (sysconf ().JOB_CONTROL)).should_be "number"
-        expect (sysconf ("JOB_CONTROL") >= 0).should_be (true)
-    - it fetches the maximum number of groups:
-        expect (type (sysconf ().NGROUPS_MAX)).should_be "number"
-        expect (sysconf ("NGROUPS_MAX") >= 0).should_be (true)
-    - it fetches the maximum number of open descriptors:
-        expect (type (sysconf ().OPEN_MAX)).should_be "number"
-        expect (sysconf ("OPEN_MAX") >= 0).should_be (true)
-    - it fetches the number of saved ids:
-        expect (type (sysconf ().SAVED_IDS)).should_be "number"
-        expect (sysconf ("SAVED_IDS") >= 0).should_be (true)
-    - it fetches the maximum number of open streams:
-        expect (type (sysconf ().STREAM_MAX)).should_be "number"
-        expect (sysconf ("STREAM_MAX") >= 0).should_be (true)
-    - it fetches the maximum length of a timezone name:
-        expect (type (sysconf ().TZNAME_MAX)).should_be "number"
-        expect (sysconf ("TZNAME_MAX") >= 0).should_be (true)
-    - "it fetches the POSIX.1 version":
-        expect (type (sysconf ().VERSION)).should_be "number"
-        expect (sysconf ("VERSION") >= 0).should_be (true)
-    - it fetches a subtable of named fields:
-        expect ({sysconf ("VERSION", "ARG_MAX", "OPEN_MAX")}).
-          should_equal {sysconf "VERSION", sysconf "ARG_MAX", sysconf "OPEN_MAX"}
-    - it fetches everything without an argument:
-        t = sysconf ()
-        for k, v in pairs (t) do
-          expect (t[k]).should_be (sysconf (k))
-        end
+        chdir, chmod, getcwd, mkdir, rmdir =
+          posix.chdir, posix.chmod, posix.getcwd, posix.mkdir, posix.rmdir
+        cwd = getcwd ()
+    - after:
+        chdir (cwd)
+        pcall (rmdir, "x")
 
-- describe crypt:
-  - before:
-      crypt = posix.crypt
-      key, salt = "hello", "pl"
-  - "it can perform repeatable one-way hashing":
-      hash = crypt (key, salt)
-      expect (crypt (key, salt)).should_be (hash)
-  - it encrypts differently for a different salt:
-      expect (crypt (key, salt)).should_not_equal (crypt (key, "/."))
+    - context with bad arguments:
+        badargs.diagnose (chdir, "(string)")
 
-- context time accounting:
-  - describe times:
+    - it changes to a relative directory:
+        thisdir = posix.basename (getcwd ())
+        expect (Emsg (chdir ("../" .. thisdir))).
+          not_to_contain "No such file or directory"
+        expect (Emsg (chdir "..")).not_to_contain "No such file or directory"
+    - it changes to an absolute directory:
+        expect (Emsg (chdir "/var/tmp/")).
+          not_to_contain "No such file or directory"
+    - it diagnoses missing directory:
+        expect (Emsg (chdir "very_unlikely_to_exist")).
+          to_contain "No such file or directory"
+    - it diagnoses insufficient permissions:
+        mkdir "x"
+        chmod ("x", "a-rwx")
+        expect (Emsg (chdir "x")).
+          to_contain "Permission denied"
+        rmdir "x"
+
+
+  - describe rmdir:
     - before:
-        table.unpack = table.unpack or unpack
-        times = posix.times
-    - it fetches the user time:
-        expect (type (times ().utime)).should_be "number"
-        expect (times ("utime") >= 0).should_be (true)
-    - it fetches the system time:
-        expect (type (times ().stime)).should_be "number"
-        expect (times ("stime") >= 0).should_be (true)
-    - it fetches the children user time:
-        expect (type (times ().cutime)).should_be "number"
-        expect (times ("cutime") >= 0).should_be (true)
-    - it fetches the children system time:
-        expect (type (times ().cstime)).should_be "number"
-        expect (times ("cstime") >= 0).should_be (true)
-    - it fetches the elapsed time:
-        expect (type (times ().elapsed)).should_be "number"
-        expect (times ("elapsed") >= 0).should_be (true)
-    - it fetches a subtable of named fields: |
-        keys = {"utime", "cutime"}
-        t = {times (table.unpack (keys))}
-        pending "API inconsistency, issue #107"
-        expect (t).should_contain.all_of (keys)
-        for _, v in ipairs (keys) do
-          expect (type (t[v])).should_be "number"
-        end
-    - it fetches everything without an argument:
-        keys = {"utime", "stime", "cutime", "cstime", "elapsed"}
-        t = times ()
-        expect (t).should_contain.all_of (keys)
-        for _, v in ipairs (keys) do
-          expect (type (t[v])).should_be "number"
-        end
+        mkdir, rmdir = posix.mkdir, posix.rmdir
 
-  - describe gettimeofday:
+    - context with bad arguments:
+        badargs.diagnose (rmdir, "(string)")
+
+    - it removes the named directory:
+        mkdir "x"
+        expect (Emsg (rmdir "x")).not_to_contain "No such file or directory"
+    - it diagnoses missing directory:
+        expect (Emsg (rmdir ".")).to_contain "Invalid argument"
+
+
+  - describe unlink:
+    - context with bad arguments:
+        badargs.diagnose (posix.unlink, "(string)")
+
+
+  - describe link:
     - before:
-        gettimeofday = posix.gettimeofday
-    - it fetches the current epoch time:
-        t = gettimeofday ()
-        expect (t.sec).should_be (posix.time ())
-        expect (type (t.usec)).should_be "number"
-        expect (t.usec >= 0).should_be (true)
+        link, stat = posix.link, posix.stat
+        touch "xxx"
+    - after:
+        os.remove "xxx"
 
-- describe message queues:
-  - before: |
-      msgget, msgsnd, msgrcv = posix.msgget, posix.msgsnd, posix.msgrcv
-      IPC_CREAT, IPC_EXCL = posix.IPC_CREAT, posix.IPC_EXCL
-      EEXIST = posix.EEXIST
+    - context with bad arguments:
+        badargs.diagnose (link, "(string, string, ?boolean)")
 
-      mode = "rwxrwxrwx"
-      mq, err, errnum = msgget (100, bor (IPC_CREAT, IPC_EXCL), mode)
-      if errnum == EEXIST then
-        mq, err = msgget (100, 0, mode)
-      end
+    - it creates hard links:
+        expect (Emsg (link ("xxx", "xxx-hard"))).to_be ""
+        expect (stat ("xxx-hard", "ino")).to_be (stat ("xxx", "ino"))
+        os.remove "xxx-hard"
+    - it creates soft links:
+        expect (Emsg (link ("xxx", "xxx-soft", true))).to_be ""
+        expect (stat ("xxx-soft", "type")).to_be "link"
+        os.remove "xxx-soft"
 
-      type = 42
-      data = "Answer to the Ultime Question of Life"
-  - it creates a queue with msgget:
-      expect (mq).should_not_be (err)
-  - it sends a message with msgsnd:
-      ok, err = msgsnd (mq, type, data)
-      expect (ok).should_not_be (err)
-  - it receives a message with msgrcv:
-      expect ({msgrcv (mq, 128)}).should_equal {type, data, nil}
+  - describe readlink:
+    - before:
+        readlink = posix.readlink
 
-- describe socket handling:
-  - before:
-      bind, setsockopt, socket = posix.bind, posix.setsockopt, posix.socket
-      recvfrom, sendto = posix.recvfrom, posix.sendto
-      AF_INET, AF_INET6, SOCK_DGRAM = posix.AF_INET, posix.AF_INET6, posix.SOCK_DGRAM
-      SOL_SOCKET, SO_RCVTIMEO = posix.SOL_SOCKET, posix.SO_RCVTIMEO
-  - it communicates with IPV4 and IPV6 over loopback: |
-      fd = socket (AF_INET6, SOCK_DGRAM, 0)
-      expect (type (fd)).should_be "number"
-      expect (fd >= 0).should_be (true)
+    - context with bad arguments:
+        badargs.diagnose (readlink, "(string)")
 
-      expect (setsockopt (fd, SOL_SOCKET, SO_RCVTIMEO, 1, 0)).should_be (0)
+    - it diagnoses missing file: |
+        _, err, code = readlink "does not exist!"
+        expect (err).to_match "^does not exist!: "
+        expect (code).to_be (posix.ENOENT)
+    - it diagnoses non-symbolic link: |
+        _, err, code = readlink (dir .. "/file")
+        expect (err).to_be (dir .. "/file: not a symbolic link")
+        expect (code).to_be (posix.EINVAL)
+    - it reads the contents of a symbolic link:
+        expect (readlink (dir .. "/soft")).to_be "subdir"
+    - it reads the contents of a dangling symbolic link:
+        expect (readlink (dir .. "/dangling")).to_be "no such destination"
 
-      pending "returning `true` is NOT a minimal binding!"
-      expect (bind (fd, { family = AF_INET6, addr = "::", port = 9999 })).
-        should_be (0)
 
-      pending "issue #92"
-      expect (sendto (fd, "Test ipv4", { family = AF_INET, addr = "127.0.0.1", port = 9999 })).should_be (9)
+  - describe access:
+    - before:
+        access = posix.access
+        touch "xxx"
+    - after:
+        os.remove "xxx"
 
-      data, so = recvfrom (fd, 1024)
-      expect (data).should_be "Test ipv4"
+    - context with bad arguments:
+        badargs.diagnose (posix.access, "(string, ?string)")
 
-- context file locks:
-  - before: |
-      F_GETLK, F_SETLK, F_SETLKW = posix.F_GETLK, posix.F_SETLK, posix.F_SETLKW
-      F_RDLCK, F_WRLCK, F_UNLCK = posix.F_RDLCK, posix.F_WRLCK, posix.F_UNLCK
-      SEEK_SET, SEEK_CUR, SEEK_END = posix.SEEK_SET, posix.SEEK_CUR, posix.SEEK_END
-      fcntl = posix.fcntl
+    - it checks whether a file is visible to the real user:
+        expect (Emsg (access ("xxx", "f"))).to_be ""
+    - it checks whether a file is readable by the real user:
+        expect (Emsg (access ("xxx", "r"))).to_be ""
+    - it checks whether a file is writable by the real user:
+        expect (Emsg (access ("xxx", "w"))).to_be ""
+    - "it defaults to 'f' with no mode argument":
+        expect (access ("xxx")).to_be (access ("xxx", "f"))
+    - it diagnoses missing files:
+        os.remove "xxx"
+        expect (Emsg (access "xxx")).to_contain "No such file or directory"
 
-  - describe lock-related constants:
-    - it has all needed constants: |
-        expect (type (F_GETLK)).should_be "number"
-        expect (type (F_SETLK)).should_be "number"
-        expect (type (F_SETLKW)).should_be "number"
-        expect (type (F_RDLCK)).should_be "number"
-        expect (type (F_WRLCK)).should_be "number"
-        expect (type (F_UNLCK)).should_be "number"
-        expect (type (SEEK_SET)).should_be "number"
-        expect (type (SEEK_CUR)).should_be "number"
-        expect (type (SEEK_END)).should_be "number"
 
-  - describe file locks with fcntl:
-    - before: |
-        mkstemp, open, close = posix.mkstemp, posix.open, posix.close
-        fork, wait, errno = posix.fork, posix.wait, posix.errno
-        O_RDWR, EAGAIN, EACCES = posix.O_RDWR, posix.EAGAIN, posix.EACCES
-        P_CHILD = 0
-        SUCCESS = 0
-        fd, path = mkstemp "tmpXXXXXX"
+  - describe mkstemp:
+    - before:
+        mkstemp = posix.mkstemp
+        close, isatty, open, read, stat, write =
+          posix.close, posix.isatty, posix.open, posix.read, posix.stat, posix.write
+        O_RDONLY = posix.O_RDONLY
+        fd, path = mkstemp (template)
+    - after:
         close (fd)
-        parent_pid = posix.getpid "pid"
-    - after: |
         os.remove (path)
-    - it checks whether lock is possible with F_GETLK: |
-        fd = open (path, O_RDWR)
-        query_lock =
-        {
-          l_type = F_RDLCK;
-          l_whence = SEEK_SET;
-          l_start = 0;
-          l_len = 0;
-        }
-        result = fcntl (fd, F_GETLK, query_lock)
-        expect (result).should_be (SUCCESS)
-        expect (query_lock.l_type).should_be (F_UNLCK)
-        close (fd)
-    - it can lock file with F_SETLK: |
-        parent_fd = open (path, O_RDWR)
-        result = fcntl (
-            parent_fd,
-            F_SETLK,
-            {
-              l_type = F_WRLCK;
-              l_whence = SEEK_SET;
-              l_start = 0;
-              l_len = 0;
-            }
-          )
-        expect (result).should_be (SUCCESS)
-        process = fork ()
+
+    - context with bad arguments:
+        badargs.diagnose (posix.mkstemp, "(string)")
+
+    - it creates a temporary file from a template:
+        expect (fd).not_to_be (nil)
+        write (fd, "12345")
+        expect (isatty (fd)).not_to_be (true)
+        expect (stat (path, "type")).to_be "regular"
+        expect (stat (path, "mode")).to_be "rw-------"
+        expect (stat (path, "size")).to_be (5)
+        fd2 = open (path, O_RDONLY)
+        expect (read (fd2, 5)).to_be "12345"
+        close (fd2)
+    - it creates a new temporary file on each call:
+        fd2, another = mkstemp (template)
+        expect (fd2).not_to_be (fd)
+        expect (another).not_to_be (path)
+        close (fd2)
+        os.remove (another)
+
+
+  - describe mkdtemp:
+    - before:
+        mkdtemp, stat = posix.mkdtemp, posix.stat
+
+    - context with bad arguments:
+        badargs.diagnose (posix.mkdtemp, "(string)")
+
+    - it creates a temporary directory from a template:
+        dir, errmsg = mkdtemp (template)
+        expect (dir).not_to_be (nil)
+        expect (stat (dir, "type")).to_be "directory"
+        expect (stat (dir, "mode")).to_be "rwx------"
+        rmtmp (dir)
+
+
+  - describe chown:
+    - context with bad arguments:
+        badargs.diagnose (posix.chown, "(string, ?string|int, ?string|int)")
+
+
+  - describe utime:
+    - before:
+        stat, utime = posix.stat, posix.utime
+        touch "xxx"
+    - after:
+        os.remove "xxx"
+
+    - context with bad arguments:
+        badargs.diagnose (posix.utime, "(string, ?int, ?int)")
+
+    - it sets the last file modification time:
+        mtime = stat ("/etc", "mtime")
+        expect (stat ("xxx", "mtime")).not_to_equal (mtime)
+        expect (Emsg (utime ("xxx", mtime))).to_be ""
+        expect (stat ("xxx", "mtime")).to_equal (mtime)
+    - it sets the last file access time:
+        atime = stat ("/etc", "atime")
+        expect (stat ("xxx", "atime")).not_to_equal (atime)
+        expect (Emsg (utime ("xxx", nil, atime))).to_be ""
+        expect (stat ("xxx", "atime")).to_equal (atime)
+
+
+- specify process management:
+  - describe nice:
+    - before:
+        nice = posix.nice
+
+    - context with bad arguments:
+        badargs.diagnose (nice, "(int)")
+
+    - it adjusts the process priority:
+        old = nice (1)
+        expect (old).not_to_be (nil)
+        new = nice (2)
+        expect (new).to_be (old + 2)
+
+
+  - describe fork:
+    # NOTE: Calling expect in a child process does not report results
+    #       back to parent, so we send test data over a pipe.
+    - before:
+        nice, execp, fork, getpid, getppid, wait =
+          posix.nice, posix.execp, posix.fork, posix.getpid, posix.getppid, posix.wait
+        _exit, close, pipe, read, write =
+          posix._exit, posix.close, posix.pipe, posix.read, posix.write
+        P_CHILD = 0
+
+    - context with bad arguments:
+        badargs.diagnose (fork, "()")
+
+    - it copies itself to a new child process: |
+        r, w = pipe ()
+        process, status = fork (), 67
         if process == P_CHILD then
-          child_fd = open (path, O_RDWR)
-          query_lock =
-          {
-            l_type = F_WRLCK;
-            l_whence = SEEK_SET;
-            l_start = 0;
-            l_len = 0;
-          }
-          result = fcntl (child_fd, F_GETLK, query_lock)
-          close (child_fd)
-          -- (not sure how to expect () in subprocess)
-          if result ~= SUCCESS then
-            os.exit (10)
-          elseif query_lock.l_pid ~= parent_pid then
-            os.exit (11)
-          else
-            os.exit (12)
-          end
+          close (r) -- close unused read end
+          -- write parent pid and child pid to shared pipe.
+          write (w, tostring (getppid ()).."\n")
+          write (w, tostring (getpid "pid").."\n")
+          close (w)
+          _exit (status)
         else
-          _, _, exit_code = wait (process)
-          expect (exit_code).should_be (12)
+          posix.close (w) -- close unused write end
+          p, msg, ret = wait (process)
+          expect (p).to_be (process)
+          expect (msg).to_be "exited"
+          expect (ret).to_be (status)
+          -- check pids from child process.
+          buf = posix.read (r, 1024)
+          cppid, cpid = string.match (buf, "(%d+)\n(%d+)\n")
+          close (r)
+          expect (cppid).to_be (tostring (getpid "pid"))
+          expect (cpid).to_be (tostring (process))
         end
-        close (parent_fd)
-    - it returns error if cannot lock file with F_SETLK: |
-        parent_fd = open (path, O_RDWR)
-        result = fcntl (
-            parent_fd,
-            F_SETLK,
-            {
-              l_type = F_WRLCK;
-              l_whence = SEEK_SET;
-              l_start = 0;
-              l_len = 0;
-            }
-          )
-        expect (result).should_be (0)
-        process = fork ()
-        if process == P_CHILD then
-          child_fd = open (path, O_RDWR)
-          result = fcntl (
-              child_fd,
-              F_SETLK,
-              {
-                l_type = F_WRLCK;
-                l_whence = SEEK_SET;
-                l_start = 0;
-                l_len = 0;
-              }
-            )
-          close (child_fd)
-          -- (not sure how to expect () in subprocess)
-          if result == SUCCESS then
-            os.exit (10)
-          elseif errno () ~= errno (EACCES) and errno () ~= errno (EAGAIN) then
-            os.exit (11)
-          else
-            os.exit (12)
-          end
-        else
-          _, _, exit_code = wait (process)
-          expect (exit_code).should_be (12)
+
+
+  - describe _exit:
+    - context with bad arguments:
+        badargs.diagnose (posix. _exit, "(int)")
+
+
+  - describe wait:
+    - context with bad arguments:
+        badargs.diagnose (posix.wait, "(?int, ?int)")
+
+
+  - describe setpid:
+    - before:
+        setpid, badarg = init (posix, "setpid")
+
+    - context with bad arguments:
+      - 'it diagnoses missing argument #1':
+          expect (setpid ()).to_raise (badarg (1, "string"))
+      - 'it diagnoses argument #1 type not string':
+          expect (setpid (false)).to_raise (badarg (1, "string", "boolean"))
+      - 'it diagnoses argument #1 invalid option': |
+          expect (setpid "fubar").
+            to_raise "bad argument #1 to 'setpid' (invalid id option 'f')"
+      - 'it diagnoses missing argument #2':
+          expect (setpid "p").to_raise (badarg (2, "int"))
+      - 'it diagnoses argument #2 type not int':
+          expect (setpid ("p", false)).
+            to_raise (badarg (2, "int", "boolean"))
+      - 'it diagnoses missing argument #3':
+          expect (setpid ("p", 0)).to_raise (badarg (3, "int"))
+      - 'it diagnoses argument #3 type not int':
+          expect (setpid ("p", 0, false)).
+            to_raise (badarg (3, "int", "boolean"))
+      - it diagnoses too many arguments:
+          expect (setpid ("p", 0, 0, false)).to_raise (badarg (4))
+          expect (setpid ("u", 0, false)).to_raise (badarg (3))
+
+
+  - describe sleep:
+    - context with bad arguments:
+        badargs.diagnose (posix.sleep, "(int)")
+
+
+  - describe setenv:
+    - before:
+        getenv, setenv = posix.getenv, posix.setenv
+
+    - context with bad arguments:
+        badargs.diagnose (posix.setenv, "(string, ?string)")
+
+    - it sets a new value in the process environment:
+        setenv ("MYVAR", "123")
+        expect (getenv "MYVAR").to_be "123"
+        setenv ("MYVAR", nil)
+        expect (getenv "MYVAR").to_be (nil)
+
+
+  - describe getenv:
+    - before:
+        getenv = posix.getenv
+
+    - context with bad arguments:
+        badargs.diagnose (posix.getenv, "(?string)")
+
+    - it fetches a table of process environment variables: |
+        volatile = { _=true, CWD=true, LUA_PATH=true, PWD=true, SHLVL=true, }
+        for k,v in pairs (getenv ()) do
+         if not volatile[k] then
+           expect (hell.spawn ('echo "' .. k .. '=$' .. k .. '"')).
+             to_contain_output (k.."="..v)
+         end
         end
-        close (parent_fd)
+    - it fetches a named process environment variable:
+        expect (getenv "USER").to_be (cmd_output ('echo "$USER"'))
+        expect (getenv "HOME").to_be (cmd_output ('echo "$HOME"'))
+        expect (getenv "SHELL").to_be (cmd_output ('echo "$SHELL"'))
+    - it returns nil for an absent environment setting:
+        expect (getenv "very_unlikely_to_be_set").to_be (nil)
+
+
+  - describe sched_setscheduler:
+    - context with bad arguments:
+        if posix.sched_setscheduler then
+          badargs.diagnose (posix.sched_setscheduler, "(?int, ?int, ?int)")
+        end
+
+
+  - describe sched_getscheduler:
+    - context with bad arguments:
+        if posix.sched_getscheduler then
+          badargs.diagnose (posix.sched_getscheduler, "(?int)")
+        end
+
+
+
+- specify terminal handling:
+  - describe openpt:
+    - before:
+        grantpt, openpt, ptsname, stat, unlockpt =
+          posix.grantpt, posix.openpt, posix.ptsname, posix.stat, posix.unlockpt
+        open, close = posix.open, posix.close
+        O_RDWR, O_NOCTTY = posix.O_RDWR, posix.O_NOCTTY
+
+    - context with bad arguments:
+        badargs.diagnose (posix.openpt, "(int)")
+
+    - it can create a pseudoterminal:
+        masterfd = openpt (bor (O_RDWR, O_NOCTTY))
+        expect (type (masterfd)).to_be "number"
+        expect (masterfd > 0).to_be (true)
+        expect (Emsg (grantpt (masterfd))).to_be ""
+        expect (Emsg (unlockpt (masterfd))).to_be ""
+        slavename = ptsname (masterfd)
+        expect (stat (slavename, "type")).to_be "character device"
+        slavefd = open (slavename, bor (O_RDWR, O_NOCTTY))
+        expect (type (slavefd)).to_be "number"
+        expect (slavefd > 0).to_be (true)
+        close (slavefd)
+        close (masterfd)
+
+
+  - describe grantpt:
+    - context with bad arguments:
+        badargs.diagnose (posix.grantpt, "(int)")
+
+
+  - describe unlockpt:
+    - context with bad arguments:
+        badargs.diagnose (posix.unlockpt, "(int)")
+
+
+  - describe ptsname:
+    - context with bad arguments:
+        badargs.diagnose (posix.ptsname, "(int)")
+
+
+  - describe ttyname:
+    - before:
+        ttyname = posix.ttyname
+
+    - context with bad arguments:
+        badargs.diagnose (posix.ttyname, "(?int)")
+
+    - it takes a file descriptor argument:
+        expect (ttyname (2)).to_contain.any_of {"console", "pts", "tty"}
+    - it returns a string:
+        expect (type (ttyname (1))).to_be "string"
+    - it defaults the first argument to 0:
+        expect (ttyname ()).to_be (ttyname (0))
+
+
+  - describe ctermid:
+    - before:
+        ctermid = posix.ctermid
+
+    - context with bad arguments:
+        badargs.diagnose (posix.ctermid, "()")
+
+    - it returns the pathname of the controlling terminal:
+        expect (ctermid ()).to_match.any_of {"/.*pts.*", "/.*tty.*"}
+
+
+  - describe isatty:
+    - context with bad arguments:
+        badargs.diagnose (posix.isatty, "(int)")
+
+
+  - describe tcsetattr:
+    - context with bad arguments:
+        badargs.diagnose (posix.tcsetattr, "(int, int, table)")
+
+
+  - describe tcgetattr:
+    - context with bad arguments:
+        badargs.diagnose (posix.tcgetattr, "(int)")
+
+
+  - describe tcsendbreak:
+    - context with bad arguments:
+        badargs.diagnose (posix.tcsendbreak, "(int, int)")
+
+
+  - describe tcdrain:
+    - context with bad arguments:
+        badargs.diagnose (posix.tcdrain, "(int)")
+
+
+  - describe tcflush:
+    - context with bad arguments:
+        badargs.diagnose (posix.tcflush, "(int, int)")
+
+
+  - describe tcflow:
+    - context with bad arguments:
+        badargs.diagnose (posix.tcflow, "(int, int)")
+
+
+
+- specify user management:
+  - describe getlogin:
+    - context with bad arguments:
+        badargs.diagnose (posix.getlogin, "()")
+
+
+  - describe getgroups:
+    - context with bad arguments:
+        if posix.getgroups then
+          badargs.diagnose (posix.getgroups, "()")
+        end
+
+
+  - describe crypt:
+    - before:
+        crypt = posix.crypt
+        key, salt = "hello", "pl"
+
+    - context with bad arguments:
+        if posix.crypt then
+          badargs.diagnose (posix.crypt, "(string, string)")
+        end
+
+    - it can perform repeatable one-way hashing:
+        hash = crypt (key, salt)
+        expect (crypt (key, salt)).to_be (hash)
+    - it encrypts differently for a different salt:
+        expect (crypt (key, salt)).not_to_equal (crypt (key, "/."))

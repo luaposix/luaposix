@@ -1,0 +1,26 @@
+specify posix.sys.utsname:
+- before:
+    utsname = require "posix.sys.utsname"
+
+
+- describe uname:
+  - before:
+      uname = utsname.uname
+
+      u = uname ()
+
+  - context with bad arguments:
+      badargs.diagnose (uname, "()")
+
+  - it returns a PosixUtsname:
+      expect (prototype (u)).to_be "PosixUtsname"
+  - it returns machine name:
+      expect (u.machine).to_be (cmd_output "uname -m")
+  - it returns nodename:
+      expect (u.nodename).to_be (cmd_output "uname -n")
+  - it returns operating system release:
+      expect (u.release).to_be (cmd_output "uname -r")
+  - it returns system name:
+      expect (u.sysname).to_be (cmd_output "uname -s")
+  - it returns operating system version:
+      expect (u.version).to_be (cmd_output "uname -v")

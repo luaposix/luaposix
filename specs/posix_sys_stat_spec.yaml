@@ -1,0 +1,310 @@
+specify posix.sys.stat:
+- before:
+    st = require "posix.sys.stat"
+
+    S_IRWXU, S_IRWXG, S_IRWXO = st.S_IRWXU, st.S_IRWXG, st.S_IRWXO
+    S_ISBLK, S_ISCHR, S_ISDIR, S_ISFIFO, S_ISREG, S_ISLNK, S_ISSOCK =
+      st.S_ISBLK, st.S_ISCHR, st.S_ISDIR, st.S_ISFIFO, st.S_ISREG, st.S_ISLNK, st.S_ISSOCK
+    RWXALL = bor (S_IRWXU, S_IRWXG, S_IRWXO)
+
+    dir = posix.mkdtemp (template)
+    posix.mkdir (dir .. "/subdir")
+    posix.link ("subdir", dir .. "/soft", true)
+    touch (dir .. "/file")
+    posix.link (dir .. "/file", dir .. "/hard")
+    posix.link ("no such destination", dir .. "/dangling", true)
+    posix.mkfifo (dir .. "/fifo")
+
+- after:
+    rmtmp (dir)
+
+
+- describe chmod:
+  - before:
+      chmod, lstat = st.chmod, st.lstat
+      chmod (dir .. "/file", bor (st.S_IRWXU, st.S_IRGRP, st.S_IXGRP))
+
+  - context with bad arguments: |
+      badargs.diagnose (chmod, "(string, int)")
+
+      examples {
+        ["it diagnoses non-existent files"] = function ()
+          expect (Emsg (chmod (dir .. "/not existing file", st.S_IRWXU))).
+            to_contain "No such file or directory"
+        end
+      }
+
+  - it sets file mode:
+      mode = bor (st.S_IRUSR, st.S_IWUSR, st.S_IXGRP, st.S_IROTH)
+      chmod (dir .. "/file", mode)
+      expect (band (lstat (dir .. "/file").st_mode, RWXALL)).to_be (mode)
+
+
+- describe lstat:
+  - before:
+      # choose a format without seconds, that won't cause a race condition
+      fmt = "%b %d %H:%M"
+      now = os.date (fmt)
+      getegid, geteuid = posix.getegid, posix.geteuid
+
+      lstat = st.lstat
+
+  - context with bad arguments:
+      badargs.diagnose (lstat, "(string)")
+
+  - it returns a PosixStat:
+      expect (prototype (lstat (dir .. "/file"))).to_be "PosixStat"
+  - it fetches the device id:
+      dev = lstat (dir .. "/file").st_dev
+      expect (type (dev)).to_be "number"
+      expect (dev >= 0).to_be (true)
+      expect (dev).to_be (lstat (dir).st_dev)
+  - it fetches the file inode:
+      ino = lstat (dir .. "/file").st_ino
+      expect (type (ino)).to_be "number"
+      expect (ino >= 0).to_be (true)
+      expect (ino).to_be (lstat (dir .. "/hard").st_ino)
+      expect (ino).not_to_be (lstat (dir .. "/soft").st_ino)
+  - context with file mode:
+    - it fetches the file access mode:
+        mode = lstat (dir).st_mode
+        expect (type (mode)).to_be "number"
+        expect (band (mode, S_IRWXU)).to_be (S_IRWXU)
+    - it recognises directories:
+        expect (S_ISBLK (lstat (dir).st_mode)).to_be (0)
+        expect (S_ISCHR (lstat (dir).st_mode)).to_be (0)
+        expect (S_ISDIR (lstat (dir).st_mode)).not_to_be (0)
+        expect (S_ISFIFO (lstat (dir).st_mode)).to_be (0)
+        expect (S_ISREG (lstat (dir).st_mode)).to_be (0)
+        expect (S_ISLNK (lstat (dir).st_mode)).to_be (0)
+        expect (S_ISSOCK (lstat (dir).st_mode)).to_be (0)
+    - it recognises fifos:
+        expect (S_ISBLK (lstat (dir .. "/fifo").st_mode)).to_be (0)
+        expect (S_ISCHR (lstat (dir .. "/fifo").st_mode)).to_be (0)
+        expect (S_ISDIR (lstat (dir .. "/fifo").st_mode)).to_be (0)
+        expect (S_ISFIFO (lstat (dir .. "/fifo").st_mode)).not_to_be (0)
+        expect (S_ISREG (lstat (dir .. "/fifo").st_mode)).to_be (0)
+        expect (S_ISLNK (lstat (dir .. "/fifo").st_mode)).to_be (0)
+        expect (S_ISSOCK (lstat (dir .. "/fifo").st_mode)).to_be (0)
+    - it recognises regular files:
+        expect (S_ISBLK (lstat (dir .. "/file").st_mode)).to_be (0)
+        expect (S_ISCHR (lstat (dir .. "/file").st_mode)).to_be (0)
+        expect (S_ISDIR (lstat (dir .. "/file").st_mode)).to_be (0)
+        expect (S_ISFIFO (lstat (dir .. "/file").st_mode)).to_be (0)
+        expect (S_ISREG (lstat (dir .. "/file").st_mode)).not_to_be (0)
+        expect (S_ISLNK (lstat (dir .. "/file").st_mode)).to_be (0)
+        expect (S_ISSOCK (lstat (dir .. "/file").st_mode)).to_be (0)
+    - it recognises soft links:
+        expect (S_ISBLK (lstat (dir .. "/soft").st_mode)).to_be (0)
+        expect (S_ISCHR (lstat (dir .. "/soft").st_mode)).to_be (0)
+        expect (S_ISDIR (lstat (dir .. "/soft").st_mode)).to_be (0)
+        expect (S_ISFIFO (lstat (dir .. "/soft").st_mode)).to_be (0)
+        expect (S_ISREG (lstat (dir .. "/soft").st_mode)).to_be (0)
+        expect (S_ISLNK (lstat (dir .. "/soft").st_mode)).not_to_be (0)
+        expect (S_ISSOCK (lstat (dir .. "/soft").st_mode)).to_be (0)
+  - it fetches the number of links:
+      expect (lstat (dir .. "/file").st_nlink).to_be (2)
+      expect (lstat (dir .. "/soft").st_nlink).to_be (1)
+      expect (lstat (dir .. "/hard").st_nlink).
+        to_be (lstat (dir .. "/file").st_nlink)
+      expect (lstat (dir .. "/subdir").st_nlink).to_be (2)
+  - it fetches the owner id:
+      expect (lstat (dir .. "/file").st_uid).to_be (geteuid ())
+      expect (lstat (dir .. "/subdir").st_uid).to_be (geteuid ())
+  - it fetches the owner group id:
+      expect (lstat (dir .. "/file").st_gid).to_be (getegid ())
+      expect (lstat (dir .. "/subdir").st_gid).to_be (getegid ())
+  - it fetches the device special file id:
+      pending "mknod not yet bound"
+  - it fetches the file size:
+      # skip directory size, which is system dependent
+      expect (lstat (dir .. "/file").st_size).to_be (0)
+      expect (lstat (dir .. "/soft").st_size).to_be (string.len ("subdir"))
+      expect (lstat (dir .. "/hard").st_size).
+        to_be (lstat (dir .. "/file").st_size)
+  - it fetches the file access time:
+      expect (os.date (fmt, lstat (dir .. "/file").st_atime)).to_be (os.date (fmt))
+  - it fetches the file modification time:
+      expect (os.date (fmt, lstat (dir .. "/file").st_mtime)).to_be (now)
+  - it fetches the file change time:
+      expect (os.date (fmt, lstat (dir .. "/file").st_ctime)).to_be (now)
+  - it fetches the device block size:
+      blksize = lstat (dir .. "/file").st_blksize
+      expect (type (blksize)).to_be "number"
+      expect (blksize > 0).to_be (true)
+      expect (blksize).to_be (lstat (dir .. "/hard").st_blksize)
+  - it fetches the number of blocks:
+      blocks = lstat (dir .. "/file").st_blocks
+      expect (type (blocks)).to_be "number"
+      expect (blocks >= 0).to_be (true)
+      expect (blocks).to_be (lstat (dir .. "/hard").st_blocks)
+
+
+- describe mkdir:
+  - before:
+      dir = posix.mkdtemp (template)
+      lstat, mkdir = st.lstat, st.mkdir
+
+  - after:
+      rmtmp (dir)
+
+  - context with bad arguments:
+      badargs.diagnose (mkdir, "(string, ?int)")
+
+  - it creates the named directory:
+      expect (Emsg (mkdir (dir .. "/subdir"))).not_to_contain "exists"
+      mode = lstat (dir .. "/subdir").st_mode
+      expect (st.S_ISDIR (mode)).not_to_be (0)
+  - it sets the new directory permissions:
+      mkdir (dir .. "/subdir", S_IRWXU)
+      mode = lstat (dir .. "/subdir").st_mode
+      expect (band (mode, RWXALL)).to_be (S_IRWXU)
+  - it diagnoses already existing directory:
+      expect (Emsg (mkdir (dir, RWXALL))).to_contain "exists"
+
+
+- describe mkfifo:
+  - before:
+      dir = posix.mkdtemp (template)
+      lstat, mkfifo = st.lstat, st.mkfifo
+
+  - after:
+      rmtmp (dir)
+
+  - context with bad arguments:
+      badargs.diagnose (mkfifo, "(string, ?int)")
+
+  - it creates the named fifo:
+      expect (Emsg (mkfifo (dir .. "/fifo"))).not_to_contain "exists"
+      mode = lstat (dir .. "/fifo").st_mode
+      expect (st.S_ISFIFO (mode)).not_to_be (0)
+  - it sets the new fifo permissions:
+      mkfifo (dir .. "/fifo", S_IRWXU)
+      mode = lstat (dir .. "/fifo").st_mode
+      expect (band (mode, RWXALL)).to_be (S_IRWXU)
+  - it diagnoses already existing fifo:
+      expect (Emsg (mkfifo (dir, RWXALL))).to_contain "exists"
+
+
+- describe stat:
+  - before:
+      # choose a format without seconds, that won't cause a race condition
+      fmt = "%b %d %H:%M"
+      now = os.date (fmt)
+      getegid, geteuid = posix.getegid, posix.geteuid
+
+      stat = st.stat
+
+  - context with bad arguments:
+      badargs.diagnose (stat, "(string)")
+
+  - it returns a PosixStat:
+      expect (prototype (stat (dir .. "/file"))).to_be "PosixStat"
+  - it fetches the device id:
+      dev = stat (dir .. "/file").st_dev
+      expect (type (dev)).to_be "number"
+      expect (dev >= 0).to_be (true)
+      expect (dev).to_be (stat (dir).st_dev)
+  - it fetches the file inode:
+      ino = stat (dir .. "/file").st_ino
+      expect (type (ino)).to_be "number"
+      expect (ino >= 0).to_be (true)
+      expect (ino).to_be (stat (dir .. "/hard").st_ino)
+      expect (ino).not_to_be (stat (dir .. "/soft").st_ino)
+  - context with file mode:
+    - it fetches the file access mode:
+        mode = stat (dir).st_mode
+        expect (type (mode)).to_be "number"
+        expect (band (mode, S_IRWXU)).to_be (S_IRWXU)
+    - it recognises directories:
+        expect (S_ISBLK (stat (dir).st_mode)).to_be (0)
+        expect (S_ISCHR (stat (dir).st_mode)).to_be (0)
+        expect (S_ISDIR (stat (dir).st_mode)).not_to_be (0)
+        expect (S_ISFIFO (stat (dir).st_mode)).to_be (0)
+        expect (S_ISREG (stat (dir).st_mode)).to_be (0)
+        expect (S_ISLNK (stat (dir).st_mode)).to_be (0)
+        expect (S_ISSOCK (stat (dir).st_mode)).to_be (0)
+    - it recognises fifos:
+        expect (S_ISBLK (stat (dir .. "/fifo").st_mode)).to_be (0)
+        expect (S_ISCHR (stat (dir .. "/fifo").st_mode)).to_be (0)
+        expect (S_ISDIR (stat (dir .. "/fifo").st_mode)).to_be (0)
+        expect (S_ISFIFO (stat (dir .. "/fifo").st_mode)).not_to_be (0)
+        expect (S_ISREG (stat (dir .. "/fifo").st_mode)).to_be (0)
+        expect (S_ISLNK (stat (dir .. "/fifo").st_mode)).to_be (0)
+        expect (S_ISSOCK (stat (dir .. "/fifo").st_mode)).to_be (0)
+    - it recognises regular files:
+        expect (S_ISBLK (stat (dir .. "/file").st_mode)).to_be (0)
+        expect (S_ISCHR (stat (dir .. "/file").st_mode)).to_be (0)
+        expect (S_ISDIR (stat (dir .. "/file").st_mode)).to_be (0)
+        expect (S_ISFIFO (stat (dir .. "/file").st_mode)).to_be (0)
+        expect (S_ISREG (stat (dir .. "/file").st_mode)).not_to_be (0)
+        expect (S_ISLNK (stat (dir .. "/file").st_mode)).to_be (0)
+        expect (S_ISSOCK (stat (dir .. "/file").st_mode)).to_be (0)
+    - it recognises soft links:
+        expect (S_ISBLK (stat (dir .. "/soft").st_mode)).to_be (0)
+        expect (S_ISCHR (stat (dir .. "/soft").st_mode)).to_be (0)
+        expect (S_ISDIR (stat (dir .. "/soft").st_mode)).not_to_be (0)
+        expect (S_ISFIFO (stat (dir .. "/soft").st_mode)).to_be (0)
+        expect (S_ISREG (stat (dir .. "/soft").st_mode)).to_be (0)
+        expect (S_ISLNK (stat (dir .. "/soft").st_mode)).to_be (0)
+        expect (S_ISSOCK (stat (dir .. "/soft").st_mode)).to_be (0)
+  - it fetches the number of links:
+      expect (stat (dir .. "/file").st_nlink).to_be (2)
+      expect (stat (dir .. "/soft").st_nlink).
+        to_be (stat (dir .. "/subdir").st_nlink)
+      expect (stat (dir .. "/hard").st_nlink).
+        to_be (stat (dir .. "/file").st_nlink)
+      expect (stat (dir .. "/subdir").st_nlink).to_be (2)
+  - it fetches the owner id:
+      expect (stat (dir .. "/file").st_uid).to_be (geteuid ())
+      expect (stat (dir .. "/subdir").st_uid).to_be (geteuid ())
+  - it fetches the owner group id:
+      expect (stat (dir .. "/file").st_gid).to_be (getegid ())
+      expect (stat (dir .. "/subdir").st_gid).to_be (getegid ())
+  - it fetches the device special file id:
+      pending "mknod not yet bound"
+  - it fetches the file size:
+      # skip directory size, which is system dependent
+      expect (stat (dir .. "/file").st_size).to_be (0)
+      expect (stat (dir .. "/soft").st_size).not_to_be (string.len ("subdir"))
+      expect (stat (dir .. "/hard").st_size).
+        to_be (stat (dir .. "/file").st_size)
+  - it fetches the file access time:
+      expect (os.date (fmt, stat (dir .. "/file").st_atime)).to_be (os.date (fmt))
+  - it fetches the file modification time:
+      expect (os.date (fmt, stat (dir .. "/file").st_mtime)).to_be (now)
+  - it fetches the file change time:
+      expect (os.date (fmt, stat (dir .. "/file").st_ctime)).to_be (now)
+  - it fetches the device block size:
+      blksize = stat (dir .. "/file").st_blksize
+      expect (type (blksize)).to_be "number"
+      expect (blksize > 0).to_be (true)
+      expect (blksize).to_be (stat (dir .. "/hard").st_blksize)
+  - it fetches the number of blocks:
+      blocks = stat (dir .. "/file").st_blocks
+      expect (type (blocks)).to_be "number"
+      expect (blocks >= 0).to_be (true)
+      expect (blocks).to_be (stat (dir .. "/hard").st_blocks)
+
+
+- describe umask:
+  - before:
+      lstat, umask = st.lstat, st.umask
+      newmask = band (st.S_IWGRP, st.S_IRWXO)
+      origmask = umask (newmask)
+  - after:
+      umask (origmask)
+
+  - context with bad arguments:
+      badargs.diagnose (umask, "(int)")
+
+  - it returns current umask:
+      expect (umask (0)).to_be (newmask)
+      expect (umask (newmask)).to_be (0)
+  - it controls the mode of newly created files:
+      all = bor (st.S_IRWXU, st.S_IRWXG, st.S_IRWXO)
+      xxx, mask = dir .. "/xxx", bor (st.S_IRWXO, st.S_IWGRP, st.S_IXGRP)
+      umask (mask)
+      touch (xxx)
+      expect (band (lstat (xxx).st_mode, all)).to_be (bor (st.S_IRUSR, st.S_IWUSR, st.S_IRGRP))
+      os.remove (xxx)

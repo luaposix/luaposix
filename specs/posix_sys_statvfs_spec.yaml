@@ -1,0 +1,35 @@
+specify posix.sys.statvfs:
+- before:
+    sv = require "posix.sys.statvfs"
+
+- describe statvfs:
+  - before:
+      statvfs = sv.statvfs
+
+  - context with bad arguments:
+      if statvfs then
+        badargs.diagnose (statvfs, "(string)")
+      end
+
+  - it returns a PosixStatvfs:
+      if statvfs then
+        expect (prototype (statvfs ("/"))).to_be "PosixStatvfs"
+      end
+  - it fetches statistics for a mounted file system:
+      if statvfs then
+        sv = statvfs "/"
+        expect (type (sv)).to_be "table"
+        for _, field in pairs {"f_bsize", "f_frsize", "f_blocks", "f_bfree",
+              "f_bavail", "f_files", "f_ffree", "f_favail", "f_flag", "f_namemax"}
+        do
+          expect (type (sv[field])).to_be "number"
+          expect (sv[field] >= 0).to_be (true)
+        end
+      end
+  - it returns a non-negative value from fsid: |
+      -- Merge this back into the previous example when #102 is fixed
+      if statvfs then
+        sv = statvfs "/"
+        pending "issue #102"
+        expect (sv[field] >= 0).to_be (true)
+      end

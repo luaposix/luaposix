@@ -180,7 +180,7 @@
 #   modified version of the Autoconf Macro, you may extend this special
 #   exception to the GPL to apply to your modified version as well.
 
-#serial 23
+#serial 28
 
 dnl =========================================================================
 dnl AX_PROG_LUA([MINIMUM-VERSION], [TOO-BIG-VERSION],
@@ -317,7 +317,7 @@ AC_DEFUN([AX_PROG_LUA],
 
         dnl Try to find a path with the prefix.
         _AX_LUA_FND_PRFX_PTH([$LUA],
-          [$ax_lua_exec_prefix], [package.cpathd])
+          [$ax_lua_exec_prefix], [package.cpath])
         AS_IF([test "x$ax_lua_prefixed_path" != 'x'],
         [ dnl Fix the prefix.
           _ax_strip_prefix=`echo "$ax_lua_exec_prefix" | sed 's|.|.|g'`
@@ -347,7 +347,7 @@ dnl =========================================================================
 AC_DEFUN([_AX_LUA_CHK_IS_INTRP],
 [
   dnl Just print _VERSION because all Lua interpreters have this global.
-  AS_IF([$1 -e "print('Hello ' .. _VERSION .. '!')" &>/dev/null],
+  AS_IF([$1 -e "print('Hello ' .. _VERSION .. '!')" >/dev/null 2>&1],
     [$2], [$3])
 ])
 
@@ -359,9 +359,11 @@ dnl =========================================================================
 AC_DEFUN([_AX_LUA_CHK_VER],
 [
   AS_IF([$1 2>/dev/null -e '
-        function norm (v) i,j=v:match "(%d+)%.(%d+)" return 100 * i + j end
-        v=norm (_VERSION)
-        os.exit ((v >= norm ("$2") and v < norm ("$3")) and 0 or 1)'],
+        function norm (v)
+          i,j=v:match "(%d+)%.(%d+)" if i then return 100 * i + j end
+        end
+        v, toobig=norm (_VERSION), norm "$3" or math.huge
+        os.exit ((v >= norm ("$2") and v < toobig) and 0 or 1)'],
     [$4], [$5])
 ])
 
@@ -373,28 +375,19 @@ AC_DEFUN([_AX_LUA_FND_PRFX_PTH],
 [
   dnl Invokes the Lua interpreter PROG to print the path variable
   dnl LUA-PATH-VARIABLE, usually package.path or package.cpath. Paths are
-  dnl then matched against PREFIX. The first path to begin with PREFIX is set
-  dnl to ax_lua_prefixed_path.
+  dnl then matched against PREFIX. Then ax_lua_prefixed_path is set to the
+  dnl shortest sub path beginning with PREFIX up to the last directory
+  dnl that does not contain a '?', if any.
 
-  ax_lua_prefixed_path=''
-  _ax_package_paths=`$1 -e 'print($3)' 2>/dev/null | sed 's|;|\n|g'`
-  dnl Try the paths in order, looking for the prefix.
-  for _ax_package_path in $_ax_package_paths; do
-    dnl Copy the path, up to the use of a Lua wildcard.
-    _ax_path_parts=`echo "$_ax_package_path" | sed 's|/|\n|g'`
-    _ax_reassembled=''
-    for _ax_path_part in $_ax_path_parts; do
-      echo "$_ax_path_part" | grep '\?' >/dev/null && break
-      _ax_reassembled="$_ax_reassembled/$_ax_path_part"
-    done
-    dnl Check the path against the prefix.
-    _ax_package_path=$_ax_reassembled
-    if echo "$_ax_package_path" | grep "^$2" >/dev/null; then
-      dnl Found it.
-      ax_lua_prefixed_path=$_ax_package_path
-      break
-    fi
-  done
+  ax_lua_prefixed_path=`$1 2>/dev/null -e '
+    $3:gsub ("(@<:@^;@:>@+)",
+      function (p)
+        p = p:gsub ("%?.*$", ""):gsub ("/@<:@^/@:>@*$", "")
+        if p:match ("^$2") and (not shortest or #shortest > #p) then
+          shortest = p
+        end
+      end)
+    print (shortest or "")'`
 ])
 
 
@@ -481,7 +474,7 @@ int main(int argc, char ** argv)
             ],
             [ ax_cv_lua_header_version=`./conftest$EXEEXT p | \
                 sed "s|^Lua \(.*\)|\1|" | \
-                grep -o "^@<:@0-9@:>@\+\\.@<:@0-9@:>@\+"`
+                grep -E -o "^@<:@0-9@:>@+\.@<:@0-9@:>@+"`
             ],
             [ax_cv_lua_header_version='unknown'])
           CPPFLAGS=$_ax_lua_saved_cppflags
