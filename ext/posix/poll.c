@@ -213,6 +213,7 @@ Wait for events on multiple file descriptors.
 @treturn[1] int 0 if timed out, 1 if *fd* is ready
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see poll(2)
 @see rpoll
 @see poll.lua
@@ -251,6 +252,7 @@ Based on [http://lua-users.org/lists/lua-l/2007-11/msg00346.html]().
 @treturn[1] int 0 if timed out, 1 if *fd* is ready
 @return[2] nil
 @return[2] error message
+@treturn[2] int errnum
 @see poll
 @usage
 fh = io.open "one"

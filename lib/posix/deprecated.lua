@@ -115,6 +115,7 @@ local M = {}
 -- @treturn[1] bool `true`, if successful
 -- @return[2] nil
 -- @treturn[2] string error messag
+-- @treturn[2] int errnum
 -- @see bind(2)
 
 local sock = require "posix.sys.socket"
@@ -136,6 +137,7 @@ end
 -- @treturn[21 int nanoseconds, if successful
 -- @return[2] nil
 -- @treturn[2] string error message
+-- @treturn[2] int errnum
 -- @see clock_getres(3)
 
 local tm = require "posix.time"
@@ -178,6 +180,7 @@ end
 -- @treturn[21 int nanoseconds, if successful
 -- @return[2] nil
 -- @treturn[2] string error message
+-- @treturn[2] int errnum
 -- @see clock_gettime(3)
 
 local tm = require "posix.time"
@@ -210,6 +213,7 @@ end
 -- @treturn[1] bool `true`, if successful
 -- @return[2] nil
 -- @treturn[2] string error message
+-- @treturn[2] int errnum
 -- @see connect(2)
 
 local sock = require "posix.sys.socket"
@@ -320,6 +324,7 @@ end
 -- @treturn[1] int `0`, if successful
 -- @return[2] nil
 -- @treturn[2] string error message
+-- @treturn[2] int errnum
 -- @see posix_fadvise(2)
 
 local fc    = require "posix.fcntl"
@@ -516,6 +521,7 @@ end
 -- @treturn[1] int hard limit, if successful
 -- @return[2] nil
 -- @treturn[2] string error message
+-- @treturn[2] int errnum
 
 local resource = require "posix.sys.resource"
 
@@ -697,7 +703,7 @@ end
 -- @treturn[1] int `0` if requested time has elapsed
 -- @return[2] nil
 -- @treturn[2] string error message
--- @treturn[2] int errno
+-- @treturn[2] int errnum
 -- @treturn[2] int unslept seconds remaining, if interrupted
 -- @treturn[2] int unslept nanoseconds remaining, if interrupted
 -- @see nanosleep(2)
@@ -833,6 +839,7 @@ end
 -- @treturn[1] int `0`, if successful
 -- @return[2] nil
 -- @treturn[2] string error message
+-- @treturn[2] int errnum
 
 local resource = require "posix.sys.resource"
 

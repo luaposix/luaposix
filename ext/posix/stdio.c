@@ -44,6 +44,7 @@ File descriptor corresponding to a Lua file object.
 @treturn[1] int file descriptor for *file*, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @usage
 STDOUT_FILENO = P.fileno (io.stdout)
 */

@@ -47,6 +47,7 @@ Manipulate file descriptor.
 @return[1] integer return value depending on *cmd*, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see fcntl(2)
 @see lock.lua
 @usage
@@ -114,6 +115,7 @@ Open a file.
 @treturn[1] int file descriptor for *path*, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see open(2)
 @usage
 fd = P.open ("data", bit.bor (P.O_CREAT, P.O_RDWR), bit.bor (P.S_IRWXU, P.S_IRGRP))
@@ -141,6 +143,7 @@ Instruct kernel on appropriate cache behaviour for a file or file segment.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see posix_fadvise(2)
 */
 static int

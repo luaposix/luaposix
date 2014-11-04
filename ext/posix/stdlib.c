@@ -87,6 +87,7 @@ Grant access to a slave pseudoterminal
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see grantpt(3)
 @see openpt
 @see ptsname
@@ -108,6 +109,7 @@ Create a unique temporary directory.
 @treturn[1] string path to directory, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see mkdtemp(3)
 */
 static int
@@ -141,6 +143,7 @@ Create a unique temporary file.
 @treturn[2] string path to file, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see mkstemp(3)
 @usage P.mkstemp 'wooXXXXXX'
 */
@@ -179,6 +182,7 @@ Open a pseudoterminal.
 @return[1] file descriptor of pseudoterminal, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see posix_openpt(3)
 @see grantpt
 @see ptsname
@@ -201,6 +205,7 @@ Get the name of a slave pseudo-terminal
 @return[1] path name of the slave terminal device, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see ptsname(3)
 @see grantpt
 @see unlockpt
@@ -225,6 +230,7 @@ Find canonicalized absolute pathname.
 @treturn[1] string canonicalized absolute path, if successful
 @return[2] nil
 @treturn[2] string error messag
+@treturn[2] int errnum
 @see realpath(3)
 */
 static int
@@ -250,6 +256,7 @@ Set an environment variable for this process.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see setenv(3)
 */
 static int
@@ -278,6 +285,7 @@ Unlock a pseudoterminal master/slave pair
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see unlockpt(3)
 @see openpt
 @see ptsname

@@ -45,6 +45,7 @@ Get a message queue identifier
 @treturn[1] int message queue identifier, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see msgget(2)
 */
 static int
@@ -65,6 +66,7 @@ Send message to a message queue
 @treturn int 0, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see msgsnd(2)
  */
 static int
@@ -116,6 +118,7 @@ Receive message from a message queue
 @treturn[1] string message text, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see msgrcv(2)
  */
 static int

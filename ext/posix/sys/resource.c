@@ -53,6 +53,7 @@ Get resource limits for this process.
 @treturn[1] int hardlimit, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see getrlimit(2)
 @see setrlimit
 */
@@ -79,6 +80,7 @@ Set a resource limit for subsequent child processes.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see getrlimit(2)
 @see limit.lua
 @usage P.setrlimit ("nofile", 1000, 2000)

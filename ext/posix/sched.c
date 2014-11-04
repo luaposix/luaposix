@@ -38,6 +38,7 @@ get scheduling policy
   if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see sched_getscheduler(2)
 */
 #if HAVE_SCHED_GETSCHEDULER
@@ -64,6 +65,7 @@ set scheduling policy/priority
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 */
 #if HAVE_SCHED_SETSCHEDULER
 static int

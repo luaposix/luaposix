@@ -35,6 +35,7 @@ Send a signal to the given process.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see kill(2)
 */
 static int
@@ -55,6 +56,7 @@ Send a signal to the given process group.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see killpg(2)
 */
 static int
@@ -74,6 +76,7 @@ Raise a signal on this process.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see raise(3)
 */
 static int

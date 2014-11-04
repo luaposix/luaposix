@@ -92,6 +92,7 @@ Set log priority mask.
 @treturn[1] int previous mask, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see setlogmask(3)
 */
 static int

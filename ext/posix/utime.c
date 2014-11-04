@@ -33,6 +33,7 @@ Change file last access and modification times.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 */
 static int
 Putime(lua_State *L)

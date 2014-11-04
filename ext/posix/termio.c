@@ -72,6 +72,7 @@ Wait for all written output to reach the terminal.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see tcdrain(3)
 */
 static int
@@ -91,6 +92,7 @@ Suspend transmission or receipt of data.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see tcflow(3)
 */
 static int
@@ -111,6 +113,7 @@ Discard any data already written but not yet sent to the terminal.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see tcflush(3)
 */
 static int
@@ -130,6 +133,7 @@ Get termios state.
 @treturn[1] termios terminal attributes, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @return error message if failed
 @see tcgetattr(3)
 @usage

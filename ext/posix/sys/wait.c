@@ -32,6 +32,7 @@ Wait for child process to terminate.
 @treturn[1] int exit status, or signal number responsible for "killed" or "stopped"
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see waitpid(2)
 @see posix.unistd.fork
 */

@@ -56,6 +56,7 @@ Return information about this machine.
 @treturn[1] utsname system information
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see uname(2)
 */
 static int

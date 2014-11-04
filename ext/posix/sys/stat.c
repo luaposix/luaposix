@@ -175,6 +175,7 @@ Change the mode of the path.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see chmod(2)
 @usage P.chmod ('bin/dof', bit.bor (P.S_IRWXU, P.S_IRGRP))
 */
@@ -217,6 +218,7 @@ Make a directory.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see mkdir(2)
 */
 static int
@@ -236,6 +238,7 @@ Make a FIFO pipe.
 @treturn[1] int file descriptor for *path*, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see mkfifo(2)
 */
 static int

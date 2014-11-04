@@ -87,6 +87,7 @@ Check real user's permissions for a file.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see access(2)
 @usage status, errstr, errno = P.access("/etc/passwd", "rw")
 */
@@ -118,6 +119,7 @@ Set the working directory.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see chdir(2)
 @usage status, errstr, errno = P.chdir("/var/tmp")
 */
@@ -139,6 +141,7 @@ Change ownership of a file.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error messoge
+@treturn[2] int errnum
 @see chown(2)
 @usage
 -- will fail for a normal user, and print an error
@@ -162,6 +165,7 @@ Close an open file descriptor.
 @treturn[1] int `0` if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see close(2)
 @usage
 local ok, errmsg = P.close (log)
@@ -216,6 +220,7 @@ Duplicate an open file descriptor.
 @treturn[1] int new file descriptor duplicating *fd*, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see dup(2)
 @usage
 local outfd = P.dup (P.fileno (io.stdout))
@@ -239,6 +244,7 @@ reallocated to *fd*.
 @treturn[1] int new file descriptor, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see dup2(2)
 */
 static int
@@ -334,6 +340,7 @@ Synchronize a file's in-core state with storage device without metadata.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see fdatasync(2)
 */
 static int
@@ -353,6 +360,7 @@ Fork this program.
 @treturn[2] int process id of child, in the calling process
 @return[3] nil
 @treturn[3] string error message
+@treturn[3] int errnum
 @see fork(2)
 @see fork.lua
 @see fork2.lua
@@ -382,6 +390,7 @@ Synchronize a file's in-core state with storage device.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see fsync(2)
 @see sync
 */
@@ -400,6 +409,7 @@ Current working directory for this process.
 @treturn[1] string path of current working directory, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see getcwd(3)
 */
 static int
@@ -606,6 +616,7 @@ Test whether a file descriptor refers to a terminal.
 @treturn[1] int `1` if *fd* is open and refers to a terminal, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see isatty(3)
 */
 static int
@@ -626,6 +637,7 @@ Create a link.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see link(2)
 @see symlink(2)
 */
@@ -649,6 +661,7 @@ reposition read/write file offset
 @treturn[1] int new offset, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 */
 static int
 Plseek(lua_State *L)
@@ -668,6 +681,7 @@ change process priority
 @treturn[1] int new nice value, if successful
 @return[2] nil
 @return[2] string error message
+@treturn[2] int errnum
 @see nice(2)
 */
 static int
@@ -706,6 +720,7 @@ Creates a pipe.
 @treturn[1] int write end file descriptor
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see pipe(2)
 @see fork.lua
 */
@@ -732,6 +747,7 @@ Read bytes from a file.
 @treturn[1] string string from *fd* with at most *count* bytes, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see read(2)
 */
 static int
@@ -765,6 +781,7 @@ Read value of a symbolic link.
 @treturn[1] string link target, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see readlink(2)
 */
 static int
@@ -829,6 +846,7 @@ Remove a directory.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see rmdir(2)
 */
 static int
@@ -849,6 +867,7 @@ Set the uid, euid, gid, egid, sid or pid & gid.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see setuid(2)
 @see seteuid(2)
 @see setgid(2)
@@ -959,6 +978,7 @@ Unlink a file.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see unlink(2)
 */
 static int
@@ -978,6 +998,7 @@ Write bytes to a file.
 @treturn[1] int number of bytes written, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see write(2)
 */
 static int

@@ -126,6 +126,7 @@ Find the precision of a clock.
 @treturn[1] PosixTimespec resolution of *clk*, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see clock_getres(3)
 */
 static int
@@ -148,6 +149,7 @@ Read a clock.
 @treturn[1] PosixTimespec current value of *clk*, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see clock_gettime(3)
 */
 static int
@@ -230,7 +232,7 @@ Sleep with nanosecond precision.
 @treturn[1] int `0` if requested time has elapsed
 @return[2] nil
 @treturn[2] string error message
-@treturn[2] int errno
+@treturn[2] int errnum
 @treturn[2] PosixTimespec unslept time remaining, if interrupted
 @see nanosleep(2)
 @see posix.unistd.sleep

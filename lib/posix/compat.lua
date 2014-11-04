@@ -133,6 +133,7 @@ local M = {
 -- @return[1] int `0`, if successful
 -- @return[2] nil
 -- @treturn[2] string error message
+-- @treturn[2] int errnum
 -- @see chmod(2)
 -- @usage P.chmod ('bin/dof', '+x')
 
@@ -172,6 +173,7 @@ end
 -- @treturn[1] int file descriptor of file at *path*, if successful
 -- @return[2] nil
 -- @treturn[2] string error message
+-- @treturn[2] int errnum
 -- @see creat(2)
 -- @see posix.chmod
 -- @usage
@@ -214,6 +216,7 @@ end
 -- @treturn[1] int `0`, if successful
 -- @return[2] nil
 -- @treturn[2] string error message
+-- @treturn[2] int errnum
 
 local bit = bit32 or require "bit"
 local st  = require "posix.sys.stat"
@@ -243,6 +246,7 @@ end
 -- @treturn[1] int `0`, if successful
 -- @return[2] nil
 -- @treturn[2] string error message
+-- @treturn[2] int errnum
 
 local bit = bit32 or require "bit"
 local st  = require "posix.sys.stat"
@@ -274,6 +278,7 @@ end
 -- @treturn[1] int message queue identifier, if successful
 -- @return[2] nil
 -- @treturn[2] string error message
+-- @treturn[2] int errnum
 -- @see msgget(2)
 
 local bit   = bit32 or require "bit"
@@ -322,6 +327,7 @@ end
 -- @treturn[1] int file descriptor for *path*, if successful
 -- @return[2] nil
 -- @treturn[2] string error message
+-- @treturn[2] int errnum
 -- @see open(2)
 -- @usage
 -- fd = P.open ("data", bit.bor (P.O_CREAT, P.O_RDWR), "rw-r-----")
@@ -368,6 +374,7 @@ end
 -- @treturn[1] int `0`, if successful
 -- @return[2] nil
 -- @treturn[2] string error message
+-- @treturn[2] int errnum
 
 local bit = bit32 or require "bit"
 local log = require "posix.syslog"

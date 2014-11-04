@@ -118,6 +118,7 @@ Create an endpoint for communication.
 @treturn[1] int socket descriptor, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see socket(2)
 @usage sockd = P.socket (P.AF_INET, P.SOCK_STREAM, 0)
 */
@@ -142,6 +143,7 @@ Create a pair of connected sockets.
 @treturn[1] int descriptor of the other end of the pair, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @usage sockr, sockw = P.socketpair (P.AF_INET, P.SOCK_STREAM, 0)
 */
 static int
@@ -267,7 +269,7 @@ Network address and service translation.
 @treturn[1] list of @{sockaddr} tables
 @return[2] nil
 @treturn[2] string error message
-@treturn[2] int error code if failed
+@treturn[2] int errnum
 @see getaddrinfo(2)
 @usage
 local res, errmsg, errcode = posix.getaddrinfo ("www.lua.org", "http",
@@ -358,6 +360,7 @@ Initiate a connection on a socket.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see connect(2)
 */
 static int
@@ -382,6 +385,7 @@ Bind an address to a socket.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see bind(2)
 */
 static int
@@ -407,6 +411,7 @@ Listen for connections on a socket.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string  error message
+@treturn[2] int errnum
 @see listen(2)
 */
 static int
@@ -428,6 +433,7 @@ Accept a connection on a socket.
 @treturn[1] table connection address, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see accept(2)
 */
 static int
@@ -459,6 +465,7 @@ Receive a message from a socket.
 @treturn[1] int received bytes, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see recv(2)
 */
 static int
@@ -499,6 +506,7 @@ Receive a message from a socket.
 @treturn[1] sockaddr address of message source, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see recvfrom(2)
 */
 static int
@@ -542,6 +550,7 @@ Send a message from a socket.
 @treturn[1] int number of bytes sent, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see send(2)
 */
 static int
@@ -565,6 +574,7 @@ Send a message from a socket.
 @treturn[1] int number of bytes sent, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see sendto(2)
 */
 static int
@@ -591,6 +601,7 @@ Shut down part of a full-duplex connection.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see shutdown(2)
 @usage ok, errmsg = P.shutdown (sock, P.SHUT_RDWR)
 */
@@ -615,6 +626,7 @@ Get and set options on sockets.
 @treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
+@treturn[2] int errnum
 @see setsockopt(2)
 @usage ok, errmsg = P.setsockopt (sock, P.SOL_SOCKET, P.SO_SNDTIMEO, 1, 0)
 */
