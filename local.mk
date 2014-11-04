@@ -26,7 +26,7 @@ AM_CPPFLAGS  += -I $(srcdir)/ext/include -I $(srcdir)/ext/posix
 AM_CFLAGS     = $(WERROR_CFLAGS) $(WARN_CFLAGS)
 AM_LDFLAGS    = -module -avoid-version
 
-old_NEWS_hash = 7416f7c2db8d17f396b49cf2386f93a6
+old_NEWS_hash = 7ffd534436e3eecda22fe6588ce84d6b
 
 update_copyright_env = \
 	UPDATE_COPYRIGHT_HOLDER='(Gary V. Vaughan|Reuben Thomas|luaposix authors)' \
