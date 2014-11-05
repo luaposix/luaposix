@@ -70,6 +70,12 @@ if test "$gl_gcc_warnings" = yes; then
   gl_WARN_ADD([-fmudflap])
 fi
 
+dnl Compiler flags for POSIX
+dnl Get this from autotools/gnulib
+if test Darwin != `uname`; then
+  AC_SUBST([POSIX_EXTRA_CFLAGS], [-D_XOPEN_SOURCE=700])
+fi
+
 dnl required by automake 1.12.x, not available in 1.10.x
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 
@@ -98,16 +104,12 @@ AC_SEARCH_LIBS([crypt], [crypt],
 AC_SUBST([LIBCRYPT], [$LIBS])
 LIBS=$save_LIBS
 
-dnl Check for functions
-AC_CHECK_FUNCS([strlcpy statvfs posix_fadvise sched_getsheduler sched_setscheduler])
-
-dnl Compiler flags for POSIX
-dnl Get this from autotools/gnulib
-if test Darwin != `uname`; then
-  # FIXME: Make -lrt conditional on _XOPEN_REALTIME
-  AC_SUBST([POSIX_EXTRA_CFLAGS], [-D_XOPEN_SOURCE=700])
-  AC_SUBST([LIBRT], [-lrt])
-fi
+# FIXME: Make -lrt conditional on _XOPEN_REALTIME
+save_LIBS=$LIBS
+LIBS=
+AC_CHECK_LIB([rt], [clock_gettime])
+AC_SUBST([LIBRT], [$LIBS])
+LIBS=$save_LIBS
 
 dnl Curses
 AX_WITH_CURSES
@@ -117,6 +119,9 @@ save_LIBS=$LIBS
 LIBS="$CURSES_LIB $LIBS"
 AC_CHECK_FUNCS([resizeterm])
 LIBS=$save_LIBS
+
+dnl Check for functions
+AC_CHECK_FUNCS([strlcpy statvfs posix_fadvise sched_getsheduler sched_setscheduler])
 
 AX_PROG_LUA(5.1, 5.4)
 AX_LUA_HEADERS
