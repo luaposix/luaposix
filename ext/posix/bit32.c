@@ -10,7 +10,7 @@
 
 #include <config.h>
 
-#include <sys/types.h>
+#include <stdint.h>
 
 #include "_helpers.c"
 
