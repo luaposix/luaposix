@@ -11,7 +11,7 @@
 ]]
 
 local _argcheck = require "posix._argcheck"
-local bit       = bit32 or require "bit"
+local bit       = require "posix.bit32"
 
 local argerror, argtypeerror, badoption =
   _argcheck.argerror, _argcheck.argtypeerror, _argcheck.badoption
@@ -743,7 +743,7 @@ end
 --   `LOG_LOCAL0` through `LOG_LOCAL7`
 -- @see syslog(3)
 
-local bit = bit32 or require "bit"
+local bit = require "posix.bit32"
 local log = require "posix.syslog"
 
 local bor = bit.bor
