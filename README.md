@@ -30,9 +30,6 @@ To install current git master (for testing):
 
     luarocks install https://raw.github.com/luaposix/luaposix/release/luaposix-git-1.rockspec
 
-With Lua 5.1, luaposix requires the bitop library from http://bitop.luajit.org/
-(On Lua 5.2 it will work whether bitop is installed or not.)
-
 To install without LuaRocks, check out the sources from the
 [repository][GitHub] and run the following commands:
 
@@ -62,10 +59,10 @@ The authoritative online POSIX reference is at
 Example code
 ------------
 
-See the example program `tree.lua`, along with the tests in
-`tests-*.lua`.
+See the example program `tree.lua`, along with the many small
+examples in the generated documentation and BDD `specs/*_spec.yaml`.
 
-For a complete application, see the lua branch of [GNU Zile].
+For a complete application, see the [GNU Zile].
 
 Bugs reports & patches
 ----------------------
