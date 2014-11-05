@@ -1,0 +1,86 @@
+specify posix.bit32:
+- before:
+    bit32   = require "posix.bit32"
+    allones = 4294967295
+    bit33   = allones + 1
+
+
+- describe band:
+  - before:
+      band = bit32.band
+
+  - context with bad arguments:
+      badargs.diagnose (band, "(?int*)")
+
+  - it returns an integer:
+      expect (type (band (1))).to_be "number"
+  - it returns a single argument unchanged:
+      expect (band (0)).to_be (0)
+      expect (band (1)).to_be (1)
+      expect (band (12345)).to_be (12345)
+      expect (band (allones)).to_be (allones)
+  - it truncates the result to 32 bits: |
+      expect (band (bit33)).to_be (0)
+      expect (band (bit33 + 1)).to_be (1)
+      expect (band (bit33 * 8 - 1)).to_be (allones)
+  - it performs bitwise and of inputs:
+      expect (band (0, 0)).to_be (0)
+      expect (band (0, 1)).to_be (0)
+      expect (band (1, 0)).to_be (0)
+      expect (band (1, 1)).to_be (1)
+      expect (band (allones, 0)).to_be (0)
+      expect (band (allones, 1)).to_be (1)
+      expect (band (allones, 12345)).to_be (12345)
+      expect (band (allones, 12345, 0)).to_be (0)
+      expect (band (allones, 12345, 1)).to_be (1)
+
+
+- describe bnot:
+  - before:
+      bnot = bit32.bnot
+
+  - context with bad arguments:
+      badargs.diagnose (bnot, "(int)")
+
+  - it returns an integer:
+      expect (type (bor (1))).to_be "number"
+  - it truncates the result to 32 bits: |
+      expect (bnot (allones)).to_be (0)
+      expect (bnot (bit33)).to_be (allones)
+      expect (bnot (bit33 * 8 - 1 + 12345)).to_be (bit33 - 12345)
+  - it performs bitwise not of argument:
+      expect (bnot (0)).to_be (allones)
+      expect (bnot (1)).to_be (allones - 1)
+      expect (bnot (2)).to_be (allones - 2)
+      expect (bnot (3)).to_be (allones - 3)
+      expect (bnot (bnot (12345))).to_be (12345)
+
+
+- describe bor:
+  - before:
+      bor = bit32.bor
+
+  - context with bad arguments:
+      badargs.diagnose (bor, "(?int*)")
+
+  - it returns an integer:
+      expect (type (bor (1))).to_be "number"
+  - it returns a single argument unchanged:
+      expect (bor (0)).to_be (0)
+      expect (bor (1)).to_be (1)
+      expect (bor (12345)).to_be (12345)
+      expect (bor (allones)).to_be (allones)
+  - it truncates the result to 32 bits: |
+      expect (bor (bit33)).to_be (0)
+      expect (bor (bit33 + 1)).to_be (1)
+      expect (bor (bit33 * 8 - 1)).to_be (allones)
+  - it performs bitwise or of inputs:
+      expect (bor (0, 0)).to_be (0)
+      expect (bor (0, 1)).to_be (1)
+      expect (bor (1, 0)).to_be (1)
+      expect (bor (1, 1)).to_be (1)
+      expect (bor (0, allones)).to_be (allones)
+      expect (bor (0, 1)).to_be (1)
+      expect (bor (0, 12345)).to_be (12345)
+      expect (bor (0, 12345, allones)).to_be (allones)
+      expect (bor (0, 12345, 16384)).to_be (28729)

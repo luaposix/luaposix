@@ -2,6 +2,12 @@ Stdlib NEWS - User visible changes
 
 * Noteworthy changes in release ?.? (????-??-??) [?]
 
+** New features:
+
+ - New `posix.bit32` module with band, bnot and bor functions that can be
+   used from any supported Lua release, without worrying about loading an
+   external bit operations library.
+
 
 * Noteworthy changes in release 33.0.0 (2014-11-04) [stable]
 
