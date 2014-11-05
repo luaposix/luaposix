@@ -21,6 +21,11 @@
 
 #include "_helpers.c"
 
+/* OpenBSD 5.6 recommends using RLIMIT_DATA in place of missing RLIMIT_AS */
+#ifndef RLIMIT_AS
+#  define RLIMIT_AS RLIMIT_DATA
+#endif
+
 
 /***
 Resource limit record.
