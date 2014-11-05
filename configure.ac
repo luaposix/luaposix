@@ -92,7 +92,10 @@ gl_INIT
 
 dnl Check for header files
 AC_HEADER_STDC
-AC_CHECK_HEADERS([crypt.h strings.h sys/statvfs.h net/if.h linux/netlink.h])
+AC_CHECK_HEADERS([crypt.h strings.h sys/statvfs.h])
+AC_CHECK_HEADERS([net/if.h linux/netlink.h], [], [], [
+#include <sys/socket.h>
+])
 
 AC_CHECK_DECLS_ONCE([fdatasync])
 
