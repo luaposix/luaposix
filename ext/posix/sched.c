@@ -46,7 +46,7 @@ static int
 Psched_getscheduler(lua_State *L)
 {
 	struct sched_param sched_param  = {0};
-	pid_t pid = luaL_optint(L, 1, 0);
+	pid_t pid = optint(L, 1, 0);
 	checknargs(L, 1);
 	return pushresult(L, sched_getscheduler(pid), NULL);
 }

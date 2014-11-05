@@ -40,7 +40,13 @@
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
-#include "lua52compat.h"
+
+#if LUA_VERSION_NUM == 502 || LUA_VERSION_NUM == 503
+#  define lua_objlen lua_rawlen
+#  define lua_strlen lua_rawlen
+#  define luaL_openlib(L,n,l,nup) luaL_setfuncs((L),(l),(nup))
+#  define luaL_register(L,n,l) (luaL_newlib(L,l))
+#endif
 
 #ifndef STREQ
 #  define STREQ(a, b)     (strcmp (a, b) == 0)

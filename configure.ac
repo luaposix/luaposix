@@ -118,8 +118,7 @@ LIBS="$CURSES_LIB $LIBS"
 AC_CHECK_FUNCS([resizeterm])
 LIBS=$save_LIBS
 
-dnl Lua 5.1 or 5.2
-AX_PROG_LUA(5.1, 5.3)
+AX_PROG_LUA(5.1, 5.4)
 AX_LUA_HEADERS
 AC_PATH_PROG([SPECL], [specl], [:])
 

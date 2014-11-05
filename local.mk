@@ -311,7 +311,6 @@ EXTRA_DIST +=				\
 	examples/tree.lua		\
 	ext/include/_helpers.c		\
 	ext/include/strlcpy.c		\
-	ext/include/lua52compat.h	\
 	$(NOTHING_ELSE)
 
 MAINTAINERCLEANFILES +=			\

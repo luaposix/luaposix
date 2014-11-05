@@ -212,17 +212,17 @@ Ptcsetattr(lua_State *L)
 	luaL_checktype(L, 3, LUA_TTABLE);
 	checknargs(L, 3);
 
-	lua_getfield(L, 3, "iflag"); t.c_iflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
-	lua_getfield(L, 3, "oflag"); t.c_oflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
-	lua_getfield(L, 3, "cflag"); t.c_cflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
-	lua_getfield(L, 3, "lflag"); t.c_lflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
+	lua_getfield(L, 3, "iflag"); t.c_iflag = optint(L, -1, 0); lua_pop(L, 1);
+	lua_getfield(L, 3, "oflag"); t.c_oflag = optint(L, -1, 0); lua_pop(L, 1);
+	lua_getfield(L, 3, "cflag"); t.c_cflag = optint(L, -1, 0); lua_pop(L, 1);
+	lua_getfield(L, 3, "lflag"); t.c_lflag = optint(L, -1, 0); lua_pop(L, 1);
 
 	lua_getfield(L, 3, "cc");
 	for (i=0; i<NCCS; i++)
 	{
 		lua_pushnumber(L, i);
 		lua_gettable(L, -2);
-		t.c_cc[i] = luaL_optint(L, -1, 0);
+		t.c_cc[i] = optint(L, -1, 0);
 		lua_pop(L, 1);
 	}
 
