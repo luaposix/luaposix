@@ -22,9 +22,9 @@
 
 #include <config.h>
 
-#include <unistd.h>	/* for _POSIX_VERSION */
+#include "_helpers.c"		/* For LPOSIX_2001_COMPLIANT */
 
-#if _POSIX_VERSION >= 200112L
+#if LPOSIX_2001_COMPLIANT
 #include <arpa/inet.h>
 #if HAVE_LINUX_NETLINK_H
 #include <linux/netlink.h>
@@ -39,15 +39,10 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/types.h>
-#endif
-
-
-#if _POSIX_VERSION >= 200112L
 
 /* strlcpy() implementation for non-BSD based Unices.
    strlcpy() is a safer less error-prone replacement for strncpy(). */
 #include "strlcpy.c"
-#include "_helpers.c"
 
 
 /***
@@ -728,7 +723,7 @@ Psetsockopt(lua_State *L)
 
 static const luaL_Reg posix_sys_socket_fns[] =
 {
-#if _POSIX_VERSION >= 200112L
+#if LPOSIX_2001_COMPLIANT
 	LPOSIX_FUNC( Psocket		),
 	LPOSIX_FUNC( Psocketpair	),
 	LPOSIX_FUNC( Pgetaddrinfo	),
@@ -840,7 +835,7 @@ luaopen_posix_sys_socket(lua_State *L)
 	lua_pushliteral(L, "posix.sys.socket for " LUA_VERSION " / " PACKAGE_STRING);
 	lua_setfield(L, -2, "version");
 
-#if _POSIX_VERSION >= 200112L
+#if LPOSIX_2001_COMPLIANT
 	LPOSIX_CONST( SOMAXCONN		);
 	LPOSIX_CONST( AF_UNSPEC		);
 	LPOSIX_CONST( AF_INET		);

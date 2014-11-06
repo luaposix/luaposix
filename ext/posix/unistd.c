@@ -29,7 +29,6 @@
 
 #include "_helpers.c"
 
-
 static uid_t
 mygetuid(lua_State *L, int i)
 {
@@ -327,7 +326,7 @@ Pexecp(lua_State *L)
 }
 
 
-#if _POSIX_VERSION >= 200112L
+#if LPOSIX_2001_COMPLIANT
 
 #if !HAVE_DECL_FDATASYNC
 extern int fdatasync ();
@@ -484,7 +483,7 @@ Pgetgid(lua_State *L)
 }
 
 
-#if _POSIX_VERSION >= 200112L
+#if LPOSIX_2001_COMPLIANT
 /***
 Get list of supplementary group ids.
 @function getgroups
@@ -1025,13 +1024,13 @@ static const luaL_Reg posix_unistd_fns[] =
 	LPOSIX_FUNC( Pdup2		),
 	LPOSIX_FUNC( Pexec		),
 	LPOSIX_FUNC( Pexecp		),
-#if _POSIX_VERSION >= 200112L
+#if LPOSIX_2001_COMPLIANT
 	LPOSIX_FUNC( Pfdatasync		),
 #endif
 	LPOSIX_FUNC( Pfork		),
 	LPOSIX_FUNC( Pfsync		),
 	LPOSIX_FUNC( Pgetcwd		),
-#if _POSIX_VERSION >= 200112L
+#if LPOSIX_2001_COMPLIANT
 	LPOSIX_FUNC( Pgetgroups		),
 #endif
 	LPOSIX_FUNC( Pgetegid		),

@@ -70,11 +70,6 @@ if test "$gl_gcc_warnings" = yes; then
   gl_WARN_ADD([-fmudflap])
 fi
 
-dnl Compiler flags for POSIX.2001 or better compliance.
-if test Darwin != `uname`; then
-  AC_SUBST([POSIX_EXTRA_CPPFLAGS], [-D_XOPEN_SOURCE=700])
-fi
-
 dnl required by automake 1.12.x, not available in 1.10.x
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 
@@ -88,6 +83,16 @@ AC_SUBST([shrext])
 AC_SUBST(LIBTOOL_DEPS)
 
 gl_INIT
+
+dnl Compiler flags for POSIX.2001 or better compliance.
+case $host_os in
+  darwin*|openbsd*)
+    # Setting _XOPEN_SOURCE here messes up header declarations
+    ;;
+  *)
+    AC_SUBST([POSIX_EXTRA_CPPFLAGS], [-D_XOPEN_SOURCE=700])
+    ;;
+esac
 
 dnl Check for header files
 AC_HEADER_STDC

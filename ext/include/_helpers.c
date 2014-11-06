@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>		/* for _POSIX_VERSION */
 
 #if HAVE_CURSES
 # if HAVE_NCURSESW_CURSES_H
@@ -35,6 +36,11 @@
 #    include <curses.h>
 # endif
 #include <term.h>
+#endif
+
+/* Some systems set _POSIX_C_SOURCE over _POSIX_VERSION! */
+#if _POSIX_C_SOURCE >= 200112L || _POSIX_VERSION >= 200112L
+#  define LPOSIX_2001_COMPLIANT 1
 #endif
 
 #include "lua.h"
