@@ -70,10 +70,9 @@ if test "$gl_gcc_warnings" = yes; then
   gl_WARN_ADD([-fmudflap])
 fi
 
-dnl Compiler flags for POSIX
-dnl Get this from autotools/gnulib
+dnl Compiler flags for POSIX.2001 or better compliance.
 if test Darwin != `uname`; then
-  AC_SUBST([POSIX_EXTRA_CFLAGS], [-D_XOPEN_SOURCE=700])
+  AC_SUBST([POSIX_EXTRA_CPPFLAGS], [-D_XOPEN_SOURCE=700])
 fi
 
 dnl required by automake 1.12.x, not available in 1.10.x

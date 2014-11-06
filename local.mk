@@ -22,7 +22,7 @@ LUA_ENV   = LUA_PATH="$(std_path)" LUA_CPATH="$(std_cpath)"
 ## Bootstrap. ##
 ## ---------- ##
 
-AM_CPPFLAGS  += -I $(srcdir)/ext/include -I $(srcdir)/ext/posix
+AM_CPPFLAGS  += -I $(srcdir)/ext/include -I $(srcdir)/ext/posix $(POSIX_EXTRA_CPPFLAGS)
 AM_CFLAGS     = $(WERROR_CFLAGS) $(WARN_CFLAGS)
 AM_LDFLAGS    = -module -avoid-version
 
@@ -111,7 +111,6 @@ EXTRA_ext_posix_posix_la_SOURCES =	\
 	ext/posix/utime.c		\
 	$(NOTHING_ELSE)
 
-ext_posix_posix_la_CFLAGS  = $(AM_CFLAGS) $(POSIX_EXTRA_CFLAGS)
 ext_posix_posix_la_LDFLAGS = $(AM_LDFLAGS) $(LIBCRYPT) $(LIBRT) $(CURSES_LIB)
 
 luaexecposixdir = $(luaexecdir)/posix
