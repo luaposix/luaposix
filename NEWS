@@ -10,6 +10,11 @@ Stdlib NEWS - User visible changes
 
  - Preliminary Lua 5.3.0-beta compatibility.
 
+** Bug fixes:
+
+ - No more 'Bad Hints' errors from `posix.sys.socket.getaddrinfo` on many
+   hosts.
+
 
 * Noteworthy changes in release 33.0.0 (2014-11-04) [stable]
 

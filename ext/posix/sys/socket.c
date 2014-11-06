@@ -278,6 +278,8 @@ Pgetaddrinfo(lua_State *L)
 	const char *host = optstring(L, 1, NULL);
 	const char *service = NULL;
 	struct addrinfo *res, hints;
+
+	memset(&hints, 0, sizeof hints);
 	hints.ai_family = PF_UNSPEC;
 
 	checknargs(L, 3);
