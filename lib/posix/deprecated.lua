@@ -927,7 +927,8 @@ local _stat = st.lstat  -- for bugwards compatibility with v<=32
 
 local function stat (path, ...)
   local info = _stat (path)
-  return doselection ("stat", 1, {...}, {
+  if info ~= nil then
+    return doselection ("stat", 1, {...}, {
       dev   = info.st_dev,
       ino   = info.st_ino,
       mode  = pushmode (info.st_mode),
@@ -939,7 +940,8 @@ local function stat (path, ...)
       mtime = info.st_mtime,
       ctime = info.st_ctime,
       type  = filetype (info.st_mode),
-  })
+    })
+  end
 end
 
 if _DEBUG ~= false then
@@ -971,7 +973,8 @@ local _statvfs = sv.statvfs
 
 local function statvfs (path, ...)
   local info = _statvfs (path)
-  return doselection ("statvfs", 1, {...}, {
+  if info ~= nil then
+    return doselection ("statvfs", 1, {...}, {
       bsize   = info.f_bsize,
       frsize  = info.f_frsize,
       blocks  = info.f_blocks,
@@ -983,7 +986,8 @@ local function statvfs (path, ...)
       fsid    = info.f_fsid,
       flag    = info.f_flag,
       namemax = info.f_namemax,
-  })
+    })
+  end
 end
 
 if _DEBUG ~= false then
