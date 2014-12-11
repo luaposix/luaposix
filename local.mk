@@ -111,7 +111,7 @@ EXTRA_ext_posix_posix_la_SOURCES =	\
 	ext/posix/utime.c		\
 	$(NOTHING_ELSE)
 
-ext_posix_posix_la_LDFLAGS = $(AM_LDFLAGS) $(LIBCRYPT) $(LIBRT) $(CURSES_LIB)
+ext_posix_posix_la_LDFLAGS = $(AM_LDFLAGS) $(LIBCRYPT) $(LIBSOCKET) $(LIBRT) $(CURSES_LIB)
 
 luaexecposixdir = $(luaexecdir)/posix
 luaexecposixsysdir = $(luaexecposixdir)/sys

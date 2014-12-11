@@ -81,10 +81,10 @@
 
 
 #include <config.h>
+#include "_helpers.c"
 
 #if HAVE_CURSES
 
-#include "_helpers.c"
 #include "strlcpy.c"
 
 #include "curses/chstr.c"
@@ -1205,9 +1205,11 @@ Ptigetstr (lua_State *L)
 	return 1;
 }
 
+#endif
 
 static const luaL_Reg curseslib[] =
 {
+#if HAVE_CURSES
 	LPOSIX_FUNC( Pbaudrate		),
 	LPOSIX_FUNC( Pbeep		),
 	LPOSIX_FUNC( Pcbreak		),
@@ -1263,9 +1265,9 @@ static const luaL_Reg curseslib[] =
 	LPOSIX_FUNC( Punctrl		),
 	LPOSIX_FUNC( Pungetch		),
 	LPOSIX_FUNC( Puse_default_colors),
+#endif
 	{NULL, NULL}
 };
-#endif
 
 /***
 Constants.

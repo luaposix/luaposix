@@ -86,11 +86,12 @@ gl_INIT
 
 dnl Compiler flags for POSIX.2001 or better compliance.
 case $host_os in
-  darwin*|openbsd*)
+  *nto* | *qnx* | darwin* | openbsd* )
     # Setting _XOPEN_SOURCE here messes up header declarations
     ;;
   *)
     AC_SUBST([POSIX_EXTRA_CPPFLAGS], [-D_XOPEN_SOURCE=700])
+    AC_DEFINE([HAVE_SYSV_MSG_QUEUES], [], [Define this if your system has the SysV message queue interface])
     ;;
 esac
 
@@ -118,6 +119,13 @@ AC_CHECK_LIB([rt], [clock_gettime])
 AC_SUBST([LIBRT], [$LIBS])
 LIBS=$save_LIBS
 
+dnl Socket (required for qnx)
+save_LIBS=$LIBS
+LIBS=
+AC_SEARCH_LIBS([socket], [socket], [])
+AC_SUBST([LIBSOCKET], [$LIBS])
+LIBS=$save_LIBS
+
 dnl Curses
 AX_WITH_CURSES
 AC_ARG_VAR(CURSES_LIB, [linker flags for curses library])
@@ -128,7 +136,7 @@ AC_CHECK_FUNCS([resizeterm])
 LIBS=$save_LIBS
 
 dnl Check for functions
-AC_CHECK_FUNCS([strlcpy statvfs posix_fadvise sched_getsheduler sched_setscheduler])
+AC_CHECK_FUNCS([strlcpy statvfs posix_fadvise sched_getsheduler sched_setscheduler mkdtemp mkstemp gethostid])
 
 AX_PROG_LUA(5.1, 5.4)
 AX_LUA_HEADERS

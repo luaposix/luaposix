@@ -593,6 +593,7 @@ Pgetuid(lua_State *L)
 	return pushintresult(getuid ());
 }
 
+#if HAVE_GETHOSTID
 
 /***
 Get host id.
@@ -607,6 +608,7 @@ Pgethostid(lua_State *L)
 	return pushintresult(gethostid());
 }
 
+#endif
 
 /***
 Test whether a file descriptor refers to a terminal.
@@ -1041,7 +1043,9 @@ static const luaL_Reg posix_unistd_fns[] =
 	LPOSIX_FUNC( Pgetpid		),
 	LPOSIX_FUNC( Pgetppid		),
 	LPOSIX_FUNC( Pgetuid		),
+#if HAVE_GETHOSTID
 	LPOSIX_FUNC( Pgethostid		),
+#endif
 	LPOSIX_FUNC( Pisatty		),
 	LPOSIX_FUNC( Plink		),
 	LPOSIX_FUNC( Plseek		),

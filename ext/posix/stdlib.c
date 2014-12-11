@@ -100,6 +100,7 @@ Pgrantpt(lua_State *L)
 	return pushresult(L, grantpt(fd), "grantpt");
 }
 
+#if HAVE_MKDTEMP
 
 /***
 Create a unique temporary directory.
@@ -133,6 +134,8 @@ Pmkdtemp(lua_State *L)
 	return (r == NULL) ? pusherror(L, path) : 1;
 }
 
+#endif
+#if HAVE_MKSTEMP
 
 /***
 Create a unique temporary file.
@@ -173,6 +176,7 @@ Pmkstemp(lua_State *L)
 	return (r == -1) ? pusherror(L, path) : 2;
 }
 
+#endif
 
 /***
 Open a pseudoterminal.
@@ -304,8 +308,12 @@ static const luaL_Reg posix_stdlib_fns[] =
 	LPOSIX_FUNC( Pabort		),
 	LPOSIX_FUNC( Pgetenv		),
 	LPOSIX_FUNC( Pgrantpt		),
+#if HAVE_MKDTEMP
 	LPOSIX_FUNC( Pmkdtemp		),
+#endif
+#if HAVE_MKSTEMP
 	LPOSIX_FUNC( Pmkstemp		),
+#endif
 	LPOSIX_FUNC( Popenpt		),
 	LPOSIX_FUNC( Pptsname		),
 	LPOSIX_FUNC( Prealpath		),
