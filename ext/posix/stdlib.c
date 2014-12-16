@@ -263,7 +263,7 @@ Psetenv(lua_State *L)
 {
 	const char *name=luaL_checkstring(L, 1);
 	const char *value=optstring(L, 2, NULL);
-	checknargs(L, 2);
+	checknargs(L, 3);
 	if (value==NULL)
 	{
 		unsetenv(name);
