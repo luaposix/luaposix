@@ -117,7 +117,6 @@ luaexecposixdir = $(luaexecdir)/posix
 luaexecposixsysdir = $(luaexecposixdir)/sys
 
 # EXTRA_LTLIBRARIES don't have an RPATH by default.
-luaexec_LDFLAGS = $(AM_LDFLAGS) -rpath '$(luaexecdir)'
 luaexecposix_LDFLAGS = $(AM_LDFLAGS) -rpath '$(luaexecposixdir)'
 luaexecposixsys_LDFLAGS = $(AM_LDFLAGS) -rpath '$(luaexecposixsysdir)'
 
