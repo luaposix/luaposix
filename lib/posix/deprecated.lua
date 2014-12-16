@@ -251,7 +251,7 @@ if _DEBUG ~= false then
   M.exec = function (...)
     local argt = {...}
     checkstring ("exec", 1, argt[1])
-    if type (argt[2]) ~= "table" and type (argt[2]) ~= "string" then
+    if type (argt[2]) ~= "table" and type (argt[2]) ~= "string" and type (argt[2]) ~= "nil" then
       argtypeerror ("exec", 2, "string, table or nil", argt[2])
     end
     if #argt > 2 then
@@ -294,7 +294,7 @@ if _DEBUG ~= false then
   M.execp = function (...)
     local argt = {...}
     checkstring ("execp", 1, argt[1])
-    if type (argt[2]) ~= "table" and type (argt[2]) ~= "string" then
+    if type (argt[2]) ~= "table" and type (argt[2]) ~= "string" and type (argt[2]) ~= "nil" then
       argtypeerror ("execp", 2, "string, table or nil", argt[2])
     end
     if #argt > 2 then
