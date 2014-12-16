@@ -34,8 +34,8 @@ mygetuid(lua_State *L, int i)
 {
 	if (lua_isnoneornil(L, i))
 		return (uid_t)-1;
-	else if (lua_isnumber(L, i))
-		return (uid_t) lua_tonumber(L, i);
+	else if (lua_isinteger(L, i))
+		return (uid_t) lua_tointeger(L, i);
 	else if (lua_isstring(L, i))
 	{
 		struct passwd *p = getpwnam(lua_tostring(L, i));
@@ -50,8 +50,8 @@ mygetgid(lua_State *L, int i)
 {
 	if (lua_isnoneornil(L, i))
 		return (gid_t)-1;
-	else if (lua_isnumber(L, i))
-		return (gid_t) lua_tonumber(L, i);
+	else if (lua_isinteger(L, i))
+		return (gid_t) lua_tointeger(L, i);
 	else if (lua_isstring(L, i))
 	{
 		struct group *g = getgrnam(lua_tostring(L, i));

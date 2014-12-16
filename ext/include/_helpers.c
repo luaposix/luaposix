@@ -47,6 +47,10 @@
 #include "lualib.h"
 #include "lauxlib.h"
 
+#if LUA_VERSION_NUM < 503
+#  define lua_isinteger lua_isnumber
+#endif
+
 #if LUA_VERSION_NUM == 502 || LUA_VERSION_NUM == 503
 #  define lua_objlen lua_rawlen
 #  define lua_strlen lua_rawlen
@@ -133,7 +137,7 @@ static lua_Integer
 checkinteger(lua_State *L, int narg, const char *expected)
 {
 	lua_Integer d = lua_tointeger(L, narg);
-	if (d == 0 && !lua_isnumber(L, narg))
+	if (d == 0 && !lua_isinteger(L, narg))
 		argtypeerror(L, narg, expected);
 	return d;
 }
@@ -155,9 +159,9 @@ checklong(lua_State *L, int narg)
 static chtype
 checkch(lua_State *L, int narg)
 {
-	if (lua_type(L, narg) == LUA_TNUMBER)
-		return luaL_checknumber(L, narg);
-	if (lua_type(L, narg) == LUA_TSTRING)
+	if (lua_isnumber(L, narg))
+		return (chtype)checkint(L, narg);
+	if (lua_isstring(L, narg))
 		return *lua_tostring(L, narg);
 
 	return argtypeerror(L, narg, "int or char");
@@ -273,7 +277,7 @@ checkintfield(lua_State *L, int index, const char *k)
 {
 	int r;
 	checkfieldtype(L, index, k, LUA_TNUMBER, "int");
-	r = lua_tonumber(L, -1);
+	r = lua_tointeger(L, -1);
 	lua_pop(L, 1);
 	return r;
 }
@@ -352,8 +356,8 @@ badoption(lua_State *L, int i, const char *what, int option)
  * ================== */
 
 
-#define pushnumberfield(k,v) LPOSIX_STMT_BEG {				\
-	lua_pushnumber(L, (lua_Integer) v); lua_setfield(L, -2, k);	\
+#define pushintegerfield(k,v) LPOSIX_STMT_BEG {				\
+	lua_pushinteger(L, (lua_Integer) v); lua_setfield(L, -2, k);	\
 } LPOSIX_STMT_END
 
 #define pushstringfield(k,v) LPOSIX_STMT_BEG {				\
@@ -376,7 +380,7 @@ badoption(lua_State *L, int i, const char *what, int option)
 	lua_setmetatable(L, -2);					\
 } LPOSIX_STMT_END
 
-#define setnumberfield(_p, _n) pushnumberfield(LPOSIX_STR(_n), _p->_n)
+#define setintegerfield(_p, _n) pushintegerfield(LPOSIX_STR(_n), _p->_n)
 #define setstringfield(_p, _n) pushstringfield(LPOSIX_STR(_n), _p->_n)
 
 #endif /*LUAPOSIX__HELPERS_C*/

@@ -21,7 +21,7 @@
 
 #include "_helpers.c"
 
-#define pushtimefield(k,x) pushnumberfield((k), ((lua_Number)x)/clk_tck)
+#define pushtimefield(k,x) pushintegerfield((k), ((lua_Integer)x)/clk_tck)
 
 /***
 Process times record.

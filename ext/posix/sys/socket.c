@@ -72,20 +72,20 @@ pushsockaddrinfo(lua_State *L, int family, struct sockaddr *sa)
 	struct sockaddr_in6 *sa6;
 
 	lua_newtable(L);
-	pushnumberfield("family", family);
+	pushintegerfield("family", family);
 
 	switch (family)
 	{
 		case AF_INET:
 			sa4 = (struct sockaddr_in *)sa;
 			inet_ntop(family, &sa4->sin_addr, addr, sizeof addr);
-			pushnumberfield("port", ntohs(sa4->sin_port));
+			pushintegerfield("port", ntohs(sa4->sin_port));
 			pushstringfield("addr", addr);
 			break;
 		case AF_INET6:
 			sa6 = (struct sockaddr_in6 *)sa;
 			inet_ntop(family, &sa6->sin6_addr, addr, sizeof addr);
-			pushnumberfield("port", ntohs(sa6->sin6_port));
+			pushintegerfield("port", ntohs(sa6->sin6_port));
 			pushstringfield("addr", addr);
 			break;
 		case AF_UNIX:
@@ -93,8 +93,8 @@ pushsockaddrinfo(lua_State *L, int family, struct sockaddr *sa)
 			break;
 #if HAVE_LINUX_NETLINK_H
 		case AF_NETLINK:
-			pushnumberfield("pid", ((struct sockaddr_nl *) sa)->nl_pid);
-			pushnumberfield("groups", ((struct sockaddr_nl *) sa)->nl_groups);
+			pushintegerfield("pid", ((struct sockaddr_nl *) sa)->nl_pid);
+			pushintegerfield("groups", ((struct sockaddr_nl *) sa)->nl_groups);
 			break;
 #endif
 	}
@@ -334,11 +334,11 @@ Pgetaddrinfo(lua_State *L)
 		lua_newtable(L);
 		for (p = res; p != NULL; p = p->ai_next)
 		{
-			lua_pushnumber(L, n++);
+			lua_pushinteger(L, n++);
 			pushsockaddrinfo(L, p->ai_family, p->ai_addr);
-			pushnumberfield("socktype",  p->ai_socktype);
+			pushintegerfield("socktype",  p->ai_socktype);
 			pushstringfield("canonname", p->ai_canonname);
-			pushnumberfield("protocol",  p->ai_protocol);
+			pushintegerfield("protocol",  p->ai_protocol);
 			lua_settable(L, -3);
 		}
 	}
@@ -449,7 +449,7 @@ Paccept(lua_State *L)
 	if (fd_client == -1)
 		return pusherror(L, "accept");
 
-	lua_pushnumber(L, fd_client);
+	lua_pushinteger(L, fd_client);
 	return 1 + pushsockaddrinfo(L, sa.ss_family, (struct sockaddr *)&sa);
 }
 

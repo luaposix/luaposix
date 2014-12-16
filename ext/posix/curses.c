@@ -1048,7 +1048,7 @@ Return a printable representation of a character, ignoring attributes.
 static int
 Punctrl(lua_State *L)
 {
-	chtype c = luaL_checknumber(L, 1);
+	chtype c = checkch(L, 1);
 	return pushstringresult(unctrl(c));
 }
 

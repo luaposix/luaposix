@@ -103,7 +103,7 @@ poll_fd_list_check_table(lua_State *L, int table)
 	while (lua_next(L, 1) != 0)
 	{
 		/* Verify the fd key */
-		luaL_argcheck(L, lua_isnumber(L, -2), table,
+		luaL_argcheck(L, lua_isinteger(L, -2), table,
 					  "contains non-integer key(s)");
 
 		/* Verify the table value */
