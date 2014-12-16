@@ -6,7 +6,8 @@ env:
     - PACKAGE=luaposix
     - ROCKSPEC=$PACKAGE-git-1.rockspec
     - LUAROCKS_CONFIG=build-aux/luarocks-config.lua
-    - LUAROCKS_BASE=luarocks-2.2.0
+    - LUAROCKS_RELEASE=2.2.0
+    - LUAROCKS_BASE=luarocks-$LUAROCKS_RELEASE
     - LUAROCKS="$LUA $HOME/bin/luarocks"
   matrix:
     - LUA=lua5.1             LUA_INCDIR=/usr/include/lua5.1     LUA_SUFFIX=5.1
@@ -28,8 +29,8 @@ install:
   - sudo apt-get install liblua5.2-dev
 
   # Install a recent luarocks release locally for everything else.
-  - wget http://luarocks.org/releases/$LUAROCKS_BASE.tar.gz
-  - tar zxvpf $LUAROCKS_BASE.tar.gz
+  - wget https://github.com/keplerproject/luarocks/archive/v$LUAROCKS_RELEASE.tar.gz
+  - tar zxvpf v$LUAROCKS_RELEASE.tar.gz
   # LuaRocks configure --with-lua argument is just a prefix!
   - ( cd $LUAROCKS_BASE;
       ./configure
@@ -71,7 +72,10 @@ script:
     make check V=1
 
   # Run sanity checks on CI server, ignoring buggy automakes.
-  - echo 'local-checks-to-skip = sc_vulnerable_makefile_CVE-2012-3386' >> build-aux/sanity-cfg.mk
+  - '{ _assign="=";
+       grep local-checks-to-skip build-aux/sanity-cfg.mk >/dev/null && _assign="+=";
+       printf "local-checks-to-skip %s sc_vulnerable_makefile_CVE-2012-3386\n" "$_assign";
+     } >> build-aux/sanity-cfg.mk'
   - 'make syntax-check || :'
 
 notifications:

@@ -842,7 +842,7 @@ slingshot_require_slingshot_submodule ()
         trap - 1 2 13 15
 
         # Make sure we've checked out the correct revision of slingshot.
-        func_show_eval "$GIT submodule init" \
+        func_show_eval "$GIT submodule init -- $slingshot_path" \
           && func_show_eval "$GIT submodule update -- $slingshot_path" \
           || func_fatal_error "Unable to update slingshot submodule."
       fi
@@ -2424,7 +2424,7 @@ test -z "$progpath" && . `echo "$0" |${SED-sed} 's|[^/]*$||'`/funclib.sh
 test extract-trace = "$progname" && . `echo "$0" |${SED-sed} 's|[^/]*$||'`/options-parser
 
 # Set a version string.
-scriptversion=2014-01-04.01; # UTC
+scriptversion=2014-12-03.16; # UTC
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -2569,47 +2569,6 @@ func_autoconf_configure ()
 }
 
 
-# func_find_tool ENVVAR NAMES...
-# ------------------------------
-# Search for a required program.  Use the value of ENVVAR, if set,
-# otherwise find the first of the NAMES that can be run (i.e.,
-# supports --version).  If found, set ENVVAR to the program name,
-# die otherwise.
-func_find_tool ()
-{
-    $debug_cmd
-
-    _G_find_tool_envvar=$1
-    shift
-    _G_find_tool_names=$@
-    eval "_G_find_tool_res=\$$_G_find_tool_envvar"
-    if test -n "$_G_find_tool_res"; then
-      _G_find_tool_error_prefix="\$$find_tool_envvar: "
-    else
-      for _G_prog
-      do
-        if func_tool_version_output $_G_prog >/dev/null; then
-          _G_find_tool_res=$_G_prog
-          break
-        fi
-      done
-    fi
-    if test -n "$_G_find_tool_res"; then
-      func_tool_version_output >/dev/null $_G_find_tool_res "\
-${_G_find_tool_error_prefix}Cannot run '$_G_find_tool_res --version'"
-
-      # Make sure the result is exported to the environment for children
-      # to use.
-      eval "$_G_find_tool_envvar=\$_G_find_tool_res"
-      eval "export $_G_find_tool_envvar"
-    else
-      func_error "\
-One of these is required:
-       $_G_find_tool_names"
-    fi
-}
-
-
 # func_tool_version_output CMD [FATAL-ERROR-MSG]
 # ----------------------------------------------
 # Attempt to run 'CMD --version', discarding errors.  The output can be
@@ -2642,6 +2601,104 @@ func_tool_version_output ()
 
     (exit $_G_status)
 }
+
+
+# func_tool_version_number CMD [FATAL-ERROR-MSG]
+# ----------------------------------------------
+# Pass arguments to func_tool_version_output, but set
+# $func_tool_version_number_result to the last dot delimited digit string
+# on the first line of output.
+func_tool_version_number ()
+{
+    $debug_cmd
+
+    _G_verout=`func_tool_version_output "$@" |sed 1q`
+    _G_status=$?
+
+    # A version number starts with a digit following a space on the first
+    # line of output from `--version`.
+    if test -n "$_G_verout"; then
+      _G_vernum=`expr "$_G_verout" : '.* \([0-9][^ ]*\)'`
+    fi
+
+    if test -n "$_G_vernum"; then
+      printf '%s\n' "$_G_vernum"
+    else
+      printf '%s\n' "$_G_verout"
+    fi
+
+    (exit $_G_status)
+}
+
+
+# func_find_tool ENVVAR NAMES...
+# ------------------------------
+# Search for a required program.  Use the value of ENVVAR, if set,
+# otherwise find the first of the NAMES that can be run (i.e.,
+# supports --version).  If found, set ENVVAR to the program name,
+# die otherwise.
+func_find_tool ()
+{
+    $debug_cmd
+
+    _G_find_tool_envvar=$1
+    shift
+    _G_find_tool_names=$@
+    eval "_G_find_tool_res=\$$_G_find_tool_envvar"
+    if test -n "$_G_find_tool_res"; then
+      _G_find_tool_error_prefix="\$$find_tool_envvar: "
+    else
+      _G_find_tool_res=
+      _G_bestver=
+      for _G_prog
+      do
+        _G_find_tool_save_IFS=$IFS
+	IFS=:
+	for _G_dir in $PATH; do
+	  IFS=$_G_find_tool_save_IFS
+	  _G_progpath=$_G_dir/$_G_prog
+          test -r "$_G_progpath" && {
+            _G_curver=`func_tool_version_number $_G_progpath`
+	    case $_G_bestver,$_G_curver in
+	    ,)
+	      # first non--version responsive prog sticks!
+              test -n "$_G_progpath" || _G_find_tool_res=$_G_progpath
+              ;;
+            ,*)
+	      # first --version responsive prog beats non--version responsive!
+	      _G_find_tool_res=$_G_progpath
+	      _G_bestver=$_G_curver
+	      ;;
+	    *,*)
+	      # another --version responsive prog must be newer to beat previous one!
+	      test "x$_G_curver" = "x$_G_bestver" \
+		|| func_lt_ver "$_G_curver" "$_G_bestver" \
+		|| {
+		     _G_find_tool_res=$_G_progpath
+		     _G_bestver=$_G_curver
+	           }
+	      ;;
+	    esac
+          }
+	done
+	IFS=$_G_find_tool_save_IFS
+      done
+    fi
+    if test -n "$_G_find_tool_res"; then
+      func_tool_version_number >/dev/null $_G_find_tool_res "\
+${_G_find_tool_error_prefix}Cannot run '$_G_find_tool_res --version'"
+
+      # Make sure the result is exported to the environment for children
+      # to use.
+      eval "$_G_find_tool_envvar=\$_G_find_tool_res"
+      eval "export $_G_find_tool_envvar"
+    else
+      func_error "\
+One of these is required:
+       $_G_find_tool_names"
+    fi
+}
+
 
 
 ## -------------------- ##
@@ -2908,7 +2965,7 @@ test extract-trace = "$progname" && func_main "$@"
 # End:
 
 # Set a version string for *this* script.
-scriptversion=2014-01-04.01; # UTC
+scriptversion=2014-11-04.13; # UTC
 
 
 ## ------------------- ##
@@ -4054,7 +4111,7 @@ func_require_buildreq_patch ()
       # The ugly find invocation is necessary to exit with non-zero
       # status for old find binaries that don't support -exec fully.
       if test ! -d "$local_gl_dir" \
-          || find "$local_gl_dir" -name *.diff -exec false {} \; ; then :
+          || find "$local_gl_dir" -name "*.diff" -exec false {} \; ; then :
       else
           func_append buildreq 'patch - http://www.gnu.org/s/patch
 '
@@ -4206,7 +4263,7 @@ func_require_git ()
     $opt_skip_git && GIT=true
 
     test true = "$GIT" || {
-      if test -f .git; then
+      if test -d .git/.; then
         ($GIT --version) >/dev/null 2>&1 || GIT=true
       fi
     }
@@ -4424,7 +4481,7 @@ func_require_gnulib_submodule ()
       fi
 
       # Make sure we've checked out the correct revision of gnulib.
-      func_show_eval "$GIT submodule init" \
+      func_show_eval "$GIT submodule init -- $gnulib_path" \
           && func_show_eval "$GIT submodule update -- $gnulib_path" \
           ||  func_fatal_error "Unable to update gnulib submodule."
     fi
@@ -4528,6 +4585,9 @@ func_require_libtoolize ()
       # Apple with Mac OS X when Mac Ports is not installed.
       func_find_tool LIBTOOLIZE libtoolize glibtoolize
     }
+
+    test -n "$LIBTOOLIZE" || func_fatal_error "\
+Please install GNU Libtool, or 'export LIBTOOLIZE=/path/to/libtoolize'."
 
     func_verbose "export LIBTOOLIZE='$LIBTOOLIZE'"
 
@@ -4765,6 +4825,9 @@ func_require_patch ()
       # than the vendor patch.
       func_find_tool PATCH gpatch patch
     }
+
+    test -n "$PATCH" || func_fatal_error "\
+Please install GNU Patch, or 'export PATCH=/path/to/gnu/patch'."
 
     func_verbose "export PATCH='$PATCH'"
 
@@ -5257,7 +5320,7 @@ func_check_tool ()
       ;;
     *)
       save_IFS=$IFS
-      IFS=:
+      IFS=${PATH_SEPARATOR-:}
       for _G_check_tool_path in $PATH; do
         IFS=$save_IFS
 	if test -x "$_G_check_tool_path/$1"; then
@@ -5402,6 +5465,9 @@ func_update_po_files ()
 
     # Find sha1sum, named gsha1sum on MacPorts, and shasum on MacOS 10.6+.
     func_find_tool SHA1SUM sha1sum gsha1sum shasum sha1
+
+    test -n "$SHA1SUM" || func_fatal_error "\
+Please install GNU Coreutils, or 'export SHA1SUM=/path/to/sha1sum'."
 
     _G_langs=`cd $_G_ref_po_dir && echo *.po|$SED 's|\.po||g'`
     test '*' = "$_G_langs" && _G_langs=x
