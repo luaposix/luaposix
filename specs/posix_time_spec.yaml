@@ -52,7 +52,9 @@ specify posix.time:
         expect (type (t[field])).to_be "number"
         expect (t[field] >= 0).to_be (true)
       end
-  - it returns a month in the range 1-12:
+  - it returns a month in the range 0-11:
+      # A recent December afternoon in epoch seconds...
+      expect (gmtime (1418734089).tm_mon).to_be (11)
       t = gmtime (now)
       expect (t.tm_mon > 0 and t.tm_mon <= 12).to_be (true)
   - it returns years since 1900:
@@ -77,7 +79,9 @@ specify posix.time:
         expect (type (t[field])).to_be "number"
         expect (t[field] >= 0).to_be (true)
       end
-  - it returns a month in the range 1-12:
+  - it returns a month in the range 0-11:
+      # A recent December afternoon in epoch seconds...
+      expect (localtime (1418734089).tm_mon).to_be (11)
       t = localtime (now)
       expect (t.tm_mon > 0 and t.tm_mon <= 12).to_be (true)
   - it returns years since 1900:
