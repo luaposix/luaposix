@@ -108,6 +108,10 @@ install:
 script:
   - make check V=1
 
+  - ls -la ext
+  - ls -la ext/posix
+  - ls -la ext/posix/.libs
+
 
 # Run sanity checks on CI server, ignoring buggy automakes.
 after_success:
