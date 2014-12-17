@@ -103,14 +103,11 @@ install:
 
   # Rerun bootstrap automatically from git rockspec.
   - sudo luarocks make $ROCKSPEC LUA="$LUA"
+  - sudo make clean
 
 
 script:
-  - make check V=1
-
-  - ls -la ext
-  - ls -la ext/posix
-  - ls -la ext/posix/.libs
+  - make all check V=1
 
 
 # Run sanity checks on CI server, ignoring buggy automakes.
