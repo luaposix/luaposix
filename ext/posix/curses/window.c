@@ -1798,10 +1798,12 @@ Wstandout(lua_State *L)
 {
 	return pushokresult(wstandout(checkwin(L, 1)));
 }
+#endif /*!HAVE_CURSES*/
 
 
 static const luaL_Reg posix_curses_window_fns[] =
 {
+#if HAVE_CURSES
 	LPOSIX_FUNC( W__tostring	),
 	LPOSIX_FUNC( Waddch		),
 	LPOSIX_FUNC( Waddchstr		),
@@ -1895,9 +1897,9 @@ static const luaL_Reg posix_curses_window_fns[] =
 	LPOSIX_FUNC( Wwinsstr		),
 	LPOSIX_FUNC( Wwsetscrreg	),
 	{"__gc",     Wclose		}, /* rough safety net */
+#endif
 	{NULL, NULL}
 };
-#endif /*!HAVE_CURSES*/
 
 
 LUALIB_API int
