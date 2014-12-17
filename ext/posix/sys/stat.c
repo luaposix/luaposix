@@ -278,6 +278,7 @@ Set file mode creation mask.
 @int[opt] mode new file creation mask
 @treturn int previous umask
 @see umask(2)
+@see posix.umask
 */
 static int
 Pumask(lua_State *L)

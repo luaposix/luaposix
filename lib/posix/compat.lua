@@ -407,6 +407,7 @@ end
 -- @string[opt] mode file creation mask string
 -- @treturn string previous umask
 -- @see umask(2)
+-- @see posix.sys.stat.umask
 
 local st = require "posix.sys.stat"
 
