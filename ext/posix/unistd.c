@@ -598,13 +598,21 @@ Pgetuid(lua_State *L)
 Get host id.
 @function gethostid
 @see gethostid(3)
-@return host id
+@treturn[1] int host id
+@return[2] nil
+@treturn[2] string error message
 */
 static int
 Pgethostid(lua_State *L)
 {
 	checknargs(L, 0);
+#if HAVE_GETHOSTID
 	return pushintresult(gethostid());
+#else
+	lua_pushnil(L);
+	lua_pushliteral(L, "unsupported by this host");
+	return 2;
+#endif
 }
 
 

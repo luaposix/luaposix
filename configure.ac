@@ -135,7 +135,7 @@ AC_CHECK_FUNCS([resizeterm])
 LIBS=$save_LIBS
 
 dnl Check for functions
-AC_CHECK_FUNCS([strlcpy statvfs posix_fadvise sched_getsheduler sched_setscheduler])
+AC_CHECK_FUNCS([gethostid strlcpy statvfs posix_fadvise sched_getsheduler sched_setscheduler])
 
 AX_PROG_LUA(5.1, 5.4)
 AX_LUA_HEADERS
