@@ -86,7 +86,7 @@ gl_INIT
 
 dnl Compiler flags for POSIX.2001 or better compliance.
 case $host_os in
-  darwin*|openbsd*)
+  darwin*|*nto*|openbsd*|*qnx*)
     # Setting _XOPEN_SOURCE here messes up header declarations
     ;;
   *)
