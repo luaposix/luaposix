@@ -24,7 +24,7 @@
 
 #include "_helpers.c"	/* For LPOSIX_2001_COMPLIANT */
 
-#if LPOSIX_2001_COMPLIANT
+#if HAVE_SYSV_MSG_QUEUES
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <sys/types.h>
@@ -151,7 +151,7 @@ Pmsgrcv(lua_State *L)
 
 static const luaL_Reg posix_sys_msg_fns[] =
 {
-#if LPOSIX_2001_COMPLIANT
+#if HAVE_SYSV_MSG_QUEUES
 	LPOSIX_FUNC( Pmsgget		),
 	LPOSIX_FUNC( Pmsgsnd		),
 	LPOSIX_FUNC( Pmsgrcv		),
@@ -191,7 +191,7 @@ luaopen_posix_sys_msg(lua_State *L)
 	lua_pushliteral(L, "posix.sys.msg for " LUA_VERSION " / " PACKAGE_STRING);
 	lua_setfield(L, -2, "version");
 
-#if LPOSIX_2001_COMPLIANT
+#if HAVE_SYSV_MSG_QUEUES
 	LPOSIX_CONST( IPC_CREAT		);
 	LPOSIX_CONST( IPC_EXCL		);
 	LPOSIX_CONST( IPC_PRIVATE	);

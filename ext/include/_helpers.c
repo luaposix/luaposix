@@ -43,6 +43,11 @@
 #  define LPOSIX_2001_COMPLIANT 1
 #endif
 
+#ifndef __QNX__
+#  define HAS_SYSV_MSG_QUEUES LPOSIX_2001_COMPLIANT
+#endif
+
+
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"

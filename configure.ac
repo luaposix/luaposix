@@ -125,6 +125,13 @@ AC_CHECK_LIB([rt], [clock_gettime])
 AC_SUBST([LIBRT], [$LIBS])
 LIBS=$save_LIBS
 
+dnl Socket (required for qnx)
+save_LIBS=$LIBS
+LIBS=
+AC_SEARCH_LIBS([socket], [socket], [])
+AC_SUBST([LIBSOCKET], [$LIBS])
+LIBS=$save_LIBS
+
 dnl Curses
 AX_WITH_CURSES
 AC_ARG_VAR(CURSES_LIB, [linker flags for curses library])
