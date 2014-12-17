@@ -64,9 +64,21 @@ specify posix:
 
 - describe spawn:
   - before: f = posix.spawn
-  - context with bad arguments:
-      badargs.diagnose (f, "spawn (string|table|function, string*)")
+  # - context with bad arguments:
+  #     pending "WTF argcheck spec generator parser?"
+  #     badargs.diagnose (f, "spawn (string|table|function, string*)")
 
+  - it spawns a command and can detect success:
+      expect (f ("true").to_equal (0))
+  - it can detect failure:
+      expect (f ("false").to_equal (1))
+  - it can pass a table of arguments:
+      expect (f ({"echo", "foo"}).to_equal(0))
+  - it can pass a function:
+      # FIXME: If the function body contains:
+      # io.stdout.write ("hello")
+      # then the specl results are printed twice; "hello" is not printed
+      expect (f (function () end).to_equal(0))
 
 - describe timeradd:
   - before:
