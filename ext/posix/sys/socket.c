@@ -885,7 +885,9 @@ luaopen_posix_sys_socket(lua_State *L)
 
 	LPOSIX_CONST( TCP_NODELAY	);
 
+# ifdef AI_ADDRCONFIG
 	LPOSIX_CONST( AI_ADDRCONFIG	);
+# endif
 # ifdef AI_ALL
 	LPOSIX_CONST( AI_ALL		);
 # endif
