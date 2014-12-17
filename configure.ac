@@ -107,7 +107,7 @@ dnl Search libs
 save_LIBS=$LIBS
 LIBS=
 AC_SEARCH_LIBS([crypt], [crypt],
-  [AC_DEFINE([HAVE_CRYPT], [], [Define this if your system has a crypt() function])])
+  [AC_DEFINE([HAVE_CRYPT], [1], [Define this if your system has a crypt() function])])
 AC_SUBST([LIBCRYPT], [$LIBS])
 LIBS=$save_LIBS
 
@@ -134,9 +134,29 @@ LIBS="$CURSES_LIB $LIBS"
 AC_CHECK_FUNCS([resizeterm])
 LIBS=$save_LIBS
 
-dnl Check for functions
-AC_CHECK_FUNCS([gethostid strlcpy statvfs posix_fadvise sched_getsheduler sched_setscheduler])
+dnl Use system implementation, or bundled replacement?
+AC_CHECK_FUNCS([strlcpy])
 
+## ------------------------------------------------------------------------
+## Don't add more AC_CHECK_FUNCS, unless for a mainstream platform for one
+## of the reasons below (to detect whether to enable an optional set of
+## POSIX APIs; to disable a deprecated or very new and not yet widely
+## supported API).  This is a POSIX binding, and requires a reasonably
+## POSIX host to bind to - we definitely DON'T want to clutter up the code
+## and configury to support partially compliant hosts!
+## ------------------------------------------------------------------------
+
+dnl Thread scheduling priority
+AC_CHECK_FUNCS([sched_getsheduler sched_setscheduler])
+
+dnl Statvfs support
+AC_CHECK_FUNCS([statvfs])
+
+dnl Deprecated or otherwise spottily supported POSIX functions
+AC_CHECK_FUNCS([gethostid posix_fadvise])
+
+
+dnl Lua
 AX_PROG_LUA(5.1, 5.4)
 AX_LUA_HEADERS
 AC_PATH_PROG([SPECL], [specl], [:])
