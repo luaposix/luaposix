@@ -6,7 +6,7 @@ dnl Copyright (c) 2012-2014 Gary V. Vaughan
 dnl This file is part of luaposix.
 dnl See README for license.
 
-AC_INIT([luaposix], [33.0.0], [http://github.com/luaposix/luaposix/issues])
+AC_INIT([luaposix], [33.1.0], [http://github.com/luaposix/luaposix/issues])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 
