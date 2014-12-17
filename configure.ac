@@ -163,7 +163,7 @@ dnl Statvfs support
 AC_CHECK_FUNCS([statvfs])
 
 dnl Deprecated or otherwise spottily supported POSIX functions
-AC_CHECK_FUNCS([gethostid posix_fadvise])
+AC_CHECK_FUNCS([gethostid mkdtemp posix_fadvise])
 
 
 dnl Lua

@@ -19,6 +19,10 @@
 
 #include <fcntl.h>	/* for open(2) */
 #include <stdlib.h>
+#ifndef HAVE_MKDTEMP
+#	include <sys/stat.h>
+#	include <sys/types.h>
+#endif
 
 #include "_helpers.c"
 
@@ -34,7 +38,7 @@ Pabort(lua_State *L)
 	checknargs(L, 0);
 	abort();
 	return 0; /* Avoid a compiler warning (or possibly cause one
-		     if the compiler's too clever, sigh). */
+			 if the compiler's too clever, sigh). */
 }
 
 
@@ -127,8 +131,37 @@ Pmkdtemp(lua_State *L)
 		return pusherror(L, "lalloc");
 	strcpy(tmppath, path);
 
+#if HAVE_MKDTEMP
 	if ((r = mkdtemp(tmppath)))
 		lua_pushstring(L, tmppath);
+#else
+	/* We have to implement our own */
+	const char valid_characters[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+	char *template_marker = tmppath + path_len - 6;
+	if( path_len < 6 || STREQ( template_marker, "XXXXXX" ) )
+	{
+		r = NULL;
+		errno = EINVAL;
+	}
+	else
+	{
+		int i,j;
+		for( i = 0; i < 128; i ++ )
+		{
+			for( j = 0; j < 6; i ++ )
+			{
+				int char_index = rand() % (26 * 2 + 10 - 1 );
+				template_marker[i] = valid_characters[ j ];
+			}
+		}
+
+		if ((0 == mkdir(tmppath, S_IRWXU)))
+			lua_pushstring(L, tmppath);
+		else
+			r = NULL;
+	}
+#endif
+
 	lalloc(ud, tmppath, path_len, 0);
 	return (r == NULL) ? pusherror(L, path) : 1;
 }
