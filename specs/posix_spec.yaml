@@ -18,11 +18,6 @@ specify posix:
       expect (posix.version).not_to_be (nil)
 
 
-- describe abort:
-  - context with bad arguments:
-      badargs.diagnose (posix.abort, "()")
-
-
 - describe euidaccess:
   - before: f = posix.euidaccess
   - context with bad arguments:
@@ -367,11 +362,6 @@ specify posix:
         end
 
 
-  - describe realpath:
-    - context with bad arguments:
-        badargs.diagnose (posix.realpath, "(string)")
-
-
   - describe basename:
     - before:
         basename = posix.basename
@@ -552,53 +542,6 @@ specify posix:
         expect (Emsg (access "xxx")).to_contain "No such file or directory"
 
 
-  - describe mkstemp:
-    - before:
-        mkstemp = posix.mkstemp
-        close, isatty, open, read, stat, write =
-          posix.close, posix.isatty, posix.open, posix.read, posix.stat, posix.write
-        O_RDONLY = posix.O_RDONLY
-        fd, path = mkstemp (template)
-    - after:
-        close (fd)
-        os.remove (path)
-
-    - context with bad arguments:
-        badargs.diagnose (posix.mkstemp, "(string)")
-
-    - it creates a temporary file from a template:
-        expect (fd).not_to_be (nil)
-        write (fd, "12345")
-        expect (isatty (fd)).not_to_be (true)
-        expect (stat (path, "type")).to_be "regular"
-        expect (stat (path, "mode")).to_be "rw-------"
-        expect (stat (path, "size")).to_be (5)
-        fd2 = open (path, O_RDONLY)
-        expect (read (fd2, 5)).to_be "12345"
-        close (fd2)
-    - it creates a new temporary file on each call:
-        fd2, another = mkstemp (template)
-        expect (fd2).not_to_be (fd)
-        expect (another).not_to_be (path)
-        close (fd2)
-        os.remove (another)
-
-
-  - describe mkdtemp:
-    - before:
-        mkdtemp, stat = posix.mkdtemp, posix.stat
-
-    - context with bad arguments:
-        badargs.diagnose (posix.mkdtemp, "(string)")
-
-    - it creates a temporary directory from a template:
-        dir, errmsg = mkdtemp (template)
-        expect (dir).not_to_be (nil)
-        expect (stat (dir, "type")).to_be "directory"
-        expect (stat (dir, "mode")).to_be "rwx------"
-        rmtmp (dir)
-
-
   - describe chown:
     - context with bad arguments:
         badargs.diagnose (posix.chown, "(string, ?string|int, ?string|int)")
@@ -721,43 +664,6 @@ specify posix:
         badargs.diagnose (posix.sleep, "(int)")
 
 
-  - describe setenv:
-    - before:
-        getenv, setenv = posix.getenv, posix.setenv
-
-    - context with bad arguments:
-        badargs.diagnose (posix.setenv, "(string, ?string)")
-
-    - it sets a new value in the process environment:
-        setenv ("MYVAR", "123")
-        expect (getenv "MYVAR").to_be "123"
-        setenv ("MYVAR", nil)
-        expect (getenv "MYVAR").to_be (nil)
-
-
-  - describe getenv:
-    - before:
-        getenv = posix.getenv
-
-    - context with bad arguments:
-        badargs.diagnose (posix.getenv, "(?string)")
-
-    - it fetches a table of process environment variables: |
-        volatile = { _=true, CWD=true, LUA_PATH=true, PWD=true, SHLVL=true, }
-        for k,v in pairs (getenv ()) do
-         if not volatile[k] then
-           expect (hell.spawn ('echo "' .. k .. '=$' .. k .. '"')).
-             to_contain_output (k.."="..v)
-         end
-        end
-    - it fetches a named process environment variable:
-        expect (getenv "USER").to_be (cmd_output ('echo "$USER"'))
-        expect (getenv "HOME").to_be (cmd_output ('echo "$HOME"'))
-        expect (getenv "SHELL").to_be (cmd_output ('echo "$SHELL"'))
-    - it returns nil for an absent environment setting:
-        expect (getenv "very_unlikely_to_be_set").to_be (nil)
-
-
   - describe sched_setscheduler:
     - context with bad arguments:
         if posix.sched_setscheduler then
@@ -774,46 +680,6 @@ specify posix:
 
 
 - specify terminal handling:
-  - describe openpt:
-    - before:
-        grantpt, openpt, ptsname, stat, unlockpt =
-          posix.grantpt, posix.openpt, posix.ptsname, posix.stat, posix.unlockpt
-        open, close = posix.open, posix.close
-        O_RDWR, O_NOCTTY = posix.O_RDWR, posix.O_NOCTTY
-
-    - context with bad arguments:
-        badargs.diagnose (posix.openpt, "(int)")
-
-    - it can create a pseudoterminal:
-        masterfd = openpt (bor (O_RDWR, O_NOCTTY))
-        expect (type (masterfd)).to_be "number"
-        expect (masterfd > 0).to_be (true)
-        expect (Emsg (grantpt (masterfd))).to_be ""
-        expect (Emsg (unlockpt (masterfd))).to_be ""
-        slavename = ptsname (masterfd)
-        expect (stat (slavename, "type")).to_be "character device"
-        slavefd = open (slavename, bor (O_RDWR, O_NOCTTY))
-        expect (type (slavefd)).to_be "number"
-        expect (slavefd > 0).to_be (true)
-        close (slavefd)
-        close (masterfd)
-
-
-  - describe grantpt:
-    - context with bad arguments:
-        badargs.diagnose (posix.grantpt, "(int)")
-
-
-  - describe unlockpt:
-    - context with bad arguments:
-        badargs.diagnose (posix.unlockpt, "(int)")
-
-
-  - describe ptsname:
-    - context with bad arguments:
-        badargs.diagnose (posix.ptsname, "(int)")
-
-
   - describe ttyname:
     - before:
         ttyname = posix.ttyname

@@ -1,0 +1,152 @@
+specify posix.stdlib:
+- before:
+    stdlib = require "posix.stdlib"
+
+
+- describe abort:
+  - context with bad arguments:
+      badargs.diagnose (stdlib.abort, "()")
+
+
+- describe getenv:
+  - before:
+      getenv = stdlib.getenv
+
+  - context with bad arguments:
+      badargs.diagnose (getenv, "(?string)")
+
+  - it fetches a table of process environment variables: |
+      volatile = { _=true, CWD=true, LUA_PATH=true, PWD=true, SHLVL=true, }
+      for k,v in pairs (getenv ()) do
+       if not volatile[k] then
+         expect (hell.spawn ('echo "' .. k .. '=$' .. k .. '"')).
+           to_contain_output (k.."="..v)
+       end
+      end
+  - it fetches a named process environment variable:
+      expect (getenv "USER").to_be (cmd_output ('echo "$USER"'))
+      expect (getenv "HOME").to_be (cmd_output ('echo "$HOME"'))
+      expect (getenv "SHELL").to_be (cmd_output ('echo "$SHELL"'))
+  - it returns nil for an absent environment setting:
+      expect (getenv "very_unlikely_to_be_set").to_be (nil)
+
+
+- describe grantpt:
+  - context with bad arguments:
+      badargs.diagnose (stdlib.grantpt, "(int)")
+
+
+- describe mkdtemp:
+  - before:
+      st = require "posix.sys.stat"
+      mkdtemp = stdlib.mkdtemp
+      stat, IFMT, IFDIR, IRWXU = st.stat, st.S_IFMT, st.S_IFDIR, st.S_IRWXU
+      IRWXA = bor (st.S_IRWXU, st.S_IRWXG, st.S_IRWXO)
+
+  - context with bad arguments:
+      badargs.diagnose (mkdtemp, "(string)")
+
+  - it creates a temporary directory from a template:
+      dir, errmsg = mkdtemp (template)
+      expect (dir).not_to_be (nil)
+      dirstat = stat (dir)
+      expect (band (dirstat.st_mode, IFMT)).to_be (IFDIR)
+      expect (band (dirstat.st_mode, IRWXA)).to_be (IRWXU)
+      rmtmp (dir)
+
+
+- describe mkstemp:
+  - before:
+      fc = require "posix.fcntl"
+      st = require "posix.sys.stat"
+      unistd = require "posix.unistd"
+      O_RDONLY, open = fc.O_RDONLY, fc.open
+      mkstemp = stdlib.mkstemp
+      close, isatty, read, write =
+        unistd.close, unistd.isatty, unistd.read, unistd.write
+      stat, IFMT, IFREG = st.stat, st.S_IFMT, st.S_IFREG
+      IRW_U = bor (st.S_IRUSR, st.S_IWUSR)
+      IRWXA = bor (st.S_IRWXU, st.S_IRWXG, st.S_IRWXO)
+      fd, path = mkstemp (template)
+  - after:
+      close (fd)
+      os.remove (path)
+
+  - context with bad arguments:
+      badargs.diagnose (mkstemp, "(string)")
+
+  - it creates a temporary file from a template:
+      expect (fd).not_to_be (nil)
+      write (fd, "12345")
+      expect (isatty (fd)).not_to_be (true)
+      fstat = stat (path)
+      expect (band (fstat.st_mode, IFMT)).to_be (IFREG)
+      expect (band (fstat.st_mode, IRWXA)).to_be (IRW_U)
+      expect (fstat.st_size).to_be (5)
+      fd2 = open (path, O_RDONLY)
+      expect (read (fd2, 5)).to_be "12345"
+      close (fd2)
+  - it creates a new temporary file on each call:
+      fd2, another = mkstemp (template)
+      expect (fd2).not_to_be (fd)
+      expect (another).not_to_be (path)
+      close (fd2)
+      os.remove (another)
+
+
+- describe openpt:
+  - before:
+      fc = require "posix.fcntl"
+      st = require "posix.sys.stat"
+      close = require "posix.unistd".close
+      grantpt, openpt, ptsname, unlockpt =
+        stdlib.grantpt, stdlib.openpt, stdlib.ptsname, stdlib.unlockpt
+      O_RDWR, O_NOCTTY, open = fc.O_RDWR, fc.O_NOCTTY, fc.open
+      stat, IFMT, IFCHR = st.stat, st.S_IFMT, st.S_IFCHR
+
+  - context with bad arguments:
+      badargs.diagnose (openpt, "(int)")
+
+  - it can create a pseudoterminal:
+      masterfd = openpt (bor (O_RDWR, O_NOCTTY))
+      expect (type (masterfd)).to_be "number"
+      expect (masterfd > 0).to_be (true)
+      expect (Emsg (grantpt (masterfd))).to_be ""
+      expect (Emsg (unlockpt (masterfd))).to_be ""
+      slavename = ptsname (masterfd)
+      slavestat = stat (slavename)
+      expect (band (slavestat.st_mode, IFMT)).to_be (IFCHR)
+      slavefd = open (slavename, bor (O_RDWR, O_NOCTTY))
+      expect (type (slavefd)).to_be "number"
+      expect (slavefd > 0).to_be (true)
+      close (slavefd)
+      close (masterfd)
+
+
+- describe ptsname:
+  - context with bad arguments:
+      badargs.diagnose (stdlib.ptsname, "(int)")
+
+
+- describe realpath:
+  - context with bad arguments:
+      badargs.diagnose (stdlib.realpath, "(string)")
+
+
+- describe setenv:
+  - before:
+      getenv, setenv = stdlib.getenv, stdlib.setenv
+
+  - context with bad arguments:
+      badargs.diagnose (stdlib.setenv, "(string, ?string, ?any)")
+
+  - it sets a new value in the process environment:
+      setenv ("MYVAR", "123")
+      expect (getenv "MYVAR").to_be "123"
+      setenv ("MYVAR", nil)
+      expect (getenv "MYVAR").to_be (nil)
+
+
+- describe unlockpt:
+  - context with bad arguments:
+      badargs.diagnose (stdlib.unlockpt, "(int)")
