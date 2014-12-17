@@ -111,6 +111,13 @@ AC_SEARCH_LIBS([crypt], [crypt],
 AC_SUBST([LIBCRYPT], [$LIBS])
 LIBS=$save_LIBS
 
+dnl Socket (required for qnx, at least)
+save_LIBS=$LIBS
+LIBS=
+AC_SEARCH_LIBS([socket], [socket], [])
+AC_SUBST([LIBSOCKET], [$LIBS])
+LIBS=$save_LIBS
+
 # FIXME: Make -lrt conditional on _XOPEN_REALTIME
 save_LIBS=$LIBS
 LIBS=
