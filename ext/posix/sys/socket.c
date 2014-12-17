@@ -29,6 +29,7 @@
 #if HAVE_LINUX_NETLINK_H
 #include <linux/netlink.h>
 #endif
+#include <sys/socket.h>		/* Needs to be before net/if.h on OpenBSD 5.6 */
 #ifdef HAVE_NET_IF_H
 #include <net/if.h>
 #endif
@@ -36,7 +37,6 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
-#include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/types.h>
 
