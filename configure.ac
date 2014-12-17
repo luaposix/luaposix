@@ -101,6 +101,16 @@ AC_CHECK_HEADERS([net/if.h linux/netlink.h], [], [], [
 #include <sys/socket.h>
 ])
 
+dnl SysV messaging
+AC_CHECK_HEADERS([sys/msg.h])
+AC_CHECK_FUNCS([msgrcv msgsnd])
+case $ac_cv_header_sys_msg_h,$ac_cv_func_msgrcv,$ac_cv_func_msgsnd in
+  yes,yes,yes)
+    AC_DEFINE([HAVE_SYSV_MESSAGING], [1], [Define if your system has SysV message APIs])
+    ;;
+esac
+
+
 AC_CHECK_DECLS_ONCE([fdatasync])
 
 dnl Search libs
