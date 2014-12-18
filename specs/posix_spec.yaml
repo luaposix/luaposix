@@ -64,9 +64,9 @@ specify posix:
 
 - describe spawn:
   - before: f = posix.spawn
-  # - context with bad arguments:
-  #     pending "WTF argcheck spec generator parser?"
-  #     badargs.diagnose (f, "spawn (string|table|function, string*)")
+
+  - context with bad arguments:
+      badargs.diagnose (f, "spawn (string|table|function, ?string*)")
 
   - it spawns a command and can detect success:
       expect (f ("true").to_equal (0))
@@ -208,7 +208,7 @@ specify posix:
         fcntl, badarg = init (posix, "fcntl")
 
     # posix.fcntl diagnoses the third arg differently depending on
-    # the value of `cmd`, which `diagnose_badargs` can't express; ergo
+    # the value of `cmd`, which `diagnose.badargs` can't express; ergo
     # manual checks here...
     - context with bad arguments:
       - 'it diagnoses missing argument #1':

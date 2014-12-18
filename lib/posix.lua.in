@@ -238,7 +238,9 @@ if _DEBUG ~= false then
       argtypeerror ("spawn", 1, "string, table or function", task)
     end
     for i = 2, #argt do
-      checkstring ("spawn", i, argt[i])
+      if type (argt[i]) ~= "string" and type (argt[i]) ~= "nil" then
+	argtypeerror ("spawn", i, "string or nil", argt[i])
+      end
     end
     return spawn (task, ...)
   end
