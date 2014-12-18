@@ -69,5 +69,5 @@ specify posix.sys.resource:
           "RLIMIT_NOFILE", "RLIMIT_STACK", "RLIMIT_AS"}
       do
         rlim = getrlimit (resource[rc])
-        expect ({setrlimit (resource[rc], rlim)}).to_be (0)
+        expect (setrlimit (resource[rc], rlim)).to_be (0)
       end

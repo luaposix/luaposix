@@ -282,6 +282,16 @@ checkintfield(lua_State *L, int index, const char *k)
 	return r;
 }
 
+static int
+checknumberfield(lua_State *L, int index, const char *k)
+{
+	int r;
+	checkfieldtype(L, index, k, LUA_TNUMBER, "number");
+	r = lua_tonumber(L, -1);
+	lua_pop(L, 1);
+	return r;
+}
+
 static const char *
 checkstringfield(lua_State *L, int index, const char *k)
 {
@@ -360,6 +370,10 @@ badoption(lua_State *L, int i, const char *what, int option)
 	lua_pushinteger(L, (lua_Integer) v); lua_setfield(L, -2, k);	\
 } LPOSIX_STMT_END
 
+#define pushnumberfield(k,v) LPOSIX_STMT_BEG {				\
+	lua_pushnumber(L, (lua_Number) v); lua_setfield(L, -2, k);	\
+} LPOSIX_STMT_END
+
 #define pushstringfield(k,v) LPOSIX_STMT_BEG {				\
 	if (v) {							\
 		lua_pushstring(L, (const char *) v);			\
@@ -381,6 +395,7 @@ badoption(lua_State *L, int i, const char *what, int option)
 } LPOSIX_STMT_END
 
 #define setintegerfield(_p, _n) pushintegerfield(LPOSIX_STR(_n), _p->_n)
+#define setnumberfield(_p, _n) pushnumberfield(LPOSIX_STR(_n), _p->_n)
 #define setstringfield(_p, _n) pushstringfield(LPOSIX_STR(_n), _p->_n)
 
 #endif /*LUAPOSIX__HELPERS_C*/

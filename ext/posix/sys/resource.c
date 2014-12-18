@@ -41,8 +41,8 @@ pushrlimit(lua_State *L, struct rlimit *lim)
 
 	lua_createtable(L, 0, 2);
 
-	setintegerfield(lim, rlim_cur);
-	setintegerfield(lim, rlim_max);
+	setnumberfield(lim, rlim_cur);
+	setnumberfield(lim, rlim_max);
 
 	settypemetatable("PosixRlimit");
 	return 1;
@@ -102,8 +102,8 @@ Psetrlimit(lua_State *L)
 	luaL_checktype(L, 2, LUA_TTABLE);
 	checknargs(L, 2);
 
-	lim.rlim_cur = checkintfield(L, 2, "rlim_cur");
-	lim.rlim_max = checkintfield(L, 2, "rlim_max");
+	lim.rlim_cur = checknumberfield(L, 2, "rlim_cur");
+	lim.rlim_max = checknumberfield(L, 2, "rlim_max");
 	checkfieldnames(L, 2, Srlimit_fields);
 
 	return pushresult(L, setrlimit(rid, &lim), "setrlimit");
