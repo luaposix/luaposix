@@ -47,22 +47,22 @@ pushstat(lua_State *L, struct stat *st)
 
 	lua_createtable(L, 0, 13);
 
-	setnumberfield(st, st_dev);
-	setnumberfield(st, st_ino);
-	setnumberfield(st, st_mode);
-	setnumberfield(st, st_nlink);
-	setnumberfield(st, st_uid);
-	setnumberfield(st, st_gid);
-	setnumberfield(st, st_rdev);
-	setnumberfield(st, st_size);
-	setnumberfield(st, st_blksize);
-	setnumberfield(st, st_blocks);
+	setintegerfield(st, st_dev);
+	setintegerfield(st, st_ino);
+	setintegerfield(st, st_mode);
+	setintegerfield(st, st_nlink);
+	setintegerfield(st, st_uid);
+	setintegerfield(st, st_gid);
+	setintegerfield(st, st_rdev);
+	setintegerfield(st, st_size);
+	setintegerfield(st, st_blksize);
+	setintegerfield(st, st_blocks);
 
 	/* st_[amc]time is a macro on at least Mac OS, so we have to
 	   assign field name strings manually. */
-        pushnumberfield("st_atime", st->st_atime);
-        pushnumberfield("st_mtime", st->st_mtime);
-        pushnumberfield("st_ctime", st->st_ctime);
+        pushintegerfield("st_atime", st->st_atime);
+        pushintegerfield("st_mtime", st->st_mtime);
+        pushintegerfield("st_ctime", st->st_ctime);
 
 	settypemetatable("PosixStat");
 	return 1;
@@ -278,6 +278,7 @@ Set file mode creation mask.
 @int[opt] mode new file creation mask
 @treturn int previous umask
 @see umask(2)
+@see posix.umask
 */
 static int
 Pumask(lua_State *L)

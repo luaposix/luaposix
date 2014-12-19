@@ -7,11 +7,11 @@ tparam_alias "string"
 tparam_alias "int"
 tparam_alias "bool"
 
-local upat = "http://www.kernel.org/doc/man-pages/online/pages/man%s/%s.%s.html"
+-- Manual page links point to the OpenGroup SUSv3 spec.
+local upat = "http://pubs.opengroup.org/onlinepubs/009695399/functions/%s.html"
 custom_see_handler("^([%w_]+)%((%dx?)%)$",function(name,section)
-    local url = upat:format(section:sub(1,1),name,section)
-    local name = name .. "(" .. section .. ")"
-    return name, url
+    local url = upat:format(name)
+    return name .. "(" .. section .. ")", url
 end)
 
 dir = "."
@@ -24,6 +24,7 @@ file = {
   "../lib/posix.lua",
   "../lib/posix/compat.lua",  -- Documents added to posix.lua
 
+  "../ext/posix/bit32.c",
   "../ext/posix/ctype.c",
   "../ext/posix/curses.c",
   "../ext/posix/dirent.c",

@@ -43,8 +43,8 @@ pushpasswd(lua_State *L, struct passwd *p)
 		return lua_pushnil(L), 1;
 
 	lua_createtable(L, 0, 6);
-	setnumberfield(p, pw_uid);
-	setnumberfield(p, pw_gid);
+	setintegerfield(p, pw_uid);
+	setintegerfield(p, pw_gid);
 	setstringfield(p, pw_name);
 	setstringfield(p, pw_dir);
 	setstringfield(p, pw_shell);

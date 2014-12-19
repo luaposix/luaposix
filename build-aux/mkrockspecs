@@ -29,11 +29,12 @@ SH=--[[                                             # -*- mode: lua; -*-
 ## ====================================================================
 
 
-_lua_version_re='"Lua 5."[12]*'
-_lua_binaries='lua lua5.2 lua52 lua5.1 lua51'
+_lua_version_re='"Lua 5."[123]*'
+_lua_binaries='lua lua5.3 lua53 lua5.2 lua52 lua5.1 lua51'
 
 export LUA_INIT
 export LUA_INIT_5_2
+export LUA_INIT_5_3
 export LUA_PATH
 export LUA_CPATH
 
@@ -86,6 +87,7 @@ test -n "$LUA" || {
 
 LUA_INIT=
 LUA_INIT_5_2=
+LUA_INIT_5_3=
 
 # Reexecute using the interpreter suppiled in LUA, or found above.
 exec "$LUA" "$0" "$@"
@@ -155,7 +157,7 @@ Report bugs to http://github.com/gvvaughan/slingshot/issues.]])
 end
 
 prog["--version"] = function ()
-  print [[mkrockspecs (slingshot) 8
+  print [[mkrockspecs (slingshot) 9.0.0
 Written by Gary V. Vaughan <gary@gnu.org>, 2013
 
 Copyright (C) 2013, Gary V. Vaughan

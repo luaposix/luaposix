@@ -29,14 +29,13 @@
 
 #include "_helpers.c"
 
-
 static uid_t
 mygetuid(lua_State *L, int i)
 {
 	if (lua_isnoneornil(L, i))
 		return (uid_t)-1;
-	else if (lua_isnumber(L, i))
-		return (uid_t) lua_tonumber(L, i);
+	else if (lua_isinteger(L, i))
+		return (uid_t) lua_tointeger(L, i);
 	else if (lua_isstring(L, i))
 	{
 		struct passwd *p = getpwnam(lua_tostring(L, i));
@@ -51,8 +50,8 @@ mygetgid(lua_State *L, int i)
 {
 	if (lua_isnoneornil(L, i))
 		return (gid_t)-1;
-	else if (lua_isnumber(L, i))
-		return (gid_t) lua_tonumber(L, i);
+	else if (lua_isinteger(L, i))
+		return (gid_t) lua_tointeger(L, i);
 	else if (lua_isstring(L, i))
 	{
 		struct group *g = getgrnam(lua_tostring(L, i));
@@ -327,7 +326,7 @@ Pexecp(lua_State *L)
 }
 
 
-#if _POSIX_VERSION >= 200112L
+#if LPOSIX_2001_COMPLIANT
 
 #if !HAVE_DECL_FDATASYNC
 extern int fdatasync ();
@@ -484,7 +483,7 @@ Pgetgid(lua_State *L)
 }
 
 
-#if _POSIX_VERSION >= 200112L
+#if LPOSIX_2001_COMPLIANT
 /***
 Get list of supplementary group ids.
 @function getgroups
@@ -599,13 +598,21 @@ Pgetuid(lua_State *L)
 Get host id.
 @function gethostid
 @see gethostid(3)
-@return host id
+@treturn[1] int host id
+@return[2] nil
+@treturn[2] string error message
 */
 static int
 Pgethostid(lua_State *L)
 {
 	checknargs(L, 0);
+#if HAVE_GETHOSTID
 	return pushintresult(gethostid());
+#else
+	lua_pushnil(L);
+	lua_pushliteral(L, "unsupported by this host");
+	return 2;
+#endif
 }
 
 
@@ -1025,13 +1032,13 @@ static const luaL_Reg posix_unistd_fns[] =
 	LPOSIX_FUNC( Pdup2		),
 	LPOSIX_FUNC( Pexec		),
 	LPOSIX_FUNC( Pexecp		),
-#if _POSIX_VERSION >= 200112L
+#if LPOSIX_2001_COMPLIANT
 	LPOSIX_FUNC( Pfdatasync		),
 #endif
 	LPOSIX_FUNC( Pfork		),
 	LPOSIX_FUNC( Pfsync		),
 	LPOSIX_FUNC( Pgetcwd		),
-#if _POSIX_VERSION >= 200112L
+#if LPOSIX_2001_COMPLIANT
 	LPOSIX_FUNC( Pgetgroups		),
 #endif
 	LPOSIX_FUNC( Pgetegid		),

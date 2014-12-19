@@ -11,7 +11,7 @@
 ]]
 
 local _argcheck = require "posix._argcheck"
-local bit       = bit32 or require "bit"
+local bit       = require "posix.bit32"
 
 local argerror, argtypeerror, badoption =
   _argcheck.argerror, _argcheck.argtypeerror, _argcheck.badoption
@@ -137,7 +137,7 @@ local M = {
 -- @see chmod(2)
 -- @usage P.chmod ('bin/dof', '+x')
 
-local bit   = bit32 or require "bit"
+local bit   = require "posix.bit32"
 local st    = require "posix.sys.stat"
 
 local _chmod, stat = st.chmod, st.stat
@@ -179,7 +179,7 @@ end
 -- @usage
 --   fd = P.creat ("data", "rw-r-----")
 
-local bit   = bit32 or require "bit"
+local bit   = require "posix.bit32"
 local fcntl = require "posix.fcntl"
 local st    = require "posix.sys.stat"
 
@@ -218,7 +218,7 @@ end
 -- @treturn[2] string error message
 -- @treturn[2] int errnum
 
-local bit = bit32 or require "bit"
+local bit = require "posix.bit32"
 local st  = require "posix.sys.stat"
 
 local _mkdir = st.mkdir
@@ -248,7 +248,7 @@ end
 -- @treturn[2] string error message
 -- @treturn[2] int errnum
 
-local bit = bit32 or require "bit"
+local bit = require "posix.bit32"
 local st  = require "posix.sys.stat"
 
 local _mkfifo = st.mkfifo
@@ -281,7 +281,7 @@ end
 -- @treturn[2] int errnum
 -- @see msgget(2)
 
-local bit   = bit32 or require "bit"
+local bit   = require "posix.bit32"
 local msg   = require "posix.sys.msg"
 local st    = require "posix.sys.stat"
 
@@ -332,7 +332,7 @@ end
 -- @usage
 -- fd = P.open ("data", bit.bor (P.O_CREAT, P.O_RDWR), "rw-r-----")
 
-local bit   = bit32 or require "bit"
+local bit   = require "posix.bit32"
 local fcntl = require "posix.fcntl"
 
 local _open, O_CREAT = fcntl.open, fcntl.O_CREAT
@@ -376,7 +376,7 @@ end
 -- @treturn[2] string error message
 -- @treturn[2] int errnum
 
-local bit = bit32 or require "bit"
+local bit = require "posix.bit32"
 local log = require "posix.syslog"
 
 local bor = bit.bor
@@ -407,6 +407,7 @@ end
 -- @string[opt] mode file creation mask string
 -- @treturn string previous umask
 -- @see umask(2)
+-- @see posix.sys.stat.umask
 
 local st = require "posix.sys.stat"
 

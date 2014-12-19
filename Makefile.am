@@ -52,8 +52,10 @@ check_local		=
 dist_bin_SCRIPTS	=
 dist_lua_DATA		=
 doc_DATA		=
-install_exec_hooks	=
+install_exec_hooks	= remove-luaexec-lafiles
+uninstall_hooks		= uninstall-luaexec-modules
 lib_LTLIBRARIES		=
+luaexec_LTLIBRARIES	=
 man_MANS		=
 save_release_files	=
 
@@ -73,3 +75,30 @@ check-local: $(check_local)
 ## ------------- ##
 
 install-exec-hook: $(install_exec_hooks)
+
+# Neither Lua itself, nor LuaRocks can use .la files, and LuaRocks
+# actually moves such files aside anyway, so we just remove them from
+# the installation directory.
+remove-luaexec-lafiles:
+	@for la in $(luaexec_LTLIBRARIES); do	\
+	  f=`echo "$$la" |sed 's|^.*/||'`;	\
+	  echo rm -f $(luaexecdir)/$$f;		\
+	  rm -f $(luaexecdir)/$$f;		\
+	done
+
+
+## --------------- ##
+## Uninstallation. ##
+## --------------- ##
+
+uninstall-hook: $(uninstall_hooks)
+
+# We removed the .la files from luaexecdir, so the standard uninstall,
+# with libtool --mode=uninstall, can't find everything anymore.
+uninstall-luaexec-modules:
+	@for la in $(luaexec_LTLIBRARIES); do	\
+	  base=`echo "$$la"			\
+		|sed 's|^.*/\(.*\)\.la|\1|'`;	\
+	  echo rm -f $(luaexecdir)/$$base.so;	\
+	  rm -f $(luaexecdir)/$$base.so;	\
+	done

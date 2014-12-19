@@ -34,25 +34,25 @@ specify posix.sys.resource:
           {
             ["it diagnoses argument #2 missing rlim_cur field"] = function ()
               expect (setrlimit (-1, {})).
-                to_raise "bad argument #2 to 'setrlimit' (int expected for field 'rlim_cur', got no value)"
+                to_raise "bad argument #2 to 'setrlimit' (number expected for field 'rlim_cur', got no value)"
             end
           },
           {
             ["it diagnoses argument #2 rlim_cur field type not int"] = function ()
               expect (setrlimit (-1, {rlim_cur = false})).
-                to_raise "bad argument #2 to 'setrlimit' (int expected for field 'rlim_cur', got boolean)"
+                to_raise "bad argument #2 to 'setrlimit' (number expected for field 'rlim_cur', got boolean)"
             end
           },
           {
             ["it diagnoses argument #2 missing rlim_max field"] = function ()
               expect (setrlimit (-1, {rlim_cur = -1})).
-                to_raise "bad argument #2 to 'setrlimit' (int expected for field 'rlim_max', got no value)"
+                to_raise "bad argument #2 to 'setrlimit' (number expected for field 'rlim_max', got no value)"
             end
           },
           {
             ["it diagnoses argument #2 rlim_max field type not int"] = function ()
               expect (setrlimit (-1, {rlim_cur = -1, rlim_max = false})).
-                to_raise "bad argument #2 to 'setrlimit' (int expected for field 'rlim_max', got boolean)"
+                to_raise "bad argument #2 to 'setrlimit' (number expected for field 'rlim_max', got boolean)"
             end
           },
           {
@@ -69,5 +69,5 @@ specify posix.sys.resource:
           "RLIMIT_NOFILE", "RLIMIT_STACK", "RLIMIT_AS"}
       do
         rlim = getrlimit (resource[rc])
-        expect ({setrlimit (resource[rc], rlim)}).to_be (0)
+        expect (setrlimit (resource[rc], rlim)).to_be (0)
       end

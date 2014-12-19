@@ -14,7 +14,7 @@
  @module posix
 ]]
 
-local bit = bit32 or require "bit"
+local bit = require "posix.bit32"
 local M = {}
 
 
@@ -151,7 +151,7 @@ end
 -- @return[2] nil
 -- @treturn[2] string error message
 
-local bit    = bit32 or require "bit"
+local bit    = require "posix.bit32"
 local fcntl  = require "posix.fcntl"
 local stdlib = require "posix.stdlib"
 local unistd = require "posix.unistd"
@@ -193,6 +193,62 @@ if _DEBUG ~= false then
 else
   M.openpty = openpty
 end
+
+
+--- Run a command or function in a sub-process.
+-- @function spawn
+-- @param task, a string to be executed as a shell command, or a
+--   table of arguments to `P.execp` or a Lua function, which should read
+--   from standard input, write to standard output, and return an exit code
+-- @tparam string ... positional arguments to the program or function
+-- @treturn[1] int status exit code, if successful
+-- @treturn[1] string exit type, if wait succeeds
+-- @treturn[2] nil
+-- @treturn[2] string error message
+
+local _exit, errno, execp, fork, wait =
+  M._exit, M.errno, M.execp, M.fork, M.wait
+
+local function spawn (task, ...)
+  local pid, err = fork ()
+  if pid == nil then
+    return pid, err
+  elseif pid == 0 then
+    if type (task) == "string" then
+      task = {"/bin/sh", "-c", task, ...}
+    end
+    if type (task) == "table" then
+      execp (unpack (task))
+      -- Only get here if there's an error; kill the fork
+      local _, no = errno ()
+      _exit (no)
+    else
+      _exit (task (...) or 0)
+    end
+  else
+    local _, reason, status = wait (pid)
+    return status, reason -- If wait failed, status is nil & reason is error
+  end
+end
+
+if _DEBUG ~= false then
+  M.spawn = function (task, ...)
+    local argt, typetask = {task, ...}, type (task)
+    if typetask ~= "string" and typetask ~= "table" and typetask ~= "function" then
+      argtypeerror ("spawn", 1, "string, table or function", task)
+    end
+    for i = 2, #argt do
+      if type (argt[i]) ~= "string" and type (argt[i]) ~= "nil" then
+	argtypeerror ("spawn", i, "string or nil", argt[i])
+      end
+    end
+    return spawn (task, ...)
+  end
+else
+  M.spawn = spawn
+end
+
+M.system = M.spawn -- OBSOLETE alias
 
 
 --- Perform a series of commands and Lua functions as a pipeline.
@@ -359,62 +415,6 @@ if _DEBUG ~= false then
     return pipeline_slurp (...)
   end
 end
-
-
---- Run a command or function in a sub-process.
--- @function spawn
--- @param task, a string to be executed as a shell command, or a
---   table of arguments to `P.execp` or a Lua function, which should read
---   from standard input, write to standard output, and return an exit code
--- @tparam string ... positional arguments to the program or function
--- @treturn[1] int status exit code, if successful
--- @treturn[1] string exit type, if wait succeeds
--- @treturn[2] nil
--- @treturn[2] string error message
-
-local _exit, errno, execp, fork, wait =
-  M._exit, M.errno, M.execp, M.fork, M.wait
-
-local function spawn (task, ...)
-  local pid, err = fork ()
-  if pid == nil then
-    return pid, err
-  elseif pid == 0 then
-    if type (task) == "string" then
-      task = {"/bin/sh", "-c", task, ...}
-    end
-    if type (task) == "table" then
-      execp (unpack (task))
-      -- Only get here if there's an error; kill the fork
-      local _, no = errno ()
-      _exit (no)
-    else
-      _exit (task (...) or 0)
-    end
-  else
-    local _, reason, status = wait (pid)
-    return status, reason -- If wait failed, status is nil & reason is error
-  end
-end
-
-if _DEBUG ~= false then
-  M.spawn = function (task, ...)
-    local argt, typetask = {task, ...}, type (task)
-    if typetask ~= "string" and typetask ~= "table" and typetask ~= "function" then
-      argtypeerror ("spawn", 1, "string, table or function", task)
-    end
-    local i = 2
-    repeat
-      checkstring ("spawn", i, argt[i])
-      i = i + 1
-    until i > #argt
-    return spawn (task, ...)
-  end
-else
-  M.spawn = spawn
-end
-
-M.system = M.spawn -- OBSOLETE alias
 
 
 --- Add one gettimeofday() returned timeval to another.

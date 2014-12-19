@@ -37,8 +37,8 @@ pushtimeval(lua_State *L, struct timeval *tv)
 		return lua_pushnil(L), 1;
 
 	lua_createtable(L, 0, 2);
-	setnumberfield(tv, tv_sec);
-	setnumberfield(tv, tv_usec);
+	setintegerfield(tv, tv_sec);
+	setintegerfield(tv, tv_usec);
 
 	settypemetatable("PosixTimeval");
 	return 1;

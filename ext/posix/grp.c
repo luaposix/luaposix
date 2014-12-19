@@ -40,7 +40,7 @@ pushgroup(lua_State *L, struct group *g)
 		return lua_pushnil(L), 1;
 
 	lua_createtable(L, 0, 3);
-	setnumberfield(g, gr_gid);
+	setintegerfield(g, gr_gid);
 	setstringfield(g, gr_name);
 	if (g->gr_mem)
 	{

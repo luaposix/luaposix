@@ -6,7 +6,7 @@ dnl Copyright (c) 2012-2014 Gary V. Vaughan
 dnl This file is part of luaposix.
 dnl See README for license.
 
-AC_INIT([luaposix], [33.0.0], [http://github.com/luaposix/luaposix/issues])
+AC_INIT([luaposix], [33.1.0], [http://github.com/luaposix/luaposix/issues])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -84,9 +84,32 @@ AC_SUBST(LIBTOOL_DEPS)
 
 gl_INIT
 
+dnl Compiler flags for POSIX.2001 or better compliance.
+case $host_os in
+  darwin*|*nto*|openbsd*|*qnx*)
+    # Setting _XOPEN_SOURCE here messes up header declarations
+    ;;
+  *)
+    AC_SUBST([POSIX_EXTRA_CPPFLAGS], [-D_XOPEN_SOURCE=700])
+    ;;
+esac
+
 dnl Check for header files
 AC_HEADER_STDC
-AC_CHECK_HEADERS([crypt.h strings.h sys/statvfs.h net/if.h linux/netlink.h])
+AC_CHECK_HEADERS([crypt.h strings.h sys/statvfs.h])
+AC_CHECK_HEADERS([net/if.h linux/netlink.h], [], [], [
+#include <sys/socket.h>
+])
+
+dnl SysV messaging
+AC_CHECK_HEADERS([sys/msg.h])
+AC_CHECK_FUNCS([msgrcv msgsnd])
+case $ac_cv_header_sys_msg_h,$ac_cv_func_msgrcv,$ac_cv_func_msgsnd in
+  yes,yes,yes)
+    AC_DEFINE([HAVE_SYSV_MESSAGING], [1], [Define if your system has SysV message APIs])
+    ;;
+esac
+
 
 AC_CHECK_DECLS_ONCE([fdatasync])
 
@@ -94,20 +117,23 @@ dnl Search libs
 save_LIBS=$LIBS
 LIBS=
 AC_SEARCH_LIBS([crypt], [crypt],
-  [AC_DEFINE([HAVE_CRYPT], [], [Define this if your system has a crypt() function])])
+  [AC_DEFINE([HAVE_CRYPT], [1], [Define this if your system has a crypt() function])])
 AC_SUBST([LIBCRYPT], [$LIBS])
 LIBS=$save_LIBS
 
-dnl Check for functions
-AC_CHECK_FUNCS([strlcpy statvfs posix_fadvise sched_getsheduler sched_setscheduler])
+dnl Socket (required for qnx, at least)
+save_LIBS=$LIBS
+LIBS=
+AC_SEARCH_LIBS([socket], [socket], [])
+AC_SUBST([LIBSOCKET], [$LIBS])
+LIBS=$save_LIBS
 
-dnl Compiler flags for POSIX
-dnl Get this from autotools/gnulib
-if test Darwin != `uname`; then
-  # FIXME: Make -lrt conditional on _XOPEN_REALTIME
-  AC_SUBST([POSIX_EXTRA_CFLAGS], [-D_XOPEN_SOURCE=700])
-  AC_SUBST([LIBRT], [-lrt])
-fi
+# FIXME: Make -lrt conditional on _XOPEN_REALTIME
+save_LIBS=$LIBS
+LIBS=
+AC_CHECK_LIB([rt], [clock_gettime])
+AC_SUBST([LIBRT], [$LIBS])
+LIBS=$save_LIBS
 
 dnl Curses
 AX_WITH_CURSES
@@ -118,8 +144,30 @@ LIBS="$CURSES_LIB $LIBS"
 AC_CHECK_FUNCS([resizeterm])
 LIBS=$save_LIBS
 
-dnl Lua 5.1 or 5.2
-AX_PROG_LUA(5.1, 5.3)
+dnl Use system implementation, or bundled replacement?
+AC_CHECK_FUNCS([strlcpy])
+
+## ------------------------------------------------------------------------
+## Don't add more AC_CHECK_FUNCS, unless for a mainstream platform for one
+## of the reasons below (to detect whether to enable an optional set of
+## POSIX APIs; to disable a deprecated or very new and not yet widely
+## supported API).  This is a POSIX binding, and requires a reasonably
+## POSIX host to bind to - we definitely DON'T want to clutter up the code
+## and configury to support partially compliant hosts!
+## ------------------------------------------------------------------------
+
+dnl Thread scheduling priority
+AC_CHECK_FUNCS([sched_getsheduler sched_setscheduler])
+
+dnl Statvfs support
+AC_CHECK_FUNCS([statvfs])
+
+dnl Deprecated or otherwise spottily supported POSIX functions
+AC_CHECK_FUNCS([gethostid posix_fadvise])
+
+
+dnl Lua
+AX_PROG_LUA(5.1, 5.4)
 AX_LUA_HEADERS
 AC_PATH_PROG([SPECL], [specl], [:])
 

@@ -245,7 +245,7 @@ specify posix.compat:
   - context with bad arguments:
       badargs.diagnose (gmtime, "gmtime (?int)")
 
-  - it returns a PosixTm:
+  - it returns a table:
       expect (prototype (gmtime (now))).to_be "table"
   - it fetches broken-down time values:
       t = gmtime (now)
@@ -260,9 +260,11 @@ specify posix.compat:
           expect (t[field] >= 0).to_be (true)
         end
       end
-  - it returns a month in the range 0-11:
+  - it returns a month in the range 1-12:
+      # A recent December afternoon in epoch seconds...
+      expect (gmtime (1418734089).month).to_be (12)
       t = gmtime (now)
-      expect (t.month >= 0 and t.month < 12).to_be (true)
+      expect (t.month >= 1 and t.month <= 12).to_be (true)
   - it returns full year:
       expect (gmtime (now).year > 2000).to_be (true)
 
@@ -305,7 +307,7 @@ specify posix.compat:
   - context with bad arguments:
       badargs.diagnose (localtime, "localtime (?int)")
 
-  - it returns a PosixTm:
+  - it returns a table:
       expect (prototype (localtime (now))).to_be "table"
   - it fetches broken-down time values:
       t = localtime (now)
@@ -320,9 +322,11 @@ specify posix.compat:
           expect (t[field] >= 0).to_be (true)
         end
       end
-  - it returns a month in the range 0-11:
+  - it returns a month in the range 1-12:
+      # A recent December afternoon in epoch seconds...
+      expect (localtime (1418734089).month).to_be (12)
       t = localtime (now)
-      expect (t.month >= 0 and t.month < 12).to_be (true)
+      expect (t.month >= 1 and t.month <= 12).to_be (true)
   - it returns years since 1900:
       expect (localtime (now).year > 2000).to_be (true)
 

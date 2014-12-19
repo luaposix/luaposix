@@ -22,13 +22,14 @@
 
 #include <config.h>
 
-#include <unistd.h>	/* for _POSIX_VERSION */
+#include "_helpers.c"		/* For LPOSIX_2001_COMPLIANT */
 
-#if _POSIX_VERSION >= 200112L
+#if LPOSIX_2001_COMPLIANT
 #include <arpa/inet.h>
 #if HAVE_LINUX_NETLINK_H
 #include <linux/netlink.h>
 #endif
+#include <sys/socket.h>		/* Needs to be before net/if.h on OpenBSD 5.6 */
 #ifdef HAVE_NET_IF_H
 #include <net/if.h>
 #endif
@@ -36,18 +37,12 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
-#include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/types.h>
-#endif
-
-
-#if _POSIX_VERSION >= 200112L
 
 /* strlcpy() implementation for non-BSD based Unices.
    strlcpy() is a safer less error-prone replacement for strncpy(). */
 #include "strlcpy.c"
-#include "_helpers.c"
 
 
 /***
@@ -77,20 +72,20 @@ pushsockaddrinfo(lua_State *L, int family, struct sockaddr *sa)
 	struct sockaddr_in6 *sa6;
 
 	lua_newtable(L);
-	pushnumberfield("family", family);
+	pushintegerfield("family", family);
 
 	switch (family)
 	{
 		case AF_INET:
 			sa4 = (struct sockaddr_in *)sa;
 			inet_ntop(family, &sa4->sin_addr, addr, sizeof addr);
-			pushnumberfield("port", ntohs(sa4->sin_port));
+			pushintegerfield("port", ntohs(sa4->sin_port));
 			pushstringfield("addr", addr);
 			break;
 		case AF_INET6:
 			sa6 = (struct sockaddr_in6 *)sa;
 			inet_ntop(family, &sa6->sin6_addr, addr, sizeof addr);
-			pushnumberfield("port", ntohs(sa6->sin6_port));
+			pushintegerfield("port", ntohs(sa6->sin6_port));
 			pushstringfield("addr", addr);
 			break;
 		case AF_UNIX:
@@ -98,8 +93,8 @@ pushsockaddrinfo(lua_State *L, int family, struct sockaddr *sa)
 			break;
 #if HAVE_LINUX_NETLINK_H
 		case AF_NETLINK:
-			pushnumberfield("pid", ((struct sockaddr_nl *) sa)->nl_pid);
-			pushnumberfield("groups", ((struct sockaddr_nl *) sa)->nl_groups);
+			pushintegerfield("pid", ((struct sockaddr_nl *) sa)->nl_pid);
+			pushintegerfield("groups", ((struct sockaddr_nl *) sa)->nl_groups);
 			break;
 #endif
 	}
@@ -283,6 +278,8 @@ Pgetaddrinfo(lua_State *L)
 	const char *host = optstring(L, 1, NULL);
 	const char *service = NULL;
 	struct addrinfo *res, hints;
+
+	memset(&hints, 0, sizeof hints);
 	hints.ai_family = PF_UNSPEC;
 
 	checknargs(L, 3);
@@ -337,11 +334,11 @@ Pgetaddrinfo(lua_State *L)
 		lua_newtable(L);
 		for (p = res; p != NULL; p = p->ai_next)
 		{
-			lua_pushnumber(L, n++);
+			lua_pushinteger(L, n++);
 			pushsockaddrinfo(L, p->ai_family, p->ai_addr);
-			pushnumberfield("socktype",  p->ai_socktype);
+			pushintegerfield("socktype",  p->ai_socktype);
 			pushstringfield("canonname", p->ai_canonname);
-			pushnumberfield("protocol",  p->ai_protocol);
+			pushintegerfield("protocol",  p->ai_protocol);
 			lua_settable(L, -3);
 		}
 	}
@@ -452,7 +449,7 @@ Paccept(lua_State *L)
 	if (fd_client == -1)
 		return pusherror(L, "accept");
 
-	lua_pushnumber(L, fd_client);
+	lua_pushinteger(L, fd_client);
 	return 1 + pushsockaddrinfo(L, sa.ss_family, (struct sockaddr *)&sa);
 }
 
@@ -728,7 +725,7 @@ Psetsockopt(lua_State *L)
 
 static const luaL_Reg posix_sys_socket_fns[] =
 {
-#if _POSIX_VERSION >= 200112L
+#if LPOSIX_2001_COMPLIANT
 	LPOSIX_FUNC( Psocket		),
 	LPOSIX_FUNC( Psocketpair	),
 	LPOSIX_FUNC( Pgetaddrinfo	),
@@ -840,7 +837,7 @@ luaopen_posix_sys_socket(lua_State *L)
 	lua_pushliteral(L, "posix.sys.socket for " LUA_VERSION " / " PACKAGE_STRING);
 	lua_setfield(L, -2, "version");
 
-#if _POSIX_VERSION >= 200112L
+#if LPOSIX_2001_COMPLIANT
 	LPOSIX_CONST( SOMAXCONN		);
 	LPOSIX_CONST( AF_UNSPEC		);
 	LPOSIX_CONST( AF_INET		);
@@ -851,7 +848,7 @@ luaopen_posix_sys_socket(lua_State *L)
 # endif
 	LPOSIX_CONST( SOL_SOCKET	);
 	LPOSIX_CONST( IPPROTO_TCP	);
-	LPOSIX_CONST(	IPPROTO_UDP	);
+	LPOSIX_CONST( IPPROTO_UDP	);
 	LPOSIX_CONST( IPPROTO_IP	);
 	LPOSIX_CONST( IPPROTO_IPV6	);
 # ifdef IPPROTO_ICMP
@@ -888,13 +885,19 @@ luaopen_posix_sys_socket(lua_State *L)
 
 	LPOSIX_CONST( TCP_NODELAY	);
 
+# ifdef AI_ADDRCONFIG
 	LPOSIX_CONST( AI_ADDRCONFIG	);
+# endif
+# ifdef AI_ALL
 	LPOSIX_CONST( AI_ALL		);
+# endif
 	LPOSIX_CONST( AI_CANONNAME	);
 	LPOSIX_CONST( AI_NUMERICHOST	);
 	LPOSIX_CONST( AI_NUMERICSERV	);
 	LPOSIX_CONST( AI_PASSIVE	);
+# ifdef AI_V4MAPPED
 	LPOSIX_CONST( AI_V4MAPPED	);
+# endif
 
 # ifdef IPV6_JOIN_GROUP
 	LPOSIX_CONST( IPV6_JOIN_GROUP		);

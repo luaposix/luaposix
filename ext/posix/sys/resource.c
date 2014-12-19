@@ -21,6 +21,11 @@
 
 #include "_helpers.c"
 
+/* OpenBSD 5.6 recommends using RLIMIT_DATA in place of missing RLIMIT_AS */
+#ifndef RLIMIT_AS
+#  define RLIMIT_AS RLIMIT_DATA
+#endif
+
 
 /***
 Resource limit record.
@@ -97,8 +102,8 @@ Psetrlimit(lua_State *L)
 	luaL_checktype(L, 2, LUA_TTABLE);
 	checknargs(L, 2);
 
-	lim.rlim_cur = checkintfield(L, 2, "rlim_cur");
-	lim.rlim_max = checkintfield(L, 2, "rlim_max");
+	lim.rlim_cur = checknumberfield(L, 2, "rlim_cur");
+	lim.rlim_max = checknumberfield(L, 2, "rlim_max");
 	checkfieldnames(L, 2, Srlimit_fields);
 
 	return pushresult(L, setrlimit(rid, &lim), "setrlimit");

@@ -6,8 +6,8 @@ By the [luaposix project][GitHub]
 [![travis-ci status](https://secure.travis-ci.org/luaposix/luaposix.png?branche=master)](http://travis-ci.org/luaposix/luaposix/builds)
 [![Stories in Ready](https://badge.waffle.io/luaposix/luaposix.png?label=ready&title=Ready)](https://waffle.io/luaposix/luaposix)
 
-luaposix is a POSIX binding, including curses, for [Lua] 5.1 and 5.2;
-like most libraries it simply binds to C APIs on the underlying
+luaposix is a POSIX binding, including curses, for [Lua] 5.1, 5.2 and
+5.3; like most libraries it simply binds to C APIs on the underlying
 system, so it won't work on non-POSIX systems. However, it does try
 to detect the level of POSIX conformance of the underlying system and
 bind only available APIs.
@@ -30,9 +30,6 @@ To install current git master (for testing):
 
     luarocks install https://raw.github.com/luaposix/luaposix/release/luaposix-git-1.rockspec
 
-With Lua 5.1, luaposix requires the bitop library from http://bitop.luajit.org/
-(On Lua 5.2 it will work whether bitop is installed or not.)
-
 To install without LuaRocks, check out the sources from the
 [repository][GitHub] and run the following commands:
 
@@ -50,11 +47,11 @@ for details of available command-line switches.
 Use
 ---
 
-The library is split into two modules. The basic POSIX APIs are in
-`posix` and the curses APIs in `curses`.
+The library is split into submodules according to the POSIX header file
+API declarations.
 
 HTML documentation can be generated with [LDoc] by running `make doc`
-or viewed online at <http://luaposix.github.com/luaposix/>.
+or viewed online at <http://luaposix.github.io/luaposix/>.
 
 The authoritative online POSIX reference is at
 <http://www.opengroup.org/onlinepubs/007904875/toc.htm>.
@@ -62,10 +59,10 @@ The authoritative online POSIX reference is at
 Example code
 ------------
 
-See the example program `tree.lua`, along with the tests in
-`tests-*.lua`.
+See the example program `tree.lua`, along with the many small
+examples in the generated documentation and BDD `specs/*_spec.yaml`.
 
-For a complete application, see the lua branch of [GNU Zile].
+For a complete application, see the [GNU Zile].
 
 Bugs reports & patches
 ----------------------
@@ -77,9 +74,8 @@ bear in mind the following points when writing new code:
 0. Follow existing code. There are a lot of useful patterns and
    avoided traps there.
 
-1. 8-character indentation using TABs. Not my favourite either, but
-   better than reformatting the code and losing much of the ability to
-   follow the version control history.
+1. 8-character indentation using TABs in C sources; 2-character
+   indentation using SPACEs in Lua sources.
 
 2. No non-POSIX APIs; no platform-specific code. When wrapping APIs
    introduced in POSIX 2001 or later, add an appropriate #if. If your

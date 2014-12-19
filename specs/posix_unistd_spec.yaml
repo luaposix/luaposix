@@ -17,7 +17,7 @@ specify posix.unistd:
 
 - describe execp:
   - before: |
-      bit = bit32 or require "bit"
+      bit = require "posix.bit32"
       fcntl = require "posix.fcntl"
       syswait = require "posix.sys.wait"
 

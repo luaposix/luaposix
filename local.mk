@@ -22,11 +22,11 @@ LUA_ENV   = LUA_PATH="$(std_path)" LUA_CPATH="$(std_cpath)"
 ## Bootstrap. ##
 ## ---------- ##
 
-AM_CPPFLAGS  += -I $(srcdir)/ext/include -I $(srcdir)/ext/posix
+AM_CPPFLAGS  += -I $(srcdir)/ext/include -I $(srcdir)/ext/posix $(POSIX_EXTRA_CPPFLAGS)
 AM_CFLAGS     = $(WERROR_CFLAGS) $(WARN_CFLAGS)
 AM_LDFLAGS    = -module -avoid-version
 
-old_NEWS_hash = 7416f7c2db8d17f396b49cf2386f93a6
+old_NEWS_hash = d41d8cd98f00b204e9800998ecf8427e
 
 update_copyright_env = \
 	UPDATE_COPYRIGHT_HOLDER='(Gary V. Vaughan|Reuben Thomas|luaposix authors)' \
@@ -70,12 +70,13 @@ dist_luaposix_DATA =			\
 	lib/posix/util.lua		\
 	$(NOTHING_ELSE)
 
-luaexec_LTLIBRARIES = ext/posix/posix.la
+luaexec_LTLIBRARIES += ext/posix/posix.la
 
 ext_posix_posix_la_SOURCES =		\
 	ext/posix/posix.c		\
 	$(NOTHING_ELSE)
 EXTRA_ext_posix_posix_la_SOURCES =	\
+	ext/posix/bit32.c		\
 	ext/posix/ctype.c		\
 	ext/posix/curses.c		\
 	ext/posix/curses/chstr.c	\
@@ -110,14 +111,12 @@ EXTRA_ext_posix_posix_la_SOURCES =	\
 	ext/posix/utime.c		\
 	$(NOTHING_ELSE)
 
-ext_posix_posix_la_CFLAGS  = $(AM_CFLAGS) $(POSIX_EXTRA_CFLAGS)
-ext_posix_posix_la_LDFLAGS = $(AM_LDFLAGS) $(LIBCRYPT) $(LIBRT) $(CURSES_LIB)
+ext_posix_posix_la_LDFLAGS = $(AM_LDFLAGS) $(LIBCRYPT) $(LIBSOCKET) $(LIBRT) $(CURSES_LIB)
 
 luaexecposixdir = $(luaexecdir)/posix
 luaexecposixsysdir = $(luaexecposixdir)/sys
 
 # EXTRA_LTLIBRARIES don't have an RPATH by default.
-luaexec_LDFLAGS = $(AM_LDFLAGS) -rpath '$(luaexecdir)'
 luaexecposix_LDFLAGS = $(AM_LDFLAGS) -rpath '$(luaexecposixdir)'
 luaexecposixsys_LDFLAGS = $(AM_LDFLAGS) -rpath '$(luaexecposixsysdir)'
 
@@ -132,6 +131,7 @@ luaexecposixsys_LDFLAGS = $(AM_LDFLAGS) -rpath '$(luaexecposixsysdir)'
 # projects for custom interpreters/libraries.
 
 posix_submodules =			\
+	ext/posix/bit32.la		\
 	ext/posix/ctype.la		\
 	ext/posix/curses.la		\
 	ext/posix/curses/chstr.la	\
@@ -169,6 +169,7 @@ posix_submodules =			\
 EXTRA_LTLIBRARIES += $(posix_submodules)
 check_local += $(posix_submodules)
 
+ext_posix_bit32_la_LDFLAGS = $(luaexecposix_LDFLAGS)
 ext_posix_ctype_la_LDFLAGS = $(luaexecposix_LDFLAGS)
 ext_posix_curses_la_LDFLAGS = $(luaexecposix_LDFLAGS) $(CURSES_LIB)
 ext_posix_dirent_la_LDFLAGS = $(luaexecposix_LDFLAGS)
@@ -216,6 +217,7 @@ dist_doc_DATA +=			\
 	$(NOTHING_ELSE)
 
 dist_modules_DATA +=				\
+	doc/modules/posix.bit32.html		\
 	doc/modules/posix.ctype.html		\
 	doc/modules/posix.dirent.html		\
 	doc/modules/posix.errno.html		\
@@ -307,7 +309,6 @@ EXTRA_DIST +=				\
 	examples/tree.lua		\
 	ext/include/_helpers.c		\
 	ext/include/strlcpy.c		\
-	ext/include/lua52compat.h	\
 	$(NOTHING_ELSE)
 
 MAINTAINERCLEANFILES +=			\

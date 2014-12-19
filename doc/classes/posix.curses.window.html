@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 33 Reference</title>
+    <title>luaposix 33.1.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 33</h1>
+<h1>luaposix 33.1.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -45,6 +45,7 @@
 <h2>Modules</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../modules/posix.html">posix</a></li>
+  <li><a href="../modules/posix.bit32.html">posix.bit32</a></li>
   <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
   <li><a href="../modules/posix.curses.html">posix.curses</a></li>
   <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
@@ -527,7 +528,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_addch.3x.html">curs_addch(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_addch.html">curs_addch(3x)</a>
     </ul>
 
 
@@ -565,7 +566,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_addchstr.3x.html">curs_addchstr(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_addchstr.html">curs_addchstr(3x)</a>
     </ul>
 
 
@@ -605,7 +606,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_addstr.3x.html">curs_addstr(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_addstr.html">curs_addstr(3x)</a>
     </ul>
 
 
@@ -638,7 +639,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_attr.3x.html">curs_attr(3x)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_attr.html">curs_attr(3x)</a></li>
          <li><a href="../classes/posix.curses.window.html#posix.curses.window:standend">standend</a></li>
     </ul>
 
@@ -672,7 +673,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_attr.3x.html">curs_attr(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_attr.html">curs_attr(3x)</a>
     </ul>
 
 
@@ -705,7 +706,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_attr.3x.html">curs_attr(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_attr.html">curs_attr(3x)</a>
     </ul>
 
 
@@ -788,7 +789,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_border.3x.html">curs_border(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_border.html">curs_border(3x)</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -835,7 +836,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_border.3x.html">curs_border(3x)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_border.html">curs_border(3x)</a></li>
          <li><a href="../classes/posix.curses.window.html#posix.curses.window:border">border</a></li>
     </ul>
 
@@ -864,7 +865,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_border.3x.html">curs_border(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_border.html">curs_border(3x)</a>
     </ul>
 
 
@@ -897,7 +898,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_outopts.3x.html">curs_outopts(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_outopts.html">curs_outopts(3x)</a>
     </ul>
 
 
@@ -921,7 +922,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_window.3x.html">curs_window(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_window.html">curs_window(3x)</a>
     </ul>
 
 
@@ -939,7 +940,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_window.3x.html">curs_window(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_window.html">curs_window(3x)</a>
     </ul>
 
 
@@ -963,7 +964,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_border.3x.html">curs_border(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_border.html">curs_border(3x)</a>
     </ul>
 
 
@@ -987,7 +988,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_border.3x.html">curs_border(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_border.html">curs_border(3x)</a>
     </ul>
 
 
@@ -1046,7 +1047,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_inopts.3x.html">curs_inopts(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_inopts.html">curs_inopts(3x)</a>
     </ul>
 
 
@@ -1064,7 +1065,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_window.3x.html">curs_window(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_window.html">curs_window(3x)</a>
     </ul>
 
 
@@ -1088,7 +1089,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_delch.3x.html">curs_delch(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_delch.html">curs_delch(3x)</a>
     </ul>
 
 
@@ -1112,7 +1113,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_deleteln.3x.html">curs_deleteln(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_deleteln.html">curs_deleteln(3x)</a>
     </ul>
 
 
@@ -1155,7 +1156,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_window.3x.html">curs_window(3x)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_window.html">curs_window(3x)</a></li>
          <li><a href="../classes/posix.curses.window.html#posix.curses.window:sub">sub</a></li>
     </ul>
 
@@ -1189,7 +1190,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_addch.3x.html">curs_addch(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_addch.html">curs_addch(3x)</a>
     </ul>
 
 
@@ -1213,7 +1214,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_clear.3x.html">curs_clear(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_clear.html">curs_clear(3x)</a>
     </ul>
 
 
@@ -1243,7 +1244,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_getyx.3x.html">curs_getyx(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_getyx.html">curs_getyx(3x)</a>
     </ul>
 
 
@@ -1267,7 +1268,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_bkgd.3x.html">curs_bkgd(3x)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_bkgd.html">curs_bkgd(3x)</a></li>
          <li><a href="../classes/posix.curses.window.html#posix.curses.window:wbkgd">wbkgd</a></li>
     </ul>
 
@@ -1292,7 +1293,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_getch.3x.html">curs_getch(3x)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_getch.html">curs_getch(3x)</a></li>
          <li><a href="../modules/posix.curses.html#cbreak">posix.curses.cbreak</a></li>
          <li><a href="../modules/posix.curses.html#echo">posix.curses.echo</a></li>
          <li><a href="../classes/posix.curses.window.html#posix.curses.window:keypad">keypad</a></li>
@@ -1325,7 +1326,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_getyx.3x.html">curs_getyx(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_getyx.html">curs_getyx(3x)</a>
     </ul>
 
 
@@ -1352,7 +1353,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_getyx.3x.html">curs_getyx(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_getyx.html">curs_getyx(3x)</a>
     </ul>
 
 
@@ -1386,7 +1387,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_getstr.3x.html">curs_getstr(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_getstr.html">curs_getstr(3x)</a>
     </ul>
 
 
@@ -1413,7 +1414,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_getyx.3x.html">curs_getyx(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_getyx.html">curs_getyx(3x)</a>
     </ul>
 
 
@@ -1452,7 +1453,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_border.3x.html">curs_border(3x)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_border.html">curs_border(3x)</a></li>
          <li><a href="../classes/posix.curses.window.html#posix.curses.window:mvhline">mvhline</a></li>
          <li><a href="../classes/posix.curses.window.html#posix.curses.window:vline">vline</a></li>
     </ul>
@@ -1493,7 +1494,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_outopts.3x.html">curs_outopts(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_outopts.html">curs_outopts(3x)</a>
     </ul>
 
 
@@ -1526,7 +1527,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_outopts.3x.html">curs_outopts(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_outopts.html">curs_outopts(3x)</a>
     </ul>
 
 
@@ -1559,7 +1560,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_outopts.3x.html">curs_outopts(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_outopts.html">curs_outopts(3x)</a>
     </ul>
 
 
@@ -1583,7 +1584,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_deleteln.3x.html">curs_deleteln(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_deleteln.html">curs_deleteln(3x)</a>
     </ul>
 
 
@@ -1616,7 +1617,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_inopts.3x.html">curs_inopts(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_inopts.html">curs_inopts(3x)</a>
     </ul>
 
 
@@ -1649,7 +1650,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_refresh.3x.html">curs_refresh(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_refresh.html">curs_refresh(3x)</a>
     </ul>
 
 
@@ -1673,7 +1674,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_refresh.3x.html">curs_refresh(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_refresh.html">curs_refresh(3x)</a>
     </ul>
 
 
@@ -1707,7 +1708,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_inopts.3x.html">curs_inopts(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_inopts.html">curs_inopts(3x)</a>
     </ul>
 
 
@@ -1740,7 +1741,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_outopts.3x.html">curs_outopts(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_outopts.html">curs_outopts(3x)</a>
     </ul>
 
 
@@ -1771,7 +1772,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_inopts.3x.html">curs_inopts(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_inopts.html">curs_inopts(3x)</a>
     </ul>
 
 
@@ -1810,7 +1811,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_move.3x.html">curs_move(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_move.html">curs_move(3x)</a>
     </ul>
 
 
@@ -1845,7 +1846,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_window.3x.html">curs_window(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_window.html">curs_window(3x)</a>
     </ul>
 
 
@@ -1880,7 +1881,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_window.3x.html">curs_window(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_window.html">curs_window(3x)</a>
     </ul>
 
 
@@ -1913,7 +1914,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_addch.3x.html">curs_addch(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_addch.html">curs_addch(3x)</a>
     </ul>
 
 
@@ -1959,7 +1960,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_addchstr.3x.html">curs_addchstr(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_addchstr.html">curs_addchstr(3x)</a>
     </ul>
 
 
@@ -2011,7 +2012,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_addstr.3x.html">curs_addstr(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_addstr.html">curs_addstr(3x)</a>
     </ul>
 
 
@@ -2050,7 +2051,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_util.3x.html">curs_util(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_util.html">curs_util(3x)</a>
     </ul>
 
 
@@ -2089,7 +2090,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_deleteln.3x.html">curs_deleteln(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_deleteln.html">curs_deleteln(3x)</a>
     </ul>
 
 
@@ -2135,7 +2136,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_getstr.3x.html">curs_getstr(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_getstr.html">curs_getstr(3x)</a>
     </ul>
 
 
@@ -2186,7 +2187,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_border.3x.html">curs_border(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_border.html">curs_border(3x)</a>
     </ul>
 
 
@@ -2237,7 +2238,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_border.3x.html">curs_border(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_border.html">curs_border(3x)</a>
     </ul>
 
 
@@ -2276,7 +2277,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_getstr.3x.html">curs_getstr(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_getstr.html">curs_getstr(3x)</a>
     </ul>
 
 
@@ -2321,7 +2322,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_getstr.3x.html">curs_getstr(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_getstr.html">curs_getstr(3x)</a>
     </ul>
 
 
@@ -2366,7 +2367,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_instr.3x.html">curs_instr(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_instr.html">curs_instr(3x)</a>
     </ul>
 
 
@@ -2411,7 +2412,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_insch.3x.html">curs_insch(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_insch.html">curs_insch(3x)</a>
     </ul>
 
 
@@ -2462,7 +2463,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_getstr.3x.html">curs_getstr(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_getstr.html">curs_getstr(3x)</a>
     </ul>
 
 
@@ -2507,7 +2508,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_getstr.3x.html">curs_getstr(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_getstr.html">curs_getstr(3x)</a>
     </ul>
 
 
@@ -2540,7 +2541,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_inopts.3x.html">curs_inopts(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_inopts.html">curs_inopts(3x)</a>
     </ul>
 
 
@@ -2573,7 +2574,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_inopts.3x.html">curs_inopts(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_inopts.html">curs_inopts(3x)</a>
     </ul>
 
 
@@ -2597,7 +2598,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_refresh.3x.html">curs_refresh(3x)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_refresh.html">curs_refresh(3x)</a></li>
          <li><a href="../modules/posix.curses.html#doupdate">posix.curses.doupdate</a></li>
          <li><a href="../classes/posix.curses.window.html#posix.curses.window:refresh">refresh</a></li>
     </ul>
@@ -2630,7 +2631,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_overlay.3x.html">curs_overlay(3x)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_overlay.html">curs_overlay(3x)</a></li>
          <li><a href="../classes/posix.curses.window.html#posix.curses.window:overwrite">overwrite</a></li>
     </ul>
 
@@ -2662,7 +2663,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_inopts.3x.html">curs_inopts(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_inopts.html">curs_inopts(3x)</a>
     </ul>
 
 
@@ -2695,7 +2696,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/cur_pad.3x.html">cur_pad(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/cur_pad.html">cur_pad(3x)</a>
     </ul>
 
 
@@ -2746,7 +2747,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/cur_pad.3x.html">cur_pad(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/cur_pad.html">cur_pad(3x)</a>
     </ul>
 
 
@@ -2797,7 +2798,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/cur_pad.3x.html">cur_pad(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/cur_pad.html">cur_pad(3x)</a>
     </ul>
 
 
@@ -2836,7 +2837,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_refresh.3x.html">curs_refresh(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_refresh.html">curs_refresh(3x)</a>
     </ul>
 
 
@@ -2860,7 +2861,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_refresh.3x.html">curs_refresh(3x)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_refresh.html">curs_refresh(3x)</a></li>
          <li><a href="../classes/posix.curses.window.html#posix.curses.window:redrawln">redrawln</a></li>
     </ul>
 
@@ -2885,7 +2886,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_refresh.3x.html">curs_refresh(3x)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_refresh.html">curs_refresh(3x)</a></li>
          <li><a href="../modules/posix.curses.html#doupdate">posix.curses.doupdate</a></li>
          <li><a href="../classes/posix.curses.window.html#posix.curses.window:noutrefresh">noutrefresh</a></li>
     </ul>
@@ -2922,7 +2923,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_wresize.3x.html">curs_wresize(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_wresize.html">curs_wresize(3x)</a>
     </ul>
 
 
@@ -2955,7 +2956,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_scroll.3x.html">curs_scroll(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_scroll.html">curs_scroll(3x)</a>
     </ul>
 
 
@@ -2988,7 +2989,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_outopts.3x.html">curs_outopts(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_outopts.html">curs_outopts(3x)</a>
     </ul>
 
 
@@ -3012,7 +3013,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_attr.3x.html">curs_attr(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_attr.html">curs_attr(3x)</a>
     </ul>
 
 
@@ -3036,7 +3037,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_attr.3x.html">curs_attr(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_attr.html">curs_attr(3x)</a>
     </ul>
 
 
@@ -3079,7 +3080,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_window.3x.html">curs_window(3x)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_window.html">curs_window(3x)</a></li>
          <li><a href="../classes/posix.curses.window.html#posix.curses.window:derive">derive</a></li>
     </ul>
 
@@ -3131,7 +3132,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/cur_pad.3x.html">cur_pad(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/cur_pad.html">cur_pad(3x)</a>
     </ul>
 
 
@@ -3149,7 +3150,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_window.3x.html">curs_window(3x)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_window.html">curs_window(3x)</a></li>
          <li><a href="../classes/posix.curses.window.html#posix.curses.window:refresh">refresh</a></li>
     </ul>
 
@@ -3183,7 +3184,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_window.3x.html">curs_window(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_window.html">curs_window(3x)</a>
     </ul>
 
 
@@ -3201,7 +3202,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_window.3x.html">curs_window(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_window.html">curs_window(3x)</a>
     </ul>
 
 
@@ -3226,7 +3227,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_inopts.3x.html">curs_inopts(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_inopts.html">curs_inopts(3x)</a>
     </ul>
 
 
@@ -3259,7 +3260,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_touch.3x.html">curs_touch(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_touch.html">curs_touch(3x)</a>
     </ul>
 
 
@@ -3304,7 +3305,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_refresh.3x.html">curs_refresh(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_refresh.html">curs_refresh(3x)</a>
     </ul>
 
 
@@ -3343,7 +3344,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_border.3x.html">curs_border(3x)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_border.html">curs_border(3x)</a></li>
          <li><a href="../classes/posix.curses.window.html#posix.curses.window:hline">hline</a></li>
          <li><a href="../classes/posix.curses.window.html#posix.curses.window:mvvline">mvvline</a></li>
     </ul>
@@ -3378,7 +3379,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_bkgd.3x.html">curs_bkgd(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_bkgd.html">curs_bkgd(3x)</a>
     </ul>
 
 
@@ -3405,7 +3406,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_bkgd.3x.html">curs_bkgd(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_bkgd.html">curs_bkgd(3x)</a>
     </ul>
 
 
@@ -3429,7 +3430,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_inch.3x.html">curs_inch(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_inch.html">curs_inch(3x)</a>
     </ul>
 
 
@@ -3462,7 +3463,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_inchstr.3x.html">curs_inchstr(3x)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_inchstr.html">curs_inchstr(3x)</a></li>
          <li><a href="../classes/posix.curses.window.html#posix.curses.window:winnstr">winnstr</a></li>
     </ul>
 
@@ -3496,7 +3497,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_instr.3x.html">curs_instr(3x)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_instr.html">curs_instr(3x)</a></li>
          <li><a href="../classes/posix.curses.window.html#posix.curses.window:winchnstr">winchnstr</a></li>
     </ul>
 
@@ -3530,7 +3531,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_insch.3x.html">curs_insch(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_insch.html">curs_insch(3x)</a>
     </ul>
 
 
@@ -3563,7 +3564,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_deleteln.3x.html">curs_deleteln(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_deleteln.html">curs_deleteln(3x)</a>
     </ul>
 
 
@@ -3602,7 +3603,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_getstr.3x.html">curs_getstr(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_getstr.html">curs_getstr(3x)</a>
     </ul>
 
 
@@ -3635,7 +3636,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_insstr.3x.html">curs_insstr(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_insstr.html">curs_insstr(3x)</a>
     </ul>
 
 
@@ -3670,7 +3671,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/curs_outopts.3x.html">curs_outopts(3x)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/curs_outopts.html">curs_outopts(3x)</a>
     </ul>
 
 
@@ -3706,7 +3707,7 @@ window = curses.newwin (<span class="number">25</span>, <span class="number">80<
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-04 15:29:40 </i>
+<i style="float:right;">Last updated 2014-12-18 13:56:08 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

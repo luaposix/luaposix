@@ -250,19 +250,21 @@ C__call(lua_State *L)
 	memset(ncs->str, ' ', len * sizeof(chtype));
 	return 1;
 }
+#endif /*!HAVE_CURSES*/
 
 
 static const luaL_Reg posix_curses_chstr_fns[] =
 {
+#if HAVE_CURSES
 	LPOSIX_FUNC( Clen		),
 	LPOSIX_FUNC( Cset_ch		),
 	LPOSIX_FUNC( Cset_str		),
 	LPOSIX_FUNC( Cget		),
 	LPOSIX_FUNC( Cdup		),
+#endif
 	{ NULL, NULL }
 };
 
-#endif /*!HAVE_CURSES*/
 
 
 LUALIB_API int

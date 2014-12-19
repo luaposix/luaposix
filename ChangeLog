@@ -1,4 +1,313 @@
+2014-12-19  Gary V. Vaughan  <gary@gnu.org>
+
+	Release version 33.1.0
+	* NEWS.md: Record release date.
+
+	specs: adjust setrlimit error message expectations.
+	* specs/posix_sys_resource_spec.yaml (setrlimit): Adjust error
+	messages to reflect recent int->number table field type changes.
+
+	slingshot: sync with upstream, for Lua 5.3.0 improvements.
+	* slingshot: Sync with upstream.
+	* bootstrap: Update from slingshot.
+	* NEWS: Move from here...
+	* NEWS.md: ...to here. Convert to Markdown format.
+	* .gitignore: Add NEWS.
+	* local.mk (old_NEWS_hash): Regenerate.
+	(luaexec_LTLIBRARIES): Change from assigment to appending.
+	* .travis.yml: Regenerate.
+
+2014-12-18  Gary V. Vaughan  <gary@gnu.org>
+
+	resources: don't truncate rlim structure field values.
+	With f8d8939 we were too zealous with changing all internal
+	types from lua_Number (et. al) to lua_Integer (et. al), where
+	lua_Integer is not wide enough to contain an rlim_t.
+	* ext/include/_helpers (checknumberfield, pushnumberfield)
+	(setnumberfield): New function and macros equivalent to the
+	earlier implementations of checkintegerfield, pushintegerfield
+	and setintegerfield respectively.
+	* ext/posix/sys/resource.c (pushrlimit): Set PosixRlimit table
+	entries with setnumberfield.
+	(setrlimit): Extract PosixRlimit fields with checknumberfield.
+	* specs/posix_sys_resource_spec.yaml (setrlimit): Remove
+	spurious braces.
+
+	posix: fix bad argument errors for spawn.
+	* specs/posix_spec.yaml (spawn): Uncomment badargs diagnosis.
+	* lib/posix.lua.in (M.spawn): Fix argument type error message for
+	nil-valued argument 2.
+
+2014-12-17  Gary V. Vaughan  <gary@gnu.org>
+
+	sys.socket: support OpenBSD 5.6.
+	Close #182.
+	* ext/posix/sys/socket.c: Change the order of inclusion of some
+	headers to satisfy OpenBSD 5.6.
+
+2014-12-17  Reuben Thomas  <rrt@sc3d.org>
+
+	Fix argument checks for spawn and add specs
+
+2014-12-17  Gary V. Vaughan  <gary@gnu.org>
+
+	sys.msg: only enable SysV messaging where it is supported.
+	* configure.ac (AC_CHECK_HEADER): Add sys/msg.h.
+	(AC_CHECK_FUNCS): Add msgrcv, msgsend.
+	(HAVE_SYSV_MESSAGING): Define if the above are all present.
+	* ext/posix/sys/msg.c (LPOSIX_2001_COMPLIANT): Change from using
+	this...
+	(HAVE_SYSV_MESSAGING): ...to this.
+
+	configury: reformat AC_CHECK_FUNCS to discourage adding more!
+	* configure.ac: Reformat.
+
+2014-12-17  James Harris  <jimmy@jamesharris.org>
+
+	configury: no _XOPEN_SOURCE on QNX.
+	* configure.ac (POSIX_EXTRA_CPPFLAGS): Don't add _XOPEN_SOURCE on
+	QNX either.
+
+	socket: guard AI_ADDRCONFIG definition.
+	* ext/posix/sys/socket.c (luaopen_posix_sys_socket): For machines
+	that don't define AI_ADDRCONFIG, wrap the binding in a CPP guard.
+
+	unistd: stub gethostid for POSIX implementations that dropped it.
+	* configure.ac (AC_CHECK_FUNCS): Add gethostid.
+	* ext/posix/unistd.c (Pgethostid): If there is no gethostid on
+	this host, return an error rather than trying to call it.
+
+	configury: support separate libsocket.
+	* configure.ac (LIBSOCKET): Check for a socket funtion carrying
+	socket library.
+	* local.mk (ext_posix_posix_la_LDFLAGS): Add $(LIBSOCKET).
+
+	curses: fix compilation errors when host has no curses library.
+	* ext/posix/curses/chstr.c: Adjust #ifdef HAVE_CURSES to make
+	sure there's an emptyg posix_curses_chstr_fns definition.
+	* ext/posix/curses/window.c: Likewise for
+	posix_curses_windows_fns.
+	* ext/posix/curses.h: Likewise for curseslib.
+	Also move #includes for the above files out of the HAVE_CURSES
+	guard.
+
+2014-12-17  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: add Lua 5.3 to README.md.
+	* README.md: Add Lua 5.3 reference.
+
+	slingshot: sync with upstream, for travis ownership fixes.
+	* slingshot: Sync with uptstream.
+	* .travis.yml: Regenerate.
+
+	travis: debug check-local failure.
+	* .travis.yml (script): Debug check-local failure.
+
+	slingshot: sync with upstream, for Lua 5.3.x support.
+	* slingshot: Sync with upstream.
+	* .travis.yml: Regenerate.
+
+	configury: bump release number to 33.1.0.
+	* configure.ac (AC_INIT): Bump release number to 33.1.0.
+
+	specs: move stdlib function specs to their own spec-file.
+	* specs/posix_spec.yaml (abort, getenv, grantpt, mkdtemp, mkstemp)
+	(openpt, ptsname, realpath, unlockpt, setenv): Move from here...
+	* specs/posix_stdlib_spec.yaml (abort, getenv, grantpt, mkdtemp)
+	(mkstemp, openpt, ptsname, realpath, unlockpt, setenv): New file.
+	...to here.
+	* specs/specs.mk (specl_SPECS): Add specs/posix_stdlib_spec.yaml.
+
+	doc: cross reference umask and sys.stat.umask.
+	* ext/posix/sys/stat.c (umask): Reference posix.umask.
+	* lib/posix/compat.lua (umask): Reference posix.sys.stat.umask.
+
+2014-12-16  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: support 5.3.0 integers correctly.
+	Many integer fields and values were incorrectly becoming `.0`
+	suffixed floats in Lua 5.3.0.
+	* ext/include/_helpers.c (lua_isinteger): Define to lua_isnumber
+	with pre-5.3.0 Lua headers.
+	(checkinteger): Use it.
+	(checkch): Use checkint over luaL_checknumber.
+	(checkintegerfield): Use lua_pushinteger over lua_pushnumber.
+	(pushnumberfield, setnumberfield): Rename from these...
+	(pushintegerfield, setintegerfield): ...to these, and adjust to
+	work with Integer subtypes in Lua 5.3.0.
+	* ext/posix/curses.c (Punctrl): Use checkch over luaL_checknumber.
+	* ext/posix/grp (pushgroup): Set gr_gid field as an integer.
+	* ext/posix/poll.c (poll_fd_list_check_table): Use lua_isinteger
+	for argument check.
+	* ext/posix/pwd.c (pushpasswd): Use setintegerfield for pw_uid
+	and pwd_gid fields.
+	* ext/posix/sys/resource.c (pushrlimit): Use setintegerfield for
+	rlim_cur and rlim_max fields.
+	* ext/posix/sys/socket.c (pushsockaddrinfo): Use pushintegerfield
+	for family, port, pid and groups fields.
+	(Pgetaddrinfo): Use pushintegerfield for socktype and protocol
+	fields.
+	* ext/posix/sys/stat.c (pushstat): Use setintegerfield for all
+	fields.
+	* ext/posix/sys/statvfs.c (pushstatvfs): Use setintegerfield for
+	all fields.
+	* ext/posix/sys/time.c (pushtimeval): Use setintegerfield for
+	tv_sec and tv_usec fields.
+	* ext/posix/sys/times.c (pushtimefield): Use pushintegerfield.
+	* ext/posix/termio.c (Ptcgetattr): Use pushintegerfield for
+	iflag, oflag, lflag, cflag and cc fields.
+	* ext/posix/time.c (pushtimespec): Use setintegerfield for
+	tv_sec and tv_nsec fields.
+	(pushtm): Use setintegerfield for all fields.
+	* ext/posix/unistd.c (mygetuid. mygetgid): Use lua_isinteger and
+	lua_tointeger for argument checking.
+	* NEWS: Update.
+
+	stdlib: accept optional 3rd argument to setenv.
+	Close #185.
+	* ext/posix/stdlib.c (Psetenv): Allow optional 3rd argument again.
+	* NEWS: Update.
+
+	maint: remove unused luaexec_LDFLAGS macro.
+	Silence an Automake warning about unused luaexec_LDFLAGS.
+	* local.mk (luaexec_LDFLAGS): Remove.
+
+	slingshot: sync with upstream, for git submodule fixes.
+	Latest slingshot bootstrap passes arguments to 'git submodule init'
+	correctly.
+	* slingshot: Sync with upstream.
+	* bootstrap: Update from slingshot.
+	* .travis.yml: Regenerate.
+
+	specs: specify localtime and gmtime month values correctly.
+	* specs/posix_time_spec.yaml (gmtime, localtime): Add a
+	specification for December epoch returning month 11.
+	Fix description of month range to be 0-11.
+	* specs/posix_compat_spec.yaml (gmtime, localtime): Add a
+	specification for December epoch returning month 12.
+	Fix description of month range to be 1-12.
+	Fix specification to check month range 1-12.
+
+2014-12-16  Reuben Thomas  <rrt@sc3d.org>
+
+	Fix #187
+
+	Fix #189
+
+2014-11-06  Gary V. Vaughan  <gary@gnu.org>
+
+	deprecated: handle nonexistent files gracefully.
+	* lib/posix/deprecated (stat, statvfs): If the underlying C API
+	call does not return a table, simply return nil instead of
+	calling doselection.
+
+	sys.socket: initialize hints with zeros.
+	* ext/posix/sys/socket.c (Pgetaddrinfo): It's not safe to rely
+	on field values in uninitialised automatic struct addrinfo
+	declaration.  Use memset to overwrite garbage.
+	* NEWS: Update.
+
+	maint: support _POSIX_C_SOURCE in lieu of _POSIX_VERSION.
+	On OpenBSD 5.6, _POSIX_VERSION is set to just 199009L by default,
+	and messing with _XOPEN_SOURCE or setting _POSIX_VERSION directly
+	changes the C library header declarations.  It seems that
+	_POSIX_C_SOURCE is defined to 200112L by default, indicating that
+	the newer functions luaposix wants to bind to really are available.
+	* configure.ac (POSIX_EXTRA_CPPFLAGS): Elide _XOPEN_SOURCE
+	definition on OpenBSD.
+	* ext/include/_helpers.c (LPOSIX_2001_COMPLIANT): New preprocessor
+	symbol, defined when either _POSIX_VERSION or _POSIX_C_SOURCE
+	are bigger than 200112L.
+	* ext/posix/stdlib.c, ext/posix/sys/msg.c,
+	ext/posix/sys/socket.c, ext/posix/sys/times.c,
+	ext/posix/syslog.c, ext/posix/unistd.c: Predicate on new
+	LPOSIX_2001_COMPLIANT definition instead of _POSIX_VERSION.
+
+	sys.socket: make some more preprocessor constants conditional.
+	* ext/posix/sys/socket.c (AI_ALL, AI_V4MAPPED): Add preprocessor
+	guards, as these two are not defined on at least OpenBSD 5.6.
+
+	configury: propagate _XOPEN_SOURCE cpp defines fully.
+	* configure.ac (POSIX_EXTRA_CFLAGS): A misnomer...
+	(POSIX_EXTRA_CPPFLAGS): ...better named like this.
+	* local.mk (AM_CPPFLAGS): Add POSIX_EXTRA_CPPFLAGS, so addition
+	preprocessor definitions reach submodule compilation too.
+	(ext_posix_posix_la_CFLAGS): Remove.
+
+2014-11-05  Gary V. Vaughan  <gary@gnu.org>
+
+	doc: use OpenGroup SUSv3 urls for manual page links.
+	* build-aux/config.ld.in (custom_see_handler): Send manual page
+	links to OpenGroup SUSv3 specifications instead of kernel.org.
+
+	maint: update README.
+	* README.md: Update some bitrot.
+
+	configury: add sys/socket.h to other socket header checks.
+	The net/if.h check fails on at least OpenBSD 5.6 without this
+	patch.
+	* configure.ac (AC_CHECK_HEADERS): Add sys/socket.h to default
+	headers when checking for net/if.h and linux/netlink.h.
+
+	configury: set LIBRT only if it is required for clock_gettime.
+	* configure.ac (LIBRT): Extract from != Darwin guard and set to
+	-lrt if that is required for clock_gettime to work.
+	(POSIX_EXTRA_CFLAGS): Move up to compiler flag setting section.
+	(AC_CHECK_FUNCS): Move out of library checking section.
+
+	sys.resource: provide RLIMIT_AS fallback for OpenBSD 5.6.
+	* ext/posix/sys/resource.c (RLIMIT_AS): Fallback to RLIMIT_DATA
+	if not otherwise defined.
+
+	maint: preliminary Lua 5.3.0-beta compatibility.
+	Close #181.
+	* configure.ac (AX_PROG_LUA): Accept Lua 5.3 interpreters.
+	* ext/include/lua52compat.h: Remove.
+	* local.mk (EXTRA_DIST): Adjust accordingly.
+	* ext/include/_helpers.c (lua_objlen, lua_strlen, luaL_openlib)
+	(luaL_register): Lua 5.2 and 5.3 compatibility definitions.
+	* ext/posix/sched.c, ext/posix/termio.c: Use luaposix optint()
+	rather than deprecated luaL_optint().
+	* NEWS: Update.
+
+	bit32: remove remaining `require "bit"` invocations.
+	* lib/posix.lua.in: require "posix.bit32" unconditionally.
+	* specs/posix_unistd_spec.yaml: Likewise.
+
+	maint: remove dependency on luabitop.
+	* specs/spec_helper.lua (bit): Fallback on posix.bit32 if there
+	is no native bit32 module.
+	* lib/posix/compat.lua, lib/posix/deprecated.lua: Use
+	posix.bit32 unconditionally.
+	* rockspec.conf (dependencies): Remove luabitop.
+
+	bit32: fetch uint32_t definition from stdint.h.
+	* ext/posix/bit32.c: include stdint.h instead of sys/types.h.
+
+	bit32: new module for lua5.1 compatibility.
+	* specs/posix_bit32_spec.yaml: Specify behaviours of band, bnot
+	and bor.
+	* specs/specs.mk (specl_SPECS): Add posix_bit32_spec.yaml.
+	* ext/posix/bit32.c: New module implementing band, bnot and bor.
+	* ext/posix/posix.c: #include bit32.c.
+	* build-aux/config.ld.in (file): Add ext/posix/bit32.c.
+	* local.mk (EXTRA_ext_posix_posix_la_SOURCES): Likewise.
+	(posix_submodules): Likewise.
+	(ext_posix_bit32_la_LDFLAGS): Set module LDFLAGS.
+	* NEWS: Update.
+
 2014-11-04  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: ignore src.rock files.
+	* .gitignore: Add *.src.rock.
+
+	maint: update README.
+	* README.md: Fix some outdated paragraphs.
+
+	maint: post-release administrivia.
+	* NEWS: Add header line for next release.
+	* .prev-version: Record previous version.
+	* ./local.mk (old_NEWS_hash): Auto-update.
 
 	Release version 33.0.0
 	* NEWS: Record release date.

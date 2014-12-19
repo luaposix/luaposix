@@ -1,77 +1,128 @@
-# Lua is not officially supported, but an erlang environment will do.
-language: erlang
+language: c
 
 env:
   global:
-    - PACKAGE=luaposix
-    - ROCKSPEC=$PACKAGE-git-1.rockspec
-    - LUAROCKS_CONFIG=build-aux/luarocks-config.lua
-    - LUAROCKS_BASE=luarocks-2.2.0
-    - LUAROCKS="$LUA $HOME/bin/luarocks"
-  matrix:
-    - LUA=lua5.1             LUA_INCDIR=/usr/include/lua5.1     LUA_SUFFIX=5.1
-    - LUA=lua5.2             LUA_INCDIR=/usr/include/lua5.2     LUA_SUFFIX=5.2
-    - LUA=luajit-2.0.0-beta9 LUA_INCDIR=/usr/include/luajit-2.0 LUA_SUFFIX=5.1
+    - COMPILE="libtool --mode=compile --tag=CC gcc"
+    - CFLAGS="-O2 -Wall -DLUA_COMPAT_ALL -DLUA_USE_LINUX"
+    - INSTALL="libtool --mode=install install -p"
+    - LINK="libtool --mode=link --tag=CC gcc"
+    - LIBS="-lm -Wl,-E -ldl -lreadline"
 
-# Tool setup.
-install:
+    - ROCKSPEC=luaposix-git-1.rockspec
+
+    - prefix=/usr/local
+    - bindir=$prefix/bin
+    - incdir=$prefix/include
+    - libdir=$prefix/lib
+  matrix:
+    - LUA=lua5.3
+    - LUA=lua5.2
+    - LUA=lua5.1
+    - LUA=luajit
+
+
+before_install:
   # Put back the links for libyaml, which are missing on recent Travis VMs
   - test -f /usr/lib/libyaml.so ||
     sudo find /usr/lib -name 'libyaml*' -exec ln -s {} /usr/lib \;
-
   - sudo apt-get install help2man
-  - sudo apt-get install luajit
-  - sudo apt-get install libluajit-5.1-dev
-  - sudo apt-get install lua5.1
-  - sudo apt-get install liblua5.1-dev
-  - sudo apt-get install lua5.2
-  - sudo apt-get install liblua5.2-dev
 
-  # Install a recent luarocks release locally for everything else.
-  - wget http://luarocks.org/releases/$LUAROCKS_BASE.tar.gz
-  - tar zxvpf $LUAROCKS_BASE.tar.gz
-  # LuaRocks configure --with-lua argument is just a prefix!
-  - ( cd $LUAROCKS_BASE;
-      ./configure
-      --prefix=$HOME --with-lua=/usr --lua-version=$LUA_SUFFIX
-      --lua-suffix=$LUA_SUFFIX --with-lua-include=$LUA_INCDIR;
-      make build;
-      make install; )
+  # Fetch Lua sources.
+  - cd $TRAVIS_BUILD_DIR
+  - 'if test lua5.3 = "$LUA"; then
+      curl http://www.lua.org/work/lua-5.3.0-rc1.tar.gz | tar xz;
+      cd lua-5.3.0;
+    fi'
+  - 'if test lua5.2 = "$LUA"; then
+      curl http://www.lua.org/ftp/lua-5.2.3.tar.gz | tar xz;
+      cd lua-5.2.3;
+    fi'
+  - 'if test lua5.1 = "$LUA"; then
+      curl http://www.lua.org/ftp/lua-5.1.5.tar.gz | tar xz;
+      cd lua-5.1.5;
+    fi'
 
-# Configure and build.
-script:
-  # Initial bootstrap to build luarocks-config.lua, before we've
-  # installed our rocks.
-  - ./bootstrap --skip-rock-checks
+  # Unpack, compile and install Lua.
+  - 'if test luajit = "$LUA"; then
+      curl http://luajit.org/download/LuaJIT-2.0.3.tar.gz | tar xz;
+      cd LuaJIT-2.0.3;
+      make && sudo make install;
+      for header in lua.h luaconf.h lualib.h lauxlib.h luajit.h lua.hpp; do
+        if test -f /usr/local/include/luajit-2.0/$header; then
+          sudo ln -s /usr/local/include/luajit-2.0/$header /usr/local/include/$header;
+        fi;
+      done;
+    else
+      for src in src/*.c; do
+        test src/lua.c = "$src" || test src/luac.c = "$src" || eval $COMPILE $CFLAGS -c $src;
+      done;
+      eval $LINK -o lib$LUA.la -version-info 0:0:0 -rpath $libdir *.lo;
+      sudo mkdir -p $libdir;
+      eval sudo $INSTALL lib$LUA.la $libdir/lib$LUA.la;
+
+      eval $COMPILE $CFLAGS -c src/lua.c;
+      eval $LINK -static -o $LUA lua.lo lib$LUA.la $LIBS;
+      sudo mkdir -p $bindir;
+      eval sudo $INSTALL $LUA $bindir/$LUA;
+
+      sudo mkdir -p $incdir;
+      for header in lua.h luaconf.h lualib.h lauxlib.h lua.hpp; do
+        if test -f src/$header; then
+          eval sudo $INSTALL src/$header $incdir/$header;
+        fi;
+      done;
+    fi'
+
+  # Fetch LuaRocks.
+  - cd $TRAVIS_BUILD_DIR
+  - 'git clone https://github.com/keplerproject/luarocks.git luarocks-2.2.0'
+  - cd luarocks-2.2.0
+  - git checkout v2.2.0
+
+  # Compile and install luarocks.
+  - if test luajit = "$LUA"; then
+      ./configure --lua-suffix=jit;
+    else
+      ./configure;
+    fi
+  - 'make build && sudo make install'
+
+  # Tidy up file droppings.
+  - cd $TRAVIS_BUILD_DIR
+  - rm -rf lua-5.3.0 lua-5.2.3 lua-5.1.5 luarocks-2.2.0
+
+
+install:
+  # Use Lua 5.3 compatible rocks, where available.
+  - 'for rock in ldoc specl""; do
+       if test -z "$rock"; then break; fi;
+       if luarocks list | grep "^$rock$" >/dev/null; then continue; fi;
+       sudo luarocks install --server=http://rocks.moonscript.org/manifests/gvvaughan $rock;
+    done'
+
+  # Initial bootstrap to generate Makefile for rockspecs.
+  - ./bootstrap
   - ./configure LUA="$LUA"
-  - make $LUAROCKS_CONFIG
-    LUA="$LUA" LUA_INCDIR="$LUA_INCDIR" V=1
-    || cat $LUAROCKS_CONFIG config.log
+  - make rockspecs V=1
+    || cat $ROCKSPEC
 
-  # Set Lua and Shell paths up for local luarocks tree.
-  # this package depends on will be installed.
-  - eval `$LUAROCKS path`
-  - export PATH=`pwd`/luarocks/bin:$PATH
+  # Rerun bootstrap automatically from git rockspec.
+  - sudo luarocks make $ROCKSPEC LUA="$LUA"
+  - sudo make clean
 
-  # Install extra rocks into $LUAROCKS_CONFIG rocks tree.
-  - $LUAROCKS install lyaml; $LUAROCKS install ldoc; $LUAROCKS install specl;
 
-  # Make git rockspec for this luaposix
-  - make rockspecs LUAROCKS="$LUAROCKS" V=1
-    || { $LUAROCKS path; cat $ROCKSPEC; }
+script:
+  - make all check V=1
 
-  # The git rockspec will rerun bootstrap, and check any rock versions
-  # in bootstrap.conf:buildreq this time.
-  - $LUAROCKS make $ROCKSPEC LUA="$LUA"
 
-  # Run self-tests in the `luarocks make` build tree.
-  - LUA_PATH=`pwd`'/lib/?.lua;'"${LUA_PATH-;}"
-    LUA_CPATH=`pwd`'/ext/?.so;'"${LUA_CPATH-;}"
-    LUA_INIT= LUA_INIT_5_2=
-    make check V=1
-
-  # Run sanity checks on CI server, ignoring buggy automakes.
-  - echo 'local-checks-to-skip = sc_vulnerable_makefile_CVE-2012-3386' >> build-aux/sanity-cfg.mk
+# Run sanity checks on CI server, ignoring buggy automakes.
+after_success:
+  - '{ _assign="=";
+       if grep local-checks-to-skip build-aux/sanity-cfg.mk >/dev/null; then
+         _assign="+=";
+       fi;
+       printf "local-checks-to-skip %s sc_vulnerable_makefile_CVE-2012-3386\n" "$_assign";
+     } >> build-aux/sanity-cfg.mk'
   - 'make syntax-check || :'
 
 notifications:

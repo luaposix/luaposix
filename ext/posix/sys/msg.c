@@ -22,18 +22,12 @@
 
 #include <config.h>
 
-#include <unistd.h>	/* for _POSIX_VERSION */
+#include "_helpers.c"	/* For LPOSIX_2001_COMPLIANT */
 
-#if _POSIX_VERSION >= 200112L
+#if HAVE_SYSV_MESSAGING
 #include <sys/ipc.h>
 #include <sys/msg.h>
-#endif
 #include <sys/types.h>
-
-#include "_helpers.c"
-
-
-#if _POSIX_VERSION >= 200112L
 
 /***
 Get a message queue identifier
@@ -152,12 +146,12 @@ Pmsgrcv(lua_State *L)
 
 	return (res == -1) ? pusherror(L, NULL) : 2;
 }
-#endif
+#endif /*!HAVE_SYSV_MESSAGING*/
 
 
 static const luaL_Reg posix_sys_msg_fns[] =
 {
-#if _POSIX_VERSION >= 200112L
+#if HAVE_SYSV_MESSAGING
 	LPOSIX_FUNC( Pmsgget		),
 	LPOSIX_FUNC( Pmsgsnd		),
 	LPOSIX_FUNC( Pmsgrcv		),
@@ -197,18 +191,17 @@ luaopen_posix_sys_msg(lua_State *L)
 	lua_pushliteral(L, "posix.sys.msg for " LUA_VERSION " / " PACKAGE_STRING);
 	lua_setfield(L, -2, "version");
 
-#if _POSIX_VERSION >= 200112L
+#if HAVE_SYSV_MESSAGING
 	LPOSIX_CONST( IPC_CREAT		);
 	LPOSIX_CONST( IPC_EXCL		);
 	LPOSIX_CONST( IPC_PRIVATE	);
 	LPOSIX_CONST( IPC_NOWAIT	);
-#endif
-
-#ifdef MSG_EXCEPT
+#  ifdef MSG_EXCEPT
 	LPOSIX_CONST( MSG_EXCEPT	);
-#endif
-#ifdef MSG_NOERROR
+#  endif
+#  ifdef MSG_NOERROR
 	LPOSIX_CONST( MSG_NOERROR	);
+#  endif
 #endif
 
 	return 1;

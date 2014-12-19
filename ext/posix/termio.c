@@ -151,16 +151,16 @@ Ptcgetattr(lua_State *L)
 	if (r == -1) return pusherror(L, NULL);
 
 	lua_newtable(L);
-	lua_pushnumber(L, t.c_iflag); lua_setfield(L, -2, "iflag");
-	lua_pushnumber(L, t.c_oflag); lua_setfield(L, -2, "oflag");
-	lua_pushnumber(L, t.c_lflag); lua_setfield(L, -2, "lflag");
-	lua_pushnumber(L, t.c_cflag); lua_setfield(L, -2, "cflag");
+	pushintegerfield("iflag", t.c_iflag);
+	pushintegerfield("oflag", t.c_oflag);
+	pushintegerfield("lflag", t.c_lflag);
+	pushintegerfield("cflag", t.c_cflag);
 
 	lua_newtable(L);
 	for (i=0; i<NCCS; i++)
 	{
-		lua_pushnumber(L, i);
-		lua_pushnumber(L, t.c_cc[i]);
+		lua_pushinteger(L, i);
+		lua_pushinteger(L, t.c_cc[i]);
 		lua_settable(L, -3);
 	}
 	lua_setfield(L, -2, "cc");
@@ -212,17 +212,17 @@ Ptcsetattr(lua_State *L)
 	luaL_checktype(L, 3, LUA_TTABLE);
 	checknargs(L, 3);
 
-	lua_getfield(L, 3, "iflag"); t.c_iflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
-	lua_getfield(L, 3, "oflag"); t.c_oflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
-	lua_getfield(L, 3, "cflag"); t.c_cflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
-	lua_getfield(L, 3, "lflag"); t.c_lflag = luaL_optint(L, -1, 0); lua_pop(L, 1);
+	lua_getfield(L, 3, "iflag"); t.c_iflag = optint(L, -1, 0); lua_pop(L, 1);
+	lua_getfield(L, 3, "oflag"); t.c_oflag = optint(L, -1, 0); lua_pop(L, 1);
+	lua_getfield(L, 3, "cflag"); t.c_cflag = optint(L, -1, 0); lua_pop(L, 1);
+	lua_getfield(L, 3, "lflag"); t.c_lflag = optint(L, -1, 0); lua_pop(L, 1);
 
 	lua_getfield(L, 3, "cc");
 	for (i=0; i<NCCS; i++)
 	{
-		lua_pushnumber(L, i);
+		lua_pushinteger(L, i);
 		lua_gettable(L, -2);
-		t.c_cc[i] = luaL_optint(L, -1, 0);
+		t.c_cc[i] = optint(L, -1, 0);
 		lua_pop(L, 1);
 	}
 
