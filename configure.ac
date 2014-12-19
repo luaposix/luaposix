@@ -1,10 +1,11 @@
-dnl configure.ac
-dnl Written by Gary V. Vaughan, 2012
+## configure.ac
+## Written by Gary V. Vaughan, 2012
 
-dnl Copyright (c) 2012-2014 Gary V. Vaughan
+## Copyright (c) 2012-2014 Gary V. Vaughan
 
-dnl This file is part of luaposix.
-dnl See README for license.
+## This file is part of luaposix.
+## See README for license.
+## ------------------------------------------------------------------------
 
 AC_INIT([luaposix], [33.1.0], [http://github.com/luaposix/luaposix/issues])
 AC_CONFIG_AUX_DIR([build-aux])
@@ -16,14 +17,40 @@ echo
 AM_INIT_AUTOMAKE([-Wall subdir-objects])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
-dnl Check for programs
+## Check for programs
 AC_PROG_CC
 gl_EARLY
 AC_PROG_MKDIR_P
 AC_PROG_EGREP
 AC_PROG_SED
 
+
+## ------------------------------------------------------------------------
+## Compiler flags for POSIX 2008 or better compliance.
+## ------------------------------------------------------------------------
+
 AC_USE_SYSTEM_EXTENSIONS
+AC_CANONICAL_HOST
+case $host_os in
+  *nto*|*qnx*)
+    # QNX is only POSIX 2001, but _XOPEN_SOURCE turns off other
+    # functions luaposix can bind.
+    AC_SUBST([POSIX_EXTRA_CPPFLAGS], [-DLPOSIX_2001_COMPLIANT])
+    ;;
+
+  darwin*|openbsd*)
+    # Setting _XOPEN_SOURCE here messes up header declarations, but
+    # all functions luaposix can bind are available without it.
+    ;;
+
+  *)
+    # Enable POSIX 2008.  Please send a $host_os match if your host
+    # is not compliant.
+    AC_SUBST([POSIX_EXTRA_CPPFLAGS], [-D_XOPEN_SOURCE=700])
+    ;;
+esac
+
+
 AC_ARG_ENABLE([gcc-warnings],
   [AS_HELP_STRING([--enable-gcc-warnings],
                   [turn on lots of GCC warnings (for developers)])],
@@ -70,7 +97,7 @@ if test "$gl_gcc_warnings" = yes; then
   gl_WARN_ADD([-fmudflap])
 fi
 
-dnl required by automake 1.12.x, not available in 1.10.x
+## required by automake 1.12.x, not available in 1.10.x
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 
 LT_PREREQ([2.2.6])
@@ -84,24 +111,14 @@ AC_SUBST(LIBTOOL_DEPS)
 
 gl_INIT
 
-dnl Compiler flags for POSIX.2001 or better compliance.
-case $host_os in
-  darwin*|*nto*|openbsd*|*qnx*)
-    # Setting _XOPEN_SOURCE here messes up header declarations
-    ;;
-  *)
-    AC_SUBST([POSIX_EXTRA_CPPFLAGS], [-D_XOPEN_SOURCE=700])
-    ;;
-esac
-
-dnl Check for header files
+## Check for header files
 AC_HEADER_STDC
 AC_CHECK_HEADERS([crypt.h strings.h sys/statvfs.h])
 AC_CHECK_HEADERS([net/if.h linux/netlink.h], [], [], [
 #include <sys/socket.h>
 ])
 
-dnl SysV messaging
+## SysV messaging
 AC_CHECK_HEADERS([sys/msg.h])
 AC_CHECK_FUNCS([msgrcv msgsnd])
 case $ac_cv_header_sys_msg_h,$ac_cv_func_msgrcv,$ac_cv_func_msgsnd in
@@ -113,7 +130,7 @@ esac
 
 AC_CHECK_DECLS_ONCE([fdatasync])
 
-dnl Search libs
+## Search libs
 save_LIBS=$LIBS
 LIBS=
 AC_SEARCH_LIBS([crypt], [crypt],
@@ -121,7 +138,7 @@ AC_SEARCH_LIBS([crypt], [crypt],
 AC_SUBST([LIBCRYPT], [$LIBS])
 LIBS=$save_LIBS
 
-dnl Socket (required for qnx, at least)
+## Socket (required for qnx, at least)
 save_LIBS=$LIBS
 LIBS=
 AC_SEARCH_LIBS([socket], [socket], [])
@@ -135,7 +152,7 @@ AC_CHECK_LIB([rt], [clock_gettime])
 AC_SUBST([LIBRT], [$LIBS])
 LIBS=$save_LIBS
 
-dnl Curses
+## Curses
 AX_WITH_CURSES
 AC_ARG_VAR(CURSES_LIB, [linker flags for curses library])
 
@@ -144,7 +161,7 @@ LIBS="$CURSES_LIB $LIBS"
 AC_CHECK_FUNCS([resizeterm])
 LIBS=$save_LIBS
 
-dnl Use system implementation, or bundled replacement?
+## Use system implementation, or bundled replacement?
 AC_CHECK_FUNCS([strlcpy])
 
 ## ------------------------------------------------------------------------
@@ -156,32 +173,32 @@ AC_CHECK_FUNCS([strlcpy])
 ## and configury to support partially compliant hosts!
 ## ------------------------------------------------------------------------
 
-dnl Thread scheduling priority
+## Thread scheduling priority
 AC_CHECK_FUNCS([sched_getsheduler sched_setscheduler])
 
-dnl Statvfs support
+## Statvfs support
 AC_CHECK_FUNCS([statvfs])
 
-dnl Deprecated or otherwise spottily supported POSIX functions
+## Deprecated or otherwise spottily supported POSIX functions
 AC_CHECK_FUNCS([gethostid posix_fadvise])
 
 
-dnl Lua
+## Lua
 AX_PROG_LUA(5.1, 5.4)
 AX_LUA_HEADERS
 AC_PATH_PROG([SPECL], [specl], [:])
 
-dnl Perl
+## Perl
 AC_PATH_PROG([PERL], [perl])
 if test -z "$PERL"; then
   AC_MSG_FAILURE([cannot find perl])
 fi
 
-dnl ldoc
+## ldoc
 AC_PATH_PROG([LDOC], [ldoc], [false])
 AM_CONDITIONAL([HAVE_LDOC], [test false != "$LDOC"])
 
-dnl Generate output files
+## Generate output files
 SS_CONFIG_TRAVIS([ldoc specl])
 AC_CONFIG_HEADER(config.h)
 AC_CONFIG_FILES([Makefile build-aux/config.ld lib/posix.lua])

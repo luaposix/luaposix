@@ -39,8 +39,12 @@
 #endif
 
 /* Some systems set _POSIX_C_SOURCE over _POSIX_VERSION! */
-#if _POSIX_C_SOURCE >= 200112L || _POSIX_VERSION >= 200112L
+#if _POSIX_C_SOURCE >= 200112L || _POSIX_VERSION >= 200112L || _XOPEN_SOURCE >= 600
 #  define LPOSIX_2001_COMPLIANT 1
+#endif
+
+#if _POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700
+#  define LPOSIX_2008_COMPLIANT 1
 #endif
 
 #include "lua.h"
