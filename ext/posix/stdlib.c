@@ -101,7 +101,6 @@ Pgrantpt(lua_State *L)
 }
 
 
-#if defined LPOSIX_2008_COMPLIANT
 /***
 Create a unique temporary directory.
 @function mkdtemp
@@ -115,6 +114,7 @@ Create a unique temporary directory.
 static int
 Pmkdtemp(lua_State *L)
 {
+#if defined LPOSIX_2008_COMPLIANT
 	const char *path = luaL_checkstring(L, 1);
 	size_t path_len = strlen(path) + 1;
 	void *ud;
@@ -132,8 +132,12 @@ Pmkdtemp(lua_State *L)
 		lua_pushstring(L, tmppath);
 	lalloc(ud, tmppath, path_len, 0);
 	return (r == NULL) ? pusherror(L, path) : 1;
-}
+#else
+	lua_pushnil(L);
+	lua_pushliteral(L, "not implemented by host C library");
+	return 2;
 #endif
+}
 
 
 /***
@@ -306,9 +310,7 @@ static const luaL_Reg posix_stdlib_fns[] =
 	LPOSIX_FUNC( Pabort		),
 	LPOSIX_FUNC( Pgetenv		),
 	LPOSIX_FUNC( Pgrantpt		),
-#if defined LPOSIX_2008_COMPLIANT
 	LPOSIX_FUNC( Pmkdtemp		),
-#endif
 	LPOSIX_FUNC( Pmkstemp		),
 	LPOSIX_FUNC( Popenpt		),
 	LPOSIX_FUNC( Pptsname		),
