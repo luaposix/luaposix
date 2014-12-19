@@ -93,7 +93,12 @@ before_install:
 
 
 install:
-  - sudo luarocks install lyaml; sudo luarocks install ldoc; sudo luarocks install specl;
+  # Use Lua 5.3 compatible rocks, where available.
+  - 'for rock in ldoc specl""; do
+       if test -z "$rock"; then break; fi;
+       if luarocks list | grep "^$rock$" >/dev/null; then continue; fi;
+       sudo luarocks install --server=http://rocks.moonscript.org/manifests/gvvaughan $rock;
+    done'
 
   # Initial bootstrap to generate Makefile for rockspecs.
   - ./bootstrap

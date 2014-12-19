@@ -1,8 +1,8 @@
 Stdlib NEWS - User visible changes
 
-* Noteworthy changes in release ?.? (????-??-??) [?]
+## Noteworthy changes in release ?.? (????-??-??) [?]
 
-** New features:
+### New features:
 
  - New `posix.bit32` module with band, bnot and bor functions that can be
    used from any supported Lua release, without worrying about loading an
@@ -10,7 +10,7 @@ Stdlib NEWS - User visible changes
 
  - Preliminary Lua 5.3.0 compatibility.
 
-** Bug fixes:
+### Bug fixes:
 
  - No more 'Bad Hints' errors from `posix.sys.socket.getaddrinfo` on many
    hosts.
@@ -18,9 +18,9 @@ Stdlib NEWS - User visible changes
  - `stdlib.setenv` accepts a 3rd argument again.
 
 
-* Noteworthy changes in release 33.0.0 (2014-11-04) [stable]
+## Noteworthy changes in release 33.0.0 (2014-11-04) [stable]
 
-** New features:
+### New features:
 
  - The curses library is fully integrated into luaposix, including reasonably
    comprehensive LDoc documentation (certainly much better than the single
@@ -34,6 +34,7 @@ Stdlib NEWS - User visible changes
    `posix.???` namespace, but, now raw APIs have been reorganised according to
    the POSIX header files they belong to:
 
+   ```lua
       local posix  = require "posix"
       local fcntl  = require "posix.fcntl"
       local unistd = require "posix.unistd"
@@ -42,6 +43,7 @@ Stdlib NEWS - User visible changes
          bit32.bor (posix.O_WRONLY, posix.O_CREAT), "u=rw")
       unistd.write (fd, "Hello, World!\n")
       unistd.close (fd)
+   ```
 
    This makes the documentation easier to navigate, and for a better mapping
    between luaposix APIs and the C functions they wrap, so translating from
@@ -161,7 +163,7 @@ Stdlib NEWS - User visible changes
 
  - Add missing `curses.KEY_F31` constant.
 
-** Bug fixes:
+### Bug fixes:
 
  - `posix.fadvise` is now spelled `posix.fcntl.posix_fadvise` and takes a
    file descriptor first argument rather than a Lua file handle. The old
@@ -188,9 +190,9 @@ Stdlib NEWS - User visible changes
    truncated -- often before terminal colors were returned to normal.
 
 
-* Noteworthy changes in release 32 (2014-05-30) [stable]
+## Noteworthy changes in release 32 (2014-05-30) [stable]
 
-** New features:
+### New features:
 
  - Support for posix.socketpair call and posix.AF_UNIX constant.
 
@@ -202,7 +204,7 @@ Stdlib NEWS - User visible changes
 
  - posix api documentation is separated into groups for better discovery.
 
-** Bug fixes:
+### Bug fixes:
 
  - Builds correctly on hosts with no IPV6 capability.
 
@@ -224,28 +226,28 @@ Stdlib NEWS - User visible changes
  - Docs for apis implemented in Lua are now shown correctly.
 
 
-* Noteworthy changes in release 31 (2013-09-09) [stable]
+## Noteworthy changes in release 31 (2013-09-09) [stable]
 
-** New features:
+### New features:
 
  - Missing termios cc flags are now available.
 
-** Bug fixes:
+### Bug fixes:
 
  - posix.tcgetattr and posix.tcsetattr no save and restore all flags,
    regardless of whether they are local extensions to POSIX.
 
 
-* Noteworthy changes in release 30 (2013-08-29) [stable]
+## Noteworthy changes in release 30 (2013-08-29) [stable]
 
-** New features:
+### New features:
 
  - Support for file locks with fcntl() using F_SETLK, F_SETLKW, F_GETLK,
    F_RDLCK, F_WRLCK and F_UNLCK.
 
  - Preliminary support for GNU Hurd, and OpenBSD.
 
-** Bug fixes:
+### Bug fixes:
 
  - posix.shutdown can actually be called now.
 
@@ -256,17 +258,17 @@ Stdlib NEWS - User visible changes
  - Many small typos and inconsistencies, see ChangeLog for details.
 
 
-* Noteworthy changes in release 29 (2013-06-28) [stable]
+## Noteworthy changes in release 29 (2013-06-28) [stable]
 
-** This release adds wresize to curses, and sync, fsync, fdatasync, nice,
+ - This release adds wresize to curses, and sync, fsync, fdatasync, nice,
    lseek as well as socket programming functions.  Several small improvements
    to the documentation were also added.
 
-** luaposix is compatible with Lua 5.1, Lua 5.2 and luajit 2.0, so the
+ - luaposix is compatible with Lua 5.1, Lua 5.2 and luajit 2.0, so the
    5.1 prefix to the release version has become an anachronism and has
    been dropped from this release onwards.
 
-** New features:
+### New features:
 
  - Move to the Slingshot release system, which (among many other improvements)
    fixes release tarballs from github to work with the standard GNU-style:
@@ -277,16 +279,16 @@ Stdlib NEWS - User visible changes
  - Much improved former lunit and ad-hoc test scripts to Specl.
 
 
-* Noteworthy changes in release 5.1.28 (2013-03-23) [stable]
+## Noteworthy changes in release 5.1.28 (2013-03-23) [stable]
 
-** This release fixes the previously unannounced posix.pipeline_iterator and
+ - This release fixes the previously unannounced posix.pipeline_iterator and
    posix.pipeline_slurp functions, and adds a test for them. A workaround for
    having LUA_INIT_5_2 set has been added to the build system.
 
 
-* Noteworthy changes in release 5.1.27 (2013-03-17) [stable]
+## Noteworthy changes in release 5.1.27 (2013-03-17) [stable]
 
-** This release fixes broken Lua 5.1 compatibility in release 5.1.26
+ - This release fixes broken Lua 5.1 compatibility in release 5.1.26
    (sorry! And thanks to Nick McVeity for the bug report and patch); renames
    posix.system to posix.spawn (the old name is available for backwards
    compatibility), generalizing it to take a shell command, file and
@@ -295,48 +297,48 @@ Stdlib NEWS - User visible changes
    function.
 
 
-* Noteworthy changes in release 5.1.26 (2013-03-04) [stable]
+## Noteworthy changes in release 5.1.26 (2013-03-04) [stable]
 
-** This release adds killpg, realpath and openpty, adds a flags parameter to
+ - This release adds killpg, realpath and openpty, adds a flags parameter to
    signal, and improves some documentation.
 
 
-* Noteworthy changes in release 5.1.25 (2013-02-20) [stable]
+## Noteworthy changes in release 5.1.25 (2013-02-20) [stable]
 
-** This release adds support for message queues and UNIX 98 pseudoterminals
+ - This release adds support for message queues and UNIX 98 pseudoterminals
    (thanks very much to the respective contributors), and allows argv[0] to
    be set in exec calls.
 
 
-* Noteworthy changes in release 5.1.24 (2013-02-15) [stable]
+## Noteworthy changes in release 5.1.24 (2013-02-15) [stable]
 
-** This release adds isatty and constants STDIN_FILENO, STDOUT_FILENO and
+ - This release adds isatty and constants STDIN_FILENO, STDOUT_FILENO and
    STDERR_FILENO, fixes a bug in readlink, adds a day field to time tables
    for compatibility with os.date, and overhauls the build and release system.
 
 
-* Noteworthy changes in release 5.1.23 (2012-10-04) [stable]
+## Noteworthy changes in release 5.1.23 (2012-10-04) [stable]
 
-** This release fixes the curses module for Lua 5.2; previously it would not
+ - This release fixes the curses module for Lua 5.2; previously it would not
    load with an unknown symbol error. The build process  for luarocks has been
    made more robust.
 
 
-* Noteworthy changes in release 5.1.22 (2012-09-13) [stable]
+## Noteworthy changes in release 5.1.22 (2012-09-13) [stable]
 
-** This release fixes building on Mac OS X and some other OSes which don't
+ - This release fixes building on Mac OS X and some other OSes which don't
    like building empty libraries. Thanks to Robert McLay for the bug report.
 
 
-* Noteworthy changes in release 5.1.21 (2012-09-10) [stable]
+## Noteworthy changes in release 5.1.21 (2012-09-10) [stable]
 
-** This release adds comprehensive documentation for the posix module, from
+ - This release adds comprehensive documentation for the posix module, from
    Steve Donovan and Natanael Copa.
 
-** It makes one small change: rpoll now uses file descriptors, not Lua file
+ - It makes one small change: rpoll now uses file descriptors, not Lua file
    objects (hence, via fileno, it can use both).
 
-** Perhaps most importantly, it marks a change of maintainer, from
+ - Perhaps most importantly, it marks a change of maintainer, from
    Reuben Thomas to Alexander Nikolaev. Thanks very much to Alexander for
    agreeing to take over. Luaposix has garnered considerable interest in
    recent months, and more contributors have stepped forwards with patches.
@@ -345,9 +347,9 @@ Stdlib NEWS - User visible changes
    back into disrepair as it has several times in the past.
 
 
-* Noteworthy changes in release 5.1.20 (2012-06-22) [stable]
+## Noteworthy changes in release 5.1.20 (2012-06-22) [stable]
 
-** New featurse:
+### New featurse:
 
  - Improves signal handling.
  - Improves the posix.system and creat functions (all thanks to Steve Donovan).
@@ -356,13 +358,13 @@ Stdlib NEWS - User visible changes
  - improves the tests.
  - Adds some code guidelines.
 
-** Bug fixes:
+### Bug fixes:
 
  - Fixes a bug in getgroup.
  - Fixes some space leaks (thanks, Alexander Nikolaev),
  - Copes with sysconf for _PC_PATH_MAX returning -1.
 
-** Incompatible Changes:
+### Incompatible Changes:
 
  - The API of posix.open has changed to be more like the C version: the file
    creation and status flags are now constants in the POSIX namespace. This
@@ -371,33 +373,33 @@ Stdlib NEWS - User visible changes
    when O_CREAT is used.
 
 
-* Noteworthy changes in release 5.1.19 (2012-04-10) [stable]
+## Noteworthy changes in release 5.1.19 (2012-04-10) [stable]
 
-** This release avoids the use of PATH_MAX, and copes with arbitrarily-long
+ - This release avoids the use of PATH_MAX, and copes with arbitrarily-long
    paths. The implementation of strlcpy is changed to a BSD-licensed
    implementation; the previously-used implementation was LGPL-licensed, which
    is not MIT-compatible; thanks to Alexander Gladysh for bringing this
    problem to my attention. (This was just mis-released as 5.1.18; sorry!)
 
 
-* Noteworthy changes in release 5.1.18 (2012-03-26) [stable]
+## Noteworthy changes in release 5.1.18 (2012-03-26) [stable]
 
-** This release implements full Lua 5.2 compatibility; thanks to Enrico Tassi
+ - This release implements full Lua 5.2 compatibility; thanks to Enrico Tassi
    for poking me to get this done.
 
 
-* Noteworthy changes in release 5.1.17 (2012-02-29) [stable]
+## Noteworthy changes in release 5.1.17 (2012-02-29) [stable]
 
-** This release improves support for Lua 5.2; the curses module should now
+ - This release improves support for Lua 5.2; the curses module should now
    work fine (the posix module still needs updating). Signal handling has been
    improved to make it possible to chain to a C signal handler, and a bug in
    resetting the process's signal mask after running a Lua handler has been
    fixed.
 
 
-* Noteworthy changes in release 5.1.16 (2012-02-18) [stable]
+## Noteworthy changes in release 5.1.16 (2012-02-18) [stable]
 
-** This release includes rewritten fcntl and signals support, and bug fixes
+ - This release includes rewritten fcntl and signals support, and bug fixes
    for read, chmod, getgroups and waitpid. curses boolean return values are
    now Lua booleans rather than 0 for OK or ERR for not OK. fnmatch, strptime
    and mktime are now supported, chmod now supports octal modes, thereâs
@@ -406,57 +408,57 @@ Stdlib NEWS - User visible changes
    Thanks go to the many contributors to this release.
 
 
-* Noteworthy changes in release 5.1.15 (2011-09-29) [stable]
+## Noteworthy changes in release 5.1.15 (2011-09-29) [stable]
 
-** This release adds dup, pipe, pipe2 and more fcntl support (thanks to
+ - This release adds dup, pipe, pipe2 and more fcntl support (thanks to
    Alexander V. Nikolaev and Alexander Gladysh for the patches). Two bugs in
    the test code which used incorrect paths and caused only one set of tests
    to run have been fixed.
 
 
-* Noteworthy changes in release 5.1.14 (2011-09-19) [stable]
+## Noteworthy changes in release 5.1.14 (2011-09-19) [stable]
 
-** This release allows some constants to be case-insensitive in Lua, and fixes
+ - This release allows some constants to be case-insensitive in Lua, and fixes
    a small build-system bug.
 
 
-* Noteworthy changes in release 5.1.13 (2011-09-17) [stable]
+## Noteworthy changes in release 5.1.13 (2011-09-17) [stable]
 
-** This release adds a rockspec.
+This release adds a rockspec.
 
 
-* Noteworthy changes in release 5.1.12 (2011-09-09) [stable]
+## Noteworthy changes in release 5.1.12 (2011-09-09) [stable]
 
-** This release adds some basic functions such as open, close, read and write,
+ - This release adds some basic functions such as open, close, read and write,
    and integrates the pure Lua module which was previously in Lua stdlib. It
    also adds a whole new module, curses, which was previously in the separate
    lcurses project (curses is part of the POSIX standard).
 
-** Incompatible changes:
+### Incompatible changes:
 
  - Note that the C part of the POSIX module is now called posix_c.so (or
    similar), so if you have an old posix.so (or similar) you should delete it
    to avoid clashing with the new posix.lua.
 
 
-* Noteworthy changes in release 5.1.11 (2011-04-27) [stable]
+## Noteworthy changes in release 5.1.11 (2011-04-27) [stable]
 
-** Apologies, 5.1.10, released earlier today, had a buffer overflow bug
+ - Apologies, 5.1.10, released earlier today, had a buffer overflow bug
    in the new mkstemp function. 5.1.11, just out, fixes it.
 
 
-* Noteworthy changes in release 5.1.10 (2011-04-27) [stable]
+## Noteworthy changes in release 5.1.10 (2011-04-27) [stable]
 
-** This release adds mkstemp, adds some fixes for building on Mac OS X
+### This release adds mkstemp, adds some fixes for building on Mac OS X
    (thanks to Gary Vaughan), removes some non-POSIX rlimit constants,
    guards some functions that were not correctly guarded, so that they
    will not be compiled on systems that don't support them, and makes
    other minor fixes.
 
 
-* Noteworthy changes in release 5.1.9 (2011-03-24) [stable]
+## Noteworthy changes in release 5.1.9 (2011-03-24) [stable]
 
-** New features:
+### New features:
 
  - support for signals and for getopt. See below for details.
 
@@ -473,9 +475,9 @@ Stdlib NEWS - User visible changes
    _exit, as well as some slight code cleanup.
 
 
-* Noteworthy changes in release 5.1.8 (2013-03-23) [stable]
+## Noteworthy changes in release 5.1.8 (2013-03-23) [stable]
 
-** Bug fixes:
+### Bug fixes:
 
  - fix bugs for setrlimit and gettimeofday.
  - an improvement to test.lua.
@@ -486,48 +488,50 @@ Stdlib NEWS - User visible changes
  - some code tidy-up,
  - removal of Lua 5.0 compatibility
 
-** New APIs:
+### New APIs:
 
  - abort, raise, isprint, isgraph, errno and stdio.h constants, and getopt_long.
 
 
-* Noteworthy changes in release 5.1.7 (2013-03-23) [stable]
+## Noteworthy changes in release 5.1.7 (2013-03-23) [stable]
 
-** A new minor bugfix release of luaposix is out.
+A new minor bugfix release of luaposix is out.
 
-** Bug fixes:
+### Bug fixes:
 
  - make clock_* functions' argument optional
  - fixes posix.version string
 
 
-* Noteworthy changes in release 5.1.6 (2010-08-11) [stable]
+## Noteworthy changes in release 5.1.6 (2010-08-11) [stable]
 
-** This release adds time functions: gettimeofday, clock_getres,
+ - This release adds time functions: gettimeofday, clock_getres,
    clock_gettime, localtime, gmtime, time, strftime.
 
 
-* Noteworthy changes in release 5.1.5 (20??-??-??) [stable]
+## Noteworthy changes in release 5.1.5 (20??-??-??) [stable]
 
-** The release notes for this release were lost in the mists of thyme.
+The release notes for this release were lost in the mists of thyme.
 
 
-* Noteworthy changes in release 5.1.4 (2008-07-18) [stable]
+## Noteworthy changes in release 5.1.4 (2008-07-18) [stable]
 
-** Includes a fix for rpoll() from debian[1] and a patch from openwrt[2]
+ - Includes a fix for rpoll() from debian[1] and a patch from openwrt[2]
    that adds crypt().
 
-* Noteworthy changes in release 5.1.3 (2013-03-23) [stable]
+
+## Noteworthy changes in release 5.1.3 (2013-03-23) [stable]
+
+No changes.
 
 
+## Noteworthy changes in release 5.1.2 (2008-01-29) [stable]
 
-* Noteworthy changes in release 5.1.2 (2008-01-29) [stable]
-
-** Incompatible changes:
+### Incompatible changes:
 
  - Please note that this release breakes the API for dup() and exec()
 
-** New features:
+### New features:
 
  - dup() now takes and returns lua files rather than file descriptors
    (int).
@@ -544,10 +548,12 @@ Stdlib NEWS - User visible changes
    "option". The "option" parameter is a string containing one or more of
    the chars:
 
+   ```
       'c' - LOG_CONS
       'n' - LOG_NDELAY
       'e' - LOG_PERROR
       'p' - LOG_PID
+   ```
 
    It is possible to disable those funcs compile time by setting the
    ENABLE_SYSLOG define to 0.
@@ -555,9 +561,9 @@ Stdlib NEWS - User visible changes
  - fileno() function was added.
 
 
-* Noteworthy changes in release 5.1.1 (2008-01-25) [stable]
+## Noteworthy changes in release 5.1.1 (2008-01-25) [stable]
 
-** I have forked lposix. First release includes some patches submitted on
+ - I have forked lposix. First release includes some patches submitted on
    this list.
 
    This first release is basicly lposix with a cleaned up Makefile + the
@@ -566,14 +572,14 @@ Stdlib NEWS - User visible changes
       http://lua-users.org/lists/lua-l/2006-10/msg00448.html
       http://lua-users.org/lists/lua-l/2007-11/msg00346.html
 
-** When the promised extened OS library[1] arrives I will most likely
+ - When the promised extened OS library[1] arrives I will most likely
    remove the overlapping functions in luaposix. posix specific functions
    that does not overlap will still be maintained and added. (e.g dup())
 
-** Releases numbered 5.1.x[.y] will work with lua-5.1 series. The 'x' will
+ - Releases numbered 5.1.x[.y] will work with lua-5.1 series. The 'x' will
    add/change features and .y releases will be strict bugfixes (no new
    features).
 
-** I had planned to add syslog functions and fix dup() to handle lua files
+ - I had planned to add syslog functions and fix dup() to handle lua files
    (FILE*) rather than file descriptors (int). Now that luasyslog just
    released I will have to re-evaluate that.

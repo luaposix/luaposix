@@ -26,7 +26,7 @@ AM_CPPFLAGS  += -I $(srcdir)/ext/include -I $(srcdir)/ext/posix $(POSIX_EXTRA_CP
 AM_CFLAGS     = $(WERROR_CFLAGS) $(WARN_CFLAGS)
 AM_LDFLAGS    = -module -avoid-version
 
-old_NEWS_hash = 7ffd534436e3eecda22fe6588ce84d6b
+old_NEWS_hash = d41d8cd98f00b204e9800998ecf8427e
 
 update_copyright_env = \
 	UPDATE_COPYRIGHT_HOLDER='(Gary V. Vaughan|Reuben Thomas|luaposix authors)' \
@@ -70,7 +70,7 @@ dist_luaposix_DATA =			\
 	lib/posix/util.lua		\
 	$(NOTHING_ELSE)
 
-luaexec_LTLIBRARIES = ext/posix/posix.la
+luaexec_LTLIBRARIES += ext/posix/posix.la
 
 ext_posix_posix_la_SOURCES =		\
 	ext/posix/posix.c		\

@@ -820,26 +820,27 @@ slingshot_require_slingshot_submodule ()
     else
       $require_slingshot_dotgitmodules
 
-      if test -f .gitmodules && test -f "slingshot/src/mkrockspecs.in"
-      then
-        : All present and correct.
-
-      else
+      if test -f .gitmodules; then
         $require_slingshot_path
         $require_slingshot_url
 
-        trap slingshot_cleanup 1 2 13 15
+        if test -f "slingshot/src/mkrockspecs.in"; then
+          : All present and correct.
 
-        shallow=
-        $GIT clone -h 2>&1 |func_grep_q -- --depth \
-            && shallow='--depth 365'
+        else
+          trap slingshot_cleanup 1 2 13 15
 
-        func_show_eval "$GIT clone $shallow '$slingshot_url' '$slingshot_path'" \
-          slingshot_cleanup
+          shallow=
+          $GIT clone -h 2>&1 |func_grep_q -- --depth \
+              && shallow='--depth 365'
 
-        # FIXME: Solaris /bin/sh will try to execute '-' if any of
-        #        these signals are caught after this.
-        trap - 1 2 13 15
+          func_show_eval "$GIT clone $shallow '$slingshot_url' '$slingshot_path'" \
+            slingshot_cleanup
+
+          # FIXME: Solaris /bin/sh will try to execute '-' if any of
+          #        these signals are caught after this.
+          trap - 1 2 13 15
+        fi
 
         # Make sure we've checked out the correct revision of slingshot.
         func_show_eval "$GIT submodule init -- $slingshot_path" \
@@ -3091,10 +3092,13 @@ func_reconfigure ()
 
     $require_automake_options
 
-    # Automake (without 'foreign' option) requires that README exists.
+    # Automake (without 'foreign' option) requires that NEWS & README exist.
     case " $automake_options " in
       " foreign ") ;;
-      *) func_ensure_README ;;
+      *)
+        func_ensure_NEWS
+        func_ensure_README
+        ;;
     esac
 
     # Ensure ChangeLog presence.
@@ -3393,6 +3397,7 @@ slingshot_copy_files ()
       $require_slingshot_submodule
 
       # Make sure we have the latest mkrockspecs
+      # (the rebootstrap rule in slingshot/GNUmakefile autoruns).
       make -C slingshot build-aux/mkrockspecs
 
       # Update in-tree links.
@@ -3581,6 +3586,29 @@ EOT
     test -f ChangeLog~ \
       && func_append _G_message ' (backup in ChangeLog~)'
     func_verbose "$_G_message"
+
+    return 0
+}
+
+
+# func_ensure_NEWS
+# ----------------
+# Without AM_INIT_AUTOMAKE([foreign]), automake will not run to
+# completion with no NEWS file, even though NEWS.md or NEWS.txt
+# is often preferable.
+func_ensure_NEWS ()
+{
+    $debug_cmd
+
+    test -f NEWS || {
+      _G_NEWS=
+      for _G_news in NEWS.txt NEWS.md NEWS.rst; do
+        test -f "$_G_news" && break
+      done
+
+      test -f "$_G_news" && $LN_S $_G_news NEWS
+      func_verbose "$LN_S $_G_news NEWS"
+    }
 
     return 0
 }
