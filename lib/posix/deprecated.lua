@@ -13,6 +13,11 @@
 local _argcheck = require "posix._argcheck"
 local bit       = require "posix.bit32"
 
+-- Lua 5.3 has table.unpack but not _G.unpack
+-- Lua 5.2 has table.unpack and _G.unpack
+-- Lua 5.1 has _G.unpack but not table.unpack
+local unpack = table.unpack or unpack
+
 local argerror, argtypeerror, badoption =
   _argcheck.argerror, _argcheck.argtypeerror, _argcheck.badoption
 local band, bnot, bor = bit.band, bit.bnot, bit.bor

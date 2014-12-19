@@ -206,6 +206,8 @@ end
 -- @treturn[2] nil
 -- @treturn[2] string error message
 
+local unpack = table.unpack or unpack -- 5.3 compatibility
+
 local _exit, errno, execp, fork, wait =
   M._exit, M.errno, M.execp, M.fork, M.wait
 
