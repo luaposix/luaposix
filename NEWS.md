@@ -1,4 +1,11 @@
-Stdlib NEWS - User visible changes
+LuaPOSIX NEWS - User visible changes
+
+## Noteworthy changes in release ?.? (????-??-??) [?]
+
+### New features:
+
+ - QNX support.
+
 
 ## Noteworthy changes in release 33.1.0 (2014-12-19) [stable]
 
