@@ -41,6 +41,7 @@ case $host_os in
   darwin*|openbsd*)
     # Setting _XOPEN_SOURCE here messes up header declarations, but
     # all functions luaposix can bind are available without it.
+    AC_SUBST([POSIX_EXTRA_CPPFLAGS], [-DLPOSIX_2008_COMPLIANT])
     ;;
 
   *)
