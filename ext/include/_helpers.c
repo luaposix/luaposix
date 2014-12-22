@@ -221,7 +221,7 @@ checknargs(lua_State *L, int maxargs)
 {
 	int nargs = lua_gettop(L);
 	lua_pushfstring(L, "no more than %d argument%s expected, got %d",
-		        maxargs, maxargs > 1 ? "s" : "", nargs);
+		        maxargs, maxargs == 1 ? "" : "s", nargs);
 	luaL_argcheck(L, nargs <= maxargs, maxargs + 1, lua_tostring (L, -1));
 	lua_pop(L, 1);
 }
