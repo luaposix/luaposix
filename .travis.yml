@@ -2,13 +2,11 @@ language: c
 
 env:
   global:
-    - COMPILE="libtool --mode=compile --tag=CC gcc"
-    - CFLAGS="-O2 -Wall -DLUA_COMPAT_ALL -DLUA_USE_LINUX"
-    - INSTALL="libtool --mode=install install -p"
-    - LINK="libtool --mode=link --tag=CC gcc"
-    - LIBS="-lm -Wl,-E -ldl -lreadline"
-
-    - ROCKSPEC=luaposix-git-1.rockspec
+    - _COMPILE="libtool --mode=compile --tag=CC gcc"
+    - _CFLAGS="-O2 -Wall -DLUA_COMPAT_ALL -DLUA_USE_LINUX"
+    - _INSTALL="libtool --mode=install install -p"
+    - _LINK="libtool --mode=link --tag=CC gcc"
+    - _LIBS="-lm -Wl,-E -ldl -lreadline"
 
     - prefix=/usr/local
     - bindir=$prefix/bin
@@ -30,7 +28,7 @@ before_install:
   # Fetch Lua sources.
   - cd $TRAVIS_BUILD_DIR
   - 'if test lua5.3 = "$LUA"; then
-      curl http://www.lua.org/work/lua-5.3.0-rc1.tar.gz | tar xz;
+      curl http://www.lua.org/work/lua-5.3.0-rc2.tar.gz | tar xz;
       cd lua-5.3.0;
     fi'
   - 'if test lua5.2 = "$LUA"; then
@@ -54,21 +52,21 @@ before_install:
       done;
     else
       for src in src/*.c; do
-        test src/lua.c = "$src" || test src/luac.c = "$src" || eval $COMPILE $CFLAGS -c $src;
+        test src/lua.c = "$src" || test src/luac.c = "$src" || eval $_COMPILE $_CFLAGS -c $src;
       done;
-      eval $LINK -o lib$LUA.la -version-info 0:0:0 -rpath $libdir *.lo;
+      eval $_LINK -o lib$LUA.la -version-info 0:0:0 -rpath $libdir *.lo;
       sudo mkdir -p $libdir;
-      eval sudo $INSTALL lib$LUA.la $libdir/lib$LUA.la;
+      eval sudo $_INSTALL lib$LUA.la $libdir/lib$LUA.la;
 
-      eval $COMPILE $CFLAGS -c src/lua.c;
-      eval $LINK -static -o $LUA lua.lo lib$LUA.la $LIBS;
+      eval $_COMPILE $_CFLAGS -c src/lua.c;
+      eval $_LINK -static -o $LUA lua.lo lib$LUA.la $_LIBS;
       sudo mkdir -p $bindir;
-      eval sudo $INSTALL $LUA $bindir/$LUA;
+      eval sudo $_INSTALL $LUA $bindir/$LUA;
 
       sudo mkdir -p $incdir;
       for header in lua.h luaconf.h lualib.h lauxlib.h lua.hpp; do
         if test -f src/$header; then
-          eval sudo $INSTALL src/$header $incdir/$header;
+          eval sudo $_INSTALL src/$header $incdir/$header;
         fi;
       done;
     fi'
@@ -89,7 +87,7 @@ before_install:
 
   # Tidy up file droppings.
   - cd $TRAVIS_BUILD_DIR
-  - rm -rf lua-5.3.0 lua-5.2.3 lua-5.1.5 luarocks-2.2.0
+  - rm -rf lua-5.3.0 lua-5.2.3 lua-5.1.5 LuaJIT-2.0.3 luarocks-2.2.0
 
 
 install:
@@ -100,19 +98,29 @@ install:
        sudo luarocks install --server=http://rocks.moonscript.org/manifests/gvvaughan $rock;
     done'
 
-  # Initial bootstrap to generate Makefile for rockspecs.
-  - ./bootstrap
-  - ./configure LUA="$LUA"
-  - make rockspecs V=1
-    || cat $ROCKSPEC
+  # Fudge timestamps on release branches.
+  - 'if test -f configure; then
+      test -f aclocal.m4 && touch aclocal.m4;
+      sleep 1; touch Makefile.in;
+      sleep 1; test -f config.h.in && touch config.h.in;
+      sleep 1; touch configure;
+    fi'
 
-  # Rerun bootstrap automatically from git rockspec.
+  # Build from rockspec.
+  - export ROCKSPEC=luaposix-33.1.0-1.rockspec
+  - 'test -f "$ROCKSPEC" || ROCKSPEC=luaposix-git-1.rockspec'
   - sudo luarocks make $ROCKSPEC LUA="$LUA"
-  - sudo make clean
+
+  # Clean up files created by root
+  - sudo git clean -dfx
+  - sudo rm -rf slingshot /tmp/ldoc
 
 
 script:
-  - make all check V=1
+  - test -f configure || ./bootstrap --verbose
+  - test -f Makefile || ./configure --disable-silent-rules LUA="$LUA"
+  - make
+  - make check V=1
 
 
 # Run sanity checks on CI server, ignoring buggy automakes.
@@ -123,7 +131,7 @@ after_success:
        fi;
        printf "local-checks-to-skip %s sc_vulnerable_makefile_CVE-2012-3386\n" "$_assign";
      } >> build-aux/sanity-cfg.mk'
-  - 'make syntax-check || :'
+  - 'make syntax-check || : this will usually fail on the release branch'
 
 notifications:
   slack: aspirinc:JyWeNrIdS0J5nf2Pn2BS1cih

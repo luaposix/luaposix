@@ -37,4 +37,3 @@
 /travis.yml.in
 /*.rockspec
 /m4/ax_lua.m4
-/m4/slingshot.m4

@@ -200,7 +200,6 @@ AC_PATH_PROG([LDOC], [ldoc], [false])
 AM_CONDITIONAL([HAVE_LDOC], [test false != "$LDOC"])
 
 ## Generate output files
-SS_CONFIG_TRAVIS([ldoc specl])
 AC_CONFIG_HEADER(config.h)
 AC_CONFIG_FILES([Makefile build-aux/config.ld lib/posix.lua])
 AC_OUTPUT
