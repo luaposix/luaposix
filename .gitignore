@@ -31,9 +31,10 @@
 /configure
 /lib/posix.lua
 /libtool
+/luaposix-*.rockspec
+!/luaposix-git-*.rockspec
 /luaposix-*.tar.gz
 /stamp-h1
 /TAGS
 /travis.yml.in
-/*.rockspec
 /m4/ax_lua.m4
