@@ -6,6 +6,11 @@ LuaPOSIX NEWS - User visible changes
 
  - QNX support.
 
+### Bug fixes
+
+  - `posix.time.gmtime` and `posix.time.localtime` specifications now
+    work correctly in January too!
+
 
 ## Noteworthy changes in release 33.1.0 (2014-12-19) [stable]
 
