@@ -1,6 +1,6 @@
 /*
- * POSIX library for Lua 5.1/5.2.
- * (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2014
+ * POSIX library for Lua 5.1, 5.2 & 5.3.
+ * (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2015
  * (c) Reuben Thomas <rrt@sc3d.org> 2010-2013
  * (c) Natanael Copa <natanael.copa@gmail.com> 2008-2010
  * Clean up and bug fixes by Leo Razoumov <slonik.az@gmail.com> 2006-10-11
@@ -39,8 +39,15 @@
 #endif
 
 /* Some systems set _POSIX_C_SOURCE over _POSIX_VERSION! */
-#if _POSIX_C_SOURCE >= 200112L || _POSIX_VERSION >= 200112L
-#  define LPOSIX_2001_COMPLIANT 1
+#if _POSIX_C_SOURCE >= 200112L || _POSIX_VERSION >= 200112L || _XOPEN_SOURCE >= 600
+# define LPOSIX_2001_COMPLIANT 1
+#endif
+
+#if _POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700
+# define LPOSIX_2008_COMPLIANT 1
+# ifndef LPOSIX_2001_COMPLIANT
+#   define LPOSIX_2001_COMPLIANT
+# endif
 #endif
 
 #include "lua.h"
@@ -214,7 +221,7 @@ checknargs(lua_State *L, int maxargs)
 {
 	int nargs = lua_gettop(L);
 	lua_pushfstring(L, "no more than %d argument%s expected, got %d",
-		        maxargs, maxargs > 1 ? "s" : "", nargs);
+		        maxargs, maxargs == 1 ? "" : "s", nargs);
 	luaL_argcheck(L, nargs <= maxargs, maxargs + 1, lua_tostring (L, -1));
 	lua_pop(L, 1);
 }

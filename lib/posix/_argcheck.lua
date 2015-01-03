@@ -1,6 +1,6 @@
 --[[
- POSIX library for Lua 5.1/5.2.
- (c) Gary V. Vaughan <gary@vaughan.pe>, 2014
+ POSIX library for Lua 5.1, 5.2 & 5.3.
+ (c) Gary V. Vaughan <gary@vaughan.pe>, 2014-2015
 ]]
 --[[--
  Private argument checking helpers.
@@ -24,7 +24,7 @@ local function toomanyargerror (name, expected, got, level)
   level = level or 1
   local fmt = "no more than %d argument%s expected, got %d"
   argerror (name, expected + 1,
-            fmt:format (expected, expected > 1 and "s" or "", got), level + 1)
+            fmt:format (expected, expected == 1 and "" or "s", got), level + 1)
 end
 
 local function argtypeerror (name, i, expect, actual, level)

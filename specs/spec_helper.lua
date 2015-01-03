@@ -106,3 +106,17 @@ end
 
 -- Create an empty file at PATH.
 function touch (path) io.open (path, "w+"):close () end
+
+
+-- Format a bad argument type error.
+local function typeerrors (fname, i, want, field, got)
+  return {
+    badargs.format ("?", i, want, field, got),   -- LuaJIT
+    badargs.format (fname, i, want, field, got), -- PUC-Rio
+  }
+end
+
+
+function init (M, fname)
+  return M[fname], function (...) return typeerrors (fname, ...) end
+end

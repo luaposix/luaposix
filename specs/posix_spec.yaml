@@ -8,11 +8,6 @@
 # first will often clear up later failures automatically!
 
 specify posix:
-- before:
-    init = function (M, fname)
-      return M[fname], function (...) return badargs.format (fname, ...) end
-    end
-
 - describe version:
   - it is set:
       expect (posix.version).not_to_be (nil)
@@ -205,31 +200,31 @@ specify posix:
         F_RDLCK, F_WRLCK, F_UNLCK = posix.F_RDLCK, posix.F_WRLCK, posix.F_UNLCK
         SEEK_SET, SEEK_CUR, SEEK_END = posix.SEEK_SET, posix.SEEK_CUR, posix.SEEK_END
 
-        fcntl, badarg = init (posix, "fcntl")
+        fcntl, typeerrors = init (posix, "fcntl")
 
     # posix.fcntl diagnoses the third arg differently depending on
     # the value of `cmd`, which `diagnose.badargs` can't express; ergo
     # manual checks here...
     - context with bad arguments:
       - 'it diagnoses missing argument #1':
-          expect (fcntl ()).to_raise (badarg (1, "int"))
+          expect (fcntl ()).to_raise.any_of (typeerrors (1, "int"))
       - 'it diagnoses argument #1 type not int':
-          expect (fcntl (false)).to_raise (badarg (1, "int", "boolean"))
+          expect (fcntl (false)).to_raise.any_of (typeerrors (1, "int", "boolean"))
       - 'it diagnoses missing argument #2':
-          expect (fcntl (-1)).to_raise (badarg (2, "int"))
+          expect (fcntl (-1)).to_raise.any_of (typeerrors (2, "int"))
       - 'it diagnoses argument #2 type not int':
-          expect (fcntl (-1, false)).to_raise (badarg (2, "int", "boolean"))
+          expect (fcntl (-1, false)).to_raise.any_of (typeerrors (2, "int", "boolean"))
       - 'it diagnoses missing argument #3 to F_GETLK':
-          expect (fcntl (-1, F_GETLK)).to_raise (badarg (3, "table"))
+          expect (fcntl (-1, F_GETLK)).to_raise.any_of (typeerrors (3, "table"))
       - 'it diagnoses argument #3 type to F_GETLK not table':
           expect (fcntl (-1, F_GETLK, false)).
-            to_raise (badarg (3, "table", "boolean"))
+            to_raise.any_of (typeerrors (3, "table", "boolean"))
       - 'it diagnoses argument #3 type to non-F_GETLK not int':
           expect (fcntl (-1, 0, false)).
-            to_raise (badarg (3, "?int", "boolean"))
+            to_raise.any_of (typeerrors (3, "?int", "boolean"))
       - 'it diagnoses too many arguments':
-          expect (fcntl (-1, F_GETLK, {}, false)).to_raise (badarg (4))
-          expect (fcntl (-1, 0, -1, false)).to_raise (badarg (4))
+          expect (fcntl (-1, F_GETLK, {}, false)).to_raise.any_of (typeerrors (4))
+          expect (fcntl (-1, 0, -1, false)).to_raise.any_of (typeerrors (4))
 
     - it has all needed constants:
         expect (type (F_GETLK)).to_be "number"
@@ -646,29 +641,31 @@ specify posix:
 
   - describe setpid:
     - before:
-        setpid, badarg = init (posix, "setpid")
+        setpid, typeerrors = init (posix, "setpid")
 
     - context with bad arguments:
       - 'it diagnoses missing argument #1':
-          expect (setpid ()).to_raise (badarg (1, "string"))
+          expect (setpid ()).to_raise.any_of (typeerrors (1, "string"))
       - 'it diagnoses argument #1 type not string':
-          expect (setpid (false)).to_raise (badarg (1, "string", "boolean"))
+          expect (setpid (false)).to_raise.any_of (typeerrors (1, "string", "boolean"))
       - 'it diagnoses argument #1 invalid option': |
-          expect (setpid "fubar").
-            to_raise "bad argument #1 to 'setpid' (invalid id option 'f')"
+          expect (setpid "fubar").to_raise.any_of {
+            "bad argument #1 to '?' (invalid id option 'f')",
+            "bad argument #1 to 'setpid' (invalid id option 'f')",
+          }
       - 'it diagnoses missing argument #2':
-          expect (setpid "p").to_raise (badarg (2, "int"))
+          expect (setpid "p").to_raise.any_of (typeerrors (2, "int"))
       - 'it diagnoses argument #2 type not int':
           expect (setpid ("p", false)).
-            to_raise (badarg (2, "int", "boolean"))
+            to_raise.any_of (typeerrors (2, "int", "boolean"))
       - 'it diagnoses missing argument #3':
-          expect (setpid ("p", 0)).to_raise (badarg (3, "int"))
+          expect (setpid ("p", 0)).to_raise.any_of (typeerrors (3, "int"))
       - 'it diagnoses argument #3 type not int':
           expect (setpid ("p", 0, false)).
-            to_raise (badarg (3, "int", "boolean"))
+            to_raise.any_of (typeerrors (3, "int", "boolean"))
       - it diagnoses too many arguments:
-          expect (setpid ("p", 0, 0, false)).to_raise (badarg (4))
-          expect (setpid ("u", 0, false)).to_raise (badarg (3))
+          expect (setpid ("p", 0, 0, false)).to_raise.any_of (typeerrors (4))
+          expect (setpid ("u", 0, false)).to_raise.any_of (typeerrors (3))
 
 
   - describe sleep:

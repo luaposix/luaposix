@@ -1,7 +1,7 @@
 /*
- * Curses binding for Lua 5.1/5.2.
+ * Curses binding for Lua 5.1, 5.2 & 5.3.
  *
- * (c) Gary V. Vaughan <gary@vaughan.pe> 2013-2014
+ * (c) Gary V. Vaughan <gary@vaughan.pe> 2013-2015
  * (c) Reuben Thomas <rrt@sc3d.org> 2009-2012
  * (c) Tiago Dionizio <tiago.dionizio AT gmail.com> 2004-2007
  *

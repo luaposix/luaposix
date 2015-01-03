@@ -16,7 +16,7 @@
 
 # Non-recursive Make rules.
 #
-# Copyright (C) 2013-2014 Gary V. Vaughan
+# Copyright (C) 2013-2015 Gary V. Vaughan
 # Written by Gary V. Vaughan, 2013
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -35,7 +35,7 @@
 # Local Make rules.
 # Written by Gary V. Vaughan, 2013
 
-# Copyright (C) 2013-2014 Gary V. Vaughan
+# Copyright (C) 2013-2015 Gary V. Vaughan
 
 # This file is part of luaposix.
 # See README for license.
@@ -48,7 +48,7 @@
 # terms of the MIT license reproduced below.
 
 # ==================================================================== #
-# Copyright (C) 2013-2014 Gary V. Vaughan                              #
+# Copyright (C) 2013-2015 Gary V. Vaughan                              #
 #                                                                      #
 # Permission is hereby granted, free of charge, to any person          #
 # obtaining a copy of this software and associated documentation       #
@@ -79,7 +79,7 @@
 # terms of the MIT license reproduced below.
 
 # ==================================================================== #
-# Copyright (C) 2013-2014 Reuben Thomas and Gary V. Vaughan                 #
+# Copyright (C) 2013-2015 Reuben Thomas and Gary V. Vaughan                 #
 #                                                                      #
 # Permission is hereby granted, free of charge, to any person          #
 # obtaining a copy of this software and associated documentation       #
@@ -177,7 +177,7 @@ DIST_COMMON = $(srcdir)/local.mk $(srcdir)/specs/specs.mk \
 	INSTALL NEWS README AUTHORS ChangeLog $(srcdir)/Makefile.in \
 	$(srcdir)/Makefile.am $(top_srcdir)/configure \
 	$(am__configure_deps) $(srcdir)/config.h.in \
-	$(srcdir)/travis.yml.in $(top_srcdir)/build-aux/config.ld.in \
+	$(top_srcdir)/build-aux/config.ld.in \
 	$(top_srcdir)/lib/posix.lua.in $(dist_bin_SCRIPTS) \
 	$(top_srcdir)/build-aux/depcomp $(dist_classes_DATA) \
 	$(dist_data_DATA) $(dist_doc_DATA) $(dist_examples_DATA) \
@@ -200,15 +200,14 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/00gnulib.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
 	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
 	$(top_srcdir)/m4/manywarnings.m4 $(top_srcdir)/m4/onceonly.m4 \
-	$(top_srcdir)/m4/slingshot.m4 $(top_srcdir)/m4/warnings.m4 \
-	$(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/warnings.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = config.h
-CONFIG_CLEAN_FILES = .travis.yml build-aux/config.ld lib/posix.lua
+CONFIG_CLEAN_FILES = build-aux/config.ld lib/posix.lua
 CONFIG_CLEAN_VPATH_FILES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
@@ -618,7 +617,6 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
-EXTRA_ROCKS = @EXTRA_ROCKS@
 FGREP = @FGREP@
 GREP = @GREP@
 INSTALL = @INSTALL@
@@ -1053,8 +1051,6 @@ $(srcdir)/config.h.in:  $(am__configure_deps)
 
 distclean-hdr:
 	-rm -f config.h stamp-h1
-.travis.yml: $(top_builddir)/config.status $(srcdir)/travis.yml.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
 build-aux/config.ld: $(top_builddir)/config.status $(top_srcdir)/build-aux/config.ld.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 lib/posix.lua: $(top_builddir)/config.status $(top_srcdir)/lib/posix.lua.in

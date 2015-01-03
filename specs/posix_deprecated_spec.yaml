@@ -5,13 +5,9 @@ specify posix.deprecated:
       posix.AF_INET, posix.AF_INET6, posix.AF_UNIX, posix.AF_NETLINK
     SOCK_STREAM = posix.SOCK_STREAM
 
-    init = function (M, fname)
-      return M[fname], function (...) return badargs.format (fname, ...) end
-    end
-
 - describe connect:
   - before:
-      connect, badarg = init (posix, "connect")
+      connect, typeerrors = init (posix, "connect")
 
   - context with bad arguments: |
       badargs.diagnose (connect, "connect (int, table)")
@@ -19,66 +15,68 @@ specify posix.deprecated:
       examples {
         ["it diagnoses wrong family types"] = function ()
           expect (connect (42, {family=false})).
-            to_raise (badarg (2, "int", "family", "boolean"))
-          expect (connect (42, {family=-1})).
-            to_raise "bad argument #2 to 'connect' (unsupported family type -1)"
+            to_raise.any_of (typeerrors (2, "int", "family", "boolean"))
+          expect (connect (42, {family=-1})).to_raise.any_of {
+            "bad argument #2 to '?' (unsupported family type -1)",
+            "bad argument #2 to 'connect' (unsupported family type -1)",
+          }
         end
       }
       examples {
         ["it diagnoses wrong AF_INET field types"] = function ()
           expect (connect (42, {family=AF_INET, port=false})).
-            to_raise (badarg (2, "int", "port", "boolean"))
+            to_raise.any_of (typeerrors (2, "int", "port", "boolean"))
           expect (connect (42, {family=AF_INET, port=9999, addr=false})).
-            to_raise (badarg (2, "string", "addr", "boolean"))
+            to_raise.any_of (typeerrors (2, "string", "addr", "boolean"))
         end
       }
       examples {
         ["it diagnoses invalid AF_INET fields"] = function ()
           expect (connect (42, {
             family=AF_INET, port=9999, addr="127.0.0.1", flags=false
-          })).to_raise "bad argument #2 to 'connect' (invalid field name 'flags')"
+          })).to_raise.any_of (typeerrors (2, nil, "flags"))
         end
       }
       examples {
         ["it diagnoses wrong AF_INET6 field types"] = function ()
           expect (connect (42, {family = AF_INET6, port = false})).
-            to_raise (badarg (2, "int", "port", "boolean"))
+            to_raise.any_of (typeerrors (2, "int", "port", "boolean"))
           expect (connect (42, {family = AF_INET6, port = 9999, addr = false})).
-            to_raise (badarg (2, "string", "addr", "boolean"))
+            to_raise.any_of (typeerrors (2, "string", "addr", "boolean"))
         end
       }
       examples {
         ["it diagnoses invalid AF_INET6 fields"] = function ()
           expect (connect (42, {
             family=AF_INET6, port=9999, addr="::", flags=false
-          })).to_raise "bad argument #2 to 'connect' (invalid field name 'flags')"
+          })).to_raise.any_of (typeerrors (2, nil, "flags"))
         end
       }
       examples {
         ["it diagnoses wrong AF_UNIX field types"] = function ()
           expect (connect (42, {family = AF_UNIX, path = false})).
-            to_raise (badarg (2, "string", "path", "boolean"))
+            to_raise.any_of (typeerrors (2, "string", "path", "boolean"))
         end
       }
       examples {
         ["it diagnoses invalid AF_UNIX fields"] = function ()
           expect (connect (42, {family=AF_UNIX, path="/tmp/afunix", port=9999})).
-            to_raise "bad argument #2 to 'connect' (invalid field name 'port')"
+            to_raise.any_of (typeerrors (2, nil, "port"))
         end
       }
       if AF_NETLINK then
         examples {
           ["it diagnoses wrong AF_NETLINK field types"] = function ()
               expect (connect (42, {family = AF_NETLINK, pid = false})).
-                to_raise (badarg (2, "int", "pid", "boolean"))
+                to_raise.any_of (typeerrors (2, "int", "pid", "boolean"))
               expect (connect (42, {family = AF_NETLINK, pid = 9999, groups = false})).
-                to_raise (badarg (2, "int", "groups", "boolean"))
+                to_raise.any_of (typeerrors (2, "int", "groups", "boolean"))
           end
         }
         examples {
           ["it diagnoses invalid AF_NETLINK fields"] = function ()
             expect (connect (42, {family=AF_NETLINK, pid=9999, groups=9999, port=9999})).
-              to_raise "bad argument #2 to 'connect' (invalid field name 'port')"
+              to_raise.any_of (typeerrors (2, nil, "port"))
           end
         }
       end
@@ -93,7 +91,7 @@ specify posix.deprecated:
 
 - describe bind:
   - before:
-      bind, badarg = init (posix, "bind")
+      bind, typeerrors = init (posix, "bind")
 
   - context with bad arguments: |
       badargs.diagnose (bind, "bind (int, table)")
@@ -101,66 +99,68 @@ specify posix.deprecated:
       examples {
         ["it diagnoses wrong family types"] = function ()
           expect (bind (42, {family=false})).
-            to_raise (badarg (2, "int", "family", "boolean"))
-          expect (bind (42, {family=-1})).
-            to_raise "bad argument #2 to 'bind' (unsupported family type -1)"
+            to_raise.any_of (typeerrors (2, "int", "family", "boolean"))
+          expect (bind (42, {family=-1})).to_raise.any_of {
+            "bad argument #2 to '?' (unsupported family type -1)",
+            "bad argument #2 to 'bind' (unsupported family type -1)",
+          }
         end
       }
       examples {
         ["it diagnoses wrong AF_INET field types"] = function ()
           expect (bind (42, {family=AF_INET, port=false})).
-            to_raise (badarg (2, "int", "port", "boolean"))
+            to_raise.any_of (typeerrors (2, "int", "port", "boolean"))
           expect (bind (42, {family=AF_INET, port=9999, addr=false})).
-            to_raise (badarg (2, "string", "addr", "boolean"))
+            to_raise.any_of (typeerrors (2, "string", "addr", "boolean"))
         end
       }
       examples {
         ["it diagnoses invalid AF_INET fields"] = function ()
           expect (bind (42, {
             family=AF_INET, port=9999, addr="127.0.0.1", flags=false
-          })).to_raise "bad argument #2 to 'bind' (invalid field name 'flags')"
+          })).to_raise.any_of (typeerrors (2, nil, "flags"))
         end
       }
       examples {
         ["it diagnoses wrong AF_INET6 field types"] = function ()
           expect (bind (42, {family = AF_INET6, port = false})).
-            to_raise (badarg (2, "int", "port", "boolean"))
+            to_raise.any_of (typeerrors (2, "int", "port", "boolean"))
           expect (bind (42, {family = AF_INET6, port = 9999, addr = false})).
-            to_raise (badarg (2, "string", "addr", "boolean"))
+            to_raise.any_of (typeerrors (2, "string", "addr", "boolean"))
         end
       }
       examples {
         ["it diagnoses invalid AF_INET6 fields"] = function ()
           expect (bind (42, {
             family=AF_INET6, port=9999, addr="::", flags=false
-          })).to_raise "bad argument #2 to 'bind' (invalid field name 'flags')"
+          })).to_raise.any_of (typeerrors (2, nil, "flags"))
         end
       }
       examples {
         ["it diagnoses wrong AF_UNIX field types"] = function ()
           expect (bind (42, {family = AF_UNIX, path = false})).
-            to_raise (badarg (2, "string", "path", "boolean"))
+            to_raise.any_of (typeerrors (2, "string", "path", "boolean"))
         end
       }
       examples {
         ["it diagnoses invalid AF_UNIX fields"] = function ()
           expect (bind (42, {family=AF_UNIX, path="/tmp/afunix", port=9999})).
-            to_raise "bad argument #2 to 'bind' (invalid field name 'port')"
+            to_raise.any_of (typeerrors (2, nil, "port"))
         end
       }
       if AF_NETLINK then
         examples {
           ["it diagnoses wrong AF_NETLINK field types"] = function ()
               expect (bind (42, {family = AF_NETLINK, pid = false})).
-                to_raise (badarg (2, "int", "pid", "boolean"))
+                to_raise.any_of (typeerrors (2, "int", "pid", "boolean"))
               expect (bind (42, {family = AF_NETLINK, pid = 9999, groups = false})).
-                to_raise (badarg (2, "int", "groups", "boolean"))
+                to_raise.any_of (typeerrors (2, "int", "groups", "boolean"))
           end
         }
         examples {
           ["it diagnoses invalid AF_NETLINK fields"] = function ()
             expect (bind (42, {family=AF_NETLINK, pid=9999, groups=9999, port=9999})).
-              to_raise "bad argument #2 to 'bind' (invalid field name 'port')"
+              to_raise.any_of (typeerrors (2, nil, "port"))
           end
         }
       end
@@ -173,7 +173,7 @@ specify posix.deprecated:
 
 - describe exec:
   - before:
-      exec, badarg = init (posix, "exec")
+      exec, typeerrors = init (posix, "exec")
 
   # posix.exec takes a string or non-empty table as its second
   # argument, followed by zero or more strings only if the second
@@ -181,15 +181,15 @@ specify posix.deprecated:
   # `badargs.diagnose` do it all manually again...
   - context with bad arguments:
     - 'it diagnoses argument #1 type not string':
-        expect (exec (false)).to_raise (badarg (1, "string", "boolean"))
+        expect (exec (false)).to_raise.any_of (typeerrors (1, "string", "boolean"))
     - 'it diagnoses argument #2 type not table or string':
         expect (exec ("cmd", false)).
-          to_raise (badarg (2, "?string|table", "boolean"))
+          to_raise.any_of (typeerrors (2, "?string|table", "boolean"))
     - 'it diagnoses argument #3 type not string':
         expect (exec ("cmd", "cmd", false)).
-          to_raise (badarg (3, "string", "boolean"))
+          to_raise.any_of (typeerrors (3, "string", "boolean"))
     - it diagnoses too many arguments:
-        expect (exec ("cmd", {}, false)).to_raise (badarg (3))
+        expect (exec ("cmd", {}, false)).to_raise.any_of (typeerrors (3))
 
 
 - describe execp:
@@ -206,7 +206,7 @@ specify posix.deprecated:
         expect ("not reached").to_be (true)
       end
 
-      execp, badarg = init (posix, "execp")
+      execp, typeerrors = init (posix, "execp")
 
   # posix.execp takes a string or non-empty table as its second
   # argument, followed by zero or more strings only if the second
@@ -214,15 +214,15 @@ specify posix.deprecated:
   # `badargs.diagnose` do it all manually again...
   - context with bad arguments:
     - 'it diagnoses argument #1 type not string':
-        expect (execp (false)).to_raise (badarg (1, "string", "boolean"))
+        expect (execp (false)).to_raise.any_of (typeerrors (1, "string", "boolean"))
     - 'it diagnoses argument #2 type not table or string':
         expect (execp ("cmd", false)).
-          to_raise (badarg (2, "?string|table", "boolean"))
+          to_raise.any_of (typeerrors (2, "?string|table", "boolean"))
     - 'it diagnoses argument #3 type not string':
         expect (execp ("cmd", "cmd", false)).
-          to_raise (badarg (3, "string", "boolean"))
+          to_raise.any_of (typeerrors (3, "string", "boolean"))
     - it diagnoses too many arguments:
-        expect (execp ("cmd", {}, false)).to_raise (badarg (3))
+        expect (execp ("cmd", {}, false)).to_raise.any_of (typeerrors (3))
 
   - it overwrites the running process with a shell invocation:
       process = fork ()
@@ -253,8 +253,10 @@ specify posix.deprecated:
 
         examples {
           ["it diagnoses invalid options"] = function ()
-            expect (openlog ("log", "cp*")).
-              to_raise "bad argument #2 to 'openlog' (invalid openlog option '*')"
+            expect (openlog ("log", "cp*")).to_raise.any_of {
+              "bad argument #2 to '?' (invalid openlog option '*')",
+              "bad argument #2 to 'openlog' (invalid openlog option '*')",
+            }
           end
         }
       end

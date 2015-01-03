@@ -1,10 +1,4 @@
 specify posix.compat:
-- before:
-    init = function (M, fname)
-      return M[fname], function (...) return badargs.format (fname, ...) end
-    end
-
-
 - describe chmod:
   - before:
       chmod, stat = posix.chmod, posix.stat
@@ -16,8 +10,10 @@ specify posix.compat:
   - context with bad arguments: |
       examples {
         ["it diagnoses argument #2 invalid mode"] = function ()
-          expect (chmod (".", "g+vv")).
-            to_raise "bad argument #2 to 'chmod' (bad mode)"
+          expect (chmod (".", "g+vv")).to_raise.any_of {
+            "bad argument #2 to '?' (bad mode)",
+            "bad argument #2 to 'chmod' (bad mode)",
+          }
         end
       }
 
@@ -73,8 +69,10 @@ specify posix.compat:
 
       examples {
         ["it diagnoses argument #2 invalid mode"] = function ()
-          expect (creat ("not/existing", "g+vv")).
-            to_raise "bad argument #2 to 'creat' (bad mode)"
+          expect (creat ("not/existing", "g+vv")).to_raise.any_of {
+            "bad argument #2 to '?' (bad mode)",
+            "bad argument #2 to 'creat' (bad mode)",
+          }
         end
       }
 
@@ -145,11 +143,11 @@ specify posix.compat:
 
   - context with bad arguments:
     - before:
-        getpasswd, badarg = init (posix, "getpasswd")
+        getpasswd, typeerrors = init (posix, "getpasswd")
 
     - 'it diagnoses argument #1 type not string, int or nil':
         expect (getpasswd (false)).
-          to_raise (badarg (1, "?string|int", "boolean"))
+          to_raise.any_of (typeerrors (1, "?string|int", "boolean"))
 
   - it fetches the user uid:
       expect (getpasswd (user).uid).to_be (getuid ())
@@ -182,7 +180,7 @@ specify posix.compat:
 
 - describe getpid:
   - before:
-      getpid, badarg = init (posix, "getpid")
+      getpid, typeerrors = init (posix, "getpid")
 
   # posix.getpid takes an optional string or table as its first
   # argument, followed by zero or more strings only if the first
@@ -190,15 +188,18 @@ specify posix.compat:
   # `badargs.diagnose` do it all manually again...
   - context with bad arguments:
     - 'it diagnoses argument #1 type not table, string or nil':
-        expect (getpid (false)).to_raise (badarg (1, "?table|string", "boolean"))
+        expect (getpid (false)).to_raise.
+          any_of (typeerrors (1, "?table|string", "boolean"))
     - 'it diagnoses argument #1 string invalid': |
-        expect (getpid ("fubar")).
-          to_raise "bad argument #1 to 'getpid' (invalid option 'fubar')"
+        expect (getpid ("fubar")).to_raise.any_of {
+          "bad argument #1 to '?' (invalid option 'fubar')",
+          "bad argument #1 to 'getpid' (invalid option 'fubar')",
+        }
     - 'it diagnoses argument #2 type not string':
         expect (getpid ("ppid", false)).
-          to_raise (badarg (2, "string", "boolean"))
+          to_raise.any_of (typeerrors (2, "string", "boolean"))
     - it diagnoses too many arguments:
-        expect (getpid ({}, false)).to_raise (badarg (2))
+        expect (getpid ({}, false)).to_raise.any_of (typeerrors (2))
 
 
 - describe getrlimit:
@@ -208,8 +209,10 @@ specify posix.compat:
   - context with bad arguments: |
       examples {
         ["it diagnoses argument #1 invalid option"] = function ()
-          expect (getrlimit ("fubar")).
-            to_raise "bad argument #1 to 'getrlimit' (invalid option 'fubar')"
+          expect (getrlimit ("fubar")).to_raise.any_of {
+            "bad argument #1 to '?' (invalid option 'fubar')",
+            "bad argument #1 to 'getrlimit' (invalid option 'fubar')",
+          }
         end
       }
 
@@ -421,32 +424,35 @@ specify posix.compat:
   # checks here...
   - before:
       O_CREAT = posix.O_CREAT
-      open, badarg = init (posix, "open")
+      open, typeerrors = init (posix, "open")
 
   - 'it diagnoses missing argument #1':
-      expect (open ()).to_raise (badarg (1, "string"))
+      expect (open ()).to_raise.any_of (typeerrors (1, "string"))
   - 'it diagnoses argument #1 type not string':
-      expect (open (false)).to_raise (badarg (1, "string", "boolean"))
+      expect (open (false)).to_raise.any_of (typeerrors (1, "string", "boolean"))
   - 'it diagnoses missing argument #2':
-      expect (open ("not/existing")).to_raise (badarg (2, "int"))
+      expect (open ("not/existing")).to_raise.any_of (typeerrors (2, "int"))
   - 'it diagnoses argument #2 type not int':
       expect (open ("not/existing", false)).
-        to_raise (badarg (2, "int", "boolean"))
+        to_raise.any_of (typeerrors (2, "int", "boolean"))
   - 'it diagnoses missing argument #3':
-      expect (open ("not/existing", O_CREAT)).to_raise (badarg (3, "string"))
+      expect (open ("not/existing", O_CREAT)).
+        to_raise.any_of (typeerrors (3, "string"))
   - 'it diagnoses argument #3 type not string':
       expect (open ("not/existing", O_CREAT, false)).
-        to_raise (badarg (3, "string", "boolean"))
+        to_raise.any_of (typeerrors (3, "string", "boolean"))
   - 'it diagnoses argument #3 invalid mode': |
-      expect (open ("not/existing", O_CREAT, "g+vv")).
-        to_raise "bad argument #3 to 'open' (bad mode)"
+      expect (open ("not/existing", O_CREAT, "g+vv")).to_raise.any_of {
+         "bad argument #3 to '?' (bad mode)",
+         "bad argument #3 to 'open' (bad mode)",
+      }
   - 'it diagnoses too many arguments':
-      expect (open ("not/existing", -1, "o-s", false)).to_raise (badarg (4))
+      expect (open ("not/existing", -1, "o-s", false)).to_raise.any_of (typeerrors (4))
 
 
 - describe pathconf:
   - before:
-      pathconf, badarg = init (posix, "pathconf")
+      pathconf, typeerrors = init (posix, "pathconf")
 
   # posix.pathconf takes an optional string or table as its second
   # argument, followed by zero or more strings only if the second
@@ -454,19 +460,21 @@ specify posix.compat:
   # `badargs.diagnose` do it all manually again...
   - context with bad arguments:
     - 'it diagnoses argument #1 type not string':
-        expect (pathconf (false)).to_raise (badarg (1, "?string", "boolean"))
+        expect (pathconf (false)).
+          to_raise.any_of (typeerrors (1, "?string", "boolean"))
     - 'it diagnoses argument #2 type not table, string or nil':
         expect (pathconf (".", false)).
-          to_raise (badarg (2, "?table|string", "boolean"))
+          to_raise.any_of (typeerrors (2, "?table|string", "boolean"))
     - 'it diagnoses argument #2 string invalid': |
-        expect (pathconf (".", "fubar")).
-          to_raise "bad argument #2 to 'pathconf' (invalid option 'fubar')"
+        expect (pathconf (".", "fubar")).to_raise.any_of {
+          "bad argument #2 to '?' (invalid option 'fubar')",
+          "bad argument #2 to 'pathconf' (invalid option 'fubar')",
+        }
     - 'it diagnoses argument #3 type not string':
         expect (pathconf (".", "NAME_MAX", false)).
-          to_raise (badarg (3, "string", "boolean"))
+          to_raise.any_of (typeerrors (3, "string", "boolean"))
     - it diagnoses too many arguments:
-        expect (pathconf (".", {}, false)).
-          to_raise (badarg (3))
+        expect (pathconf (".", {}, false)).to_raise.any_of (typeerrors (3))
 
   - it returns whether chown can be used on the given file:
       expect (type (pathconf ().CHOWN_RESTRICTED)).to_be "number"
@@ -518,8 +526,10 @@ specify posix.compat:
   - context with bad arguments: |
       examples {
         ["it diagnoses argument #1 invalid option"] = function ()
-          expect (setrlimit ("fubar")).
-            to_raise "bad argument #1 to 'setrlimit' (invalid option 'fubar')"
+          expect (setrlimit ("fubar")).to_raise.any_of {
+            "bad argument #1 to '?' (invalid option 'fubar')",
+            "bad argument #1 to 'setrlimit' (invalid option 'fubar')",
+          }
         end
       }
 
@@ -531,7 +541,7 @@ specify posix.compat:
       # choose a format without seconds, that won't cause a race condition
       fmt = "%b %d %H:%M"
       getegid, geteuid = posix.getegid, posix.geteuid
-      stat, badarg = init (posix, "stat")
+      stat, typeerrors = init (posix, "stat")
 
       dir = posix.mkdtemp (template)
       posix.mkdir (dir .. "/subdir")
@@ -550,21 +560,24 @@ specify posix.compat:
   # `badargs.diagnose` do it all manually again...
   - context with bad arguments:
     - 'it diagnoses missing argument #1':
-        expect (stat ()).to_raise (badarg (1, "string"))
+        expect (stat ()).to_raise.any_of (typeerrors (1, "string"))
     - 'it diagnoses argument #1 type not string':
-        expect (stat (false)).to_raise (badarg (1, "string", "boolean"))
+        expect (stat (false)).
+          to_raise.any_of (typeerrors (1, "string", "boolean"))
     - 'it diagnoses argument #2 type not table, string or nil':
         expect (stat (".", false)).
-          to_raise (badarg (2, "?table|string", "boolean"))
+          to_raise.any_of (typeerrors (2, "?table|string", "boolean"))
     - 'it diagnoses argument #2 string invalid': |
-        expect (stat (".", "fubar")).
-          to_raise "bad argument #2 to 'stat' (invalid option 'fubar')"
+        expect (stat (".", "fubar")).to_raise.any_of {
+          "bad argument #2 to '?' (invalid option 'fubar')",
+          "bad argument #2 to 'stat' (invalid option 'fubar')",
+        }
     - 'it diagnoses argument #3 type not string':
         expect (stat (".", "type", false)).
-          to_raise (badarg (3, "string", "boolean"))
+          to_raise.any_of (typeerrors (3, "string", "boolean"))
     - it diagnoses too many arguments:
         expect (stat (".", {}, false)).
-          to_raise (badarg (3))
+          to_raise.any_of (typeerrors (3))
 
   - it fetches the file inode:
       expect (stat (dir .. "/hard").ino).to_be (stat (dir .. "/file").ino)
@@ -615,7 +628,7 @@ specify posix.compat:
 
 - describe statvfs:
   - before:
-      statvfs, badarg = init (posix, "statvfs")
+      statvfs, typeerrors = init (posix, "statvfs")
 
   # posix.statvfs takes an optional string or table as its second
   # argument, followed by zero or more strings only if the second
@@ -625,36 +638,38 @@ specify posix.compat:
       if statvfs then
         examples {
           ["it diagnoses missing argument #1"] = function ()
-            expect (statvfs ()).to_raise (badarg (1, "string"))
+            expect (statvfs ()).to_raise.any_of (typeerrors (1, "string"))
           end
         }
         examples {
           ["it diagnoses argument #1 type not string"] = function ()
-            expect (statvfs (false)).to_raise (badarg (1, "string", "boolean"))
+            expect (statvfs (false)).
+              to_raise.any_of (typeerrors (1, "string", "boolean"))
           end
         }
         examples {
           ["it diagnoses argument #2 type not table, string or nil"] = function ()
             expect (statvfs (".", false)).
-              to_raise (badarg (2, "?table|string", "boolean"))
+              to_raise.any_of (typeerrors (2, "?table|string", "boolean"))
           end
         }
         examples {
           ["it diagnoses argument #2 string invalid"] = function ()
-            expect (statvfs (".", "fubar")).
-              to_raise "bad argument #2 to 'statvfs' (invalid option 'fubar')"
+            expect (statvfs (".", "fubar")).to_raise.any_of {
+              "bad argument #2 to '?' (invalid option 'fubar')",
+              "bad argument #2 to 'statvfs' (invalid option 'fubar')",
+            }
           end
         }
         examples {
           ["it diagnoses argument #3 type not string"] = function ()
             expect (statvfs (".", "files", false)).
-              to_raise (badarg (3, "string", "boolean"))
+              to_raise.any_of (typeerrors (3, "string", "boolean"))
           end
         }
         examples {
           ["it diagnoses too many arguments"] = function ()
-            expect (statvfs (".", {}, false)).
-              to_raise (badarg (3))
+            expect (statvfs (".", {}, false)).to_raise.any_of (typeerrors (3))
           end
         }
       end
@@ -753,7 +768,7 @@ specify posix.compat:
 
 - describe sysconf:
   - before:
-      sysconf, badarg = init (posix, "sysconf")
+      sysconf, typeerrors = init (posix, "sysconf")
 
   # posix.sysconf takes an optional string or table as its first
   # argument, followed by zero or more strings only if the first
@@ -761,15 +776,18 @@ specify posix.compat:
   # `badargs.diagnose` do it all manually again...
   - context with bad arguments:
     - 'it diagnoses argument #1 type not table, string or nil':
-        expect (sysconf (false)).to_raise (badarg (1, "?table|string", "boolean"))
+        expect (sysconf (false)).
+          to_raise.any_of (typeerrors (1, "?table|string", "boolean"))
     - 'it diagnoses argument #1 string invalid': |
-        expect (sysconf ("fubar")).
-          to_raise "bad argument #1 to 'sysconf' (invalid option 'fubar')"
+        expect (sysconf ("fubar")).to_raise.any_of {
+          "bad argument #1 to '?' (invalid option 'fubar')",
+          "bad argument #1 to 'sysconf' (invalid option 'fubar')",
+        }
     - 'it diagnoses argument #2 type not string':
         expect (sysconf ("ARG_MAX", false)).
-          to_raise (badarg (2, "string", "boolean"))
+          to_raise.any_of (typeerrors (2, "string", "boolean"))
     - it diagnoses too many arguments:
-        expect (sysconf ({}, false)).to_raise (badarg (2))
+        expect (sysconf ({}, false)).to_raise.any_of (typeerrors (2))
 
   - it fetches the maximum number of exec arguments:
       expect (type (sysconf ().ARG_MAX)).to_be "number"
@@ -814,7 +832,7 @@ specify posix.compat:
 - describe times:
   - before:
       table.unpack = table.unpack or unpack
-      times, badarg = init (posix, "times")
+      times, typeerrors = init (posix, "times")
 
   # posix.times takes an optional string or table as its first
   # argument, followed by zero or more strings only if the first
@@ -822,15 +840,18 @@ specify posix.compat:
   # `badargs.diagnose` do it all manually again...
   - context with bad arguments:
     - 'it diagnoses argument #1 type not table, string or nil':
-        expect (times (false)).to_raise (badarg (1, "?table|string", "boolean"))
+        expect (times (false)).
+          to_raise.any_of (typeerrors (1, "?table|string", "boolean"))
     - 'it diagnoses argument #1 string invalid': |
-        expect (times ("fubar")).
-          to_raise "bad argument #1 to 'times' (invalid option 'fubar')"
+        expect (times ("fubar")).to_raise.any_of {
+          "bad argument #1 to '?' (invalid option 'fubar')",
+          "bad argument #1 to 'times' (invalid option 'fubar')",
+        }
     - 'it diagnoses argument #2 type not string':
         expect (times ("utime", false)).
-          to_raise (badarg (2, "string", "boolean"))
+          to_raise.any_of (typeerrors (2, "string", "boolean"))
     - it diagnoses too many arguments:
-        expect (times ({}, false)).to_raise (badarg (2))
+        expect (times ({}, false)).to_raise.any_of (typeerrors (2))
 
   - it fetches the user time:
       expect (type (times ().utime)).to_be "number"
@@ -877,8 +898,10 @@ specify posix.compat:
   - context with bad arguments: |
       examples {
         ["it diagnoses argument #1 invalid mode"] = function ()
-          expect (umask ("g+vv")).
-            to_raise "bad argument #1 to 'umask' (bad mode)"
+          expect (umask ("g+vv")).to_raise.any_of {
+            "bad argument #1 to '?' (bad mode)",
+            "bad argument #1 to 'umask' (bad mode)",
+          }
         end
       }
 

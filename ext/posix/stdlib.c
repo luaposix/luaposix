@@ -1,6 +1,6 @@
 /*
- * POSIX library for Lua 5.1/5.2.
- * (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2014
+ * POSIX library for Lua 5.1, 5.2 & 5.3.
+ * (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2015
  * (c) Reuben Thomas <rrt@sc3d.org> 2010-2013
  * (c) Natanael Copa <natanael.copa@gmail.com> 2008-2010
  * Clean up and bug fixes by Leo Razoumov <slonik.az@gmail.com> 2006-10-11
@@ -114,6 +114,7 @@ Create a unique temporary directory.
 static int
 Pmkdtemp(lua_State *L)
 {
+#if defined LPOSIX_2008_COMPLIANT
 	const char *path = luaL_checkstring(L, 1);
 	size_t path_len = strlen(path) + 1;
 	void *ud;
@@ -131,6 +132,11 @@ Pmkdtemp(lua_State *L)
 		lua_pushstring(L, tmppath);
 	lalloc(ud, tmppath, path_len, 0);
 	return (r == NULL) ? pusherror(L, path) : 1;
+#else
+	lua_pushnil(L);
+	lua_pushliteral(L, "not implemented by host C library");
+	return 2;
+#endif
 }
 
 

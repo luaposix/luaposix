@@ -1,6 +1,6 @@
 --[[
- POSIX library for Lua 5.1/5.2.
- (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2014
+ POSIX library for Lua 5.1, 5.2 & 5.3.
+ (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2015
  (c) Reuben Thomas <rrt@sc3d.org> 2010-2013
  (c) Natanael Copa <natanael.copa@gmail.com> 2008-2010
 ]]
@@ -44,7 +44,7 @@ for k, v in pairs (require "posix.compat") do
   M[k] = v
 end
 
-M.version = "posix for " .. _VERSION .. " / luaposix 33.1.0"
+M.version = "posix for " .. _VERSION .. " / luaposix 33.2.0"
 
 
 local argerror, argtypeerror, checkstring, checktable, toomanyargerror =
@@ -205,6 +205,8 @@ end
 -- @treturn[1] string exit type, if wait succeeds
 -- @treturn[2] nil
 -- @treturn[2] string error message
+
+local unpack = table.unpack or unpack -- 5.3 compatibility
 
 local _exit, errno, execp, fork, wait =
   M._exit, M.errno, M.execp, M.fork, M.wait

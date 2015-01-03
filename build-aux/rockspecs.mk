@@ -4,7 +4,7 @@
 # terms of the MIT license reproduced below.
 
 # ==================================================================== #
-# Copyright (C) 2013-2014 Reuben Thomas and Gary V. Vaughan                 #
+# Copyright (C) 2013-2015 Reuben Thomas and Gary V. Vaughan                 #
 #                                                                      #
 # Permission is hereby granted, free of charge, to any person          #
 # obtaining a copy of this software and associated documentation       #

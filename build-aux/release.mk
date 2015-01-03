@@ -1,7 +1,7 @@
 # Slingshot release rules for GNU Make.
 
 # ======================================================================
-# Copyright (C) 2001-2014 Free Software Foundation, Inc.
+# Copyright (C) 2001-2015 Free Software Foundation, Inc.
 # Originally by Jim Meyering, Simon Josefsson, Eric Blake,
 #               Akim Demaille, Gary V. Vaughan, and others.
 # This version by Gary V. Vaughan, 2013.
@@ -229,6 +229,14 @@ vc-diff-check:
 news-check-lines-spec ?= 3
 news-check-regexp ?= '^\#\#.* $(VERSION_REGEXP) \($(today)\)'
 
+Makefile.in: NEWS
+
+NEWS:
+	$(AM_V_GEN)if test -f NEWS.md; then ln -s NEWS.md NEWS;		\
+	elif test -f NEWS.rst; then ln -s NEWS.rst NEWS;		\
+	elif test -f NEWS.txt; then ln -s NEWS.txt NEWS;		\
+	fi
+
 news-check: NEWS
 	$(AM_V_GEN)if $(SED) -n $(news-check-lines-spec)p $<		\
 	    | $(EGREP) $(news-check-regexp) >/dev/null; then		\
@@ -239,7 +247,7 @@ news-check: NEWS
 	fi
 
 .PHONY: release-commit
-release-commit:
+release-commit: NEWS
 	$(AM_V_GEN)cd $(srcdir)						\
 	  && $(_build-aux)/do-release-commit-and-tag			\
 	       -C $(abs_builddir) $(VERSION) $(RELEASE_TYPE)
@@ -263,7 +271,7 @@ release-prep: $(scm_rockspec)
 	$(AM_V_at)$(MAKE) update-old-NEWS-hash
 	$(AM_V_at)perl -pi						\
 	  -e '$$. == 3 and print "$(gl_noteworthy_news_)\n\n\n"'	\
-	  $(srcdir)/NEWS
+	  `readlink $(srcdir)/NEWS 2>/dev/null || echo $(srcdir)/NEWS`
 	$(AM_V_at)msg=$$($(emit-commit-log)) || exit 1;			\
 	cd $(srcdir) && $(GIT) commit -s -m "$$msg" -a
 	@echo '**** Release announcement in ~/announce-$(my_distdir)'
@@ -315,10 +323,7 @@ announcement: NEWS
 	    -e p NEWS |$(SED) -e 1,2d
 	$(AM_V_at)printf '%s\n'						\
 	  'Install it with LuaRocks, using:' ''				\
-	  '    luarocks install $(PACKAGE) $(VERSION)' ''		\
-	  'If the latest rocks are not yet available from the official repository,' \
-	  'you can install directly from the $(PACKAGE) release branch, with:' \
-	  '' '    $$ luarocks install '\\
+	  '    luarocks install $(PACKAGE) $(VERSION)'
 	$(AM_V_at)$(ANNOUNCE_PRINT) 'print ($(GITHUB_ROCKSPEC))'
 
 
