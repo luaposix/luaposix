@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 33.0.0 Reference</title>
+    <title>luaposix 33.2.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 33.0.0</h1>
+<h1>luaposix 33.2.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -39,6 +39,7 @@
 <h2>Modules</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../modules/posix.html">posix</a></li>
+  <li><a href="../modules/posix.bit32.html">posix.bit32</a></li>
   <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
   <li><a href="../modules/posix.curses.html">posix.curses</a></li>
   <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
@@ -170,7 +171,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/abort.3.html">abort(3)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/abort.html">abort(3)</a>
     </ul>
 
 
@@ -186,7 +187,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          if nil, get all
          (<em>optional</em>)
         </li>
@@ -201,7 +202,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/getenv.3.html">getenv(3)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/getenv.html">getenv(3)</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -237,7 +238,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -247,7 +248,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man3/grantpt.3.html">grantpt(3)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/grantpt.html">grantpt(3)</a></li>
          <li><a href="../modules/posix.stdlib.html#openpt">openpt</a></li>
          <li><a href="../modules/posix.stdlib.html#ptsname">ptsname</a></li>
          <li><a href="../modules/posix.stdlib.html#unlockpt">unlockpt</a></li>
@@ -266,7 +267,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">templ</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          pattern that ends in six 'X' characters
         </li>
     </ul>
@@ -274,7 +275,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         path to directory, if successful
     </ol>
      <h3>Or</h3>
@@ -282,7 +283,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -292,7 +293,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/mkdtemp.3.html">mkdtemp(3)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/mkdtemp.html">mkdtemp(3)</a>
     </ul>
 
 
@@ -308,7 +309,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">templ</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          pattern that ends in six 'X' characters
         </li>
     </ul>
@@ -322,12 +323,12 @@
      <h3>Or</h3>
     <ol>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         path to file, if successful</li>
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -337,7 +338,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/mkstemp.3.html">mkstemp(3)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/mkstemp.html">mkstemp(3)</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -372,7 +373,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -382,7 +383,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man3/posix_openpt.3.html">posix_openpt(3)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/posix_openpt.html">posix_openpt(3)</a></li>
          <li><a href="../modules/posix.stdlib.html#grantpt">grantpt</a></li>
          <li><a href="../modules/posix.stdlib.html#ptsname">ptsname</a></li>
          <li><a href="../modules/posix.stdlib.html#unlockpt">unlockpt</a></li>
@@ -416,7 +417,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -426,7 +427,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man3/ptsname.3.html">ptsname(3)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/ptsname.html">ptsname(3)</a></li>
          <li><a href="../modules/posix.stdlib.html#grantpt">grantpt</a></li>
          <li><a href="../modules/posix.stdlib.html#unlockpt">unlockpt</a></li>
     </ul>
@@ -444,7 +445,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          file to act on
         </li>
     </ul>
@@ -452,7 +453,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         canonicalized absolute path, if successful
     </ol>
      <h3>Or</h3>
@@ -460,7 +461,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error messag</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -470,7 +471,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/realpath.3.html">realpath(3)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/realpath.html">realpath(3)</a>
     </ul>
 
 
@@ -487,13 +488,13 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
 
 
 
         </li>
         <li><span class="parameter">value</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          (maybe nil, meaning 'unset')
          (<em>optional</em>)
         </li>
@@ -514,7 +515,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -524,7 +525,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/setenv.3.html">setenv(3)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/setenv.html">setenv(3)</a>
     </ul>
 
 
@@ -556,7 +557,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -566,7 +567,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man3/unlockpt.3.html">unlockpt(3)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/unlockpt.html">unlockpt(3)</a></li>
          <li><a href="../modules/posix.stdlib.html#openpt">openpt</a></li>
          <li><a href="../modules/posix.stdlib.html#ptsname">ptsname</a></li>
          <li><a href="../modules/posix.stdlib.html#grantpt">grantpt</a></li>
@@ -581,7 +582,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-04 16:15:03 </i>
+<i style="float:right;">Last updated 2015-01-03 15:04:25 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

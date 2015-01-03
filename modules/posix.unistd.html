@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 33.0.0 Reference</title>
+    <title>luaposix 33.2.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 33.0.0</h1>
+<h1>luaposix 33.2.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -40,6 +40,7 @@
 <h2>Modules</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../modules/posix.html">posix</a></li>
+  <li><a href="../modules/posix.bit32.html">posix.bit32</a></li>
   <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
   <li><a href="../modules/posix.curses.html">posix.curses</a></li>
   <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
@@ -300,7 +301,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/_exit.2.html">_exit(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/_exit.html">_exit(2)</a>
     </ul>
 
 
@@ -316,11 +317,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          file to act on
         </li>
         <li><span class="parameter">mode</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          can contain 'r','w','x' and 'f'
          (<em>default</em> "f")
         </li>
@@ -337,7 +338,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -347,7 +348,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/access.2.html">access(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/access.html">access(2)</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -367,7 +368,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          file to act on
         </li>
     </ul>
@@ -383,7 +384,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -393,7 +394,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/chdir.2.html">chdir(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/chdir.html">chdir(2)</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -413,15 +414,15 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          existing file path
         </li>
         <li><span class="parameter">uid</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a> or <span class="type">int</span></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">int</span></span>
          new owner user id
         </li>
         <li><span class="parameter">gid</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a> or <span class="type">int</span></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">int</span></span>
          new owner group id
         </li>
     </ul>
@@ -437,7 +438,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error messoge</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -447,7 +448,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/chown.2.html">chown(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/chown.html">chown(2)</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -485,7 +486,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -495,7 +496,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/close.2.html">close(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/close.html">close(2)</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -518,11 +519,11 @@ Not recommended for general encryption purposes.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">trypass</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          string to hash
         </li>
         <li><span class="parameter">salt</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          two-character string from [a-zA-Z0-9./]
         </li>
     </ul>
@@ -536,7 +537,7 @@ Not recommended for general encryption purposes.
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/crypt.3.html">crypt(3)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/crypt.html">crypt(3)</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -576,7 +577,7 @@ Not recommended for general encryption purposes.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -586,7 +587,7 @@ Not recommended for general encryption purposes.
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/dup.2.html">dup(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/dup.html">dup(2)</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -628,7 +629,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -638,7 +639,7 @@ reallocated to <em>fd</em>.
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/dup2.2.html">dup2(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/dup2.html">dup2(2)</a>
     </ul>
 
 
@@ -654,13 +655,13 @@ reallocated to <em>fd</em>.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
 
 
 
         </li>
         <li><span class="parameter">argt</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          arguments (table can include index 0)
         </li>
     </ul>
@@ -670,14 +671,14 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
     </ol>
 
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/execve.2.html">execve(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/execve.html">execve(2)</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -697,13 +698,13 @@ reallocated to <em>fd</em>.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
 
 
 
         </li>
         <li><span class="parameter">argt</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          arguments (table can include index 0)
         </li>
     </ul>
@@ -713,14 +714,14 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
     </ol>
 
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/execve.2.html">execve(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/execve.html">execve(2)</a>
     </ul>
 
 
@@ -754,7 +755,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -764,7 +765,7 @@ reallocated to <em>fd</em>.
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/fdatasync.2.html">fdatasync(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/fdatasync.html">fdatasync(2)</a>
     </ul>
 
 
@@ -795,7 +796,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -805,7 +806,7 @@ reallocated to <em>fd</em>.
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/fork.2.html">fork(2)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/fork.html">fork(2)</a></li>
          <li><a href="../examples/fork.lua.html#">fork.lua</a></li>
          <li><a href="../examples/fork2.lua.html#">fork2.lua</a></li>
     </ul>
@@ -854,7 +855,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -864,7 +865,7 @@ reallocated to <em>fd</em>.
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/fsync.2.html">fsync(2)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/fsync.html">fsync(2)</a></li>
          <li><a href="../modules/posix.unistd.html#sync">sync</a></li>
     </ul>
 
@@ -882,7 +883,7 @@ reallocated to <em>fd</em>.
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         path of current working directory, if successful
     </ol>
      <h3>Or</h3>
@@ -890,7 +891,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -900,7 +901,7 @@ reallocated to <em>fd</em>.
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/getcwd.3.html">getcwd(3)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/getcwd.html">getcwd(3)</a>
     </ul>
 
 
@@ -989,14 +990,14 @@ reallocated to <em>fd</em>.
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         group id
     </ol>
 
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/getgroups.2.html">getgroups(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/getgroups.html">getgroups(2)</a>
     </ul>
 
 
@@ -1013,13 +1014,22 @@ reallocated to <em>fd</em>.
     <h3>Returns:</h3>
     <ol>
 
+           <span class="types"><span class="type">int</span></span>
         host id
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        error message</li>
     </ol>
 
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/gethostid.3.html">gethostid(3)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/gethostid.html">gethostid(3)</a>
     </ul>
 
 
@@ -1143,7 +1153,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1153,7 +1163,7 @@ reallocated to <em>fd</em>.
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/isatty.3.html">isatty(3)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/isatty.html">isatty(3)</a>
     </ul>
 
 
@@ -1169,11 +1179,11 @@ reallocated to <em>fd</em>.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">target</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          name
         </li>
         <li><span class="parameter">link</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          name
         </li>
         <li><span class="parameter">soft</span>
@@ -1194,7 +1204,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1204,8 +1214,8 @@ reallocated to <em>fd</em>.
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/link.2.html">link(2)</a></li>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/symlink.2.html">symlink(2)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/link.html">link(2)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/symlink.html">symlink(2)</a></li>
     </ul>
 
 
@@ -1245,7 +1255,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1255,7 +1265,7 @@ reallocated to <em>fd</em>.
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/lseek.2.html">lseek(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/lseek.html">lseek(2)</a>
     </ul>
 
 
@@ -1296,7 +1306,7 @@ reallocated to <em>fd</em>.
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/nice.2.html">nice(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/nice.html">nice(2)</a>
     </ul>
 
 
@@ -1312,7 +1322,7 @@ reallocated to <em>fd</em>.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          optional
         </li>
         <li><span class="parameter">key</span>
@@ -1333,7 +1343,7 @@ reallocated to <em>fd</em>.
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/pathconf.3.html">pathconf(3)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/pathconf.html">pathconf(3)</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -1365,7 +1375,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1375,7 +1385,7 @@ reallocated to <em>fd</em>.
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/pipe.2.html">pipe(2)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/pipe.html">pipe(2)</a></li>
          <li><a href="../examples/fork.lua.html#">fork.lua</a></li>
     </ul>
 
@@ -1404,7 +1414,7 @@ reallocated to <em>fd</em>.
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         string from <em>fd</em> with at most <em>count</em> bytes, if successful
     </ol>
      <h3>Or</h3>
@@ -1412,7 +1422,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1422,7 +1432,7 @@ reallocated to <em>fd</em>.
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/read.2.html">read(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/read.html">read(2)</a>
     </ul>
 
 
@@ -1438,7 +1448,7 @@ reallocated to <em>fd</em>.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          file to act on
         </li>
     </ul>
@@ -1446,7 +1456,7 @@ reallocated to <em>fd</em>.
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         link target, if successful
     </ol>
      <h3>Or</h3>
@@ -1454,7 +1464,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1464,7 +1474,7 @@ reallocated to <em>fd</em>.
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/readlink.2.html">readlink(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/readlink.html">readlink(2)</a>
     </ul>
 
 
@@ -1480,7 +1490,7 @@ reallocated to <em>fd</em>.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          file to act on
         </li>
     </ul>
@@ -1496,7 +1506,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1506,7 +1516,7 @@ reallocated to <em>fd</em>.
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/rmdir.2.html">rmdir(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/rmdir.html">rmdir(2)</a>
     </ul>
 
 
@@ -1522,7 +1532,7 @@ reallocated to <em>fd</em>.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">what</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          one of 'u', 'U', 'g', 'G', 's', 'p' (upper-case means "effective")
         </li>
         <li><span class="parameter">id</span>
@@ -1547,7 +1557,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1557,12 +1567,12 @@ reallocated to <em>fd</em>.
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/setuid.2.html">setuid(2)</a></li>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/seteuid.2.html">seteuid(2)</a></li>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/setgid.2.html">setgid(2)</a></li>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/setegid.2.html">setegid(2)</a></li>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/setsid.2.html">setsid(2)</a></li>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/setpgid.2.html">setpgid(2)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/setuid.html">setuid(2)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/seteuid.html">seteuid(2)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/setgid.html">setgid(2)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/setegid.html">setegid(2)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/setsid.html">setsid(2)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/setpgid.html">setpgid(2)</a></li>
     </ul>
 
 
@@ -1599,7 +1609,7 @@ reallocated to <em>fd</em>.
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man3/sleep.3.html">sleep(3)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/sleep.html">sleep(3)</a></li>
          <li><a href="../modules/posix.time.html#nanosleep">posix.time.nanosleep</a></li>
     </ul>
 
@@ -1619,7 +1629,7 @@ reallocated to <em>fd</em>.
     <h3>See also:</h3>
     <ul>
          <li><a href="../modules/posix.unistd.html#fsync">fsync</a></li>
-         <li><a href="http://www.kernel.org/doc/man-pages/online/pages/man2/sync.2.html">sync(2)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/sync.html">sync(2)</a></li>
     </ul>
 
 
@@ -1652,7 +1662,7 @@ reallocated to <em>fd</em>.
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/sysconf.3.html">sysconf(3)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/sysconf.html">sysconf(3)</a>
     </ul>
 
 
@@ -1683,7 +1693,7 @@ reallocated to <em>fd</em>.
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man3/ttyname.3.html">ttyname(3)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/ttyname.html">ttyname(3)</a>
     </ul>
 
 
@@ -1699,7 +1709,7 @@ reallocated to <em>fd</em>.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
 
 
 
@@ -1717,7 +1727,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1727,7 +1737,7 @@ reallocated to <em>fd</em>.
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/unlink.2.html">unlink(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/unlink.html">unlink(2)</a>
     </ul>
 
 
@@ -1747,7 +1757,7 @@ reallocated to <em>fd</em>.
          the file descriptor to act on
         </li>
         <li><span class="parameter">buf</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          containing bytes to write
         </li>
     </ul>
@@ -1763,7 +1773,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1773,7 +1783,7 @@ reallocated to <em>fd</em>.
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://www.kernel.org/doc/man-pages/online/pages/man2/write.2.html">write(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/write.html">write(2)</a>
     </ul>
 
 
@@ -1918,7 +1928,7 @@ Any constants not available in the underlying system will be <code>nil</code> va
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2014-11-04 16:15:03 </i>
+<i style="float:right;">Last updated 2015-01-03 15:04:25 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
