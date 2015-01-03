@@ -1,6 +1,6 @@
 # luaposix NEWS - User visible changes
 
-## Noteworthy changes in release ?.? (????-??-??) [?]
+## Noteworthy changes in release 33.2.0 (2015-01-03) [stable]
 
 ### New Features
 
