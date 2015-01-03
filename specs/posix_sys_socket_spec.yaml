@@ -9,10 +9,6 @@ specify posix.sys.socket:
     IPPROTO_TCP, SOCK_DGRAM = sock.IPPROTO_TCP, sock.SOCK_DGRAM
     SOL_SOCKET, SO_RCVTIMEO = sock.SOL_SOCKET, sock.SO_RCVTIMEO
 
-    init = function (M, fname)
-      return M[fname], function (...) return badargs.format (fname, ...) end
-    end
-
 
 - describe socket:
   - context with bad arguments:
@@ -26,48 +22,48 @@ specify posix.sys.socket:
 
 - describe getaddrinfo:
   - before:
-      getaddrinfo, badarg = init (sock, "getaddrinfo")
+      getaddrinfo, typeerrors = init (sock, "getaddrinfo")
 
   - context with bad arguments: |
       badargs.diagnose (getaddrinfo, "(?string, ?string|int, ?table)")
 
       examples {
         ["it diagnoses unspecified host and service"] = function ()
-          expect (getaddrinfo ()).
-            to_raise "bad argument #2 to 'getaddrinfo' (string or int expected, got no value)"
+          expect (getaddrinfo ()).to_raise.
+            any_of (typeerrors (2, "string or int"))
         end
       }
       examples {
         ["it diagnoses invalid hints fields"] = function ()
           expect (getaddrinfo ("localhost", nil, {
             protacol=IPPROTO_TCP
-          })).to_raise "bad argument #3 to 'getaddrinfo' (invalid field name 'protacol')"
+          })).to_raise.any_of (typeerrors (3, nil, "protacol"))
           expect (getaddrinfo ("localhost", nil, {
             family=AF_INET, sacktype=SOCK_DGRAM, protocol=IPPROTO_TCP,
-          })).to_raise "bad argument #3 to 'getaddrinfo' (invalid field name 'sacktype')"
+          })).to_raise.any_of (typeerrors (3, nil, "sacktype"))
         end
       }
       examples {
         ["it diagnoses wrong hints field types"] = function ()
           expect (getaddrinfo ("localhost", nil, {
             family=false,
-          })).to_raise (badarg (3, "int", "family", "boolean"))
+          })).to_raise.any_of (typeerrors (3, "int", "family", "boolean"))
           expect (getaddrinfo ("localhost", nil, {
             family=AF_INET, socktype=false,
-          })).to_raise (badarg (3, "int", "socktype", "boolean"))
+          })).to_raise.any_of (typeerrors (3, "int", "socktype", "boolean"))
           expect (getaddrinfo ("localhost", nil, {
             family=AF_INET, socktype=SOCK_DGRAM, protocol=false,
-          })).to_raise (badarg (3, "int", "protocol", "boolean"))
+          })).to_raise.any_of (typeerrors (3, "int", "protocol", "boolean"))
           expect (getaddrinfo ("localhost", nil, {
             family=AF_INET, socktype=SOCK_DGRAM, protocol=IPPROTO_TCP, flags=false,
-          })).to_raise (badarg (3, "int", "flags", "boolean"))
+          })).to_raise.any_of (typeerrors (3, "int", "flags", "boolean"))
         end
       }
 
 
 - describe connect:
   - before:
-      connect, badarg = init (sock, "connect")
+      connect, typeerrors = init (sock, "connect")
 
   - context with bad arguments: |
       badargs.diagnose (connect, "(int, table)")
@@ -75,66 +71,68 @@ specify posix.sys.socket:
       examples {
         ["it diagnoses wrong family types"] = function ()
           expect (connect (42, {family=false})).
-            to_raise (badarg (2, "int", "family", "boolean"))
-          expect (connect (42, {family=-1})).
-            to_raise "bad argument #2 to 'connect' (unsupported family type -1)"
+            to_raise.any_of (typeerrors (2, "int", "family", "boolean"))
+          expect (connect (42, {family=-1})).to_raise.any_of {
+            "bad argument #2 to 'connect' (unsupported family type -1)",
+            "bad argument #2 to '?' (unsupported family type -1)",
+          }
         end
       }
       examples {
         ["it diagnoses wrong AF_INET field types"] = function ()
           expect (connect (42, {family=AF_INET, port=false})).
-            to_raise (badarg (2, "int", "port", "boolean"))
+            to_raise.any_of (typeerrors (2, "int", "port", "boolean"))
           expect (connect (42, {family=AF_INET, port=9999, addr=false})).
-            to_raise (badarg (2, "string", "addr", "boolean"))
+            to_raise.any_of (typeerrors (2, "string", "addr", "boolean"))
         end
       }
       examples {
         ["it diagnoses invalid AF_INET fields"] = function ()
           expect (connect (42, {
             family=AF_INET, port=9999, addr="127.0.0.1", flags=false
-          })).to_raise "bad argument #2 to 'connect' (invalid field name 'flags')"
+          })).to_raise.any_of (typeerrors (2, nil, "flags"))
         end
       }
       examples {
         ["it diagnoses wrong AF_INET6 field types"] = function ()
           expect (connect (42, {family = AF_INET6, port = false})).
-            to_raise (badarg (2, "int", "port", "boolean"))
-            expect (connect (42, {family = AF_INET6, port = 9999, addr = false})).
-            to_raise (badarg (2, "string", "addr", "boolean"))
+            to_raise.any_of (typeerrors (2, "int", "port", "boolean"))
+          expect (connect (42, {family = AF_INET6, port = 9999, addr = false})).
+            to_raise.any_of (typeerrors (2, "string", "addr", "boolean"))
         end
-        }
-      examples {
-        ["it diagnoses invalid AF_INET6 fields"] = function ()
-            expect (connect (42, {
-            family=AF_INET6, port=9999, addr="::", flags=false
-          })).to_raise "bad argument #2 to 'connect' (invalid field name 'flags')"
-          end
       }
       examples {
-          ["it diagnoses wrong AF_UNIX field types"] = function ()
+        ["it diagnoses invalid AF_INET6 fields"] = function ()
+          expect (connect (42, {
+            family=AF_INET6, port=9999, addr="::", flags=false
+          })).to_raise.any_of (typeerrors (2, nil, "flags"))
+        end
+      }
+      examples {
+        ["it diagnoses wrong AF_UNIX field types"] = function ()
           expect (connect (42, {family = AF_UNIX, path = false})).
-            to_raise (badarg (2, "string", "path", "boolean"))
-          end
+            to_raise.any_of (typeerrors (2, "string", "path", "boolean"))
+        end
       }
       examples {
         ["it diagnoses invalid AF_UNIX fields"] = function ()
           expect (connect (42, {family=AF_UNIX, path="/tmp/afunix", port=9999})).
-            to_raise "bad argument #2 to 'connect' (invalid field name 'port')"
+            to_raise.any_of (typeerrors (2, nil, "port"))
         end
       }
       if AF_NETLINK then
         examples {
           ["it diagnoses wrong AF_NETLINK field types"] = function ()
-              expect (connect (42, {family = AF_NETLINK, pid = false})).
-                  to_raise (badarg (2, "int", "pid", "boolean"))
-              expect (connect (42, {family = AF_NETLINK, pid = 9999, groups = false})).
-                to_raise (badarg (2, "int", "groups", "boolean"))
+            expect (connect (42, {family = AF_NETLINK, pid = false})).
+              to_raise.any_of (typeerrors (2, "int", "pid", "boolean"))
+            expect (connect (42, {family = AF_NETLINK, pid = 9999, groups = false})).
+              to_raise.any_of (typeerrors (2, "int", "groups", "boolean"))
           end
         }
         examples {
           ["it diagnoses invalid AF_NETLINK fields"] = function ()
             expect (connect (42, {family=AF_NETLINK, pid=9999, groups=9999, port=9999})).
-              to_raise "bad argument #2 to 'connect' (invalid field name 'port')"
+              to_raise.any_of (typeerrors (2, nil, "port"))
           end
         }
       end
@@ -142,7 +140,7 @@ specify posix.sys.socket:
 
 - describe bind:
   - before:
-      bind, badarg = init (sock, "bind")
+      bind, typeerrors = init (sock, "bind")
 
   - context with bad arguments: |
       badargs.diagnose (bind, "(int, table)")
@@ -150,66 +148,68 @@ specify posix.sys.socket:
       examples {
         ["it diagnoses wrong family types"] = function ()
           expect (bind (42, {family=false})).
-            to_raise (badarg (2, "int", "family", "boolean"))
-          expect (bind (42, {family=-1})).
-            to_raise "bad argument #2 to 'bind' (unsupported family type -1)"
+            to_raise.any_of (typeerrors (2, "int", "family", "boolean"))
+          expect (bind (42, {family=-1})).to_raise.any_of {
+            "bad argument #2 to '?' (unsupported family type -1)",
+            "bad argument #2 to 'bind' (unsupported family type -1)",
+          }
         end
       }
       examples {
         ["it diagnoses wrong AF_INET field types"] = function ()
           expect (bind (42, {family=AF_INET, port=false})).
-            to_raise (badarg (2, "int", "port", "boolean"))
+            to_raise.any_of (typeerrors (2, "int", "port", "boolean"))
           expect (bind (42, {family=AF_INET, port=9999, addr=false})).
-            to_raise (badarg (2, "string", "addr", "boolean"))
+            to_raise.any_of (typeerrors (2, "string", "addr", "boolean"))
         end
       }
       examples {
         ["it diagnoses invalid AF_INET fields"] = function ()
           expect (bind (42, {
             family=AF_INET, port=9999, addr="127.0.0.1", flags=false
-          })).to_raise "bad argument #2 to 'bind' (invalid field name 'flags')"
+          })).to_raise.any_of (typeerrors (2, nil, "flags"))
         end
       }
       examples {
         ["it diagnoses wrong AF_INET6 field types"] = function ()
           expect (bind (42, {family = AF_INET6, port = false})).
-            to_raise (badarg (2, "int", "port", "boolean"))
+            to_raise.any_of (typeerrors (2, "int", "port", "boolean"))
           expect (bind (42, {family = AF_INET6, port = 9999, addr = false})).
-            to_raise (badarg (2, "string", "addr", "boolean"))
+            to_raise.any_of (typeerrors (2, "string", "addr", "boolean"))
         end
       }
       examples {
         ["it diagnoses invalid AF_INET6 fields"] = function ()
           expect (bind (42, {
             family=AF_INET6, port=9999, addr="::", flags=false
-          })).to_raise "bad argument #2 to 'bind' (invalid field name 'flags')"
+          })).to_raise.any_of (typeerrors (2, nil, "flags"))
         end
       }
       examples {
         ["it diagnoses wrong AF_UNIX field types"] = function ()
           expect (bind (42, {family = AF_UNIX, path = false})).
-            to_raise (badarg (2, "string", "path", "boolean"))
+            to_raise.any_of (typeerrors (2, "string", "path", "boolean"))
         end
       }
       examples {
         ["it diagnoses invalid AF_UNIX fields"] = function ()
           expect (bind (42, {family=AF_UNIX, path="/tmp/afunix", port=9999})).
-            to_raise "bad argument #2 to 'bind' (invalid field name 'port')"
+            to_raise.any_of (typeerrors (2, nil, "port"))
         end
       }
       if AF_NETLINK then
         examples {
           ["it diagnoses wrong AF_NETLINK field types"] = function ()
-              expect (bind (42, {family = AF_NETLINK, pid = false})).
-                to_raise (badarg (2, "int", "pid", "boolean"))
-              expect (bind (42, {family = AF_NETLINK, pid = 9999, groups = false})).
-                to_raise (badarg (2, "int", "groups", "boolean"))
+            expect (bind (42, {family = AF_NETLINK, pid = false})).
+              to_raise.any_of (typeerrors (2, "int", "pid", "boolean"))
+            expect (bind (42, {family = AF_NETLINK, pid = 9999, groups = false})).
+              to_raise.any_of (typeerrors (2, "int", "groups", "boolean"))
           end
         }
         examples {
           ["it diagnoses invalid AF_NETLINK fields"] = function ()
             expect (bind (42, {family=AF_NETLINK, pid=9999, groups=9999, port=9999})).
-              to_raise "bad argument #2 to 'bind' (invalid field name 'port')"
+              to_raise.any_of (typeerrors (2, nil, "port"))
           end
         }
       end
@@ -242,7 +242,7 @@ specify posix.sys.socket:
 
 - describe sendto:
   - before:
-      sendto, badarg = init (sock, "sendto")
+      sendto, typeerrors = init (sock, "sendto")
 
   - context with bad arguments: |
       badargs.diagnose (sendto, "(int, string, table)")
@@ -250,66 +250,68 @@ specify posix.sys.socket:
       examples {
         ["it diagnoses wrong family types"] = function ()
           expect (sendto (42, "msg", {family=false})).
-            to_raise (badarg (3, "int", "family", "boolean"))
-          expect (sendto (42, "msg", {family=-1})).
-            to_raise "bad argument #3 to 'sendto' (unsupported family type -1)"
+            to_raise.any_of (typeerrors (3, "int", "family", "boolean"))
+          expect (sendto (42, "msg", {family=-1})).to_raise.any_of {
+            "bad argument #3 to '?' (unsupported family type -1)",
+            "bad argument #3 to 'sendto' (unsupported family type -1)",
+          }
         end
       }
       examples {
         ["it diagnoses wrong AF_INET field types"] = function ()
           expect (sendto (42, "msg", {family=AF_INET, port=false})).
-            to_raise (badarg (3, "int", "port", "boolean"))
+            to_raise.any_of (typeerrors (3, "int", "port", "boolean"))
           expect (sendto (42, "msg", {family=AF_INET, port=9999, addr=false})).
-            to_raise (badarg (3, "string", "addr", "boolean"))
+            to_raise.any_of (typeerrors (3, "string", "addr", "boolean"))
         end
       }
       examples {
         ["it diagnoses invalid AF_INET fields"] = function ()
           expect (sendto (42, "msg", {
             family=AF_INET, port=9999, addr="127.0.0.1", flags=false
-          })).to_raise "bad argument #3 to 'sendto' (invalid field name 'flags')"
+          })).to_raise.any_of (typeerrors (3, nil, "flags"))
         end
       }
       examples {
         ["it diagnoses wrong AF_INET6 field types"] = function ()
           expect (sendto (42, "msg", {family = AF_INET6, port = false})).
-            to_raise (badarg (3, "int", "port", "boolean"))
+            to_raise.any_of (typeerrors (3, "int", "port", "boolean"))
           expect (sendto (42, "msg", {family = AF_INET6, port = 9999, addr = false})).
-            to_raise (badarg (3, "string", "addr", "boolean"))
+            to_raise.any_of (typeerrors (3, "string", "addr", "boolean"))
         end
       }
       examples {
         ["it diagnoses invalid AF_INET6 fields"] = function ()
           expect (sendto (42, "msg", {
             family=AF_INET6, port=9999, addr="::", flags=false
-          })).to_raise "bad argument #3 to 'sendto' (invalid field name 'flags')"
+          })).to_raise.any_of (typeerrors (3, nil, "flags"))
         end
       }
       examples {
         ["it diagnoses wrong AF_UNIX field types"] = function ()
           expect (sendto (42, "msg", {family = AF_UNIX, path = false})).
-            to_raise (badarg (3, "string", "path", "boolean"))
+            to_raise.any_of (typeerrors (3, "string", "path", "boolean"))
         end
       }
       examples {
         ["it diagnoses invalid AF_UNIX fields"] = function ()
           expect (sendto (42, "msg", {family=AF_UNIX, path="/tmp/afunix", port=9999})).
-            to_raise "bad argument #3 to 'sendto' (invalid field name 'port')"
+            to_raise.any_of (typeerrors (3, nil, "port"))
         end
       }
       if AF_NETLINK then
         examples {
           ["it diagnoses wrong AF_NETLINK field types"] = function ()
               expect (sendto (42, "msg", {family = AF_NETLINK, pid = false})).
-                to_raise (badarg (3, "int", "pid", "boolean"))
+                to_raise.any_of (typeerrors (3, "int", "pid", "boolean"))
               expect (sendto (42, "msg", {family = AF_NETLINK, pid = 9999, groups = false})).
-                to_raise (badarg (3, "int", "groups", "boolean"))
+                to_raise.any_of (typeerrors (3, "int", "groups", "boolean"))
           end
         }
         examples {
           ["it diagnoses invalid AF_NETLINK fields"] = function ()
             expect (sendto (42, "msg", {family=AF_NETLINK, pid=9999, groups=9999, port=9999})).
-              to_raise "bad argument #3 to 'sendto' (invalid field name 'port')"
+              to_raise.any_of (typeerrors (3, nil, "port"))
           end
         }
       end
@@ -325,38 +327,38 @@ specify posix.sys.socket:
       SOL_SOCKET, SO_LINGER, IPPROTO_TCP =
         sock.SOL_SOCKET, sock.SO_LINGER, sock.IPPROTO_TCP
 
-      setsockopt, badarg = init (sock, "setsockopt")
+      setsockopt, typeerrors = init (sock, "setsockopt")
 
   - context with bad arguments:
     - 'it diagnoses missing argument #1':
-        expect (setsockopt ()).to_raise (badarg (1, "int"))
+        expect (setsockopt ()).to_raise.any_of (typeerrors (1, "int"))
     - 'it diagnoses argument #1 type not int':
-        expect (setsockopt (false)).to_raise (badarg (1, "int", "boolean"))
+        expect (setsockopt (false)).to_raise.any_of (typeerrors (1, "int", "boolean"))
     - 'it diagnoses missing argument #2':
-        expect (setsockopt (1)).to_raise (badarg (2, "int"))
+        expect (setsockopt (1)).to_raise.any_of (typeerrors (2, "int"))
     - 'it diagnoses argument #2 type not int':
-        expect (setsockopt (1, false)).to_raise (badarg (2, "int", "boolean"))
+        expect (setsockopt (1, false)).to_raise.any_of (typeerrors (2, "int", "boolean"))
     - 'it diagnoses missing argument #3':
-        expect (setsockopt (1, 2)).to_raise (badarg (3, "int"))
+        expect (setsockopt (1, 2)).to_raise.any_of (typeerrors (3, "int"))
     - 'it diagnoses argument #3 type not int':
-        expect (setsockopt (1, 2, false)).to_raise (badarg (3, "int", "boolean"))
+        expect (setsockopt (1, 2, false)).to_raise.any_of (typeerrors (3, "int", "boolean"))
     - 'it diagnoses missing argument #4':
         expect (setsockopt (1, SOL_SOCKET, SO_LINGER)).
-          to_raise (badarg (4, "int"))
+          to_raise.any_of (typeerrors (4, "int"))
     - 'it diagnoses argument #4 type not int':
         expect (setsockopt (1, SOL_SOCKET, SO_LINGER, false)).
-          to_raise (badarg (4, "int", "boolean"))
+          to_raise.any_of (typeerrors (4, "int", "boolean"))
     - 'it diagnoses missing argument #5':
         expect (setsockopt (1, SOL_SOCKET, SO_LINGER, 4)).
-          to_raise (badarg (5, "int"))
+          to_raise.any_of (typeerrors (5, "int"))
     - 'it diagnoses argument #5 type not int':
         expect (setsockopt (1, SOL_SOCKET, SO_LINGER, 4, false)).
-          to_raise (badarg (5, "int", "boolean"))
+          to_raise.any_of (typeerrors (5, "int", "boolean"))
     - it diagnoses too many arguments:
         expect (setsockopt (1, SOL_SOCKET, IPPROTO_TCP, 4, false)).
-          to_raise (badarg (5))
+          to_raise.any_of (typeerrors (5))
         expect (setsockopt (1, SOL_SOCKET, SO_LINGER, 4, 5, false)).
-          to_raise (badarg (6))
+          to_raise.any_of (typeerrors (6))
 
   - it communicates with IPV4 and IPV6 over loopback: |
       fd = socket (AF_INET6, SOCK_DGRAM, 0)
