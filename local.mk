@@ -219,6 +219,7 @@ dist_doc_DATA +=			\
 dist_modules_DATA +=				\
 	doc/modules/posix.bit32.html		\
 	doc/modules/posix.ctype.html		\
+	doc/modules/posix.curses.html		\
 	doc/modules/posix.dirent.html		\
 	doc/modules/posix.errno.html		\
 	doc/modules/posix.fcntl.html		\
