@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 33.2.1 Reference</title>
+    <title>luaposix 33.3.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 33.2.1</h1>
+<h1>luaposix 33.3.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -39,7 +39,6 @@
 <h2>Modules</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><strong>posix</strong></li>
-  <li><a href="../modules/posix.bit32.html">posix.bit32</a></li>
   <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
   <li><a href="../modules/posix.curses.html">posix.curses</a></li>
   <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
@@ -122,6 +121,10 @@
 	<td class="summary">Check permissions like <a href="../modules/posix.unistd.html#access">posix.unistd.access</a>, but for euid.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#execx">execx (task, ...)</a></td>
+	<td class="summary">Exec a command or Lua function.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#mkdir">mkdir (path)</a></td>
 	<td class="summary">Make a directory.</td>
 	</tr>
@@ -138,17 +141,15 @@
 	<td class="summary">Open a file.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#pipeline">pipeline (t, opt)</a></td>
-	<td class="summary">Perform a series of commands and Lua functions as a pipeline.</td>
+	<td class="name" nowrap><a href="#pclose">pclose (pfd)</a></td>
+	<td class="summary">Close a pipeline opened with popen or popen_pipeline.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#pipeline_iterator">pipeline_iterator (t, opt)</a></td>
-	<td class="summary">Perform a series of commands and Lua functions as a pipeline,
- returning the output of the last stage's <code>stdout</code> as
- the values of an iterator.</td>
+	<td class="name" nowrap><a href="#popen">popen (as, mode[, pipe_fn])</a></td>
+	<td class="summary">Run a commands or Lua function in a sub-process.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#pipeline_slurp">pipeline_slurp (t, opt)</a></td>
+	<td class="name" nowrap><a href="#popen_pipeline">popen_pipeline (t, mode[, pipe_fn])</a></td>
 	<td class="summary">Perform a series of commands and Lua functions as a pipeline.</td>
 	</tr>
 	<tr>
@@ -157,7 +158,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#spawn">spawn (task, ...)</a></td>
-	<td class="summary">Run a command or function in a sub-process.</td>
+	<td class="summary">Run a command or function in a sub-process using <code>P.execx</code>.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#timeradd">timeradd (x, y)</a></td>
@@ -321,6 +322,41 @@
     <ol>
 
         0 if access allowed; <code>nil</code> otherwise (and errno is set)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "execx"></a>
+    <strong>execx (task, ...)</strong>
+    </dt>
+    <dd>
+    Exec a command or Lua function.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">task</span>
+        , a string to be executed as a shell command, or a
+   table of arguments to <code>P.execp</code> or a Lua function, which should read
+   from standard input, write to standard output, and return an exit code
+        </li>
+        <li><span class="parameter">...</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         positional arguments to the program or function
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">nil</span></span>
+        on error (normally does not return)</li>
+        <li>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+        error message</li>
     </ol>
 
 
@@ -512,8 +548,71 @@
 
 </dd>
     <dt>
-    <a name = "pipeline"></a>
-    <strong>pipeline (t, opt)</strong>
+    <a name = "pclose"></a>
+    <strong>pclose (pfd)</strong>
+    </dt>
+    <dd>
+    Close a pipeline opened with popen or popen_pipeline.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">pfd</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         pipeline object
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        values as for <code>P.wait</code>, for the last (or only) stage of the pipeline
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "popen"></a>
+    <strong>popen (as, mode[, pipe_fn])</strong>
+    </dt>
+    <dd>
+    Run a commands or Lua function in a sub-process.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">as</span>
+            <span class="types"><span class="type">task,</span></span>
+         for <a href="../modules/posix.html#execx">execx</a>
+        </li>
+        <li><span class="parameter">mode</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         <code>"r"</code> for read or <code>"w"</code> for write
+        </li>
+        <li><span class="parameter">pipe_fn</span>
+            <span class="types"><span class="type">func</span></span>
+         function returning a paired read and
+   write file descriptor (<em>default</em> <a href="../modules/posix.unistd.html#pipe">posix.unistd.pipe</a>)
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">pfd</span></span>
+        pipeline object
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "popen_pipeline"></a>
+    <strong>popen_pipeline (t, mode[, pipe_fn])</strong>
     </dt>
     <dd>
     Perform a series of commands and Lua functions as a pipeline.
@@ -523,86 +622,25 @@
     <ul>
         <li><span class="parameter">t</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-         tasks for <a href="../modules/posix.html#spawn">spawn</a>
+         tasks for <a href="../modules/posix.html#execx">execx</a>
         </li>
-        <li><span class="parameter">opt</span>
+        <li><span class="parameter">mode</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         <code>"r"</code> for read or <code>"w"</code> for write
+        </li>
+        <li><span class="parameter">pipe_fn</span>
             <span class="types"><span class="type">func</span></span>
-        =<a href="../modules/posix.unistd.html#pipe">posix.unistd.pipe</a> pipe_fn function returning a paired read and
-   write file descriptor
+         function returning a paired read and
+   write file descriptor (<em>default</em> <a href="../modules/posix.unistd.html#pipe">posix.unistd.pipe</a>)
+         (<em>optional</em>)
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">int</span></span>
-        exit code of the chain
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "pipeline_iterator"></a>
-    <strong>pipeline_iterator (t, opt)</strong>
-    </dt>
-    <dd>
-    Perform a series of commands and Lua functions as a pipeline,
- returning the output of the last stage's <code>stdout</code> as
- the values of an iterator.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-         tasks for <a href="../modules/posix.html#spawn">spawn</a>
-        </li>
-        <li><span class="parameter">opt</span>
-            <span class="types"><span class="type">func</span></span>
-        =<a href="../modules/posix.unistd.html#pipe">posix.unistd.pipe</a> pipe_fn function returning a paired read and
-   write file descriptor
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        iterator function returning a chunk of output on each call
-    </ol>
-
-
-
-
-</dd>
-    <dt>
-    <a name = "pipeline_slurp"></a>
-    <strong>pipeline_slurp (t, opt)</strong>
-    </dt>
-    <dd>
-    Perform a series of commands and Lua functions as a pipeline.
- Return the output of the last stage's <code>stdout</code>.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-         tasks for <a href="../modules/posix.html#spawn">spawn</a>
-        </li>
-        <li><span class="parameter">opt</span>
-            <span class="types"><span class="type">func</span></span>
-        =<a href="../modules/posix.unistd.html#pipe">posix.unistd.pipe</a> pipe_fn function returning a paired read and
-   write file descriptor
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
-        output of the pipeline
+           <span class="types"><span class="type">pfd</span></span>
+        pipeline object
     </ol>
 
 
@@ -653,41 +691,24 @@
     <strong>spawn (task, ...)</strong>
     </dt>
     <dd>
-    Run a command or function in a sub-process.
+    Run a command or function in a sub-process using <code>P.execx</code>.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">task</span>
-        , a string to be executed as a shell command, or a
-   table of arguments to <code>P.execp</code> or a Lua function, which should read
-   from standard input, write to standard output, and return an exit code
+        , as for <code>P.execx</code>.
         </li>
         <li><span class="parameter">...</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
-         positional arguments to the program or function
+         as for <code>P.execx</code>
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
-        <li>
-           <span class="types"><span class="type">int</span></span>
-        status exit code, if successful</li>
-        <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
-        exit type, if wait succeeds</li>
-    </ol>
-     <h3>Or</h3>
-    <ol>
-        <li>
-           <span class="types"><span class="type">nil</span></span>
 
-
-</li>
-        <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
-        error message</li>
+        values as for <code>P.wait</code>
     </ol>
 
 
@@ -818,7 +839,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2015-01-04 12:10:00 </i>
+<i style="float:right;">Last updated 2015-02-28 10:30:03 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
