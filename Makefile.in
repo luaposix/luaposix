@@ -797,15 +797,15 @@ dist_examples_DATA = doc/examples/curses.lua.html \
 	doc/examples/termios.lua.html doc/examples/tree.lua.html \
 	$(NOTHING_ELSE)
 dist_modules_DATA = doc/modules/posix.bit32.html \
-	doc/modules/posix.ctype.html doc/modules/posix.dirent.html \
-	doc/modules/posix.errno.html doc/modules/posix.fcntl.html \
-	doc/modules/posix.fnmatch.html doc/modules/posix.getopt.html \
-	doc/modules/posix.glob.html doc/modules/posix.grp.html \
-	doc/modules/posix.html doc/modules/posix.libgen.html \
-	doc/modules/posix.poll.html doc/modules/posix.pwd.html \
-	doc/modules/posix.sched.html doc/modules/posix.signal.html \
-	doc/modules/posix.stdio.html doc/modules/posix.stdlib.html \
-	doc/modules/posix.sys.msg.html \
+	doc/modules/posix.ctype.html doc/modules/posix.curses.html \
+	doc/modules/posix.dirent.html doc/modules/posix.errno.html \
+	doc/modules/posix.fcntl.html doc/modules/posix.fnmatch.html \
+	doc/modules/posix.getopt.html doc/modules/posix.glob.html \
+	doc/modules/posix.grp.html doc/modules/posix.html \
+	doc/modules/posix.libgen.html doc/modules/posix.poll.html \
+	doc/modules/posix.pwd.html doc/modules/posix.sched.html \
+	doc/modules/posix.signal.html doc/modules/posix.stdio.html \
+	doc/modules/posix.stdlib.html doc/modules/posix.sys.msg.html \
 	doc/modules/posix.sys.resource.html \
 	doc/modules/posix.sys.socket.html \
 	doc/modules/posix.sys.stat.html \

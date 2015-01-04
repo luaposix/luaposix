@@ -7,7 +7,7 @@
 ## See README for license.
 ## ------------------------------------------------------------------------
 
-AC_INIT([luaposix], [33.2.0], [http://github.com/luaposix/luaposix/issues])
+AC_INIT([luaposix], [33.2.1], [http://github.com/luaposix/luaposix/issues])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 

@@ -44,7 +44,7 @@ for k, v in pairs (require "posix.compat") do
   M[k] = v
 end
 
-M.version = "posix for " .. _VERSION .. " / luaposix 33.2.0"
+M.version = "posix for " .. _VERSION .. " / luaposix 33.2.1"
 
 
 local argerror, argtypeerror, checkstring, checktable, toomanyargerror =

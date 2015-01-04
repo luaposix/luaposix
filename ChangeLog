@@ -1,4 +1,21 @@
+2015-01-04  Gary V. Vaughan  <gary@gnu.org>
+
+	Release version 33.2.1
+	* NEWS.md: Record release date.
+
+	configury: distribute posix.curses.html correctly.
+	* local.mk (dist_modules_DATA): Add posix.curses.html.
+	* configure.ac (AC_INIT): Bump release version to 33.2.1.
+	* .travis.yml: Regenerate.
+	* NEWS.md: Update.
+	Reported by Ulrich Schmidt <u.sch.zw@gmx.de>
+
 2015-01-03  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: post-release administrivia.
+	* NEWS: Add header line for next release.
+	* .prev-version: Record previous version.
+	* ./local.mk (old_NEWS_hash): Auto-update.
 
 	Release version 33.2.0
 	* NEWS.md: Record release date.
