@@ -398,11 +398,11 @@ end
 -- @treturn string output of the pipeline
 
 local function pipeline_slurp (t, pipe_fn)
-  local out = ""
+  local out = {}
   for s in pipeline_iterator (t, pipe_fn) do
-    out = out .. s
+    table.insert (out, s)
   end
-  return out
+  return table.concat (out)
 end
 
 if _DEBUG ~= false then
