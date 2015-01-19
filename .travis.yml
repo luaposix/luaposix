@@ -28,7 +28,7 @@ before_install:
   # Fetch Lua sources.
   - cd $TRAVIS_BUILD_DIR
   - 'if test lua5.3 = "$LUA"; then
-      curl http://www.lua.org/work/lua-5.3.0-rc2.tar.gz | tar xz;
+      curl http://www.lua.org/ftp/lua-5.3.0.tar.gz | tar xz;
       cd lua-5.3.0;
     fi'
   - 'if test lua5.2 = "$LUA"; then
