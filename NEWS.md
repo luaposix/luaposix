@@ -2,6 +2,10 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### New Features
+
+  - Improved documentation of `sockaddr` tables for `posix.sys.socket` calls.
+
 
 ## Noteworthy changes in release 33.2.1 (2015-01-04) [stable]
 

@@ -47,10 +47,18 @@
 
 /***
 Socket address.
+All sockaddr tables have the *family* field, and depending on its value, also
+a subset of the following fields too.
 @table sockaddr
-@int socktype one of `SOCK_STREAM`, `SOCK_DGRAM` or `SOCK_RAW`
-@string canonname canonical name for service location
-@int protocol one of `IPPROTO_TCP` or `IPPROTO_UDP`
+@int family one of `AF_INET`, `AF_INET6`, `AF_UNIX` or (where supported) `AF_NETLINK`
+@int[opt] port socket port number for `AF_INET` (and equivalently `AF_INET6`) *family*
+@string[opt] addr socket host address in correct format, for `AF_INET` *family*
+@int[opt] socktype one of `SOCK_STREAM`, `SOCK_DGRAM` or `SOCK_RAW` for `AF_INET` *family*
+@string[opt] canonname canonical name for service location, for `AF_INET` *family*
+@int[opt] protocol one of `IPPROTO_TCP` or `IPPROTO_UDP`, for `AF_INET` *family*
+@string[opt] path location in file system, for `AF_UNIX` *family*
+@int[opt] pid process identifier, for `AF_NETLINK` *family*
+@int[opt] groups process group owner identifier, for `AF_NETLINK` *family*
 */
 
 
