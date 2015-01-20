@@ -271,14 +271,14 @@ local function pipeline (t, pipe_fn)
   if #t > 1 then
     read_fd, write_fd = pipe_fn ()
     if not read_fd then
-      die ("error opening pipe")
+      error "error opening pipe"
     end
     pid = fork ()
     if pid == nil then
-      die ("error forking")
+      error "error forking"
     elseif pid == 0 then -- child process
       if not dup2 (read_fd, STDIN_FILENO) then
-        die ("error dup2-ing")
+        error "error dup2-ing"
       end
       close (read_fd)
       close (write_fd)
@@ -286,10 +286,10 @@ local function pipeline (t, pipe_fn)
     else -- parent process
       save_stdout = dup (STDOUT_FILENO)
       if not save_stdout then
-        die ("error dup-ing")
+        error "error dup-ing"
       end
       if not dup2 (write_fd, STDOUT_FILENO) then
-        die ("error dup2-ing")
+        error "error dup2-ing"
       end
       close (read_fd)
       close (write_fd)
@@ -298,7 +298,7 @@ local function pipeline (t, pipe_fn)
 
   local r = spawn (t[1])
   if not r then
-    die ("error in fork or wait")
+    error "error in fork or wait"
   end
   close (STDOUT_FILENO)
 
@@ -306,7 +306,7 @@ local function pipeline (t, pipe_fn)
     close (write_fd)
     wait (pid)
     if not dup2 (save_stdout, STDOUT_FILENO) then
-      die ("error dup2-ing")
+      error "error dup2-ing"
     end
     close (save_stdout)
   end
@@ -346,7 +346,7 @@ local BUFSIZ, STDIN_FILENO = M.BUFSIZ, M.STDIN_FILENO
 function pipeline_iterator (t, pipe_fn)
   local read_fd, write_fd = pipe ()
   if not read_fd then
-    die ("error opening pipe")
+    error "error opening pipe"
   end
   table.insert (t, function ()
                      while true do
@@ -359,7 +359,7 @@ function pipeline_iterator (t, pipe_fn)
 
   local pid = fork ()
   if pid == nil then
-    die ("error forking")
+    error "error forking"
   elseif pid == 0 then -- child process
     os.exit (pipeline (t, pipe_fn))
   else -- parent process
