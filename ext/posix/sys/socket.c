@@ -24,6 +24,7 @@
 
 #include "_helpers.c"		/* For LPOSIX_2001_COMPLIANT */
 
+#include <sys/types.h>
 #if LPOSIX_2001_COMPLIANT
 #include <arpa/inet.h>
 #if HAVE_LINUX_NETLINK_H
@@ -38,7 +39,6 @@
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
 #include <sys/un.h>
-#include <sys/types.h>
 
 /* strlcpy() implementation for non-BSD based Unices.
    strlcpy() is a safer less error-prone replacement for strncpy(). */
