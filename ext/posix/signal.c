@@ -142,7 +142,7 @@ sig_handle (lua_State *L, lua_Debug *LPOSIX_UNUSED (ar))
 		/* Call handler with signal number */
 		lua_pushinteger(L, signalno);
 		if (lua_pcall(L, 1, 0, 0) != 0)
-			fprintf(stderr,"error in signal handler %d: %s\n",signalno,lua_tostring(L,-1));
+			fprintf(stderr,"error in signal handler %ld: %s\n", (long)signalno, lua_tostring(L,-1));
 	}
 	signal_count = 0;  /* reset global to initial state */
 
