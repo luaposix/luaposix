@@ -6,6 +6,11 @@
 
   - Improved documentation of `sockaddr` tables for `posix.sys.socket` calls.
 
+### Bugs Fixed
+
+   - `posix.sys.resource` only provides RLIM_SAVED_CUR nor RLIM_SAVED_MAX if
+     they are defined by the C library (which FreeBSD 10 does not).
+
 
 ## Noteworthy changes in release 33.2.1 (2015-01-04) [stable]
 
