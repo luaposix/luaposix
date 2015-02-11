@@ -728,6 +728,29 @@ Psetsockopt(lua_State *L)
 
 	return pushresult(L, setsockopt(fd, level, optname, val, len), "setsockopt");
 }
+
+
+/***
+Get socket name.
+@function getsockname
+@see getsockname(2)
+@int sockfd socket descriptor
+@treturn[1] sockaddr the current address to which the socket *sockfd* is bound
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@usage sa, err = posix.getsockname (sockfd)
+*/
+static int Pgetsockname(lua_State *L)
+{
+	int fd = checkint(L, 1);
+	struct sockaddr_storage sa;
+	socklen_t salen;
+	checknargs (L, 1);
+	if (getsockname(fd, (struct sockaddr *)&sa, &salen) != 0)
+		return pusherror(L, "getsockname");
+	return pushsockaddrinfo(L, sa.ss_family, (struct sockaddr *)&sa);
+}
 #endif
 
 
@@ -747,6 +770,7 @@ static const luaL_Reg posix_sys_socket_fns[] =
 	LPOSIX_FUNC( Psendto		),
 	LPOSIX_FUNC( Pshutdown		),
 	LPOSIX_FUNC( Psetsockopt	),
+	LPOSIX_FUNC( Pgetsockname	),
 #endif
 	{NULL, NULL}
 };

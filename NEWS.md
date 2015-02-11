@@ -6,6 +6,8 @@
 
   - Improved documentation of `sockaddr` tables for `posix.sys.socket` calls.
 
+  - New `posix.sys.socket.getsockname` binding.
+
 ### Bugs Fixed
 
    - `posix.sys.resource` only provides RLIM_SAVED_CUR nor RLIM_SAVED_MAX if
