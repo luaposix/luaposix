@@ -10,6 +10,8 @@ if not r then error (err) end
 
 local fd = sock.socket (sock.AF_INET, sock.SOCK_STREAM, 0)
 local ok, err, e = sock.connect (fd, r[1])
+local sa = sock.getsockname(fd)
+print("Local socket bound to " .. sa.addr .. ":" .. tostring(sa.port))
 if err then error (err) end
 
 sock.send (fd, "GET / HTTP/1.0\r\nHost: www.lua.org\r\n\r\n")
