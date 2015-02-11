@@ -3555,6 +3555,30 @@ static int Psetsockopt(lua_State *L)
 
 	return pushresult(L, setsockopt(fd, level, optname, val, len), NULL);
 }
+
+
+/***
+get socket name
+@function shutdown
+@see shutdown(2)
+@int fd socket descriptor
+@return the current address to which the socket sockfd is bound
+@usage sa, err = posix.getsockname (sock)
+*/
+static int Pgetsockname(lua_State *L)
+{
+	int fd = luaL_checkint(L, 1);
+	struct sockaddr_storage sa;
+	socklen_t salen;
+	int r = getsockname(fd, (struct sockaddr *)&sa, &salen);
+	if(r != 0) {
+		return pusherror(L, NULL);
+	}
+	sockaddr_to_lua(L, sa.ss_family, (struct sockaddr *)&sa);
+	return 1;
+}
+
+
 #endif
 
 
@@ -4517,6 +4541,7 @@ static const luaL_Reg R[] =
 	MENTRY( Psendto		),
 	MENTRY( Pshutdown	),
 	MENTRY( Psetsockopt	),
+	MENTRY( Pgetsockname	),
 #endif
 
 #if _POSIX_VERSION >= 200112L
