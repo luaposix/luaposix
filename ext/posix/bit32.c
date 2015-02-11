@@ -5,6 +5,20 @@
 /***
  Bitwise operators.
 
+ This module is not a replacement for the bit32 functions in Lua 5.3.
+
+ As luaposix moves from a high-level API implemented in C, to a minimal
+ thin binding of POSIX APIs in C, in some cases called by higher level
+ Lua wrappers, we need to be able to perform the bit-twiddling required
+ by many POSIX calls from Lua.  This module provides a self-contained
+ way to do that without adding a dependency on a particular Lua version,
+ or an additional library.
+
+ If you find that your custom luaposix build does not require Lua code
+ that can mask and combine bit-fields, or if you are using a Lua build
+ that has a more functional bit32 module already, by all means omit this
+ module from your custom build too.
+
 @module posix.bit32
 */
 
