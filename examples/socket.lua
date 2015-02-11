@@ -10,6 +10,8 @@ if not res then error(err) end
 
 local fd = p.socket(p.AF_INET, p.SOCK_STREAM, 0)
 local ok, err, e = p.connect(fd, res[1])
+a = p.getsockname(fd)
+print("Local socket bound to " .. a.addr .. ":" .. tostring(a.port))
 if err then error(err) end
 p.send(fd, "GET / HTTP/1.0\r\nHost: www.lua.org\r\n\r\n")
 local data = {}
