@@ -14,7 +14,7 @@
  @module posix
 ]]
 
-local bit = require "posix.bit32"
+local bit = require "bit32"
 local M = {}
 
 
@@ -151,7 +151,7 @@ end
 -- @return[2] nil
 -- @treturn[2] string error message
 
-local bit    = require "posix.bit32"
+local bit    = require "bit32"
 local fcntl  = require "posix.fcntl"
 local stdlib = require "posix.stdlib"
 local unistd = require "posix.unistd"

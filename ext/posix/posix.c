@@ -10,7 +10,6 @@
  * With documentation from Steve Donovan 2012
  */
 
-#include "bit32.c"
 #include "ctype.c"
 #include "curses.c"
 #include "dirent.c"

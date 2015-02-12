@@ -76,7 +76,6 @@ ext_posix_posix_la_SOURCES =		\
 	ext/posix/posix.c		\
 	$(NOTHING_ELSE)
 EXTRA_ext_posix_posix_la_SOURCES =	\
-	ext/posix/bit32.c		\
 	ext/posix/ctype.c		\
 	ext/posix/curses.c		\
 	ext/posix/curses/chstr.c	\
@@ -131,7 +130,6 @@ luaexecposixsys_LDFLAGS = $(AM_LDFLAGS) -rpath '$(luaexecposixsysdir)'
 # projects for custom interpreters/libraries.
 
 posix_submodules =			\
-	ext/posix/bit32.la		\
 	ext/posix/ctype.la		\
 	ext/posix/curses.la		\
 	ext/posix/curses/chstr.la	\
@@ -169,7 +167,6 @@ posix_submodules =			\
 EXTRA_LTLIBRARIES += $(posix_submodules)
 check_local += $(posix_submodules)
 
-ext_posix_bit32_la_LDFLAGS = $(luaexecposix_LDFLAGS)
 ext_posix_ctype_la_LDFLAGS = $(luaexecposix_LDFLAGS)
 ext_posix_curses_la_LDFLAGS = $(luaexecposix_LDFLAGS) $(CURSES_LIB)
 ext_posix_dirent_la_LDFLAGS = $(luaexecposix_LDFLAGS)
@@ -217,7 +214,6 @@ dist_doc_DATA +=			\
 	$(NOTHING_ELSE)
 
 dist_modules_DATA +=				\
-	doc/modules/posix.bit32.html		\
 	doc/modules/posix.ctype.html		\
 	doc/modules/posix.curses.html		\
 	doc/modules/posix.dirent.html		\

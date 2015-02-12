@@ -21,7 +21,7 @@ package.cpath = std.package.normalize (
 
 posix = require "posix"
 
-bit   = bit32 or require "posix.bit32"
+bit   = require "bit32"
 
 band, bnot, bor = bit.band, bit.bnot, bit.bor
 
