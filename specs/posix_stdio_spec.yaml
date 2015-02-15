@@ -1,0 +1,21 @@
+specify posix.stdio:
+- before:
+    stdio = require "posix.stdio"
+
+
+- describe fdopen:
+    - before:
+        fdopen = stdio.fdopen
+        unistd = require "posix.unistd"
+        STDOUT_FILENO = unistd.STDOUT_FILENO
+        f = fdopen (STDOUT_FILENO, "w")
+
+    - context with bad arguments:
+        badargs.diagnose (fdopen, "(int,string)")
+
+    - it duplicates a stream:
+        expect (type (f)).to_be "userdata"
+
+    - it writes to the duplicated stream:
+        -- Lua 5.1 file.write returns true; > 5.1 returns file handle
+        expect (f:write ("writing to fdopen(stdout)\n")).not_to_be (nil)
