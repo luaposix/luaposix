@@ -3,7 +3,7 @@ language: c
 env:
   global:
     - _COMPILE="libtool --mode=compile --tag=CC gcc"
-    - _CFLAGS="-O2 -Wall -DLUA_COMPAT_ALL -DLUA_USE_LINUX"
+    - _CFLAGS="-O2 -Wall -DLUA_COMPAT_ALL -DLUA_COMPAT_5_2 -DLUA_USE_LINUX"
     - _INSTALL="libtool --mode=install install -p"
     - _LINK="libtool --mode=link --tag=CC gcc"
     - _LIBS="-lm -Wl,-E -ldl -lreadline"
