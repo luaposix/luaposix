@@ -13,6 +13,9 @@
    - `posix.sys.resource` only provides RLIM_SAVED_CUR nor RLIM_SAVED_MAX if
      they are defined by the C library (which FreeBSD 10 does not).
 
+   - `posix.dirent.dir` and `posix.dirent.files` now raise a Lua `error()`
+     when unable to open the path argument, for orthogonality with `io.lines`.
+
 
 ## Noteworthy changes in release 33.2.1 (2015-01-04) [stable]
 

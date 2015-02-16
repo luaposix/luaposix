@@ -36,8 +36,13 @@ Pdir(lua_State *L)
 	DIR *d;
 	checknargs(L, 1);
 	d = opendir(path);
+	/* Throw an argument error for consistency with eg. io.lines */
 	if (d == NULL)
-		return pusherror(L, path);
+	{
+		const char *msg = strerror (errno);
+		msg = lua_pushfstring(L, "%s: %s", path, msg);
+		return luaL_argerror(L, 1, msg);
+	}
 	else
 	{
 		int i;
@@ -97,15 +102,20 @@ Pfiles(lua_State *L)
 	DIR **d;
 	checknargs(L, 1);
 	d = (DIR **)lua_newuserdata(L, sizeof(DIR *));
+	*d = opendir(path);
+	/* Throw an argument error for consistency with eg. io.lines */
+	if (*d == NULL)
+	{
+		const char *msg = strerror (errno);
+		msg = lua_pushfstring(L, "%s: %s", path, msg);
+		return luaL_argerror(L, 1, msg);
+	}
 	if (luaL_newmetatable(L, PACKAGE_NAME " dir handle"))
 	{
 		lua_pushcfunction(L, dir_gc);
 		lua_setfield(L, -2, "__gc");
 	}
 	lua_setmetatable(L, -2);
-	*d = opendir(path);
-	if (*d == NULL)
-		return pusherror(L, path);
 	lua_pushcclosure(L, aux_files, 1);
 	return 1;
 }
