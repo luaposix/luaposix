@@ -8,6 +8,11 @@
 
   - New `posix.sys.socket.getsockname` binding.
 
+### Incompatible Changes
+
+  - The ncurses-only `KEY_MOUSE` definition has been removed from
+    `posix.curses`.
+
 ### Bugs Fixed
 
    - `posix.sys.resource` only provides RLIM_SAVED_CUR nor RLIM_SAVED_MAX if
