@@ -258,8 +258,6 @@ Wsyncup(lua_State *L)
 }
 
 
-#ifndef NETBSD_MISSING_FUNCTIONS
-
 /***
 Automatically mark ancestors of a changed window for refresh.
 @function syncok
@@ -271,11 +269,13 @@ static int
 Wsyncok(lua_State *L)
 {
 	WINDOW *w = checkwin(L, 1);
+#if LPOSIX_CURSES_COMPLIANT
 	int bf = lua_toboolean(L, 2);
 	return pushokresult(syncok(w, bf));
-}
-
+#else
+	return binding_notimplemented(L, "syncok", "curses");
 #endif
+}
 
 
 /***
@@ -1117,8 +1117,6 @@ Wscrollok(lua_State *L)
 }
 
 
-#ifndef NETBSD_MISSING_FUNCTIONS
-
 /***
 Automatically call @{refresh} whenever the window content is changed.
 @function immedok
@@ -1130,12 +1128,14 @@ static int
 Wimmedok(lua_State *L)
 {
 	WINDOW *w = checkwin(L, 1);
+#if LPOSIX_CURSES_COMPLIANT
 	int bf = lua_toboolean(L, 2);
 	immedok(w, bf);
 	return 0;
-}
-
+#else
+	return binding_notimplemented(L, "immedok", "curses");
 #endif
+}
 
 
 /***
@@ -1844,11 +1844,7 @@ static const luaL_Reg posix_curses_window_fns[] =
 	LPOSIX_FUNC( Whline		),
 	LPOSIX_FUNC( Widcok		),
 	LPOSIX_FUNC( Widlok		),
-#ifndef NETBSD_MISSING_FUNCTIONS
 	LPOSIX_FUNC( Wimmedok		),
-#else
-	LPOSIX_STR_1( Wimmedok ), ( notimplemented ),
-#endif
 	LPOSIX_FUNC( Winsertln		),
 	LPOSIX_FUNC( Wintrflush		),
 	LPOSIX_FUNC( Wis_linetouched	),
@@ -1892,11 +1888,7 @@ static const luaL_Reg posix_curses_window_fns[] =
 	LPOSIX_FUNC( Wsub		),
 	LPOSIX_FUNC( Wsubpad		),
 	LPOSIX_FUNC( Wsyncdown		),
-#ifndef NETBSD_MISSING_FUNCTIONS
 	LPOSIX_FUNC( Wsyncok		),
-#else
-	LPOSIX_STR_1( Wsyncok ), ( notimplemented ),
-#endif
 	LPOSIX_FUNC( Wsyncup		),
 	LPOSIX_FUNC( Wtimeout		),
 	LPOSIX_FUNC( Wtouch		),
