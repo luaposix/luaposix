@@ -626,6 +626,8 @@ ripoffline_cb(WINDOW* w, int cols)
 }
 
 
+#ifndef NETBSD_MISSING_FUNCTIONS
+
 /***
 Reduce the available size of the main screen.
 @function ripoffline
@@ -670,6 +672,8 @@ Pripoffline(lua_State *L)
 	/* and tell curses we are going to take the line */
 	return pushokresult(ripoffline(top_line ? 1 : -1, ripoffline_cb));
 }
+
+#endif /* NETBSD_MISSING_FUNCTIONS */
 
 
 /***
@@ -794,6 +798,8 @@ Pdoupdate(lua_State *L)
 	return pushokresult(doupdate());
 }
 
+
+#ifndef NETBSD_MISSING_FUNCTIONS
 
 /***
 Initialise the soft label keys area.
@@ -957,6 +963,9 @@ Pslk_attrset(lua_State *L)
 	chtype attrs = checkch(L, 1);
 	return pushokresult(slk_attrset(attrs));
 }
+
+
+#endif /* NETBSD_MISSING_FUNCTIONS */
 
 
 /***
@@ -1244,6 +1253,7 @@ static const luaL_Reg curseslib[] =
 	LPOSIX_FUNC( Ppair_content	),
 	LPOSIX_FUNC( Praw		),
 	LPOSIX_FUNC( Presizeterm	),
+#ifndef NETBSD_MISSING_FUNCTIONS
 	LPOSIX_FUNC( Pripoffline	),
 	LPOSIX_FUNC( Pslk_attroff	),
 	LPOSIX_FUNC( Pslk_attron	),
@@ -1256,6 +1266,20 @@ static const luaL_Reg curseslib[] =
 	LPOSIX_FUNC( Pslk_restore	),
 	LPOSIX_FUNC( Pslk_set		),
 	LPOSIX_FUNC( Pslk_touch		),
+#else
+	LPOSIX_STR_1( Pripoffline ), ( notimplemented ),
+	LPOSIX_STR_1( Pslk_attroff ), ( notimplemented ),
+	LPOSIX_STR_1( Pslk_attron ), ( notimplemented ),
+	LPOSIX_STR_1( Pslk_attrset ), ( notimplemented ),
+	LPOSIX_STR_1( Pslk_clear ), ( notimplemented ),
+	LPOSIX_STR_1( Pslk_init ), ( notimplemented ),
+	LPOSIX_STR_1( Pslk_label ), ( notimplemented ),
+	LPOSIX_STR_1( Pslk_noutrefresh ), ( notimplemented ),
+	LPOSIX_STR_1( Pslk_refresh ), ( notimplemented ),
+	LPOSIX_STR_1( Pslk_restore ), ( notimplemented ),
+	LPOSIX_STR_1( Pslk_set ), ( notimplemented ),
+	LPOSIX_STR_1( Pslk_touch ), ( notimplemented ),
+#endif /* NETBSD_MISSING_FUNCTIONS */
 	LPOSIX_FUNC( Pstart_color	),
 	LPOSIX_FUNC( Pstdscr		),
 	LPOSIX_FUNC( Ptermattrs		),
