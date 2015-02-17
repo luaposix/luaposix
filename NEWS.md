@@ -8,6 +8,10 @@
 
   - New `posix.sys.socket.getsockname` binding.
 
+  - Can now be linked against NetBSD curses, albeit with several functions
+    not implemented by that library returning a "not implemented" error as
+    a consequence.
+
 ### Incompatible Changes
 
   - The ncurses-only `KEY_MOUSE` definition has been removed from
