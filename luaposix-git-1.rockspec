@@ -11,6 +11,7 @@ source = {
 }
 dependencies = {
   "lua >= 5.1, < 5.4",
+  "bit32",
 }
 external_dependencies = nil
 build = {

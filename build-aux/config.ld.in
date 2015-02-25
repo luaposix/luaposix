@@ -24,7 +24,6 @@ file = {
   "../lib/posix.lua",
   "../lib/posix/compat.lua",  -- Documents added to posix.lua
 
-  "../ext/posix/bit32.c",
   "../ext/posix/ctype.c",
   "../ext/posix/curses.c",
   "../ext/posix/dirent.c",

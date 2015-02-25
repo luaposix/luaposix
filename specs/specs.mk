@@ -8,7 +8,6 @@
 specl_SPECS =						\
 	$(srcdir)/specs/curses_spec.yaml		\
 	$(srcdir)/specs/lposix_spec.yaml		\
-	$(srcdir)/specs/posix_bit32_spec.yaml		\
 	$(srcdir)/specs/posix_compat_spec.yaml		\
 	$(srcdir)/specs/posix_ctype_spec.yaml		\
 	$(srcdir)/specs/posix_deprecated_spec.yaml	\

@@ -8,6 +8,8 @@
 
   - New `posix.sys.socket.getsockname` binding.
 
+  - Remove the `posix.bit32` library, and use Lua’s built-in `bit32` library.
+
   - Can now be linked against NetBSD curses, albeit with several functions
     not implemented by that library returning a "not implemented" error as
     a consequence.
