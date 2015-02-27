@@ -29,7 +29,7 @@
 
 ### Bugs Fixed
 
-  - `posix.sys.resource` only provides RLIM_SAVED_CUR nor RLIM_SAVED_MAX if
+  - `posix.sys.resource` only provides RLIM_SAVED_CUR and RLIM_SAVED_MAX if
     they are defined by the C library (which FreeBSD 10 does not).
 
   - `posix.dirent.dir` and `posix.dirent.files` now raise a Lua `error()`
