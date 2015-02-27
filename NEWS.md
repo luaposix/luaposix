@@ -14,6 +14,14 @@
     not implemented by that library returning a "not implemented" error as
     a consequence.
 
+  - New functions `popen`, `popen_pipeline` and `pclose` mimic the POSIX
+    functions of the same name while allowing tasks to be Lua functions.
+
+  - `fdopen` has been re-added, working on all supported Lua versions.
+
+  - `execx` allows a Lua function or command to be exec’d; `spawn` is now
+    implemented in terms of it.
+
 ### Incompatible Changes
 
   - The ncurses-only `KEY_MOUSE` definition has been removed from
@@ -21,11 +29,11 @@
 
 ### Bugs Fixed
 
-   - `posix.sys.resource` only provides RLIM_SAVED_CUR nor RLIM_SAVED_MAX if
-     they are defined by the C library (which FreeBSD 10 does not).
+  - `posix.sys.resource` only provides RLIM_SAVED_CUR nor RLIM_SAVED_MAX if
+    they are defined by the C library (which FreeBSD 10 does not).
 
-   - `posix.dirent.dir` and `posix.dirent.files` now raise a Lua `error()`
-     when unable to open the path argument, for orthogonality with `io.lines`.
+  - `posix.dirent.dir` and `posix.dirent.files` now raise a Lua `error()`
+    when unable to open the path argument, for orthogonality with `io.lines`.
 
 
 ## Noteworthy changes in release 33.2.1 (2015-01-04) [stable]
