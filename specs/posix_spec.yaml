@@ -39,24 +39,6 @@ specify posix:
       badargs.diagnose (posix.openpty, "openpty ()")
 
 
-- describe pipeline:
-  - before: f = posix.pipeline
-  - context with bad arguments:
-      badargs.diagnose (f, "pipeline (table, ?function)")
-
-
-- describe pipeline_iterator:
-  - before: f = posix.pipeline_iterator
-  - context with bad arguments:
-      badargs.diagnose (f, "pipeline_iterator (table, ?function)")
-
-
-- describe pipeline_slurp:
-  - before: f = posix.pipeline_slurp
-  - context with bad arguments:
-      badargs.diagnose (f, "pipeline_slurp (table, ?function)")
-
-
 # spawn's tests also cover execx
 - describe spawn:
   - before: f = posix.spawn
