@@ -86,7 +86,7 @@ specify posix:
 
   - it spawns a pipeline and reads its output:
       p = popen_pipeline ({{"echo", "foo", "bar", "baz"}, {"wc"}, "wc -l"}, "r")
-      expect (read (p.fd, posix.BUFSIZ)).to_equal ("1\n")
+      expect (read (p.fd, posix.BUFSIZ)).to_match ("^%s*1\n")
       pclose (p)
 
   - it spawns a pipeline and writes its input:
