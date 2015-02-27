@@ -680,4 +680,3 @@ void luaL_pushresult (luaL_Buffer_52 *B) {
 * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *********************************************************************/
-
