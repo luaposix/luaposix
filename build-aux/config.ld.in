@@ -21,10 +21,9 @@ file = {
   "../ext/posix/curses/window.c",
 
   -- Modules
-  "../lib/posix.lua",
-  "../lib/posix/compat.lua",  -- Documents added to posix.lua
+  "../lib/posix/init.lua",
+  "../lib/posix/compat.lua",  -- Documents added to posix module
 
-  "../ext/posix/bit32.c",
   "../ext/posix/ctype.c",
   "../ext/posix/curses.c",
   "../ext/posix/dirent.c",

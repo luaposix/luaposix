@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 33.2.1 Reference</title>
+    <title>luaposix 33.3.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 33.2.1</h1>
+<h1>luaposix 33.3.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -41,7 +41,6 @@
 <h2>Modules</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../modules/posix.html">posix</a></li>
-  <li><a href="../modules/posix.bit32.html">posix.bit32</a></li>
   <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
   <li><a href="../modules/posix.curses.html">posix.curses</a></li>
   <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
@@ -127,6 +126,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#getaddrinfo">getaddrinfo (host, service[, hints])</a></td>
 	<td class="summary">Network address and service translation.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getsockname">getsockname (sockfd)</a></td>
+	<td class="summary">Get socket name.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#listen">listen (fd, backlog)</a></td>
@@ -383,6 +386,52 @@
 <span class="keyword">local</span> res, errmsg, errcode = posix.getaddrinfo (<span class="string">"www.lua.org"</span>, <span class="string">"http"</span>,
   { family = P.IF_INET, socktype = P.SOCK_STREAM }
 )</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "getsockname"></a>
+    <strong>getsockname (sockfd)</strong>
+    </dt>
+    <dd>
+    Get socket name.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">sockfd</span>
+            <span class="types"><span class="type">int</span></span>
+         socket descriptor
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/posix.sys.socket.html#sockaddr">sockaddr</a></span>
+        the current address to which the socket <em>sockfd</em> is bound
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/getsockname.html">getsockname(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">sa, err = posix.getsockname (sockfd)</pre>
     </ul>
 
 </dd>
@@ -886,21 +935,55 @@
     </dt>
     <dd>
     Socket address.
+All sockaddr tables have the <em>family</em> field, and depending on its value, also
+a subset of the following fields too.
 
 
     <h3>Fields:</h3>
     <ul>
+        <li><span class="parameter">family</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>AF_INET</code>, <code>AF_INET6</code>, <code>AF_UNIX</code> or (where supported) <code>AF_NETLINK</code>
+        </li>
+        <li><span class="parameter">port</span>
+            <span class="types"><span class="type">int</span></span>
+         socket port number for <code>AF_INET</code> (and equivalently <code>AF_INET6</code>) <em>family</em>
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">addr</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         socket host address in correct format, for <code>AF_INET</code> <em>family</em>
+         (<em>optional</em>)
+        </li>
         <li><span class="parameter">socktype</span>
             <span class="types"><span class="type">int</span></span>
-         one of <code>SOCK_STREAM</code>, <code>SOCK_DGRAM</code> or <code>SOCK_RAW</code>
+         one of <code>SOCK_STREAM</code>, <code>SOCK_DGRAM</code> or <code>SOCK_RAW</code> for <code>AF_INET</code> <em>family</em>
+         (<em>optional</em>)
         </li>
         <li><span class="parameter">canonname</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
-         canonical name for service location
+         canonical name for service location, for <code>AF_INET</code> <em>family</em>
+         (<em>optional</em>)
         </li>
         <li><span class="parameter">protocol</span>
             <span class="types"><span class="type">int</span></span>
-         one of <code>IPPROTO_TCP</code> or <code>IPPROTO_UDP</code>
+         one of <code>IPPROTO_TCP</code> or <code>IPPROTO_UDP</code>, for <code>AF_INET</code> <em>family</em>
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         location in file system, for <code>AF_UNIX</code> <em>family</em>
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">pid</span>
+            <span class="types"><span class="type">int</span></span>
+         process identifier, for <code>AF_NETLINK</code> <em>family</em>
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">groups</span>
+            <span class="types"><span class="type">int</span></span>
+         process group owner identifier, for <code>AF_NETLINK</code> <em>family</em>
+         (<em>optional</em>)
         </li>
     </ul>
 
@@ -1245,7 +1328,7 @@ Any constants not available in the underlying system will be <code>nil</code> va
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2015-01-04 12:06:34 </i>
+<i style="float:right;">Last updated 2015-02-28 10:30:03 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

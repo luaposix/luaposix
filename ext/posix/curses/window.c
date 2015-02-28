@@ -269,8 +269,12 @@ static int
 Wsyncok(lua_State *L)
 {
 	WINDOW *w = checkwin(L, 1);
+#if LPOSIX_CURSES_COMPLIANT
 	int bf = lua_toboolean(L, 2);
 	return pushokresult(syncok(w, bf));
+#else
+	return binding_notimplemented(L, "syncok", "curses");
+#endif
 }
 
 
@@ -1124,9 +1128,13 @@ static int
 Wimmedok(lua_State *L)
 {
 	WINDOW *w = checkwin(L, 1);
+#if LPOSIX_CURSES_COMPLIANT
 	int bf = lua_toboolean(L, 2);
 	immedok(w, bf);
 	return 0;
+#else
+	return binding_notimplemented(L, "immedok", "curses");
+#endif
 }
 
 

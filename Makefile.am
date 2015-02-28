@@ -80,10 +80,10 @@ install-exec-hook: $(install_exec_hooks)
 # actually moves such files aside anyway, so we just remove them from
 # the installation directory.
 remove-luaexec-lafiles:
-	@for la in $(luaexec_LTLIBRARIES); do	\
-	  f=`echo "$$la" |sed 's|^.*/||'`;	\
-	  echo rm -f $(luaexecdir)/$$f;		\
-	  rm -f $(luaexecdir)/$$f;		\
+	@for la in $(luaexec_LTLIBRARIES); do		\
+	  f=`echo "$$la" |sed 's|^.*/||'`;		\
+	  echo rm -f $(DESTDIR)$(luaexecdir)/$$f;	\
+	  rm -f $(DESTDIR)$(luaexecdir)/$$f;		\
 	done
 
 
@@ -96,9 +96,9 @@ uninstall-hook: $(uninstall_hooks)
 # We removed the .la files from luaexecdir, so the standard uninstall,
 # with libtool --mode=uninstall, can't find everything anymore.
 uninstall-luaexec-modules:
-	@for la in $(luaexec_LTLIBRARIES); do	\
-	  base=`echo "$$la"			\
-		|sed 's|^.*/\(.*\)\.la|\1|'`;	\
-	  echo rm -f $(luaexecdir)/$$base.so;	\
-	  rm -f $(luaexecdir)/$$base.so;	\
+	@for la in $(luaexec_LTLIBRARIES); do		\
+	  base=`echo "$$la"				\
+		|sed 's|^.*/\(.*\)\.la|\1|'`;		\
+	  echo rm -f $(DESTDIR)$(luaexecdir)/$$base.so;	\
+	  rm -f $(DESTDIR)$(luaexecdir)/$$base.so;	\
 	done

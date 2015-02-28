@@ -188,7 +188,7 @@ register_curses_constants(lua_State *L)
 	CC(KEY_CANCEL);		CC(KEY_CLOSE);		CC(KEY_COMMAND);
 	CC(KEY_COPY);		CC(KEY_CREATE);		CC(KEY_END);
 	CC(KEY_EXIT);		CC(KEY_FIND);		CC(KEY_HELP);
-	CC(KEY_MARK);		CC(KEY_MESSAGE);	CC(KEY_MOUSE);
+	CC(KEY_MARK);		CC(KEY_MESSAGE); /* ncurses extension: CC(KEY_MOUSE); */
 	CC(KEY_MOVE);		CC(KEY_NEXT);		CC(KEY_OPEN);
 	CC(KEY_OPTIONS);	CC(KEY_PREVIOUS);	CC(KEY_REDO);
 	CC(KEY_REFERENCE);	CC(KEY_REFRESH);	CC(KEY_REPLACE);
@@ -640,6 +640,7 @@ Pripoffline(lua_State *L)
 	static int rip = 0;
 	int top_line = lua_toboolean(L, 1);
 
+#if LPOSIX_CURSES_COMPLIANT
 	if (!lua_isfunction(L, 2))
 	{
 		lua_pushliteral(L, "invalid callback passed as second parameter");
@@ -669,6 +670,9 @@ Pripoffline(lua_State *L)
 
 	/* and tell curses we are going to take the line */
 	return pushokresult(ripoffline(top_line ? 1 : -1, ripoffline_cb));
+#else
+	return binding_notimplemented(L, "ripoffline", "curses");
+#endif
 }
 
 
@@ -724,7 +728,7 @@ Presizeterm(lua_State *L)
 #if HAVE_RESIZETERM
 	return pushokresult(resizeterm (nlines, ncols));
 #else
-	return luaL_error (L, "'resizeterm' is not implemented by your curses library");
+	return binding_notimplemented(L, "resizeterm", "curses");
 #endif
 }
 
@@ -807,7 +811,11 @@ static int
 Pslk_init(lua_State *L)
 {
 	int fmt = checkint(L, 1);
+#if LPOSIX_CURSES_COMPLIANT
 	return pushokresult(slk_init(fmt));
+#else
+	return binding_notimplemented(L, "slk_init", "curses");
+#endif
 }
 
 
@@ -826,7 +834,11 @@ Pslk_set(lua_State *L)
 	int labnum = checkint(L, 1);
 	const char* label = luaL_checkstring(L, 2);
 	int fmt = checkint(L, 3);
+#if LPOSIX_CURSES_COMPLIANT
 	return pushokresult(slk_set(labnum, label, fmt));
+#else
+	return binding_notimplemented(L, "slk_set", "curses");
+#endif
 }
 
 
@@ -840,7 +852,11 @@ Refresh the soft label key area.
 static int
 Pslk_refresh(lua_State *L)
 {
+#if LPOSIX_CURSES_COMPLIANT
 	return pushokresult(slk_refresh());
+#else
+	return binding_notimplemented(L, "slk_refresh", "curses");
+#endif
 }
 
 
@@ -854,7 +870,11 @@ Copy the soft label key area backing screen to the virtual screen.
 static int
 Pslk_noutrefresh(lua_State *L)
 {
+#if LPOSIX_CURSES_COMPLIANT
 	return pushokresult(slk_noutrefresh());
+#else
+	return binding_notimplemented(L, "slk_noutrefresh", "curses");
+#endif
 }
 
 
@@ -869,7 +889,11 @@ static int
 Pslk_label(lua_State *L)
 {
 	int labnum = checkint(L, 1);
+#if LPOSIX_CURSES_COMPLIANT
 	return pushstringresult(slk_label(labnum));
+#else
+	return binding_notimplemented(L, "slk_label", "curses");
+#endif
 }
 
 
@@ -883,7 +907,11 @@ Clears the soft labels from the screen.
 static int
 Pslk_clear(lua_State *L)
 {
+#if LPOSIX_CURSES_COMPLIANT
 	return pushokresult(slk_clear());
+#else
+	return binding_notimplemented(L, "slk_clear", "curses");
+#endif
 }
 
 
@@ -897,7 +925,11 @@ Restores the soft labels to the screen.
 static int
 Pslk_restore(lua_State *L)
 {
+#if LPOSIX_CURSES_COMPLIANT
 	return pushokresult(slk_restore());
+#else
+	return binding_notimplemented(L, "slk_restore", "curses");
+#endif
 }
 
 
@@ -910,7 +942,11 @@ Mark the soft label key area for refresh.
 static int
 Pslk_touch(lua_State *L)
 {
+#if LPOSIX_CURSES_COMPLIANT
 	return pushokresult(slk_touch());
+#else
+	return binding_notimplemented(L, "slk_touch", "curses");
+#endif
 }
 
 
@@ -925,7 +961,11 @@ static int
 Pslk_attron(lua_State *L)
 {
 	chtype attrs = checkch(L, 1);
+#if LPOSIX_CURSES_COMPLIANT
 	return pushokresult(slk_attron(attrs));
+#else
+	return binding_notimplemented(L, "slk_attron", "curses");
+#endif
 }
 
 
@@ -940,7 +980,11 @@ static int
 Pslk_attroff(lua_State *L)
 {
 	chtype attrs = checkch(L, 1);
+#if LPOSIX_CURSES_COMPLIANT
 	return pushokresult(slk_attroff(attrs));
+#else
+	return binding_notimplemented(L, "slk_attroff", "curses");
+#endif
 }
 
 
@@ -955,7 +999,11 @@ static int
 Pslk_attrset(lua_State *L)
 {
 	chtype attrs = checkch(L, 1);
+#if LPOSIX_CURSES_COMPLIANT
 	return pushokresult(slk_attrset(attrs));
+#else
+	return binding_notimplemented(L, "slk_attrset", "curses");
+#endif
 }
 
 

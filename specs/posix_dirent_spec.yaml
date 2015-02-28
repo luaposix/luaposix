@@ -1,0 +1,61 @@
+specify posix.dirent:
+- before:
+    dirent = require "posix.dirent"
+
+
+- describe dir:
+  - before:
+      dir = dirent.dir
+
+  - context with bad arguments: |
+      badargs.diagnose (dir, "(?string)")
+
+      examples {
+        ["it diagnoses argument #1 not a valid file"] = function ()
+          expect (dir "/not/exists").to_raise.any_of {
+            -- Can't be any more accurate, because error message is system specific
+            "bad argument #1 to 'dir' (/not/exists: ",
+            "bad argument #1 to '?' (/not/exists: ",
+          }
+        end
+      }
+
+- describe files:
+  - before:
+      # Make and change into a temporary subdirectory where we can
+      # control all the contents for self-contained examples.
+      link, mkdir, mkdtemp = posix.link, posix.mkdir, posix.mkdtemp
+      origwd = posix.getcwd ()
+      dir, errmsg = mkdtemp (template)
+      mkdir (dir .. "/subdir")
+      link ("subdir", dir .. "/soft", true)
+      touch (dir .. "/file")
+      link (dir .. "/file", dir .. "/hard")
+      link ("no such destination", dir .. "/dangling", true)
+
+      files = dirent.files
+
+  - after:
+      posix.chdir (origwd)
+      rmtmp (dir)
+
+  - context with bad arguments: |
+      badargs.diagnose (files, "(?string)")
+
+      examples {
+        ["it diagnoses argument #1 not a valid file"] = function ()
+          expect (files "/not/exists").to_raise.any_of {
+            -- Can't be any more accurate, because error message is system specific
+            "bad argument #1 to 'files' (/not/exists: ",
+            "bad argument #1 to '?' (/not/exists: ",
+          }
+        end
+      }
+
+  - it returns a table of files in the given directory:
+      t = {}
+      for f in files (dir) do
+        table.insert (t, f)
+      end
+      table.sort (t)
+      expect (t).to_equal {".", "..", "dangling", "file", "hard", "soft", "subdir"}

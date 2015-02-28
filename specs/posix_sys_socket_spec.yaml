@@ -322,6 +322,11 @@ specify posix.sys.socket:
       badargs.diagnose (sock.shutdown, "(int, int)")
 
 
+- describe getsockname:
+  - context with bad arguments:
+      badargs.diagnose (sock.getsockname, "(int)")
+
+
 - describe setsockopt:
   - before:
       SOL_SOCKET, SO_LINGER, IPPROTO_TCP =

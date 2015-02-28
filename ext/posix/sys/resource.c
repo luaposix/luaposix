@@ -153,8 +153,12 @@ luaopen_posix_sys_resource(lua_State *L)
 	lua_setfield(L, -2, "version");
 
 	LPOSIX_CONST( RLIM_INFINITY	);
+#if defined RLIM_SAVED_CUR
 	LPOSIX_CONST( RLIM_SAVED_CUR	);
+#endif
+#if defined RLIM_SAVED_MAX
 	LPOSIX_CONST( RLIM_SAVED_MAX	);
+#endif
 	LPOSIX_CONST( RLIMIT_CORE	);
 	LPOSIX_CONST( RLIMIT_CPU	);
 	LPOSIX_CONST( RLIMIT_DATA	);

@@ -1,7 +1,7 @@
 --[[
  POSIX library for Lua 5.1, 5.2 & 5.3.
  (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2015
- (c) Reuben Thomas <rrt@sc3d.org> 2010-2013
+ (c) Reuben Thomas <rrt@sc3d.org> 2010-2015
  (c) Natanael Copa <natanael.copa@gmail.com> 2008-2010
 ]]
 --[[--
@@ -14,7 +14,7 @@
  @module posix
 ]]
 
-local bit = require "posix.bit32"
+local bit = require "bit32"
 local M = {}
 
 
@@ -151,7 +151,7 @@ end
 -- @return[2] nil
 -- @treturn[2] string error message
 
-local bit    = require "posix.bit32"
+local bit    = require "bit32"
 local fcntl  = require "posix.fcntl"
 local stdlib = require "posix.stdlib"
 local unistd = require "posix.unistd"
@@ -195,38 +195,70 @@ else
 end
 
 
---- Run a command or function in a sub-process.
--- @function spawn
+--- Exec a command or Lua function.
+-- @function execx
+-- @fixme deprecate string argument
 -- @param task, a string to be executed as a shell command, or a
 --   table of arguments to `P.execp` or a Lua function, which should read
 --   from standard input, write to standard output, and return an exit code
 -- @tparam string ... positional arguments to the program or function
--- @treturn[1] int status exit code, if successful
--- @treturn[1] string exit type, if wait succeeds
--- @treturn[2] nil
--- @treturn[2] string error message
+-- @treturn nil on error (normally does not return)
+-- @treturn string error message
 
 local unpack = table.unpack or unpack -- 5.3 compatibility
 
-local _exit, errno, execp, fork, wait =
-  M._exit, M.errno, M.execp, M.fork, M.wait
+local errno, execp, _exit =
+  M.errno, M.execp, M._exit
+
+function execx (task, ...)
+  if type (task) == "string" then
+    task = {"/bin/sh", "-c", task, ...}
+  end
+  if type (task) == "table" then
+    execp (unpack (task))
+    -- Only get here if there's an error; kill the fork
+    local _, n = errno ()
+    _exit (n)
+  else
+    _exit (task (...) or 0)
+  end
+end
+
+if _DEBUG ~= false then
+  M.execx = function (task, ...)
+    local argt, typetask = {task, ...}, type (task)
+    if typetask ~= "string" and typetask ~= "table" and typetask ~= "function" then
+      argtypeerror ("execx", 1, "string, table or function", task)
+    end
+    for i = 2, #argt do
+      if type (argt[i]) ~= "string" and type (argt[i]) ~= "nil" then
+	argtypeerror ("execx", i, "string or nil", argt[i])
+      end
+    end
+    return execx (task, ...)
+  end
+else
+  M.execx = execx
+end
+
+
+--- Run a command or function in a sub-process using `P.execx`.
+-- @function spawn
+-- @param task, as for `P.execx`.
+-- @tparam string ... as for `P.execx`
+-- @return values as for `P.wait`
+
+local unpack = table.unpack or unpack -- 5.3 compatibility
+
+local fork, wait =
+  M.fork, M.wait
 
 local function spawn (task, ...)
   local pid, err = fork ()
   if pid == nil then
     return pid, err
   elseif pid == 0 then
-    if type (task) == "string" then
-      task = {"/bin/sh", "-c", task, ...}
-    end
-    if type (task) == "table" then
-      execp (unpack (task))
-      -- Only get here if there's an error; kill the fork
-      local _, no = errno ()
-      _exit (no)
-    else
-      _exit (task (...) or 0)
-    end
+    execx (task, ...)
   else
     local _, reason, status = wait (pid)
     return status, reason -- If wait failed, status is nil & reason is error
@@ -253,169 +285,137 @@ end
 M.system = M.spawn -- OBSOLETE alias
 
 
---- Perform a series of commands and Lua functions as a pipeline.
--- @function pipeline
--- @tparam table t tasks for @{spawn}
--- @func[opt=@{posix.unistd.pipe} pipe_fn function returning a paired read and
---   write file descriptor
--- @treturn int exit code of the chain
-
-local close, dup, dup2, fork, pipe, wait =
-  M.close, M.dup, M.dup2, M.fork, M.pipe, M.wait
+local close, dup2, fork, pipe, wait =
+  M.close, M.dup2, M.fork, M.pipe, M.wait
 local STDIN_FILENO, STDOUT_FILENO = M.STDIN_FILENO, M.STDOUT_FILENO
 
-local function pipeline (t, pipe_fn)
-  pipe_fn = pipe_fn or pipe
+--- Close a pipeline opened with popen or popen_pipeline.
+-- @function pclose
+-- @tparam table pfd pipeline object
+-- @return values as for `P.wait`, for the last (or only) stage of the pipeline
 
-  local pid, read_fd, write_fd, save_stdout
-  if #t > 1 then
-    read_fd, write_fd = pipe_fn ()
-    if not read_fd then
-      die ("error opening pipe")
-    end
-    pid = fork ()
-    if pid == nil then
-      die ("error forking")
-    elseif pid == 0 then -- child process
-      if not dup2 (read_fd, STDIN_FILENO) then
-        die ("error dup2-ing")
-      end
-      close (read_fd)
-      close (write_fd)
-      os.exit (pipeline (list.sub (t, 2), pipe_fn)) -- recurse with remaining arguments
-    else -- parent process
-      save_stdout = dup (STDOUT_FILENO)
-      if not save_stdout then
-        die ("error dup-ing")
-      end
-      if not dup2 (write_fd, STDOUT_FILENO) then
-        die ("error dup2-ing")
-      end
-      close (read_fd)
-      close (write_fd)
-    end
+local function pclose (pfd)
+  close (pfd.fd)
+  for i = 1, #pfd.pids - 1 do
+    wait (pfd.pids[i])
   end
-
-  local r = spawn (t[1])
-  if not r then
-    die ("error in fork or wait")
-  end
-  close (STDOUT_FILENO)
-
-  if #t > 1 then
-    close (write_fd)
-    wait (pid)
-    if not dup2 (save_stdout, STDOUT_FILENO) then
-      die ("error dup2-ing")
-    end
-    close (save_stdout)
-  end
-
-  return r
+  local _, reason, status = wait (pfd.pids[#pfd.pids])
+  return reason, status
 end
 
 if _DEBUG ~= false then
-  M.pipeline = function (...)
+  M.pclose = function (...)
     local argt = {...}
-    checktable ("pipeline", 1, argt[1])
-    local typepipefn = type (argt[2])
-    if argt[2] ~= nil and type (argt[2]) ~= "function" then
-      argtypeerror ("pipeline", 2, "function or nil", argt[2])
-    end
-    if #argt > 2 then toomanyargerror ("pipeline", 2, #argt) end
-    return pipeline (...)
+    checktable ("pclose", 1, argt[1])
+    if #argt > 2 then toomanyargerror ("pclose", 1, #argt) end
+    return pclose (...)
   end
 else
-  M.pipeline = pipeline
+  M.pclose = pclose
 end
 
 
---- Perform a series of commands and Lua functions as a pipeline,
--- returning the output of the last stage's <code>stdout</code> as
--- the values of an iterator.
--- @function pipeline_iterator
--- @tparam table t tasks for @{spawn}
--- @func[opt=@{posix.unistd.pipe} pipe_fn function returning a paired read and
---   write file descriptor
--- @return iterator function returning a chunk of output on each call
-
-local close, fork, pipe, read, wait, write =
-  M.close, M.fork, M.pipe, M.read, M.wait, M.write
-local BUFSIZ, STDIN_FILENO = M.BUFSIZ, M.STDIN_FILENO
-
-function pipeline_iterator (t, pipe_fn)
-  local read_fd, write_fd = pipe ()
-  if not read_fd then
-    die ("error opening pipe")
+local function move_fd (from_fd, to_fd)
+  if from_fd ~= to_fd then
+    if not dup2 (from_fd, to_fd) then
+      error "error dup2-ing"
+    end
+    close (from_fd)
   end
-  table.insert (t, function ()
-                     while true do
-                       local s = read (STDIN_FILENO, BUFSIZ)
-                       if not s or #s == 0 then break end
-                       write (write_fd, s)
-                     end
-                     close (write_fd)
-                   end)
+end
 
+--- Run a commands or Lua function in a sub-process.
+-- @function popen
+-- @tparam task, as for @{execx}
+-- @tparam string mode `"r"` for read or `"w"` for write
+-- @func[opt] pipe_fn function returning a paired read and
+--   write file descriptor (*default* @{posix.unistd.pipe})
+-- @treturn pfd pipeline object
+
+local function popen (task, mode, pipe_fn)
+  local read_fd, write_fd = (pipe_fn or pipe) ()
+  if not read_fd then
+    error "error opening pipe"
+  end
+  local parent_fd, child_fd, in_fd, out_fd
+  if mode == "r" then
+    parent_fd, child_fd, in_fd, out_fd = read_fd, write_fd, STDIN_FILENO, STDOUT_FILENO
+  elseif mode == "w" then
+    parent_fd, child_fd, in_fd, out_fd = write_fd, read_fd, STDOUT_FILENO, STDIN_FILENO
+  else
+    error "invalid mode"
+  end
   local pid = fork ()
   if pid == nil then
-    die ("error forking")
+    error "error forking"
   elseif pid == 0 then -- child process
-    os.exit (pipeline (t, pipe_fn))
-  else -- parent process
-    close (write_fd)
-    return function ()
-      local s = read (read_fd, BUFSIZ)
-      if not s or #s == 0 then
-        wait (pid)
-        return nil
-      end
-      return s
-    end
-  end
+    move_fd (child_fd, out_fd)
+    close (parent_fd)
+    _exit (execx (task, child_fd, in_fd, out_fd))
+  end -- parent process
+  close (child_fd)
+  return {pids = {pid}, fd = parent_fd}
 end
 
 if _DEBUG ~= false then
-  M.pipeline_iterator = function (...)
-    local argt = {...}
-    checktable ("pipeline_iterator", 1, argt[1])
-    local typepipefn = type (argt[2])
-    if argt[2] ~= nil and type (argt[2]) ~= "function" then
-      argtypeerror ("pipeline_iterator", 2, "function or nil", argt[2])
+  M.popen = function (task, ...)
+    local argt, typetask = {task, ...}, type (task)
+    if typetask ~= "string" and typetask ~= "table" and typetask ~= "function" then
+      argtypeerror ("popen", 1, "string, table or function", task)
     end
-    if #argt > 2 then toomanyargerror ("pipeline_iterator", 2, #argt) end
-    return pipeline_iterator (...)
+    checkstring ("popen", 2, argt[2])
+    if argt[3] ~= nil and type (argt[3]) ~= "function" then
+      argtypeerror ("popen", 3, "function or nil", argt[3])
+    end
+    if #argt > 3 then toomanyargerror ("popen", 3, #argt) end
+    return popen (task, ...)
   end
+else
+  M.popen = popen
 end
 
 
 --- Perform a series of commands and Lua functions as a pipeline.
--- Return the output of the last stage's `stdout`.
--- @function pipeline_slurp
--- @tparam table t tasks for @{spawn}
--- @func[opt=@{posix.unistd.pipe} pipe_fn function returning a paired read and
---   write file descriptor
--- @treturn string output of the pipeline
+-- @function popen_pipeline
+-- @tparam table t tasks for @{execx}
+-- @tparam string mode `"r"` for read or `"w"` for write
+-- @func[opt] pipe_fn function returning a paired read and
+--   write file descriptor (*default* @{posix.unistd.pipe})
+-- @treturn pfd pipeline object
 
-local function pipeline_slurp (t, pipe_fn)
-  local out = ""
-  for s in pipeline_iterator (t, pipe_fn) do
-    out = out .. s
+local function popen_pipeline (tasks, mode, pipe_fn)
+  local first, from, to, inc = 1, 2, #tasks, 1
+  if mode == "w" then
+    first, from, to, inc = #tasks, #tasks - 1, 1, -1
   end
-  return out
+  local pfd = popen (tasks[first], mode, pipe_fn)
+  for i = from, to, inc do
+    local pfd_next = popen (function (fd, in_fd, out_fd)
+                              move_fd (pfd.fd, in_fd)
+                              _exit (execx (tasks[i]))
+                            end,
+                            mode,
+                            pipe_fn)
+    close (pfd.fd)
+    pfd.fd = pfd_next.fd
+    table.insert (pfd.pids, pfd_next.pids[1])
+  end
+  return pfd
 end
 
 if _DEBUG ~= false then
-  M.pipeline_slurp = function (...)
+  M.popen_pipeline = function (...)
     local argt = {...}
-    checktable ("pipeline_slurp", 1, argt[1])
-    local typepipefn = type (argt[2])
-    if argt[2] ~= nil and type (argt[2]) ~= "function" then
-      argtypeerror ("pipeline_slurp", 2, "function or nil", argt[2])
+    checktable ("popen_pipeline", 1, argt[1])
+    checkstring ("popen_pipeline", 2, argt[2])
+    if argt[3] ~= nil and type (argt[3]) ~= "function" then
+      argtypeerror ("popen_pipeline", 3, "function or nil", argt[3])
     end
-    if #argt > 2 then toomanyargerror ("pipeline_slurp", 2, #argt) end
-    return pipeline_slurp (...)
+    if #argt > 3 then toomanyargerror ("popen_pipeline", 3, #argt) end
+    return popen_pipeline (...)
   end
+else
+  M.popen_pipeline = popen_pipeline
 end
 
 

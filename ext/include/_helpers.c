@@ -50,12 +50,21 @@
 # endif
 #endif
 
+/* NetBSD's default curses implementation is not quite complete.  This
+   disables those missing functions unless linked to ncurses instead. */
+#if defined NCURSES_VERSION || !defined __NetBSD__
+#  define LPOSIX_CURSES_COMPLIANT 1
+#endif
+
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
 
 #if LUA_VERSION_NUM < 503
 #  define lua_isinteger lua_isnumber
+#  if LUA_VERSION_NUM == 501
+#    include "compat-5.2.c"
+#  endif
 #endif
 
 #if LUA_VERSION_NUM == 502 || LUA_VERSION_NUM == 503
@@ -371,6 +380,16 @@ badoption(lua_State *L, int i, const char *what, int option)
 /* ================== *
  * Utility functions. *
  * ================== */
+
+
+static int
+binding_notimplemented(lua_State *L, const char *fname, const char *libname)
+{
+	lua_pushnil(L);
+	lua_pushfstring(L, "'%s' is not implemented by host %s library",
+			fname, libname);
+	return 2;
+}
 
 
 #define pushintegerfield(k,v) LPOSIX_STMT_BEG {				\

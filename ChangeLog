@@ -1,4 +1,241 @@
+2015-02-28  Gary V. Vaughan  <gary@gnu.org>
+
+	Release version 33.3.0
+	* NEWS.md: Record release date.
+
+	configury: bump release version to 33.3.0.
+	* configure.ac (AC_INIT): Bump release version to 33.3.0.
+	* .travis.yml: Regenerate.
+	* NEWS.md: Fix a small typo.
+
+	maint: update .gitignore.
+	* .gitignore: add lib/posix/init.lua.
+
+	maint: workaround LuaRocks install manifest key clash.
+	LuaRocks install manifest cannot store two files with the same
+	key.
+	* configure.ac (AC_CONFIG_FILES): Expand lib/posix.lua.in to
+	lib/posix/init.lua for installation.
+	* build-aux/config.ld.in (file): Adjust accordingly.
+	* local.mk (dist_lua_DATA): Likewise.
+	* NEWS.md (Bugs Fixed): Update.
+	Workaround suggested by quae@daurnimator.com
+
+	configury: don't forget to distribute compat-5.2.{c,h}.
+	* local.mk (EXTRA_DIST): Add ext/include/compat-5.2.c and
+	ext/include/compat-5.2.h.
+
+2015-02-28  Reuben Thomas  <rrt@sc3d.org>
+
+	rockspec.conf: remove bogus constraint on bit32 version
+
+2015-02-28  Gary V. Vaughan  <gary@gnu.org>
+
+	slingshot: sync with upstream for distcheck fixes.
+	* slingshot: Sync with upstream again.
+
+2015-02-27  Gary V. Vaughan  <gary@gnu.org>
+
+	slingshot: Sync with upstream for Travis Lua 5.3 build fixes.
+	* slingshot: Sync with upstream.
+	* .travis.yml: Regenerate.
+
+	maint: exclude compat-5.2 sources from assorted syntax checks.
+	* build-aux/sanity-cfg.mk
+	(exclude_file_name_regexp--sc_require_config_h)
+	(exclude_file_name_regexp--sc_require_config_h_first)
+	(exclude_file_name_regexp--sc_useless_cpp_parens): Add
+	ext/include/compat-5.2.c.
+	(exclude_file_name_regexp--sc_useless_cpp_parens): Add
+	ext/include/compat-5.2.h.
+	* ext/include/compat-5.2.c, ext/include/compat-5.2.h: Remove
+	trailing empty lines.
+
+	maint: don't trigger error-message-uppercase in stdlib.c.
+	* build-aux/sanity-cfg.mk
+	(exclude_file_name_regexp--sc_error_message_uppercase): Add
+	ext/posix/stdlib.c.
+
+	specs: expect portable wc command output format.
+	BSD and Mac OS X `wc` indent the output from `wc`.
+	* specs/posix_spec.yaml (popen_pipeline): Allow leading whitespace
+	in wc output.
+
+	slingshot: sync with upstream, for --libdir fix.
+	Close #210
+	* slingshot: Sync with upstream.
+
+2015-02-27  Reuben Thomas  <rrt@sc3d.org>
+
+	Merge pull request #213 from luaposix/remove-pipeline
+	Remove pipeline
+
+	NEWS.md: add recent changes
+
+	posix: remove pipline, pipeline_iterator and pipeline_slurp
+	These functions were experimental and only briefly documented. They are
+	replaced by the popen family.
+
+	NEWS.md: fix some formatting
+
+2015-02-26  Reuben Thomas  <rrt@sc3d.org>
+
+	posix: add popen, popen_pipeline, and execx.
+	* specs/posix_spec.yaml (popen, popen_pipeline): Specify
+	correct behaviours for these new functions.
+	* lib/posix.lua.in (popen, popen_pipeline, execx): New functions.
+
+2015-02-26  Gary V. Vaughan  <gary@vaughan.pe>
+
+	Merge pull request #211 from luaposix/fdopen
+	Fdopen
+
+2015-02-25  Reuben Thomas  <rrt@sc3d.org>
+
+	Merge pull request #206 from luaposix/remove-builtin-bit32
+	build: remove posix.bit32
+
+2015-02-21  Reuben Thomas  <rrt@sc3d.org>
+
+	Add fdopen
+	Uses luaL_Stream; we rely on compat-lua-5.2 to make this work on Lua 5.1
+	and LuaJIT.
+
+2015-02-19  Reuben Thomas  <rrt@sc3d.org>
+
+	Build Lua 5.3 with 5.2 compatibility
+	Needs -DLUA_COMPAT_5_2, just as 5.2 needs -DLUA_COMPAT_ALL
+
+	Build Lua 5.3 with 5.2 compatibility
+	Needs -DLUA_COMPAT_5_2, just as 5.2 needs -DLUA_COMPAT_ALL
+
+	build: remove posix.bit32
+	Close #204 again, removing posix.bit32 in favour of a rockspec
+	dependency, which will use the built-in library in Lua >= 5.2, or the
+	backported rock in Lua 5.1
+
+2015-02-17  Gary V. Vaughan  <gary@gnu.org>
+
+	Merge branch 'sparked435-master'
+
+	curses: support linking against NetBSD curses.
+	* ext/include/_helpers.c (LPOSIX_CURSES_COMPLIANT): Leave this
+	unset on NetBSD, unless linked against ncurses.
+	(binding_notimplemented): New function for returning a `nil`,
+	"not implemented" error pair from an unbound function...
+	* ext/posix/stdlib.c (mkdtemp): ...factored out of here.  Adjust
+	accordingly.
+	* ext/posix/curses.c (Presizeterm): Use it here too.
+	(Pripoffline, Pslk_init, Pslk_refresh, Pslk_noutrefresh)
+	(Pslk_label, pslk_clear, Pslk_restore, Pslk_touch)
+	(Pslk_attron, Pslk_attroff, Pslk_attrset): Use it here When
+	LPOSIX_CURSES_COMPLIANT is not set.
+	* ext/posix/curses/window.c (Wsyncok, Wimmedok): Likewise.
+	* NEWS.md (New Features): Update.
+
+2015-02-17  aaron  <aaron@polygon.zs-zero.net>
+
+	Workarounds for missing NetBSD curses functions.
+
+2015-02-16  Gary V. Vaughan  <gary@gnu.org>
+
+	curses: remove unusable KEY_MOUSE constant.
+	* ext/posix/curses.c (register_curses_constants): Comment out
+	KEY_MOUSE, along with a comment to remind us not to reintroduce
+	it again later!
+	* NEWS.md (Incompatible Changes): Update.
+
+	dirent: throw a Lua error when called with non-existent path.
+	Close #207.
+	* specs/posix_dirent_spec.yaml: New file. Specify correct
+	behaviours, paying special attention to throwing an error when
+	called with a non-existent path.
+	* specs/specs.mk (specl_SPECS): Add specs/posix_dirent_spec.yaml.
+	* ext/posix/dirent.c (Pdir): Check for errors when opening
+	path argument, and throw an error if necessary.
+	(pfiles): Likewise.
+	* examples/dir.lua: Adjust accordingly.
+	* NEWS.md (Bugs Fixed): Update.
+	Reported by Ingo Struck <web@ingostruck.de>
+
+2015-02-11  Gary V. Vaughan  <gary@gnu.org>
+
+	doc: rationale for posix.bit32 inclusion.
+	Close #204
+	* ext/posix/bit32.c: Add LDocs to explain why we have yet another
+	bit twiddling functions module here in luaposix.
+
+	Merge branch 'zevv-getsockname'
+
+2015-02-11  Gary V. Vaughan  <gary@gnu.org>
+
+	Merge branch 'getsockname' of https://github.com/zevv/luaposix into zevv-getsockname
+	* specs/posix_sys_socket_spec.yaml (getsockname): Specify bad
+	argument behaviours minimally.
+	* ext/posix/sys/socket.c (getsockname): Port forward to latest
+	helpers and conventions.  Fix LDocs.
+	* examples/socket.lua: Port forward additional getsockname call.
+	* NEWS.md (New features): Update.
+
+
+	Conflicts:
+		examples/socket.lua
+		ext/posix/posix.c
+
+2015-02-11  Ico Doornekamp  <ico@pruts.nl>
+
+	Added getsockname() to examples/socket.lua
+
+	Added getsockname
+
+2015-01-31  Gary V. Vaughan  <gary@gnu.org>
+
+	signal: workaround a printf long vs int type coercion issue.
+	* ext/posix/signal.c (sig_handle): Some architectures use a long
+	for sig_atomic_t, so we need a %ld specifier to display it without
+	a warning.  In case sig_atomic_t is narrower than a long, cast it
+	up before passing to fprintf.
+
+	sys.socket: move sys/types.h include earlier.
+	* ext/posix/sys/socket.c: netinet/udp.h complains about lack of
+	u_short definition on FreeBSD 10, so move sys/types.h before it
+	in the hope of fixing that.
+	Reported by jeangit@github.
+
+	sys.resource: add ifdef guards to RLIM_SAVED_CUR and RLIM_SAVED_MAX.
+	* ext/posix/sys/resource.c (luaopen_posix_sys_resource): Add
+	ifdef guards around RLIM_SAVED_CUR and RLIM_SAVED_MAX declarations,
+	because FreeBSD 10 does not provide them.
+	Reported by jeangit@github.
+
+2015-01-20  Reuben Thomas  <rrt@sc3d.org>
+
+	posix.lua: use error, not die; fixes #201
+
+2015-01-19  Gary V. Vaughan  <gary@gnu.org>
+
+	doc: improve LDocs for sys.socket sockaddr tables.
+	Closes #200
+	* ext/posix/sys/socket.c (sockaddr): Document all optional fields.
+	* NEWS.md: Update.
+	Reported by Bernd Eggink
+
+	slingshot: sync with upstream for lua 5.3.0 final support.
+	* slingshot: Sync with upstream.
+	* .travis.yml: Regenerate.
+
+2015-01-18  Reuben Thomas  <rrt@sc3d.org>
+
+	Make posix.pipeline_slurp more efficient
+	Use standard table.concat method instead of repeated string
+	concatenation.
+
 2015-01-04  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: post-release administrivia.
+	* NEWS: Add header line for next release.
+	* .prev-version: Record previous version.
+	* ./local.mk (old_NEWS_hash): Auto-update.
 
 	Release version 33.2.1
 	* NEWS.md: Record release date.

@@ -7,7 +7,7 @@
 ## See README for license.
 ## ------------------------------------------------------------------------
 
-AC_INIT([luaposix], [33.2.1], [http://github.com/luaposix/luaposix/issues])
+AC_INIT([luaposix], [33.3.0], [http://github.com/luaposix/luaposix/issues])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -201,5 +201,5 @@ AM_CONDITIONAL([HAVE_LDOC], [test false != "$LDOC"])
 
 ## Generate output files
 AC_CONFIG_HEADER(config.h)
-AC_CONFIG_FILES([Makefile build-aux/config.ld lib/posix.lua])
+AC_CONFIG_FILES([Makefile build-aux/config.ld lib/posix/init.lua:lib/posix.lua.in])
 AC_OUTPUT

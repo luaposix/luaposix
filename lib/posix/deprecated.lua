@@ -11,7 +11,7 @@
 ]]
 
 local _argcheck = require "posix._argcheck"
-local bit       = require "posix.bit32"
+local bit       = require "bit32"
 
 -- Lua 5.3 has table.unpack but not _G.unpack
 -- Lua 5.2 has table.unpack and _G.unpack
@@ -748,7 +748,7 @@ end
 --   `LOG_LOCAL0` through `LOG_LOCAL7`
 -- @see syslog(3)
 
-local bit = require "posix.bit32"
+local bit = require "bit32"
 local log = require "posix.syslog"
 
 local bor = bit.bor

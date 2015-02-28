@@ -24,6 +24,7 @@
 
 #include "_helpers.c"		/* For LPOSIX_2001_COMPLIANT */
 
+#include <sys/types.h>
 #if LPOSIX_2001_COMPLIANT
 #include <arpa/inet.h>
 #if HAVE_LINUX_NETLINK_H
@@ -38,7 +39,6 @@
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
 #include <sys/un.h>
-#include <sys/types.h>
 
 /* strlcpy() implementation for non-BSD based Unices.
    strlcpy() is a safer less error-prone replacement for strncpy(). */
@@ -47,10 +47,18 @@
 
 /***
 Socket address.
+All sockaddr tables have the *family* field, and depending on its value, also
+a subset of the following fields too.
 @table sockaddr
-@int socktype one of `SOCK_STREAM`, `SOCK_DGRAM` or `SOCK_RAW`
-@string canonname canonical name for service location
-@int protocol one of `IPPROTO_TCP` or `IPPROTO_UDP`
+@int family one of `AF_INET`, `AF_INET6`, `AF_UNIX` or (where supported) `AF_NETLINK`
+@int[opt] port socket port number for `AF_INET` (and equivalently `AF_INET6`) *family*
+@string[opt] addr socket host address in correct format, for `AF_INET` *family*
+@int[opt] socktype one of `SOCK_STREAM`, `SOCK_DGRAM` or `SOCK_RAW` for `AF_INET` *family*
+@string[opt] canonname canonical name for service location, for `AF_INET` *family*
+@int[opt] protocol one of `IPPROTO_TCP` or `IPPROTO_UDP`, for `AF_INET` *family*
+@string[opt] path location in file system, for `AF_UNIX` *family*
+@int[opt] pid process identifier, for `AF_NETLINK` *family*
+@int[opt] groups process group owner identifier, for `AF_NETLINK` *family*
 */
 
 
@@ -720,6 +728,29 @@ Psetsockopt(lua_State *L)
 
 	return pushresult(L, setsockopt(fd, level, optname, val, len), "setsockopt");
 }
+
+
+/***
+Get socket name.
+@function getsockname
+@see getsockname(2)
+@int sockfd socket descriptor
+@treturn[1] sockaddr the current address to which the socket *sockfd* is bound
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@usage sa, err = posix.getsockname (sockfd)
+*/
+static int Pgetsockname(lua_State *L)
+{
+	int fd = checkint(L, 1);
+	struct sockaddr_storage sa;
+	socklen_t salen;
+	checknargs (L, 1);
+	if (getsockname(fd, (struct sockaddr *)&sa, &salen) != 0)
+		return pusherror(L, "getsockname");
+	return pushsockaddrinfo(L, sa.ss_family, (struct sockaddr *)&sa);
+}
 #endif
 
 
@@ -739,6 +770,7 @@ static const luaL_Reg posix_sys_socket_fns[] =
 	LPOSIX_FUNC( Psendto		),
 	LPOSIX_FUNC( Pshutdown		),
 	LPOSIX_FUNC( Psetsockopt	),
+	LPOSIX_FUNC( Pgetsockname	),
 #endif
 	{NULL, NULL}
 };

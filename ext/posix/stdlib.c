@@ -133,9 +133,7 @@ Pmkdtemp(lua_State *L)
 	lalloc(ud, tmppath, path_len, 0);
 	return (r == NULL) ? pusherror(L, path) : 1;
 #else
-	lua_pushnil(L);
-	lua_pushliteral(L, "not implemented by host C library");
-	return 2;
+	return binding_notimplemented(L, "mkdtemp", "C");
 #endif
 }
 

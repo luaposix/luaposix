@@ -3,7 +3,7 @@ language: c
 env:
   global:
     - _COMPILE="libtool --mode=compile --tag=CC gcc"
-    - _CFLAGS="-O2 -Wall -DLUA_COMPAT_ALL -DLUA_USE_LINUX"
+    - _CFLAGS="-O2 -Wall -DLUA_COMPAT_ALL -DLUA_COMPAT_5_2 -DLUA_USE_LINUX"
     - _INSTALL="libtool --mode=install install -p"
     - _LINK="libtool --mode=link --tag=CC gcc"
     - _LIBS="-lm -Wl,-E -ldl -lreadline"
@@ -28,7 +28,7 @@ before_install:
   # Fetch Lua sources.
   - cd $TRAVIS_BUILD_DIR
   - 'if test lua5.3 = "$LUA"; then
-      curl http://www.lua.org/work/lua-5.3.0-rc2.tar.gz | tar xz;
+      curl http://www.lua.org/ftp/lua-5.3.0.tar.gz | tar xz;
       cd lua-5.3.0;
     fi'
   - 'if test lua5.2 = "$LUA"; then
@@ -107,7 +107,7 @@ install:
     fi'
 
   # Build from rockspec.
-  - export ROCKSPEC=luaposix-33.2.1-1.rockspec
+  - export ROCKSPEC=luaposix-33.3.0-1.rockspec
   - 'test -f "$ROCKSPEC" || ROCKSPEC=luaposix-git-1.rockspec'
   - sudo luarocks make $ROCKSPEC LUA="$LUA"
 

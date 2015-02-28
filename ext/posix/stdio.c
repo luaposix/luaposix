@@ -21,7 +21,6 @@
 
 #include "_helpers.c"
 
-
 /***
 Name of controlling terminal.
 @function ctermid
@@ -57,10 +56,53 @@ Pfileno(lua_State *L)
 }
 
 
+/* This helper function is adapted from Lua 5.3's liolib.c */
+static int
+stdio_fclose (lua_State *L) {
+	luaL_Stream *p = ((luaL_Stream *)luaL_checkudata(L, 1, LUA_FILEHANDLE));
+	int res = fclose(p->f);
+	return luaL_fileresult(L, (res == 0), NULL);
+}
+
+/* This function could be used more generally; see */
+static int
+pushfile (lua_State *L, int fd, const char *mode) {
+	luaL_Stream *p = (luaL_Stream *)lua_newuserdata(L, sizeof(luaL_Stream));
+	luaL_getmetatable(L, LUA_FILEHANDLE);
+	lua_setmetatable(L, -2);
+	p->closef = stdio_fclose;
+	p->f = fdopen(fd, mode);
+	return p->f != NULL;
+}
+
+/***
+Create a Lua file object from a file descriptor.
+@function fdopen
+@tparam int fd file descriptor
+@treturn[1] file file Lua file object *fd*, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@usage
+stdout = P.fdopen (posix.STDOUT_FILENO)
+*/
+static int
+Pfdopen(lua_State *L)	/** fdopen(fd, mode) */
+{
+	int fd = checkint(L, 1);
+	const char *mode = luaL_checkstring(L, 2);
+	checknargs(L, 2);
+	if (!pushfile(L, fd, mode))
+		return pusherror(L, "fdopen");
+	return 1;
+}
+
+
 static const luaL_Reg posix_stdio_fns[] =
 {
 	LPOSIX_FUNC( Pctermid		),
 	LPOSIX_FUNC( Pfileno		),
+	LPOSIX_FUNC( Pfdopen		),
 	{NULL, NULL}
 };
 

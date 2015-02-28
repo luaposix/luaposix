@@ -51,7 +51,7 @@
 #
 #   If MINIMUM-VERSION is supplied, then only Lua interpreters with a
 #   version number greater or equal to MINIMUM-VERSION will be accepted. If
-#   TOO-BIG- VERSION is also supplied, then only Lua interpreters with a
+#   TOO-BIG-VERSION is also supplied, then only Lua interpreters with a
 #   version number greater or equal to MINIMUM-VERSION and less than
 #   TOO-BIG-VERSION will be accepted.
 #
@@ -66,12 +66,13 @@
 #     luaexecdir         Directory to install Lua modules.
 #     pkgluaexecdir      $luaexecdir/$PACKAGE
 #
-#   These paths a found based on $prefix, $exec_prefix, Lua's package.path,
-#   and package.cpath. The first path of package.path beginning with $prefix
-#   is selected as luadir. The first path of package.cpath beginning with
-#   $exec_prefix is used as luaexecdir. This should work on all reasonable
-#   Lua installations. If a path cannot be determined, a default path is
-#   used. Of course, the user can override these later when invoking make.
+#   These paths are found based on $prefix, $exec_prefix, Lua's
+#   package.path, and package.cpath. The first path of package.path
+#   beginning with $prefix is selected as luadir. The first path of
+#   package.cpath beginning with $exec_prefix is used as luaexecdir. This
+#   should work on all reasonable Lua installations. If a path cannot be
+#   determined, a default path is used. Of course, the user can override
+#   these later when invoking make.
 #
 #     luadir             Default: $prefix/share/lua/$LUA_VERSION
 #     luaexecdir         Default: $exec_prefix/lib/lua/$LUA_VERSION
@@ -151,8 +152,8 @@
 #
 # LICENSE
 #
-#   Copyright (c) 2014 Reuben Thomas <rrt@sc3d.org>
-#   Copyright (c) 2013 Tim Perkins <tprk77@gmail.com>
+#   Copyright (c) 2015 Reuben Thomas <rrt@sc3d.org>
+#   Copyright (c) 2014 Tim Perkins <tprk77@gmail.com>
 #
 #   This program is free software: you can redistribute it and/or modify it
 #   under the terms of the GNU General Public License as published by the
@@ -180,7 +181,7 @@
 #   modified version of the Autoconf Macro, you may extend this special
 #   exception to the GPL to apply to your modified version as well.
 
-#serial 28
+#serial 38
 
 dnl =========================================================================
 dnl AX_PROG_LUA([MINIMUM-VERSION], [TOO-BIG-VERSION],
@@ -188,6 +189,10 @@ dnl             [ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND])
 dnl =========================================================================
 AC_DEFUN([AX_PROG_LUA],
 [
+  dnl Check for required tools.
+  AC_REQUIRE([AC_PROG_GREP])
+  AC_REQUIRE([AC_PROG_SED])
+
   dnl Make LUA a precious variable.
   AC_ARG_VAR([LUA], [The Lua interpreter, e.g. /usr/bin/lua5.1])
 
@@ -201,12 +206,14 @@ AC_DEFUN([AX_PROG_LUA],
       [AC_PATH_PROGS([LUA], [_AX_LUA_INTERPRETER_LIST], [:])])
     ax_display_LUA='lua'
 
-    dnl At least check if this is a Lua interpreter.
-    AC_MSG_CHECKING([if $LUA is a Lua interpreter])
-    _AX_LUA_CHK_IS_INTRP([$LUA],
-      [AC_MSG_RESULT([yes])],
-      [ AC_MSG_RESULT([no])
-        AC_MSG_ERROR([not a Lua interpreter])
+    AS_IF([test "x$LUA" != 'x:'],
+      [ dnl At least check if this is a Lua interpreter.
+        AC_MSG_CHECKING([if $LUA is a Lua interpreter])
+        _AX_LUA_CHK_IS_INTRP([$LUA],
+          [AC_MSG_RESULT([yes])],
+          [ AC_MSG_RESULT([no])
+            AC_MSG_ERROR([not a Lua interpreter])
+          ])
       ])
   ],
   [ dnl A version check is needed.
@@ -254,18 +261,26 @@ AC_DEFUN([AX_PROG_LUA],
     m4_default([$4], [AC_MSG_ERROR([cannot find suitable Lua interpreter])])
   ],
   [ dnl Query Lua for its version number.
-    AC_CACHE_CHECK([for $ax_display_LUA version], [ax_cv_lua_version],
-      [ ax_cv_lua_version=`$LUA -e 'print(_VERSION:match "(%d+%.%d+)")'` ])
+    AC_CACHE_CHECK([for $ax_display_LUA version],
+      [ax_cv_lua_version],
+      [ dnl Get the interpreter version in X.Y format. This should work for
+        dnl interpreters version 5.0 and beyond.
+        ax_cv_lua_version=[`$LUA -e '
+          -- return a version number in X.Y format
+          local _, _, ver = string.find(_VERSION, "^Lua (%d+%.%d+)")
+          print(ver)'`]
+      ])
     AS_IF([test "x$ax_cv_lua_version" = 'x'],
       [AC_MSG_ERROR([invalid Lua version number])])
     AC_SUBST([LUA_VERSION], [$ax_cv_lua_version])
-    AC_SUBST([LUA_SHORT_VERSION], [`echo "$LUA_VERSION" | sed 's|\.||'`])
+    AC_SUBST([LUA_SHORT_VERSION], [`echo "$LUA_VERSION" | $SED 's|\.||'`])
 
     dnl The following check is not supported:
     dnl At times (like when building shared libraries) you may want to know
     dnl which OS platform Lua thinks this is.
-    AC_CACHE_CHECK([for $ax_display_LUA platform], [ax_cv_lua_platform],
-      [ax_cv_lua_platform=`$LUA -e "print('unknown')"`])
+    AC_CACHE_CHECK([for $ax_display_LUA platform],
+      [ax_cv_lua_platform],
+      [ax_cv_lua_platform=[`$LUA -e 'print("unknown")'`]])
     AC_SUBST([LUA_PLATFORM], [$ax_cv_lua_platform])
 
     dnl Use the values of $prefix and $exec_prefix for the corresponding
@@ -290,12 +305,12 @@ AC_DEFUN([AX_PROG_LUA],
         ax_cv_lua_luadir="$LUA_PREFIX/share/lua/$LUA_VERSION"
 
         dnl Try to find a path with the prefix.
-        _AX_LUA_FND_PRFX_PTH([$LUA], [$ax_lua_prefix], [package.path])
+        _AX_LUA_FND_PRFX_PTH([$LUA], [$ax_lua_prefix], [script])
         AS_IF([test "x$ax_lua_prefixed_path" != 'x'],
         [ dnl Fix the prefix.
-          _ax_strip_prefix=`echo "$ax_lua_prefix" | sed 's|.|.|g'`
+          _ax_strip_prefix=`echo "$ax_lua_prefix" | $SED 's|.|.|g'`
           ax_cv_lua_luadir=`echo "$ax_lua_prefixed_path" | \
-            sed "s,^$_ax_strip_prefix,$LUA_PREFIX,"`
+            $SED "s|^$_ax_strip_prefix|$LUA_PREFIX|"`
         ])
       ])
     AC_SUBST([luadir], [$ax_cv_lua_luadir])
@@ -317,12 +332,12 @@ AC_DEFUN([AX_PROG_LUA],
 
         dnl Try to find a path with the prefix.
         _AX_LUA_FND_PRFX_PTH([$LUA],
-          [$ax_lua_exec_prefix], [package.cpath])
+          [$ax_lua_exec_prefix], [module])
         AS_IF([test "x$ax_lua_prefixed_path" != 'x'],
         [ dnl Fix the prefix.
-          _ax_strip_prefix=`echo "$ax_lua_exec_prefix" | sed 's|.|.|g'`
+          _ax_strip_prefix=`echo "$ax_lua_exec_prefix" | $SED 's|.|.|g'`
           ax_cv_lua_luaexecdir=`echo "$ax_lua_prefixed_path" | \
-            sed "s,^$_ax_strip_prefix,$LUA_EXEC_PREFIX,"`
+            $SED "s|^$_ax_strip_prefix|$LUA_EXEC_PREFIX|"`
         ])
       ])
     AC_SUBST([luaexecdir], [$ax_cv_lua_luaexecdir])
@@ -336,7 +351,7 @@ AC_DEFUN([AX_PROG_LUA],
 dnl AX_WITH_LUA is now the same thing as AX_PROG_LUA.
 AC_DEFUN([AX_WITH_LUA],
 [
-  AC_MSG_WARN([[$0 is deprecated, please use AX_PROG_LUA]])
+  AC_MSG_WARN([[$0 is deprecated, please use AX_PROG_LUA instead]])
   AX_PROG_LUA
 ])
 
@@ -346,8 +361,19 @@ dnl _AX_LUA_CHK_IS_INTRP(PROG, [ACTION-IF-TRUE], [ACTION-IF-FALSE])
 dnl =========================================================================
 AC_DEFUN([_AX_LUA_CHK_IS_INTRP],
 [
-  dnl Just print _VERSION because all Lua interpreters have this global.
-  AS_IF([$1 -e "print('Hello ' .. _VERSION .. '!')" >/dev/null 2>&1],
+  dnl A minimal Lua factorial to prove this is an interpreter. This should work
+  dnl for Lua interpreters version 5.0 and beyond.
+  _ax_lua_factorial=[`$1 2>/dev/null -e '
+    -- a simple factorial
+    function fact (n)
+      if n == 0 then
+        return 1
+      else
+        return n * fact(n-1)
+      end
+    end
+    print("fact(5) is " .. fact(5))'`]
+  AS_IF([test "$_ax_lua_factorial" = 'fact(5) is 120'],
     [$2], [$3])
 ])
 
@@ -358,36 +384,70 @@ dnl                 [ACTION-IF-TRUE], [ACTION-IF-FALSE])
 dnl =========================================================================
 AC_DEFUN([_AX_LUA_CHK_VER],
 [
-  AS_IF([$1 2>/dev/null -e '
-        function norm (v)
-          i,j=v:match "(%d+)%.(%d+)" if i then return 100 * i + j end
-        end
-        v, toobig=norm (_VERSION), norm "$3" or math.huge
-        os.exit ((v >= norm ("$2") and v < toobig) and 0 or 1)'],
-    [$4], [$5])
+  dnl Check that the Lua version is within the bounds. Only the major and minor
+  dnl version numbers are considered. This should work for Lua interpreters
+  dnl version 5.0 and beyond.
+  _ax_lua_good_version=[`$1 -e '
+    -- a script to compare versions
+    function verstr2num(verstr)
+      local _, _, majorver, minorver = string.find(verstr, "^(%d+)%.(%d+)")
+      if majorver and minorver then
+        return tonumber(majorver) * 100 + tonumber(minorver)
+      end
+    end
+    local minver = verstr2num("$2")
+    local _, _, trimver = string.find(_VERSION, "^Lua (.*)")
+    local ver = verstr2num(trimver)
+    local maxver = verstr2num("$3") or 1e9
+    if minver <= ver and ver < maxver then
+      print("yes")
+    else
+      print("no")
+    end'`]
+    AS_IF([test "x$_ax_lua_good_version" = "xyes"],
+      [$4], [$5])
 ])
 
 
 dnl =========================================================================
-dnl _AX_LUA_FND_PRFX_PTH(PROG, PREFIX, LUA-PATH-VARIABLE)
+dnl _AX_LUA_FND_PRFX_PTH(PROG, PREFIX, SCRIPT-OR-MODULE-DIR)
 dnl =========================================================================
 AC_DEFUN([_AX_LUA_FND_PRFX_PTH],
 [
-  dnl Invokes the Lua interpreter PROG to print the path variable
-  dnl LUA-PATH-VARIABLE, usually package.path or package.cpath. Paths are
-  dnl then matched against PREFIX. Then ax_lua_prefixed_path is set to the
-  dnl shortest sub path beginning with PREFIX up to the last directory
-  dnl that does not contain a '?', if any.
+  dnl Get the script or module directory by querying the Lua interpreter,
+  dnl filtering on the given prefix, and selecting the shallowest path. If no
+  dnl path is found matching the prefix, the result will be an empty string.
+  dnl The third argument determines the type of search, it can be 'script' or
+  dnl 'module'. Supplying 'script' will perform the search with package.path
+  dnl and LUA_PATH, and supplying 'module' will search with package.cpath and
+  dnl LUA_CPATH. This is done for compatibility with Lua 5.0.
 
-  ax_lua_prefixed_path=`$1 2>/dev/null -e '
-    $3:gsub ("(@<:@^;@:>@+)",
-      function (p)
-        p = p:gsub ("%?.*$", ""):gsub ("/@<:@^/@:>@*$", "")
-        if p:match ("^$2") and (not shortest or #shortest > #p) then
-          shortest = p
+  ax_lua_prefixed_path=[`$1 -e '
+    -- get the path based on search type
+    local searchtype = "$3"
+    local paths = ""
+    if searchtype == "script" then
+      paths = (package and package.path) or LUA_PATH
+    elseif searchtype == "module" then
+      paths = (package and package.cpath) or LUA_CPATH
+    end
+    -- search for the prefix
+    local prefix = "'$2'"
+    local minpath = ""
+    local mindepth = 1e9
+    string.gsub(paths, "(@<:@^;@:>@+)",
+      function (path)
+        path = string.gsub(path, "%?.*$", "")
+        path = string.gsub(path, "/@<:@^/@:>@*$", "")
+        if string.find(path, prefix) then
+          local depth = string.len(string.gsub(path, "@<:@^/@:>@", ""))
+          if depth < mindepth then
+            minpath = path
+            mindepth = depth
+          end
         end
       end)
-    print (shortest or "")'`
+    print(minpath)'`]
 ])
 
 
@@ -408,9 +468,10 @@ AC_DEFUN([AX_LUA_HEADERS],
   AC_ARG_VAR([LUA_INCLUDE], [The Lua includes, e.g. -I/usr/include/lua5.1])
 
   dnl Some default directories to search.
-  LUA_SHORT_VERSION=`echo "$LUA_VERSION" | sed 's|\.||'`
+  LUA_SHORT_VERSION=`echo "$LUA_VERSION" | $SED 's|\.||'`
   m4_define_default([_AX_LUA_INCLUDE_LIST],
     [ /usr/include/lua$LUA_VERSION \
+      /usr/include/lua-$LUA_VERSION \
       /usr/include/lua/$LUA_VERSION \
       /usr/include/lua$LUA_SHORT_VERSION \
       /usr/local/include/lua$LUA_VERSION \
@@ -452,16 +513,19 @@ AC_DEFUN([AX_LUA_HEADERS],
       done
     ])
 
-  AS_IF([test "x$ac_cv_header_lua_h" = 'xyes' && test "x$cross_compiling" != 'xyes'],
+  AS_IF([test "x$ac_cv_header_lua_h" = 'xyes'],
     [ dnl Make a program to print LUA_VERSION defined in the header.
-      dnl TODO This probably shouldn't be a runtime test.
+      dnl TODO It would be really nice if we could do this without compiling a
+      dnl program, then it would work when cross compiling. But I'm not sure how
+      dnl to do this reliably. For now, assume versions match when cross compiling.
 
-      AC_CACHE_CHECK([for Lua header version],
-        [ax_cv_lua_header_version],
-        [ _ax_lua_saved_cppflags=$CPPFLAGS
-          CPPFLAGS="$CPPFLAGS $LUA_INCLUDE"
-          AC_RUN_IFELSE(
-            [ AC_LANG_SOURCE([[
+      AS_IF([test "x$cross_compiling" != 'xyes'],
+        [ AC_CACHE_CHECK([for Lua header version],
+            [ax_cv_lua_header_version],
+            [ _ax_lua_saved_cppflags=$CPPFLAGS
+              CPPFLAGS="$CPPFLAGS $LUA_INCLUDE"
+              AC_RUN_IFELSE(
+                [ AC_LANG_SOURCE([[
 #include <lua.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -471,27 +535,27 @@ int main(int argc, char ** argv)
   exit(EXIT_SUCCESS);
 }
 ]])
-            ],
-            [ ax_cv_lua_header_version=`./conftest$EXEEXT p | \
-                sed "s|^Lua \(.*\)|\1|" | \
-                grep -E -o "^@<:@0-9@:>@+\.@<:@0-9@:>@+"`
-            ],
-            [ax_cv_lua_header_version='unknown'])
-          CPPFLAGS=$_ax_lua_saved_cppflags
-        ])
+                ],
+                [ ax_cv_lua_header_version=`./conftest$EXEEXT p | \
+                    $SED -n "s|^Lua \(@<:@0-9@:>@\{1,\}\.@<:@0-9@:>@\{1,\}\).\{0,\}|\1|p"`
+                ],
+                [ax_cv_lua_header_version='unknown'])
+              CPPFLAGS=$_ax_lua_saved_cppflags
+            ])
 
-      dnl Compare this to the previously found LUA_VERSION.
-      AC_MSG_CHECKING([if Lua header version matches $LUA_VERSION])
-      AS_IF([test "x$ax_cv_lua_header_version" = "x$LUA_VERSION"],
-        [ AC_MSG_RESULT([yes])
-          ax_header_version_match='yes'
+          dnl Compare this to the previously found LUA_VERSION.
+          AC_MSG_CHECKING([if Lua header version matches $LUA_VERSION])
+          AS_IF([test "x$ax_cv_lua_header_version" = "x$LUA_VERSION"],
+            [ AC_MSG_RESULT([yes])
+              ax_header_version_match='yes'
+            ],
+            [ AC_MSG_RESULT([no])
+              ax_header_version_match='no'
+            ])
         ],
-        [ AC_MSG_RESULT([no])
-          ax_header_version_match='no'
+        [ AC_MSG_WARN([cross compiling so assuming header version number matches])
+          ax_header_version_match='yes'
         ])
-    ],
-    [
-        ax_header_version_match='yes'
     ])
 
   dnl Was LUA_INCLUDE specified?
@@ -507,7 +571,7 @@ int main(int argc, char ** argv)
 dnl AX_LUA_HEADERS_VERSION no longer exists, use AX_LUA_HEADERS.
 AC_DEFUN([AX_LUA_HEADERS_VERSION],
 [
-  AC_MSG_WARN([[$0 is deprecated, please use AX_LUA_HEADERS]])
+  AC_MSG_WARN([[$0 is deprecated, please use AX_LUA_HEADERS instead]])
 ])
 
 
@@ -563,14 +627,15 @@ AC_DEFUN([AX_LUA_LIBS],
     _ax_lua_saved_libs=$LIBS
     LIBS="$LIBS $LUA_LIB"
     AC_SEARCH_LIBS([lua_load],
-                   [ lua$LUA_VERSION \
-                     lua$LUA_SHORT_VERSION \
-                     lua-$LUA_VERSION \
-                     lua-$LUA_SHORT_VERSION \
-                     lua],
-                   [_ax_found_lua_libs='yes'],
-                   [_ax_found_lua_libs='no'],
-                   [$_ax_lua_extra_libs])
+      [ lua$LUA_VERSION \
+        lua$LUA_SHORT_VERSION \
+        lua-$LUA_VERSION \
+        lua-$LUA_SHORT_VERSION \
+        lua \
+      ],
+      [_ax_found_lua_libs='yes'],
+      [_ax_found_lua_libs='no'],
+      [$_ax_lua_extra_libs])
     LIBS=$_ax_lua_saved_libs
 
     AS_IF([test "x$ac_cv_search_lua_load" != 'xno' &&
