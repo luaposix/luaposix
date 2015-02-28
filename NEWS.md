@@ -2,6 +2,18 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### Incompatible Changes
+
+  - The briefly lived `posix.system` API has been removed.  It was renamed
+    to `posix.spawn` shortly after introduction, and can still be accessed
+    by the new symbol name.
+
+### Bugs Fixed
+
+  - `local posix = require "posix"` works again, fixing the regression
+    introduced in the last release.  The automated Travis checks have been
+    improved to catch this sort of bug in future.
+
 
 ## Noteworthy changes in release 33.3.0 (2015-02-28) [stable]
 
