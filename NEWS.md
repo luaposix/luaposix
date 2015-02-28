@@ -35,6 +35,9 @@
   - `posix.dirent.dir` and `posix.dirent.files` now raise a Lua `error()`
     when unable to open the path argument, for orthogonality with `io.lines`.
 
+  - Workaround for manifest key clash between `posix.so` and `posix.lua` in
+    LuaRocks.
+
 
 ## Noteworthy changes in release 33.2.1 (2015-01-04) [stable]
 

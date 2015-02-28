@@ -56,7 +56,7 @@ include specs/specs.mk
 ## ------ ##
 
 dist_lua_DATA +=			\
-	lib/posix.lua			\
+	lib/posix/init.lua		\
 	lib/curses.lua			\
 	$(NOTHING_ELSE)
 

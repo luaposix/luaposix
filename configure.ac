@@ -201,5 +201,5 @@ AM_CONDITIONAL([HAVE_LDOC], [test false != "$LDOC"])
 
 ## Generate output files
 AC_CONFIG_HEADER(config.h)
-AC_CONFIG_FILES([Makefile build-aux/config.ld lib/posix.lua])
+AC_CONFIG_FILES([Makefile build-aux/config.ld lib/posix/init.lua:lib/posix.lua.in])
 AC_OUTPUT
