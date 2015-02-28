@@ -29,7 +29,7 @@
 /config.lt
 /config.status
 /configure
-/lib/posix.lua
+/lib/posix/init.lua
 /libtool
 /luaposix-*.rockspec
 !/luaposix-git-*.rockspec
