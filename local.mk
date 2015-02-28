@@ -305,6 +305,8 @@ EXTRA_DIST +=				\
 	examples/termios.lua		\
 	examples/tree.lua		\
 	ext/include/_helpers.c		\
+	ext/include/compat-5.2.c	\
+	ext/include/compat-5.2.h	\
 	ext/include/strlcpy.c		\
 	$(NOTHING_ELSE)
 
