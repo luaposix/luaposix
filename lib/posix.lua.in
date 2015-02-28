@@ -268,8 +268,6 @@ else
   M.spawn = spawn
 end
 
-M.system = M.spawn -- OBSOLETE alias
-
 
 local close, dup2, fork, pipe, wait, _exit =
   M.close, M.dup2, M.fork, M.pipe, M.wait, M._exit
