@@ -197,11 +197,10 @@ end
 
 --- Exec a command or Lua function.
 -- @function execx
--- @fixme deprecate string argument
--- @param task, a string to be executed as a shell command, or a
---   table of arguments to `P.execp` or a Lua function, which should read
---   from standard input, write to standard output, and return an exit code
--- @tparam string ... positional arguments to the program or function
+-- @param task, a table of arguments to `P.execp` or a Lua function, which
+--   should read from standard input, write to standard output, and return
+--   an exit code
+-- @param ... positional arguments to the function
 -- @treturn nil on error (normally does not return)
 -- @treturn string error message
 
@@ -211,9 +210,6 @@ local errno, execp, _exit =
   M.errno, M.execp, M._exit
 
 function execx (task, ...)
-  if type (task) == "string" then
-    task = {"/bin/sh", "-c", task, ...}
-  end
   if type (task) == "table" then
     execp (unpack (task))
     -- Only get here if there's an error; kill the fork
@@ -227,13 +223,8 @@ end
 if _DEBUG ~= false then
   M.execx = function (task, ...)
     local argt, typetask = {task, ...}, type (task)
-    if typetask ~= "string" and typetask ~= "table" and typetask ~= "function" then
-      argtypeerror ("execx", 1, "string, table or function", task)
-    end
-    for i = 2, #argt do
-      if type (argt[i]) ~= "string" and type (argt[i]) ~= "nil" then
-	argtypeerror ("execx", i, "string or nil", argt[i])
-      end
+    if typetask ~= "table" and typetask ~= "function" then
+      argtypeerror ("execx", 1, "table or function", task)
     end
     return execx (task, ...)
   end
@@ -268,13 +259,8 @@ end
 if _DEBUG ~= false then
   M.spawn = function (task, ...)
     local argt, typetask = {task, ...}, type (task)
-    if typetask ~= "string" and typetask ~= "table" and typetask ~= "function" then
-      argtypeerror ("spawn", 1, "string, table or function", task)
-    end
-    for i = 2, #argt do
-      if type (argt[i]) ~= "string" and type (argt[i]) ~= "nil" then
-	argtypeerror ("spawn", i, "string or nil", argt[i])
-      end
+    if typetask ~= "table" and typetask ~= "function" then
+      argtypeerror ("spawn", 1, "table or function", task)
     end
     return spawn (task, ...)
   end
@@ -360,8 +346,8 @@ end
 if _DEBUG ~= false then
   M.popen = function (task, ...)
     local argt, typetask = {task, ...}, type (task)
-    if typetask ~= "string" and typetask ~= "table" and typetask ~= "function" then
-      argtypeerror ("popen", 1, "string, table or function", task)
+    if typetask ~= "table" and typetask ~= "function" then
+      argtypeerror ("popen", 1, "table or function", task)
     end
     checkstring ("popen", 2, argt[2])
     if argt[3] ~= nil and type (argt[3]) ~= "function" then
