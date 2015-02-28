@@ -271,8 +271,8 @@ end
 M.system = M.spawn -- OBSOLETE alias
 
 
-local close, dup2, fork, pipe, wait =
-  M.close, M.dup2, M.fork, M.pipe, M.wait
+local close, dup2, fork, pipe, wait, _exit =
+  M.close, M.dup2, M.fork, M.pipe, M.wait, M._exit
 local STDIN_FILENO, STDOUT_FILENO = M.STDIN_FILENO, M.STDOUT_FILENO
 
 --- Close a pipeline opened with popen or popen_pipeline.
@@ -368,6 +368,8 @@ end
 -- @func[opt] pipe_fn function returning a paired read and
 --   write file descriptor (*default* @{posix.unistd.pipe})
 -- @treturn pfd pipeline object
+
+local close, popen, _exit = M.close, M.popen, M._exit
 
 local function popen_pipeline (tasks, mode, pipe_fn)
   local first, from, to, inc = 1, 2, #tasks, 1
