@@ -367,7 +367,7 @@ end
 --   write file descriptor (*default* @{posix.unistd.pipe})
 -- @treturn pfd pipeline object
 
-local close _exit = M.close, M._exit
+local close, _exit = M.close, M._exit
 
 local function popen_pipeline (tasks, mode, pipe_fn)
   local first, from, to, inc = 1, 2, #tasks, 1
