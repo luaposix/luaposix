@@ -8,11 +8,6 @@
 # first will often clear up later failures automatically!
 
 specify posix:
-- describe version:
-  - it is set:
-      expect (posix.version).not_to_be (nil)
-
-
 - describe euidaccess:
   - before: f = posix.euidaccess
   - context with bad arguments:

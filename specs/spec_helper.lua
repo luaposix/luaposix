@@ -1,29 +1,32 @@
-local std     = require "specl.std"
+if os.getenv "installcheck" == nil then
+  -- Unless we're running inside `make installcheck`, add the dev-tree
+  -- directories to the module search paths.
+  local std = require "specl.std"
+
+  local top_srcdir = os.getenv "top_srcdir" or "."
+  local top_builddir = os.getenv "top_builddir" or "."
+
+  package.path  = std.package.normalize (
+		    top_builddir .. "/lib/?.lua",
+		    top_srcdir .. "/lib/?.lua",
+		    top_builddir .. "/lib/?/init.lua",
+		    top_srcdir .. "/lib/?/init.lua",
+		    package.path)
+  package.cpath = std.package.normalize (
+		    top_builddir .. "/ext/posix/.libs/?.so",
+		    top_srcdir .. "/ext/posix/.libs/?.so",
+		    top_builddir .. "/ext/posix/_libs/?.dll",
+		    top_srcdir .. "/ext/posix/_libs/?.dll",
+		    package.cpath)
+end
+
+
+local bit = require "bit32"
+band, bnot, bor = bit.band, bit.bnot, bit.bor
 
 badargs = require "specl.badargs"
 hell    = require "specl.shell"
-
-local top_srcdir = os.getenv "top_srcdir" or "."
-local top_builddir = os.getenv "top_builddir" or "."
-
-package.path  = std.package.normalize (
-		  top_builddir .. "/lib/?.lua",
-		  top_srcdir .. "/lib/?.lua",
-		  top_builddir .. "/lib/?/init.lua",
-		  top_srcdir .. "/lib/?/init.lua",
-		  package.path)
-package.cpath = std.package.normalize (
-		  top_builddir .. "/ext/posix/.libs/?.so",
-		  top_srcdir .. "/ext/posix/.libs/?.so",
-		  top_builddir .. "/ext/posix/_libs/?.dll",
-		  top_srcdir .. "/ext/posix/_libs/?.dll",
-		  package.cpath)
-
-posix = require "posix"
-
-bit   = require "bit32"
-
-band, bnot, bor = bit.band, bit.bnot, bit.bor
+posix   = require "posix"
 
 
 -- Allow user override of LUA binary used by hell.spawn, falling

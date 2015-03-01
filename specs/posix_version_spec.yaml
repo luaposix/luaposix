@@ -1,0 +1,5 @@
+describe version:
+- it is set:
+    expect (posix.version).not_to_be (nil)
+- it contains the correct release number:
+    expect (posix.version).to_contain (os.getenv "PACKAGE_STRING")
