@@ -12,6 +12,10 @@ env:
     - bindir=$prefix/bin
     - incdir=$prefix/include
     - libdir=$prefix/lib
+
+    - _inst=$TRAVIS_BUILD_DIR/_inst
+    - luadir=$_inst/share/lua
+    - luaexecdir=$_inst/lib/lua
   matrix:
     - LUA=lua5.3
     - LUA=lua5.2
@@ -117,10 +121,22 @@ install:
 
 
 script:
+  # Reconfigure for in-tree test install.
   - test -f configure || ./bootstrap --verbose
-  - test -f Makefile || ./configure --disable-silent-rules LUA="$LUA"
+  - ./configure --prefix="$_inst" --disable-silent-rules LUA="$LUA"
+
+  # Verify luarocks installation.
+  - make installcheck || make installcheck V=1
+
+  # Verify local build.
   - make
-  - make check V=1
+  - make check || make check V=1
+
+  # Verify configured installation.
+  - make install prefix="$_inst" luadir="$luadir" luaexecdir="$luaexecdir"
+  - LUA_PATH="$luadir/?.lua;$luadir/?/init.lua;;"
+    LUA_CPATH="$luaexecdir/?.so;;"
+    make installcheck V=1
 
 
 # Run sanity checks on CI server, ignoring buggy automakes.

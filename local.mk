@@ -56,13 +56,13 @@ include specs/specs.mk
 ## ------ ##
 
 dist_lua_DATA +=			\
-	lib/posix/init.lua		\
 	lib/curses.lua			\
 	$(NOTHING_ELSE)
 
 luaposixdir = $(luadir)/posix
 
 dist_luaposix_DATA =			\
+	lib/posix/init.lua		\
 	lib/posix/_argcheck.lua		\
 	lib/posix/compat.lua		\
 	lib/posix/deprecated.lua	\

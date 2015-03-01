@@ -1,5 +1,5 @@
 package = "luaposix"
-version = "33.3.0-1"
+version = "33.3.1-1"
 description = {
   detailed = "A library binding various POSIX APIs, including curses. POSIX is the IEEE Portable Operating System Interface standard. luaposix is based on lposix and lcurses.",
   homepage = "http://github.com/luaposix/luaposix/",
@@ -7,8 +7,8 @@ description = {
   summary = "Lua bindings for POSIX (including curses)",
 }
 source = {
-  dir = "luaposix-release-v33.3.0",
-  url = "http://github.com/luaposix/luaposix/archive/release-v33.3.0.zip",
+  dir = "luaposix-release-v33.3.1",
+  url = "http://github.com/luaposix/luaposix/archive/release-v33.3.1.zip",
 }
 dependencies = {
   "lua >= 5.1, < 5.4",

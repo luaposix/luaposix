@@ -1,4 +1,58 @@
+2015-03-01  Gary V. Vaughan  <gary@gnu.org>
+
+	Release version 33.3.1
+	* NEWS.md: Record release date.
+
+	configury: bump release version to 33.3.1.
+	* configure.ac (AC_INIT): Bump release version to 33.3.1.
+	* .travis.yml: Regenerate.
+
+	posix: fix a stupid cherry pick edit typo.
+	* lib/posix.lua.in (popen_pipeline): Add comma after close.
+
+2015-03-01  Reuben Thomas  <rrt@sc3d.org>
+
+	posix: add missing locals before pclose and popen_pipeline.
+	* lib/posix.lua.in (pclose, popen_pipeline): Make sure to import
+	API module table entries into locals for easier refactoring if
+	these functions are moved in a future revision.
+
+	posix: remove ability to pass a simple string to execx.
+	* specs/posix_spec.yaml (execx, spawn, popen): Adjust to exercise
+	new behaviours with no special support for string arguments.
+	* lib/posix.lua.in (execx, spawn, popen): Remove special support
+	for string arguments.
+
+	posix: remove obsolete `posix.system` alias.
+	* lib/posix.lua.in (system): Remove.
+	* NEWS.md (Incompatible Changes): Update.
+
+2015-03-01  Gary V. Vaughan  <gary@gnu.org>
+
+	specs: installcheck setup.
+	To prevent a repeat of the unloadable 33.3.0 release, set up
+	specs so that latest slingshot will rerun the specs against both
+	configure and luarocks installed luaposix.
+	* specs/posix_spec.yaml (posix.version): Move from here...
+	* specs/posix_version_spec.yaml (version): ...to here.
+	* specs/specs.mk (specl_SPECS): Add specs/posix_version_spec.yaml.
+	* specs/spec_helper.lua: Check for installcheck in the environment
+	before tweaking Lua paths to point at build tree.
+
+	slingshot: sync with upstream, for installcheck support.
+	* slingshot: Sync with upstream.
+	* .travis.yml: Regenerate.
+
+2015-02-28  Reuben Thomas  <rrt@sc3d.org>
+
+	local.mk: install posix/init.lua under posix
+
 2015-02-28  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: post-release administrivia.
+	* NEWS: Add header line for next release.
+	* .prev-version: Record previous version.
+	* ./local.mk (old_NEWS_hash): Auto-update.
 
 	Release version 33.3.0
 	* NEWS.md: Record release date.

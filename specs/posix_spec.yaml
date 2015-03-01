@@ -8,11 +8,6 @@
 # first will often clear up later failures automatically!
 
 specify posix:
-- describe version:
-  - it is set:
-      expect (posix.version).not_to_be (nil)
-
-
 - describe euidaccess:
   - before: f = posix.euidaccess
   - context with bad arguments:
@@ -44,12 +39,12 @@ specify posix:
   - before: f = posix.spawn
 
   - context with bad arguments:
-      badargs.diagnose (f, "spawn (string|table|function, ?string*)")
+      badargs.diagnose (f, "spawn (table|function, ?any*)")
 
   - it spawns a command and can detect success:
-      expect (f ("true")).to_equal (0)
+      expect (f ({"true"})).to_equal (0)
   - it can detect failure:
-      expect (f ("false")).to_equal (1)
+      expect (f ({"false"})).to_equal (1)
   - it can pass a table of arguments:
       expect (f ({"echo", "foo"})).to_equal(0)
   - it can pass a function:
@@ -63,7 +58,7 @@ specify posix:
       popen, pclose = posix.popen, posix.pclose
       read, write, BUFSIZE = posix.read, posix.write, posix.BUFSIZ
   - context with bad arguments:
-      badargs.diagnose (popen, "popen (string|table|function, string, ?function)")
+      badargs.diagnose (popen, "popen (table|function, string, ?function)")
 
   - it spawns a command and reads its output:
       p = popen ({"echo", "foo"}, "r")
@@ -85,7 +80,7 @@ specify posix:
       badargs.diagnose (popen_pipeline, "popen_pipeline (table, string, ?function)")
 
   - it spawns a pipeline and reads its output:
-      p = popen_pipeline ({{"echo", "foo", "bar", "baz"}, {"wc"}, "wc -l"}, "r")
+      p = popen_pipeline ({{"echo", "foo", "bar", "baz"}, {"wc"}, {"wc", "-l"}}, "r")
       expect (read (p.fd, posix.BUFSIZ)).to_match ("^%s*1\n")
       pclose (p)
 

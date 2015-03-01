@@ -44,7 +44,7 @@ for k, v in pairs (require "posix.compat") do
   M[k] = v
 end
 
-M.version = "posix for " .. _VERSION .. " / luaposix 33.3.0"
+M.version = "posix for " .. _VERSION .. " / luaposix 33.3.1"
 
 
 local argerror, argtypeerror, checkstring, checktable, toomanyargerror =
@@ -197,11 +197,10 @@ end
 
 --- Exec a command or Lua function.
 -- @function execx
--- @fixme deprecate string argument
--- @param task, a string to be executed as a shell command, or a
---   table of arguments to `P.execp` or a Lua function, which should read
---   from standard input, write to standard output, and return an exit code
--- @tparam string ... positional arguments to the program or function
+-- @param task, a table of arguments to `P.execp` or a Lua function, which
+--   should read from standard input, write to standard output, and return
+--   an exit code
+-- @param ... positional arguments to the function
 -- @treturn nil on error (normally does not return)
 -- @treturn string error message
 
@@ -211,9 +210,6 @@ local errno, execp, _exit =
   M.errno, M.execp, M._exit
 
 function execx (task, ...)
-  if type (task) == "string" then
-    task = {"/bin/sh", "-c", task, ...}
-  end
   if type (task) == "table" then
     execp (unpack (task))
     -- Only get here if there's an error; kill the fork
@@ -227,13 +223,8 @@ end
 if _DEBUG ~= false then
   M.execx = function (task, ...)
     local argt, typetask = {task, ...}, type (task)
-    if typetask ~= "string" and typetask ~= "table" and typetask ~= "function" then
-      argtypeerror ("execx", 1, "string, table or function", task)
-    end
-    for i = 2, #argt do
-      if type (argt[i]) ~= "string" and type (argt[i]) ~= "nil" then
-	argtypeerror ("execx", i, "string or nil", argt[i])
-      end
+    if typetask ~= "table" and typetask ~= "function" then
+      argtypeerror ("execx", 1, "table or function", task)
     end
     return execx (task, ...)
   end
@@ -268,13 +259,8 @@ end
 if _DEBUG ~= false then
   M.spawn = function (task, ...)
     local argt, typetask = {task, ...}, type (task)
-    if typetask ~= "string" and typetask ~= "table" and typetask ~= "function" then
-      argtypeerror ("spawn", 1, "string, table or function", task)
-    end
-    for i = 2, #argt do
-      if type (argt[i]) ~= "string" and type (argt[i]) ~= "nil" then
-	argtypeerror ("spawn", i, "string or nil", argt[i])
-      end
+    if typetask ~= "table" and typetask ~= "function" then
+      argtypeerror ("spawn", 1, "table or function", task)
     end
     return spawn (task, ...)
   end
@@ -282,11 +268,9 @@ else
   M.spawn = spawn
 end
 
-M.system = M.spawn -- OBSOLETE alias
 
-
-local close, dup2, fork, pipe, wait =
-  M.close, M.dup2, M.fork, M.pipe, M.wait
+local close, dup2, fork, pipe, wait, _exit =
+  M.close, M.dup2, M.fork, M.pipe, M.wait, M._exit
 local STDIN_FILENO, STDOUT_FILENO = M.STDIN_FILENO, M.STDOUT_FILENO
 
 --- Close a pipeline opened with popen or popen_pipeline.
@@ -360,8 +344,8 @@ end
 if _DEBUG ~= false then
   M.popen = function (task, ...)
     local argt, typetask = {task, ...}, type (task)
-    if typetask ~= "string" and typetask ~= "table" and typetask ~= "function" then
-      argtypeerror ("popen", 1, "string, table or function", task)
+    if typetask ~= "table" and typetask ~= "function" then
+      argtypeerror ("popen", 1, "table or function", task)
     end
     checkstring ("popen", 2, argt[2])
     if argt[3] ~= nil and type (argt[3]) ~= "function" then
@@ -382,6 +366,8 @@ end
 -- @func[opt] pipe_fn function returning a paired read and
 --   write file descriptor (*default* @{posix.unistd.pipe})
 -- @treturn pfd pipeline object
+
+local close, _exit = M.close, M._exit
 
 local function popen_pipeline (tasks, mode, pipe_fn)
   local first, from, to, inc = 1, 2, #tasks, 1

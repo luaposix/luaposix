@@ -33,8 +33,9 @@
 ## Specl. ##
 ## ------ ##
 
-SPECL_ENV +=						\
+CHECK_ENV +=						\
 	LUA='$(LUA)'					\
+	PACKAGE_STRING='$(PACKAGE_STRING)'		\
 	abs_top_builddir='$(abs_top_builddir)'		\
 	abs_top_srcdir='$(abs_top_srcdir)'		\
 	top_builddir='$(top_builddir)'			\
@@ -43,7 +44,22 @@ SPECL_ENV +=						\
 
 check_local += specl-check-local
 specl-check-local: $(specl_SPECS)
-	$(SPECL_ENV) $(SPECL) $(SPECL_OPTS) $(specl_SPECS)
+	$(CHECK_ENV) $(SPECL_ENV) $(SPECL) $(SPECL_OPTS) $(specl_SPECS)
+
+
+## ------------- ##
+## Installation. ##
+## ------------- ##
+
+INSTALLCHECK_ENV +=					\
+	LUA='$(LUA)'					\
+	PACKAGE_STRING='$(PACKAGE_STRING)'		\
+	installcheck='true'				\
+	$(NOTHING_ELSE)
+
+installcheck_local += specl-installcheck-local
+specl-installcheck-local: $(specl_SPECS)
+	$(INSTALLCHECK_ENV) $(SPECL_ENV) $(SPECL) $(SPECL_OPTS) $(specl_SPECS)
 
 
 ## ------------- ##
