@@ -111,7 +111,7 @@ install:
     fi'
 
   # Build from rockspec.
-  - export ROCKSPEC=luaposix-33.3.0-1.rockspec
+  - export ROCKSPEC=luaposix-33.3.1-1.rockspec
   - 'test -f "$ROCKSPEC" || ROCKSPEC=luaposix-git-1.rockspec'
   - sudo luarocks make $ROCKSPEC LUA="$LUA"
 
