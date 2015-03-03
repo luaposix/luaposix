@@ -85,7 +85,7 @@ Create a Lua file object from a file descriptor.
 @treturn[2] string error message
 @treturn[2] int errnum
 @usage
-stdout = P.fdopen (posix.STDOUT_FILENO)
+stdout = P.fdopen (posix.STDOUT_FILENO, "w")
 */
 static int
 Pfdopen(lua_State *L)	/** fdopen(fd, mode) */
