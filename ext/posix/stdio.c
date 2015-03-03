@@ -79,6 +79,7 @@ pushfile (lua_State *L, int fd, const char *mode) {
 Create a Lua file object from a file descriptor.
 @function fdopen
 @tparam int fd file descriptor
+@tparam string mode the mode in which to open the file descriptor
 @treturn[1] file file Lua file object *fd*, if successful
 @return[2] nil
 @treturn[2] string error message
