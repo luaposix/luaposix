@@ -11,9 +11,9 @@ local function main ()
 
   curses.cbreak ()
   curses.echo (false)	-- not noecho !
-  curses.nl(false)		-- not nonl !
+  curses.nl (false)	-- not nonl !
 
-  stdscr:clear()
+  stdscr:clear ()
 
   local a = {}
   for k, v in pairs (curses) do
@@ -21,7 +21,7 @@ local function main ()
   end
 
   stdscr:mvaddstr (15, 20, "print out curses constants (y/n) ? ")
-  stdscr:refresh()
+  stdscr:refresh ()
 
   local c = stdscr:getch ()
   if c < 256 then c = string.char (c) end
