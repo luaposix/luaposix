@@ -10,8 +10,8 @@ local function main ()
   local stdscr = curses.initscr ()
 
   curses.cbreak ()
-  curses.echo (0)	-- not noecho !
-  curses.nl( 0)		-- not nonl !
+  curses.echo (false)	-- not noecho !
+  curses.nl(false)		-- not nonl !
 
   stdscr:clear()
 
