@@ -776,6 +776,8 @@ Waddch(lua_State *L)
 /***
 Call @{move}, then @{addch}.
 @function mvaddch
+@int y
+@int x
 @int ch
 @treturn bool `true`, if successful
 @see curs_addch(3x)
