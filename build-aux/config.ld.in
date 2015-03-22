@@ -9,8 +9,15 @@ tparam_alias "bool"
 
 -- Manual page links point to the OpenGroup SUSv3 spec.
 local upat = "http://pubs.opengroup.org/onlinepubs/009695399/functions/%s.html"
-custom_see_handler("^([%w_]+)%((%dx?)%)$",function(name,section)
+custom_see_handler("^([%w_]+)%((%d)%)$",function(name,section)
     local url = upat:format(name)
+    return name .. "(" .. section .. ")", url
+end)
+
+-- Curses manual pages use a different URL scheme.
+local cpat = "http://pubs.opengroup.org/onlinepubs/007908799/xcurses/%s.html"
+custom_see_handler("^([%w_]+)%((3x)%)$",function(name,section)
+    local url = cpat:format(name)
     return name .. "(" .. section .. ")", url
 end)
 

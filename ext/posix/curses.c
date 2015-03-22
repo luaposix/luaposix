@@ -239,7 +239,7 @@ cleanup(void)
 Initialise screen.
 @function initscr
 @treturn window main screen
-@see curs_initscr(3x)
+@see initscr(3x)
 */
 static int
 Pinitscr(lua_State *L)
@@ -280,7 +280,7 @@ Pinitscr(lua_State *L)
 Clean up terminal prior to exiting or escaping curses.
 @function endwin
 @treturn bool `true`, if successful
-@see curs_initscr(3x)
+@see endwin(3x)
 */
 static int
 Pendwin(lua_State *L)
@@ -293,7 +293,7 @@ Pendwin(lua_State *L)
 Has @{endwin} been called more recently than @{posix.curses.window:refresh}?
 @function isendwin
 @treturn bool whether @{endwin} has been called
-@see curs_initscr(3x)
+@see isendwin(3x)
 */
 static int
 Pisendwin(lua_State *L)
@@ -307,6 +307,7 @@ Retern the main screen window.
 @function stdscr
 @treturn window main screen
 @see initscr
+@see stdscr(3x)
 */
 static int
 Pstdscr(lua_State *L)
@@ -323,6 +324,7 @@ Number of columns in the main screen window.
 @treturn int number of columns in the main screen
 @see lines
 @see stdscr
+@see COLS(3x)
 */
 static int
 Pcols(lua_State *L)
@@ -337,6 +339,7 @@ Number of lines in the main screen window.
 @treturn int number of lines in the main screen
 @see cols
 @see stdscr
+@see LINES(3x)
 */
 static int
 Plines(lua_State *L)
@@ -349,7 +352,7 @@ Plines(lua_State *L)
 Initialise color output facility.
 @function start_color
 @treturn bool `true`, if successful
-@see curs_color(3x)
+@see can_change_color(3x)
 @see has_colors
 */
 static int
@@ -363,7 +366,7 @@ Pstart_color(lua_State *L)
 Does the terminal have color capability?
 @function has_colors
 @treturn bool `true`, if the terminal supports colors
-@see curs_color(3x)
+@see can_change_color(3x)
 @see start_color
 @usage
 if curses.has_colors () then
@@ -381,7 +384,8 @@ Phas_colors(lua_State *L)
 Reserve `-1` to represent terminal default colors.
 @function use_default_colors
 @treturn bool `true`, if successful
-@see default_colors(3x)
+@see use_default_colors(3x)
+@fixme ncurses only?
 */
 static int
 Puse_default_colors(lua_State *L)
@@ -397,7 +401,7 @@ Associate a color pair id with a specific foreground and background color.
 @int f foreground color to assign
 @int b background color to assign
 @treturn bool `true`, if successful
-@see curs_color(3x)
+@see init_pair(3x)
 @see pair_content
 */
 static int
@@ -416,7 +420,7 @@ Return the foreground and background colors associated with a color pair id.
 @int pair color pair id to act on
 @treturn int foreground color of *pair*
 @treturn int background color of *pair*
-@see curs_color(3x)
+@see can_change_color(3x)
 @see init_pair
 */
 static int
@@ -440,7 +444,7 @@ Ppair_content(lua_State *L)
 How many colors are available for this terminal?
 @function colors
 @treturn int total number of available colors
-@see curs_color(3x)
+@see can_change_color(3x)
 @see color_pairs
 */
 static int
@@ -454,7 +458,7 @@ Pcolors(lua_State *L)
 How may distinct color pairs are supported by this terminal?
 @function color_pairs
 @treturn int total number of available color pairs
-@see curs_color(3x)
+@see can_change_color(3x)
 @see colors
 */
 static int
@@ -469,7 +473,7 @@ Return the attributes for the given color pair id.
 @function color_pair
 @int pair color pair id to act on
 @treturn int attributes for color pair *pair*
-@see curs_color(3x)
+@see can_change_color(3x)
 */
 static int
 Pcolor_pair(lua_State *L)
@@ -483,7 +487,7 @@ Pcolor_pair(lua_State *L)
 Fetch the output speed of the terminal.
 @function baudrate
 @treturn int output speed of the terminal in bits-per-second
-@see curs_termattrs(3x)
+@see baudrate(3x)
 */
 static int
 Pbaudrate(lua_State *L)
@@ -496,7 +500,7 @@ Pbaudrate(lua_State *L)
 Fetch the terminal's current erase character.
 @function erasechar
 @treturn int current erase character
-@see curs_termattrs(3x)
+@see erasechar(3x)
 */
 static int
 Perasechar(lua_State *L)
@@ -510,7 +514,7 @@ Fetch the character insert and delete capability of the terminal.
 @function has_ic
 @treturn bool `true`, if the terminal has insert and delete character
   operations
-@see curs_termattrs(3x)
+@see has_ic(3x)
 */
 static int
 Phas_ic(lua_State *L)
@@ -523,7 +527,7 @@ Phas_ic(lua_State *L)
 Fetch the line insert and delete capability of the terminal.
 @function has_il
 @treturn bool `true`, if the terminal has insert and delete line operations
-@see curs_termattrs(3x)
+@see has_il(3x)
 */
 static int
 Phas_il(lua_State *L)
@@ -536,7 +540,7 @@ Phas_il(lua_State *L)
 Fetch the terminal's current kill character.
 @function killchar
 @treturn int current line kill character
-@see curs_termattrs(3x)
+@see killchar(3x)
 */
 static int
 Pkillchar(lua_State *L)
@@ -551,7 +555,7 @@ Bitwise OR of all (or selected) video attributes supported by the terminal.
 @int[opt] a terminal attribute bits
 @treturn[1] bool `true`, if the terminal supports attribute *a*
 @treturn[2] int bitarray of supported terminal attributes
-@see curs_termattrs(3x)
+@see termattrs(3x)
 */
 static int
 Ptermattrs(lua_State *L)
@@ -569,7 +573,7 @@ Ptermattrs(lua_State *L)
 Fetch the name of the terminal.
 @function termname
 @treturn string terminal name
-@see curs_termattrs(3x)
+@see termname(3x)
 */
 static int
 Ptermname(lua_State *L)
@@ -582,7 +586,7 @@ Ptermname(lua_State *L)
 Fetch the verbose name of the terminal.
 @function longname
 @treturn string verbose description of the current terminal
-@see curs_termattrs(3x)
+@see longname(3x)
 */
 static int
 Plongname(lua_State *L)
@@ -632,7 +636,7 @@ Reduce the available size of the main screen.
 @bool top_line
 @func callback
 @treturn bool `true`, if successful
-@see curs_kernel(3x)
+@see ripoffline(3x)
 */
 static int
 Pripoffline(lua_State *L)
@@ -682,7 +686,7 @@ Change the visibility of the cursor.
 @int vis one of `0` (invisible), `1` (visible) or `2` (very visible)
 @treturn[1] int previous cursor state
 @return[2] nil if *vis* is not supported
-@see curs_kernel(3x)
+@see curs_set(3x)
 */
 static int
 Pcurs_set(lua_State *L)
@@ -701,7 +705,7 @@ Sleep for a few milliseconds.
 @function napms
 @int ms time to wait in milliseconds
 @treturn bool `true`, if successful
-@see curs_kernel(3x)
+@see napms(3x)
 @see delay_output
 */
 static int
@@ -719,6 +723,7 @@ Change the terminal size.
 @int ncols number of columns
 @treturn bool `true`, if successful
 @raise unimplemented
+@fixme ncurses only?
 */
 static int
 Presizeterm(lua_State *L)
@@ -737,7 +742,7 @@ Presizeterm(lua_State *L)
 Send the terminal audible bell.
 @function beep
 @treturn bool `true`, if successful
-@see curs_beep(3x)
+@see beep(3x)
 @see flash
 */
 static int
@@ -751,7 +756,7 @@ Pbeep(lua_State *L)
 Send the terminal visible bell.
 @function flash
 @treturn bool `true`, if successful
-@see curs_beep(3x)
+@see flash(3x)
 @see beep
 */
 static int
@@ -769,7 +774,7 @@ Create a new window.
 @int begin_y top line of window
 @int begin_x leftmost column of window
 @treturn window a new window object
-@see curs_window(3x)
+@see newwin(3x)
 @see posix.curses.window
 */
 static int
@@ -789,7 +794,7 @@ Pnewwin(lua_State *L)
 Refresh the visible terminal screen.
 @function doupdate
 @treturn bool `true`, if successful
-@see curs_refresh(3x)
+@see doupdate(3x)
 @see posix.curses.window:refresh
 */
 static int
@@ -805,7 +810,7 @@ This must be called before @{initscr}.
 @function slk_init
 @int fmt
 @treturn bool `true`, if successful
-@see curs_slk(3x)
+@see slk_init(3x)
 */
 static int
 Pslk_init(lua_State *L)
@@ -826,7 +831,7 @@ Set the label for a soft label key.
 @string label
 @int fmt
 @treturn bool `true`, if successful
-@see curs_slk(3x)
+@see slk_set(3x)
 */
 static int
 Pslk_set(lua_State *L)
@@ -846,7 +851,7 @@ Pslk_set(lua_State *L)
 Refresh the soft label key area.
 @function slk_refresh
 @treturn bool `true`, if successful
-@see curs_slk(3x)
+@see slk_refresh(3x)
 @see posix.curses.window:refresh
 */
 static int
@@ -864,7 +869,7 @@ Pslk_refresh(lua_State *L)
 Copy the soft label key area backing screen to the virtual screen.
 @function slk_noutrefresh
 @treturn bool `true`, if successful
-@see curs_slk(3x)
+@see slk_noutrefresh(3x)
 @see posix.curses.window:refresh
 */
 static int
@@ -883,7 +888,7 @@ Fetch the label for a soft label key.
 @function slk_label
 @int labnum
 @treturn string current label for *labnum*
-@see curs_slk(3x)
+@see slk_label(3x)
 */
 static int
 Pslk_label(lua_State *L)
@@ -901,7 +906,7 @@ Pslk_label(lua_State *L)
 Clears the soft labels from the screen.
 @function slk_clear
 @treturn bool `true`, if successful
-@see curs_slk(3x)
+@see slk_clear(3x)
 @see slk_restore
 */
 static int
@@ -919,7 +924,7 @@ Pslk_clear(lua_State *L)
 Restores the soft labels to the screen.
 @function slk_restore
 @treturn bool `true`, if successful
-@see curs_slk(3x)
+@see slk_restore(3x)
 @see slk_clear
 */
 static int
@@ -937,7 +942,7 @@ Pslk_restore(lua_State *L)
 Mark the soft label key area for refresh.
 @function slk_touch
 @treturn bool `true`, if successful
-@see curs_slk(3x)
+@see slk_touch(3x)
 */
 static int
 Pslk_touch(lua_State *L)
@@ -955,7 +960,7 @@ Enable an attribute for soft labels.
 @function slk_attron
 @int attrs
 @treturn bool `true`, if successful
-@see curs_slk(3x)
+@see slk_attron(3x)
 */
 static int
 Pslk_attron(lua_State *L)
@@ -974,7 +979,7 @@ Disable an attribute for soft labels.
 @function slk_attroff
 @int attrs
 @treturn bool `true`, if successful
-@see curs_slk(3x)
+@see slk_attroff(3x)
 */
 static int
 Pslk_attroff(lua_State *L)
@@ -993,7 +998,7 @@ Set the attributes for soft labels.
 @function slk_attrset
 @int attrs
 @treturn bool `true`, if successful
-@see curs_slk(3x)
+@see slk_attrset(3x)
 */
 static int
 Pslk_attrset(lua_State *L)
@@ -1012,7 +1017,8 @@ Put the terminal into cbreak mode.
 @function cbreak
 @bool[opt] on
 @treturn bool `true`, if successful
-@see curs_inopts(3x)
+@see cbreak(3x)
+@see nocbreak(3x)
 */
 static int
 Pcbreak(lua_State *L)
@@ -1028,7 +1034,8 @@ Whether characters are echoed to the terminal as they are typed.
 @function echo
 @bool[opt] on
 @treturn bool `true`, if successful
-@see curs_inopts(3x)
+@see echo(3x)
+@see noecho(3x)
 */
 static int
 Pecho(lua_State *L)
@@ -1044,7 +1051,8 @@ Put the terminal into raw mode.
 @function raw
 @bool[opt] on
 @treturn bool `true`, if successful
-@see curs_inopts(3x)
+@see noraw(3x)
+@see raw(3x)
 */
 static int
 Praw(lua_State *L)
@@ -1060,7 +1068,7 @@ Put the terminal into halfdelay mode.
 @function halfdelay
 @int tenths delay in tenths of a second
 @treturn bool `true`, if successful
-@see curs_inopts(3x)
+@see halfdelay(3x)
 */
 static int
 Phalfdelay(lua_State *L)
@@ -1075,7 +1083,8 @@ Whether to translate a return key to newline on input.
 @function nl
 @bool[opt] on
 @treturn bool `true`, if successful
-@see curs_outopts(3x)
+@see nl(3x)
+@see nonl(3x)
 */
 static int
 Pnl(lua_State *L)
@@ -1091,7 +1100,7 @@ Return a printable representation of a character, ignoring attributes.
 @function unctrl
 @int c character to act on
 @treturn string printable representation of *c*
-@see curs_util(3x)
+@see unctrl(3x)
 @see keyname
 */
 static int
@@ -1107,7 +1116,7 @@ Return a printable representation of a key.
 @function keyname
 @int c a key
 @treturn string key name of *c*
-@see curs_util(3x)
+@see keyname(3x)
 @see unctrl
 */
 static int
@@ -1123,8 +1132,8 @@ Insert padding characters to force a short delay.
 @function delay_output
 @int ms delay time in milliseconds
 @treturn bool `true`, if successful
-@see curs_util(3x)
 @see napms
+@fixme ncurses only?
 */
 static int
 Pdelay_output(lua_State *L)
@@ -1138,7 +1147,7 @@ Pdelay_output(lua_State *L)
 Throw away any typeahead in the keyboard input buffer.
 @function flushinp
 @treturn bool `true`, if successful
-@see curs_util(3x)
+@see flushinp(3x)
 @see ungetch
 */
 static int
@@ -1153,7 +1162,7 @@ Return a character to the keyboard input buffer.
 @function ungetch
 @int c
 @treturn bool `true`, if successful
-@see curs_getch(3x)
+@see ungetch(3x)
 @see flushinp
 */
 static int
@@ -1170,7 +1179,7 @@ Create a new pad.
 @int nlines
 @int ncols
 @treturn bool `true`, if successful
-@see cur_pad(3x)
+@see newpad(3x)
 */
 static int
 Pnewpad(lua_State *L)
@@ -1189,7 +1198,7 @@ Fetch terminfo boolean capability.
 @function tigetflag
 @string capname
 @treturn bool content of terminal boolean capability
-@see curs_terminfo(3x)
+@see tigetflag(3x)
 @see terminfo(5)
 */
 static int
@@ -1210,7 +1219,7 @@ Fetch terminfo numeric capability.
 @function tigetnum
 @string capname
 @treturn int content of terminal numeric capability
-@see curs_terminfo(3x)
+@see tigetnum(3x)
 @see terminfo(5)
 */
 static int
@@ -1235,7 +1244,7 @@ Fetch terminfo string capability.
 @function tigetstr
 @string capname
 @treturn string content of terminal string capability
-@see curs_terminfo(3x)
+@see tigetstr(3x)
 @see terminfo(5)
 */
 static int

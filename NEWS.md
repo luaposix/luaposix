@@ -2,6 +2,10 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### Bugs Fixed
+
+  - Links to OpenGroup specs for curses function in section 3x now work.
+
 
 ## Noteworthy changes in release 33.3.1 (2015-03-01) [stable]
 

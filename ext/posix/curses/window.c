@@ -107,7 +107,7 @@ W__tostring(lua_State *L)
 /***
 Free all the resources associated with a window.
 @function close
-@see curs_window(3x)
+@see delwin(3x)
 */
 static int
 Wclose(lua_State *L)
@@ -128,7 +128,7 @@ Move the position of a window.
 @int y offset frow top of screen
 @int x offset from left of screen
 @treturn bool `true`, if successful
-@see curs_window(3x)
+@see mvwin(3x)
 */
 static int
 Wmove_window(lua_State *L)
@@ -148,7 +148,7 @@ Create a new subwindow.
 @int ncols number of window columns
 @int begin_y top line of window
 @int begin_x leftmost column of window
-@see curs_window(3x)
+@see subwin(3x)
 @see derive
 */
 static int
@@ -173,7 +173,7 @@ Create a new derived window.
 @int begin_y top line of window
 @int begin_x leftmost column of window
 @treturn window a new relatively positioned subwindow
-@see curs_window(3x)
+@see derwin(3x)
 @see sub
 */
 static int
@@ -196,7 +196,7 @@ Move the position of a derived window.
 @int par_y lines from top of parent window
 @int par_x columns from left of parent window
 @treturn bool `true`, if successful
-@see curs_window(3x)
+@see mvderwin(3x)
 */
 static int
 Wmove_derived(lua_State *L)
@@ -214,7 +214,7 @@ Change the size of a window.
 @int height new number of lines
 @int width new number of columns
 @treturn bool `true`, if successful
-@see curs_wresize(3x)
+@fixme ncurses only?
 */
 static int
 Wresize(lua_State *L)
@@ -234,7 +234,7 @@ Wresize(lua_State *L)
 Make a duplicate of a window.
 @function clone
 @treturn window a new duplicate of this window
-@see curs_window(3x)
+@see dupwin(3x)
 */
 static int
 Wclone(lua_State *L)
@@ -248,7 +248,7 @@ Wclone(lua_State *L)
 /***
 Mark ancestors of a window for refresh.
 @function syncup
-@see curs_window(3x)
+@see wsyncup(3x)
 */
 static int
 Wsyncup(lua_State *L)
@@ -263,7 +263,7 @@ Automatically mark ancestors of a changed window for refresh.
 @function syncok
 @bool bf
 @treturn bool `true`, if successful
-@see curs_window(3x)
+@fixme ncurses only
 */
 static int
 Wsyncok(lua_State *L)
@@ -281,7 +281,7 @@ Wsyncok(lua_State *L)
 /***
 Mark cursor position of ancestors of a window for refresh.
 @function cursyncup
-@see curs_window(3x)
+@see wcursyncup(3x)
 */
 static int
 Wcursyncup(lua_State *L)
@@ -294,7 +294,7 @@ Wcursyncup(lua_State *L)
 /***
 Mark child windows for refresh.
 @function syncdown
-@see curs_window(3x)
+@see syncdown(3x)
 @see refresh
 */
 static int
@@ -309,7 +309,7 @@ Wsyncdown(lua_State *L)
 Refresh the window terminal display from the virtual screen.
 @function refresh
 @treturn bool `true`, if successful
-@see curs_refresh(3x)
+@see wrefresh(3x)
 @see posix.curses.doupdate
 @see noutrefresh
 */
@@ -324,7 +324,7 @@ Wrefresh(lua_State *L)
 Copy the window backing screen to the virtual screen.
 @function noutrefresh
 @treturn bool `true`, if successful
-@see curs_refresh(3x)
+@see wnoutrefresh(3x)
 @see posix.curses.doupdate
 @see refresh
 */
@@ -339,7 +339,7 @@ Wnoutrefresh(lua_State *L)
 Mark a window as having corrupted display that needs fully redrawing.
 @function redrawwin
 @treturn bool `true`, if successful
-@see curs_refresh(3x)
+@see redrawwin(3x)
 @see redrawln
 */
 static int
@@ -355,7 +355,7 @@ Mark a range of lines in a window as corrupted and in need of redrawing.
 @int beg_line
 @int num_lines
 @treturn bool `true`, if successful
-@see curs_refresh(3x)
+@see wredrawln(3x)
 */
 static int
 Wredrawln(lua_State *L)
@@ -373,7 +373,7 @@ Change the cursor position.
 @int y
 @int x
 @treturn bool `true`, if successful
-@see curs_move(3x)
+@see wmove(3x)
 */
 static int
 Wmove(lua_State *L)
@@ -390,7 +390,7 @@ Scroll the window up *n* lines.
 @function scrl
 @int n
 @treturn bool `true`, if successful
-@see curs_scroll(3x)
+@see wscrl(3x)
 */
 static int
 Wscrl(lua_State *L)
@@ -406,7 +406,7 @@ Set the changed state of a window since the last refresh.
 @function touch
 @param[opt] changed
 @treturn bool `true`, if successful
-@see curs_touch(3x)
+@see touchwin(3x)
 */
 static int
 Wtouch(lua_State *L)
@@ -431,7 +431,7 @@ Mark a range of lines as changed since the last refresh.
 @int n
 @param[opt] changed
 @treturn bool `true`, if successful
-@see curs_refresh(3x)
+@see wtouchln(3x)
 */
 static int
 Wtouchline(lua_State *L)
@@ -453,7 +453,7 @@ Has a particular window line changed since the last refresh?
 @function is_linetouched
 @int line
 @treturn bool `true`, if successful
-@see curs_refresh(3x)
+@see is_linetouched(3x)
 */
 static int
 Wis_linetouched(lua_State *L)
@@ -468,7 +468,7 @@ Wis_linetouched(lua_State *L)
 Has a window changed since the last refresh?
 @function is_wintouched
 @treturn bool `true`, if successful
-@see curs_refresh(3x)
+@see is_wintouched(3x)
 */
 static int
 Wis_wintouched(lua_State *L)
@@ -483,7 +483,7 @@ Fetch the cursor position.
 @function getyx
 @treturn int y coordinate of top line
 @treturn int x coordinate of left column
-@see curs_getyx(3x)
+@see getyx(3x)
 */
 static int
 Wgetyx(lua_State *L)
@@ -502,7 +502,7 @@ Fetch the parent-relative coordinates of a subwindow.
 @function getparyx
 @treturn int y coordinate of top line relative to parent window
 @treturn int x coordinate of left column relative to parent window
-@see curs_getyx(3x)
+@see getparyx(3x)
 */
 static int
 Wgetparyx(lua_State *L)
@@ -522,7 +522,7 @@ Fetch the absolute top-left coordinates of a window.
 @treturn int y coordinate of top line
 @treturn int x coordinate of left column
 @treturn bool `true`, if successful
-@see curs_getyx(3x)
+@see getbegyx(3x)
 */
 static int
 Wgetbegyx(lua_State *L)
@@ -542,7 +542,7 @@ Fetch the absolute bottom-right coordinates of a window.
 @treturn int y coordinate of bottom line
 @treturn int x coordinate of right column
 @treturn bool `true`, if successful
-@see curs_getyx(3x)
+@see getmaxyx(3x)
 */
 static int
 Wgetmaxyx(lua_State *L)
@@ -568,7 +568,7 @@ Draw a border around a window.
 @int[opt] bl
 @int[opt] br
 @treturn bool `true`, if successful
-@see curs_border(3x)
+@see wborder(3x)
 @usage
   win:border (curses.ACS_VLINE, curses.ACS_VLINE,
               curses.ACS_HLINE, curses.ACS_HLINE,
@@ -598,7 +598,7 @@ Draw a box around a window.
 @int verch
 @int horch
 @treturn bool `true`, if successful
-@see curs_border(3x)
+@see box(3x)
 @see border
 @usage
   win:box (curses.ACS_VLINE, curses.ACS_HLINE)
@@ -620,7 +620,7 @@ Draw a row of characters from the current cursor position.
 @int ch
 @int n
 @treturn bool `true`, if successful
-@see curs_border(3x)
+@see whline(3x)
 @see mvhline
 @see vline
 @usage
@@ -644,7 +644,7 @@ Draw a column of characters from the current cursor position.
 @int ch
 @int n
 @treturn bool `true`, if successful
-@see curs_border(3x)
+@see wvline(3x)
 @see hline
 @see mvvline
 */
@@ -667,7 +667,7 @@ Move the cursor, then draw a row of characters from the new cursor position.
 @int ch
 @int n
 @treturn bool `true`, if successful
-@see curs_border(3x)
+@see mvwhline(3x)
 */
 static int
 Wmvhline(lua_State *L)
@@ -690,7 +690,7 @@ Move the cursor, then draw a column of characters from the new cursor position.
 @int ch
 @int n
 @treturn bool `true`, if successful
-@see curs_border(3x)
+@see mvwvline(3x)
 */
 static int
 Wmvvline(lua_State *L)
@@ -709,7 +709,7 @@ Wmvvline(lua_State *L)
 Write blanks to every character position in the window.
 @function erase
 @treturn bool `true`, if successful
-@see curs_clear(3x)
+@see werase(3x)
 */
 static int
 Werase(lua_State *L)
@@ -722,7 +722,7 @@ Werase(lua_State *L)
 Call @{erase} and then @{clearok}.
 @function clear
 @treturn bool `true`, if successful
-@see curs_border(3x)
+@see wclear(3x)
 */
 static int
 Wclear(lua_State *L)
@@ -735,7 +735,7 @@ Wclear(lua_State *L)
 Write blanks to every character position after the cursor.
 @function clrtobot
 @treturn bool `true`, if successful
-@see curs_border(3x)
+@see wclrtobot(3x)
 */
 static int
 Wclrtobot(lua_State *L)
@@ -748,7 +748,7 @@ Wclrtobot(lua_State *L)
 Write blanks from the cursor to the end of the current line.
 @function clrtoeol
 @treturn bool `true`, if successful
-@see curs_border(3x)
+@see wclrtoeol(3x)
 */
 static int
 Wclrtoeol(lua_State *L)
@@ -762,7 +762,7 @@ Advance the cursor after writing a character at the old position.
 @function addch
 @int ch
 @treturn bool `true`, if successful
-@see curs_addch(3x)
+@see waddch(3x)
 */
 static int
 Waddch(lua_State *L)
@@ -780,7 +780,7 @@ Call @{move}, then @{addch}.
 @int x
 @int ch
 @treturn bool `true`, if successful
-@see curs_addch(3x)
+@see mvwaddch(3x)
 */
 static int
 Wmvaddch(lua_State *L)
@@ -798,7 +798,7 @@ Call @{addch} then @{refresh}.
 @function echoch
 @int ch
 @treturn bool `true`, if successful
-@see curs_addch(3x)
+@see wechochar(3x)
 */
 static int
 Wechoch(lua_State *L)
@@ -815,7 +815,7 @@ Copy a @{posix.curses.chstr} starting at the current cursor position.
 @int chstr cs
 @int[opt] n
 @treturn bool `true`, if successful
-@see curs_addchstr(3x)
+@see waddchnstr(3x)
 */
 static int
 Waddchstr(lua_State *L)
@@ -838,7 +838,7 @@ Call @{move} then @{addchstr}.
 @int x
 @int[opt] n
 @treturn bool `true`, if successful
-@see curs_addchstr(3x)
+@see mvwaddchnstr(3x)
 */
 static int
 Wmvaddchstr(lua_State *L)
@@ -862,7 +862,7 @@ Copy a Lua string starting at the current cursor position.
 @string str
 @int[opt] n
 @treturn bool `true`, if successful
-@see curs_addstr(3x)
+@see waddnstr(3x)
 */
 static int
 Waddstr(lua_State *L)
@@ -882,7 +882,7 @@ Call @{move} then @{addstr}.
 @string str
 @int[opt] n
 @treturn bool `true`, if successful
-@see curs_addstr(3x)
+@see mvwaddnstr(3x)
 */
 static int
 Wmvaddstr(lua_State *L)
@@ -900,7 +900,7 @@ Wmvaddstr(lua_State *L)
 Set the background attributes for subsequently written characters.
 @function wbkgdset
 @int ch
-@see curs_bkgd(3x)
+@see wbkgdset(3x)
 */
 static int
 Wwbkgdset(lua_State *L)
@@ -917,7 +917,7 @@ Call @{wbkgdset} and then set the background of every position accordingly.
 @function wbkgd
 @int ch
 @treturn bool `true`, if successful
-@see curs_bkgd(3x)
+@see wbkgd(3x)
 */
 static int
 Wwbkgd(lua_State *L)
@@ -932,7 +932,7 @@ Wwbkgd(lua_State *L)
 Fetch the current background attribute for the window.
 @function getbkgd
 @treturn int current window background attribute
-@see curs_bkgd(3x)
+@see getbkgd(3x)
 @see wbkgd
 */
 static int
@@ -947,7 +947,7 @@ Set the flush on interrupt behaviour for the window.
 @function intrflush
 @bool bf
 @treturn bool `true`, if successful
-@see curs_inopts(3x)
+@see intrflush(3x)
 */
 static int
 Wintrflush(lua_State *L)
@@ -963,7 +963,7 @@ Set the single value keypad keys behaviour for the window.
 @function keypad
 @bool[opt] on
 @treturn bool `true`, if successful
-@see curs_inopts(3x)
+@see keypad(3x)
 */
 static int
 Wkeypad(lua_State *L)
@@ -979,7 +979,7 @@ Force 8-bit (or 7-bit) input characters for the window.
 @function meta
 @bool on `true` to force 8-bit input characters
 @treturn bool `true`, if successful
-@see curs_inopts(3x)
+@see meta(3x)
 */
 static int
 Wmeta(lua_State *L)
@@ -995,7 +995,7 @@ Force @{getch} to be non-blocking.
 @function nodelay
 @bool on
 @treturn bool `true`, if successful
-@see curs_inopts(3x)
+@see nodelay(3x)
 */
 static int
 Wnodelay(lua_State *L)
@@ -1010,7 +1010,7 @@ Wnodelay(lua_State *L)
 For differentiating user input from terminal control sequences.
 @function timeout
 @int delay milliseconds, `0` for blocking, `-1` for non-blocking
-@see curs_inopts(3x)
+@see wtimeout(3x)
 */
 static int
 Wtimeout(lua_State *L)
@@ -1027,7 +1027,7 @@ Return input immediately from this window.
 @function notimeout
 @bool bf
 @treturn bool `true`, if successful
-@see curs_inopts(3x)
+@fixme ncurses only?
 */
 static int
 Wnotimeout(lua_State *L)
@@ -1043,7 +1043,7 @@ The next call to @{refresh} will clear and completely redraw the window.
 @function clearok
 @bool bf
 @treturn bool `true`, if successful
-@see curs_outopts(3x)
+@see clearok(3x)
 */
 static int
 Wclearok(lua_State *L)
@@ -1059,7 +1059,7 @@ Use hardware character insert and delete on supporting terminals.
 @function idcok
 @bool bf
 @treturn bool `true`, if successful
-@see curs_outopts(3x)
+@see idcok(3x)
 */
 static int
 Widcok(lua_State *L)
@@ -1076,7 +1076,7 @@ Use hardware line insert and delete on supporting terminals.
 @function idlok
 @bool bf
 @treturn bool `true`, if successful
-@see curs_outopts(3x)
+@see idlok(3x)
 */
 static int
 Widlok(lua_State *L)
@@ -1092,7 +1092,7 @@ No need to force synchronisation of hardware cursor.
 @function leaveok
 @bool bf
 @treturn bool `true`, if successful
-@see curs_outopts(3x)
+@see leaveok(3x)
 */
 static int
 Wleaveok(lua_State *L)
@@ -1108,7 +1108,7 @@ Scroll up one line when the cursor writes to the last screen position.
 @function scrollok
 @bool bf
 @treturn bool `true`, if successful
-@see curs_outopts(3x)
+@see scrollok(3x)
 */
 static int
 Wscrollok(lua_State *L)
@@ -1124,7 +1124,7 @@ Automatically call @{refresh} whenever the window content is changed.
 @function immedok
 @bool bf
 @treturn bool `true`, if successful
-@see curs_outopts(3x)
+@see immedok(3x)
 */
 static int
 Wimmedok(lua_State *L)
@@ -1146,7 +1146,7 @@ Set a software scrolling region for the window.
 @int top top line of the scrolling region (line 0 is the first line)
 @int bot bottom line of the scrolling region
 @treturn bool `true`, if successful
-@see curs_outopts(3x)
+@see wsetscrreg(3x)
 */
 static int
 Wwsetscrreg(lua_State *L)
@@ -1163,7 +1163,7 @@ Overlay this window on top of another non-destructively.
 @function overlay
 @tparam window dst destination window
 @treturn bool `true`, if successful
-@see curs_overlay(3x)
+@see overlay(3x)
 @see overwrite
 */
 static int
@@ -1180,7 +1180,7 @@ Destructively overwrite another window with this one.
 @function overwrite
 @tparam window dst destination window
 @treturn bool `true`, if successful
-@see curs_inopts(3x)
+@see overwrite(3x)
 */
 static int
 Woverwrite(lua_State *L)
@@ -1203,7 +1203,7 @@ Overlay a rectangle of this window over another.
 @int dr right column of rectangle
 @bool overlay if `true`, copy destructively like @{overlay}
 @treturn bool `true`, if successful
-@see curs_inopts(3x)
+@see copywin(3x)
 */
 static int
 Wcopywin(lua_State *L)
@@ -1226,7 +1226,7 @@ Wcopywin(lua_State *L)
 Delete the character under the cursor.
 @function delch
 @treturn bool `true`, if successful
-@see curs_delch(3x)
+@see wdelch(3x)
 */
 static int
 Wdelch(lua_State *L)
@@ -1241,7 +1241,7 @@ Call @{move} then @{delch}.
 @int y
 @int x
 @treturn bool `true`, if successful
-@see curs_util(3x)
+@see mvwdelch(3x)
 */
 static int
 Wmvdelch(lua_State *L)
@@ -1257,7 +1257,7 @@ Wmvdelch(lua_State *L)
 Move the lines below the cursor up, to delete the current line.
 @function deleteln
 @treturn bool `true`, if successful
-@see curs_deleteln(3x)
+@see wdeleteln(3x)
 */
 static int
 Wdeleteln(lua_State *L)
@@ -1270,7 +1270,7 @@ Wdeleteln(lua_State *L)
 Move the current line and those below down one line, leaving a new blank line.
 @function insertln
 @treturn bool `true`, if successful
-@see curs_deleteln(3x)
+@see wdeleteln(3x)
 */
 static int
 Winsertln(lua_State *L)
@@ -1284,7 +1284,7 @@ Call @{deleteln} *n* times.
 @function winsdelln
 @int n
 @treturn bool `true`, if successful
-@see curs_deleteln(3x)
+@see winsdelln(3x)
 */
 static int
 Wwinsdelln(lua_State *L)
@@ -1299,7 +1299,7 @@ Wwinsdelln(lua_State *L)
 Read a character from the window input.
 @function getch
 @treturn int character read from input buffer
-@see curs_getch(3x)
+@see wgetch(3x)
 @see posix.curses.cbreak
 @see posix.curses.echo
 @see keypad
@@ -1322,8 +1322,9 @@ Call @{move} then @{getch}
 @function mvgetch
 @int y
 @int x
-@treturn bool `true`, if successful
-@see curs_deleteln(3x)
+@treturn int character read from input buffer
+@see mvwgetch(3x)
+@see getch
 */
 static int
 Wmvgetch(lua_State *L)
@@ -1349,8 +1350,8 @@ Wmvgetch(lua_State *L)
 Read characters up to the next newline from the window input.
 @function getstr
 @int[opt] n
-@treturn bool `true`, if successful
-@see curs_getstr(3x)
+@treturn string string read from input buffer
+@see wgetnstr(3x)
 */
 static int
 Wgetstr(lua_State *L)
@@ -1374,8 +1375,8 @@ Call @{move} then @{getstr}.
 @int y
 @int x
 @int[opt=-1] n
-@treturn bool `true`, if successful
-@see curs_getstr(3x)
+@treturn string string read from input buffer
+@see mvwgetnstr(3x)
 */
 static int
 Wmvgetstr(lua_State *L)
@@ -1398,8 +1399,8 @@ Wmvgetstr(lua_State *L)
 /***
 Fetch the attributed character at the current cursor position.
 @function winch
-@treturn bool `true`, if successful
-@see curs_inch(3x)
+@treturn int attributed character read from input buffer
+@see winch(3x)
 */
 static int
 Wwinch(lua_State *L)
@@ -1414,8 +1415,8 @@ Call @{move} then @{winch}
 @function mvwinch
 @int y
 @int x
-@treturn bool `true`, if successful
-@see curs_getstr(3x)
+@treturn int attributed character read from input buffer
+@see mvwinch(3x)
 */
 static int
 Wmvwinch(lua_State *L)
@@ -1432,7 +1433,7 @@ Fetch attributed characters from cursor position up to rightmost window position
 @function winchnstr
 @int n
 @treturn posix.curses.chstr characters from cursor to end of line
-@see curs_inchstr(3x)
+@see winchnstr(3x)
 @see winnstr
 */
 static int
@@ -1455,8 +1456,8 @@ Call @{move} then @{winchnstr}.
 @int y
 @int x
 @int n
-@treturn bool `true`, if successful
-@see curs_getstr(3x)
+@treturn posix.curses.chstr characters from cursor to end of line
+@see mvwinchnstr(3x)
 */
 static int
 Wmvwinchnstr(lua_State *L)
@@ -1478,8 +1479,8 @@ Wmvwinchnstr(lua_State *L)
 Fetch a string from cursor position up to rightmost window position.
 @function winnstr
 @int n
-@treturn bool `true`, if successful
-@see curs_instr(3x)
+@treturn string string read from input buffer
+@see winnstr(3x)
 @see winchnstr
 */
 static int
@@ -1505,8 +1506,8 @@ Call @{move} then @{winnstr}.
 @int y
 @int x
 @int n
-@treturn bool `true`, if successful
-@see curs_instr(3x)
+@treturn string string read from input buffer
+@see mvwinnstr(3x)
 */
 static int
 Wmvwinnstr(lua_State *L)
@@ -1528,11 +1529,11 @@ Wmvwinnstr(lua_State *L)
 
 
 /***
-Insert a character before the current cursor position.
+Insert an attributed character before the current cursor position.
 @function winsch
 @int ch
 @treturn bool `true`, if successful
-@see curs_insch(3x)
+@see winsch(3x)
 */
 static int
 Wwinsch(lua_State *L)
@@ -1550,7 +1551,7 @@ Call @{move} then @{winsch}.
 @int x
 @int ch
 @treturn bool `true`, if successful
-@see curs_insch(3x)
+@see mvwinsch(3x)
 */
 static int
 Wmvwinsch(lua_State *L)
@@ -1568,7 +1569,7 @@ Insert a string of characters before the current cursor position.
 @function winsstr
 @string str
 @treturn bool `true`, if successful
-@see curs_insstr(3x)
+@see winsstr(3x)
 */
 static int
 Wwinsstr(lua_State *L)
@@ -1586,7 +1587,7 @@ Call @{move} then @{winsstr}.
 @int x
 @string str
 @treturn bool `true`, if successful
-@see curs_getstr(3x)
+@see mvwinsstr(3x)
 */
 static int
 Wmvwinsstr(lua_State *L)
@@ -1605,7 +1606,7 @@ Like @{winsstr}, but no more than *n* characters.
 @string str
 @int n
 @treturn bool `true`, if successful
-@see curs_getstr(3x)
+@see winsnstr(3x)
 */
 static int
 Wwinsnstr(lua_State *L)
@@ -1625,7 +1626,7 @@ Call @{move} then @{winsnstr}.
 @string str
 @int n
 @treturn bool `true`, if successful
-@see curs_getstr(3x)
+@see mvwinsnstr(3x)
 */
 static int
 Wmvwinsnstr(lua_State *L)
@@ -1647,7 +1648,7 @@ Return a new subpad window object.
 @int begin_y
 @int begin_x
 @treturn window a new subpad window object
-@see cur_pad(3x)
+@see subpad(3x)
 */
 static int
 Wsubpad(lua_State *L)
@@ -1673,7 +1674,7 @@ Equivalent to @{refresh} for use with pad windows.
 @int db bottom row of rectangle
 @int dr right column of rectangle
 @treturn bool `true`, if successful
-@see cur_pad(3x)
+@see prefresh(3x)
 */
 static int
 Wprefresh(lua_State *L)
@@ -1701,7 +1702,7 @@ Equivalent to @{noutrefresh} for use with pad windows.
 @int db bottom row of rectangle
 @int dr right column of rectangle
 @treturn bool `true`, if successful
-@see cur_pad(3x)
+@see pnoutrefresh(3x)
 */
 static int
 Wpnoutrefresh(lua_State *L)
@@ -1724,7 +1725,7 @@ An efficient equivalent to @{addch} followed by @{refresh}.
 @function pechochar
 @int ch
 @treturn bool `true`, if successful
-@see cur_pad(3x)
+@see pechochar(3x)
 */
 static int
 Wpechochar(lua_State *L)
@@ -1740,7 +1741,7 @@ Turn off the given attributes for subsequent writes to the window.
 @function attroff
 @int attrs
 @treturn bool `true`, if successful
-@see curs_attr(3x)
+@see wattroff(3x)
 @see standend
 */
 static int
@@ -1757,7 +1758,7 @@ Turn on the given attributes for subsequent writes to the window.
 @function attron
 @int attrs
 @treturn bool `true`, if successful
-@see curs_attr(3x)
+@see wattron(3x)
 */
 static int
 Wattron(lua_State *L)
@@ -1773,7 +1774,7 @@ Set the given attributes for subsequent writes to the window.
 @function attrset
 @int attrs
 @treturn bool `true`, if successful
-@see curs_attr(3x)
+@see wattrset(3x)
 */
 static int
 Wattrset(lua_State *L)
@@ -1788,7 +1789,7 @@ Wattrset(lua_State *L)
 Turn off all attributes for subsequent writes to the window.
 @function standend
 @treturn bool `true`, if successful
-@see curs_attr(3x)
+@see wstandend(3x)
 */
 static int
 Wstandend(lua_State *L)
@@ -1801,7 +1802,7 @@ Wstandend(lua_State *L)
 Set `A_STANDOUT` for subsequent writes to the window.
 @function standout
 @treturn bool `true`, if successful
-@see curs_attr(3x)
+@see wstandout(3x)
 */
 static int
 Wstandout(lua_State *L)
