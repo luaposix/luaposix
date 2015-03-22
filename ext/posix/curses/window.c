@@ -1298,7 +1298,7 @@ Wwinsdelln(lua_State *L)
 /***
 Read a character from the window input.
 @function getch
-@treturn bool `true`, if successful
+@treturn int character read from input buffer
 @see curs_getch(3x)
 @see posix.curses.cbreak
 @see posix.curses.echo
