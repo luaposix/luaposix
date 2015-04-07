@@ -6,6 +6,10 @@
 
   - Links to OpenGroup specs for curses function in section 3x now work.
 
+  - Workaround for https://sourceware.org/bugzilla/show_bug.cgi?id=15088.
+    Predicate use of POSIX sched.h APIs on presence of sched.h, since glibc
+    defines _POSIX_PRIORITY_SCHEDULING erroneously.
+
 
 ## Noteworthy changes in release 33.3.1 (2015-03-01) [stable]
 

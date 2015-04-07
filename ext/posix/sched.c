@@ -21,9 +21,10 @@
 
 #include <config.h>
 
-#include <unistd.h>	/* for _POSIX_PRIORITY_SCHEDULING */
+/* cannot use unistd.h for _POSIX_PRIORITY_SCHEDULING, because on Linux
+   glibc it is defined even though the APIs are not implemented :-(     */
 
-#ifdef _POSIX_PRIORITY_SCHEDULING
+#ifdef HAVE_SCHED_H
 #include <sched.h>
 #endif
 
