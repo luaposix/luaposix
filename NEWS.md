@@ -21,6 +21,9 @@
     end
     ```
 
+  - New `posix.unistd.tcgetpgrp` and `posix.unistd.tcsetpgrp` bindings
+    where supported by host C library.
+
   - `posix.sys.socket` AF_UNIX path handling improvements enable use of
     Linux only abstract namespace sockets.
 
