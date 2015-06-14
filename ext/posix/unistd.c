@@ -112,6 +112,21 @@ Paccess(lua_State *L)
 
 
 /***
+Schedule an alarm signal.
+@function alarm
+@int seconds number of seconds to send SIGALRM in
+@return int number of seconds remaining in previous alarm or `0`
+@see alarm(2)
+@usage seconds = P.alarm(10)
+*/
+static int
+Palarm(lua_State *L)
+{
+	int seconds = checkint(L, 1);
+	checknargs(L, 1);
+	return pushintresult(alarm(seconds));
+}
+/***
 Set the working directory.
 @function chdir
 @string path file to act on
@@ -1022,6 +1037,7 @@ static const luaL_Reg posix_unistd_fns[] =
 {
 	LPOSIX_FUNC( P_exit		),
 	LPOSIX_FUNC( Paccess		),
+	LPOSIX_FUNC( Palarm		),
 	LPOSIX_FUNC( Pchdir		),
 	LPOSIX_FUNC( Pchown		),
 	LPOSIX_FUNC( Pclose		),
