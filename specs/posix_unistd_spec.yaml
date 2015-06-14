@@ -6,6 +6,15 @@ specify posix.unistd:
     -- Assume $USER is the process owner, egid is gid and euid is uid
     ids = pwd.getpwnam (os.getenv "USER")
 
+- describe alarm:
+  - it returns zero when passed zero: |
+      zero = unistd.alarm(0)
+      expect (zero).to_be (0)
+
+  - it can set and reset an alarm: |
+      zero = unistd.alarm(10)
+      ten = unistd.alarm(0)
+      expect (ten>0).to_be (true)
 
 - describe exec:
   - before:
