@@ -236,7 +236,7 @@ end
 --- Run a command or function in a sub-process using `P.execx`.
 -- @function spawn
 -- @param task, as for `P.execx`.
--- @tparam string ... as for `P.execx`
+-- @param ... as for `P.execx`
 -- @return values as for `P.wait`
 
 local unpack = table.unpack or unpack -- 5.3 compatibility
