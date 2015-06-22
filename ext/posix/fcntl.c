@@ -110,7 +110,7 @@ Open a file.
 @string path
 @int oflags bitwise OR of zero or more of `O_RDONLY`, `O_WRONLY`, `O_RDWR`,
   `O_APPEND`, `O_CREAT`, `O_DSYNC`, `O_EXCL`, `O_NOCTTY`, `O_NONBLOCK`,
-  `O_RSYNC`, `O_SYNC`, `O_TRUNC`
+  `O_RSYNC`, `O_SYNC`, `O_TRUNC`, `O_CLOEXEC`
 @int[opt=511] mode access modes used by `O_CREAT`
 @treturn[1] int file descriptor for *path*, if successful
 @return[2] nil
@@ -256,6 +256,9 @@ luaopen_posix_fcntl(lua_State *L)
 	LPOSIX_CONST( O_RSYNC		);
 	LPOSIX_CONST( O_SYNC		);
 	LPOSIX_CONST( O_TRUNC		);
+#ifdef O_CLOEXEC
+	LPOSIX_CONST( O_CLOEXEC		);
+#endif
 
 	/* posix_fadvise flags */
 #ifdef POSIX_FADV_NORMAL
