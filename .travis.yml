@@ -32,8 +32,8 @@ before_install:
   # Fetch Lua sources.
   - cd $TRAVIS_BUILD_DIR
   - 'if test lua5.3 = "$LUA"; then
-      curl http://www.lua.org/ftp/lua-5.3.0.tar.gz | tar xz;
-      cd lua-5.3.0;
+      curl http://www.lua.org/ftp/lua-5.3.1.tar.gz | tar xz;
+      cd lua-5.3.1;
     fi'
   - 'if test lua5.2 = "$LUA"; then
       curl http://www.lua.org/ftp/lua-5.2.4.tar.gz | tar xz;
@@ -91,7 +91,7 @@ before_install:
 
   # Tidy up file droppings.
   - cd $TRAVIS_BUILD_DIR
-  - rm -rf lua-5.3.0 lua-5.2.3 lua-5.1.5 LuaJIT-2.0.3 luarocks-2.2.0
+  - rm -rf lua-5.3.1 lua-5.2.3 lua-5.1.5 LuaJIT-2.0.3 luarocks-2.2.0
 
 
 install:
@@ -110,10 +110,14 @@ install:
       sleep 1; touch configure;
     fi'
 
-  # Build from rockspec.
-  - export ROCKSPEC=luaposix-33.3.1-1.rockspec
-  - 'test -f "$ROCKSPEC" || ROCKSPEC=luaposix-git-1.rockspec'
-  - sudo luarocks make $ROCKSPEC LUA="$LUA"
+  # Build from rockspec, forcing uninstall of older luarocks installed
+  # above when testing the git rockspec, both for enforcing backwards
+  # compatibility by default, and for ease of maintenance.
+  - if test -f 'luaposix-33.3.1-1.rockspec'; then
+      sudo luarocks make 'luaposix-33.3.1-1.rockspec' LUA="$LUA";
+    else
+      sudo luarocks make --force 'luaposix-git-1.rockspec' LUA="$LUA";
+    fi
 
   # Clean up files created by root
   - sudo git clean -dfx
