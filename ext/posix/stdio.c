@@ -98,12 +98,36 @@ Pfdopen(lua_State *L)	/** fdopen(fd, mode) */
 	return 1;
 }
 
+/***
+Change the name or location of a file
+@function rename
+@tparam string oldpath
+@tparam string newpath
+@treturn[1] int `0` if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see rename(2)
+@usage
+local ok, errmsg = P.rename (oldpath, newpath)
+if not ok then error (errmsg) end
+*/
+static int
+Prename(lua_State *L)	/** rename(oldpath, newpath) */
+{
+	const char *oldpath = luaL_checkstring(L, 1);
+	const char *newpath = luaL_checkstring(L, 2);
+	checknargs(L, 2);
+	return pushresult(L, rename(oldpath, newpath), NULL);
+}
+
 
 static const luaL_Reg posix_stdio_fns[] =
 {
 	LPOSIX_FUNC( Pctermid		),
 	LPOSIX_FUNC( Pfileno		),
 	LPOSIX_FUNC( Pfdopen		),
+	LPOSIX_FUNC( Prename		),
 	{NULL, NULL}
 };
 

@@ -1,12 +1,12 @@
 specify posix.stdio:
 - before:
     stdio = require "posix.stdio"
+    unistd = require "posix.unistd"
 
 
 - describe fdopen:
     - before:
         fdopen = stdio.fdopen
-        unistd = require "posix.unistd"
         STDOUT_FILENO = unistd.STDOUT_FILENO
         f = fdopen (STDOUT_FILENO, "w")
 
@@ -19,3 +19,27 @@ specify posix.stdio:
     - it writes to the duplicated stream:
         -- Lua 5.1 file.write returns true; > 5.1 returns file handle
         expect (f:write ("writing to fdopen(stdout)\n")).not_to_be (nil)
+
+
+- describe rename:
+    - before:
+        rename = stdio.rename
+        fd, path = require "posix.stdlib".mkstemp (template)
+    - after:
+        unistd.close (fd)
+        os.remove (path)
+
+    - context with bad arguments:
+        badargs.diagnose (rename, "(string,string)")
+
+    - it renames an existing file:
+        newpath = path .. ".renamed"
+        expect (fd).not_to_be (nil)
+        unistd.write (fd, "rename me")
+        rename (path, newpath)
+        expect (io.open (path, "r")).to_be (nil)
+        fh = io.open (newpath, "r")
+        expect (fh).not_to_be (nil)
+        expect (fh:read ()).to_be "rename me"
+        fh:close ()
+        rename (newpath, path)
