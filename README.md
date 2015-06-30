@@ -3,6 +3,7 @@ luaposix
 
 By the [luaposix project][GitHub]
 
+[![License](http://img.shields.io/:license-mit-blue.svg)](http://mit-license.org)
 [![travis-ci status](https://secure.travis-ci.org/luaposix/luaposix.png?branche=master)](http://travis-ci.org/luaposix/luaposix/builds)
 [![Stories in Ready](https://badge.waffle.io/luaposix/luaposix.png?label=ready&title=Ready)](https://waffle.io/luaposix/luaposix)
 
