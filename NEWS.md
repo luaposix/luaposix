@@ -4,7 +4,22 @@
 
 ### New Features
 
-  - Now `posix.stdio.rename` binding.
+  - New `posix.stdio.rename` binding.
+
+  - New `posix.fcntl.FD_CLOEXEC` flag for `posix.fcntl.fcntl`.
+
+  - New `posix.fcntl.O_CLOEXEC` flag for `posix.fcntl.open`, where
+    supported by the underlying system.  Falling back to FD_CLOEXEC is
+    an exercise to the caller, so that non-atomicity is surfaced:
+
+    ```lua
+    -- without error checking, for clarity
+    fd = fcntl.open ("/foo/bar", fcntl.O_CLOEXEC, stat.S_IRWXU)
+    if fcntl.O_CLOEXEC == 0 then
+      local flags = fcntl.fcntl (fd, fcntl.F_GETFD)
+      fcntl.fcntl (fd, fcntl.F_SETFD, bit.bor (flags, fcntl.FD_CLOEXEC)
+    end
+    ```
 
   - Documentation links now point at the newer OpenGroup issue 7 specs.
 

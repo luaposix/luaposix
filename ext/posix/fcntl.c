@@ -33,6 +33,10 @@
 #ifndef O_DSYNC
 #define O_DSYNC 0
 #endif
+/* POSIX.2001 uses FD_CLOEXEC instead. */
+#ifndef O_CLOEXEC
+#define O_CLOEXEC 0
+#endif
 
 
 
@@ -110,7 +114,7 @@ Open a file.
 @string path
 @int oflags bitwise OR of zero or more of `O_RDONLY`, `O_WRONLY`, `O_RDWR`,
   `O_APPEND`, `O_CREAT`, `O_DSYNC`, `O_EXCL`, `O_NOCTTY`, `O_NONBLOCK`,
-  `O_RSYNC`, `O_SYNC`, `O_TRUNC`
+  `O_RSYNC`, `O_SYNC` and `O_TRUNC` (and `O_CLOEXEC`, where supported)
 @int[opt=511] mode access modes used by `O_CREAT`
 @treturn[1] int file descriptor for *path*, if successful
 @return[2] nil
@@ -179,8 +183,10 @@ Constants.
 
 /***
 Fcntl constants.
-Any constants not available in the underlying system will be `nil` valued.
+Any constants not available in the underlying system will be `0` valued,
+if they are usually bitwise ORed with other values, otherwise `nil`.
 @table posix.fcntl
+@int FD_CLOEXEC close file descriptor on exec flag
 @int F_DUPFD duplicate file descriptor
 @int F_GETFD get file descriptor flags
 @int F_SETFD set file descriptor flags
@@ -198,6 +204,7 @@ Any constants not available in the underlying system will be `nil` valued.
 @int O_WRONLY open for writing only
 @int O_RDWR open for reading and writing
 @int O_APPEND set append mode
+@int O_CLOEXEC set FD_CLOEXEC atomically
 @int O_CREAT create if nonexistent
 @int O_DSYNC synchronise io data integrity
 @int O_EXCL error if file already exists
@@ -229,6 +236,7 @@ luaopen_posix_fcntl(lua_State *L)
 	lua_setfield(L, -2, "version");
 
 	/* fcntl flags */
+	LPOSIX_CONST( FD_CLOEXEC	);
 	LPOSIX_CONST( F_DUPFD		);
 	LPOSIX_CONST( F_GETFD		);
 	LPOSIX_CONST( F_SETFD		);
@@ -256,6 +264,7 @@ luaopen_posix_fcntl(lua_State *L)
 	LPOSIX_CONST( O_RSYNC		);
 	LPOSIX_CONST( O_SYNC		);
 	LPOSIX_CONST( O_TRUNC		);
+	LPOSIX_CONST( O_CLOEXEC		);
 
 	/* posix_fadvise flags */
 #ifdef POSIX_FADV_NORMAL
