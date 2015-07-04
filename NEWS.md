@@ -2,6 +2,10 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### New Features
+
+  - Now `posix.stdio.rename` binding.
+
 ### Bugs Fixed
 
   - Links to OpenGroup specs for curses function in section 3x now work.
