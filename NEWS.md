@@ -6,6 +6,8 @@
 
   - Now `posix.stdio.rename` binding.
 
+  - Documentation links now point at the newer OpenGroup issue 7 specs.
+
 ### Bugs Fixed
 
   - Links to OpenGroup specs for curses function in section 3x now work.
