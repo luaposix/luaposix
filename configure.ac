@@ -38,7 +38,7 @@ case $host_os in
     AC_SUBST([POSIX_EXTRA_CPPFLAGS], [-DLPOSIX_2001_COMPLIANT])
     ;;
 
-  darwin*|openbsd*)
+  darwin*|freebsd*|openbsd*)
     # Setting _XOPEN_SOURCE here messes up header declarations, but
     # all functions luaposix can bind are available without it.
     AC_SUBST([POSIX_EXTRA_CPPFLAGS], [-DLPOSIX_2008_COMPLIANT])
