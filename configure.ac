@@ -128,7 +128,8 @@ case $ac_cv_header_sys_msg_h,$ac_cv_func_msgrcv,$ac_cv_func_msgsnd in
     ;;
 esac
 
-
+## FreeBSD 10.x doesn't have fdatasync.
+AC_CHECK_FUNCS([fdatasync])
 AC_CHECK_DECLS_ONCE([fdatasync])
 
 ## Search libs

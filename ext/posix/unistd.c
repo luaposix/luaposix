@@ -341,7 +341,7 @@ Pexecp(lua_State *L)
 }
 
 
-#if LPOSIX_2001_COMPLIANT
+#if HAVE_FDATASYNC
 
 #if !HAVE_DECL_FDATASYNC
 extern int fdatasync ();
@@ -1048,7 +1048,7 @@ static const luaL_Reg posix_unistd_fns[] =
 	LPOSIX_FUNC( Pdup2		),
 	LPOSIX_FUNC( Pexec		),
 	LPOSIX_FUNC( Pexecp		),
-#if LPOSIX_2001_COMPLIANT
+#if HAVE_FDATASYNC
 	LPOSIX_FUNC( Pfdatasync		),
 #endif
 	LPOSIX_FUNC( Pfork		),
