@@ -1488,7 +1488,6 @@ successfully.
 @int KEY_LL home down or bottom key
 @int KEY_MARK mark key
 @int KEY_MESSAGE message key
-@int KEY_MOUSE mouse event available virtual key
 @int KEY_MOVE move key
 @int KEY_NEXT next object key
 @int KEY_NPAGE next page key
