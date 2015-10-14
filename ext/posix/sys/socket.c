@@ -107,7 +107,7 @@ pushsockaddrinfo(lua_State *L, int family, struct sockaddr *sa)
 #if HAVE_LINUX_NETLINK_H
 		case AF_NETLINK:
 		{
-			struct sockaddn_nl *san = (struct sockaddr_nl *)sa;
+			struct sockaddr_nl *san = (struct sockaddr_nl *)sa;
 			pushintegerfield("pid", san->nl_pid);
 			pushintegerfield("groups", san->nl_groups);
 			break;
