@@ -101,7 +101,7 @@ pushsockaddrinfo(lua_State *L, int family, struct sockaddr *sa)
 		case AF_UNIX:
 		{
 			struct sockaddr_un *sau = (struct sockaddr_un *)sa;
-			pushlstringfield("path", sau->sun_path, sau->sun_len);
+			pushlstringfield("path", sau->sun_path, sizeof (sau->sun_path));
 			break;
 		}
 #if HAVE_LINUX_NETLINK_H
