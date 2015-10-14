@@ -309,14 +309,15 @@ checknumberfield(lua_State *L, int index, const char *k)
 }
 
 static const char *
-checkstringfield(lua_State *L, int index, const char *k)
+checklstringfield(lua_State *L, int index, const char *k, size_t *plen)
 {
 	const char *r;
 	checkfieldtype(L, index, k, LUA_TSTRING, NULL);
-	r = lua_tostring(L, -1);
+	r = lua_tolstring(L, -1, plen);
 	lua_pop(L, 1);
 	return r;
 }
+#define checkstringfield(L,i,s) (checklstringfield(L,i,s,NULL))
 
 static int
 optintfield(lua_State *L, int index, const char *k, int def)
@@ -403,6 +404,13 @@ binding_notimplemented(lua_State *L, const char *fname, const char *libname)
 #define pushstringfield(k,v) LPOSIX_STMT_BEG {				\
 	if (v) {							\
 		lua_pushstring(L, (const char *) v);			\
+		lua_setfield(L, -2, k);					\
+	}								\
+} LPOSIX_STMT_END
+
+#define pushlstringfield(k,v,l) LPOSIX_STMT_BEG {			\
+	if (l > 0 && v) {						\
+		lua_pushlstring(L, (const char *) v, (size_t) l);	\
 		lua_setfield(L, -2, k);					\
 	}								\
 } LPOSIX_STMT_END

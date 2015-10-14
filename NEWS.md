@@ -21,6 +21,9 @@
     end
     ```
 
+  - `posix.sys.socket` AF_UNIX path handling improvements enable use of
+    Linux only abstract namespace sockets.
+
   - Documentation links now point at the newer OpenGroup issue 7 specs.
 
 ### Bugs Fixed
@@ -30,6 +33,9 @@
   - Workaround for https://sourceware.org/bugzilla/show_bug.cgi?id=15088.
     Predicate use of POSIX sched.h APIs on presence of sched.h, since glibc
     defines _POSIX_PRIORITY_SCHEDULING erroneously.
+
+  - `posix.sys.socket` AF_UNIX APIs pass path arguments by length
+    instead of terminating at the first \0 byte.
 
 
 ## Noteworthy changes in release 33.3.1 (2015-03-01) [stable]

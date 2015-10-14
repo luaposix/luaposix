@@ -76,8 +76,6 @@ static int
 pushsockaddrinfo(lua_State *L, int family, struct sockaddr *sa)
 {
 	char addr[INET6_ADDRSTRLEN];
-	struct sockaddr_in *sa4;
-	struct sockaddr_in6 *sa6;
 
 	lua_newtable(L);
 	pushintegerfield("family", family);
@@ -85,25 +83,35 @@ pushsockaddrinfo(lua_State *L, int family, struct sockaddr *sa)
 	switch (family)
 	{
 		case AF_INET:
-			sa4 = (struct sockaddr_in *)sa;
+		{
+			struct sockaddr_in *sa4 = (struct sockaddr_in *)sa;
 			inet_ntop(family, &sa4->sin_addr, addr, sizeof addr);
 			pushintegerfield("port", ntohs(sa4->sin_port));
 			pushstringfield("addr", addr);
 			break;
+		}
 		case AF_INET6:
-			sa6 = (struct sockaddr_in6 *)sa;
+		{
+			struct sockaddr_in6 *sa6 = (struct sockaddr_in6 *)sa;
 			inet_ntop(family, &sa6->sin6_addr, addr, sizeof addr);
 			pushintegerfield("port", ntohs(sa6->sin6_port));
 			pushstringfield("addr", addr);
 			break;
+		}
 		case AF_UNIX:
-			pushstringfield("path", ((struct sockaddr_un *) sa)->sun_path);
+		{
+			struct sockaddr_un *sau = (struct sockaddr_un *)sa;
+			pushlstringfield("path", sau->sun_path, sau->sun_len);
 			break;
+		}
 #if HAVE_LINUX_NETLINK_H
 		case AF_NETLINK:
-			pushintegerfield("pid", ((struct sockaddr_nl *) sa)->nl_pid);
-			pushintegerfield("groups", ((struct sockaddr_nl *) sa)->nl_groups);
+		{
+			struct sockaddn_nl *san = (struct sockaddr_nl *)sa;
+			pushintegerfield("pid", san->nl_pid);
+			pushintegerfield("groups", san->nl_groups);
 			break;
+		}
 #endif
 	}
 
@@ -223,12 +231,15 @@ sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *sa, socklen_
 		case AF_UNIX:
 		{
 			struct sockaddr_un *sau	= (struct sockaddr_un *)sa;
-			const char *path	= checkstringfield(L, index, "path");
+			size_t len;
+			const char *path	= checklstringfield(L, index, "path", &len);
 
 			checkfieldnames (L, index, Safunix_fields);
 
+			if (len > sizeof(sau->sun_path)) len = sizeof(sau->sun_path);
+
 			sau->sun_family	= family;
-			strlcpy(sau->sun_path, path, sizeof(sau->sun_path));
+			memcpy(sau->sun_path, path, len);
 			sau->sun_path[sizeof(sau->sun_path) - 1]= '\0';
 			*addrlen	= sizeof(*sau);
 			r		= 0;
