@@ -814,7 +814,7 @@ Preadlink(lua_State *L)
 	const char *path = luaL_checkstring(L, 1);
 	void *ud;
 	lua_Alloc lalloc;
-	ssize_t n;
+	ssize_t n, bufsiz;
 	int err;
 	checknargs(L, 1);
 	lalloc = lua_getallocf(L, &ud);
@@ -835,14 +835,15 @@ Preadlink(lua_State *L)
 	}
 
 	/* allocate a buffer for linkname, with no trailing \0 */
-	if ((b = lalloc(ud, NULL, 0, s.st_size)) == NULL)
+	bufsiz = s.st_size > 0 ? s.st_size : PATH_MAX;
+	if ((b = lalloc(ud, NULL, 0, bufsiz)) == NULL)
 		return pusherror(L, "lalloc");
 
-	n = readlink(path, b, s.st_size);
+	n = readlink(path, b, bufsiz);
 	err = errno; /* save readlink error code, if any */
-	if (n != -1)
-		lua_pushlstring(L, b, s.st_size);
-	lalloc(ud, b, s.st_size, 0);
+	if (n > 0)
+		lua_pushlstring(L, b, n);
+	lalloc(ud, b, bufsiz, 0);
 
 	/* report new errors from this function */
 	if (n < 0)

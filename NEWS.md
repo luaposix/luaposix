@@ -40,6 +40,9 @@
   - `posix.sys.socket` AF_UNIX APIs pass path arguments by length
     instead of terminating at the first \0 byte.
 
+  - `posix.unistd.readlink` no longer fails when reading a link to an
+    unsized buffer or character special device node.
+
 
 ## Noteworthy changes in release 33.3.1 (2015-03-01) [stable]
 

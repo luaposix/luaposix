@@ -23,6 +23,10 @@
 #include <sys/stat.h>
 #include <unistd.h>		/* for _POSIX_VERSION */
 
+#if !defined PATH_MAX
+# define PATH_MAX 1024
+#endif
+
 #if HAVE_CURSES
 # if HAVE_NCURSESW_CURSES_H
 #    include <ncursesw/curses.h>
