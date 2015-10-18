@@ -43,6 +43,9 @@
   - `posix.unistd.readlink` no longer fails when reading a link to an
     unsized buffer or character special device node.
 
+  - `execx` is no longer leaked into the global namespace after loading
+    the posix module.
+
 
 ## Noteworthy changes in release 33.3.1 (2015-03-01) [stable]
 

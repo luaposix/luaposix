@@ -209,7 +209,7 @@ local unpack = table.unpack or unpack -- 5.3 compatibility
 local errno, execp, _exit =
   M.errno, M.execp, M._exit
 
-function execx (task, ...)
+local function execx (task, ...)
   if type (task) == "table" then
     execp (unpack (task))
     -- Only get here if there's an error; kill the fork
