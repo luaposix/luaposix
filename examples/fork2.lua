@@ -1,4 +1,4 @@
-require "posix"
+local posix = require "posix"
 
 print ("parent: my pid is: " .. posix.getpid ("pid"))
 
