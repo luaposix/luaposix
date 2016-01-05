@@ -46,6 +46,8 @@
   - `execx` is no longer leaked into the global namespace after loading
     the posix module.
 
+  - `examples/fork2.lua` works correctly again.
+
 
 ## Noteworthy changes in release 33.3.1 (2015-03-01) [stable]
 
