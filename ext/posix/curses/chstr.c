@@ -1,9 +1,9 @@
 /*
  * Curses binding for Lua 5.1, 5.2 & 5.3.
  *
- * (c) Gary V. Vaughan <gary@vaughan.pe> 2013-2015
- * (c) Reuben Thomas <rrt@sc3d.org> 2009-2012
- * (c) Tiago Dionizio <tiago.dionizio AT gmail.com> 2004-2007
+ * Copyright (C) 2013-2016 Gary V. Vaughan
+ * Copyright (C) 2009-2012 Reuben Thomas <rrt@sc3d.org>
+ * Copyright (C) 2004-2007 Tiago Dionizio <tiago.dionizio AT gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the

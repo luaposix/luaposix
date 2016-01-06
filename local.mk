@@ -1,7 +1,7 @@
 # Local Make rules.
 # Written by Gary V. Vaughan, 2013
 
-# Copyright (C) 2013-2015 Gary V. Vaughan
+# Copyright (C) 2013-2016 Gary V. Vaughan
 
 # This file is part of luaposix.
 # See README for license.

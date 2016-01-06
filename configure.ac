@@ -1,7 +1,7 @@
 ## configure.ac
 ## Written by Gary V. Vaughan, 2012
 
-## Copyright (c) 2012-2015 Gary V. Vaughan
+## Copyright (C) 2012-2016 Gary V. Vaughan
 
 ## This file is part of luaposix.
 ## See README for license.
