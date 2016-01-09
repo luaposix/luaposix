@@ -11,7 +11,6 @@
  */
 
 #include "ctype.c"
-#include "curses.c"
 #include "dirent.c"
 #include "errno.c"
 #include "fcntl.c"

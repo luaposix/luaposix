@@ -154,15 +154,6 @@ AC_CHECK_LIB([rt], [clock_gettime])
 AC_SUBST([LIBRT], [$LIBS])
 LIBS=$save_LIBS
 
-## Curses
-AX_WITH_CURSES
-AC_ARG_VAR(CURSES_LIB, [linker flags for curses library])
-
-save_LIBS=$LIBS
-LIBS="$CURSES_LIB $LIBS"
-AC_CHECK_FUNCS([resizeterm])
-LIBS=$save_LIBS
-
 ## Use system implementation, or bundled replacement?
 AC_CHECK_FUNCS([strlcpy])
 
