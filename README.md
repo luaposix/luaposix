@@ -7,12 +7,11 @@ By the [luaposix project][github]
 [![travis-ci status](https://secure.travis-ci.org/luaposix/luaposix.png?branche=master)](http://travis-ci.org/luaposix/luaposix/builds)
 [![Stories in Ready](https://badge.waffle.io/luaposix/luaposix.png?label=ready&title=Ready)](https://waffle.io/luaposix/luaposix)
 
-
-This is a POSIX binding, including curses, for LuaJIT, [Lua][] 5.1,
-5.2 and 5.3; like most libraries it simply binds to C APIs on the
-underlying system, so it won't work on non-POSIX systems. However, it
-does try to detect the level of POSIX conformance of the underlying
-system and bind only available APIs.
+This is a POSIX binding for LuaJIT, [Lua][] 5.1, 5.2 and 5.3; like most
+libraries it simply binds to C APIs on the underlying system, so it
+won't work on non-POSIX systems. However, it does try to detect the
+level of POSIX conformance of the underlying system and bind only
+available APIs.
 
 luaposix is released under the [MIT license][mit] (the same license as
 Lua itsef).  There is no warranty.

@@ -1,7 +1,7 @@
 -- -*- lua -*-
 title = "@PACKAGE_STRING@ Reference"
 project = "@PACKAGE_STRING@"
-description = "POSIX bindings for Lua (including curses)"
+description = "POSIX bindings for Lua"
 
 tparam_alias "string"
 tparam_alias "int"
@@ -14,25 +14,12 @@ custom_see_handler("^([%w_]+)%((%d)%)$",function(name,section)
     return name .. "(" .. section .. ")", url
 end)
 
--- Curses manual pages use a different URL scheme.
-local cpat = "http://pubs.opengroup.org/onlinepubs/007908799/xcurses/%s.html"
-custom_see_handler("^([%w_]+)%((3x)%)$",function(name,section)
-    local url = cpat:format(name)
-    return name .. "(" .. section .. ")", url
-end)
-
 dir = "."
 file = {
-  -- Classes
-  "../ext/posix/curses/chstr.c",
-  "../ext/posix/curses/window.c",
-
-  -- Modules
   "../lib/posix/init.lua",
   "../lib/posix/compat.lua",  -- Documents added to posix module
 
   "../ext/posix/ctype.c",
-  "../ext/posix/curses.c",
   "../ext/posix/dirent.c",
   "../ext/posix/errno.c",
   "../ext/posix/fcntl.c",

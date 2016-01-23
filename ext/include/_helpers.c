@@ -27,21 +27,6 @@
 # define PATH_MAX 1024
 #endif
 
-#if HAVE_CURSES
-# if HAVE_NCURSESW_CURSES_H
-#    include <ncursesw/curses.h>
-# elif HAVE_NCURSESW_H
-#    include <ncursesw.h>
-# elif HAVE_NCURSES_CURSES_H
-#    include <ncurses/curses.h>
-# elif HAVE_NCURSES_H
-#    include <ncurses.h>
-# elif HAVE_CURSES_H
-#    include <curses.h>
-# endif
-#include <term.h>
-#endif
-
 /* Some systems set _POSIX_C_SOURCE over _POSIX_VERSION! */
 #if _POSIX_C_SOURCE >= 200112L || _POSIX_VERSION >= 200112L || _XOPEN_SOURCE >= 600
 # define LPOSIX_2001_COMPLIANT 1
@@ -52,12 +37,6 @@
 # ifndef LPOSIX_2001_COMPLIANT
 #   define LPOSIX_2001_COMPLIANT
 # endif
-#endif
-
-/* NetBSD's default curses implementation is not quite complete.  This
-   disables those missing functions unless linked to ncurses instead. */
-#if defined NCURSES_VERSION || !defined __NetBSD__
-#  define LPOSIX_CURSES_COMPLIANT 1
 #endif
 
 #include "lua.h"
@@ -173,32 +152,6 @@ checklong(lua_State *L, int narg)
 {
 	return (long)checkinteger(L, narg, "int");
 }
-
-
-#if HAVE_CURSES
-static chtype
-checkch(lua_State *L, int narg)
-{
-	if (lua_isnumber(L, narg))
-		return (chtype)checkint(L, narg);
-	if (lua_isstring(L, narg))
-		return *lua_tostring(L, narg);
-
-	return argtypeerror(L, narg, "int or char");
-}
-
-
-static chtype
-optch(lua_State *L, int narg, chtype def)
-{
-	if (lua_isnoneornil(L, narg))
-		return def;
-	if (lua_isnumber(L, narg) || lua_isstring(L, narg))
-		return checkch(L, narg);
-	return argtypeerror(L, narg, "int or char or nil");
-}
-#endif
-
 
 static int
 optboolean(lua_State *L, int narg, int def)

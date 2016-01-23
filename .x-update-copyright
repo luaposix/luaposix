@@ -2,5 +2,3 @@
 ^COPYING$
 ^ChangeLog
 ^bootstrap$
-^ext/curses/strlcpy.c$
-^m4/ax_with_curses.m4$

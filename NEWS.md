@@ -2,6 +2,19 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### Incompatible Changes
+
+  - posix.curses has been split back out into its own separate
+    project again.  If you want to upgrade your posix.curses using
+    project, something like the following minimal change will work
+    equivalently (assuming you have the new lcurses on your package
+    path):
+
+    ```lua
+    local posix = require 'posix'
+    posix.curses = posix.curses or require 'lcurses'
+    ```
+
 ### New Features
 
   - New `posix.stdio.rename` binding.
