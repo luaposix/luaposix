@@ -24,7 +24,6 @@ AC_PROG_SED
 AC_PROG_CC
 
 AC_USE_SYSTEM_EXTENSIONS
-gl_EARLY
 
 
 ## ------------------------------------------------------------------------
@@ -110,8 +109,6 @@ module=yes eval shrext=$shrext_cmds
 AC_SUBST([objdir])
 AC_SUBST([shrext])
 AC_SUBST(LIBTOOL_DEPS)
-
-gl_INIT
 
 ## Check for header files
 AC_HEADER_STDC

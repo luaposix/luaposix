@@ -55,7 +55,9 @@ install:
 script:
   # Reconfigure for in-tree test install.
   - test -f configure || ./bootstrap --verbose
-  - ./configure --prefix="$_inst" --disable-silent-rules
+  - LUA=`pwd`/here/bin/lua
+    LUA_INCLUDE=-I`pwd`/here/include
+    ./configure --prefix="$_inst" --disable-silent-rules
 
   # Verify luarocks installation.
   - make installcheck || make installcheck V=1

@@ -16,6 +16,7 @@
 /doc
 /GNUmakefile
 /INSTALL
+/m4
 /Makefile
 /Makefile.am
 /Makefile.in
@@ -37,4 +38,3 @@
 /stamp-h1
 /TAGS
 /travis.yml.in
-/m4/ax_lua.m4
