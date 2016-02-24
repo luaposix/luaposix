@@ -124,8 +124,8 @@ install:
   # Build from rockspec, forcing uninstall of older luarocks installed
   # above when testing the git rockspec, both for enforcing backwards
   # compatibility by default, and for ease of maintenance.
-  - if test -f 'luaposix-33.3.1-1.rockspec'; then
-      sudo luarocks make 'luaposix-33.3.1-1.rockspec' LUA="$LUA";
+  - if test -f 'luaposix-33.4.0-1.rockspec'; then
+      sudo luarocks make 'luaposix-33.4.0-1.rockspec' LUA="$LUA";
     else
       sudo luarocks make --force 'luaposix-git-1.rockspec' LUA="$LUA";
     fi
