@@ -18,18 +18,19 @@ AM_INIT_AUTOMAKE([-Wall subdir-objects])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 ## Check for programs
-AC_PROG_CC
-gl_EARLY
 AC_PROG_MKDIR_P
 AC_PROG_EGREP
 AC_PROG_SED
+AC_PROG_CC
+
+AC_USE_SYSTEM_EXTENSIONS
+gl_EARLY
 
 
 ## ------------------------------------------------------------------------
 ## Compiler flags for POSIX 2008 or better compliance.
 ## ------------------------------------------------------------------------
 
-AC_USE_SYSTEM_EXTENSIONS
 AC_CANONICAL_HOST
 case $host_os in
   *nto*|*qnx*)
