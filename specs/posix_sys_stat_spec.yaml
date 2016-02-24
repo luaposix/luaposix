@@ -9,6 +9,7 @@ specify posix.sys.stat:
 
     dir = posix.mkdtemp (template)
     posix.mkdir (dir .. "/subdir")
+    posix.mkdir (dir .. "/subdir/deeper")
     posix.link ("subdir", dir .. "/soft", true)
     touch (dir .. "/file")
     posix.link (dir .. "/file", dir .. "/hard")
@@ -107,7 +108,7 @@ specify posix.sys.stat:
       expect (lstat (dir .. "/soft").st_nlink).to_be (1)
       expect (lstat (dir .. "/hard").st_nlink).
         to_be (lstat (dir .. "/file").st_nlink)
-      expect (lstat (dir .. "/subdir").st_nlink).to_be (2)
+      expect (lstat (dir .. "/subdir").st_nlink).to_be (3)
   - it fetches the owner id:
       expect (lstat (dir .. "/file").st_uid).to_be (geteuid ())
       expect (lstat (dir .. "/subdir").st_uid).to_be (geteuid ())
@@ -254,7 +255,7 @@ specify posix.sys.stat:
         to_be (stat (dir .. "/subdir").st_nlink)
       expect (stat (dir .. "/hard").st_nlink).
         to_be (stat (dir .. "/file").st_nlink)
-      expect (stat (dir .. "/subdir").st_nlink).to_be (2)
+      expect (stat (dir .. "/subdir").st_nlink).to_be (3)
   - it fetches the owner id:
       expect (stat (dir .. "/file").st_uid).to_be (geteuid ())
       expect (stat (dir .. "/subdir").st_uid).to_be (geteuid ())
