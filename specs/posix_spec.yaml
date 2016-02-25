@@ -46,7 +46,11 @@ specify posix:
   - it can detect failure:
       expect (f ({"false"})).to_equal (1)
   - it can pass a table of arguments:
-      expect (f ({"echo", "foo"})).to_equal(0)
+      script = [[
+        local spawn = require "posix".spawn
+        os.exit (spawn {"echo", "foo"})
+      ]]
+      expect (luaproc (script)).to_succeed_with "foo\n"
   - it can pass a function:
       # FIXME: If the function body contains:
       # io.stdout.write ("hello")
@@ -66,11 +70,16 @@ specify posix:
       pclose (p)
       expect (s).to_equal "foo\n"
 
-  - it spawns a command and writes its input:
-      p = popen ({"wc"}, "w")
-      s = "foo bar baz"
-      expect (write (p.fd, s)).to_equal (#s)
-      pclose (p)
+  - it spawns a command and writes its input: |
+      script = [[
+        local posix = require "posix"
+        local p = posix.popen ({"wc"}, "w")
+        local s = "foo bar baz\n"
+        local r = posix.write (p.fd, s)
+        posix.pclose (p)
+        os.exit (r == #s)
+      ]]
+      expect (luaproc (script)).to_succeed_while_matching "^%s*1%s+3%s+12\n$"
 
 - describe popen_pipeline:
   - before:
@@ -84,11 +93,16 @@ specify posix:
       expect (read (p.fd, posix.BUFSIZ)).to_match ("^%s*1\n")
       pclose (p)
 
-  - it spawns a pipeline and writes its input:
-      s = "foo bar baz"
-      p = popen_pipeline ({{"cat"}, {"wc"}}, "w")
-      expect (write (p.fd, s)).to_equal (#s)
-      pclose (p)
+  - it spawns a pipeline and writes its input: |
+      script = [[
+        local posix = require "posix"
+        local s = "foo bar baz\n"
+        local p = posix.popen_pipeline ({{"cat"}, {"wc"}}, "w")
+        local r = posix.write (p.fd, s)
+        posix.pclose (p)
+        os.exit (r == #s)
+      ]]
+      expect (luaproc (script)).to_succeed_while_matching "^%s*1%s+3%s+12\n$"
 
 
 - describe timeradd:
