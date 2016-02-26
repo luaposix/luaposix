@@ -1,3 +1,6 @@
+local unpack = table.unpack or unpack
+
+
 if os.getenv "installcheck" == nil then
   -- Unless we're running inside `make installcheck`, add the dev-tree
   -- directories to the module search paths.
