@@ -19,15 +19,14 @@ specify posix.stdio:
         script = [[
           local stdio   = require "posix.stdio"
           local unistd  = require "posix.unistd"
-          local fd      = stdio.fdopen (unistd.STDERR_FILENO, "w")
+          local fd      = stdio.fdopen (unistd.STDOUT_FILENO, "w")
 
           -- Lua 5.1 file.write returns true; > 5.1 returns file handle
-          local r = fd:write ("writing to fdopen(stderr)")
+          local r = fd:write ("writing to fdopen(stdout)")
 
-          -- we want an abnormal exit so we can match stderr output
-          os.exit (r == nil and 0 or 1)
+          os.exit (r ~= nil and 0 or 1)
         ]]
-        expect (luaproc (script)).to_fail_while_matching "^writing to fdopen%(stderr%)"
+        expect (luaproc (script)).to_succeed_with "writing to fdopen(stdout)"
 
 
 - describe rename:

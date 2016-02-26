@@ -67,10 +67,13 @@ function luaproc (code, arg, stdin)
   -- cmd constructor
   cmd.stdin = stdin
   cmd.env = {
+    LUA		 = LUA,
     LUA_CPATH    = package.cpath,
     LUA_PATH     = package.path,
     LUA_INIT     = "",
-    LUA_INIT_5_2 = ""
+    LUA_INIT_5_2 = "",
+    LUA_INIT_5_3 = "",
+    PATH	 = os.getenv "PATH"
   }
   local proc = hell.spawn (cmd)
   os.remove (f)
