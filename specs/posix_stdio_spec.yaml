@@ -25,7 +25,7 @@ specify posix.stdio:
           local r = fd:write ("writing to fdopen(stderr)")
 
           -- we want an abnormal exit so we can match stderr output
-          os.exit (r == nil)
+          os.exit (r == nil and 0 or 1)
         ]]
         expect (luaproc (script)).to_fail_while_matching "^writing to fdopen%(stderr%)"
 

@@ -48,7 +48,7 @@ specify posix:
   - it can pass a table of arguments:
       script = [[
         local spawn = require "posix".spawn
-        os.exit (spawn {"echo", "foo"})
+        os.exit (spawn {"echo", "foo"} and 0 or 1)
       ]]
       expect (luaproc (script)).to_succeed_with "foo\n"
   - it can pass a function:
@@ -77,7 +77,7 @@ specify posix:
         local s = "foo bar baz\n"
         local r = posix.write (p.fd, s)
         posix.pclose (p)
-        os.exit (r == #s)
+        os.exit (r == #s and 0 or 1)
       ]]
       expect (luaproc (script)).to_succeed_while_matching "^%s*1%s+3%s+12\n$"
 
@@ -100,7 +100,7 @@ specify posix:
         local p = posix.popen_pipeline ({{"cat"}, {"wc"}}, "w")
         local r = posix.write (p.fd, s)
         posix.pclose (p)
-        os.exit (r == #s)
+        os.exit (r == #s and 0 or 1)
       ]]
       expect (luaproc (script)).to_succeed_while_matching "^%s*1%s+3%s+12\n$"
 
