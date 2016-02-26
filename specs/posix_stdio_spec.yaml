@@ -26,6 +26,7 @@ specify posix.stdio:
 
           os.exit (r ~= nil and 0 or 1)
         ]]
+        pending "issue #217"
         expect (luaproc (script)).to_succeed_with "writing to fdopen(stdout)"
 
 
