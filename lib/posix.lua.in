@@ -413,11 +413,21 @@ end
 
 local function timeradd (x, y)
   local sec, usec = 0, 0
-  if x.sec then sec = sec + x.sec end
-  if y.sec then sec = sec + y.sec end
-  if x.usec then usec = usec + x.usec end
-  if y.usec then usec = usec + y.usec end
-  if usec > 1000000 then
+  if x.tv_sec or x.tv_usec then
+    sec = sec + (tonumber (x.tv_sec) or 0)
+    usec = usec + (tonumber (x.tv_usec) or 0)
+  else
+    sec = sec + (tonumber (x.sec) or 0)
+    usec = usec + (tonumber (x.usec) or 0)
+  end
+  if y.tv_sec or y.tv_usec then
+    sec = sec + (tonumber (y.tv_sec) or 0)
+    usec = usec + (tonumber (y.tv_usec) or 0)
+  else
+    sec = sec + (tonumber (y.sec) or 0)
+    usec = usec + (tonumber (y.usec) or 0)
+  end
+  while usec > 1000000 do
     sec = sec + 1
     usec = usec - 1000000
   end
@@ -443,8 +453,8 @@ end
 -- @return 0 if x and y are equal, >0 if x is newer, <0 if y is newer
 
 local function timercmp (x, y)
-  local x = { sec = x.sec or 0, usec = x.usec or 0 }
-  local y = { sec = y.sec or 0, usec = y.usec or 0 }
+  local x = { sec = x.tv_sec or x.sec or 0, usec = x.tv_usec or x.usec or 0 }
+  local y = { sec = y.tv_sec or y.sec or 0, usec = y.tv_usec or y.usec or 0 }
   if x.sec ~= y.sec then
     return x.sec - y.sec
   else
@@ -471,11 +481,21 @@ end
 
 local function timersub (x,y)
   local sec, usec = 0, 0
-  if x.sec then sec = x.sec end
-  if y.sec then sec = sec - y.sec end
-  if x.usec then usec = x.usec end
-  if y.usec then usec = usec - y.usec end
-  if usec < 0 then
+  if x.tv_sec or x.tv_usec then
+    sec = (tonumber (x.tv_sec) or 0)
+    usec =(tonumber (x.tv_usec) or 0)
+  else
+    sec = (tonumber (x.sec) or 0)
+    usec = (tonumber (x.usec) or 0)
+  end
+  if y.tv_sec or y.tv_usec then
+    sec = sec - (tonumber (y.tv_sec) or 0)
+    usec = usec - (tonumber (y.tv_usec) or 0)
+  else
+    sec = sec - (tonumber (y.sec) or 0)
+    usec = usec - (tonumber (y.usec) or 0)
+  end
+  while usec < 0 do
     sec = sec - 1
     usec = usec + 1000000
   end

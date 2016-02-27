@@ -61,6 +61,11 @@
 
   - `examples/fork2.lua` works correctly again.
 
+  - `posix.timeradd`, `posix.timercmp` and `posix.timersub` correctly
+    handle tables from the modern thin wrapper API (posix.sys.time),
+    while retaining compatibility with the legacy compatibility wrappers
+    (posix.gettimeofday).
+
 
 ## Noteworthy changes in release 33.3.1 (2015-03-01) [stable]
 
