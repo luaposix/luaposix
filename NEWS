@@ -1,5 +1,71 @@
 # luaposix NEWS - User visible changes
 
+## Noteworthy changes in release 33.4.0 (2016-02-27) [stable]
+
+### Incompatible Changes
+
+  - posix.curses has been split back out into its own separate
+    project again.  If you want to upgrade your posix.curses using
+    project, something like the following minimal change will work
+    equivalently (assuming you have the new lcurses on your package
+    path):
+
+    ```lua
+    local posix = require 'posix'
+    posix.curses = posix.curses or require 'lcurses'
+    ```
+
+### New Features
+
+  - New `posix.stdio.rename` binding.
+
+  - New `posix.fcntl.FD_CLOEXEC` flag for `posix.fcntl.fcntl`.
+
+  - New `posix.fcntl.O_CLOEXEC` flag for `posix.fcntl.open`, where
+    supported by the underlying system.  Falling back to FD_CLOEXEC is
+    an exercise to the caller, so that non-atomicity is surfaced:
+
+    ```lua
+    -- without error checking, for clarity
+    fd = fcntl.open ("/foo/bar", fcntl.O_CLOEXEC, stat.S_IRWXU)
+    if fcntl.O_CLOEXEC == 0 then
+      local flags = fcntl.fcntl (fd, fcntl.F_GETFD)
+      fcntl.fcntl (fd, fcntl.F_SETFD, bit.bor (flags, fcntl.FD_CLOEXEC)
+    end
+    ```
+
+  - New `posix.unistd.tcgetpgrp` and `posix.unistd.tcsetpgrp` bindings
+    where supported by host C library.
+
+  - `posix.sys.socket` AF_UNIX path handling improvements enable use of
+    Linux only abstract namespace sockets.
+
+  - Documentation links now point at the newer OpenGroup issue 7 specs.
+
+### Bugs Fixed
+
+  - Workaround for https://sourceware.org/bugzilla/show_bug.cgi?id=15088.
+    Predicate use of POSIX sched.h APIs on presence of sched.h, since glibc
+    defines _POSIX_PRIORITY_SCHEDULING erroneously, and musl libc
+    provides the sched.h APIs but doesn't define _POSIX_PRIORITY_SCHEDULING.
+
+  - `posix.sys.socket` AF_UNIX APIs pass path arguments by length
+    instead of terminating at the first \0 byte.
+
+  - `posix.unistd.readlink` no longer fails when reading a link to an
+    unsized buffer or character special device node.
+
+  - `execx` is no longer leaked into the global namespace after loading
+    the posix module.
+
+  - `examples/fork2.lua` works correctly again.
+
+  - `posix.timeradd`, `posix.timercmp` and `posix.timersub` correctly
+    handle tables from the modern thin wrapper API (posix.sys.time),
+    while retaining compatibility with the legacy compatibility wrappers
+    (posix.gettimeofday).
+
+
 ## Noteworthy changes in release 33.3.1 (2015-03-01) [stable]
 
 ### Incompatible Changes

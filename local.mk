@@ -1,7 +1,7 @@
 # Local Make rules.
 # Written by Gary V. Vaughan, 2013
 
-# Copyright (C) 2013-2015 Gary V. Vaughan
+# Copyright (C) 2013-2016 Gary V. Vaughan
 
 # This file is part of luaposix.
 # See README for license.
@@ -55,10 +55,6 @@ include specs/specs.mk
 ## Build. ##
 ## ------ ##
 
-dist_lua_DATA +=			\
-	lib/curses.lua			\
-	$(NOTHING_ELSE)
-
 luaposixdir = $(luadir)/posix
 
 dist_luaposix_DATA =			\
@@ -77,9 +73,6 @@ ext_posix_posix_la_SOURCES =		\
 	$(NOTHING_ELSE)
 EXTRA_ext_posix_posix_la_SOURCES =	\
 	ext/posix/ctype.c		\
-	ext/posix/curses.c		\
-	ext/posix/curses/chstr.c	\
-	ext/posix/curses/window.c	\
 	ext/posix/dirent.c		\
 	ext/posix/errno.c		\
 	ext/posix/fcntl.c		\
@@ -110,7 +103,7 @@ EXTRA_ext_posix_posix_la_SOURCES =	\
 	ext/posix/utime.c		\
 	$(NOTHING_ELSE)
 
-ext_posix_posix_la_LDFLAGS = $(AM_LDFLAGS) $(LIBCRYPT) $(LIBSOCKET) $(LIBRT) $(CURSES_LIB)
+ext_posix_posix_la_LDFLAGS = $(AM_LDFLAGS) $(LIBCRYPT) $(LIBSOCKET) $(LIBRT)
 
 luaexecposixdir = $(luaexecdir)/posix
 luaexecposixsysdir = $(luaexecposixdir)/sys
@@ -131,9 +124,6 @@ luaexecposixsys_LDFLAGS = $(AM_LDFLAGS) -rpath '$(luaexecposixsysdir)'
 
 posix_submodules =			\
 	ext/posix/ctype.la		\
-	ext/posix/curses.la		\
-	ext/posix/curses/chstr.la	\
-	ext/posix/curses/window.la	\
 	ext/posix/dirent.la		\
 	ext/posix/errno.la		\
 	ext/posix/fcntl.la		\
@@ -168,7 +158,6 @@ EXTRA_LTLIBRARIES += $(posix_submodules)
 check_local += $(posix_submodules)
 
 ext_posix_ctype_la_LDFLAGS = $(luaexecposix_LDFLAGS)
-ext_posix_curses_la_LDFLAGS = $(luaexecposix_LDFLAGS) $(CURSES_LIB)
 ext_posix_dirent_la_LDFLAGS = $(luaexecposix_LDFLAGS)
 ext_posix_errno_la_LDFLAGS = $(luaexecposix_LDFLAGS)
 ext_posix_fcntl_la_LDFLAGS = $(luaexecposix_LDFLAGS)
@@ -215,7 +204,6 @@ dist_doc_DATA +=			\
 
 dist_modules_DATA +=				\
 	doc/modules/posix.ctype.html		\
-	doc/modules/posix.curses.html		\
 	doc/modules/posix.dirent.html		\
 	doc/modules/posix.errno.html		\
 	doc/modules/posix.fcntl.html		\
@@ -247,13 +235,7 @@ dist_modules_DATA +=				\
 	doc/modules/posix.utime.html		\
 	$(NOTHING_ELSE)
 
-dist_classes_DATA +=				\
-	doc/classes/posix.curses.chstr.html	\
-	doc/classes/posix.curses.window.html	\
-	$(NOTHING_ELSE)
-
 dist_examples_DATA +=				\
-	doc/examples/curses.lua.html		\
 	doc/examples/dir.lua.html		\
 	doc/examples/fork.lua.html		\
 	doc/examples/fork2.lua.html		\

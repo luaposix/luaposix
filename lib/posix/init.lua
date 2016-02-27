@@ -1,8 +1,8 @@
 --[[
  POSIX library for Lua 5.1, 5.2 & 5.3.
- (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2015
- (c) Reuben Thomas <rrt@sc3d.org> 2010-2015
- (c) Natanael Copa <natanael.copa@gmail.com> 2008-2010
+ Copyright (C) 2013-2016 Gary V. Vaughan
+ Copyright (C) 2010-2013 Reuben Thomas <rrt@sc3d.org>
+ Copyright (C) 2008-2010 Natanael Copa <natanael.copa@gmail.com>
 ]]
 --[[--
  Lua POSIX bindings.
@@ -44,7 +44,7 @@ for k, v in pairs (require "posix.compat") do
   M[k] = v
 end
 
-M.version = "posix for " .. _VERSION .. " / luaposix 33.3.1"
+M.version = "posix for " .. _VERSION .. " / luaposix 33.4.0"
 
 
 local argerror, argtypeerror, checkstring, checktable, toomanyargerror =
@@ -209,7 +209,7 @@ local unpack = table.unpack or unpack -- 5.3 compatibility
 local errno, execp, _exit =
   M.errno, M.execp, M._exit
 
-function execx (task, ...)
+local function execx (task, ...)
   if type (task) == "table" then
     execp (unpack (task))
     -- Only get here if there's an error; kill the fork
@@ -236,7 +236,7 @@ end
 --- Run a command or function in a sub-process using `P.execx`.
 -- @function spawn
 -- @param task, as for `P.execx`.
--- @tparam string ... as for `P.execx`
+-- @param ... as for `P.execx`
 -- @return values as for `P.wait`
 
 local unpack = table.unpack or unpack -- 5.3 compatibility
@@ -413,11 +413,21 @@ end
 
 local function timeradd (x, y)
   local sec, usec = 0, 0
-  if x.sec then sec = sec + x.sec end
-  if y.sec then sec = sec + y.sec end
-  if x.usec then usec = usec + x.usec end
-  if y.usec then usec = usec + y.usec end
-  if usec > 1000000 then
+  if x.tv_sec or x.tv_usec then
+    sec = sec + (tonumber (x.tv_sec) or 0)
+    usec = usec + (tonumber (x.tv_usec) or 0)
+  else
+    sec = sec + (tonumber (x.sec) or 0)
+    usec = usec + (tonumber (x.usec) or 0)
+  end
+  if y.tv_sec or y.tv_usec then
+    sec = sec + (tonumber (y.tv_sec) or 0)
+    usec = usec + (tonumber (y.tv_usec) or 0)
+  else
+    sec = sec + (tonumber (y.sec) or 0)
+    usec = usec + (tonumber (y.usec) or 0)
+  end
+  while usec > 1000000 do
     sec = sec + 1
     usec = usec - 1000000
   end
@@ -443,8 +453,8 @@ end
 -- @return 0 if x and y are equal, >0 if x is newer, <0 if y is newer
 
 local function timercmp (x, y)
-  local x = { sec = x.sec or 0, usec = x.usec or 0 }
-  local y = { sec = y.sec or 0, usec = y.usec or 0 }
+  local x = { sec = x.tv_sec or x.sec or 0, usec = x.tv_usec or x.usec or 0 }
+  local y = { sec = y.tv_sec or y.sec or 0, usec = y.tv_usec or y.usec or 0 }
   if x.sec ~= y.sec then
     return x.sec - y.sec
   else
@@ -471,11 +481,21 @@ end
 
 local function timersub (x,y)
   local sec, usec = 0, 0
-  if x.sec then sec = x.sec end
-  if y.sec then sec = sec - y.sec end
-  if x.usec then usec = x.usec end
-  if y.usec then usec = usec - y.usec end
-  if usec < 0 then
+  if x.tv_sec or x.tv_usec then
+    sec = (tonumber (x.tv_sec) or 0)
+    usec =(tonumber (x.tv_usec) or 0)
+  else
+    sec = (tonumber (x.sec) or 0)
+    usec = (tonumber (x.usec) or 0)
+  end
+  if y.tv_sec or y.tv_usec then
+    sec = sec - (tonumber (y.tv_sec) or 0)
+    usec = usec - (tonumber (y.tv_usec) or 0)
+  else
+    sec = sec - (tonumber (y.sec) or 0)
+    usec = usec - (tonumber (y.usec) or 0)
+  end
+  while usec < 0 do
     sec = sec - 1
     usec = usec + 1000000
   end

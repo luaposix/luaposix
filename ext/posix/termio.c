@@ -1,8 +1,8 @@
 /*
  * POSIX library for Lua 5.1, 5.2 & 5.3.
- * (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2015
- * (c) Reuben Thomas <rrt@sc3d.org> 2010-2013
- * (c) Natanael Copa <natanael.copa@gmail.com> 2008-2010
+ * Copyright (C) 2013-2016 Gary V. Vaughan
+ * Copyright (C) 2010-2013 Reuben Thomas <rrt@sc3d.org>
+ * Copyright (C) 2008-2010 Natanael Copa <natanael.copa@gmail.com>
  * Clean up and bug fixes by Leo Razoumov <slonik.az@gmail.com> 2006-10-11
  * Luiz Henrique de Figueiredo <lhf@tecgraf.puc-rio.br> 07 Apr 2006 23:17:49
  * Based on original by Claudio Terra for Lua 3.x.
@@ -48,11 +48,9 @@ Terminal attributes.
 The constants named below are all available in this submodule's namespace,
 as long as they are supported by the underlying system.
 @table termios
-@int cflag bitwise OR of zero or more of `B0`, `B50`, `B75`, `B110`,
-  `B134`, `B150`, `B200`, `B300`, `B600`, `B1200`, `B1800`, `B2400`,
-  `B4800`, `B9600`, `B19200`, `B38400`, `B57600`, `B115200`, `CSIZE`,
-  `CS5`, `CS6`, `CS7`, `CS8`, `CSTOPB`, `CREAD`, `PARENB`, `PARODD`,
-  `HUPCL`, `CLOCAL` and `CRTSCTS`
+@int cflag bitwise OR of zero or more of
+  `CSIZE`, `CS5`, `CS6`, `CS7`, `CS8`, `CSTOPB`, `CREAD`, `PARENB`,
+  `PARODD`, `HUPCL`, `CLOCAL` and `CRTSCTS`
 @int iflag input flags; bitwise OR of zero or more of `IGNBRK`, `BRKINT`,
   `IGNPAR`, `PARMRK`, `INPCK`, `ISTRIP`, `INLCR`, `IGNCR`, `ICRNL`,
   `IXON`, `IXOFF`, `IXANY`, `IMAXBEL` and `IUTF8`
@@ -62,6 +60,10 @@ as long as they are supported by the underlying system.
   `OXTABS`, `ONOEOT`, `OCRNL`, `ONOCR`, `ONLRET`, `OFILL`, `NLDLY`,
   `TABDLY`, `CRDLY`, `FFDLY`, `BSDLY`, `VTDLY` and `OFDEL`
 @tfield ccs cc array of terminal control characters
+@int ispeed the input baud rate, one of `B0`, `B50`, `B75`, `B110`,
+  `B134`, `B150`, `B200`, `B300`, `B600`, `B1200`, `B1800`, `B2400`,
+  `B4800`, `B9600`, `B19200`, `B38400`, `B57600`, `B115200`,
+@int ospeed the output baud rate (see ispeed for possible values)
 */
 
 
@@ -155,6 +157,8 @@ Ptcgetattr(lua_State *L)
 	pushintegerfield("oflag", t.c_oflag);
 	pushintegerfield("lflag", t.c_lflag);
 	pushintegerfield("cflag", t.c_cflag);
+	pushintegerfield("ispeed",cfgetispeed(&t));
+	pushintegerfield("ospeed",cfgetospeed(&t));
 
 	lua_newtable(L);
 	for (i=0; i<NCCS; i++)
@@ -216,6 +220,8 @@ Ptcsetattr(lua_State *L)
 	lua_getfield(L, 3, "oflag"); t.c_oflag = optint(L, -1, 0); lua_pop(L, 1);
 	lua_getfield(L, 3, "cflag"); t.c_cflag = optint(L, -1, 0); lua_pop(L, 1);
 	lua_getfield(L, 3, "lflag"); t.c_lflag = optint(L, -1, 0); lua_pop(L, 1);
+	lua_getfield(L, 3, "ispeed"); cfsetispeed( &t, optint(L, -1, B0) ); lua_pop(L, 1);
+	lua_getfield(L, 3, "ospeed"); cfsetospeed( &t, optint(L, -1, B0) ); lua_pop(L, 1);
 
 	lua_getfield(L, 3, "cc");
 	for (i=0; i<NCCS; i++)

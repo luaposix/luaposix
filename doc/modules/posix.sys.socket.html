@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 33.3.0 Reference</title>
+    <title>luaposix 33.4.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 33.3.0</h1>
+<h1>luaposix 33.4.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -42,7 +42,6 @@
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../modules/posix.html">posix</a></li>
   <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
-  <li><a href="../modules/posix.curses.html">posix.curses</a></li>
   <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
   <li><a href="../modules/posix.errno.html">posix.errno</a></li>
   <li><a href="../modules/posix.fcntl.html">posix.fcntl</a></li>
@@ -72,15 +71,12 @@
   <li><a href="../modules/posix.unistd.html">posix.unistd</a></li>
   <li><a href="../modules/posix.utime.html">posix.utime</a></li>
 </ul>
-<h2>Classes</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
-  <li><a href="../classes/posix.curses.chstr.html">posix.curses.chstr</a></li>
-  <li><a href="../classes/posix.curses.window.html">posix.curses.window</a></li>
-</ul>
 <h2>Examples</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
-  <li><a href="../examples/curses.lua.html">curses.lua</a></li>
+  <li><a href="../examples/abstract-ns-client.lua.html">abstract-ns-client.lua</a></li>
+  <li><a href="../examples/abstract-ns-server.lua.html">abstract-ns-server.lua</a></li>
   <li><a href="../examples/dir.lua.html">dir.lua</a></li>
+  <li><a href="../examples/dup2.lua.html">dup2.lua</a></li>
   <li><a href="../examples/fork.lua.html">fork.lua</a></li>
   <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
   <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
@@ -191,7 +187,7 @@
 <br/>
 
 
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
     <dt>
@@ -216,7 +212,7 @@
            <span class="types"><span class="type">int</span></span>
         connection descriptor</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
         connection address, if successful</li>
     </ol>
      <h3>Or</h3>
@@ -224,7 +220,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -234,7 +230,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/accept.html">accept(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/accept.html">accept(2)</a>
     </ul>
 
 
@@ -270,7 +266,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -280,7 +276,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/bind.html">bind(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/bind.html">bind(2)</a>
     </ul>
 
 
@@ -316,7 +312,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -326,7 +322,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/connect.html">connect(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/connect.html">connect(2)</a>
     </ul>
 
 
@@ -342,11 +338,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">host</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          name of a host
         </li>
         <li><span class="parameter">service</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          name of service
         </li>
         <li><span class="parameter">hints</span>
@@ -367,7 +363,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -377,7 +373,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/getaddrinfo.html">getaddrinfo(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/getaddrinfo.html">getaddrinfo(2)</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -416,7 +412,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -426,7 +422,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/getsockname.html">getsockname(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/getsockname.html">getsockname(2)</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -466,7 +462,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -476,7 +472,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/listen.html">listen(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/listen.html">listen(2)</a>
     </ul>
 
 
@@ -512,7 +508,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -522,7 +518,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/recv.html">recv(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/recv.html">recv(2)</a>
     </ul>
 
 
@@ -561,7 +557,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -571,7 +567,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/recvfrom.html">recvfrom(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/recvfrom.html">recvfrom(2)</a>
     </ul>
 
 
@@ -591,7 +587,7 @@
          socket descriptor to act on
         </li>
         <li><span class="parameter">buffer</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          message bytes to send
         </li>
     </ul>
@@ -607,7 +603,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -617,7 +613,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/send.html">send(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/send.html">send(2)</a>
     </ul>
 
 
@@ -637,7 +633,7 @@
          socket descriptor to act on
         </li>
         <li><span class="parameter">buffer</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          message bytes to send
         </li>
         <li><span class="parameter">destination</span>
@@ -657,7 +653,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -667,7 +663,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/sendto.html">sendto(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/sendto.html">sendto(2)</a>
     </ul>
 
 
@@ -714,7 +710,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -724,7 +720,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/setsockopt.html">setsockopt(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/setsockopt.html">setsockopt(2)</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -764,7 +760,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -774,7 +770,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/shutdown.html">shutdown(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/shutdown.html">shutdown(2)</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -818,7 +814,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -828,7 +824,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/socket.html">socket(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/socket.html">socket(2)</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -875,7 +871,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -891,7 +887,7 @@
 
 </dd>
 </dl>
-    <h2><a name="Tables"></a>Tables</h2>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
 
     <dl class="function">
     <dt>
@@ -951,7 +947,7 @@ a subset of the following fields too.
          (<em>optional</em>)
         </li>
         <li><span class="parameter">addr</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          socket host address in correct format, for <code>AF_INET</code> <em>family</em>
          (<em>optional</em>)
         </li>
@@ -961,7 +957,7 @@ a subset of the following fields too.
          (<em>optional</em>)
         </li>
         <li><span class="parameter">canonname</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          canonical name for service location, for <code>AF_INET</code> <em>family</em>
          (<em>optional</em>)
         </li>
@@ -971,7 +967,7 @@ a subset of the following fields too.
          (<em>optional</em>)
         </li>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          location in file system, for <code>AF_UNIX</code> <em>family</em>
          (<em>optional</em>)
         </li>
@@ -993,8 +989,7 @@ a subset of the following fields too.
 
 </dd>
 </dl>
-    <h2><a name="Constants"></a>Constants </h2>
-
+    <h2 class="section-header "><a name="Constants"></a>Constants </h2>
 
     <dl class="function">
     <dt>
@@ -1328,7 +1323,7 @@ Any constants not available in the underlying system will be <code>nil</code> va
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2015-03-01 09:06:02 </i>
+<i style="float:right;">Last updated 2016-02-27 14:10:34 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

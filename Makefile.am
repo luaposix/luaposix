@@ -1,6 +1,6 @@
 # Non-recursive Make rules.
 #
-# Copyright (C) 2013-2015 Gary V. Vaughan
+# Copyright (C) 2013-2016 Gary V. Vaughan
 # Written by Gary V. Vaughan, 2013
 #
 # This program is free software; you can redistribute it and/or modify it

@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 33.3.0 Reference</title>
+    <title>luaposix 33.4.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 33.3.0</h1>
+<h1>luaposix 33.4.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -42,7 +42,6 @@
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../modules/posix.html">posix</a></li>
   <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
-  <li><a href="../modules/posix.curses.html">posix.curses</a></li>
   <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
   <li><a href="../modules/posix.errno.html">posix.errno</a></li>
   <li><a href="../modules/posix.fcntl.html">posix.fcntl</a></li>
@@ -72,15 +71,12 @@
   <li><a href="../modules/posix.unistd.html">posix.unistd</a></li>
   <li><a href="../modules/posix.utime.html">posix.utime</a></li>
 </ul>
-<h2>Classes</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
-  <li><a href="../classes/posix.curses.chstr.html">posix.curses.chstr</a></li>
-  <li><a href="../classes/posix.curses.window.html">posix.curses.window</a></li>
-</ul>
 <h2>Examples</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
-  <li><a href="../examples/curses.lua.html">curses.lua</a></li>
+  <li><a href="../examples/abstract-ns-client.lua.html">abstract-ns-client.lua</a></li>
+  <li><a href="../examples/abstract-ns-server.lua.html">abstract-ns-server.lua</a></li>
   <li><a href="../examples/dir.lua.html">dir.lua</a></li>
+  <li><a href="../examples/dup2.lua.html">dup2.lua</a></li>
   <li><a href="../examples/fork.lua.html">fork.lua</a></li>
   <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
   <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
@@ -182,7 +178,7 @@
 <br/>
 
 
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
     <dt>
@@ -385,7 +381,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          existing file path to act on
         </li>
         <li><span class="parameter">mode</span>
@@ -405,7 +401,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -415,7 +411,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/chmod.html">chmod(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/chmod.html">chmod(2)</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -436,7 +432,7 @@ If file is a symbolic link, return information about the link itself.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          file to act on
         </li>
     </ul>
@@ -451,7 +447,7 @@ If file is a symbolic link, return information about the link itself.
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/lstat.html">lstat(2)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/lstat.html">lstat(2)</a></li>
          <li><a href="../modules/posix.sys.stat.html"></a></li>
     </ul>
 
@@ -472,7 +468,7 @@ If file is a symbolic link, return information about the link itself.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          location in file system to create directory
         </li>
         <li><span class="parameter">mode</span>
@@ -493,7 +489,7 @@ If file is a symbolic link, return information about the link itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -503,7 +499,7 @@ If file is a symbolic link, return information about the link itself.
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/mkdir.html">mkdir(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/mkdir.html">mkdir(2)</a>
     </ul>
 
 
@@ -519,7 +515,7 @@ If file is a symbolic link, return information about the link itself.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          location in file system to create fifo
         </li>
         <li><span class="parameter">mode</span>
@@ -540,7 +536,7 @@ If file is a symbolic link, return information about the link itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -550,7 +546,7 @@ If file is a symbolic link, return information about the link itself.
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/mkfifo.html">mkfifo(2)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/mkfifo.html">mkfifo(2)</a>
     </ul>
 
 
@@ -567,7 +563,7 @@ If file is a symbolic link, return information about the file the link points to
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          file to act on
         </li>
     </ul>
@@ -582,7 +578,7 @@ If file is a symbolic link, return information about the file the link points to
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/stat.html">stat(2)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/stat.html">stat(2)</a></li>
          <li><a href="../modules/posix.sys.stat.html#lstat">lstat</a></li>
     </ul>
 
@@ -619,14 +615,14 @@ If file is a symbolic link, return information about the file the link points to
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/umask.html">umask(2)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/umask.html">umask(2)</a></li>
          <li><a href="../modules/posix.html#umask">posix.umask</a></li>
     </ul>
 
 
 </dd>
 </dl>
-    <h2><a name="Tables"></a>Tables</h2>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
 
     <dl class="function">
     <dt>
@@ -699,8 +695,7 @@ If file is a symbolic link, return information about the file the link points to
 
 </dd>
 </dl>
-    <h2><a name="Constants"></a>Constants </h2>
-
+    <h2 class="section-header "><a name="Constants"></a>Constants </h2>
 
     <dl class="function">
     <dt>
@@ -826,7 +821,7 @@ Any constants not available in the underlying system will be <code>nil</code> va
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2015-03-01 09:06:02 </i>
+<i style="float:right;">Last updated 2016-02-27 14:10:34 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

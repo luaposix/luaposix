@@ -1,8 +1,8 @@
 /*
  * POSIX library for Lua 5.1, 5.2 & 5.3.
- * (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2015
- * (c) Reuben Thomas <rrt@sc3d.org> 2010-2013
- * (c) Natanael Copa <natanael.copa@gmail.com> 2008-2010
+ * Copyright (C) 2013-2016 Gary V. Vaughan
+ * Copyright (C) 2010-2013 Reuben Thomas <rrt@sc3d.org>
+ * Copyright (C) 2008-2010 Natanael Copa <natanael.copa@gmail.com>
  * Clean up and bug fixes by Leo Razoumov <slonik.az@gmail.com> 2006-10-11
  * Luiz Henrique de Figueiredo <lhf@tecgraf.puc-rio.br> 07 Apr 2006 23:17:49
  * Based on original by Claudio Terra for Lua 3.x.
@@ -79,12 +79,13 @@ pushfile (lua_State *L, int fd, const char *mode) {
 Create a Lua file object from a file descriptor.
 @function fdopen
 @tparam int fd file descriptor
+@tparam string mode the mode in which to open the file descriptor
 @treturn[1] file file Lua file object *fd*, if successful
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum
 @usage
-stdout = P.fdopen (posix.STDOUT_FILENO)
+stdout = P.fdopen (posix.STDOUT_FILENO, "w")
 */
 static int
 Pfdopen(lua_State *L)	/** fdopen(fd, mode) */
@@ -97,12 +98,36 @@ Pfdopen(lua_State *L)	/** fdopen(fd, mode) */
 	return 1;
 }
 
+/***
+Change the name or location of a file
+@function rename
+@tparam string oldpath
+@tparam string newpath
+@treturn[1] int `0` if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see rename(2)
+@usage
+local ok, errmsg = P.rename (oldpath, newpath)
+if not ok then error (errmsg) end
+*/
+static int
+Prename(lua_State *L)	/** rename(oldpath, newpath) */
+{
+	const char *oldpath = luaL_checkstring(L, 1);
+	const char *newpath = luaL_checkstring(L, 2);
+	checknargs(L, 2);
+	return pushresult(L, rename(oldpath, newpath), NULL);
+}
+
 
 static const luaL_Reg posix_stdio_fns[] =
 {
 	LPOSIX_FUNC( Pctermid		),
 	LPOSIX_FUNC( Pfileno		),
 	LPOSIX_FUNC( Pfdopen		),
+	LPOSIX_FUNC( Prename		),
 	{NULL, NULL}
 };
 

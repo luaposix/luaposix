@@ -1,8 +1,8 @@
 /*
  * POSIX library for Lua 5.1, 5.2 & 5.3.
- * (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2015
- * (c) Reuben Thomas <rrt@sc3d.org> 2010-2013
- * (c) Natanael Copa <natanael.copa@gmail.com> 2008-2010
+ * Copyright (C) 2013-2016 Gary V. Vaughan
+ * Copyright (C) 2010-2013 Reuben Thomas <rrt@sc3d.org>
+ * Copyright (C) 2008-2010 Natanael Copa <natanael.copa@gmail.com>
  * Clean up and bug fixes by Leo Razoumov <slonik.az@gmail.com> 2006-10-11
  * Luiz Henrique de Figueiredo <lhf@tecgraf.puc-rio.br> 07 Apr 2006 23:17:49
  * Based on original by Claudio Terra for Lua 3.x.
@@ -23,19 +23,8 @@
 #include <sys/stat.h>
 #include <unistd.h>		/* for _POSIX_VERSION */
 
-#if HAVE_CURSES
-# if HAVE_NCURSESW_CURSES_H
-#    include <ncursesw/curses.h>
-# elif HAVE_NCURSESW_H
-#    include <ncursesw.h>
-# elif HAVE_NCURSES_CURSES_H
-#    include <ncurses/curses.h>
-# elif HAVE_NCURSES_H
-#    include <ncurses.h>
-# elif HAVE_CURSES_H
-#    include <curses.h>
-# endif
-#include <term.h>
+#if !defined PATH_MAX
+# define PATH_MAX 1024
 #endif
 
 /* Some systems set _POSIX_C_SOURCE over _POSIX_VERSION! */
@@ -48,12 +37,6 @@
 # ifndef LPOSIX_2001_COMPLIANT
 #   define LPOSIX_2001_COMPLIANT
 # endif
-#endif
-
-/* NetBSD's default curses implementation is not quite complete.  This
-   disables those missing functions unless linked to ncurses instead. */
-#if defined NCURSES_VERSION || !defined __NetBSD__
-#  define LPOSIX_CURSES_COMPLIANT 1
 #endif
 
 #include "lua.h"
@@ -170,32 +153,6 @@ checklong(lua_State *L, int narg)
 	return (long)checkinteger(L, narg, "int");
 }
 
-
-#if HAVE_CURSES
-static chtype
-checkch(lua_State *L, int narg)
-{
-	if (lua_isnumber(L, narg))
-		return (chtype)checkint(L, narg);
-	if (lua_isstring(L, narg))
-		return *lua_tostring(L, narg);
-
-	return argtypeerror(L, narg, "int or char");
-}
-
-
-static chtype
-optch(lua_State *L, int narg, chtype def)
-{
-	if (lua_isnoneornil(L, narg))
-		return def;
-	if (lua_isnumber(L, narg) || lua_isstring(L, narg))
-		return checkch(L, narg);
-	return argtypeerror(L, narg, "int or char or nil");
-}
-#endif
-
-
 static int
 optboolean(lua_State *L, int narg, int def)
 {
@@ -309,14 +266,15 @@ checknumberfield(lua_State *L, int index, const char *k)
 }
 
 static const char *
-checkstringfield(lua_State *L, int index, const char *k)
+checklstringfield(lua_State *L, int index, const char *k, size_t *plen)
 {
 	const char *r;
 	checkfieldtype(L, index, k, LUA_TSTRING, NULL);
-	r = lua_tostring(L, -1);
+	r = lua_tolstring(L, -1, plen);
 	lua_pop(L, 1);
 	return r;
 }
+#define checkstringfield(L,i,s) (checklstringfield(L,i,s,NULL))
 
 static int
 optintfield(lua_State *L, int index, const char *k, int def)
@@ -403,6 +361,13 @@ binding_notimplemented(lua_State *L, const char *fname, const char *libname)
 #define pushstringfield(k,v) LPOSIX_STMT_BEG {				\
 	if (v) {							\
 		lua_pushstring(L, (const char *) v);			\
+		lua_setfield(L, -2, k);					\
+	}								\
+} LPOSIX_STMT_END
+
+#define pushlstringfield(k,v,l) LPOSIX_STMT_BEG {			\
+	if (l > 0 && v) {						\
+		lua_pushlstring(L, (const char *) v, (size_t) l);	\
 		lua_setfield(L, -2, k);					\
 	}								\
 } LPOSIX_STMT_END

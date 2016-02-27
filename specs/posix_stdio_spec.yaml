@@ -1,21 +1,54 @@
 specify posix.stdio:
 - before:
     stdio = require "posix.stdio"
+    unistd = require "posix.unistd"
 
 
 - describe fdopen:
     - before:
         fdopen = stdio.fdopen
-        unistd = require "posix.unistd"
-        STDOUT_FILENO = unistd.STDOUT_FILENO
-        f = fdopen (STDOUT_FILENO, "w")
+        fd = fdopen (unistd.STDOUT_FILENO, "w")
 
     - context with bad arguments:
         badargs.diagnose (fdopen, "(int,string)")
 
     - it duplicates a stream:
-        expect (type (f)).to_be "userdata"
+        expect (type (fd)).to_be "userdata"
 
-    - it writes to the duplicated stream:
-        -- Lua 5.1 file.write returns true; > 5.1 returns file handle
-        expect (f:write ("writing to fdopen(stdout)\n")).not_to_be (nil)
+    - it writes to the duplicated stream: |
+        script = [[
+          local stdio   = require "posix.stdio"
+          local unistd  = require "posix.unistd"
+          local fd      = stdio.fdopen (unistd.STDOUT_FILENO, "w")
+
+          -- Lua 5.1 file.write returns true; > 5.1 returns file handle
+          local r = fd:write ("writing to fdopen(stdout)")
+
+          os.exit (r ~= nil and 0 or 1)
+        ]]
+        pending "issue #217"
+        expect (luaproc (script)).to_succeed_with "writing to fdopen(stdout)"
+
+
+- describe rename:
+    - before:
+        rename = stdio.rename
+        fd, path = require "posix.stdlib".mkstemp (template)
+    - after:
+        unistd.close (fd)
+        os.remove (path)
+
+    - context with bad arguments:
+        badargs.diagnose (rename, "(string,string)")
+
+    - it renames an existing file:
+        newpath = path .. ".renamed"
+        expect (fd).not_to_be (nil)
+        unistd.write (fd, "rename me")
+        rename (path, newpath)
+        expect (io.open (path, "r")).to_be (nil)
+        fh = io.open (newpath, "r")
+        expect (fh).not_to_be (nil)
+        expect (fh:read ()).to_be "rename me"
+        fh:close ()
+        rename (newpath, path)

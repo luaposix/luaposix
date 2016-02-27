@@ -46,7 +46,11 @@ specify posix:
   - it can detect failure:
       expect (f ({"false"})).to_equal (1)
   - it can pass a table of arguments:
-      expect (f ({"echo", "foo"})).to_equal(0)
+      script = [[
+        local spawn = require "posix".spawn
+        os.exit (spawn {"echo", "foo"} and 0 or 1)
+      ]]
+      expect (luaproc (script)).to_succeed_with "foo\n"
   - it can pass a function:
       # FIXME: If the function body contains:
       # io.stdout.write ("hello")
@@ -66,11 +70,16 @@ specify posix:
       pclose (p)
       expect (s).to_equal "foo\n"
 
-  - it spawns a command and writes its input:
-      p = popen ({"wc"}, "w")
-      s = "foo bar baz"
-      expect (write (p.fd, s)).to_equal (#s)
-      pclose (p)
+  - it spawns a command and writes its input: |
+      script = [[
+        local posix = require "posix"
+        local p = posix.popen ({"wc"}, "w")
+        local s = "foo bar baz\n"
+        local r = posix.write (p.fd, s)
+        posix.pclose (p)
+        os.exit (r == #s and 0 or 1)
+      ]]
+      expect (luaproc (script)).to_succeed_while_matching "^%s*1%s+3%s+12\n$"
 
 - describe popen_pipeline:
   - before:
@@ -84,71 +93,125 @@ specify posix:
       expect (read (p.fd, posix.BUFSIZ)).to_match ("^%s*1\n")
       pclose (p)
 
-  - it spawns a pipeline and writes its input:
-      s = "foo bar baz"
-      p = popen_pipeline ({{"cat"}, {"wc"}}, "w")
-      expect (write (p.fd, s)).to_equal (#s)
-      pclose (p)
+  - it spawns a pipeline and writes its input: |
+      script = [[
+        local posix = require "posix"
+        local s = "foo bar baz\n"
+        local p = posix.popen_pipeline ({{"cat"}, {"wc"}}, "w")
+        local r = posix.write (p.fd, s)
+        posix.pclose (p)
+        os.exit (r == #s and 0 or 1)
+      ]]
+      expect (luaproc (script)).to_succeed_while_matching "^%s*1%s+3%s+12\n$"
 
 
 - describe timeradd:
   - before:
-      tv1 = { sec = 2, usec = 123456 }
-      tv2 = { sec = 1, usec = 876543 }
+      tv1 = { tv_sec = 2, tv_usec = 123456 }
+      tv2 = { tv_sec = 1, tv_usec = 876543 }
+
       f = posix.timeradd
 
   - context with bad arguments:
       badargs.diagnose (f, "timeradd (table, table)")
 
-  - it adds both fields of a timerval:
-      expect (f (tv1, tv2)).to_equal { sec = 3, usec = 999999 }
-  - it carries overflow second:
-      expect (f (tv2, tv2)).to_equal { sec = 3, usec = 753086 }
-  - it does not require 'sec' field:
-      expect (f (tv1, {usec = 876543})).to_equal { sec = 2, usec = 999999 }
-      expect (f ({usec = 123456}, {usec = 876543})).to_equal { sec = 0, usec = 999999}
-  - it does not require 'usec' field:
-      expect (f (tv1, {sec = 1})).to_equal { sec = 3, usec = 123456 }
-      expect (f ({sec = 2}, {sec = 1})).to_equal { sec = 3, usec = 0 }
+  - context with systime.gettimeofday timervals:
+    - it adds both fields of a timerval:
+        expect (f (tv1, tv2)).to_equal { sec = 3, usec = 999999 }
+    - it adds both fields of a systime timerval:
+        expect (f (tv1, tv2)).to_equal { sec = 3, usec = 999999 }
+    - it carries overflow second:
+        expect (f (tv2, tv2)).to_equal { sec = 3, usec = 753086 }
+    - it does not require 'tv_sec' field:
+        expect (f (tv1, {tv_usec = 876543})).
+          to_equal { sec = 2, usec = 999999 }
+        expect (f ({tv_usec = 123456}, {tv_usec = 876543})).
+          to_equal { sec = 0, usec = 999999}
+    - it does not require 'tv_usec' field:
+        expect (f (tv1, {tv_sec = 1})).
+          to_equal { sec = 3, usec = 123456 }
+        expect (f ({tv_sec = 2}, {tv_sec = 1})).
+          to_equal { sec = 3, usec = 0 }
+  - context with legacy timervals:
+    - before:
+        stv1 = { sec = tv1.tv_sec, usec = tv1.tv_usec }
+        stv2 = { sec = tv2.tv_sec, usec = tv2.tv_usec }
+    - it adds both fields of a timerval:
+        expect (f (stv1, stv2)).to_equal { sec = 3, usec = 999999 }
+    - it carries overflow second:
+        expect (f (stv2, stv2)).to_equal { sec = 3, usec = 753086 }
+    - it does not require 'sec' field:
+        expect (f (stv1, {usec = 876543})).to_equal { sec = 2, usec = 999999 }
+        expect (f ({usec = 123456}, {usec = 876543})).to_equal { sec = 0, usec = 999999}
+    - it does not require 'usec' field:
+        expect (f (stv1, {sec = 1})).to_equal { sec = 3, usec = 123456 }
+        expect (f ({sec = 2}, {sec = 1})).to_equal { sec = 3, usec = 0 }
 
 
 - describe timercmp:
   - before:
-      tv1 = { sec = 2, usec = 123456 }
-      tv2 = { sec = 1, usec = 876543 }
+      tv1 = { tv_sec = 2, tv_usec = 123456 }
+      tv2 = { tv_sec = 1, tv_usec = 876543 }
       f = posix.timercmp
 
   - context with bad arguments:
       badargs.diagnose (f, "timercmp (table, table)")
 
-  - it returns 0 if timers are equal:
-      expect (f (tv1, tv1)).to_equal (0)
-  - it returns positive integer if second timer is greater than first:
-      expect (f (tv1, tv2) > 0).to_be (true)
-  - it returns negative integer if first timer is greater than the second:
-      expect (f (tv2, tv1) < 0).to_be (true)
+  - context with systime.gettimeofday timervals:
+    - it returns 0 if timers are equal:
+        expect (f (tv1, tv1)).to_equal (0)
+    - it returns positive integer if second timer is greater than first:
+        expect (f (tv1, tv2) > 0).to_be (true)
+    - it returns negative integer if first timer is greater than the second:
+        expect (f (tv2, tv1) < 0).to_be (true)
+  - context with legacy timervals:
+    - before:
+        stv1 = { sec = tv1.tv_sec, usec = tv1.tv_usec }
+        stv2 = { sec = tv2.tv_sec, usec = tv2.tv_usec }
+    - it returns 0 if timers are equal:
+        expect (f (stv1, stv1)).to_equal (0)
+    - it returns positive integer if second timer is greater than first:
+        expect (f (stv1, stv2) > 0).to_be (true)
+    - it returns negative integer if first timer is greater than the second:
+        expect (f (stv2, stv1) < 0).to_be (true)
 
 
 - describe timersub:
   - before:
-      tv1 = { sec = 2, usec = 876543 }
-      tv2 = { sec = 1, usec = 123456 }
+      tv1 = { tv_sec = 2, tv_usec = 876543 }
+      tv2 = { tv_sec = 1, tv_usec = 123456 }
       f = posix.timersub
 
   - context with bad arguments:
       badargs.diagnose (f, "timersub (table, table)")
 
-  - it subtracts both fields of a timerval:
-      expect (f (tv1, tv2)).to_equal { sec = 1, usec = 753087 }
-  - it carries overflow second:
-      expect (f (tv2, tv1)).to_equal { sec = -2, usec = 246913 }
-  - it does not require 'sec' field:
-      expect (f (tv1, {usec = 123456})).to_equal { sec = 2, usec = 753087 }
-      expect (f ({usec = 876543}, {usec = 123456})).
-        to_equal { sec = 0, usec = 753087}
-  - it does not require 'usec' field:
-      expect (f (tv1, {sec = 1})).to_equal { sec = 1, usec = 876543 }
-      expect (f ({sec = 2}, {sec = 1})).to_equal { sec = 1, usec = 0 }
+  - context with systime.gettimeofday timervals:
+    - it subtracts both fields of a timerval:
+        expect (f (tv1, tv2)).to_equal { sec = 1, usec = 753087 }
+    - it carries overflow second:
+        expect (f (tv2, tv1)).to_equal { sec = -2, usec = 246913 }
+    - it does not require 'tv_sec' field:
+        expect (f (tv1, {tv_usec = 123456})).to_equal { sec = 2, usec = 753087 }
+        expect (f ({tv_usec = 876543}, {tv_usec = 123456})).
+          to_equal { sec = 0, usec = 753087}
+    - it does not require 'tv_usec' field:
+        expect (f (tv1, {tv_sec = 1})).to_equal { sec = 1, usec = 876543 }
+        expect (f ({tv_sec = 2}, {tv_sec = 1})).to_equal { sec = 1, usec = 0 }
+  - context with legacy timervals:
+    - before:
+        stv1 = { sec = tv1.tv_sec, usec = tv1.tv_usec }
+        stv2 = { sec = tv2.tv_sec, usec = tv2.tv_usec }
+    - it subtracts both fields of a timerval:
+        expect (f (stv1, stv2)).to_equal { sec = 1, usec = 753087 }
+    - it carries overflow second:
+        expect (f (stv2, stv1)).to_equal { sec = -2, usec = 246913 }
+    - it does not require 'sec' field:
+        expect (f (stv1, {usec = 123456})).to_equal { sec = 2, usec = 753087 }
+        expect (f ({usec = 876543}, {usec = 123456})).
+          to_equal { sec = 0, usec = 753087}
+    - it does not require 'usec' field:
+        expect (f (stv1, {sec = 1})).to_equal { sec = 1, usec = 876543 }
+        expect (f ({sec = 2}, {sec = 1})).to_equal { sec = 1, usec = 0 }
 
 
 - specify file descriptors:

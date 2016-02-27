@@ -1,31 +1,25 @@
 -- -*- lua -*-
 title = "@PACKAGE_STRING@ Reference"
 project = "@PACKAGE_STRING@"
-description = "POSIX bindings for Lua (including curses)"
+description = "POSIX bindings for Lua"
 
 tparam_alias "string"
 tparam_alias "int"
 tparam_alias "bool"
 
--- Manual page links point to the OpenGroup SUSv3 spec.
-local upat = "http://pubs.opengroup.org/onlinepubs/009695399/functions/%s.html"
-custom_see_handler("^([%w_]+)%((%dx?)%)$",function(name,section)
+-- Manual page links point to the OpenGroup POSIX spec, issue 7 (POSIX.2008).
+local upat = "http://pubs.opengroup.org/onlinepubs/9699919799/functions/%s.html"
+custom_see_handler("^([%w_]+)%((%d)%)$",function(name,section)
     local url = upat:format(name)
     return name .. "(" .. section .. ")", url
 end)
 
 dir = "."
 file = {
-  -- Classes
-  "../ext/posix/curses/chstr.c",
-  "../ext/posix/curses/window.c",
-
-  -- Modules
   "../lib/posix/init.lua",
   "../lib/posix/compat.lua",  -- Documents added to posix module
 
   "../ext/posix/ctype.c",
-  "../ext/posix/curses.c",
   "../ext/posix/dirent.c",
   "../ext/posix/errno.c",
   "../ext/posix/fcntl.c",

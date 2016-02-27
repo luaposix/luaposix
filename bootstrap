@@ -1,36 +1,30 @@
 #! /bin/sh
 ## DO NOT EDIT - This file generated from build-aux/bootstrap.in
-##               by inline-source v2014-01-03.01
+##               by inline-source v2016-02-21.11
 
 # Bootstrap an Autotooled package from checked-out sources.
 # Written by Gary V. Vaughan, 2010
+# Inspired by a script written by Paul Eggert.
 
-# Copyright (C) 2010-2015 Free Software Foundation, Inc.
-# This is free software; see the source for copying conditions.  There is NO
-# warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# This is free software.  There is NO warranty; not even for
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# Copyright (C) 2010-2016 Bootstrap Authors
+#
+# This file is dual licensed under the terms of the MIT license
+# <https://opensource.org/license/MIT>, and GPL version 2 or later
+# <http://www.gnu.org/licenses/gpl-2.0.html>.  You must apply one of
+# these licenses when using or redistributing this software or any of
+# the files within it.  See the URLs above, or the file `LICENSE`
+# included in the Bootstrap distribution for the full license texts.
 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# You should place a copy of this script under version control in the
+# top-level directory of your project.  The intent is that all
+# customization can be done with a `bootstrap.conf` file also maintained
+# in your version control.
 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-# Originally written by Paul Eggert.  The canonical version of this
-# script is maintained as build-aux/bootstrap in gnulib, however, to
-# be useful to your project, you should place a copy of it under
-# version control in the top-level directory of your project.  The
-# intent is that all customization can be done with a bootstrap.conf
-# file also maintained in your version control; gnulib comes with a
-# template build-aux/bootstrap.conf to get you started.
-
-# Please report bugs or propose patches to bug-gnulib@gnu.org.
+# Please report bugs or propose patches to:
+# <https://github.com/gnulib-modules/bootstrap/issues>
 
 
 ## ------ ##
@@ -249,34 +243,25 @@ slingshot_url=$slingshot_url
 
 # Source required external libraries:
 # Set a version string for this script.
-scriptversion=2014-01-03.01; # UTC
+scriptversion=2016-02-21.11; # UTC
 
 # General shell script boiler plate, and helper functions.
 # Written by Gary V. Vaughan, 2004
 
-# Copyright (C) 2004-2014 Free Software Foundation, Inc.
-# This is free software; see the source for copying conditions.  There is NO
-# warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# This is free software.  There is NO warranty; not even for
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# Copyright (C) 2004-2016 Bootstrap Authors
+#
+# This file is dual licensed under the terms of the MIT license
+# <https://opensource.org/license/MIT>, and GPL version 2 or later
+# <http://www.gnu.org/licenses/gpl-2.0.html>.  You must apply one of
+# these licenses when using or redistributing this software or any of
+# the files within it.  See the URLs above, or the file `LICENSE`
+# included in the Bootstrap distribution for the full license texts.
 
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-
-# As a special exception to the GNU General Public License, if you distribute
-# this file as part of a program or library that is built using GNU Libtool,
-# you may include this file under the same distribution terms that you use
-# for the rest of that program.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNES FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/>.
-
-# Please report bugs or propose patches to gary@gnu.org.
+# Please report bugs or propose patches to:
+# <https://github.com/gnulib-modules/bootstrap/issues>
 
 
 ## ------ ##
@@ -377,7 +362,7 @@ func_path_progs ()
 
     _G_path_prog_max=0
     _G_path_prog_found=false
-    _G_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+    _G_save_IFS=$IFS; IFS=${PATH_SEPARATOR-:}
     for _G_dir in $_G_PATH; do
       IFS=$_G_save_IFS
       test -z "$_G_dir" && _G_dir=.
@@ -1765,30 +1750,26 @@ func_lt_ver ()
 # End:
 #! /bin/sh
 
-# Set a version string for this script.
-scriptversion=2014-01-07.03; # UTC
-
 # A portable, pluggable option parser for Bourne shell.
 # Written by Gary V. Vaughan, 2010
 
-# Copyright (C) 2010-2014 Free Software Foundation, Inc.
-# This is free software; see the source for copying conditions.  There is NO
-# warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# This is free software.  There is NO warranty; not even for
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# Copyright (C) 2010-2016 Bootstrap Authors
+#
+# This file is dual licensed under the terms of the MIT license
+# <https://opensource.org/license/MIT>, and GPL version 2 or later
+# <http://www.gnu.org/licenses/gpl-2.0.html>.  You must apply one of
+# these licenses when using or redistributing this software or any of
+# the files within it.  See the URLs above, or the file `LICENSE`
+# included in the Bootstrap distribution for the full license texts.
 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Please report bugs or propose patches to:
+# <https://github.com/gnulib-modules/bootstrap/issues>
 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-# Please report bugs or propose patches to gary@gnu.org.
+# Set a version string for this script.
+scriptversion=2016-02-21.11; # UTC
 
 
 ## ------ ##
@@ -1928,13 +1909,13 @@ func_run_hooks ()
 
     case " $hookable_fns " in
       *" $1 "*) ;;
-      *) func_fatal_error "'$1' does not support hook funcions.n" ;;
+      *) func_fatal_error "'$1' does not support hook functions." ;;
     esac
 
     eval _G_hook_fns=\$$1_hooks; shift
 
     for _G_hook in $_G_hook_fns; do
-      eval $_G_hook '"$@"'
+      eval $_G_hook '${1+"$@"}'
 
       # store returned options list back into positional
       # parameters for next 'cmd' execution.
@@ -2459,31 +2440,27 @@ func_version ()
 # Extract macro arguments from autotools input with GNU M4.
 # Written by Gary V. Vaughan, 2010
 #
-# Copyright (C) 2010-2014 Free Software Foundation, Inc.
-# This is free software; see the source for copying conditions.  There is NO
-# warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# This is free software.  There is NO warranty; not even for
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# Copyright (C) 2010-2016 Bootstrap Authors
+#
+# This file is dual licensed under the terms of the MIT license
+# <https://opensource.org/license/MIT>, and GPL version 2 or later
+# <http://www.gnu.org/licenses/gpl-2.0.html>.  You must apply one of
+# these licenses when using or redistributing this software or any of
+# the files within it.  See the URLs above, or the file `LICENSE`
+# included in the Bootstrap distribution for the full license texts.
+
+# Please report bugs or propose patches to:
+# <https://github.com/gnulib-modules/bootstrap/issues>
 
 # Make sure we've evaluated scripts we depend on.
 test -z "$progpath" && . `echo "$0" |${SED-sed} 's|[^/]*$||'`/funclib.sh
 test extract-trace = "$progname" && . `echo "$0" |${SED-sed} 's|[^/]*$||'`/options-parser
 
 # Set a version string.
-scriptversion=2014-12-03.16; # UTC
-
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-# Please report bugs or propose patches to gary@gnu.org.
+scriptversion=2016-02-21.11; # UTC
 
 
 # slingshot_copy FILENAME SRCDIR DESTDIR
@@ -2698,7 +2675,7 @@ func_find_tool ()
       for _G_prog
       do
         _G_find_tool_save_IFS=$IFS
-	IFS=:
+        IFS=${PATH_SEPARATOR-:}
 	for _G_dir in $PATH; do
 	  IFS=$_G_find_tool_save_IFS
 	  _G_progpath=$_G_dir/$_G_prog
@@ -3010,7 +2987,7 @@ test extract-trace = "$progname" && func_main "$@"
 # End:
 
 # Set a version string for *this* script.
-scriptversion=2014-11-04.13; # UTC
+scriptversion=2016-02-21.11; # UTC
 
 
 ## ------------------- ##

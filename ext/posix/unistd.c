@@ -1,8 +1,8 @@
 /*
  * POSIX library for Lua 5.1, 5.2 & 5.3.
- * (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2015
- * (c) Reuben Thomas <rrt@sc3d.org> 2010-2013
- * (c) Natanael Copa <natanael.copa@gmail.com> 2008-2010
+ * Copyright (C) 2013-2016 Gary V. Vaughan
+ * Copyright (C) 2010-2013 Reuben Thomas <rrt@sc3d.org>
+ * Copyright (C) 2008-2010 Natanael Copa <natanael.copa@gmail.com>
  * Clean up and bug fixes by Leo Razoumov <slonik.az@gmail.com> 2006-10-11
  * Luiz Henrique de Figueiredo <lhf@tecgraf.puc-rio.br> 07 Apr 2006 23:17:49
  * Based on original by Claudio Terra for Lua 3.x.
@@ -111,6 +111,21 @@ Paccess(lua_State *L)
 }
 
 
+/***
+Schedule an alarm signal.
+@function alarm
+@int seconds number of seconds to send SIGALRM in
+@return int number of seconds remaining in previous alarm or `0`
+@see alarm(2)
+@usage seconds = P.alarm(10)
+*/
+static int
+Palarm(lua_State *L)
+{
+	int seconds = checkint(L, 1);
+	checknargs(L, 1);
+	return pushintresult(alarm(seconds));
+}
 /***
 Set the working directory.
 @function chdir
@@ -326,7 +341,7 @@ Pexecp(lua_State *L)
 }
 
 
-#if LPOSIX_2001_COMPLIANT
+#if HAVE_FDATASYNC
 
 #if !HAVE_DECL_FDATASYNC
 extern int fdatasync ();
@@ -799,7 +814,7 @@ Preadlink(lua_State *L)
 	const char *path = luaL_checkstring(L, 1);
 	void *ud;
 	lua_Alloc lalloc;
-	ssize_t n;
+	ssize_t n, bufsiz;
 	int err;
 	checknargs(L, 1);
 	lalloc = lua_getallocf(L, &ud);
@@ -820,14 +835,15 @@ Preadlink(lua_State *L)
 	}
 
 	/* allocate a buffer for linkname, with no trailing \0 */
-	if ((b = lalloc(ud, NULL, 0, s.st_size)) == NULL)
+	bufsiz = s.st_size > 0 ? s.st_size : PATH_MAX;
+	if ((b = lalloc(ud, NULL, 0, bufsiz)) == NULL)
 		return pusherror(L, "lalloc");
 
-	n = readlink(path, b, s.st_size);
+	n = readlink(path, b, bufsiz);
 	err = errno; /* save readlink error code, if any */
-	if (n != -1)
-		lua_pushlstring(L, b, s.st_size);
-	lalloc(ud, b, s.st_size, 0);
+	if (n > 0)
+		lua_pushlstring(L, b, n);
+	lalloc(ud, b, bufsiz, 0);
 
 	/* report new errors from this function */
 	if (n < 0)
@@ -978,6 +994,46 @@ Pttyname(lua_State *L)
 }
 
 
+#if LPOSIX_2001_COMPLIANT
+/***
+Get id of foreground process group of terminal *fd*.
+@function tcgetpgrp
+@int fd the file descriptor of the controlling terminal of the current process
+@treturn[1] int id of foreground process group
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see tcgetpgrp(2)
+*/
+static int
+Ptcgetpgrp(lua_State *L)
+{
+	int fd = checkint(L, 1);
+	return pushresult(L, tcgetpgrp(fd), NULL);
+}
+
+
+/***
+Make process group *pgid* the foreground process group of terminal *fd*.
+@function tcsetpgrp
+@int fd the file descriptor of the controlling terminal of the current process
+@int pgid id of the process group to make foreground process group
+@treturn[1] int 0, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see tcsetpgrp(2)
+*/
+static int
+Ptcsetpgrp(lua_State *L)
+{
+	int fd = checkint(L, 1);
+	int pgid = checkint(L, 2);
+	return pushresult(L, tcsetpgrp(fd, pgid), NULL);
+}
+#endif
+
+
 /***
 Unlink a file.
 @function unlink
@@ -1022,6 +1078,7 @@ static const luaL_Reg posix_unistd_fns[] =
 {
 	LPOSIX_FUNC( P_exit		),
 	LPOSIX_FUNC( Paccess		),
+	LPOSIX_FUNC( Palarm		),
 	LPOSIX_FUNC( Pchdir		),
 	LPOSIX_FUNC( Pchown		),
 	LPOSIX_FUNC( Pclose		),
@@ -1032,7 +1089,7 @@ static const luaL_Reg posix_unistd_fns[] =
 	LPOSIX_FUNC( Pdup2		),
 	LPOSIX_FUNC( Pexec		),
 	LPOSIX_FUNC( Pexecp		),
-#if LPOSIX_2001_COMPLIANT
+#if HAVE_FDATASYNC
 	LPOSIX_FUNC( Pfdatasync		),
 #endif
 	LPOSIX_FUNC( Pfork		),
@@ -1064,6 +1121,10 @@ static const luaL_Reg posix_unistd_fns[] =
 	LPOSIX_FUNC( Psync		),
 	LPOSIX_FUNC( Psysconf		),
 	LPOSIX_FUNC( Pttyname		),
+#if LPOSIX_2001_COMPLIANT
+	LPOSIX_FUNC( Ptcgetpgrp		),
+	LPOSIX_FUNC( Ptcsetpgrp		),
+#endif
 	LPOSIX_FUNC( Punlink		),
 	LPOSIX_FUNC( Pwrite		),
 	{NULL, NULL}

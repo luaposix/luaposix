@@ -243,6 +243,64 @@ specify posix.deprecated:
   - "it sets argv[0]":
 
 
+- describe getpid:
+  - before:
+      unistd = require "posix.unistd"
+
+      getpid, typeerrors = init (posix, "getpid")
+
+  # posix.getpid takes an optional string or table as its first
+  # argument, followed by zero or more strings only if the first
+  # argument was a string; since we can't express that with
+  # `badargs.diagnose` do it all manually again...
+  - context with bad arguments:
+    - 'it diagnoses argument #1 type not table, string or nil':
+        expect (getpid (false)).to_raise.
+          any_of (typeerrors (1, "?table|string", "boolean"))
+    - 'it diagnoses argument #1 string invalid': |
+        expect (getpid ("fubar")).to_raise.any_of {
+          "bad argument #1 to '?' (invalid option 'fubar')",
+          "bad argument #1 to 'getpid' (invalid option 'fubar')",
+        }
+    - 'it diagnoses argument #2 type not string':
+        expect (getpid ("ppid", false)).
+          to_raise.any_of (typeerrors (2, "string", "boolean"))
+    - it diagnoses too many arguments:
+        expect (getpid ({}, false)).to_raise.any_of (typeerrors (2))
+
+    - it fetches the effective group id:
+        expect (getpid ().egid).to_be (unistd.getegid ())
+        expect (getpid "egid").to_be (unistd.getegid ())
+    - it fetches the effective user id:
+        expect (getpid ().euid).to_be (unistd.geteuid ())
+        expect (getpid "euid").to_be (unistd.geteuid ())
+    - it fetches the group id:
+        expect (getpid ().gid).to_be (unistd.getgid ())
+        expect (getpid "gid").to_be (unistd.getgid ())
+    - it fetches the user id:
+        expect (getpid ().uid).to_be (unistd.getuid ())
+        expect (getpid "uid").to_be (unistd.getuid ())
+    - it fetches the process group:
+        expect (getpid ().pgrp).to_be (unistd.getpgrp ())
+        expect (getpid "pgrp").to_be (unistd.getpgrp ())
+    - it fetches the process id:
+        expect (getpid ().pid).to_be (unistd.getpid ())
+        expect (getpid "pid").to_be (unistd.getpid ())
+    - it fetches the parent process id:
+        expect (getpid ().ppid).to_be (unistd.getppid ())
+        expect (getpid "ppid").to_be (unistd.getppid ())
+    - it returns them all when called with no argument:
+        expect (getpid()).to_equal {
+          egid = unistd.getegid (),
+          euid = unistd.geteuid (),
+          gid = unistd.getgid (),
+          uid = unistd.getuid (),
+          pgrp = unistd.getpgrp (),
+          pid = unistd.getpid (),
+          ppid = unistd.getppid (),
+        }
+
+
 - describe openlog:
   - before:
       openlog = posix.openlog

@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 33.3.0 Reference</title>
+    <title>luaposix 33.4.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 33.3.0</h1>
+<h1>luaposix 33.4.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -41,7 +41,6 @@
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../modules/posix.html">posix</a></li>
   <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
-  <li><a href="../modules/posix.curses.html">posix.curses</a></li>
   <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
   <li><a href="../modules/posix.errno.html">posix.errno</a></li>
   <li><a href="../modules/posix.fcntl.html">posix.fcntl</a></li>
@@ -71,15 +70,12 @@
   <li><a href="../modules/posix.unistd.html">posix.unistd</a></li>
   <li><a href="../modules/posix.utime.html">posix.utime</a></li>
 </ul>
-<h2>Classes</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
-  <li><a href="../classes/posix.curses.chstr.html">posix.curses.chstr</a></li>
-  <li><a href="../classes/posix.curses.window.html">posix.curses.window</a></li>
-</ul>
 <h2>Examples</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
-  <li><a href="../examples/curses.lua.html">curses.lua</a></li>
+  <li><a href="../examples/abstract-ns-client.lua.html">abstract-ns-client.lua</a></li>
+  <li><a href="../examples/abstract-ns-server.lua.html">abstract-ns-server.lua</a></li>
   <li><a href="../examples/dir.lua.html">dir.lua</a></li>
+  <li><a href="../examples/dup2.lua.html">dup2.lua</a></li>
   <li><a href="../examples/fork.lua.html">fork.lua</a></li>
   <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
   <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
@@ -148,7 +144,7 @@
 <br/>
 
 
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
     <dt>
@@ -178,7 +174,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -188,7 +184,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/tcdrain.html">tcdrain(3)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/tcdrain.html">tcdrain(3)</a>
     </ul>
 
 
@@ -224,7 +220,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -234,7 +230,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/tcflow.html">tcflow(3)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/tcflow.html">tcflow(3)</a>
     </ul>
 
 
@@ -270,7 +266,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -280,7 +276,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/tcflush.html">tcflush(3)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/tcflush.html">tcflush(3)</a>
     </ul>
 
 
@@ -317,7 +313,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -327,7 +323,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/tcgetattr.html">tcgetattr(3)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/tcgetattr.html">tcgetattr(3)</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -367,7 +363,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/tcsendbreak.html">tcsendbreak(3)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/tcsendbreak.html">tcsendbreak(3)</a>
     </ul>
 
 
@@ -409,7 +405,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/tcsetattr.html">tcsetattr(3)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/tcsetattr.html">tcsetattr(3)</a>
     </ul>
 
     <h3>Usage:</h3>
@@ -419,7 +415,7 @@
 
 </dd>
 </dl>
-    <h2><a name="Tables"></a>Tables</h2>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
 
     <dl class="function">
     <dt>
@@ -507,11 +503,9 @@ as long as they are supported by the underlying system.
         </li>
         <li><span class="parameter">cflag</span>
             <span class="types"><span class="type">int</span></span>
-         bitwise OR of zero or more of <code>B0</code>, <code>B50</code>, <code>B75</code>, <code>B110</code>,
-  <code>B134</code>, <code>B150</code>, <code>B200</code>, <code>B300</code>, <code>B600</code>, <code>B1200</code>, <code>B1800</code>, <code>B2400</code>,
-  <code>B4800</code>, <code>B9600</code>, <code>B19200</code>, <code>B38400</code>, <code>B57600</code>, <code>B115200</code>, <code>CSIZE</code>,
-  <code>CS5</code>, <code>CS6</code>, <code>CS7</code>, <code>CS8</code>, <code>CSTOPB</code>, <code>CREAD</code>, <code>PARENB</code>, <code>PARODD</code>,
-  <code>HUPCL</code>, <code>CLOCAL</code> and <code>CRTSCTS</code>
+         bitwise OR of zero or more of
+  <code>CSIZE</code>, <code>CS5</code>, <code>CS6</code>, <code>CS7</code>, <code>CS8</code>, <code>CSTOPB</code>, <code>CREAD</code>, <code>PARENB</code>,
+  <code>PARODD</code>, <code>HUPCL</code>, <code>CLOCAL</code> and <code>CRTSCTS</code>
         </li>
         <li><span class="parameter">iflag</span>
             <span class="types"><span class="type">int</span></span>
@@ -530,6 +524,16 @@ as long as they are supported by the underlying system.
   <code>OXTABS</code>, <code>ONOEOT</code>, <code>OCRNL</code>, <code>ONOCR</code>, <code>ONLRET</code>, <code>OFILL</code>, <code>NLDLY</code>,
   <code>TABDLY</code>, <code>CRDLY</code>, <code>FFDLY</code>, <code>BSDLY</code>, <code>VTDLY</code> and <code>OFDEL</code>
         </li>
+        <li><span class="parameter">ispeed</span>
+            <span class="types"><span class="type">int</span></span>
+         the input baud rate, one of <code>B0</code>, <code>B50</code>, <code>B75</code>, <code>B110</code>,
+  <code>B134</code>, <code>B150</code>, <code>B200</code>, <code>B300</code>, <code>B600</code>, <code>B1200</code>, <code>B1800</code>, <code>B2400</code>,
+  <code>B4800</code>, <code>B9600</code>, <code>B19200</code>, <code>B38400</code>, <code>B57600</code>, <code>B115200</code>,
+        </li>
+        <li><span class="parameter">ospeed</span>
+            <span class="types"><span class="type">int</span></span>
+         the output baud rate (see ispeed for possible values)
+        </li>
     </ul>
 
 
@@ -544,7 +548,7 @@ as long as they are supported by the underlying system.
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2015-03-01 09:06:02 </i>
+<i style="float:right;">Last updated 2016-02-27 14:10:34 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

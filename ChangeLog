@@ -1,4 +1,394 @@
+2016-02-27  Gary V. Vaughan  <gary@gnu.org>
+
+	Release version 33.4.0
+	* NEWS.md: Record release date.
+
+	maint: update NEWS.md.
+	* NEWS.md (Bugs fixed): Remove remaining mention of curses.  Note
+	musl libc fix in _POSIX_PRIORITY_SCHEDULING entry.
+
+	posix: handle thin gettimeofday tables from timer{add,cmp,sub}
+	Close #196
+	* specs/posix_spec.yaml (timeradd, timercmp, timersub): New
+	examples of behaviour when passed tables from new thin wrapper
+	tables from modern API.
+	* lib/posix.lua.in (timeradd, timercmp, timersub): Handle tv_sec
+	and tv_usec fields as an alternative to legacy sec and usec.
+	* NEWS.md (Bug fixes): Update.
+
+2016-02-26  Gary V. Vaughan  <gary@gnu.org>
+
+	specs: make failing fdopen specs pending issue #217 resolution.
+	* specs/posix_stdio_spec.yaml (fdopen): Now pending #217.
+
+	specs: improve PATH and LUA environment propagation to spawn.
+	* specs/spec_helper.lua (luaproc): Pass LUA and PATH to spawn
+	environment.
+	* specs/posix_stdio_spec.yaml (fdopen): Simplify output checking.
+
+	specs: os.exit only takes numeric arguments on Lua 5.1.
+	* specs/posix_spec.yaml (spawn, popen, popen_pipeline): Make
+	sure to always pass a numeric argument when calling os.exit, to
+	avoid failures on Lua 5.1.
+	* specs/posix_stdio_spec.yaml (fdpopen): Likewise.
+
+	specs: use portable unpack in spec_helpers
+	* specs/spec_helper.lua (unpack): Use table.unpack where available,
+	otherwise _G.unpack.
+
+2016-02-25  Gary V. Vaughan  <gary@gnu.org>
+
+	specs: don't leak spec example output into specl report summary
+	* specs/posix_spec.yaml (spawn, popen, popen_pipeline): Use
+	luaproc to force a separate Lua process to execute examples with
+	output; communicate success using exit status, and adjust
+	expectations to check for correct output.
+
+	specs: stat over soft-links behaves surprisingly on ext2fs.
+	* specs/posix_sys_stat_spec.yaml (posix.sys.stat): On ext2fs, the
+	size of an empty directory seems to be equal to the number of bytes
+	in its name.  So we have to put a file inside it for the softlink
+	examples to work.
+
+2016-02-24  Gary V. Vaughan  <gary@gnu.org>
+
+	gnulib: remove.
+	We were pulling in and syncing this whole huge repository for
+	just a couple of m4 macros under an unlimited license.
+	* slingshot: Sync with upstream for warnings.m4 et. al.
+	* gnulib: Remove.
+	* bootstrap.conf (gnulib_tool, require_dotgitmodules): Set to true
+	to turn off gnulib-tool machinery.
+	(gnulib_tool_options, gnulib_modules, gnulib_non_module_files):
+	Remove.
+	(slingshot_files): Add m4/warnings.m4 and m4/manywarnings.m4.
+	(luaposix_ignore_gnulib_ignore, luaposix_remove_empty_lib): Remove.
+	* configure.ac (gl_EARLY, gl_INIT): Remove.
+	* .gitignore: Add /m4.
+	* .travis.yml: Regenerate.
+
+	configury: rearrange AC macros to avoid an expansion order warning.
+	* configure.ac (AC_PROG_CC): Move after shell program checks.
+	(gl_EARLY): Move after AC_PROG_CC, per gnulib-tool recommendations.
+	(AC_USE_SYSTEM_EXTENSIONS): Move before gl_EARLY, to avoid
+	expansion order warning from autoconf.
+
+	slingshot: sync with upstream, for travis simplifications.
+	* slingshot: Sync with upstream.
+	* bootstrap: Regenerate, for license clarifications.
+	* .travis.yml: Regenerate, for travis simplifications.
+
+	configury: bump release version to 33.4.0.
+	* configure.ac (AC_INIT): Bump release version to 33.4.0.
+	* .travis.yml: Regenerate.
+
+2016-01-23  Gary V. Vaughan  <gary@gnu.org>
+
+	gnulib: sync with upstream.
+	* gnulib: Sync with upstream, so that bootstrap works with its
+	shallow copy of gnulib.
+
+	slingshot: sync with upstream.
+	* slingshot: Sync with upstream.
+	* bootstrap: Regenerate.
+
+2016-01-23  Gary V. Vaughan  <gary@vaughan.pe>
+
+	Merge pull request #241 from jjandresson/pull-request/split-out-curses
+	maint: move curses APIs back into their own library.
+
+2016-01-23  JJ Andresson  <jjandresson@gmail.com>
+
+	maint: move curses APIs back into their own library.
+	* examples/curses.lua, ext/posix/curses.c,
+	ext/posix/curses/chstr.c, ext/posix/curses/window.c,
+	lib/curses.lua, m4/ax_with_curses.m4, specs/curses_spec.yaml:
+	Remove.
+	* .x-update-copyright, build-aux/config.ld.in, configure.ac,
+	ext/include/_helpers.c, ext/posix/posix.c, local.mk,
+	rockspec.conf, specs/specs.mk: Delete references to removed
+	curses files.
+	* AUTHORS, README.md: Remove mentions of curses.
+	* NEWS.md: Update.
+
+2016-01-06  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: bump copyright years.
+	* COPYING, bootstrap.conf, configure.ac, ext/include/_helpers.c,
+	ext/posix/ctype.c, ext/posix/curses.c, ext/posix/curses/chstr.c,
+	ext/posix/curses/window.c, ext/posix/dirent.c, ext/posix/errno.c,
+	ext/posix/fcntl.c, ext/posix/fnmatch.c, ext/posix/getopt.c,
+	ext/posix/glob.c, ext/posix/grp.c, ext/posix/libgen.c,
+	ext/posix/poll.c, ext/posix/posix.c, ext/posix/pwd.c,
+	ext/posix/sched.c, ext/posix/signal.c, ext/posix/stdio.c,
+	ext/posix/stdlib.c, ext/posix/sys/msg.c, ext/posix/sys/resource.c,
+	ext/posix/sys/socket.c, ext/posix/sys/stat.c,
+	ext/posix/sys/statvfs.c, ext/posix/sys/time.c,
+	ext/posix/sys/times.c, ext/posix/sys/utsname.c,
+	ext/posix/sys/wait.c, ext/posix/syslog.c, ext/posix/termio.c,
+	ext/posix/time.c, ext/posix/unistd.c, ext/posix/utime.c,
+	lib/posix.lua.in, lib/posix/_argcheck.lua, lib/posix/compat.lua,
+	lib/posix/deprecated.lua, lib/posix/util.lua, local.mk,
+	slingshot: Update format for `make update-copyright`, then use it to
+	add 2016 to copyright years.
+
+2016-01-05  Gary V. Vaughan  <gary@gnu.org>
+
+	Merge branch 'jander-patch-2'
+
+	examples: bring fork2.lua uptodate with modern luaposix API.
+	* examples/fork2.lua: fix 'global posix is nil' error.
+	* NEWS.md (Bugs Fixed): Update.
+
+	slingshot: update to latest revision for Travis GCE compatibility.
+	* slingshot: Pull latest upstream.
+	* .travis.yml: Regenerate.
+
+2015-12-31  jander  <jander.sy@163.com>
+
+	Update fork2.lua
+	fix global 'posix' is nil
+
+2015-11-20  Gary V. Vaughan  <gary@vaughan.pe>
+
+	Merge pull request #239 from jimmyharris/fix-termios
+	Preserve baud rates in termios table
+
+2015-11-20  James Harris  <james.harris@garmin.com>
+
+	Preserve baud rates in termios table
+	Previous versions of the termios interface assumed that the baud rate
+	constants B0 B50 ... B115200 were bit masks that needed to be set in the
+	cflags member of the termios struct. On most modern operating systems
+	those are actually mapped to different members (not usually documented)
+	that contain the baud speed. This speed is set using the posix
+	functions: cfgetispeed(), cfgetospeed(), cfsetispeed(), and
+	cfsetospeed(). Because the termios_p struct is translated into a lua
+	table rather than being maintained in its original data format, extra
+	information like the baud rate is lost.  This doesn't effect
+	manipulations on ptty devices, but attempting to use this functionality
+	over a physical serial connection results in the baud rate being set to
+	whatever value was in the termios_p when it was created.
+
+	This patch fixes this issue by adding the ispeed and ospeed to the lua
+	representation of termios_p. This will allow luaposix to properly handle
+	serial files backed by physical pipes.
+
+2015-10-19  Gary V. Vaughan  <gary@gnu.org>
+
+	posix: don't leak execx into global namespace.
+	Close #236
+	* lib/posix.lua.in (execx): Should be declared as a local.
+	* NEWS.md (Bugs Fixed): Update.
+	Reported by Felix Strilitz
+
+2015-10-18  Gary V. Vaughan  <gary@gnu.org>
+
+	unistd: readlink works on links to special devices.
+	* ext/include/_helpers.c (PATH_MAX): Fall back to 1024 if the
+	system headers don't define this.
+	* ext/posix/unistd.c (Preadlink): When st_size is zero, as is the
+	case for symlinks to some character and buffer devices on OSX,
+	write the symlink destination path into a PATH_MAX length buffer
+	instead of an st_size length buffer!
+	* NEWS.md (Bug Fixes): Update.
+
+2015-10-16  Gary V. Vaughan  <gary@gnu.org>
+
+	examples: demonstrate use of pipe and dup2 for fork/exec prep.
+	* examples/dup2.lua: New file.  People often want to call a
+	subprocess and collect the output, error and status of that
+	process in the parent.  Here is a simple example of just that!
+
+	Merge branch 'Deoxyribonucleic-tcxetpgrp'
+
+2015-10-16  Nils Ceberg  <nils.ceberg@gmail.com>
+
+	unistd: add bindings to functions tcgetpgrp, tcsetpgrp
+	Close #234
+	* ext/posix/unistd.c (tcgetpgrp, tcsetpgrp): New API bindings
+	where supported by host C library.
+	* NEWS.md (New Features): Update.
+
+2015-10-14  Gary V. Vaughan  <gary@gnu.org>
+
+	socket: fix a typo in AF_NETLINK refactor.
+	* ext/posix/sys/socket.c (pushsockaddrinfo): There's only one 'n'
+	in 'sockaddr_nl'.
+
+	socket: apparently Linux doesn't have sockaddr_un.sun_len.
+	* ext/posix/sys/socket.c (pushsockaddrinfo): Use sizeof on the
+	sun_path array, and always save the entire buffer.
+
+	socket: handle AF_UNIX socket path string lengths properly.
+	Close #232
+	* ext/include/_helpers.c (checkstringfield): Add a length pointer,
+	and...
+	(checklstringfield): ...rename to this.
+	(checkstringfield): Add a macro wrapper for the old API.
+	(pushlstringfield): New macro to push an lstring.
+	* ext/posix/sys/socket.c (pushsockaddrinfo): Use pushlstringfield
+	for AF_UNIX path field so as not to terminate at the first \0.
+	(sockaddr_from_lua): Use memcpy for the same reason.
+	* examples/abstract-ns-server.lua, examples/abstract-ns-client.lua:
+	New examples demonstrating non-NULL terminated AF_UNIX paths to
+	us the Linux abstract namespace.
+	* NEWS.md (New Features, Bugs Fixed): Update.
+
+2015-10-06  Gary V. Vaughan  <gary@gnu.org>
+
+	docs: don't mention removed KEY_MOUSE.
+	* ext/posix/curses.c: Remove KEY_MOUSE doc table entry.
+	Reported by Peter Melnichenko.
+
+2015-10-03  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: update README.md.
+	Closes #233.
+	* README.md: Update and overhaul.
+
+2015-08-26  Gary V. Vaughan  <gary@gnu.org>
+
+	specs: add full examples for deprecated posix.getpid behaviour.
+	* specs/posix_compat_spec.yaml (getpid): Move from here...
+	* specs/posix_deprecated_spec.yaml (getpid): ...to here.  Add
+	examples of fetching each supported syscall result, as well as
+	default full table when called with no arguments.
+
+2015-08-23  Gary V. Vaughan  <gary@gnu.org>
+
+	configury: set and use HAVE_FDATASYNC for fdatasync support.
+	FreeBSD 10.x claims POSIX.2001 compliance, but doesn't implement
+	the fdatasync API.
+	* configure.ac (AC_CHECK_FUNCS): Add fdatasync.
+	* ext/posix/unistd.c (Pfdatasync, posix_unistd_fns): Elide
+	posix.unistd.fdatasync when HAVE_FDATASYNC was not specified,
+	instead of LPOSIX_2001_COMPLIANT.
+
+	configury: don't mess up visible symbols on FreeBSD 10.x.
+	* configure.ac: Add openbsd* to the list of platforms that are
+	already POSIX.2008 compliant, until _XOPEN_SOURCE definition turns
+	off all the other stuff.
+
+2015-07-04  Timo Teräs  <timo.teras@iki.fi>
+
+	fcntl: add constants FD_CLOEXEC, and O_CLOEXEC where supported.
+	Close #227.
+	* ext/posix/fcntl.c (O_CLOEXEC): Default to `0` when not defined
+	by underlying system so that it can be ORed successfully.
+	(open): Note O_CLOEXEC in LDocs.
+	(O_CLOEXEC, FD_CLOEXEC): Define as Lua constants.
+	* NEWS (New Features): Update.
+
+2015-07-04  Gary V. Vaughan  <gary@gnu.org>
+
+	doc: update opengroup manual links to issue 7 webpages.
+	* build-aux/config.ld.in (upat): Build issue 7 links.
+	* NEWS.md (New Features): Update.
+
+	maint: add new posix.stdio.rename binding to NEWS.
+	* NEWS.md (New Features): Add posix.stdio.rename binding.
+
+2015-06-30  Ico Doornekamp  <ico@pruts.nl>
+
+	stdio: add rename(2) binding.
+	Closes #228, #229
+	* specs/posix_stdio_spec.yaml (rename): Specify behaviour of
+	posix.stdio.rename.
+	* ext/posix/stdio.c (Prename): Bind rename(2).
+	(posix_stdio_fns): Export Prename.
+
+2015-06-30  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: add MIT license badge to README.md.
+	* README.md: Add MIT license badge.
+
+2015-06-27  Gary V. Vaughan  <gary@gnu.org>
+
+	slingshot: sync with upstream for Travis Lua 5.3.1 support.
+	* slingshot: Sync with upstream.
+	* .travis.yml: Regenerate.
+
+2015-06-20  Reuben Thomas  <rrt@sc3d.org>
+
+	Fix docstring for spawn
+
+2015-06-14  BJ Black  <bblack@barracuda.com>
+
+	unistd: add support for alarm(2).
+	Close #226
+	* specs/posix_unistd_spec.yaml (alarm): Specify correct behaviour
+	for new alarm(2) call.
+	* ext/posix/unistd.c (Palarm): Implement it.
+	(posix_unistd_fns): Add Palarm.
+
+2015-04-07  Gary V. Vaughan  <gary@vaughan.pe>
+
+	sched: workaround glibc _POSIX_PRIORITY_SCHEDULING bug.
+	Close #223.
+	* configure.ac (AC_CHECK_HEADERS): Add sched.h.
+	* ext/posix/sched.c: Remove unistd.h; Predicate use of priority
+	scheduling APIs on presence of sched.h instead of
+	_POSIX_PRIORITY_SCHEDULING macro erroneously defined by glibc on
+	Linux.
+	Reported by ncopa@github.com.
+
+2015-03-22  Gary V. Vaughan  <gary@vaughan.pe>
+
+	curses: fix links to opengroup manual pages.
+	Close #220
+	* build-aux/config.ld.in (cpat): Define a new custom handler for
+	3x manual pages to set curses urls correctly.
+	* ext/posix/curses.c, ext/posix/curses/window.c: Fix LDoc @see
+	references to point to existing opengroup pages.
+	* NEWS.md (Bugs Fixed): Update.
+
+	docs: fix return type of curses.window:getch.
+	Close #222
+	* ext/posix/curses/window.c (Wgetch): This function returns the
+	character from the window's input buffer as an int, not a bool.
+	Reported by Boris Nagaev <bnagaev@gmail.com>
+
+	docs: add missing y and x parameters to curses.window:mvaddch.
+	Close #221
+	* ext/posix/curses/window.c (Wmvaddch): Add missing y and x
+	parameters to doc-comments.
+	Reported by Boris Nagaev <bnagaev@gmail.com>
+
+2015-03-07  Gary V. Vaughan  <gary@gnu.org>
+
+	slingshot: sync with upstream, to subproject .travis.yml.
+	* slingshot: Sync with upstream.
+	* .travis.yml: Regenerate.
+
+	examples: be consistent with spaces before parens.
+	* examples/curses.lua: Be consistent with spaces before parens.
+
+2015-03-07  Gary V. Vaughan  <gary@vaughan.pe>
+
+	Merge pull request #219 from starius/master
+	curses example: use Lua boolean false instead of 0
+
+2015-03-07  Boris Nagaev  <bnagaev@gmail.com>
+
+	curses example: use Lua boolean false instead of 0
+	curses.echo(0) is actually curses.echo(false), because
+	value 0 is truthy in Lua.
+
+2015-03-03  Reuben Thomas  <rrt@sc3d.org>
+
+	posix/stdio.c: fix usage example for fdopen
+	Thanks, Philipp Janda.
+
+	posix/stdio.c: add missing parameter documentation to fdopen
+	Thanks, Philipp Janda.
+
 2015-03-01  Gary V. Vaughan  <gary@gnu.org>
+
+	maint: post-release administrivia.
+	* NEWS: Add header line for next release.
+	* .prev-version: Record previous version.
+	* ./local.mk (old_NEWS_hash): Auto-update.
 
 	Release version 33.3.1
 	* NEWS.md: Record release date.

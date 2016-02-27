@@ -1,3 +1,6 @@
+local unpack = table.unpack or unpack
+
+
 if os.getenv "installcheck" == nil then
   -- Unless we're running inside `make installcheck`, add the dev-tree
   -- directories to the module search paths.
@@ -64,10 +67,13 @@ function luaproc (code, arg, stdin)
   -- cmd constructor
   cmd.stdin = stdin
   cmd.env = {
+    LUA		 = LUA,
     LUA_CPATH    = package.cpath,
     LUA_PATH     = package.path,
     LUA_INIT     = "",
-    LUA_INIT_5_2 = ""
+    LUA_INIT_5_2 = "",
+    LUA_INIT_5_3 = "",
+    PATH	 = os.getenv "PATH"
   }
   local proc = hell.spawn (cmd)
   os.remove (f)

@@ -1,8 +1,8 @@
 /*
  * POSIX library for Lua 5.1, 5.2 & 5.3.
- * (c) Gary V. Vaughan <gary@vaughan.pe>, 2013-2015
- * (c) Reuben Thomas <rrt@sc3d.org> 2010-2013
- * (c) Natanael Copa <natanael.copa@gmail.com> 2008-2010
+ * Copyright (C) 2013-2016 Gary V. Vaughan
+ * Copyright (C) 2010-2013 Reuben Thomas <rrt@sc3d.org>
+ * Copyright (C) 2008-2010 Natanael Copa <natanael.copa@gmail.com>
  * Clean up and bug fixes by Leo Razoumov <slonik.az@gmail.com> 2006-10-11
  * Luiz Henrique de Figueiredo <lhf@tecgraf.puc-rio.br> 07 Apr 2006 23:17:49
  * Based on original by Claudio Terra for Lua 3.x.
@@ -21,9 +21,10 @@
 
 #include <config.h>
 
-#include <unistd.h>	/* for _POSIX_PRIORITY_SCHEDULING */
+/* cannot use unistd.h for _POSIX_PRIORITY_SCHEDULING, because on Linux
+   glibc it is defined even though the APIs are not implemented :-(     */
 
-#ifdef _POSIX_PRIORITY_SCHEDULING
+#ifdef HAVE_SCHED_H
 #include <sched.h>
 #endif
 

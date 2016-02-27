@@ -1,13 +1,13 @@
 ## configure.ac
 ## Written by Gary V. Vaughan, 2012
 
-## Copyright (c) 2012-2015 Gary V. Vaughan
+## Copyright (C) 2012-2016 Gary V. Vaughan
 
 ## This file is part of luaposix.
 ## See README for license.
 ## ------------------------------------------------------------------------
 
-AC_INIT([luaposix], [33.3.1], [http://github.com/luaposix/luaposix/issues])
+AC_INIT([luaposix], [33.4.0], [http://github.com/luaposix/luaposix/issues])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -18,18 +18,18 @@ AM_INIT_AUTOMAKE([-Wall subdir-objects])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 ## Check for programs
-AC_PROG_CC
-gl_EARLY
 AC_PROG_MKDIR_P
 AC_PROG_EGREP
 AC_PROG_SED
+AC_PROG_CC
+
+AC_USE_SYSTEM_EXTENSIONS
 
 
 ## ------------------------------------------------------------------------
 ## Compiler flags for POSIX 2008 or better compliance.
 ## ------------------------------------------------------------------------
 
-AC_USE_SYSTEM_EXTENSIONS
 AC_CANONICAL_HOST
 case $host_os in
   *nto*|*qnx*)
@@ -38,7 +38,7 @@ case $host_os in
     AC_SUBST([POSIX_EXTRA_CPPFLAGS], [-DLPOSIX_2001_COMPLIANT])
     ;;
 
-  darwin*|openbsd*)
+  darwin*|freebsd*|openbsd*)
     # Setting _XOPEN_SOURCE here messes up header declarations, but
     # all functions luaposix can bind are available without it.
     AC_SUBST([POSIX_EXTRA_CPPFLAGS], [-DLPOSIX_2008_COMPLIANT])
@@ -110,11 +110,9 @@ AC_SUBST([objdir])
 AC_SUBST([shrext])
 AC_SUBST(LIBTOOL_DEPS)
 
-gl_INIT
-
 ## Check for header files
 AC_HEADER_STDC
-AC_CHECK_HEADERS([crypt.h strings.h sys/statvfs.h])
+AC_CHECK_HEADERS([crypt.h sched.h strings.h sys/statvfs.h])
 AC_CHECK_HEADERS([net/if.h linux/netlink.h], [], [], [
 #include <sys/socket.h>
 ])
@@ -128,7 +126,8 @@ case $ac_cv_header_sys_msg_h,$ac_cv_func_msgrcv,$ac_cv_func_msgsnd in
     ;;
 esac
 
-
+## FreeBSD 10.x doesn't have fdatasync.
+AC_CHECK_FUNCS([fdatasync])
 AC_CHECK_DECLS_ONCE([fdatasync])
 
 ## Search libs
@@ -151,15 +150,6 @@ save_LIBS=$LIBS
 LIBS=
 AC_CHECK_LIB([rt], [clock_gettime])
 AC_SUBST([LIBRT], [$LIBS])
-LIBS=$save_LIBS
-
-## Curses
-AX_WITH_CURSES
-AC_ARG_VAR(CURSES_LIB, [linker flags for curses library])
-
-save_LIBS=$LIBS
-LIBS="$CURSES_LIB $LIBS"
-AC_CHECK_FUNCS([resizeterm])
 LIBS=$save_LIBS
 
 ## Use system implementation, or bundled replacement?

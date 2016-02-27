@@ -1,3 +1,0 @@
-describe posix.curses:
-- it can be loaded with require:
-    curses = require "curses"

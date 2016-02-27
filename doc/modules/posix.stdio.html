@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 33.3.0 Reference</title>
+    <title>luaposix 33.4.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 33.3.0</h1>
+<h1>luaposix 33.4.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -41,7 +41,6 @@
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
   <li><a href="../modules/posix.html">posix</a></li>
   <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
-  <li><a href="../modules/posix.curses.html">posix.curses</a></li>
   <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
   <li><a href="../modules/posix.errno.html">posix.errno</a></li>
   <li><a href="../modules/posix.fcntl.html">posix.fcntl</a></li>
@@ -71,15 +70,12 @@
   <li><a href="../modules/posix.unistd.html">posix.unistd</a></li>
   <li><a href="../modules/posix.utime.html">posix.utime</a></li>
 </ul>
-<h2>Classes</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
-  <li><a href="../classes/posix.curses.chstr.html">posix.curses.chstr</a></li>
-  <li><a href="../classes/posix.curses.window.html">posix.curses.window</a></li>
-</ul>
 <h2>Examples</h2>
 <ul class="$(kind=='Topics' and '' or 'nowrap'">
-  <li><a href="../examples/curses.lua.html">curses.lua</a></li>
+  <li><a href="../examples/abstract-ns-client.lua.html">abstract-ns-client.lua</a></li>
+  <li><a href="../examples/abstract-ns-server.lua.html">abstract-ns-server.lua</a></li>
   <li><a href="../examples/dir.lua.html">dir.lua</a></li>
+  <li><a href="../examples/dup2.lua.html">dup2.lua</a></li>
   <li><a href="../examples/fork.lua.html">fork.lua</a></li>
   <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
   <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
@@ -114,12 +110,16 @@
 	<td class="summary">Name of controlling terminal.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#fdopen">fdopen (fd)</a></td>
+	<td class="name" nowrap><a href="#fdopen">fdopen (fd, mode)</a></td>
 	<td class="summary">Create a Lua file object from a file descriptor.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#fileno">fileno (file)</a></td>
 	<td class="summary">File descriptor corresponding to a Lua file object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rename">rename (oldpath, newpath)</a></td>
+	<td class="summary">Change the name or location of a file</td>
 	</tr>
 </table>
 <h2><a href="#Constants">Constants </a></h2>
@@ -134,7 +134,7 @@
 <br/>
 
 
-    <h2><a name="Functions"></a>Functions</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
     <dt>
@@ -149,21 +149,21 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         controlling terminal for current process
     </ol>
 
 
     <h3>See also:</h3>
     <ul>
-         <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/ctermid.html">ctermid(3)</a>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/ctermid.html">ctermid(3)</a>
     </ul>
 
 
 </dd>
     <dt>
     <a name = "fdopen"></a>
-    <strong>fdopen (fd)</strong>
+    <strong>fdopen (fd, mode)</strong>
     </dt>
     <dd>
     Create a Lua file object from a file descriptor.
@@ -174,6 +174,10 @@
         <li><span class="parameter">fd</span>
             <span class="types"><span class="type">int</span></span>
          file descriptor
+        </li>
+        <li><span class="parameter">mode</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         the mode in which to open the file descriptor
         </li>
     </ul>
 
@@ -188,7 +192,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -199,7 +203,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">stdout = P.fdopen (posix.STDOUT_FILENO)</pre>
+        <pre class="example">stdout = P.fdopen (posix.STDOUT_FILENO, <span class="string">"w"</span>)</pre>
     </ul>
 
 </dd>
@@ -230,7 +234,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -245,9 +249,64 @@
     </ul>
 
 </dd>
-</dl>
-    <h2><a name="Constants"></a>Constants </h2>
+    <dt>
+    <a name = "rename"></a>
+    <strong>rename (oldpath, newpath)</strong>
+    </dt>
+    <dd>
+    Change the name or location of a file
 
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">oldpath</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">newpath</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code> if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/rename.html">rename(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">
+<span class="keyword">local</span> ok, errmsg = P.rename (oldpath, newpath)
+<span class="keyword">if</span> <span class="keyword">not</span> ok <span class="keyword">then</span> error (errmsg) <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Constants"></a>Constants </h2>
 
     <dl class="function">
     <dt>
@@ -313,7 +372,7 @@ Any constants not available in the underlying system will be <code>nil</code> va
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2015-03-01 09:06:02 </i>
+<i style="float:right;">Last updated 2016-02-27 14:10:34 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

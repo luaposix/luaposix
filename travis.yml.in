@@ -1,97 +1,29 @@
-language: c
+language: python
+
+sudo: false
+
+addons:
+  apt:
+    packages:
+      - help2man
 
 env:
   global:
-    - _COMPILE="libtool --mode=compile --tag=CC gcc"
-    - _CFLAGS="-O2 -Wall -DLUA_COMPAT_ALL -DLUA_COMPAT_5_2 -DLUA_USE_LINUX"
-    - _INSTALL="libtool --mode=install install -p"
-    - _LINK="libtool --mode=link --tag=CC gcc"
-    - _LIBS="-lm -Wl,-E -ldl -lreadline"
-
-    - prefix=/usr/local
-    - bindir=$prefix/bin
-    - incdir=$prefix/include
-    - libdir=$prefix/lib
-
     - _inst=$TRAVIS_BUILD_DIR/_inst
     - luadir=$_inst/share/lua
     - luaexecdir=$_inst/lib/lua
   matrix:
-    - LUA=lua5.3
-    - LUA=lua5.2
-    - LUA=lua5.1
-    - LUA=luajit
+    - VLUA="lua=5.3"
+    - VLUA="lua=5.2"
+    - VLUA="lua=5.1"
+    - VLUA="luajit=2.1"
+    - VLUA="luajit=2.0"
 
 
 before_install:
-  # Put back the links for libyaml, which are missing on recent Travis VMs
-  - test -f /usr/lib/libyaml.so ||
-    sudo find /usr/lib -name 'libyaml*' -exec ln -s {} /usr/lib \;
-  - sudo apt-get install help2man
-
-  # Fetch Lua sources.
-  - cd $TRAVIS_BUILD_DIR
-  - 'if test lua5.3 = "$LUA"; then
-      curl http://www.lua.org/ftp/lua-5.3.0.tar.gz | tar xz;
-      cd lua-5.3.0;
-    fi'
-  - 'if test lua5.2 = "$LUA"; then
-      curl http://www.lua.org/ftp/lua-5.2.3.tar.gz | tar xz;
-      cd lua-5.2.3;
-    fi'
-  - 'if test lua5.1 = "$LUA"; then
-      curl http://www.lua.org/ftp/lua-5.1.5.tar.gz | tar xz;
-      cd lua-5.1.5;
-    fi'
-
-  # Unpack, compile and install Lua.
-  - 'if test luajit = "$LUA"; then
-      curl http://luajit.org/download/LuaJIT-2.0.3.tar.gz | tar xz;
-      cd LuaJIT-2.0.3;
-      make && sudo make install;
-      for header in lua.h luaconf.h lualib.h lauxlib.h luajit.h lua.hpp; do
-        if test -f /usr/local/include/luajit-2.0/$header; then
-          sudo ln -s /usr/local/include/luajit-2.0/$header /usr/local/include/$header;
-        fi;
-      done;
-    else
-      for src in src/*.c; do
-        test src/lua.c = "$src" || test src/luac.c = "$src" || eval $_COMPILE $_CFLAGS -c $src;
-      done;
-      eval $_LINK -o lib$LUA.la -version-info 0:0:0 -rpath $libdir *.lo;
-      sudo mkdir -p $libdir;
-      eval sudo $_INSTALL lib$LUA.la $libdir/lib$LUA.la;
-
-      eval $_COMPILE $_CFLAGS -c src/lua.c;
-      eval $_LINK -static -o $LUA lua.lo lib$LUA.la $_LIBS;
-      sudo mkdir -p $bindir;
-      eval sudo $_INSTALL $LUA $bindir/$LUA;
-
-      sudo mkdir -p $incdir;
-      for header in lua.h luaconf.h lualib.h lauxlib.h lua.hpp; do
-        if test -f src/$header; then
-          eval sudo $_INSTALL src/$header $incdir/$header;
-        fi;
-      done;
-    fi'
-
-  # Fetch LuaRocks.
-  - cd $TRAVIS_BUILD_DIR
-  - 'git clone https://github.com/keplerproject/luarocks.git luarocks-2.2.0'
-  - cd luarocks-2.2.0
-  - git checkout v2.2.0
-
-  # Compile and install luarocks.
-  - if test luajit = "$LUA"; then
-      ./configure --lua-suffix=jit;
-    else
-      ./configure;
-    fi
-  - 'make build && sudo make install'
-
-  # Tidy up file droppings.
-  - cd $TRAVIS_BUILD_DIR
-  - rm -rf lua-5.3.0 lua-5.2.3 lua-5.1.5 LuaJIT-2.0.3 luarocks-2.2.0
+  - pip install hererocks
+  - hererocks here -r^ --$VLUA
+  - export PATH=$PWD/here/bin:$PATH
 
 
 install:
@@ -99,7 +31,7 @@ install:
   - 'for rock in @EXTRA_ROCKS@""; do
        if test -z "$rock"; then break; fi;
        if luarocks list | grep "^$rock$" >/dev/null; then continue; fi;
-       sudo luarocks install --server=http://rocks.moonscript.org/manifests/gvvaughan $rock;
+       luarocks install --server=http://rocks.moonscript.org/manifests/gvvaughan $rock;
     done'
 
   # Fudge timestamps on release branches.
@@ -110,20 +42,22 @@ install:
       sleep 1; touch configure;
     fi'
 
-  # Build from rockspec.
-  - export ROCKSPEC=@PACKAGE@-@VERSION@-1.rockspec
-  - 'test -f "$ROCKSPEC" || ROCKSPEC=@PACKAGE@-git-1.rockspec'
-  - sudo luarocks make $ROCKSPEC LUA="$LUA"
-
-  # Clean up files created by root
-  - sudo git clean -dfx
-  - sudo rm -rf slingshot /tmp/ldoc
+  # Build from rockspec, forcing uninstall of older luarocks installed
+  # above when testing the git rockspec, both for enforcing backwards
+  # compatibility by default, and for ease of maintenance.
+  - if test -f '@PACKAGE@-@VERSION@-1.rockspec'; then
+      luarocks make '@PACKAGE@-@VERSION@-1.rockspec';
+    else
+      luarocks make --force '@PACKAGE@-git-1.rockspec';
+    fi
 
 
 script:
   # Reconfigure for in-tree test install.
   - test -f configure || ./bootstrap --verbose
-  - ./configure --prefix="$_inst" --disable-silent-rules LUA="$LUA"
+  - LUA=`pwd`/here/bin/lua
+    LUA_INCLUDE=-I`pwd`/here/include
+    ./configure --prefix="$_inst" --disable-silent-rules
 
   # Verify luarocks installation.
   - make installcheck || make installcheck V=1
