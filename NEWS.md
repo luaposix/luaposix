@@ -44,11 +44,10 @@
 
 ### Bugs Fixed
 
-  - Links to OpenGroup specs for curses function in section 3x now work.
-
   - Workaround for https://sourceware.org/bugzilla/show_bug.cgi?id=15088.
     Predicate use of POSIX sched.h APIs on presence of sched.h, since glibc
-    defines _POSIX_PRIORITY_SCHEDULING erroneously.
+    defines _POSIX_PRIORITY_SCHEDULING erroneously, and musl libc
+    provides the sched.h APIs but doesn't define _POSIX_PRIORITY_SCHEDULING.
 
   - `posix.sys.socket` AF_UNIX APIs pass path arguments by length
     instead of terminating at the first \0 byte.
