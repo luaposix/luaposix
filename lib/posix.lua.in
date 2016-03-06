@@ -197,7 +197,7 @@ end
 
 --- Exec a command or Lua function.
 -- @function execx
--- @param task, a table of arguments to @{posix.unistd.execp} or a Lua
+-- @tparam table task argument list for @{posix.unistd.execp} or a Lua
 --   function, which should read from standard input, write to standard
 --   output, and return an exit code
 -- @param ... positional arguments to the function
@@ -235,7 +235,9 @@ end
 
 --- Run a command or function in a sub-process using @{posix.execx}.
 -- @function spawn
--- @param task, as for @{posix.execx}.
+-- @tparam table task argument list for @{posix.unistd.execp} or a Lua
+--   function, which should read from standard input, write to standard
+--   output, and return an exit code
 -- @param ... as for @{posix.execx}
 -- @return values as for @{posix.sys.wait.wait}
 
@@ -311,11 +313,15 @@ end
 
 --- Run a commands or Lua function in a sub-process.
 -- @function popen
--- @tparam task, as for @{posix.execx}
+-- @tparam table task argument list for @{posix.unistd.execp} or a Lua
+--   function, which should read from standard input, write to standard
+--   output, and return an exit code
 -- @tparam string mode `"r"` for read or `"w"` for write
 -- @func[opt] pipe_fn function returning a paired read and
 --   write file descriptor (*default* @{posix.unistd.pipe})
 -- @treturn pfd pipeline object
+-- @see posix.execx
+-- @see posix.spawn
 
 local function popen (task, mode, pipe_fn)
   local read_fd, write_fd = (pipe_fn or pipe) ()
