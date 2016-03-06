@@ -360,7 +360,9 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">status, errstr, errno = P.access(<span class="string">"/etc/passwd"</span>, <span class="string">"rw"</span>)</pre>
+        <pre class="example">
+  <span class="keyword">local</span> unistd = <span class="global">require</span> <span class="string">"posix.unistd"</span>
+  status, errstr, errno = unistd.access(<span class="string">"/etc/passwd"</span>, <span class="string">"rw"</span>)</pre>
     </ul>
 
 </dd>
@@ -394,7 +396,9 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">seconds = P.alarm(<span class="number">10</span>)</pre>
+        <pre class="example">
+  <span class="keyword">local</span> unistd = <span class="global">require</span> <span class="string">"posix.unistd"</span>
+  seconds = unistd.alarm(<span class="number">10</span>)</pre>
     </ul>
 
 </dd>
@@ -440,7 +444,9 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">status, errstr, errno = P.chdir(<span class="string">"/var/tmp"</span>)</pre>
+        <pre class="example">
+  <span class="keyword">local</span> unistd = <span class="global">require</span> <span class="string">"posix.unistd"</span>
+  status, errstr, errno = unistd.chdir (<span class="string">"/var/tmp"</span>)</pre>
     </ul>
 
 </dd>
@@ -495,8 +501,9 @@
     <h3>Usage:</h3>
     <ul>
         <pre class="example">
-<span class="comment">-- will fail for a normal user, and print an error
-</span><span class="global">print</span>(P.chown(<span class="string">"/etc/passwd"</span>,<span class="number">100</span>,<span class="number">200</span>))</pre>
+  <span class="keyword">local</span> unistd = <span class="global">require</span> <span class="string">"posix.unistd"</span>
+  <span class="comment">-- will fail for a normal user, and print an error
+</span>  <span class="global">print</span>(unistd.chown (<span class="string">"/etc/passwd"</span>, <span class="number">100</span>, <span class="number">200</span>))</pre>
     </ul>
 
 </dd>
@@ -543,8 +550,9 @@
     <h3>Usage:</h3>
     <ul>
         <pre class="example">
-<span class="keyword">local</span> ok, errmsg = P.close (log)
-<span class="keyword">if</span> <span class="keyword">not</span> ok <span class="keyword">then</span> error (errmsg) <span class="keyword">end</span></pre>
+  <span class="keyword">local</span> unistd = <span class="global">require</span> <span class="string">"posix.unistd"</span>
+  <span class="keyword">local</span> ok, errmsg = unistd.close (log)
+  <span class="keyword">if</span> <span class="keyword">not</span> ok <span class="keyword">then</span> error (errmsg) <span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -584,10 +592,13 @@ Not recommended for general encryption purposes.
     <h3>Usage:</h3>
     <ul>
         <pre class="example">
-<span class="keyword">local</span> salt, hash = pwent:match <span class="string">":$6$(.-)$([^:]+)"</span>
-<span class="keyword">if</span> P.crypt (trypass, salt) ~= hash <span class="keyword">then</span>
-  error <span class="string">"wrong password"</span>
-<span class="keyword">end</span></pre>
+  <span class="keyword">local</span> pwd = <span class="global">require</span> <span class="string">"posix.pwd"</span>
+  <span class="keyword">local</span> unistd = <span class="global">require</span> <span class="string">"posix.unistd"</span>
+
+  <span class="keyword">local</span> salt, hash = pwd.pwent:match <span class="string">":$6$(.-)$([^:]+)"</span>
+  <span class="keyword">if</span> unistd.crypt (trypass, salt) ~= hash <span class="keyword">then</span>
+    error <span class="string">"wrong password"</span>
+  <span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -633,7 +644,11 @@ Not recommended for general encryption purposes.
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"><span class="keyword">local</span> outfd = P.dup (P.fileno (<span class="global">io</span>.stdout))</pre>
+        <pre class="example">
+  <span class="keyword">local</span> stdio = <span class="global">require</span> <span class="string">"posix.stdio"</span>
+  <span class="keyword">local</span> unistd = <span class="global">require</span> <span class="string">"posix.unistd"</span>
+
+  outfd = unistd.dup (stdio.fileno (<span class="global">io</span>.stdout))</pre>
     </ul>
 
 </dd>
@@ -855,15 +870,17 @@ reallocated to <em>fd</em>.
     <h3>Usage:</h3>
     <ul>
         <pre class="example">
-<span class="keyword">local</span> pid, errmsg = P.fork ()
-<span class="keyword">if</span> pid == <span class="keyword">nil</span> <span class="keyword">then</span>
-  error (errmsg)
-<span class="keyword">elseif</span> pid == <span class="number">0</span> <span class="keyword">then</span>
-  <span class="global">print</span> (<span class="string">"in child:"</span>, P.getpid <span class="string">"pid"</span>)
-<span class="keyword">else</span>
-  <span class="global">print</span> (P.wait (pid))
-<span class="keyword">end</span>
-<span class="global">os</span>.exit ()</pre>
+  <span class="keyword">local</span> unistd = <span class="global">require</span> <span class="string">"posix.unistd"</span>
+
+  <span class="keyword">local</span> pid, errmsg = unistd.fork ()
+  <span class="keyword">if</span> pid == <span class="keyword">nil</span> <span class="keyword">then</span>
+    error (errmsg)
+  <span class="keyword">elseif</span> pid == <span class="number">0</span> <span class="keyword">then</span>
+    <span class="global">print</span> (<span class="string">"in child:"</span>, unistd.getpid <span class="string">"pid"</span>)
+  <span class="keyword">else</span>
+    <span class="global">print</span> (<span class="global">require</span> <span class="string">"posix.sys.wait"</span>.wait (pid))
+  <span class="keyword">end</span>
+  <span class="global">os</span>.exit ()</pre>
     </ul>
 
 </dd>
@@ -1389,7 +1406,9 @@ reallocated to <em>fd</em>.
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"><span class="keyword">for</span> a, b <span class="keyword">in</span> <span class="global">pairs</span> (P.pathconf <span class="string">"/dev/tty"</span>) <span class="keyword">do</span> <span class="global">print</span>(a, b) <span class="keyword">end</span></pre>
+        <pre class="example">
+  <span class="keyword">local</span> unistd = <span class="global">require</span> <span class="string">"posix.unistd"</span>
+  <span class="keyword">for</span> a, b <span class="keyword">in</span> <span class="global">pairs</span> (unistd.pathconf <span class="string">"/dev/tty"</span>) <span class="keyword">do</span> <span class="global">print</span>(a, b) <span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -2056,7 +2075,7 @@ Any constants not available in the underlying system will be <code>nil</code> va
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2016-02-27 14:02:19 </i>
+<i style="float:right;">Last updated 2016-03-06 15:33:23 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

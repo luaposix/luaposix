@@ -141,7 +141,7 @@
 	<td class="summary">Close a pipeline opened with popen or popen_pipeline.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#popen">popen (as, mode[, pipe_fn])</a></td>
+	<td class="name" nowrap><a href="#popen">popen (task, mode[, pipe_fn])</a></td>
 	<td class="summary">Run a commands or Lua function in a sub-process.</td>
 	</tr>
 	<tr>
@@ -154,7 +154,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#spawn">spawn (task, ...)</a></td>
-	<td class="summary">Run a command or function in a sub-process using <code>P.execx</code>.</td>
+	<td class="summary">Run a command or function in a sub-process using <a href="../modules/posix.html#execx">posix.execx</a>.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#timeradd">timeradd (x, y)</a></td>
@@ -235,7 +235,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">P.chmod (<span class="string">'bin/dof'</span>, <span class="string">'+x'</span>)</pre>
+        <pre class="example">chmod (<span class="string">'bin/dof'</span>, <span class="string">'+x'</span>)</pre>
     </ul>
 
 </dd>
@@ -287,7 +287,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">fd = P.creat (<span class="string">"data"</span>, <span class="string">"rw-r-----"</span>)</pre>
+        <pre class="example">fd = creat (<span class="string">"data"</span>, <span class="string">"rw-r-----"</span>)</pre>
     </ul>
 
 </dd>
@@ -335,9 +335,10 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">task</span>
-        , a table of arguments to <code>P.execp</code> or a Lua function, which
-   should read from standard input, write to standard output, and return
-   an exit code
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         argument list for <a href="../modules/posix.unistd.html#execp">posix.unistd.execp</a> or a Lua
+   function, which should read from standard input, write to standard
+   output, and return an exit code
         </li>
         <li><span class="parameter">...</span>
          positional arguments to the function
@@ -538,7 +539,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">fd = P.open (<span class="string">"data"</span>, bit.bor (P.O_CREAT, P.O_RDWR), <span class="string">"rw-r-----"</span>)</pre>
+        <pre class="example">fd = posix.open (<span class="string">"data"</span>, bit.bor (posix.O_CREAT, posix.O_RDWR), <span class="string">"rw-r-----"</span>)</pre>
     </ul>
 
 </dd>
@@ -561,7 +562,8 @@
     <h3>Returns:</h3>
     <ol>
 
-        values as for <code>P.wait</code>, for the last (or only) stage of the pipeline
+        values as for <a href="../modules/posix.sys.wait.html#wait">posix.sys.wait.wait</a>, for the last (or only)
+   stage of the pipeline
     </ol>
 
 
@@ -570,7 +572,7 @@
 </dd>
     <dt>
     <a name = "popen"></a>
-    <strong>popen (as, mode[, pipe_fn])</strong>
+    <strong>popen (task, mode[, pipe_fn])</strong>
     </dt>
     <dd>
     Run a commands or Lua function in a sub-process.
@@ -578,9 +580,11 @@
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">as</span>
-            <span class="types"><span class="type">task,</span></span>
-         for <a href="../modules/posix.html#execx">execx</a>
+        <li><span class="parameter">task</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         argument list for <a href="../modules/posix.unistd.html#execp">posix.unistd.execp</a> or a Lua
+   function, which should read from standard input, write to standard
+   output, and return an exit code
         </li>
         <li><span class="parameter">mode</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
@@ -602,6 +606,11 @@
     </ol>
 
 
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../modules/posix.html#execx">posix.execx</a></li>
+         <li><a href="../modules/posix.html#spawn">posix.spawn</a></li>
+    </ul>
 
 
 </dd>
@@ -617,7 +626,7 @@
     <ul>
         <li><span class="parameter">t</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
-         tasks for <a href="../modules/posix.html#execx">execx</a>
+         tasks for <a href="../modules/posix.html#execx">posix.execx</a>
         </li>
         <li><span class="parameter">mode</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
@@ -686,23 +695,26 @@
     <strong>spawn (task, ...)</strong>
     </dt>
     <dd>
-    Run a command or function in a sub-process using <code>P.execx</code>.
+    Run a command or function in a sub-process using <a href="../modules/posix.html#execx">posix.execx</a>.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">task</span>
-        , as for <code>P.execx</code>.
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+         argument list for <a href="../modules/posix.unistd.html#execp">posix.unistd.execp</a> or a Lua
+   function, which should read from standard input, write to standard
+   output, and return an exit code
         </li>
         <li><span class="parameter">...</span>
-         as for <code>P.execx</code>
+         as for <a href="../modules/posix.html#execx">posix.execx</a>
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        values as for <code>P.wait</code>
+        values as for <a href="../modules/posix.sys.wait.html#wait">posix.sys.wait.wait</a>
     </ol>
 
 
@@ -833,7 +845,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2016-02-27 14:02:19 </i>
+<i style="float:right;">Last updated 2016-03-06 15:33:23 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
