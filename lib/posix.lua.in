@@ -197,9 +197,9 @@ end
 
 --- Exec a command or Lua function.
 -- @function execx
--- @param task, a table of arguments to `P.execp` or a Lua function, which
---   should read from standard input, write to standard output, and return
---   an exit code
+-- @param task, a table of arguments to @{posix.unistd.execp} or a Lua
+--   function, which should read from standard input, write to standard
+--   output, and return an exit code
 -- @param ... positional arguments to the function
 -- @treturn nil on error (normally does not return)
 -- @treturn string error message
@@ -233,11 +233,11 @@ else
 end
 
 
---- Run a command or function in a sub-process using `P.execx`.
+--- Run a command or function in a sub-process using @{posix.execx}.
 -- @function spawn
--- @param task, as for `P.execx`.
--- @param ... as for `P.execx`
--- @return values as for `P.wait`
+-- @param task, as for @{posix.execx}.
+-- @param ... as for @{posix.execx}
+-- @return values as for @{posix.sys.wait.wait}
 
 local unpack = table.unpack or unpack -- 5.3 compatibility
 
@@ -276,7 +276,8 @@ local STDIN_FILENO, STDOUT_FILENO = M.STDIN_FILENO, M.STDOUT_FILENO
 --- Close a pipeline opened with popen or popen_pipeline.
 -- @function pclose
 -- @tparam table pfd pipeline object
--- @return values as for `P.wait`, for the last (or only) stage of the pipeline
+-- @return values as for @{posix.sys.wait.wait}, for the last (or only)
+--   stage of the pipeline
 
 local function pclose (pfd)
   close (pfd.fd)
@@ -310,7 +311,7 @@ end
 
 --- Run a commands or Lua function in a sub-process.
 -- @function popen
--- @tparam task, as for @{execx}
+-- @tparam task, as for @{posix.execx}
 -- @tparam string mode `"r"` for read or `"w"` for write
 -- @func[opt] pipe_fn function returning a paired read and
 --   write file descriptor (*default* @{posix.unistd.pipe})
@@ -361,7 +362,7 @@ end
 
 --- Perform a series of commands and Lua functions as a pipeline.
 -- @function popen_pipeline
--- @tparam table t tasks for @{execx}
+-- @tparam table t tasks for @{posix.execx}
 -- @tparam string mode `"r"` for read or `"w"` for write
 -- @func[opt] pipe_fn function returning a paired read and
 --   write file descriptor (*default* @{posix.unistd.pipe})

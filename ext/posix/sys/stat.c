@@ -177,7 +177,9 @@ Change the mode of the path.
 @treturn[2] string error message
 @treturn[2] int errnum
 @see chmod(2)
-@usage P.chmod ('bin/dof', bit.bor (P.S_IRWXU, P.S_IRGRP))
+@usage
+  local sys_stat = require "posix.sys.stat"
+  sys_stat.chmod ('bin/dof', bit.bor (sys_stat.S_IRWXU, sys_stat.S_IRGRP))
 */
 static int
 Pchmod(lua_State *L)
@@ -196,7 +198,9 @@ If file is a symbolic link, return information about the link itself.
 @treturn PosixStat information about *path*
 @see lstat(2)
 @see stat
-@usage for a, b in pairs (P.lstat "/etc/") do print (a, b) end
+@usage
+  local sys_stat = require "posix.sys.stat"
+  for a, b in pairs (sys_stat.lstat "/etc/") do print (a, b) end
 */
 static int
 Plstat(lua_State *L)
@@ -258,7 +262,9 @@ If file is a symbolic link, return information about the file the link points to
 @treturn PosixStat information about *path*
 @see stat(2)
 @see lstat
-@usage for a, b in pairs (P.stat "/etc/") do print (a, b) end
+@usage
+  local sys_stat = require "posix.sys.stat"
+  for a, b in pairs (sys_stat.stat "/etc/") do print (a, b) end
 */
 static int
 Pstat(lua_State *L)

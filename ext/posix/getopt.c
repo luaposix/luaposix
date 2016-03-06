@@ -74,11 +74,12 @@ Parse command-line options.
 @see getopt(3)
 @see getopt_long(3)
 @usage
+local getopt = require "posix.getopt".getopt
 local longopts = {
   {"help", "none", 1},
   {"version", "none", 3},
 }
-for r, longindex, err, i in P.getopt (arg, "ho:v", longopts, err, i) do
+for r, longindex, err, i in getopt (arg, "ho:v", longopts, err, i) do
   process (arg, err, i)
 end
 @see getopt.lua

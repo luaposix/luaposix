@@ -88,7 +88,9 @@ Set a resource limit for subsequent child processes.
 @treturn[2] int errnum
 @see getrlimit(2)
 @see limit.lua
-@usage P.setrlimit ("nofile", 1000, 2000)
+@usage
+  local sysres = require "posix.sys.resource"
+  sysres.setrlimit ("nofile", 1000, 2000)
 */
 
 static const char *Srlimit_fields[] = { "rlim_cur", "rlim_max" };

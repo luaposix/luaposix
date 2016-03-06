@@ -131,7 +131,9 @@ Create an endpoint for communication.
 @treturn[2] string error message
 @treturn[2] int errnum
 @see socket(2)
-@usage sockd = P.socket (P.AF_INET, P.SOCK_STREAM, 0)
+@usage
+  local sys_sock = require "posix.sys.socket"
+  sockd = sys_sock.socket (sys_sock.AF_INET, sys_sock.SOCK_STREAM, 0)
 */
 static int
 Psocket(lua_State *L)
@@ -155,7 +157,9 @@ Create a pair of connected sockets.
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum
-@usage sockr, sockw = P.socketpair (P.AF_INET, P.SOCK_STREAM, 0)
+@usage
+  local sys_sock = require "posix.sys.socket"
+  sockr, sockw = sys_sock.socketpair (sys_sock.AF_INET, sys_sock.SOCK_STREAM, 0)
 */
 static int
 Psocketpair(lua_State *L)
@@ -286,8 +290,9 @@ Network address and service translation.
 @treturn[2] int errnum
 @see getaddrinfo(2)
 @usage
-local res, errmsg, errcode = posix.getaddrinfo ("www.lua.org", "http",
-  { family = P.IF_INET, socktype = P.SOCK_STREAM }
+  local sys_sock = require "posix.sys.socket"
+  local res, errmsg, errcode = sys_sock.getaddrinfo ("www.lua.org", "http",
+    { family = sys_sock.IF_INET, socktype = sys_sock.SOCK_STREAM }
 )
 */
 static int
@@ -619,7 +624,9 @@ Shut down part of a full-duplex connection.
 @treturn[2] string error message
 @treturn[2] int errnum
 @see shutdown(2)
-@usage ok, errmsg = P.shutdown (sock, P.SHUT_RDWR)
+@usage
+  local sys_sock = require "posix.sys.socket"
+  ok, errmsg = sys_sock.shutdown (sock, sys_sock.SHUT_RDWR)
 */
 static int
 Pshutdown(lua_State *L)
@@ -644,7 +651,11 @@ Get and set options on sockets.
 @treturn[2] string error message
 @treturn[2] int errnum
 @see setsockopt(2)
-@usage ok, errmsg = P.setsockopt (sock, P.SOL_SOCKET, P.SO_SNDTIMEO, 1, 0)
+@usage
+  local sys_sock = require "posix.sys.socket"
+  ok, errmsg = sys_sock.setsockopt (
+    sock, sys_sock.SOL_SOCKET, sys_sock.SO_SNDTIMEO, 1, 0
+  )
 */
 static int
 Psetsockopt(lua_State *L)

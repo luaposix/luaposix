@@ -394,7 +394,7 @@ end
 -- @tparam[opt=current group] int|string group id or group name
 -- @treturn group group information
 -- @usage
---   print (P.getgroup (P.getgid ()).name)
+--   print (posix.getgroup (posix.getgid ()).name)
 
 local grp    = require "posix.grp"
 local unistd = require "posix.unistd"
@@ -436,8 +436,8 @@ end
 -- @string ... field names, each one of "uid", "name", "gid", "passwd",
 --   "dir" or "shell"
 -- @return ... values, or a table of all fields if *user* is `nil`
--- @usage for a,b in pairs (P.getpasswd "root") do print (a, b) end
--- @usage print (P.getpasswd ("root", "shell"))
+-- @usage for a,b in pairs (posix.getpasswd "root") do print (a, b) end
+-- @usage print (posix.getpasswd ("root", "shell"))
 
 local pwd    = require "posix.pwd"
 local unistd = require "posix.unistd"
@@ -486,8 +486,8 @@ end
 -- @string[opt] ... unless *type* was a table, zero or more additional
 --   type strings
 -- @return ... values, or a table of all fields if no option given
--- @usage for a,b in pairs (P.getpid ()) do print (a, b) end
--- @usage print (P.getpid ("uid", "euid"))
+-- @usage for a,b in pairs (posix.getpid ()) do print (a, b) end
+-- @usage print (posix.getpid ("uid", "euid"))
 
 local unistd = require "posix.unistd"
 
@@ -799,7 +799,7 @@ end
 --   type strings
 -- @return ... values, or a table of all fields if no option given
 -- @see sysconf(2)
--- @usage for a,b in pairs (P.pathconf "/dev/tty") do print (a, b) end
+-- @usage for a,b in pairs (posix.pathconf "/dev/tty") do print (a, b) end
 
 local unistd = require "posix.unistd"
 
@@ -1076,8 +1076,8 @@ end
 --   type strings
 -- @return ... values, or a table of all fields if no option given
 -- @see sysconf(2)
--- @usage for a,b in pairs (P.sysconf ()) do print (a, b) end
--- @usage print (P.sysconf ("STREAM_MAX", "ARG_MAX"))
+-- @usage for a,b in pairs (posix.sysconf ()) do print (a, b) end
+-- @usage print (posix.sysconf ("STREAM_MAX", "ARG_MAX"))
 
 local unistd = require "posix.unistd"
 
@@ -1116,8 +1116,8 @@ end
 --   key strings.
 -- @return values, or a table of all fields if no keys given
 -- @see times(2)
--- @usage for a,b in pairs(P.times ()) do print (a, b) end
--- @usage print (P.times ("utime", "elapsed")
+-- @usage for a,b in pairs(posix.times ()) do print (a, b) end
+-- @usage print (posix.times ("utime", "elapsed")
 
 local tms = require "posix.sys.times"
 

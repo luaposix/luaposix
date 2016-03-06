@@ -75,12 +75,13 @@ Fetch next password entry.
 @treturn PosixPasswd next password record
 @see endpwent
 @usage
-  t = P.getpwent ()
+  local pwd = require "posix.pwd"
+  t = pwd.getpwent ()
   while t ~= nil do
     process (t)
-    t = P.getpwent ()
+    t = pwd.getpwent ()
   end
-  P.endpwent ()
+  pwd.endpwent ()
 */
 static int
 Pgetpwent(lua_State *L)
@@ -100,7 +101,8 @@ Fetch named user.
 @string name user name
 @treturn PosixPasswd passwd record for *name*
 @usage
-  t = P.getpwnam "root"
+  local pwd = require "posix.pwd"
+  t = pwd.getpwnam "root"
 */
 static int
 Pgetpwnam(lua_State *L)
@@ -123,7 +125,8 @@ Fetch password entry with given user id.
 @int uid user id
 @treturn PosixPasswd passwd record for *uid*
 @usage
-  t = P.getpwuid (0)
+  local pwd = require "posix.pwd"
+  t = pwd.getpwuid (0)
 */
 static int
 Pgetpwuid(lua_State *L)

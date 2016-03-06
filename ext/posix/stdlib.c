@@ -148,7 +148,9 @@ Create a unique temporary file.
 @treturn[2] string error message
 @treturn[2] int errnum
 @see mkstemp(3)
-@usage P.mkstemp 'wooXXXXXX'
+@usage
+local stdlib = require "posix.stdlib"
+stdlib.mkstemp 'wooXXXXXX'
 */
 static int
 Pmkstemp(lua_State *L)

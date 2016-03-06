@@ -135,7 +135,7 @@ local M = {
 -- @treturn[2] string error message
 -- @treturn[2] int errnum
 -- @see chmod(2)
--- @usage P.chmod ('bin/dof', '+x')
+-- @usage chmod ('bin/dof', '+x')
 
 local bit   = require "bit32"
 local st    = require "posix.sys.stat"
@@ -177,7 +177,7 @@ end
 -- @see creat(2)
 -- @see posix.chmod
 -- @usage
---   fd = P.creat ("data", "rw-r-----")
+--   fd = creat ("data", "rw-r-----")
 
 local bit   = require "bit32"
 local fcntl = require "posix.fcntl"
@@ -330,7 +330,7 @@ end
 -- @treturn[2] int errnum
 -- @see open(2)
 -- @usage
--- fd = P.open ("data", bit.bor (P.O_CREAT, P.O_RDWR), "rw-r-----")
+-- fd = posix.open ("data", bit.bor (posix.O_CREAT, posix.O_RDWR), "rw-r-----")
 
 local bit   = require "bit32"
 local fcntl = require "posix.fcntl"

@@ -45,7 +45,9 @@ File descriptor corresponding to a Lua file object.
 @treturn[2] string error message
 @treturn[2] int errnum
 @usage
-STDOUT_FILENO = P.fileno (io.stdout)
+local stdio = require "posix.stdio"
+local unistd = require "posix.unistd"
+assert (stdio.fileno (io.stdout) == unistd.STDOUT_FILENO)
 */
 static int
 Pfileno(lua_State *L)
@@ -85,7 +87,9 @@ Create a Lua file object from a file descriptor.
 @treturn[2] string error message
 @treturn[2] int errnum
 @usage
-stdout = P.fdopen (posix.STDOUT_FILENO, "w")
+local fdopen = require "posix.stdio".fdopen
+local STDOUT_FILENO = require "posix.unistd".STDOUT_FILENO
+stdout = fdopen (STDOUT_FILENO, "w")
 */
 static int
 Pfdopen(lua_State *L)	/** fdopen(fd, mode) */

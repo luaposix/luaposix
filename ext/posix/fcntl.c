@@ -55,7 +55,7 @@ Manipulate file descriptor.
 @see fcntl(2)
 @see lock.lua
 @usage
-local flag = P.fcntl (fd, P.F_GETFL)
+local flag = posix.fcntl (fd, posix.F_GETFL)
 */
 static int
 Pfcntl(lua_State *L)
@@ -122,6 +122,7 @@ Open a file.
 @treturn[2] int errnum
 @see open(2)
 @usage
+local P = require "posix.fcntl"
 fd = P.open ("data", bit.bor (P.O_CREAT, P.O_RDWR), bit.bor (P.S_IRWXU, P.S_IRGRP))
 */
 static int

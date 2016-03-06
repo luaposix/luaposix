@@ -74,7 +74,9 @@ Get file system statistics.
 @string path any path within the mounted file system
 @treturn PosixStatvfs information about file system containing *path*
 @see statvfs(3)
-@usage for a, b in pairs (P.statvfs "/") do print (a, b) end
+@usage
+  local statvfs = require "posix.sys.statvfs".statvfs
+  for a, b in pairs (statvfs "/") do print (a, b) end
 */
 static int
 Pstatvfs(lua_State *L)

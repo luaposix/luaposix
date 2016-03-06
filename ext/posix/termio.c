@@ -204,7 +204,8 @@ Set termios state.
 @return error message if failed
 @see tcsetattr(3)
 @usage
-ok, errmsg = tcsetattr (fd, 0, { cc = { [P.VTIME] = 0, [P.VMIN] = 1 })
+  local termio = require "posix.termio"
+  ok, errmsg = tcsetattr (fd, 0, { cc = { [termio.VTIME] = 0, [termio.VMIN] = 1 })
 */
 static int
 Ptcsetattr(lua_State *L)

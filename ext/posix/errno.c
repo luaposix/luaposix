@@ -42,7 +42,7 @@ Describe an error code/and or read `errno`
 @see strerror(3)
 @see errno
 @usage
-local strerr, nerr = P.errno ()
+local strerr, nerr = posix.errno ()
 */
 static int
 Perrno(lua_State *L)
@@ -61,7 +61,7 @@ Set errno.
 @int n error code
 @see errno(3)
 @usage
-P.errno (P.EBADF)
+posix.errno (posix.EBADF)
 */
 static int
 Pset_errno(lua_State *L)

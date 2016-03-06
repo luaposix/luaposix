@@ -88,7 +88,9 @@ Check real user's permissions for a file.
 @treturn[2] string error message
 @treturn[2] int errnum
 @see access(2)
-@usage status, errstr, errno = P.access("/etc/passwd", "rw")
+@usage
+  local unistd = require "posix.unistd"
+  status, errstr, errno = unistd.access("/etc/passwd", "rw")
 */
 static int
 Paccess(lua_State *L)
@@ -117,7 +119,9 @@ Schedule an alarm signal.
 @int seconds number of seconds to send SIGALRM in
 @return int number of seconds remaining in previous alarm or `0`
 @see alarm(2)
-@usage seconds = P.alarm(10)
+@usage
+  local unistd = require "posix.unistd"
+  seconds = unistd.alarm(10)
 */
 static int
 Palarm(lua_State *L)
@@ -135,7 +139,9 @@ Set the working directory.
 @treturn[2] string error message
 @treturn[2] int errnum
 @see chdir(2)
-@usage status, errstr, errno = P.chdir("/var/tmp")
+@usage
+  local unistd = require "posix.unistd"
+  status, errstr, errno = unistd.chdir ("/var/tmp")
 */
 static int
 Pchdir(lua_State *L)
@@ -158,8 +164,9 @@ Change ownership of a file.
 @treturn[2] int errnum
 @see chown(2)
 @usage
--- will fail for a normal user, and print an error
-print(P.chown("/etc/passwd",100,200))
+  local unistd = require "posix.unistd"
+  -- will fail for a normal user, and print an error
+  print(unistd.chown ("/etc/passwd", 100, 200))
 */
 static int
 Pchown(lua_State *L)
@@ -182,8 +189,9 @@ Close an open file descriptor.
 @treturn[2] int errnum
 @see close(2)
 @usage
-local ok, errmsg = P.close (log)
-if not ok then error (errmsg) end
+  local unistd = require "posix.unistd"
+  local ok, errmsg = unistd.close (log)
+  if not ok then error (errmsg) end
 */
 static int
 Pclose(lua_State *L)
@@ -204,10 +212,13 @@ Not recommended for general encryption purposes.
 @return encrypted string
 @see crypt(3)
 @usage
-local salt, hash = pwent:match ":$6$(.-)$([^:]+)"
-if P.crypt (trypass, salt) ~= hash then
-  error "wrong password"
-end
+  local pwd = require "posix.pwd"
+  local unistd = require "posix.unistd"
+
+  local salt, hash = pwd.pwent:match ":$6$(.-)$([^:]+)"
+  if unistd.crypt (trypass, salt) ~= hash then
+    error "wrong password"
+  end
 */
 static int
 Pcrypt(lua_State *L)
@@ -237,7 +248,10 @@ Duplicate an open file descriptor.
 @treturn[2] int errnum
 @see dup(2)
 @usage
-local outfd = P.dup (P.fileno (io.stdout))
+  local stdio = require "posix.stdio"
+  local unistd = require "posix.unistd"
+
+  outfd = unistd.dup (stdio.fileno (io.stdout))
 */
 static int
 Pdup(lua_State *L)
@@ -379,15 +393,17 @@ Fork this program.
 @see fork.lua
 @see fork2.lua
 @usage
-local pid, errmsg = P.fork ()
-if pid == nil then
-  error (errmsg)
-elseif pid == 0 then
-  print ("in child:", P.getpid "pid")
-else
-  print (P.wait (pid))
-end
-os.exit ()
+  local unistd = require "posix.unistd"
+
+  local pid, errmsg = unistd.fork ()
+  if pid == nil then
+    error (errmsg)
+  elseif pid == 0 then
+    print ("in child:", unistd.getpid "pid")
+  else
+    print (require "posix.sys.wait".wait (pid))
+  end
+  os.exit ()
 */
 static int
 Pfork(lua_State *L)
@@ -724,7 +740,9 @@ Get a value for a configuration option for a filename.
   `_PC_VDISABLE`
 @treturn int associated path configuration value
 @see pathconf(3)
-@usage for a, b in pairs (P.pathconf "/dev/tty") do print(a, b) end
+@usage
+  local unistd = require "posix.unistd"
+  for a, b in pairs (unistd.pathconf "/dev/tty") do print(a, b) end
 */
 static int
 Ppathconf(lua_State *L)

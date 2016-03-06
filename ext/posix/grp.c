@@ -79,12 +79,13 @@ Fetch next group.
 @treturn PosixGroup next group record
 @see endgrent
 @usage
-  t = P.getgrent ()
+  local grp = require "posix.grp"
+  t = grp.getgrent ()
   while t ~= nil do
     process (t)
-    t = P.getgrent ()
+    t = grp.getgrent ()
   end
-  P.endgrent ()
+  grp.endgrent ()
 */
 static int
 Pgetgrent(lua_State *L)
@@ -104,7 +105,8 @@ Fetch group with given group id.
 @int gid group id
 @treturn PosixGroup group record for *gid*
 @usage
-  t = P.getgrgid (0)
+  local grp = require "posix.grp"
+  t = grp.getgrgid (0)
 */
 static int
 Pgetgrgid(lua_State *L)
@@ -127,7 +129,8 @@ Fetch named group.
 @string name group name
 @treturn PosixGroup group record for *name*
 @usage
-  t = P.getgrnam "wheel"
+  local grp = require "posix.grp"
+  t = grp.getgrnam "wheel"
 */
 static int
 Pgetgrnam(lua_State *L)
