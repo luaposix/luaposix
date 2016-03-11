@@ -330,7 +330,7 @@ Execute a program without using the shell.
 @return nil
 @treturn string error message
 @see execve(2)
-@usage exec ("/bin/bash", {[0] = "-sh", "--norc})
+@usage exec ("/bin/bash", {[0] = "-sh", "--norc"})
 */
 static int
 Pexec(lua_State *L)
