@@ -28,10 +28,10 @@ Open the system logger.
 @string ident all messages will start with this
 @int[opt] option bitwise OR of zero or more of `LOG_CONS`, `LOG_NDELAY`,
   or `LOG_PID`
-@int[opt=`LOG_USER`] facility one of `LOG_AUTH`, `LOG_AUTHPRIV`, `LOG_CRON`,
-  `LOG_DAEMON`, `LOG_FTP`, `LOG_KERN`, `LOG_LPR`, `LOG_MAIL`, `LOG_NEWS`,
-  `LOG_SECURITY`, `LOG_SYSLOG`, `LOG_USER`, `LOG_UUCP` or `LOG_LOCAL0`
-  through `LOG_LOCAL7`
+@int[opt=`LOG_USER`] facility one of `LOG_AUTH`, `LOG_CRON`,
+  `LOG_DAEMON`, `LOG_KERN`, `LOG_LPR`, `LOG_MAIL`, `LOG_NEWS`,
+  `LOG_SECURITY`, `LOG_USER`, `LOG_UUCP` or `LOG_LOCAL0` through
+  `LOG_LOCAL7`
 @see syslog(3)
 */
 static int
@@ -137,11 +137,9 @@ System logging constants.
 Any constants not available in the underlying system will be `nil` valued.
 @table posix.syslog
 @int LOG_AUTH security/authorisation messages
-@int LOG_AUTHPRIV private authorisation messages
 @int LOG_CONS write directly to system console
 @int LOG_CRON clock daemon
 @int LOG_DAEMON system daemons
-@int LOG_FTP ftp daemon
 @int LOG_KERN kernel messages
 @int LOG_LOCAL0 reserved for local use
 @int LOG_LOCAL1 reserved for local use
@@ -156,7 +154,6 @@ Any constants not available in the underlying system will be `nil` valued.
 @int LOG_NDELAY open the connection immediately
 @int LOG_NEWS network news subsystem
 @int LOG_PID include process id with each log message
-@int LOG_SYSLOG messages generated internally by syslogd
 @int LOG_USER random user-level messages
 @int LOG_UUCP unix-to-unix copy subsystem
 @int LOG_EMERG system is unusable
@@ -189,10 +186,9 @@ luaopen_posix_syslog(lua_State *L)
 	LPOSIX_CONST( LOG_PID		);
 
 	LPOSIX_CONST( LOG_AUTH		);
-	LPOSIX_CONST( LOG_AUTHPRIV	);
+
 	LPOSIX_CONST( LOG_CRON		);
 	LPOSIX_CONST( LOG_DAEMON	);
-	LPOSIX_CONST( LOG_FTP		);
 	LPOSIX_CONST( LOG_KERN		);
 	LPOSIX_CONST( LOG_LOCAL0	);
 	LPOSIX_CONST( LOG_LOCAL1	);
@@ -205,7 +201,6 @@ luaopen_posix_syslog(lua_State *L)
 	LPOSIX_CONST( LOG_LPR		);
 	LPOSIX_CONST( LOG_MAIL		);
 	LPOSIX_CONST( LOG_NEWS		);
-	LPOSIX_CONST( LOG_SYSLOG	);
 	LPOSIX_CONST( LOG_USER		);
 	LPOSIX_CONST( LOG_UUCP		);
 
@@ -217,6 +212,17 @@ luaopen_posix_syslog(lua_State *L)
 	LPOSIX_CONST( LOG_NOTICE	);
 	LPOSIX_CONST( LOG_INFO		);
 	LPOSIX_CONST( LOG_DEBUG		);
+
+	/* Remainder for backwards compatibility - not defined by POSIX */
+#  ifdef LOG_AUTHPRIV
+	LPOSIX_CONST( LOG_AUTHPRIV	);
+#  endif
+#  ifdef LOG_FTP
+	LPOSIX_CONST( LOG_FTP		);
+#  endif
+#  ifdef LOG_SYSLOG
+	LPOSIX_CONST( LOG_SYSLOG	);
+#  endif
 #endif
 
 	return 1;

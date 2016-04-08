@@ -2,6 +2,13 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### Incompatible Changes
+
+  - `posix.syslog` constants `LOG_AUTHPRIV`, `LOG_FTP` and `LOG_SYSLOG`
+    are no longer documented, and only defined when supported by the
+    host C library.  They are not part of the POSIX API, and prevented
+    compilation of luaposix on AIX and Solaris.
+
 
 ## Noteworthy changes in release 33.4.0 (2016-02-27) [stable]
 

@@ -743,9 +743,9 @@ end
 -- @string[opt] option any combination of 'c' (directly to system console
 --   if an error sending), 'n' (no delay) and 'p' (show PID)
 -- @int [opt=`LOG_USER`] facility one of `LOG_AUTH`, `LOG_AUTHORITY`,
---   `LOG_CRON`, `LOG_DAEMON`, `LOG_FTP`, `LOG_KERN`, `LOG_LPR`, `LOG_MAIL`,
---   `LOG_NEWS`, `LOG_SECURITY`, `LOG_SYSLOG`, `LOG_USER`, `LOG_UUCP` or
---   `LOG_LOCAL0` through `LOG_LOCAL7`
+--   `LOG_CRON`, `LOG_DAEMON`, `LOG_KERN`, `LOG_LPR`, `LOG_MAIL`,
+--   `LOG_NEWS`, `LOG_SECURITY`, `LOG_USER`, `LOG_UUCP` or `LOG_LOCAL0`
+--   through `LOG_LOCAL7`
 -- @see syslog(3)
 
 local bit = require "bit32"
