@@ -26,7 +26,7 @@ specify posix:
 
 - describe getopt:
   - context with bad arguments:
-      badargs.diagnose (posix.getopt, "(list, string, ?table, ?int, ?int)")
+      badargs.diagnose (posix.getopt, "(list, string, ?int, ?int)")
 
 
 - describe openpty:

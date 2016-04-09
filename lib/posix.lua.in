@@ -20,7 +20,7 @@ local M = {}
 
 -- For backwards compatibility, copy all table entries into M namespace.
 for _, sub in ipairs {
-  "ctype", "dirent", "errno", "fcntl", "fnmatch", "getopt", "glob", "grp",
+  "ctype", "dirent", "errno", "fcntl", "fnmatch", "glob", "grp",
   "libgen", "poll", "pwd", "sched", "signal", "stdio", "stdlib", "sys.msg",
   "sys.resource", "sys.socket", "sys.stat", "sys.statvfs", "sys.time",
   "sys.times", "sys.utsname", "sys.wait", "syslog", "termio", "time",

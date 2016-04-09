@@ -15,7 +15,6 @@
 #include "errno.c"
 #include "fcntl.c"
 #include "fnmatch.c"
-#include "getopt.c"
 #include "glob.c"
 #include "grp.c"
 #include "libgen.c"

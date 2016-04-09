@@ -1,17 +1,9 @@
-local P = require 'posix'
-
-local short = "ha:s:"
-
-local long = {
-  {"help",  "none", 'h'},
-  {"aleph", "required", 'a'},
-  {"start", "required", 's'}
-}
+local getopt = require 'posix.unistd'.getopt
 
 local last_index = 1
-for r, optarg, optind, li in P.getopt (arg, short, long) do
+for r, optarg, optind in getopt (arg, 'ha:s:') do
   if r == '?' then
-    return print  'unrecognized option'
+    return print ('unrecognized option', arg[optind -1])
   end
   last_index = optind
   if r == 'h' then

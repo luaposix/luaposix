@@ -24,7 +24,6 @@ file = {
   "../ext/posix/errno.c",
   "../ext/posix/fcntl.c",
   "../ext/posix/fnmatch.c",
-  "../ext/posix/getopt.c",
   "../ext/posix/glob.c",
   "../ext/posix/grp.c",
   "../ext/posix/libgen.c",

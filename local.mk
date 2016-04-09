@@ -77,7 +77,6 @@ EXTRA_ext_posix_posix_la_SOURCES =	\
 	ext/posix/errno.c		\
 	ext/posix/fcntl.c		\
 	ext/posix/fnmatch.c		\
-	ext/posix/getopt.c		\
 	ext/posix/glob.c		\
 	ext/posix/grp.c			\
 	ext/posix/libgen.c		\
@@ -128,7 +127,6 @@ posix_submodules =			\
 	ext/posix/errno.la		\
 	ext/posix/fcntl.la		\
 	ext/posix/fnmatch.la		\
-	ext/posix/getopt.la		\
 	ext/posix/glob.la		\
 	ext/posix/grp.la		\
 	ext/posix/libgen.la		\
@@ -162,7 +160,6 @@ ext_posix_dirent_la_LDFLAGS = $(luaexecposix_LDFLAGS)
 ext_posix_errno_la_LDFLAGS = $(luaexecposix_LDFLAGS)
 ext_posix_fcntl_la_LDFLAGS = $(luaexecposix_LDFLAGS)
 ext_posix_fnmatch_la_LDFLAGS = $(luaexecposix_LDFLAGS)
-ext_posix_getopt_la_LDFLAGS = $(luaexecposix_LDFLAGS)
 ext_posix_glob_la_LDFLAGS = $(luaexecposix_LDFLAGS)
 ext_posix_grp_la_LDFLAGS = $(luaexecposix_LDFLAGS)
 ext_posix_libgen_la_LDFLAGS = $(luaexecposix_LDFLAGS)
@@ -208,7 +205,6 @@ dist_modules_DATA +=				\
 	doc/modules/posix.errno.html		\
 	doc/modules/posix.fcntl.html		\
 	doc/modules/posix.fnmatch.html		\
-	doc/modules/posix.getopt.html		\
 	doc/modules/posix.glob.html		\
 	doc/modules/posix.grp.html		\
 	doc/modules/posix.html			\

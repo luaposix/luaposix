@@ -9,6 +9,17 @@
     host C library.  They are not part of the POSIX API, and prevented
     compilation of luaposix on AIX and Solaris.
 
+  - `getopt.getopt` was a binding to the GNU `getopt_long` extension,
+    which is not a POSIX API, and prevents luaposix from compiling on
+    hosts that do not provide the extended API.  Instead we now correctly
+    bind POSIX getopt(3) in `posix.unistd`.
+
+    If you still have code that uses the old non-POSIX binding, then
+    LuaRocks has the Lua only `alt-getopt` module which is very similar,
+    and works even when the host C library has no `getopt_long` API;
+    alternatively, you should consider migrating to the far more
+    powerful Lua-only `optparse` library, also available from LuaRocks.
+
 
 ## Noteworthy changes in release 33.4.0 (2016-02-27) [stable]
 

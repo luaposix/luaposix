@@ -570,6 +570,79 @@ Pgetlogin(lua_State *L)
 }
 
 
+static int
+iter_getopt(lua_State *L)
+{
+	int r, argc = lua_tointeger(L, lua_upvalueindex(1));
+	char **argv = (char **)lua_touserdata(L, lua_upvalueindex(3));
+	char c;
+
+	if (argv == NULL) /* If we have already completed, return now. */
+		return 0;
+
+	/* Fetch upvalues to pass to getopt. */
+	r = getopt(argc, argv, lua_tostring(L, lua_upvalueindex(2)));
+	if (r == -1)
+		return 0;
+
+	c = (char) r;
+	lua_pushlstring(L, &c, 1);
+	lua_pushstring(L, optarg);
+	lua_pushinteger(L, optind);
+	return 3;
+}
+
+
+/***
+Parse command-line options.
+@function getopt
+@param arg command line arguments
+@string opts short option specifier
+@int[opt=0] opterr index of the option with an error
+@int[opt=1] optind index of the next unprocessed option
+@treturn option iterator, returning 3 values
+@see getopt(3)
+@see getopt.lua
+@usage
+local getopt = require "posix.getopt".getopt
+for opt, opterr, i in getopt (arg, "ho:v", opterr, i) do
+  process (arg, opterr, i)
+end
+*/
+static int
+Pgetopt(lua_State *L)
+{
+	int argc, i;
+	const char *optstring;
+	char **argv;
+
+	checknargs(L, 4);
+	checktype(L, 1, LUA_TTABLE, "list");
+	optstring = luaL_checkstring(L, 2);
+	opterr = optint(L, 3, 0);
+	optind = optint(L, 4, 1);
+
+	argc = (int)lua_objlen(L, 1) + 1;
+
+	lua_pushinteger(L, argc);
+	lua_pushstring(L, optstring);
+
+	argv = lua_newuserdata(L, (argc + 1) * sizeof(char *));
+	argv[argc] = NULL;
+	for (i = 0; i < argc; i++)
+	{
+		lua_pushinteger(L, i);
+		lua_gettable(L, 1);
+		argv[i] = (char *)luaL_checkstring(L, -1);
+	}
+
+	/* Push remaining upvalues, and make and push closure. */
+	lua_pushcclosure(L, iter_getopt, 3 + argc);
+
+	return 1;
+}
+
+
 /***
 Return process group id of calling process.
 @function getpgrp
@@ -1120,6 +1193,7 @@ static const luaL_Reg posix_unistd_fns[] =
 	LPOSIX_FUNC( Pgeteuid		),
 	LPOSIX_FUNC( Pgetgid		),
 	LPOSIX_FUNC( Pgetlogin		),
+	LPOSIX_FUNC( Pgetopt		),
 	LPOSIX_FUNC( Pgetpgrp		),
 	LPOSIX_FUNC( Pgetpid		),
 	LPOSIX_FUNC( Pgetppid		),
