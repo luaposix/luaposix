@@ -1057,7 +1057,7 @@ Get configuration information at runtime.
 @function sysconf
 @int key one of `_SC_ARG_MAX`, `_SC_CHILD_MAX`, `_SC_CLK_TCK`, `_SC_JOB_CONTROL`,
   `_SC_OPEN_MAX`, `_SC_NGROUPS_MAX`, `_SC_SAVED_IDS`, `_SC_STREAM_MAX`,
-  `_SC_TZNAME_MAX` or `_SC_VERSION`,
+  `_SC_PAGESIZE`, `_SC_TZNAME_MAX` or `_SC_VERSION`,
 @treturn int associated system configuration value
 @see sysconf(3)
 */
@@ -1289,8 +1289,9 @@ luaopen_posix_unistd(lua_State *L)
 	LPOSIX_CONST( _SC_CHILD_MAX	);
 	LPOSIX_CONST( _SC_CLK_TCK	);
 	LPOSIX_CONST( _SC_JOB_CONTROL	);
-	LPOSIX_CONST( _SC_OPEN_MAX	);
 	LPOSIX_CONST( _SC_NGROUPS_MAX	);
+	LPOSIX_CONST( _SC_OPEN_MAX	);
+	LPOSIX_CONST( _SC_PAGESIZE	);
 	LPOSIX_CONST( _SC_SAVED_IDS	);
 	LPOSIX_CONST( _SC_STREAM_MAX	);
 	LPOSIX_CONST( _SC_TZNAME_MAX	);

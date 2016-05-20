@@ -197,6 +197,8 @@ specify posix.unistd:
       expect (type (sysconf (unistd._SC_NGROUPS_MAX))).to_be "number"
   - it fetches the maximum number of open descriptors:
       expect (type (sysconf (unistd._SC_OPEN_MAX))).to_be "number"
+  - it fetches the size of memory pages:
+      expect (type (sysconf (unistd._SC_PAGESIZE))).to_be "number"
   - it fetches the number of saved ids:
       expect (type (sysconf (unistd._SC_SAVED_IDS))).to_be "number"
   - it fetches the maximum number of open streams:

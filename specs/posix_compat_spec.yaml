@@ -783,6 +783,9 @@ specify posix.compat:
   - it fetches the maximum number of open descriptors:
       expect (type (sysconf ().OPEN_MAX)).to_be "number"
       expect (sysconf "OPEN_MAX" >= 0).to_be (true)
+  - it fetches the size of memory pages:
+      expect (type (sysconf ().PAGESIZE)).to_be "number"
+      expect (sysconf "PAGESIZE" >= 0).to_be (true)
   - it fetches the number of saved ids:
       expect (type (sysconf ().SAVED_IDS)).to_be "number"
       expect (sysconf "SAVED_IDS" >= 0).to_be (true)
