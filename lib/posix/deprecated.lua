@@ -1091,6 +1091,7 @@ local function sysconf (...)
     JOB_CONTROL = _sysconf (unistd._SC_JOB_CONTROL),
     NGROUPS_MAX = _sysconf (unistd._SC_NGROUPS_MAX),
     OPEN_MAX    = _sysconf (unistd._SC_OPEN_MAX),
+    PAGESIZE    = _sysconf (unistd._SC_PAGESIZE),
     SAVED_IDS   = _sysconf (unistd._SC_SAVED_IDS),
     STREAM_MAX  = _sysconf (unistd._SC_STREAM_MAX),
     TZNAME_MAX  = _sysconf (unistd._SC_TZNAME_MAX),
