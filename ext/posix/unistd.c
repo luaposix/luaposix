@@ -739,6 +739,37 @@ Pisatty(lua_State *L)
 }
 
 
+#if LPOSIX_2001_COMPLIANT
+/***
+This is like `chown`, but does not dereference symbolic links.
+In other words, if a file is a symlink, then it changes ownership of the
+symlink itself.
+@function lchown
+@string path existing file path
+@tparam string|int uid new owner user id
+@tparam string|int gid new owner group id
+@treturn[1] int `0`, if successful
+@return[2] nil
+@treturn[2] string error messoge
+@treturn[2] int errnum
+@see lchown(2)
+@usage
+  local unistd = require "posix.unistd"
+  -- will fail for a normal user, and print an error
+  print(unistd.lchown ("/etc/passwd", 100, 200))
+*/
+static int
+Plchown(lua_State *L)
+{
+	const char *path = luaL_checkstring(L, 1);
+	uid_t uid = mygetuid(L, 2);
+	gid_t gid = mygetgid(L, 3);
+	checknargs(L, 3);
+	return pushresult(L, lchown(path, uid, gid), path);
+}
+#endif
+
+
 /***
 Create a link.
 @function link
@@ -1200,6 +1231,9 @@ static const luaL_Reg posix_unistd_fns[] =
 	LPOSIX_FUNC( Pgetuid		),
 	LPOSIX_FUNC( Pgethostid		),
 	LPOSIX_FUNC( Pisatty		),
+#if LPOSIX_2001_COMPLIANT
+	LPOSIX_FUNC( Plchown		),
+#endif
 	LPOSIX_FUNC( Plink		),
 	LPOSIX_FUNC( Plseek		),
 	LPOSIX_FUNC( Pnice		),
