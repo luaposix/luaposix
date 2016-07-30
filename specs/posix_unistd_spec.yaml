@@ -151,6 +151,11 @@ specify posix.unistd:
       expect (getppid ()).not_to_be (unistd.getpid ())
 
 
+- describe lchown:
+  - context with bad arguments:
+      badargs.diagnose (unistd.lchown, "(string, ?string|int, ?string|int)")
+
+
 - describe pathconf:
   - before:
       pathconf = unistd.pathconf
