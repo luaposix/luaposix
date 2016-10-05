@@ -38,9 +38,12 @@ Pglob(lua_State *L)
 {
 	const char *pattern = optstring(L, 1, "*");
 	glob_t globres;
+	int glob_mark = 0;
+	if (lua_toboolean(L, 2))
+		glob_mark = GLOB_MARK;
 
-	checknargs(L, 1);
-	if (glob(pattern, 0, NULL, &globres))
+	checknargs(L, 2);
+	if (glob(pattern, glob_mark, NULL, &globres))
 		return pusherror(L, pattern);
 	else
 	{
