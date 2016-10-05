@@ -478,9 +478,10 @@ specify posix:
   - describe glob:
     - before:
         chdir, glob, mkdtemp = posix.chdir, posix.glob, posix.mkdtemp
+        mkdir = posix.mkdir
 
     - context with bad arguments:
-        badargs.diagnose (glob, "(?string)")
+        badargs.diagnose (glob, "(?table|string)")
 
     - it matches files in the given directory:
         dir = mkdtemp (template)
@@ -491,8 +492,36 @@ specify posix:
         globlist, errmsg = glob "test.*"
         expect (errmsg).to_be (nil)
         expect (type (globlist)).to_be "table"
+        expect (globlist).to_equal {"test.1", "test.2"}
         rmtmp (dir)
 
+    - it matches files and directories in the given directory:
+        dir = mkdtemp (template)
+        touch (dir .. "/test.1")
+        chdir (dir)
+        mkdir ("foo")
+        mkdir ("bar")
+        globlist = glob()
+        expect (globlist).to_equal {"bar", "foo", "test.1"}
+        rmtmp (dir)
+
+    - it adds / to filenames if GLOB_MARK is true:
+        dir = mkdtemp (template)
+        chdir (dir)
+        mkdir ("foo")
+        mkdir ("bar")
+        globlist = glob({pattern="*", MARK=true})
+        expect (globlist).to_equal {"bar/", "foo/"}
+        rmtmp (dir)
+
+    - it does not add / to filenames if GLOB_MARK is false:
+        dir = mkdtemp (template)
+        chdir (dir)
+        mkdir ("foo")
+        mkdir ("bar")
+        globlist = glob({MARK=false})
+        expect (globlist).to_equal {"bar", "foo"}
+        rmtmp (dir)
 
   - describe files:
     - before:

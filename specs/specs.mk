@@ -31,6 +31,7 @@ specl_SPECS =						\
 	$(srcdir)/specs/posix_time_spec.yaml		\
 	$(srcdir)/specs/posix_unistd_spec.yaml		\
 	$(srcdir)/specs/posix_spec.yaml			\
+	$(srcdir)/specs/posix_glob_spec.yaml		\
 	$(NOTHING_ELSE)
 
 EXTRA_DIST +=						\
