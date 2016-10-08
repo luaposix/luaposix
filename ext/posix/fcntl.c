@@ -41,6 +41,18 @@
 
 
 /***
+Advisory file locks.
+Passed as *arg* to @{fcntl} when *cmd* is `F_GETLK`, `F_SETLK` or `F_SETLKW`.
+@table flock
+@int l_start starting offset
+@int l_len len = 0 means until end of file
+@int l_pid lock owner
+@int l_type lock type
+@int l_whence one of `SEEK_SET`, `SEEK_CUR` or `SEEK_END`
+*/
+
+
+/***
 Manipulate file descriptor.
 @function fcntl
 @int fd file descriptor to act on
@@ -289,20 +301,3 @@ luaopen_posix_fcntl(lua_State *L)
 
 	return 1;
 }
-
-
-/***
-Tables.
-@section tables
-*/
-
-/***
-Advisory file locks.
-Passed as *arg* to @{fcntl} when *cmd* is `F_GETLK`, `F_SETLK` or `F_SETLKW`.
-@table flock
-@int l_start starting offset
-@int l_len len = 0 means until end of file
-@int l_pid lock owner
-@int l_type lock type
-@int l_whence one of `SEEK_SET`, `SEEK_CUR` or `SEEK_END`
-*/
