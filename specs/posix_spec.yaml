@@ -481,7 +481,7 @@ specify posix:
         mkdir = posix.mkdir
 
     - context with bad arguments:
-        badargs.diagnose (glob, "(?table|string)")
+        badargs.diagnose (glob, "glob (?table|string)")
 
     - it matches files in the given directory:
         dir = mkdtemp (template)
