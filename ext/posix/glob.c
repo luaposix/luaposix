@@ -66,6 +66,25 @@ static const luaL_Reg posix_glob_fns[] =
 };
 
 
+/***
+Constants.
+@section constants
+*/
+
+/***
+Glob constants.
+@table posix.glob
+@int GLOB_MARK append slashes to matches that are directories.
+@usage
+  -- Print glob constants supported on this host.
+  for name, value in pairs (require "posix.glob") do
+    if type (value) == "number" then
+      print (name, value)
+    end
+  end
+*/
+
+
 LUALIB_API int
 luaopen_posix_glob(lua_State *L)
 {
