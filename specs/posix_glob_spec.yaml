@@ -1,0 +1,81 @@
+specify posix.glob:
+
+- before:
+    glob = require "posix.glob"
+
+- describe glob.GLOB_MARK:
+  - before:
+      MARK = glob.GLOB_MARK
+
+  - it is an number:
+      expect (type(MARK)).to_be "number"
+
+- describe glob:
+  - before:
+      glob, MARK = glob.glob, glob.GLOB_MARK
+      chdir, mkdir, mkdtemp = posix.chdir, posix.mkdir, posix.mkdtemp
+
+  - context with bad arguments:
+      badargs.diagnose (glob, "(?string, int)")
+
+  - it returns nil and an error message if there are no matches:
+      dir = mkdtemp (template)
+      chdir (dir)
+      globlist, errmsg = glob("foo", 0)
+      expect (type(errmsg)).to_be "string"
+      expect (errmsg).to_be("foo:" .. " No such file or directory")
+      expect (type(globlist)).to_be "nil"
+      rmtmp (dir)
+
+  - it returns a table of matches:
+      dir = mkdtemp (template)
+      chdir (dir)
+      touch ("match")
+      globlist = glob("*", 0)
+      expect (type(globlist)).to_be "table"
+      rmtmp (dir)
+
+  - it matches files in the current directory:
+      dir = mkdtemp (template)
+      chdir (dir)
+      touch ("test.1")
+      touch ("test.2")
+      touch ("extra_file")
+      globlist = glob("test.*", 0)
+      expect (type(globlist)).to_be "table"
+      expect (globlist).to_equal {"test.1", "test.2"}
+      rmtmp (dir)
+
+  - it matches files and directories in the current directory:
+      dir = mkdtemp (template)
+      chdir (dir)
+      touch ("test.1")
+      touch ("test.2")
+      mkdir ("foo")
+      mkdir ("bar")
+      globlist = glob("*", 0)
+      expect (type(globlist)).to_be "table"
+      expect (globlist).to_equal {"bar", "foo", "test.1", "test.2"}
+      rmtmp (dir)
+
+  - it uses '*' as the pattern if pattern is nil:
+      dir = mkdtemp (template)
+      chdir (dir)
+      touch ("test.1")
+      touch ("test.2")
+      mkdir ("foo")
+      mkdir ("bar")
+      globlist = glob(nil, 0)
+      expect (type(globlist)).to_be "table"
+      expect (globlist).to_equal {"bar", "foo", "test.1", "test.2"}
+      rmtmp (dir)
+
+  - it adds '/' to directory names if GLOB_MARK is passed:
+      dir = mkdtemp (template)
+      chdir (dir)
+      mkdir ("foo")
+      mkdir ("bar")
+      globlist = glob(nil, MARK)
+      expect (type(globlist)).to_be "table"
+      expect (globlist).to_equal {"bar/", "foo/"}
+      rmtmp (dir)

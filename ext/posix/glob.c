@@ -29,6 +29,7 @@
 Find all files in this directory matching a shell pattern.
 @function glob
 @string[opt="*"] pat shell glob pattern
+@param flags currently limited to posix.glob.GLOB_MARK
 @treturn table matching filenames
 @see glob(3)
 @see glob.lua
@@ -37,10 +38,11 @@ static int
 Pglob(lua_State *L)
 {
 	const char *pattern = optstring(L, 1, "*");
+	int flags = checkint(L, 2);
 	glob_t globres;
 
-	checknargs(L, 1);
-	if (glob(pattern, 0, NULL, &globres))
+	checknargs(L, 2);
+	if (glob(pattern, flags, NULL, &globres))
 		return pusherror(L, pattern);
 	else
 	{
@@ -64,12 +66,32 @@ static const luaL_Reg posix_glob_fns[] =
 };
 
 
+/***
+Constants.
+@section constants
+*/
+
+/***
+Glob constants.
+@table posix.glob
+@int GLOB_MARK append slashes to matches that are directories.
+@usage
+  -- Print glob constants supported on this host.
+  for name, value in pairs (require "posix.glob") do
+    if type (value) == "number" then
+      print (name, value)
+    end
+  end
+*/
+
+
 LUALIB_API int
 luaopen_posix_glob(lua_State *L)
 {
 	luaL_register(L, "posix.glob", posix_glob_fns);
 	lua_pushliteral(L, "posix.glob for " LUA_VERSION " / " PACKAGE_STRING);
 	lua_setfield(L, -2, "version");
+	LPOSIX_CONST( GLOB_MARK );
 
 	return 1;
 }

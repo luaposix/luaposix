@@ -519,5 +519,45 @@ if _DEBUG ~= false then
   end
 end
 
+--- Find all files in this directory matching a shell pattern.
+-- The flag MARK appends a trailing slash to matches that are directories.
+-- @function glob
+-- @tparam table|string|nil args the three possible parameters can be used to
+-- override the default values for `pattern` and `MARK`, which are `"*"` and
+-- `false` respectively. A table will be checked for optional keys `pattern`
+-- and `MARK`. A string will be used as the glob pattern.
+-- @treturn table matching files and directories
+local posix_glob = require "posix.glob"
+
+local function glob (args)
+  -- Support previous `glob ".*"` style calls.
+  if type(args) == "string" then
+    args = {pattern=args}
+  elseif type(args) ~= "table" then
+    args = {}
+  end
+  local flags = 0
+  if args.MARK then
+    flags = posix_glob.GLOB_MARK
+  end
+  return posix_glob.glob(args.pattern, flags)
+end
+
+if _DEBUG ~= false then
+  local validtypes = { ["table"] = true, ["string"] = true, ["nil"] = true }
+
+  M.glob = function (...)
+    local argt = {...}
+    local argtype = type(argt[1])
+    if validtypes[argtype] ~= true then
+      argtypeerror ("glob", 1, "table, string or nil", argt[1])
+    elseif #argt > 1 then
+      toomanyargerror ("glob", 1, #argt)
+    end
+    return glob (...)
+  end
+else
+  M.glob = glob
+end
 
 return M
