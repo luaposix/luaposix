@@ -667,7 +667,7 @@ Psetsockopt(lua_State *L)
 	struct timeval tv;
 	struct ipv6_mreq mreq6;
 #ifdef SO_BINDTODEVICE
-	struct ifreq ifr;
+	char ifname[IFNAMSIZ];
 #endif
 	int vint = 0;
 	void *val = NULL;
@@ -699,9 +699,11 @@ Psetsockopt(lua_State *L)
 				case SO_BINDTODEVICE:
 					checknargs(L, 4);
 
-					strlcpy(ifr.ifr_name, luaL_checkstring(L, 4), IFNAMSIZ);
-					val = &ifr;
-					len = sizeof(ifr);
+					val = ifname;
+					len = strlcpy(ifname, luaL_checkstring(L, 4), IFNAMSIZ);
+					if (len >= IFNAMSIZ)
+						len = IFNAMSIZ-1;
+					break;
 #endif
 				default:
 					checknargs(L, 4);
