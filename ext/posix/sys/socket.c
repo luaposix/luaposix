@@ -40,10 +40,6 @@
 #include <netinet/udp.h>
 #include <sys/un.h>
 
-/* strlcpy() implementation for non-BSD based Unices.
-   strlcpy() is a safer less error-prone replacement for strncpy(). */
-#include "strlcpy.c"
-
 
 /***
 Socket address.
@@ -699,10 +695,10 @@ Psetsockopt(lua_State *L)
 				case SO_BINDTODEVICE:
 					checknargs(L, 4);
 
+					strncpy(ifname, luaL_checkstring(L, 4), IFNAMSIZ - 1);
+					ifname[IFNAMSIZ - 1] = '\0';
 					val = ifname;
-					len = strlcpy(ifname, luaL_checkstring(L, 4), IFNAMSIZ);
-					if (len >= IFNAMSIZ)
-						len = IFNAMSIZ-1;
+					len = strlen(ifname);
 					break;
 #endif
 				default:

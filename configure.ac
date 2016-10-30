@@ -152,9 +152,6 @@ AC_CHECK_LIB([rt], [clock_gettime])
 AC_SUBST([LIBRT], [$LIBS])
 LIBS=$save_LIBS
 
-## Use system implementation, or bundled replacement?
-AC_CHECK_FUNCS([strlcpy])
-
 ## ------------------------------------------------------------------------
 ## Don't add more AC_CHECK_FUNCS, unless for a mainstream platform for one
 ## of the reasons below (to detect whether to enable an optional set of
