@@ -772,6 +772,7 @@ static int Pgetsockname(lua_State *L)
 	return pushsockaddrinfo(L, sa.ss_family, (struct sockaddr *)&sa);
 }
 
+
 /***
 Get socket peer name.
 @function getpeername
@@ -793,8 +794,6 @@ static int Pgetpeername(lua_State *L)
 		return pusherror(L, "getpeername");
 	return pushsockaddrinfo(L, sa.ss_family, (struct sockaddr *)&sa);
 }
-
-
 #endif
 
 

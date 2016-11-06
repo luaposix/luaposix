@@ -20,6 +20,10 @@
     alternatively, you should consider migrating to the far more
     powerful Lua-only `optparse` library, also available from LuaRocks.
 
+### New Features
+
+  - New `posix.sys.socket.getpeername` binding.
+
 
 ## Noteworthy changes in release 33.4.0 (2016-02-27) [stable]
 
