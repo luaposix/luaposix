@@ -771,6 +771,29 @@ static int Pgetsockname(lua_State *L)
 		return pusherror(L, "getsockname");
 	return pushsockaddrinfo(L, sa.ss_family, (struct sockaddr *)&sa);
 }
+
+
+/***
+Get socket peer name.
+@function getpeername
+@see getpeername(2)
+@int sockfd socket descriptor
+@treturn[1] sockaddr the address to which the socket *sockfd* is connected to
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@usage sa, err = posix.getpeername (sockfd)
+*/
+static int Pgetpeername(lua_State *L)
+{
+	int fd = checkint(L, 1);
+	struct sockaddr_storage sa;
+	socklen_t salen;
+	checknargs (L, 1);
+	if (getpeername(fd, (struct sockaddr *)&sa, &salen) != 0)
+		return pusherror(L, "getpeername");
+	return pushsockaddrinfo(L, sa.ss_family, (struct sockaddr *)&sa);
+}
 #endif
 
 
@@ -791,6 +814,7 @@ static const luaL_Reg posix_sys_socket_fns[] =
 	LPOSIX_FUNC( Pshutdown		),
 	LPOSIX_FUNC( Psetsockopt	),
 	LPOSIX_FUNC( Pgetsockname	),
+	LPOSIX_FUNC( Pgetpeername	),
 #endif
 	{NULL, NULL}
 };
