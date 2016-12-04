@@ -15,8 +15,6 @@
 @module posix.dirent
 */
 
-#include <config.h>
-
 #include <dirent.h>
 
 #include "_helpers.c"
@@ -110,7 +108,7 @@ Pfiles(lua_State *L)
 		msg = lua_pushfstring(L, "%s: %s", path, msg);
 		return luaL_argerror(L, 1, msg);
 	}
-	if (luaL_newmetatable(L, PACKAGE_NAME " dir handle"))
+	if (luaL_newmetatable(L, PACKAGE " dir handle"))
 	{
 		lua_pushcfunction(L, dir_gc);
 		lua_setfield(L, -2, "__gc");
@@ -133,7 +131,7 @@ LUALIB_API int
 luaopen_posix_dirent(lua_State *L)
 {
 	luaL_register(L, "posix.dirent", posix_dirent_fns);
-	lua_pushliteral(L, "posix.dirent for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("dirent"));
 	lua_setfield(L, -2, "version");
 
 	return 1;

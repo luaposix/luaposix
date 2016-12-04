@@ -19,8 +19,6 @@
 @module posix.sys.statvfs
 */
 
-#include <config.h>
-
 #if defined HAVE_STATVFS
 
 #include <sys/statvfs.h>
@@ -122,7 +120,7 @@ LUALIB_API int
 luaopen_posix_sys_statvfs(lua_State *L)
 {
 	luaL_register(L, "posix.sys.statvfs", posix_sys_statvfs_fns);
-	lua_pushliteral(L, "posix.sys.statvfs for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("sys.statvfs"));
 	lua_setfield(L, -2, "version");
 
 	LPOSIX_CONST( ST_RDONLY		);

@@ -18,8 +18,6 @@
 @module posix.unistd
 */
 
-#include <config.h>
-
 #if HAVE_CRYPT_H
 #  include <crypt.h>
 #endif
@@ -1304,7 +1302,7 @@ LUALIB_API int
 luaopen_posix_unistd(lua_State *L)
 {
 	luaL_register(L, "posix.unistd", posix_unistd_fns);
-	lua_pushliteral(L, "posix.unistd for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("unistd"));
 	lua_setfield(L, -2, "version");
 
 	/* pathconf arguments */

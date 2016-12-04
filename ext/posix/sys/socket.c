@@ -20,8 +20,6 @@
 @module posix.sys.socket
 */
 
-#include <config.h>
-
 #include "_helpers.c"		/* For LPOSIX_2001_COMPLIANT */
 
 #include <sys/types.h>
@@ -910,7 +908,7 @@ LUALIB_API int
 luaopen_posix_sys_socket(lua_State *L)
 {
 	luaL_register(L, "posix.sys.socket", posix_sys_socket_fns);
-	lua_pushliteral(L, "posix.sys.socket for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("sys.socket"));
 	lua_setfield(L, -2, "version");
 
 #if LPOSIX_2001_COMPLIANT

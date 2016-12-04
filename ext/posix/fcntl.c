@@ -18,8 +18,6 @@
 @module posix.fcntl
 */
 
-#include <config.h>
-
 #include <fcntl.h>
 
 #include "_helpers.c"
@@ -245,7 +243,7 @@ LUALIB_API int
 luaopen_posix_fcntl(lua_State *L)
 {
 	luaL_register(L, "posix.fcntl", posix_fcntl_fns);
-	lua_pushliteral(L, "posix.fcntl for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("fcntl"));
 	lua_setfield(L, -2, "version");
 
 	/* fcntl flags */

@@ -17,8 +17,6 @@
 @module posix.poll
 */
 
-#include <config.h>
-
 #include <poll.h>
 
 #include "_helpers.c"
@@ -293,7 +291,7 @@ LUALIB_API int
 luaopen_posix_poll(lua_State *L)
 {
 	luaL_register(L, "posix.poll", posix_poll_fns);
-	lua_pushliteral(L, "posix.poll for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("poll"));
 	lua_setfield(L, -2, "version");
 
 	return 1;

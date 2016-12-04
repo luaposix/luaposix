@@ -17,8 +17,6 @@
 @module posix.pwd
 */
 
-#include <config.h>
-
 #include <pwd.h>
 #include <sys/types.h>
 #include <unistd.h>	/* for geteuid(2) */
@@ -172,7 +170,7 @@ LUALIB_API int
 luaopen_posix_pwd(lua_State *L)
 {
 	luaL_register(L, "posix.pwd", posix_pwd_fns);
-	lua_pushliteral(L, "posix.pwd for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("pwd"));
 	lua_setfield(L, -2, "version");
 
 	return 1;

@@ -20,8 +20,6 @@
 @module posix.signal
 */
 
-#include <config.h>
-
 #include <signal.h>
 
 #include "_helpers.c"
@@ -325,7 +323,7 @@ LUALIB_API int
 luaopen_posix_signal(lua_State *L)
 {
 	luaL_register(L, "posix.signal", posix_signal_fns);
-	lua_pushliteral(L, "posix.signal for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("signal"));
 	lua_setfield(L, -2, "version");
 
 	/* Signals table stored in registry for Psignal and sig_handle */

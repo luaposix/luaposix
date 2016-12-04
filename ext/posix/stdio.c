@@ -15,8 +15,6 @@
 @module posix.stdio
 */
 
-#include <config.h>
-
 #include <stdio.h>
 
 #include "_helpers.c"
@@ -165,7 +163,7 @@ LUALIB_API int
 luaopen_posix_stdio(lua_State *L)
 {
 	luaL_register(L, "posix.stdio", posix_stdio_fns);
-	lua_pushliteral(L, "posix.stdio for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("stdio"));
 	lua_setfield(L, -2, "version");
 
 	/* stdio.h constants */

@@ -15,8 +15,6 @@
 @module posix.time
 */
 
-#include <config.h>
-
 #include <sys/time.h>
 #include <time.h>
 
@@ -347,7 +345,7 @@ LUALIB_API int
 luaopen_posix_time(lua_State *L)
 {
 	luaL_register(L, "posix.time", posix_time_fns);
-	lua_pushliteral(L, "posix.time for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("time"));
 	lua_setfield(L, -2, "version");
 
 #if defined _XOPEN_REALTIME && _XOPEN_REALTIME != -1

@@ -19,8 +19,6 @@
 @module posix.sched
 */
 
-#include <config.h>
-
 /* cannot use unistd.h for _POSIX_PRIORITY_SCHEDULING, because on Linux
    glibc it is defined even though the APIs are not implemented :-(     */
 
@@ -119,7 +117,7 @@ LUALIB_API int
 luaopen_posix_sched(lua_State *L)
 {
 	luaL_register(L, "posix.sched", posix_sched_fns);
-	lua_pushliteral(L, "posix.sched for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("sched"));
 	lua_setfield(L, -2, "version");
 
 	/* Psched_setscheduler flags */

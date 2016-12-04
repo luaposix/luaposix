@@ -18,8 +18,6 @@
 @module posix.grp
 */
 
-#include <config.h>
-
 #include <grp.h>
 
 #include "_helpers.c"
@@ -176,7 +174,7 @@ LUALIB_API int
 luaopen_posix_grp(lua_State *L)
 {
 	luaL_register(L, "posix.grp", posix_grp_fns);
-	lua_pushliteral(L, "posix.grp for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("grp"));
 	lua_setfield(L, -2, "version");
 
 	return 1;

@@ -15,8 +15,6 @@
 @module posix.stdlib
 */
 
-#include <config.h>
-
 #include <fcntl.h>	/* for open(2) */
 #include <stdlib.h>
 
@@ -325,7 +323,7 @@ LUALIB_API int
 luaopen_posix_stdlib(lua_State *L)
 {
 	luaL_register(L, "posix.stdlib", posix_stdlib_fns);
-	lua_pushliteral(L, "posix.stdlib for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("stdlib"));
 	lua_setfield(L, -2, "version");
 
 	return 1;

@@ -47,7 +47,7 @@ for k, v in pairs (require "posix.compat") do
   M[k] = v
 end
 
-M.version = "posix for " .. _VERSION .. " / @PACKAGE_STRING@"
+M.version = "posix for " .. _VERSION .. " / @PACKAGE@ @VERSION@"
 
 
 local argerror, argtypeerror, checkstring, checktable, toomanyargerror =

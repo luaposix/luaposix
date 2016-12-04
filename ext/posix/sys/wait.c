@@ -15,8 +15,6 @@
 @module posix.sys.wait
 */
 
-#include <config.h>
-
 #include <sys/wait.h>
 
 #include "_helpers.c"
@@ -101,7 +99,7 @@ LUALIB_API int
 luaopen_posix_sys_wait(lua_State *L)
 {
 	luaL_register(L, "posix.sys.wait", posix_sys_wait_fns);
-	lua_pushliteral(L, "posix.sys.wait for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("sys.wait"));
 	lua_setfield(L, -2, "version");
 
 	LPOSIX_CONST( WNOHANG		);

@@ -20,9 +20,13 @@
 @module posix.sys.msg
 */
 
-#include <config.h>
+#if HAVE_SYS_MSG_H && HAVE_MSGRCV && HAVE_MSGSND
+# define HAVE_SYSV_MESSAGING 1
+#else
+# define HAVE_SYSV_MESSAGING 0
+#endif
 
-#include "_helpers.c"	/* For LPOSIX_2001_COMPLIANT */
+#include "_helpers.c"
 
 #if HAVE_SYSV_MESSAGING
 #include <sys/ipc.h>
@@ -188,7 +192,7 @@ LUALIB_API int
 luaopen_posix_sys_msg(lua_State *L)
 {
 	luaL_register(L, "posix.sys.msg", posix_sys_msg_fns);
-	lua_pushliteral(L, "posix.sys.msg for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("sys.msg"));
 	lua_setfield(L, -2, "version");
 
 #if HAVE_SYSV_MESSAGING
