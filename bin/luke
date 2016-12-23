@@ -269,6 +269,13 @@ local function map(seq, fn)
 end
 
 
+local function negate(fn)
+  return function(...)
+    return not fn(...)
+  end
+end
+
+
 local function reduce(seq, acc, fn)
   if fn == nil then
     acc, fn = {}, acc
@@ -445,7 +452,7 @@ do
 end
 
 
-local function pluck(keylist, dict)
+local function hoist(keylist, dict)
   local r = {}
   for k in each(keylist) do
     merge(r, dict[k])
@@ -459,13 +466,11 @@ local function per_platform(t)
   for k, v in next, t do
     if k == 'platforms' then
       local matches = filter(keys(v), bind(contains, {platforms}))
-      local overrides = pluck(matches, v)
+      local overrides = hoist(matches, v)
       if isempty(overrides) then
-        for name, override in next, v do
-          if not isplatform(name) then
-            overrides[name] = override
-          end
-        end
+        map(filter(keys(v), negate(isplatform)), function(name)
+          overrides[name] = v[name]
+        end)
       end
       merge(r, overrides)
     elseif istable(v) then
