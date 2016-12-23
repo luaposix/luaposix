@@ -5,20 +5,23 @@ variables = {
 defines   = {
   PACKAGE          = '"luaposix"',
   VERSION          = '"$USER"',
+  NDEBUG           = 1,
+  _FORTIFY_SOURCE  = 2,
   platforms = {    
-    bsd = {
-      -- Setting _XOPEN_SOURCE here messes up header declarations, but all
-      -- functions luaposix can bind are available without it.
-      LPOSIX_2008_COMPLIANT = 1,
+    aix     = { _ALL_SOURCE      = 1, },
+    bsd     = { _BSD_SOURCE      = 1, },
+    freebsd = { __BSD_VISIBLE    = 1, },
+    macosx  = { _DARWIN_C_SOURCE = 1, },
+    -- QNX is only POSIX 2001, but _XOPEN_SOURCE turns off other functions
+    -- luaposix can bind.
+    qnx     = { _POSIX_C_SOURCE  = '200112L', },
+    unix    = {
+      _POSIX_C_SOURCE            = '200809L',
+      _XOPEN_SOURCE              = 700,
     },
-    qnx = {
-      -- QNX is only POSIX 2001, but _XOPEN_SOURCE turns off other functions
-      -- luaposix can bind.
-      LPOSIX_2001_COMPLIANT = 1,
-    },
-    -- Enable POSIX 2008.  Please send the output of `uname -s` if your host
-    -- is not compliant.
-    _XOPEN_SOURCE           = 700,
+    -- Otherwise, enable POSIX 2008.  Please send the output of `uname -s` if
+    -- your host is not compliant.
+    _POSIX_C_SOURCE              = '200809L',
   },
 }
 

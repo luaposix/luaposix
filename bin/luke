@@ -4,6 +4,7 @@ local _ENV = {
   LUAVERSION	= _VERSION:gsub('[^0-9%.]+', ''),
   append	= table.insert,
   arg		= arg,
+  assert        = assert,
   ceil		= math.ceil,
   close		= io.close,
   concat	= table.concat,
@@ -415,6 +416,7 @@ end
 local platforms, isplatform
 do
   local canon = {
+    ['AIX']       = {'unix', 'aix'},
     ['FreeBSD']   = {'unix', 'freebsd', 'bsd'},
     ['OpenBSD']   = {'unix', 'openbsd', 'bsd'},
     ['NetBSD']    = {'unix', 'netbsd', 'bsd'},
@@ -443,16 +445,21 @@ do
 end
 
 
+local function pluck(keylist, dict)
+  local r = {}
+  for k in each(keylist) do
+    merge(r, dict[k])
+  end
+  return r
+end
+
+
 local function per_platform(t)
   local r = {}
   for k, v in next, t do
     if k == 'platforms' then
-      local overrides = {}
-      for platform in each(platforms) do
-        if v[platform] ~= nil then
-          merge(overrides, v[platform])
-        end
-      end
+      local matches = filter(keys(v), bind(contains, {platforms}))
+      local overrides = pluck(matches, v)
       if isempty(overrides) then
         for name, override in next, v do
           if not isplatform(name) then
@@ -733,7 +740,15 @@ end
 local function defines(env, t)
   local buf = {}
   for var, val in next, t or {} do
-    append(buf, '-D' .. var .. "='" .. configure(env, val) .. "'")
+    local v = configure(env, val)
+    if int(v) == 1 then
+      append(buf, '-D' .. var)
+    else
+      if match(v, '[%s"%$]') ~= nil then
+        v = "'" .. v .. "'"
+      end
+      append(buf, '-D' .. var .. "=" .. v)
+    end
   end
   return concat(buf, ' ')
 end
