@@ -16,6 +16,7 @@ local _ENV = {
   getmetatable	= getmetatable,
   gsub		= string.gsub,
   isempty	= function(t) return not next(t) end,
+  isfile	= function(x) return io.type(x) == 'file' end,
   isfunction	= function(x) return type(x) == 'function' end,
   isstring	= function(x) return type(x) == 'string' end,
   istable	= function(x) return type(x) == 'table' end,
@@ -236,7 +237,7 @@ end
 local function filter(iterable, fn)
   fn = fn or function(x) return x ~= nil end
   local r = {}
-  for i = 1, len(iterable) do
+  for i = 1, iterable.n or len(iterable) do
     local v = iterable[i]
     if fn(v) then
       append(r, v)
@@ -299,11 +300,11 @@ end
 local function with(...)
   local argu = pack(...)
   local fn = pop(argu)
-  local r = fn(unpack(argu))
+  local r = pack(fn(unpack(argu)))
   for cm in each(argu) do
     cm:release()
   end
-  return r
+  return unpack(r)
 end
 
 
@@ -360,7 +361,7 @@ end
 local File, TmpFile, Pipe
 do
   local function context_close(cm)
-    return close(cm.context)
+    return isfile(cm.context) and close(cm.context)
   end
 
 
@@ -484,31 +485,30 @@ end
 
 
 local DEFAULTVARS = setmetatable(per_platform{
-  LUAVERSION = LUAVERSION,
+  LUAVERSION    = LUAVERSION,
 
-  PREFIX = '/usr/local',
-  INST_LIBDIR = '$PREFIX/lib/lua/$LUAVERSION',
-  INST_LUADIR = '$PREFIX/share/lua/$LUAVERSION',
+  PREFIX        = '/usr/local',
+  INST_LIBDIR   = '$PREFIX/lib/lua/$LUAVERSION',
+  INST_LUADIR   = '$PREFIX/share/lua/$LUAVERSION',
 
-  LUA_INCDIR = '/usr/include/lua$LUAVERSION',
+  LUA_INCDIR    = '/usr/include/lua$LUAVERSION',
 
   LIB_EXTENSION = 'so',
   OBJ_EXTENSION = 'o',
 
-  COMPILE = '$CC $CFLAGS $LIBFLAGS $PKGFLAGS $CPPFLAGS',
-  CC = 'cc',
-  CFLAGS = '-O2',
-  platforms = {
-    macosx = {
-      LIBFLAGS = '-fPIC -bundle -undefined dynamic_lookup -all_load',
+  COMPILE       = '$CC $CFLAGS $LIBFLAGS $PKGFLAGS $CPPFLAGS',
+  CFLAGS        = '-O2',
+  platforms     = {
+    macosx  = {
+      LIBFLAGS  = '-fPIC -bundle -undefined dynamic_lookup -all_load',
     },
-    LIBFLAGS = '-shared -fPIC',
+    LIBFLAGS    = '-shared -fPIC',
   },
 
-  compile = '$CC -c $CFLAGS $CPPFLAGS',
-  link = '$CC -o conftest $CFLAGS $CPPFLAGS $LDFLAGS',
-  mkdir_p = 'mkdir -p',
-  install = 'cp',
+  compile       = '$CC -c $CFLAGS $CPPFLAGS',
+  link          = '$CC -o conftest $CFLAGS $CPPFLAGS $LDFLAGS',
+  mkdir_p       = 'mkdir -p',
+  install       = 'cp',
 }, {
   __index = function(_, v)
     return getenv(v)
@@ -541,7 +541,7 @@ local function spawn(env, ...)
   local cmd = concat {
     interpolate(env, concat({...}, ' ')), ' >', out, ' 2>', err, '; printf $?'
   }
-  return int(slurp(Pipe(cmd))), slurp(File(out)), slurp(File(err))
+  return int(slurp(Pipe(cmd))), slurp(File(err)), slurp(File(out))
 end
 
 
@@ -566,14 +566,30 @@ do
   end
 
 
-  local function found_result(x)
-    if x == 1 then
-      verbose 'yes'
-    else
-      verbose 'no'
-    end
-    verbose '\n'
+  local function found_prog(x)
+    verbose(x ~= nil and 'yes\n' or 'no\n')
     return x
+  end
+
+
+  local function found_result(x)
+    verbose(x == 1 and 'yes\n' or 'no\n')
+    return x
+  end
+
+
+  local function check_executable_in_path(env, prog)
+    local paths = {}
+    gsub(env.PATH, '[^:]+', function(path)
+      append(paths, path)
+    end)
+    for path in each(paths) do
+      local h = open(path .. '/' .. prog, 'r')
+      if isfile(h) then
+        h:close()
+        return prog
+      end
+    end
   end
 
 
@@ -661,6 +677,18 @@ int main () {
 
 
   configure = setmetatable(OrderedDict({
+    checkprog = function(env, argv)
+      for prog in each(argv.progs) do
+        checking('for', prog)
+        if found_prog(check_executable_in_path(env, prog)) then
+          return prog
+        end
+      end
+      if prog == nil then
+        fatal('cannot find ' .. argv.checkprog)
+      end
+    end
+  }, {
     checkheader = function(env, argv)
       checking('for', argv.checkheader)
 
@@ -718,7 +746,9 @@ int main () {
         end,
 
         ['table'] = function()
-          if v.checkheader ~= nil then
+          if v.checkprog ~= nil then
+            return self.checkprog(env, v)
+          elseif v.checkheader ~= nil then
             return self.checkheader(env, v)
           elseif v.checkdecl ~= nil then
             return self.checkdecl(env, v)
@@ -796,18 +826,18 @@ local function isconfig(x)
 end
 
 
-local function collect_configs(luke, configs)
+local function collect_configs(luke, module, configs)
   configs = configs or {}
   for k, v in next, luke do
-    if istable(v) then
-      if isconfig(v) then
-        if isstring(v.includes) then
-          v.includes = {v.includes}
-        end
-        append(configs, {t=luke, k=k})
-      else
-        collect_configs(v, configs)
+    if isconfig(v) then
+      append(configs, {t=luke, k=k, module=module})
+    elseif istable(v) then
+      if k == 'modules' then
+        module = true
+      elseif module == true then
+        module = k
       end
+      collect_configs(v, module, configs)
     end
   end
   return configs
@@ -832,13 +862,29 @@ local function config_cmp(a, b)
 end
   
 
-local function cache_configs(env, luke)
+local function run_configs(env, luke, targets)
   local all_configs = collect_configs(luke)
   sort(all_configs, config_cmp)
   for config in each(all_configs) do
     t = config.t[config.k]
-    config.t[config.k] = configure(env, t)
+    if contains(targets, config.module) then
+      config.t[config.k] = configure(env, t)
+    end
   end
+end
+
+
+local function normalize_includes(config)
+  if not istable(config) then
+    return config
+  elseif isconfig(config) and isstring(config.includes) then
+    return merge({includes = {config.includes}}, config)
+  end
+  local r = {}
+  for k, v in next, config do
+    r[k] = normalize_includes(v)
+  end
+  return r
 end
 
 
@@ -852,9 +898,9 @@ local function normalize_rules(rules)
       if len(rules) > 0 then
         return {sources=rules}
       elseif isstring(rules.sources) then
-        return merge({sources = {rules.sources}}, rules)
+        return merge({sources = {rules.sources}}, normalize_includes(rules))
       end
-      return rules
+      return normalize_includes(rules)
     end,
 
     function(v)
@@ -1017,7 +1063,7 @@ end
 
 local function run(env, command)
   print(interpolate(env, concat(command, ' ')))
-  local status, out, err = spawn(env, unpack(command))
+  local status, err, out = spawn(env, unpack(command))
   if status ~= 0 then
     if print == nop then
       stdout:write(concat(command, ' ') .. '\n')
@@ -1110,17 +1156,31 @@ end
 local function main()
   local L   = parse_arguments(arg)
   local env = setmetatable(L.defs, {__index=L.luke.variables})
+  local c   = c_modules(L.luke.modules, L.targets)
 
-  cache_configs(env, L.luke)
+  if len(c) > 0 then
+    if L.defs.CC == nil then
+      local c_compilers = {'cc', 'gcc', 'clang'}
+      DEFAULTVARS.CC = configure(DEFAULTVARS, {checkprog='C compiler', progs=c_compilers})
+    end
 
-  -- TODO:
-  -- make a dict to map original configure table to dispatched results (by memoizing results!)
-  -- then build c_modules, with memo-lookups for configure tables
-  -- make sure HAVE_CRYPT is checked with -lcrypt when searchlibs='crypt' is successful
-  -- optimize for functional style 'loops'
+    verbose(interpolate(env, 'checking whether $CC works...'))
+    local works, err = with(TmpFile('conftest.c', 'w'), function(conftest)
+      conftest:write('typedef int x;\n')
+      return spawn(env, '$compile conftest.c')
+    end)
+    if works ~= 0 then
+      verbose 'no\n'
+      stderr:write(err .. '\n')
+      exit(1)
+    end
+    verbose 'yes\n'
+  end
+
+  run_configs(env, L.luke, L.targets)
 
   local status = 0
-  for module in each(c_modules(L.luke.modules, L.targets)) do
+  for module in each(c) do
     status = build_c_module(env, L.luke, module)
     if status ~= 0 then
       return status
