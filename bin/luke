@@ -1,7 +1,5 @@
 #!/usr/bin/env lua
 
-local pp = require'std'.tostring
-
 local _ENV = {
   LUAVERSION	= _VERSION:gsub('[^0-9%.]+', ''),
   append	= table.insert,
@@ -205,6 +203,15 @@ local function case(s, branches)
 end
 
 
+local function collect(keylist, dict)
+  local r = {}
+  for k in each(keylist) do
+    r[k] = dict[k]
+  end
+  return r
+end
+
+
 local function contains(seq, v)
   for i = 1, int(seq.n) or len(seq) do
     if seq[i] == v then
@@ -245,6 +252,15 @@ local function filter(seq, block)
     end
   end
   return r
+end
+
+
+local function hoist(keylist, dict)
+  local r = {}
+  for k in each(keylist) do
+    merge(r, dict[k])
+  end
+  return not isempty(r) and r or nil
 end
 
 
@@ -468,24 +484,6 @@ do
   isplatform = function(x)
     return allplatforms[x] ~= nil
   end
-end
-
-
-local function collect(keylist, dict)
-  local r = {}
-  for k in each(keylist) do
-    r[k] = dict[k]
-  end
-  return r
-end
-
-
-local function hoist(keylist, dict)
-  local r = {}
-  for k in each(keylist) do
-    merge(r, dict[k])
-  end
-  return not isempty(r) and r or nil
 end
 
 
