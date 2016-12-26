@@ -1,5 +1,7 @@
 #!/usr/bin/env lua
 
+local pp = require'std'.tostring
+
 local _ENV = {
   LUAVERSION	= _VERSION:gsub('[^0-9%.]+', ''),
   append	= table.insert,
@@ -15,9 +17,10 @@ local _ENV = {
   getenv	= os.getenv,
   getmetatable	= getmetatable,
   gsub		= string.gsub,
-  isempty	= function(t) return not next(t) end,
+  isempty	= function(x) return type(x) == 'table' and not next(x) end,
   isfile	= function(x) return io.type(x) == 'file' end,
   isfunction	= function(x) return type(x) == 'function' end,
+  isnil		= function(x) return x == nil end,
   isstring	= function(x) return type(x) == 'string' end,
   istable	= function(x) return type(x) == 'table' end,
   load		= load,
@@ -26,11 +29,11 @@ local _ENV = {
   next		= next,
   nop		= function () end,
   open		= io.open,
-  popen		= io.popen,
   pack		= table.pack or function(...) return {n=select('#', ...), ...} end,
   pcall		= pcall,
-  pop		= table.remove,
+  popen		= io.popen,
   print		= print,
+  remove	= table.remove,
   rm		= os.remove,
   select	= select,
   setfenv	= setfenv,
@@ -48,9 +51,9 @@ local _ENV = {
 (setfenv or nop)(1, _ENV)
 
 
-local function copy(t)
+local function copy(iterable)
   local r = {}
-  for k, v in next, t do
+  for k, v in next, iterable do
     r[k] = v
   end
   return r
@@ -96,30 +99,40 @@ local function len(x)
 end
 
 
-do
-  if setfenv ~= nil then
+if setfenv ~= nil then
 
-    local _loadstring = loadstring
-    loadstring = function(str, filename, env)
-      chunk, err = _loadstring(str, filename)
-      if chunk ~= nil and env ~= nil then
-        setfenv(chunk, env)
-      end
-      return chunk, err
+  local _loadstring = loadstring
+  loadstring = function(str, filename, env)
+    chunk, err = _loadstring(str, filename)
+    if chunk ~= nil and env ~= nil then
+      setfenv(chunk, env)
     end
-
-  else
-
-    loadstring = function(str, filename, env)
-      return load(str, filename, "t", env)
-    end
-
+    return chunk, err
   end
+
+else
+
+  loadstring = function(str, filename, env)
+    return load(str, filename, "t", env)
+  end
+
 end
 
 
-local function merge(r, t)
-  for k, v in next, t do
+local function maxn(iterable)
+  local n = 0
+  for k, v in next, iterable do
+    local i = int(k)
+    if i > n then
+      n = i
+    end
+  end
+  return n
+end
+
+
+local function merge(r, iterable)
+  for k, v in next, iterable do
     r[k] = r[k] or v
   end
   return r
@@ -127,8 +140,8 @@ end
 
 
 local _unpack = unpack
-local function unpack(t, i, j)
-  return _unpack(t, int(i) or 1, int(j) or int(t.n) or len(t))
+local function unpack(seq, i, j)
+  return _unpack(seq, int(i) or 1, int(j) or int(seq.n) or len(seq))
 end
 
 
@@ -138,9 +151,9 @@ end
 --[[ ====================== ]]--
 
 
-local function any(iterable)
-  for i = 1, len(iterable) do
-    if iterable[i] then
+local function any(seq)
+  for i = 1, int(seq.n) or len(seq) do
+    if seq[i] then
       return true
     end
   end
@@ -150,18 +163,6 @@ end
 
 local function apply(fn, argu)
   return fn(unpack(argu))
-end
-
-
-local function maxn(iterable)
-  local n = 0
-  for k, v in next, iterable do
-    local i = int(k)
-    if i then
-      n = i > n and i or n
-    end
-  end
-  return n
 end
 
 
@@ -204,21 +205,21 @@ local function case(s, branches)
 end
 
 
-local function each(seq)
-  local i, n = 0, len(seq)
-  return function()
-    if i < n then
-      i = i + 1
-      return seq[i]
+local function contains(seq, v)
+  for i = 1, int(seq.n) or len(seq) do
+    if seq[i] == v then
+      return true
     end
   end
 end
 
 
-local function contains(iterable, v)
-  for i = 1, len(iterable) do
-    if iterable[i] == v then
-      return true
+local function each(seq)
+  local i, n = 0, int(seq.n) or len(seq)
+  return function()
+    if i < n then
+      i = i + 1
+      return seq[i]
     end
   end
 end
@@ -234,12 +235,12 @@ local function fatal(...)
 end
 
 
-local function filter(iterable, fn)
-  fn = fn or function(x) return x ~= nil end
+local function filter(seq, block)
+  block = block or function(x) return x ~= nil end
   local r = {}
-  for i = 1, iterable.n or len(iterable) do
-    local v = iterable[i]
-    if fn(v) then
+  for i = 1, int(seq.n) or len(seq) do
+    local v = seq[i]
+    if block(v) then
       append(r, v)
     end
   end
@@ -252,19 +253,22 @@ local function id(...)
 end
 
 
-local function keys(t)
+local function keys(iterable)
   local r = {}
-  for k in next, t do
+  for k in next, iterable do
     append(r, k)
   end
   return r
 end
 
 
-local function map(seq, fn)
+local function map(seq, block)
   local r = {}
-  for i = 1, len(seq or {}) do
-    r[i] = fn(seq[i])
+  if isnil(seq) then
+    return r
+  end
+  for i = 1, int(seq.n) or len(seq) do
+    r[i] = block(seq[i])
   end
   return r
 end
@@ -277,12 +281,26 @@ local function negate(fn)
 end
 
 
-local function reduce(seq, acc, fn)
-  if fn == nil then
-    acc, fn = {}, acc
+local function partition(seq, block)
+  local r, s = {}, {}
+  for i = 1, int(seq.n) or len(seq) do
+    local v = seq[i]
+    if block(v) then
+      append(r, v)
+    else
+      append(s, v)
+    end
+  end
+  return r, s
+end
+
+
+local function reduce(seq, acc, block)
+  if block == nil then
+    acc, block = {}, acc
   end
   for i = 1, len(seq) do
-    acc = fn(acc, seq[i]) or acc
+    acc = block(acc, seq[i]) or acc
   end
   return acc
 end
@@ -299,8 +317,8 @@ end
 
 local function with(...)
   local argu = pack(...)
-  local fn = pop(argu)
-  local r = pack(fn(unpack(argu)))
+  local block = remove(argu)
+  local r = pack(apply(block, argu))
   for cm in each(argu) do
     cm:release()
   end
@@ -315,9 +333,9 @@ local function slurp(cm)
 end
 
 
-local function values(t)
+local function values(iterable)
   local r = {}
-  for _, v in next, t do
+  for _, v in next, iterable do
     append(r, v)
   end
   return r
@@ -453,12 +471,21 @@ do
 end
 
 
+local function collect(keylist, dict)
+  local r = {}
+  for k in each(keylist) do
+    r[k] = dict[k]
+  end
+  return r
+end
+
+
 local function hoist(keylist, dict)
   local r = {}
   for k in each(keylist) do
     merge(r, dict[k])
   end
-  return r
+  return not isempty(r) and r or nil
 end
 
 
@@ -466,14 +493,9 @@ local function per_platform(t)
   local r = {}
   for k, v in next, t do
     if k == 'platforms' then
-      local matches = filter(keys(v), bind(contains, {platforms}))
-      local overrides = hoist(matches, v)
-      if isempty(overrides) then
-        map(filter(keys(v), negate(isplatform)), function(name)
-          overrides[name] = v[name]
-        end)
-      end
-      merge(r, overrides)
+      local branches, defaults = partition(keys(v), isplatform)
+      local matches = filter(branches, bind(contains, {platforms}))
+      merge(r, hoist(matches, v) or collect(defaults, v))
     elseif istable(v) then
       r[k] = per_platform(v)
     else
@@ -617,7 +639,7 @@ int main () {
   end
 
 
-  local function check_func_decl(env, fn, extra_hdrs)
+  local function check_func_decl(env, fname, extra_hdrs)
     return with(TmpFile('conftest.c', 'w'), function(conftest)
       conftest:write(format([[
 %s
@@ -629,13 +651,13 @@ main()
 #endif
   return 0;
 }
-]], extra_hdrs, fn, fn))
+]], extra_hdrs, fname, fname))
       return 0 == spawn(env, '$compile conftest.c') and 1 or 0
     end)
   end
 
 
-  local function check_func_link(env, fn)
+  local function check_func_link(env, fname)
     return with(TmpFile('conftest.c', 'w'), function(conftest)
       conftest:write(format([[
 /* Define to an innocous variant, in case <limits.h> declares it.
@@ -670,7 +692,7 @@ choke me
 int main () {
   return %s ();
 }
-]], fn, fn, fn, fn, fn, fn, fn))
+]], fname, fname, fname, fname, fname, fname, fname))
       return spawn(env, '$link conftest.c') == 0 and 1 or 0
     end)
   end
