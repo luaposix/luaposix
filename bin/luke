@@ -205,7 +205,8 @@ end
 
 local function collect(keylist, dict)
   local r = {}
-  for k in each(keylist) do
+  for i = 1, int(keylist.n) or len(keylist) do
+    local k = keylist[i]
     r[k] = dict[k]
   end
   return r
@@ -257,8 +258,8 @@ end
 
 local function hoist(keylist, dict)
   local r = {}
-  for k in each(keylist) do
-    merge(r, dict[k])
+  for i = 1, int(keylist.n) or len(keylist) do
+    merge(r, dict[keylist[i]])
   end
   return not isempty(r) and r or nil
 end
