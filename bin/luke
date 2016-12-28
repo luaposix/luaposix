@@ -966,7 +966,7 @@ Written by Gary V. Vaughan <gary@gnu.org>, 2014
 Copyright (C) 2016, Gary V. Vaughan
 Luke comes with ABSOLUTELY NO WARRANTY.
 You may redistribute copies of Luke under the terms of the MIT license;
-it may be used for any porpose at absolutely no cose, without permission.
+it may be used for any purpose at absolutely no cost, without permission.
 See <https://mit-license.org> for details.
 ]]
   exit(0)
