@@ -4,7 +4,9 @@
   TODO:
   - don't manipulate external DEFAULTVARS state from searchlibs calls
   - add a --debug mode for tracing configs i/o
-  - fix install target
+  - support copy_directories
+  - support adhoc targets
+  - consolidate searchlibs with external_libraries
 ]]
 
 local _ENV = {
@@ -202,7 +204,10 @@ local function case(s, branches)
     if pattern ~= DEFAULT then
       local argu = pack(match(s, '^' .. pattern .. '$'))
       if argu[1] ~= nil then
-        return iscallable(fn) and apply(fn, argu) or fn
+        if iscallable(fn) then
+          return apply(fn, argu)
+        end
+        return fn
       end
     end
   end
@@ -524,6 +529,9 @@ local DEFAULTVARS = setmetatable(per_platform{
   LIB_EXTENSION = 'so',
   OBJ_EXTENSION = 'o',
 
+  INSTALL       = 'cp',
+  MAKEDIRS      = 'mkdir -p',
+
   COMPILE       = '$CC $CFLAGS $LIBFLAGS $PKGFLAGS $CPPFLAGS',
   CFLAGS        = '-O2',
   platforms     = {
@@ -537,15 +545,6 @@ local DEFAULTVARS = setmetatable(per_platform{
     return getenv(v)
   end,
 })
-
-
-CONFVARS = {
-  compile  = '$CC -c $CFLAGS $CPPFLAGS',
-  install  = 'cp',
-  libs     = '',
-  link     = '$CC -o conftest $CFLAGS $CPPFLAGS $LDFLAGS',
-  makedirs = 'mkdir -p',
-}
 
 
 local function interpolate(env, s)
@@ -566,6 +565,13 @@ end
 --[[ ========== ]]--
 --[[ Configury. ]]--
 --[[ ========== ]]--
+
+
+CONFVARS = {
+  compile  = '$CC -c $CFLAGS $CPPFLAGS',
+  libs     = '',
+  link     = '$CC -o conftest $CFLAGS $CPPFLAGS $LDFLAGS',
+}
 
 
 local function spawn(env, ...)
@@ -1136,7 +1142,7 @@ local function build_c_module(env, luke, module)
 end
 
 
-local function module_to_path(variables, module, rules)
+local function module_to_path(luke, module, rules)
   for source in each(rules.sources) do
     return case(source, {
       ['.*%.lua'] = function(src)
@@ -1145,13 +1151,13 @@ local function module_to_path(variables, module, rules)
           abspath = abspath .. '/init'
         end
         abspath = abspath .. '.lua'
-        return src, gsub(abspath, '/[^/]+%.lua$', '')
+        return src, (gsub(abspath, '/[^/]+%.lua$', ''))
       end,
 
       ['.*%.[ch]'] = function()
         local path = gsub(module, '%.', '/')
-        local src = variables.objdir .. '/' .. path .. '.$LIB_EXTENSION'
-        return src, gsub('$INST_LIBDIR/' .. path, '/[^/]+$', '')
+        local src = luke.variables.objdir .. '/' .. path .. '.$LIB_EXTENSION'
+        return src, (gsub('$INST_LIBDIR/' .. path, '/[^/]+$', ''))
       end,
 
       function(src)
@@ -1162,15 +1168,15 @@ local function module_to_path(variables, module, rules)
 end
 
 
-local function install_modules(args, variables, modules)
+local function install_modules(env, luke, modules)
   for module, rules in next, modules do
-    local src, dir = module_to_path(variables, module, rules)
+    local src, dir = module_to_path(luke, module, rules)
     local status = 0
-    if open(interpolate(variables, dir)) == nil then
-      status = run(args, variables, {'$makedirs', dir})
+    if open(interpolate(env, dir)) == nil then
+      status = run(env, {'$MAKEDIRS', dir})
     end
     if status == 0 then
-      status = run(args, variables, {'$install', src, dir .. '/'})
+      status = run(env, {'$INSTALL', src, dir .. '/'})
     end
   end
   return 0
@@ -1232,7 +1238,7 @@ local function main()
   end
 
   if contains(L.targets, 'install') then
-    status = install_modules(args, env, L.luke.modules)
+    status = install_modules(env, L.luke, L.luke.modules)
   end
 
   return status
