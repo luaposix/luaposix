@@ -51,8 +51,8 @@ local _ENV = {
   str		= tostring,
   tmpname	= os.tmpname,
   tointeger	= math.tointeger,
+  table_unpack	= table.unpack or unpack,
   type		= type,
-  unpack	= table.unpack or unpack,
   upper		= string.upper,
 }
 (setfenv or nop)(1, _ENV)
@@ -75,13 +75,13 @@ local int = tointeger or function(x)
 end
 
 
-local function iscallable(x)
+local function callable(x)
   return isfunction(x) and x or (getmetatable(x) or {}).__call
 end
 
 
 local function getmetamethod(x, n)
-  return iscallable((getmetatable (x) or {})[str(n)])
+  return callable((getmetatable (x) or {})[str(n)])
 end
 
 
@@ -146,9 +146,8 @@ local function merge(r, iterable)
 end
 
 
-local _unpack = unpack
 local function unpack(seq, i, j)
-  return _unpack(seq, int(i) or 1, int(j) or int(seq.n) or len(seq))
+  return table_unpack(seq, int(i) or 1, int(j) or int(seq.n) or len(seq))
 end
 
 
@@ -169,7 +168,7 @@ end
 
 
 local function apply(fn, argu)
-  return fn(unpack(argu))
+  return fn and fn(unpack(argu))
 end
 
 
@@ -194,7 +193,7 @@ end
 
 
 local function call(fn, ...)
-  return fn(...)
+  return fn and fn(...)
 end
 
 
@@ -204,14 +203,11 @@ local function case(s, branches)
     if pattern ~= DEFAULT then
       local argu = pack(match(s, '^' .. pattern .. '$'))
       if argu[1] ~= nil then
-        if iscallable(fn) then
-          return apply(fn, argu)
-        end
-        return fn
+        return apply(callable(fn), argu) or fn
       end
     end
   end
-  return call(branches[DEFAULT], s)
+  return call(callable(branches[DEFAULT]), s) or branches[DEFAULT]
 end
 
 
@@ -383,7 +379,7 @@ do
     -- Return a closure that forwards arguments to the named method
     -- on the context object with the correct `self` argument value.
     __index = function(self, key)
-      if iscallable(self.context[key]) then
+      if callable(self.context[key]) then
         return function(_, ...)
           return self.context[key](self.context, ...)
         end
