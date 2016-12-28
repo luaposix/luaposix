@@ -1,5 +1,13 @@
 #!/usr/bin/env lua
 
+--[[
+  TODO:
+  - maintain correct configs order with bulid targets narrowed by command-line
+  - put DEFAULTVARS.conf_* into its own environment
+  - don't manipulate external DEFAULTVARS state from searchlibs calls
+]]
+
+
 local _ENV = {
   LUAVERSION	= _VERSION:gsub('[^0-9%.]+', ''),
   append	= table.insert,
@@ -526,10 +534,11 @@ local DEFAULTVARS = setmetatable(per_platform{
     LIBFLAGS    = '-shared -fPIC',
   },
 
-  compile       = '$CC -c $CFLAGS $CPPFLAGS',
-  link          = '$CC -o conftest $CFLAGS $CPPFLAGS $LDFLAGS',
-  mkdir_p       = 'mkdir -p',
-  install       = 'cp',
+  conf_compile  = '$CC -c $CFLAGS $CPPFLAGS',
+  conf_install  = 'cp',
+  conf_libs     = '',
+  conf_link     = '$CC -o conftest $CFLAGS $CPPFLAGS $LDFLAGS',
+  conf_makedirs = 'mkdir -p',
 }, {
   __index = function(_, v)
     return getenv(v)
@@ -617,7 +626,7 @@ do
   local function check_header_compile(env, header, extra_hdrs)
     return with(TmpFile('conftest.c', 'w'), function(conftest)
       conftest:write(format('%s\n#include "%s"\n', extra_hdrs, header))
-      return 0 == spawn(env, '$compile conftest.c') and 1 or 0
+      return 0 == spawn(env, '$conf_compile conftest.c') and 1 or 0
     end)
   end
 
@@ -633,7 +642,7 @@ int main () {
   return %s ();
 }
 ]], symbol, symbol))
-      return spawn(env, '$link conftest.c', lib)
+      return spawn(env, '$conf_link conftest.c', lib)
     end)
   end
 
@@ -651,7 +660,7 @@ main()
   return 0;
 }
 ]], extra_hdrs, fname, fname))
-      return 0 == spawn(env, '$compile conftest.c') and 1 or 0
+      return 0 == spawn(env, '$conf_compile conftest.c') and 1 or 0
     end)
   end
 
@@ -692,7 +701,7 @@ int main () {
   return %s ();
 }
 ]], fname, fname, fname, fname, fname, fname, fname))
-      return spawn(env, '$link conftest.c') == 0 and 1 or 0
+      return spawn(env, '$conf_link conftest.c $conf_libs') == 0 and 1 or 0
     end)
   end
 
@@ -741,6 +750,12 @@ int main () {
       end
       for lib in each(libs) do
         if try_link(env, lib, symbol) == 0 then
+          if lib ~= '' then
+            if DEFAULTVARS.conf_libs ~= nil then
+              DEFAULTVARS.conf_libs = DEFAULTVARS.conf_libs .. ' '
+            end
+            DEFAULTVARS.conf_libs = DEFAULTVARS.conf_libs .. lib
+          end
           return found_library(lib)
         end
       end
@@ -1149,10 +1164,10 @@ local function install_modules(args, variables, modules)
     local src, dir = module_to_path(variables, module, rules)
     local status = 0
     if open(interpolate(variables, dir)) == nil then
-      status = run(args, variables, {'$mkdir_p', dir})
+      status = run(args, variables, {'$conf_makedirs', dir})
     end
     if status == 0 then
-      status = run(args, variables, {'$install', src, dir .. '/'})
+      status = run(args, variables, {'$conf_install', src, dir .. '/'})
     end
   end
   return 0
@@ -1188,7 +1203,7 @@ local function main()
     verbose(interpolate(env, 'checking whether $CC works...'))
     local works, err = with(TmpFile('conftest.c', 'w'), function(conftest)
       conftest:write('typedef int x;\n')
-      return spawn(env, '$compile conftest.c')
+      return spawn(env, '$conf_compile conftest.c')
     end)
     if works ~= 0 then
       verbose 'no\n'
