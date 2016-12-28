@@ -2,9 +2,9 @@
 
 --[[
   TODO:
-  - put DEFAULTVARS.conf_* into its own environment
   - don't manipulate external DEFAULTVARS state from searchlibs calls
   - add a --debug mode for tracing configs i/o
+  - fix install target
 ]]
 
 local _ENV = {
@@ -532,17 +532,20 @@ local DEFAULTVARS = setmetatable(per_platform{
     },
     LIBFLAGS    = '-shared -fPIC',
   },
-
-  conf_compile  = '$CC -c $CFLAGS $CPPFLAGS',
-  conf_install  = 'cp',
-  conf_libs     = '',
-  conf_link     = '$CC -o conftest $CFLAGS $CPPFLAGS $LDFLAGS',
-  conf_makedirs = 'mkdir -p',
 }, {
   __index = function(_, v)
     return getenv(v)
   end,
 })
+
+
+CONFVARS = {
+  compile  = '$CC -c $CFLAGS $CPPFLAGS',
+  install  = 'cp',
+  libs     = '',
+  link     = '$CC -o conftest $CFLAGS $CPPFLAGS $LDFLAGS',
+  makedirs = 'mkdir -p',
+}
 
 
 local function interpolate(env, s)
@@ -625,7 +628,7 @@ do
   local function check_header_compile(env, header, extra_hdrs)
     return with(TmpFile('conftest.c', 'w'), function(conftest)
       conftest:write(format('%s\n#include "%s"\n', extra_hdrs, header))
-      return 0 == spawn(env, '$conf_compile conftest.c') and 1 or 0
+      return 0 == spawn(env, '$compile conftest.c') and 1 or 0
     end)
   end
 
@@ -641,7 +644,7 @@ int main () {
   return %s ();
 }
 ]], symbol, symbol))
-      return spawn(env, '$conf_link conftest.c', lib)
+      return spawn(env, '$link conftest.c', lib)
     end)
   end
 
@@ -659,7 +662,7 @@ main()
   return 0;
 }
 ]], extra_hdrs, fname, fname))
-      return 0 == spawn(env, '$conf_compile conftest.c') and 1 or 0
+      return 0 == spawn(env, '$compile conftest.c') and 1 or 0
     end)
   end
 
@@ -700,7 +703,7 @@ int main () {
   return %s ();
 }
 ]], fname, fname, fname, fname, fname, fname, fname))
-      return spawn(env, '$conf_link conftest.c $conf_libs') == 0 and 1 or 0
+      return spawn(env, '$link conftest.c $libs') == 0 and 1 or 0
     end)
   end
 
@@ -750,10 +753,10 @@ int main () {
       for lib in each(libs) do
         if try_link(env, lib, symbol) == 0 then
           if lib ~= '' then
-            if DEFAULTVARS.conf_libs ~= nil then
-              DEFAULTVARS.conf_libs = DEFAULTVARS.conf_libs .. ' '
+            if CONFVARS.libs ~= '' then
+              CONFVARS.libs = CONFVARS.libs .. ' '
             end
-            DEFAULTVARS.conf_libs = DEFAULTVARS.conf_libs .. lib
+            CONFVARS.libs = CONFVARS.libs .. lib
           end
           return found_library(lib)
         end
@@ -1164,10 +1167,10 @@ local function install_modules(args, variables, modules)
     local src, dir = module_to_path(variables, module, rules)
     local status = 0
     if open(interpolate(variables, dir)) == nil then
-      status = run(args, variables, {'$conf_makedirs', dir})
+      status = run(args, variables, {'$makedirs', dir})
     end
     if status == 0 then
-      status = run(args, variables, {'$conf_install', src, dir .. '/'})
+      status = run(args, variables, {'$install', src, dir .. '/'})
     end
   end
   return 0
@@ -1189,31 +1192,36 @@ local function c_modules(modules, targets)
 end
 
 
-local function main()
-  local L   = parse_arguments(arg)
-  local env = setmetatable(L.defs, {__index=L.luke.variables})
-  local c   = c_modules(L.luke.modules, L.targets)
-
-  if len(c) > 0 then
-    if L.defs.CC == nil then
-      local c_compilers = {'cc', 'gcc', 'clang'}
-      DEFAULTVARS.CC = configure(DEFAULTVARS, {checkprog='C compiler', progs=c_compilers})
-    end
-
-    verbose(interpolate(env, 'checking whether $CC works...'))
-    local works, err = with(TmpFile('conftest.c', 'w'), function(conftest)
-      conftest:write('typedef int x;\n')
-      return spawn(env, '$conf_compile conftest.c')
-    end)
-    if works ~= 0 then
-      verbose 'no\n'
-      stderr:write(err .. '\n')
-      exit(1)
-    end
-    verbose 'yes\n'
+local function config_compiler(env)
+  if env.CC == nil then
+    local cc = {'cc', 'gcc', 'clang'}
+    DEFAULTVARS.CC = configure(env, {checkprog='C compiler', progs=cc})
   end
 
-  run_configs(env, L.luke, L.targets)
+  verbose(interpolate(env, 'checking whether $CC works...'))
+  local works, err = with(TmpFile('conftest.c', 'w'), function(conftest)
+    conftest:write('typedef int x;\n')
+    return spawn(env, '$compile conftest.c')
+  end)
+  if works ~= 0 then
+    verbose 'no\n'
+    stderr:write(err .. '\n')
+    exit(1)
+  end
+  verbose 'yes\n'
+end
+
+
+local function main()
+  local L    = parse_arguments(arg)
+  local c    = c_modules(L.luke.modules, L.targets)
+  local env  = setmetatable(L.defs, {__index=L.luke.variables})
+  local conf = setmetatable(CONFVARS, {__index=env})
+
+  if len(c) > 0 then
+    config_compiler(conf)
+  end
+  run_configs(conf, L.luke, L.targets)
 
   local status = 0
   for module in each(c) do
