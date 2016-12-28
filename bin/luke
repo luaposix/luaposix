@@ -2,11 +2,10 @@
 
 --[[
   TODO:
-  - maintain correct configs order with bulid targets narrowed by command-line
   - put DEFAULTVARS.conf_* into its own environment
   - don't manipulate external DEFAULTVARS state from searchlibs calls
+  - add a --debug mode for tracing configs i/o
 ]]
-
 
 local _ENV = {
   LUAVERSION	= _VERSION:gsub('[^0-9%.]+', ''),
@@ -610,7 +609,7 @@ do
 
   local function check_executable_in_path(env, prog)
     local paths = {}
-    gsub(env.PATH, '[^:]+', function(path)
+    gsub(getenv'PATH', '[^:]+', function(path)
       append(paths, path)
     end)
     for path in each(paths) do
@@ -862,18 +861,19 @@ local function isconfig(x)
 end
 
 
-local function collect_configs(luke, module, configs)
+local function collect_configs(luke, modulename, configs)
   configs = configs or {}
   for k, v in next, luke do
     if isconfig(v) then
-      append(configs, {t=luke, k=k, module=module})
+      append(configs, {t=luke, k=k, module=modulename})
     elseif istable(v) then
       if k == 'modules' then
-        module = true
-      elseif module == true then
-        module = k
+        for name, rules in next, v do
+          collect_configs(rules, name, configs)
+        end
+      else
+        collect_configs(v, modulename, configs)
       end
-      collect_configs(v, module, configs)
     end
   end
   return configs
@@ -903,7 +903,7 @@ local function run_configs(env, luke, targets)
   sort(all_configs, config_cmp)
   for config in each(all_configs) do
     t = config.t[config.k]
-    if contains(targets, config.module) then
+    if config.module == nil or contains(targets, config.module) then
       config.t[config.k] = configure(env, t)
     end
   end
