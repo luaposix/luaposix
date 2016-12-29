@@ -17,6 +17,7 @@ local _ENV = {
   ceil		= math.ceil,
   close		= io.close,
   concat	= table.concat,
+  destructure	= next,
   error		= error,
   exit		= os.exit,
   float		= tonumber,
@@ -75,13 +76,13 @@ local int = tointeger or function(x)
 end
 
 
-local function callable(x)
+local function iscallable(x)
   return isfunction(x) and x or (getmetatable(x) or {}).__call
 end
 
 
 local function getmetamethod(x, n)
-  return callable((getmetatable (x) or {})[str(n)])
+  return iscallable((getmetatable (x) or {})[str(n)])
 end
 
 
@@ -168,7 +169,11 @@ end
 
 
 local function apply(fn, argu)
-  return fn and fn(unpack(argu))
+  assert(fn ~= nil, 'cannot apply nil-valued function')
+  if iscallable(fn) then
+    return fn(unpack(argu))
+  end
+  return fn
 end
 
 
@@ -193,21 +198,28 @@ end
 
 
 local function call(fn, ...)
-  return fn and fn(...)
+  assert(fn ~= nil, 'cannot call nil-valued function')
+  if iscallable(fn) then
+    return fn(...)
+  end
+  return fn
 end
 
 
 local function case(s, branches)
+  if branches[s] ~= nil then
+    return call(branches[s], s)
+  end
   local DEFAULT = 1
   for pattern, fn in next, branches do
     if pattern ~= DEFAULT then
       local argu = pack(match(s, '^' .. pattern .. '$'))
       if argu[1] ~= nil then
-        return apply(callable(fn), argu) or fn
+        return apply(fn, argu)
       end
     end
   end
-  return call(callable(branches[DEFAULT]), s) or branches[DEFAULT]
+  return call(branches[DEFAULT], s)
 end
 
 
@@ -218,6 +230,17 @@ local function collect(keylist, dict)
     r[k] = dict[k]
   end
   return r
+end
+
+
+local function cond(...)
+  local clauses = pack(...)
+  for i = 1, clauses.n do
+    local expr, branch = destructure(clauses[i])
+    if expr then
+      return call(branch, expr)
+    end
+  end
 end
 
 
@@ -299,10 +322,12 @@ local function map(seq, block)
 end
 
 
-local function negate(fn)
-  return function(...)
-    return not fn(...)
+local function mapvalues(dict, block)
+  local r = {}
+  for k, v in next, dict do
+    r[k] = block(v)
   end
+  return r
 end
 
 
@@ -317,6 +342,14 @@ local function partition(seq, block)
     end
   end
   return r, s
+end
+
+
+local function pop(seq)
+  if int(seq.n) then
+    seq.n = seq.n - 1
+  end
+  return remove(seq)
 end
 
 
@@ -342,7 +375,7 @@ end
 
 local function with(...)
   local argu = pack(...)
-  local block = remove(argu)
+  local block = pop(argu)
   local r = pack(apply(block, argu))
   for cm in each(argu) do
     cm:release()
@@ -379,7 +412,7 @@ do
     -- Return a closure that forwards arguments to the named method
     -- on the context object with the correct `self` argument value.
     __index = function(self, key)
-      if callable(self.context[key]) then
+      if iscallable(self.context[key]) then
         return function(_, ...)
           return self.context[key](self.context, ...)
         end
@@ -450,7 +483,7 @@ end
 local function OrderedDict(...)
   local r, argu = {}, pack(...)
   for i = 1, argu.n do
-    local k, v = next(argu[i])
+    local k, v = destructure(argu[i])
     append(r, k)
     r[k] = v
   end
@@ -745,9 +778,6 @@ int main () {
       checking('for library containing', argv.symbol)
 
       local libraries, symbol = argv.searchlibs, argv.symbol
-      if not istable(libraries) then
-        libraries = {libraries}
-      end
       local libs = {''}
       for lib in each(libraries) do
         append(libs, '-l' .. lib)
@@ -766,8 +796,8 @@ int main () {
 
       verbose '\n'
       libraries[1] = 'c'
-      error(format('%s: symbol not found in any of lib%s',
-        symbol, concat(libraries, ', lib')))
+      fatal("required symbol '%s' not found in any of lib%s",
+        symbol, concat(libraries, ', lib'))
     end
   }, {
     checkfunc = function(env, argv)
@@ -791,13 +821,12 @@ int main () {
               return apply(self[fname], {env, v})
             end
           end
-          error(format("unable to configure with keys '%s'",
-            concat(keys(v), "', '")
-          ), 3)
+          fatal("unable to configure with keys '%s'",
+            concat(keys(v), "', '"))
         end,
 
         function(type)
-          error(format("unsupported configure type '%s'", type), 3)
+          fatal("unsupported configure type '%s'", type)
         end,
       })
     end,
@@ -908,17 +937,22 @@ local function run_configs(env, luke, targets)
 end
 
 
-local function normalize_includes(config)
-  if not istable(config) then
-    return config
-  elseif isconfig(config) and isstring(config.includes) then
-    return merge({includes = {config.includes}}, config)
-  end
-  local r = {}
-  for k, v in next, config do
-    r[k] = normalize_includes(v)
-  end
-  return r
+local function normalize_configs(config)
+  return cond({
+    [not istable(config)] = config
+  }, {
+    [not isconfig(config)] = function()
+      return mapvalues(config, normalize_configs)
+    end
+  }, {
+    [true] = function()
+      local seqkeys = {'includes', 'progs', 'searchlibs'}
+      local r = mapvalues(collect(seqkeys, config), function(v)
+        return isstring(v) and {v} or v
+      end)
+      return merge(r, config)
+    end
+  })
 end
 
 
@@ -932,13 +966,13 @@ local function normalize_rules(rules)
       if len(rules) > 0 then
         return {sources=rules}
       elseif isstring(rules.sources) then
-        return merge({sources = {rules.sources}}, normalize_includes(rules))
+        return merge({sources = {rules.sources}}, normalize_configs(rules))
       end
-      return normalize_includes(rules)
+      return normalize_configs(rules)
     end,
 
     function(v)
-      error(format("unsupported rule type '%s'", v), 3)
+      fatal("unsupported rule type '%s'", v)
     end,
   })
 end
@@ -1150,7 +1184,7 @@ local function module_to_path(luke, module, rules)
       end,
 
       function(src)
-        error(format("unsupported source type '%s'", src), 3)
+        fatal("unsupported source type '%s'", src)
       end,
     })
   end
