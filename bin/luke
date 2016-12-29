@@ -130,7 +130,7 @@ local function maxn(iterable)
   local n = 0
   for k, v in next, iterable do
     local i = int(k)
-    if i > n then
+    if i and i > n then
       n = i
     end
   end
@@ -786,21 +786,14 @@ int main () {
         end,
 
         ['table'] = function()
-          if v.checkprog ~= nil then
-            return self.checkprog(env, v)
-          elseif v.checkheader ~= nil then
-            return self.checkheader(env, v)
-          elseif v.checkdecl ~= nil then
-            return self.checkdecl(env, v)
-          elseif v.checkfunc ~= nil then
-            return self.checkfunc(env, v)
-          elseif v.searchlibs ~= nil then
-            return self.searchlibs(env, v)
-          else
-            error(format("unable to configure with keys '%s'",
-              concat(keys(v), "', '")
-            ), 3)
+          for fname in each(self) do
+            if v[fname] ~= nil then
+              return apply(self[fname], {env, v})
+            end
           end
+          error(format("unable to configure with keys '%s'",
+            concat(keys(v), "', '")
+          ), 3)
         end,
 
         function(type)
