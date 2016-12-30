@@ -2,7 +2,7 @@
 
 --[[
   TODO:
-  - don't manipulate external DEFAULTVARS state from searchlibs calls
+  - don't manipulate external DEFAULTENV state from searchlibs calls
   - add a --debug mode for tracing configs i/o
   - support copy_directories
   - support adhoc targets
@@ -296,11 +296,6 @@ local function hoist(keylist, dict)
 end
 
 
-local function id(...)
-  return ...
-end
-
-
 local function keys(iterable)
   local r = {}
   for k in next, iterable do
@@ -462,24 +457,6 @@ do
 end
 
 
-local ProxyTable
-do
-  local function setproxytable(t, proxy)
-    local mt = getmetatable(t)
-    setmetatable(t, {__index=proxy})
-    return mt
-  end
-
-  local function resetmetatable(cm)
-    setmetatable(cm[1], cm.context)
-  end
-
-  ProxyTable = function(t, proxy)
-    return ContextManager(resetmetatable, setproxytable, t, proxy)
-  end
-end
-
-
 local function OrderedDict(...)
   local r, argu = {}, pack(...)
   for i = 1, argu.n do
@@ -492,12 +469,12 @@ end
 
 
 
---[[ ===================== ]]--
---[[ String Interpolation. ]]--
---[[ ===================== ]]--
+--[[ ============= ]]--
+--[[ Environments. ]]--
+--[[ ============= ]]--
 
 
-local platforms, isplatform
+local filter_platforms
 do
   local canon = {
     ['AIX']       = {'unix', 'aix'},
@@ -520,33 +497,42 @@ do
   end))
 
 
-  platforms = canon[popen('uname -s'):read'*l'] or {'unix'}
+  local platforms = canon[popen('uname -s'):read'*l'] or {'unix'}
 
 
-  isplatform = function(x)
+  local function isplatform(x)
     return allplatforms[x] ~= nil
   end
-end
 
-
-local function per_platform(t)
-  local r = {}
-  for k, v in next, t do
-    if k == 'platforms' then
-      local branches, defaults = partition(keys(v), isplatform)
-      local matches = filter(branches, bind(contains, {platforms}))
-      merge(r, hoist(matches, v) or collect(defaults, v))
-    elseif istable(v) then
-      r[k] = per_platform(v)
-    else
-      r[k] = r[k] or v
+  filter_platforms = function(t)
+    local r = {}
+    for k, v in next, t do
+      if k == 'platforms' then
+        local branches, defaults = partition(keys(v), isplatform)
+        local matches = filter(branches, bind(contains, {platforms}))
+        merge(r, hoist(matches, v) or collect(defaults, v))
+      elseif istable(v) then
+        r[k] = filter_platforms(v)
+      else
+        r[k] = r[k] or v
+      end
     end
+    return r
   end
-  return r
 end
 
 
-local DEFAULTVARS = setmetatable(per_platform{
+local function pushenv(new, env)
+  return setmetatable(new, {__index=env})
+end
+
+
+local function SHELLENV(_, v)
+  return getenv(v)
+end
+
+
+local DEFAULTENV = pushenv(filter_platforms {
   LUAVERSION    = LUAVERSION,
 
   PREFIX        = '/usr/local',
@@ -569,25 +555,15 @@ local DEFAULTVARS = setmetatable(per_platform{
     },
     LIBFLAGS    = '-shared -fPIC',
   },
-}, {
-  __index = function(_, v)
-    return getenv(v)
-  end,
-})
+}, SHELLENV)
 
 
-local function interpolate(env, s)
-  return with(ProxyTable(env, DEFAULTVARS), function(cm)
-    local r, vars = '', cm[1]
-    while r ~= s do
-      r = s
-      s = gsub(r, '%$([%w_]+)', function(varname)
-        return vars[varname] or ''
-      end)
-    end
-    return r
-  end)
-end
+local CONFIGENV = {
+  compile  = '$CC -c $CFLAGS $CPPFLAGS',
+  libs     = '',
+  link     = '$CC -o conftest $CFLAGS $CPPFLAGS $LDFLAGS',
+}
+
 
 
 
@@ -596,11 +572,16 @@ end
 --[[ ========== ]]--
 
 
-CONFVARS = {
-  compile  = '$CC -c $CFLAGS $CPPFLAGS',
-  libs     = '',
-  link     = '$CC -o conftest $CFLAGS $CPPFLAGS $LDFLAGS',
-}
+local function interpolate(env, s)
+  local r = ''
+  while r ~= s do
+    r = s
+    s = gsub(r, '%$([%w_]+)', function(varname)
+      return env[varname] or ''
+    end)
+  end
+  return r
+end
 
 
 local function spawn(env, ...)
@@ -785,10 +766,10 @@ int main () {
       for lib in each(libs) do
         if try_link(env, lib, symbol) == 0 then
           if lib ~= '' then
-            if CONFVARS.libs ~= '' then
-              CONFVARS.libs = CONFVARS.libs .. ' '
+            if CONFIGENV.libs ~= '' then
+              CONFIGENV.libs = CONFIGENV.libs .. ' '
             end
-            CONFVARS.libs = CONFVARS.libs .. lib
+            CONFIGENV.libs = CONFIGENV.libs .. lib
           end
           return found_library(lib)
         end
@@ -831,6 +812,26 @@ int main () {
       })
     end,
   })
+end
+
+
+local function config_compiler(env)
+  if env.CC == nil then
+    local cc = {'cc', 'gcc', 'clang'}
+    DEFAULTENV.CC = configure(env, {checkprog='C compiler', progs=cc})
+  end
+
+  verbose(interpolate(env, 'checking whether $CC works...'))
+  local works, err = with(TmpFile('conftest.c', 'w'), function(conftest)
+    conftest:write('typedef int x;\n')
+    return spawn(env, '$compile conftest.c')
+  end)
+  if works ~= 0 then
+    verbose 'no\n'
+    stderr:write(err .. '\n')
+    exit(1)
+  end
+  verbose 'yes\n'
 end
 
 
@@ -908,7 +909,7 @@ end
 
 
 -- Sort according to the key order in configure itself.
-local weighting = setmetatable(map(configure, id), {
+local weighting = setmetatable(copy(configure), {
   __call = function(self, config)
     local t = config.t[config.k]
     for i = 1, len(self) do
@@ -992,7 +993,7 @@ local function loadluke(filename)
   if not ok then
     return nil, "Error running file: " .. err
   end
-  r = per_platform(r)
+  r = filter_platforms(r)
   for module in each(keys(r.modules)) do
     r.modules[module] = normalize_rules(r.modules[module])
   end
@@ -1056,7 +1057,7 @@ end
 
 
 local function parse_arguments(args)
-  local defs, fname, targets = {}, 'lukefile', {}
+  local clidefs, fname, targets = {}, 'lukefile', {}
 
   map(args, function(opt)
     case(opt, {
@@ -1079,7 +1080,7 @@ local function parse_arguments(args)
       ['--version'] = version,
 
       ['(.+)=(.+)'] = function(name, value)
-        defs[name] = value
+        clidefs[name] = value
       end,
 
       function(opt)
@@ -1116,7 +1117,7 @@ local function parse_arguments(args)
   end)
 
   return {
-    defs    = defs,
+    clidefs = clidefs,
     luke    = luke,
     targets = targets,
   }
@@ -1221,31 +1222,11 @@ local function c_modules(modules, targets)
 end
 
 
-local function config_compiler(env)
-  if env.CC == nil then
-    local cc = {'cc', 'gcc', 'clang'}
-    DEFAULTVARS.CC = configure(env, {checkprog='C compiler', progs=cc})
-  end
-
-  verbose(interpolate(env, 'checking whether $CC works...'))
-  local works, err = with(TmpFile('conftest.c', 'w'), function(conftest)
-    conftest:write('typedef int x;\n')
-    return spawn(env, '$compile conftest.c')
-  end)
-  if works ~= 0 then
-    verbose 'no\n'
-    stderr:write(err .. '\n')
-    exit(1)
-  end
-  verbose 'yes\n'
-end
-
-
 local function main()
   local L    = parse_arguments(arg)
   local c    = c_modules(L.luke.modules, L.targets)
-  local env  = setmetatable(L.defs, {__index=L.luke.variables})
-  local conf = setmetatable(CONFVARS, {__index=env})
+  local env  = pushenv(L.clidefs, pushenv(L.luke.variables, DEFAULTENV))
+  local conf = pushenv(CONFIGENV, env)
 
   if len(c) > 0 then
     config_compiler(conf)
