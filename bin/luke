@@ -25,6 +25,7 @@ local _ENV = {
   getenv	= os.getenv,
   getmetatable	= getmetatable,
   gsub		= string.gsub,
+  id		= function(...) return ... end,
   isempty	= function(x) return type(x) == 'table' and not next(x) end,
   isfile	= function(x) return io.type(x) == 'file' end,
   isfunction	= function(x) return type(x) == 'function' end,
@@ -55,6 +56,8 @@ local _ENV = {
   table_unpack	= table.unpack or unpack,
   type		= type,
   upper		= string.upper,
+  wrap		= coroutine.wrap,
+  yield		= coroutine.yield,
 }
 (setfenv or nop)(1, _ENV)
 
@@ -139,9 +142,12 @@ local function maxn(iterable)
 end
 
 
-local function merge(r, iterable)
-  for k, v in next, iterable do
-    r[k] = r[k] or v
+local function merge(r, ...)
+  local argu = pack(...)
+  for i = 1, argu.n do
+    for k, v in next, argu[i] or {} do
+      r[k] = r[k] or v
+    end
   end
   return r
 end
@@ -223,16 +229,6 @@ local function case(s, branches)
 end
 
 
-local function collect(keylist, dict)
-  local r = {}
-  for i = 1, int(keylist.n) or len(keylist) do
-    local k = keylist[i]
-    r[k] = dict[k]
-  end
-  return r
-end
-
-
 local function cond(...)
   local clauses = pack(...)
   for i = 1, clauses.n do
@@ -287,6 +283,30 @@ local function filter(seq, block)
 end
 
 
+local flatten
+do
+  local function visit(x)
+    if istable(x) then
+      for i = 1, int(x.n) or len(x) do
+        visit(x[i])
+      end
+    else
+      yield(x)
+    end
+  end
+
+
+  flatten = function(...)
+    local r = {}
+    for v in wrap(visit), filter(pack(...)) do
+      append(r, v)
+    end
+    return r
+  end
+
+end
+
+
 local function hoist(keylist, dict)
   local r = {}
   for i = 1, int(keylist.n) or len(keylist) do
@@ -307,9 +327,6 @@ end
 
 local function map(seq, block)
   local r = {}
-  if isnil(seq) then
-    return r
-  end
   for i = 1, int(seq.n) or len(seq) do
     r[i] = block(seq[i])
   end
@@ -317,9 +334,9 @@ local function map(seq, block)
 end
 
 
-local function mapvalues(dict, block)
+local function mapvalues(iterable, block)
   local r = {}
-  for k, v in next, dict do
+  for k, v in next, iterable do
     r[k] = block(v)
   end
   return r
@@ -337,6 +354,16 @@ local function partition(seq, block)
     end
   end
   return r, s
+end
+
+
+local function pluck(keylist, dict)
+  local r = {}
+  for i = 1, int(keylist.n) or len(keylist) do
+    local k = keylist[i]
+    r[k] = dict[k]
+  end
+  return r
 end
 
 
@@ -390,6 +417,15 @@ local function values(iterable)
   local r = {}
   for _, v in next, iterable do
     append(r, v)
+  end
+  return r
+end
+
+
+local function zip_with(iterable, block)
+  local r = {}
+  for k, v in next, iterable do
+    append(r, block(k, v))
   end
   return r
 end
@@ -510,7 +546,7 @@ do
       if k == 'platforms' then
         local branches, defaults = partition(keys(v), isplatform)
         local matches = filter(branches, bind(contains, {platforms}))
-        merge(r, hoist(matches, v) or collect(defaults, v))
+        merge(r, hoist(matches, v) or pluck(defaults, v))
       elseif istable(v) then
         r[k] = filter_platforms(v)
       else
@@ -740,7 +776,7 @@ int main () {
     checkheader = function(env, argv)
       checking('for', argv.checkheader)
 
-      local extra_hdrs = map(argv.includes, function(include)
+      local extra_hdrs = map(argv.includes or {}, function(include)
         return format('#include "%s"', include)
       end)
       return found_result(check_header_compile(env, argv.checkheader, concat(extra_hdrs, '\n')))
@@ -749,7 +785,7 @@ int main () {
     checkdecl = function(env, argv)
       checking('whether', argv.checkdecl, 'is declared')
 
-      local extra_hdrs = map(argv.includes, function(include)
+      local extra_hdrs = map(argv.includes or {}, function(include)
         return format('#include "%s"', include)
       end)
       return found_result(check_func_decl(env, argv.checkdecl, concat(extra_hdrs, '\n')))
@@ -835,37 +871,6 @@ local function config_compiler(env)
 end
 
 
-local function defines(env, t)
-  local buf = {}
-  for var, val in next, t or {} do
-    local v = configure(env, val)
-    if int(v) == 1 then
-      append(buf, '-D' .. var)
-    else
-      if match(v, '[%s"%$]') ~= nil then
-        v = "'" .. v .. "'"
-      end
-      append(buf, '-D' .. var .. "=" .. v)
-    end
-  end
-  return concat(buf, ' ')
-end
-
-
-local function includes(env, t)
-  if t == nil then
-    return ''
-  end
-  return '-I' .. concat(t, ' -I')
-end
-
-
-local function libraries(env, t)
-  local buf = map(t, bind(configure, {env}))
-  return concat(buf, ' ')
-end
-
-
 
 --[[ ============== ]]--
 --[[ Load Lukefile. ]]--
@@ -924,7 +929,7 @@ local weighting = setmetatable(copy(configure), {
 local function config_cmp(a, b)
   return weighting(a) < weighting(b)
 end
-  
+
 
 local function run_configs(env, luke, targets)
   local all_configs = collect_configs(luke)
@@ -948,7 +953,7 @@ local function normalize_configs(config)
   }, {
     [true] = function()
       local seqkeys = {'includes', 'progs', 'searchlibs'}
-      local r = mapvalues(collect(seqkeys, config), function(v)
+      local r = mapvalues(pluck(seqkeys, config), function(v)
         return isstring(v) and {v} or v
       end)
       return merge(r, config)
@@ -1143,26 +1148,44 @@ local function run(env, command)
 end
 
 
-local function build_c_module(env, luke, module)
-  local rules = luke.modules[module]
+local build_c_module
+do
+  local SHELLMETACHARS = '[%s%$"]'
 
-  local command = {
-    '$COMPILE',
-    defines(env, rules.defines),
-    defines(env, luke.defines),
-    includes(env, rules.includes),
-    includes(env, luke.includes),
-  }
-  map(rules.sources, bind(append, {command}))
-  append(command, '-o')
-  append(command, luke.variables.objdir
-    .. '/'
-    .. gsub(module, '%.', '/')
-    .. '.$LIB_EXTENSION'
-  )
-  append(command, "$LIBS")
-  append(command, libraries(env, rules.libraries))
-  return run(env, command)
+  local function defines(...)
+    return zip_with(merge({}, ...), function(name, value)
+      local fmt = cond(
+        {[int(value) == 1]			= '-D%s'	},
+        {[match(value, SHELLMETACHARS) ~= nil]	= "-D%s='%s'"	},
+        {[true]					= '-D%s=%s'	}
+      )
+      return format(fmt, name, value)
+    end)
+  end
+
+  local function incdirs(...)
+    return map(flatten(...), function(v)
+      return '-I' .. v
+    end)
+  end
+
+  local function module_path(objdir, name)
+    return format('%s/%s.$LIB_EXTENSION', objdir, gsub(name, '%.', '/'))
+  end
+
+  build_c_module = function(env, luke, name)
+    local rules = luke.modules[name]
+    local command = {
+      '$COMPILE',
+      defines(rules.defines, luke.defines),
+      incdirs(rules.incdirs, luke.incdirs),
+      rules.sources,
+      '-o', module_path(luke.variables.objdir, name),
+      "$LIBS",
+      rules.libraries,
+    }
+    return run(env, flatten(command))
+  end
 end
 
 
