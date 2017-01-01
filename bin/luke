@@ -2,662 +2,388 @@
 
 --[[
   TODO:
-  - don't manipulate external DEFAULTENV state from searchlibs calls
+  - factor away use of functional.each
+  - narrow lukefile at loadtime according to cli targets
   - add a --debug mode for tracing configs i/o
   - support copy_directories
   - support adhoc targets
   - consolidate searchlibs with external_libraries
+  - remove conftest.o, conftest and other file droppings
 ]]
 
-local _ENV = {
-  LUAVERSION	= _VERSION:gsub('[^0-9%.]+', ''),
-  append	= table.insert,
-  arg		= arg,
-  assert        = assert,
-  ceil		= math.ceil,
-  close		= io.close,
-  concat	= table.concat,
-  destructure	= next,
-  error		= error,
-  exit		= os.exit,
-  float		= tonumber,
-  format	= string.format,
-  getenv	= os.getenv,
-  getmetatable	= getmetatable,
-  gsub		= string.gsub,
-  id		= function(...) return ... end,
-  isempty	= function(x) return type(x) == 'table' and not next(x) end,
-  isfile	= function(x) return io.type(x) == 'file' end,
-  isfunction	= function(x) return type(x) == 'function' end,
-  isnil		= function(x) return x == nil end,
-  isstring	= function(x) return type(x) == 'string' end,
-  istable	= function(x) return type(x) == 'table' end,
-  load		= load,
-  loadstring	= loadstring,
-  match		= string.match,
-  next		= next,
-  nop		= function () end,
-  open		= io.open,
-  pack		= table.pack or function(...) return {n=select('#', ...), ...} end,
-  pcall		= pcall,
-  popen		= io.popen,
-  print		= print,
-  remove	= table.remove,
-  rm		= os.remove,
-  select	= select,
-  setfenv	= setfenv,
-  setmetatable	= setmetatable,
-  sort		= table.sort,
-  stderr	= io.stderr,
-  stdout	= io.stdout,
-  str		= tostring,
-  tmpname	= os.tmpname,
-  tointeger	= math.tointeger,
-  table_unpack	= table.unpack or unpack,
-  type		= type,
-  upper		= string.upper,
-  wrap		= coroutine.wrap,
-  yield		= coroutine.yield,
-}
-(setfenv or nop)(1, _ENV)
+
+package.loaders = {package.loaders[1]}
 
 
-local function copy(iterable)
-  local r = {}
-  for k, v in next, iterable do
-    r[k] = v
-  end
-  return r
-end
+package.preload['luke'] = function()
+  local _ENV = require  'std.normalize' {
+    'luke.cli',
+    'luke.compile',
+    'luke.configure',
+    'luke.environment',
+    'luke.lukefile',
+    'std.functional',
+  }
 
+  return {
+    main = function(args)
+      local L    = parse_arguments(args)
+      local c    = c_modules(L.luke.modules, L.targets)
+      local env  = makeenv(L.clidefs, L.luke.variables, DEFAULTENV)
+      local conf = makeenv(CONFIGENV, unpack(env))
 
-local int = tointeger or function(x)
-  local i = float(x)
-  if i and ceil(i) - i == 0.0 then
-    return i
-  end
-end
-
-
-local function iscallable(x)
-  return isfunction(x) and x or (getmetatable(x) or {}).__call
-end
-
-
-local function getmetamethod(x, n)
-  return iscallable((getmetatable (x) or {})[str(n)])
-end
-
-
-local function rawlen(x)
-  if not istable(x) then
-    return #x
-  end
-
-  local n = #x
-  for i = 1, n do
-    if x[i] == nil then
-      return i - 1
-    end
-  end
-  return n
-end
-
-
-local function len(x)
-  local m = getmetamethod(x, '__len')
-  return m and m(x) or rawlen(x)
-end
-
-
-if setfenv ~= nil then
-
-  local _loadstring = loadstring
-  loadstring = function(str, filename, env)
-    chunk, err = _loadstring(str, filename)
-    if chunk ~= nil and env ~= nil then
-      setfenv(chunk, env)
-    end
-    return chunk, err
-  end
-
-else
-
-  loadstring = function(str, filename, env)
-    return load(str, filename, "t", env)
-  end
-
-end
-
-
-local function maxn(iterable)
-  local n = 0
-  for k, v in next, iterable do
-    local i = int(k)
-    if i and i > n then
-      n = i
-    end
-  end
-  return n
-end
-
-
-local function merge(r, ...)
-  local argu = pack(...)
-  for i = 1, argu.n do
-    for k, v in next, argu[i] or {} do
-      r[k] = r[k] or v
-    end
-  end
-  return r
-end
-
-
-local function unpack(seq, i, j)
-  return table_unpack(seq, int(i) or 1, int(j) or int(seq.n) or len(seq))
-end
-
-
-
---[[ ====================== ]]--
---[[ Language enhancements. ]]--
---[[ ====================== ]]--
-
-
-local function any(seq)
-  for i = 1, int(seq.n) or len(seq) do
-    if seq[i] then
-      return true
-    end
-  end
-  return false
-end
-
-
-local function apply(fn, argu)
-  assert(fn ~= nil, 'cannot apply nil-valued function')
-  if iscallable(fn) then
-    return fn(unpack(argu))
-  end
-  return fn
-end
-
-
-local function bind(fn, bound)
-  local n = bound.n or maxn(bound)
-
-  return function (...)
-    local argu, unbound = copy(bound), pack(...)
-
-    local i = 1
-    for j = 1, unbound.n do
-      while argu[i] ~= nil do
-        i = i + 1
+      if len(c) > 0 then
+        conf = config_compiler(L, conf)
+        env = makeenv({CC=conf.CC}, env)
       end
-      argu[i], i = unbound[j], i + 1
-    end
-    bound.n = n >= i and n or i - 1
+      run_configs(L, conf, L.luke, L.targets)
 
-    return apply(fn, argu)
-  end
-end
-
-
-local function call(fn, ...)
-  assert(fn ~= nil, 'cannot call nil-valued function')
-  if iscallable(fn) then
-    return fn(...)
-  end
-  return fn
-end
-
-
-local function case(s, branches)
-  if branches[s] ~= nil then
-    return call(branches[s], s)
-  end
-  local DEFAULT = 1
-  for pattern, fn in next, branches do
-    if pattern ~= DEFAULT then
-      local argu = pack(match(s, '^' .. pattern .. '$'))
-      if argu[1] ~= nil then
-        return apply(fn, argu)
-      end
-    end
-  end
-  return call(branches[DEFAULT], s)
-end
-
-
-local function cond(...)
-  local clauses = pack(...)
-  for i = 1, clauses.n do
-    local expr, branch = destructure(clauses[i])
-    if expr then
-      return call(branch, expr)
-    end
-  end
-end
-
-
-local function contains(seq, v)
-  for i = 1, int(seq.n) or len(seq) do
-    if seq[i] == v then
-      return true
-    end
-  end
-end
-
-
-local function each(seq)
-  local i, n = 0, int(seq.n) or len(seq)
-  return function()
-    if i < n then
-      i = i + 1
-      return seq[i]
-    end
-  end
-end
-
-
-local function fatal(...)
-  local msg = (...)
-  if select("#", ...) > 1 then
-    msg = format(...)
-  end
-  stderr:write('luke: fatal: ' .. msg .. '\n')
-  exit(1)
-end
-
-
-local function filter(seq, block)
-  block = block or function(x) return x ~= nil end
-  local r = {}
-  for i = 1, int(seq.n) or len(seq) do
-    local v = seq[i]
-    if block(v) then
-      append(r, v)
-    end
-  end
-  return r
-end
-
-
-local flatten
-do
-  local function visit(x)
-    if istable(x) then
-      for i = 1, int(x.n) or len(x) do
-        visit(x[i])
-      end
-    else
-      yield(x)
-    end
-  end
-
-
-  flatten = function(...)
-    local r = {}
-    for v in wrap(visit), filter(pack(...)) do
-      append(r, v)
-    end
-    return r
-  end
-
-end
-
-
-local function hoist(keylist, dict)
-  local r = {}
-  for i = 1, int(keylist.n) or len(keylist) do
-    merge(r, dict[keylist[i]])
-  end
-  return not isempty(r) and r or nil
-end
-
-
-local function keys(iterable)
-  local r = {}
-  for k in next, iterable do
-    append(r, k)
-  end
-  return r
-end
-
-
-local function map(seq, block)
-  local r = {}
-  for i = 1, int(seq.n) or len(seq) do
-    r[i] = block(seq[i])
-  end
-  return r
-end
-
-
-local function mapvalues(iterable, block)
-  local r = {}
-  for k, v in next, iterable do
-    r[k] = block(v)
-  end
-  return r
-end
-
-
-local function partition(seq, block)
-  local r, s = {}, {}
-  for i = 1, int(seq.n) or len(seq) do
-    local v = seq[i]
-    if block(v) then
-      append(r, v)
-    else
-      append(s, v)
-    end
-  end
-  return r, s
-end
-
-
-local function pluck(keylist, dict)
-  local r = {}
-  for i = 1, int(keylist.n) or len(keylist) do
-    local k = keylist[i]
-    r[k] = dict[k]
-  end
-  return r
-end
-
-
-local function pop(seq)
-  if int(seq.n) then
-    seq.n = seq.n - 1
-  end
-  return remove(seq)
-end
-
-
-local function reduce(seq, acc, block)
-  if block == nil then
-    acc, block = {}, acc
-  end
-  for i = 1, len(seq) do
-    acc = block(acc, seq[i]) or acc
-  end
-  return acc
-end
-
-
-local function set(seq)
-  local r = {}
-  for i = 1, len(seq) do
-    r[seq[i]] = true
-  end
-  return r
-end
-
-
-local function with(...)
-  local argu = pack(...)
-  local block = pop(argu)
-  local r = pack(apply(block, argu))
-  for cm in each(argu) do
-    cm:release()
-  end
-  return unpack(r)
-end
-
-
-local function slurp(cm)
-  return with(cm, function(h)
-    return h:read '*a'
-  end)
-end
-
-
-local function values(iterable)
-  local r = {}
-  for _, v in next, iterable do
-    append(r, v)
-  end
-  return r
-end
-
-
-local function zip_with(iterable, block)
-  local r = {}
-  for k, v in next, iterable do
-    append(r, block(k, v))
-  end
-  return r
-end
-
-
-
---[[ =========== ]]--
---[[ Prototypes. ]]--
---[[ =========== ]]--
-
-
-local ContextManager
-do
-  local contextmanager_mt = {
-    -- Return a closure that forwards arguments to the named method
-    -- on the context object with the correct `self` argument value.
-    __index = function(self, key)
-      if iscallable(self.context[key]) then
-        return function(_, ...)
-          return self.context[key](self.context, ...)
+      local status = 0
+      for module in each(c) do
+        status = build_c_module(L, env, L.luke, module)
+        if status ~= 0 then
+          return status
         end
       end
+
+      if contains(L.targets, 'install') then
+        status = install_modules(L, env, L.luke, L.luke.modules)
+      end
+
+      return status
     end,
   }
-
-  ContextManager = function(release, acquire, ...)
-    local cm = {
-      context = acquire(...),
-      release = release,
-      n       = select("#", ...), ...
-    }
-    if cm.context ~= nil then
-      setmetatable(cm, contextmanager_mt)
-    end
-    return cm
-  end
 end
 
 
-local File, TmpFile, Pipe
-do
-  local function context_close(cm)
-    return isfile(cm.context) and close(cm.context)
-  end
 
+package.preload['luke._base'] = function()
+  local _ENV = require  'std.normalize' {}
 
-  File = function(fname, mode)
-    return ContextManager(context_close, open, fname, mode)
-  end
-
-
-  TmpFile = function(fname, mode)
-    return ContextManager(function(cm)
-      if context_close(cm) then
-        return rm(cm[1])
+  return {
+    fatal = function(...)
+      local msg = (...)
+      if select("#", ...) > 1 then
+        msg = format(...)
       end
-      return false
-    end, open, fname, mode)
-  end
-
-
-  Pipe = function(cmd, mode)
-    return ContextManager(context_close, popen, cmd, mode)
-  end
-end
-
-
-local function OrderedDict(...)
-  local r, argu = {}, pack(...)
-  for i = 1, argu.n do
-    local k, v = destructure(argu[i])
-    append(r, k)
-    r[k] = v
-  end
-  return r
+      stderr:write('luke: fatal: ' .. msg .. '\n')
+      exit(1)
+    end
+  }
 end
 
 
 
---[[ ============= ]]--
---[[ Environments. ]]--
---[[ ============= ]]--
-
-
-local filter_platforms
-do
-  local canon = {
-    ['AIX']       = {'unix', 'aix'},
-    ['FreeBSD']   = {'unix', 'freebsd', 'bsd'},
-    ['OpenBSD']   = {'unix', 'openbsd', 'bsd'},
-    ['NetBSD']    = {'unix', 'netbsd', 'bsd'},
-    ['Darwin']    = {'unix', 'macosx', 'bsd'},
-    ['Linux']     = {'unix', 'linux'},
-    ['SunOS']     = {'unix', 'solaris'},
-    ['CYGWIN.*']  = {'unix', 'cygwin'},
-    ['Windows.*'] = {'windows', 'win32'},
-    ['MINGW.*']   = {'windows', 'mingw32', 'win32'},
-    ['procnto.*'] = {'qnx'},
-    ['QNX']       = {'qnx'},
+package.preload['luke.cli'] = function()
+  local _ENV = require  'std.normalize' {
+    'luke._base',
+    'luke.lukefile',
+    'std.functional',
   }
 
 
-  local allplatforms = set(reduce(values(canon), {}, function(acc, platforms)
-    map(platforms, bind(append, {acc}))
-  end))
+  local function version()
+    print [[
+luke (Luke) 0.0.0
+Written by Gary V. Vaughan <gary@gnu.org>, 2014
 
-
-  local platforms = canon[popen('uname -s'):read'*l'] or {'unix'}
-
-
-  local function isplatform(x)
-    return allplatforms[x] ~= nil
+Copyright (C) 2016, Gary V. Vaughan
+Luke comes with ABSOLUTELY NO WARRANTY.
+You may redistribute copies of Luke under the terms of the MIT license;
+it may be used for any purpose at absolutely no cost, without permission.
+See <https://mit-license.org> for details.
+]]
+    exit(0)
   end
 
-  filter_platforms = function(t)
-    local r = {}
-    for k, v in next, t do
-      if k == 'platforms' then
-        local branches, defaults = partition(keys(v), isplatform)
-        local matches = filter(branches, bind(contains, {platforms}))
-        merge(r, hoist(matches, v) or pluck(defaults, v))
-      elseif istable(v) then
-        r[k] = filter_platforms(v)
-      else
-        r[k] = r[k] or v
+
+  local function help()
+    print [[
+Usage: luke [OPTION]... [VAR=VALUE]... [TARGET]
+
+Use the source, Luke!
+
+  --help        print this help, then exit
+  --version     print version number, then exit
+  --file=FILE   use FILE instead of lukefile
+  --quiet       without any output
+  --verbose     provide more progress output
+
+Each TARGET can be one of the module table keys from lukefile, or:
+
+  all           build all targets in lukefile
+  install       copy all built targets to $PREFIX
+
+If no TARGET is given, 'all' is implied.
+
+Report bugs to https://github.com/gvvaughan/luke/issues.]]
+    exit(0)
+  end
+
+
+  local function opterr(msg)
+    if match(msg, '%.$') == nil then
+      msg = msg .. '.'
+    end
+    stderr:write('luke: error: ' .. msg .. '\n')
+    stderr:write("luke: try '" .. arg[0] .. " --help' for help.\n")
+    exit(2)
+  end
+
+
+  local function display(...)
+    return stdout:write(concat{...})
+  end
+
+
+  return {
+    parse_arguments = function(args)
+      local clidefs, fname, targets = {}, 'lukefile', {}
+      local verbose, write = nop, display
+
+      map(args, function(opt)
+        case(opt, {
+          ['--file=(.+)'] = function(optarg)
+            fname = optarg
+          end,
+
+          ['--quiet'] = function()
+            write = nop
+          end,
+
+          ['--verbose'] = function()
+            verbose = display
+          end,
+
+          ['--help'] = help,
+
+          ['--version'] = version,
+
+          ['(.+)=(.+)'] = function(name, value)
+            clidefs[name] = value
+          end,
+
+          function(opt)
+            if match(opt, '^-') ~= nil then
+              opterr(format("unrecognized option '%s'", opt))
+            end
+            append(targets, opt)
+          end,
+        })
+      end)
+
+
+      local luke, err = loadluke(fname)
+      if luke == nil then
+        fatal('bad ' .. fname .. ': ' .. err)
       end
+
+      if isempty(luke.modules or {}) then
+        fatal("no modules table in '%s', nothing to build", args.file)
+      end
+
+      targets = call(function()
+        if isempty(targets) or contains(targets, 'all') then
+          return keys(luke.modules)
+        end
+        local r = filter(targets, function(target)
+          if target ~= 'install' and luke.modules[target] == nil then
+            fatal("no rule to make target '%s'", target)
+          end
+          return true
+        end)
+        assert(len(r) > 0, "no build targets specified")
+        return r
+      end)
+
+      return {
+        clidefs = clidefs,
+        luke    = luke,
+        targets = targets,
+        verbose	= verbose,
+        write	= write,
+      }
+    end,
+  }
+end
+
+
+
+package.preload['luke.compile'] = function()
+  local _ENV = require  'std.normalize' {
+    'luke._base',
+    'luke.configure',
+    'std.functional',
+  }
+
+  local SHELLMETACHARS = '[%s%$"]'
+
+
+  local function run(L, env, command)
+    L.write(interpolate(env, concat(command, ' ')), '\n')
+    local status, err, out = spawn(env, unpack(command))
+    if status ~= 0 then
+      if L.write == nop then
+        stdout:write(concat(command, ' ') .. '\n')
+      end
+      stderr:write(err .. '\n')
+    end
+    return status, out, err
+  end
+
+
+  local function defines(...)
+    return zip_with(merge({}, ...), function(name, value)
+      local fmt = cond(
+        {[int(value) == 1]			= '-D%s'	},
+        {[match(value, SHELLMETACHARS) ~= nil]	= "-D%s='%s'"	},
+        {[true]					= '-D%s=%s'	}
+      )
+      return format(fmt, name, value)
+    end)
+  end
+
+
+  local function incdirs(...)
+    return map(flatten(...), function(v)
+      return '-I' .. v
+    end)
+  end
+
+
+  local function module_path(objdir, name)
+    return format('%s/%s.$LIB_EXTENSION', objdir, gsub(name, '%.', '/'))
+  end
+
+
+  local function module_to_path(luke, module, rules)
+    for source in each(rules.sources) do
+      return case(source, {
+        ['.*%.lua'] = function(src)
+          local abspath = '$INST_LUADIR/' .. gsub(module, '%.', '/')
+          if match(src, '/init%.lua$') then
+            abspath = abspath .. '/init'
+          end
+          abspath = abspath .. '.lua'
+          return src, (gsub(abspath, '/[^/]+%.lua$', ''))
+        end,
+
+        ['.*%.[ch]'] = function()
+          local path = gsub(module, '%.', '/')
+          local src = luke.variables.objdir .. '/' .. path .. '.$LIB_EXTENSION'
+          return src, (gsub('$INST_LIBDIR/' .. path, '/[^/]+$', ''))
+        end,
+
+        function(src)
+          fatal("unsupported source type '%s'", src)
+        end,
+      })
+    end
+  end
+
+
+  return {
+    build_c_module = function(L, env, luke, name)
+      local rules = luke.modules[name]
+      local command = {
+        '$COMPILE',
+        defines(rules.defines, luke.defines),
+        incdirs(rules.incdirs, luke.incdirs),
+        rules.sources,
+        '-o', module_path(luke.variables.objdir, name),
+        "$LIBS",
+        rules.libraries,
+      }
+      return run(L, env, flatten(command))
+    end,
+
+    c_modules = function(modules, targets)
+      return filter(targets, function(target)
+        if modules[target] then
+          local rules = modules[target]
+          for f in each(rules.sources) do
+            if match(f, '%.[ch]$') then
+              return true
+            end
+          end
+        end
+        return false
+      end)
+    end,
+
+    install_modules = function(L, env, luke, modules)
+      for module, rules in next, modules do
+        local src, dir = module_to_path(luke, module, rules)
+        local status = 0
+        if open(interpolate(env, dir)) == nil then
+          status = run(L, env, {'$MAKEDIRS', dir})
+        end
+        if status == 0 then
+          status = run(L, env, {'$INSTALL', src, dir .. '/'})
+        end
+      end
+      return 0
+    end,
+  }
+end
+
+
+
+package.preload['luke.configure'] = function(...)
+  local _ENV = require 'std.normalize' {
+    'luke._base',
+    'luke.environment',
+    'std.functional',
+    'type.context-manager',
+    'type.dict',
+  }
+
+
+  local function interpolate(env, s)
+    local r = ''
+    while r ~= s do
+      r = s
+      s = gsub(r, '%$([%w_]+)', function(varname)
+        return env[varname] or ''
+      end)
     end
     return r
   end
-end
 
 
-local function pushenv(new, env)
-  return setmetatable(new, {__index=env})
-end
-
-
-local function SHELLENV(_, v)
-  return getenv(v)
-end
-
-
-local DEFAULTENV = pushenv(filter_platforms {
-  LUAVERSION    = LUAVERSION,
-
-  PREFIX        = '/usr/local',
-  INST_LIBDIR   = '$PREFIX/lib/lua/$LUAVERSION',
-  INST_LUADIR   = '$PREFIX/share/lua/$LUAVERSION',
-
-  LUA_INCDIR    = '/usr/include/lua$LUAVERSION',
-
-  LIB_EXTENSION = 'so',
-  OBJ_EXTENSION = 'o',
-
-  INSTALL       = 'cp',
-  MAKEDIRS      = 'mkdir -p',
-
-  COMPILE       = '$CC $CFLAGS $LIBFLAGS $PKGFLAGS $CPPFLAGS',
-  CFLAGS        = '-O2',
-  platforms     = {
-    macosx  = {
-      LIBFLAGS  = '-fPIC -bundle -undefined dynamic_lookup -all_load',
-    },
-    LIBFLAGS    = '-shared -fPIC',
-  },
-}, SHELLENV)
-
-
-local CONFIGENV = {
-  compile  = '$CC -c $CFLAGS $CPPFLAGS',
-  libs     = '',
-  link     = '$CC -o conftest $CFLAGS $CPPFLAGS $LDFLAGS',
-}
-
-
-
-
---[[ ========== ]]--
---[[ Configury. ]]--
---[[ ========== ]]--
-
-
-local function interpolate(env, s)
-  local r = ''
-  while r ~= s do
-    r = s
-    s = gsub(r, '%$([%w_]+)', function(varname)
-      return env[varname] or ''
-    end)
-  end
-  return r
-end
-
-
-local function spawn(env, ...)
-  local out, err = tmpname(), tmpname()
-  local cmd = concat {
-    interpolate(env, concat({...}, ' ')), ' >', out, ' 2>', err, '; printf $?'
-  }
-  return int(slurp(Pipe(cmd))), slurp(File(err)), slurp(File(out))
-end
-
-
-local verbose = nop
-
-
-local configure
-do
-  local function checking(...)
-    verbose('checking ', concat({...}, ' '), '... ')
+  local function spawn(env, ...)
+    local out, err = tmpname(), tmpname()
+    local cmd = concat {
+      interpolate(env, concat({...}, ' ')), ' >', out, ' 2>', err, '; printf $?'
+    }
+    return int(slurp(Pipe(cmd))), slurp(File(err)), slurp(File(out))
   end
 
 
-  local function found_library(x)
+  local function checking(L, ...)
+    L.verbose('checking ', concat({...}, ' '), '... ')
+  end
+
+
+  local function found_library(L, x)
     if x == nil or x == '' then
-      verbose 'none required'
+      L.verbose 'none required'
     else
-      verbose(x)
+      L.verbose(x)
     end
-    verbose '\n'
+    L.verbose '\n'
     return x
   end
 
 
-  local function found_prog(x)
-    verbose(x ~= nil and 'yes\n' or 'no\n')
+  local function found_prog(L, x)
+    L.verbose(x ~= nil and 'yes\n' or 'no\n')
     return x
   end
 
 
-  local function found_result(x)
-    verbose(x == 1 and 'yes\n' or 'no\n')
+  local function found_result(L, x)
+    L.verbose(x == 1 and 'yes\n' or 'no\n')
     return x
   end
 
@@ -761,38 +487,42 @@ int main () {
 
 
   configure = setmetatable(OrderedDict({
-    checkprog = function(env, argv)
+    checkprog = function(L, env, argv)
       for prog in each(argv.progs) do
-        checking('for', prog)
-        if found_prog(check_executable_in_path(env, prog)) then
+        checking(L, 'for', prog)
+        if found_prog(L, check_executable_in_path(env, prog)) then
           return prog
         end
       end
-      if prog == nil then
-        fatal('cannot find ' .. argv.checkprog)
-      end
+      fatal('cannot find ' .. argv.checkprog)
     end
   }, {
-    checkheader = function(env, argv)
-      checking('for', argv.checkheader)
+    checkheader = function(L, env, argv)
+      checking(L, 'for', argv.checkheader)
 
       local extra_hdrs = map(argv.includes or {}, function(include)
         return format('#include "%s"', include)
       end)
-      return found_result(check_header_compile(env, argv.checkheader, concat(extra_hdrs, '\n')))
+      return found_result(
+        L,
+        check_header_compile(env, argv.checkheader, concat(extra_hdrs, '\n'))
+      )
     end
   }, {
-    checkdecl = function(env, argv)
-      checking('whether', argv.checkdecl, 'is declared')
+    checkdecl = function(L, env, argv)
+      checking(L, 'whether', argv.checkdecl, 'is declared')
 
       local extra_hdrs = map(argv.includes or {}, function(include)
         return format('#include "%s"', include)
       end)
-      return found_result(check_func_decl(env, argv.checkdecl, concat(extra_hdrs, '\n')))
+      return found_result(
+        L,
+        check_func_decl(env, argv.checkdecl, concat(extra_hdrs, '\n'))
+      )
     end
   }, {
-    searchlibs = function(env, argv)
-      checking('for library containing', argv.symbol)
+    searchlibs = function(L, env, argv)
+      checking(L, 'for library containing', argv.symbol)
 
       local libraries, symbol = argv.searchlibs, argv.symbol
       local libs = {''}
@@ -803,11 +533,11 @@ int main () {
         if try_link(env, lib, symbol) == 0 then
           if lib ~= '' then
             if CONFIGENV.libs ~= '' then
-              CONFIGENV.libs = CONFIGENV.libs .. ' '
+              CONFIGENV.libs = CONFIGENV.libs .. ' '  -- FIXME
             end
             CONFIGENV.libs = CONFIGENV.libs .. lib
           end
-          return found_library(lib)
+          return found_library(L, lib)
         end
       end
 
@@ -817,12 +547,12 @@ int main () {
         symbol, concat(libraries, ', lib'))
     end
   }, {
-    checkfunc = function(env, argv)
-      checking('for', argv.checkfunc)
-      return found_result(check_func_link(env, argv.checkfunc))
+    checkfunc = function(L, env, argv)
+      checking(L, 'for', argv.checkfunc)
+      return found_result(L, check_func_link(env, argv.checkfunc))
     end
   }), {
-    __call = function(self, env, v)
+    __call = function(self, L, env, v)
       return case(type(v), {
         ['number'] = function()
           return str(v)
@@ -835,7 +565,7 @@ int main () {
         ['table'] = function()
           for fname in each(self) do
             if v[fname] ~= nil then
-              return apply(self[fname], {env, v})
+              return apply(self[fname], {L, env, v})
             end
           end
           fatal("unable to configure with keys '%s'",
@@ -848,428 +578,865 @@ int main () {
       })
     end,
   })
-end
 
 
-local function config_compiler(env)
-  if env.CC == nil then
-    local cc = {'cc', 'gcc', 'clang'}
-    DEFAULTENV.CC = configure(env, {checkprog='C compiler', progs=cc})
-  end
-
-  verbose(interpolate(env, 'checking whether $CC works...'))
-  local works, err = with(TmpFile('conftest.c', 'w'), function(conftest)
-    conftest:write('typedef int x;\n')
-    return spawn(env, '$compile conftest.c')
-  end)
-  if works ~= 0 then
-    verbose 'no\n'
-    stderr:write(err .. '\n')
-    exit(1)
-  end
-  verbose 'yes\n'
-end
-
-
-
---[[ ============== ]]--
---[[ Load Lukefile. ]]--
---[[ ============== ]]--
-
-
-local function has_key(t, k)
-  return t[k] ~= nil
-end
-
-
-local function has_anykey(t, keylist)
-  return any(map(keylist, function(k)
-    return has_key(t, k)
-  end))
-end
-
-
-local function isconfig(x)
-  return istable(x) and has_anykey(x, configure)
-end
-
-
-local function collect_configs(luke, modulename, configs)
-  configs = configs or {}
-  for k, v in next, luke do
-    if isconfig(v) then
-      append(configs, {t=luke, k=k, module=modulename})
-    elseif istable(v) then
-      if k == 'modules' then
-        for name, rules in next, v do
-          collect_configs(rules, name, configs)
-        end
-      else
-        collect_configs(v, modulename, configs)
-      end
-    end
-  end
-  return configs
-end
-
-
--- Sort according to the key order in configure itself.
-local weighting = setmetatable(copy(configure), {
-  __call = function(self, config)
-    local t = config.t[config.k]
-    for i = 1, len(self) do
-      if t[self[i]] ~= nil then
-        return i
-      end
-    end
-  end
-})
-
-
-local function config_cmp(a, b)
-  return weighting(a) < weighting(b)
-end
-
-
-local function run_configs(env, luke, targets)
-  local all_configs = collect_configs(luke)
-  sort(all_configs, config_cmp)
-  for config in each(all_configs) do
-    t = config.t[config.k]
-    if config.module == nil or contains(targets, config.module) then
-      config.t[config.k] = configure(env, t)
-    end
-  end
-end
-
-
-local function normalize_configs(config)
-  return cond({
-    [not istable(config)] = config
-  }, {
-    [not isconfig(config)] = function()
-      return mapvalues(config, normalize_configs)
-    end
-  }, {
-    [true] = function()
-      local seqkeys = {'includes', 'progs', 'searchlibs'}
-      local r = mapvalues(pluck(seqkeys, config), function(v)
-        return isstring(v) and {v} or v
-      end)
-      return merge(r, config)
-    end
-  })
-end
-
-
-local function normalize_rules(rules)
-  return case(type(rules), {
-    ['string'] = function()
-      return {sources={rules}}
-    end,
-
-    ['table'] = function()
-      if len(rules) > 0 then
-        return {sources=rules}
-      elseif isstring(rules.sources) then
-        return merge({sources = {rules.sources}}, normalize_configs(rules))
-      end
-      return normalize_configs(rules)
-    end,
-
-    function(v)
-      fatal("unsupported rule type '%s'", v)
-    end,
-  })
-end
-
-
-local function loadluke(filename)
-  local content, err = slurp(File(filename))
-  if content == nil then
-    return nil, err
-  end
-  local r = {}
-  local chunk, err = loadstring(content, filename, r)
-  if chunk == nil then
-    return nil, "Error loading file: " .. err
-  end
-  local ok, err = pcall(chunk)
-  if not ok then
-    return nil, "Error running file: " .. err
-  end
-  r = filter_platforms(r)
-  for module in each(keys(r.modules)) do
-    r.modules[module] = normalize_rules(r.modules[module])
-  end
-  return r
-end
-
-
-
---[[ ================ ]]--
---[[ Parse Arguments. ]]--
---[[ ================ ]]--
-
-
-local function version()
-  print [[
-luke (Luke) 0.0.0
-Written by Gary V. Vaughan <gary@gnu.org>, 2014
-
-Copyright (C) 2016, Gary V. Vaughan
-Luke comes with ABSOLUTELY NO WARRANTY.
-You may redistribute copies of Luke under the terms of the MIT license;
-it may be used for any purpose at absolutely no cost, without permission.
-See <https://mit-license.org> for details.
-]]
-  exit(0)
-end
-
-
-local function help()
-  print [[
-Usage: luke [OPTION]... [VAR=VALUE]... [TARGET]
-
-Use the source, Luke!
-
-  --help        print this help, then exit
-  --version     print version number, then exit
-  --file=FILE   use FILE instead of lukefile
-  --quiet       without any output
-  --verbose     provide more progress output
-
-Each TARGET can be one of the module table keys from lukefile, or:
-
-  all           build all targets in lukefile
-  install       copy all built targets to $PREFIX
-
-If no TARGET is given, 'all' is implied.
-
-Report bugs to https://github.com/gvvaughan/luke/issues.]]
-  exit(0)
-end
-
-
-local function opterr(msg)
-  if match(msg, '%.$') == nil then
-    msg = msg .. '.'
-  end
-  stderr:write('luke: error: ' .. msg .. '\n')
-  stderr:write("luke: try '" .. arg[0] .. " --help' for help.\n")
-  exit(2)
-end
-
-
-local function parse_arguments(args)
-  local clidefs, fname, targets = {}, 'lukefile', {}
-
-  map(args, function(opt)
-    case(opt, {
-      ['--file=(.+)'] = function(optarg)
-        fname = optarg
-      end,
-
-      ['--quiet'] = function()
-        print = nop
-      end,
-
-      ['--verbose'] = function()
-        verbose = function(...)
-          stdout:write(concat{...})
-        end
-      end,
-
-      ['--help'] = help,
-
-      ['--version'] = version,
-
-      ['(.+)=(.+)'] = function(name, value)
-        clidefs[name] = value
-      end,
-
-      function(opt)
-        if match(opt, '^-') ~= nil then
-          opterr(format("unrecognized option '%s'", opt))
-        end
-        append(targets, opt)
-      end,
-    })
-  end)
-
-
-  local luke, err = loadluke(fname)
-  if luke == nil then
-    fatal('bad ' .. fname .. ': ' .. err)
-  end
-
-  if isempty(luke.modules or {}) then
-    fatal("no modules table in '%s', nothing to build", args.file)
-  end
-
-  targets = call(function()
-    if isempty(targets) or contains(targets, 'all') then
-      return keys(luke.modules)
-    end
-    local r = filter(targets, function(target)
-      if target ~= 'install' and luke.modules[target] == nil then
-        fatal("no rule to make target '%s'", target)
-      end
-      return true
-    end)
-    assert(len(r) > 0, "no build targets specified")
-    return r
-  end)
+  local CCPROGS = {'cc', 'gcc', 'clang'}
 
   return {
-    clidefs = clidefs,
-    luke    = luke,
-    targets = targets,
+    config_compiler = function(L, env)
+      local CC = env.CC
+      if CC == nil then
+        CC = configure(L, env, {checkprog='C compiler', progs=CCPROGS})
+        env = makeenv({CC=CC}, env)
+      end
+
+      checking(L, interpolate(env, 'whether $CC works'))
+      local works, err = with(TmpFile('conftest.c', 'w'), function(conftest)
+        conftest:write('typedef int x;\n')
+        return spawn(env, '$compile conftest.c')
+      end)
+      if works ~= 0 then
+        L.verbose 'no\n'
+        stderr:write(err .. '\n')
+        fatal('could not find a working C compiler')
+      end
+      found_prog(L, CC)
+      return env
+    end,
+
+    configure = configure,
+
+    interpolate = interpolate,
+
+    spawn = spawn,
   }
 end
 
 
 
---[[ ===== ]]--
---[[ Main. ]]--
---[[ ===== ]]--
+package.preload['luke.environment'] = function()
+  local _ENV = require  'std.normalize' {
+    'std.functional',
+    LUAVERSION	= string.gsub(_VERSION, '[^0-9%.]+', ''),
+  }
 
 
-local function run(env, command)
-  print(interpolate(env, concat(command, ' ')))
-  local status, err, out = spawn(env, unpack(command))
-  if status ~= 0 then
-    if print == nop then
-      stdout:write(concat(command, ' ') .. '\n')
+  local canon = {
+    ['AIX']       = {'unix', 'aix'},
+    ['FreeBSD']   = {'unix', 'freebsd', 'bsd'},
+    ['OpenBSD']   = {'unix', 'openbsd', 'bsd'},
+    ['NetBSD']    = {'unix', 'netbsd', 'bsd'},
+    ['Darwin']    = {'unix', 'macosx', 'bsd'},
+    ['Linux']     = {'unix', 'linux'},
+    ['SunOS']     = {'unix', 'solaris'},
+    ['CYGWIN.*']  = {'unix', 'cygwin'},
+    ['Windows.*'] = {'windows', 'win32'},
+    ['MINGW.*']   = {'windows', 'mingw32', 'win32'},
+    ['procnto.*'] = {'qnx'},
+    ['QNX']       = {'qnx'},
+  }
+
+
+  local function set(seq)
+    local r = {}
+    for i = 1, len(seq) do
+      r[seq[i]] = true
     end
-    stderr:write(err .. '\n')
-  end
-  return status, out, err
-end
-
-
-local build_c_module
-do
-  local SHELLMETACHARS = '[%s%$"]'
-
-  local function defines(...)
-    return zip_with(merge({}, ...), function(name, value)
-      local fmt = cond(
-        {[int(value) == 1]			= '-D%s'	},
-        {[match(value, SHELLMETACHARS) ~= nil]	= "-D%s='%s'"	},
-        {[true]					= '-D%s=%s'	}
-      )
-      return format(fmt, name, value)
-    end)
+    return r
   end
 
-  local function incdirs(...)
-    return map(flatten(...), function(v)
-      return '-I' .. v
-    end)
+
+  local allplatforms = set(reduce(values(canon), function(acc, platforms)
+    map(platforms, bind(append, {acc}))
+  end))
+
+
+  local function isplatform(x)
+    return allplatforms[x] ~= nil
   end
 
-  local function module_path(objdir, name)
-    return format('%s/%s.$LIB_EXTENSION', objdir, gsub(name, '%.', '/'))
+
+  local platforms = canon[popen('uname -s'):read'*l'] or {'unix'}
+
+
+  local function filter_platforms(t)
+    local r = {}
+    for k, v in next, t do
+      if k == 'platforms' then
+        local branches, defaults = partition(keys(v), isplatform)
+        local matches = filter(branches, bind(contains, {platforms}))
+        merge(r, hoist(matches, v) or pluck(defaults, v))
+      elseif istable(v) then
+        r[k] = filter_platforms(v)
+      else
+        r[k] = r[k] or v
+      end
+    end
+    return r
   end
 
-  build_c_module = function(env, luke, name)
-    local rules = luke.modules[name]
-    local command = {
-      '$COMPILE',
-      defines(rules.defines, luke.defines),
-      incdirs(rules.incdirs, luke.incdirs),
-      rules.sources,
-      '-o', module_path(luke.variables.objdir, name),
-      "$LIBS",
-      rules.libraries,
-    }
-    return run(env, flatten(command))
-  end
-end
 
-
-local function module_to_path(luke, module, rules)
-  for source in each(rules.sources) do
-    return case(source, {
-      ['.*%.lua'] = function(src)
-        local abspath = '$INST_LUADIR/' .. gsub(module, '%.', '/')
-        if match(src, '/init%.lua$') then
-          abspath = abspath .. '/init'
+  local env_mt = {
+    __index = function(self, varname)
+      for i = 1, len(self) do
+        local value = self[i][varname]
+        if value ~= nil then
+          self[varname] = value
+          return value
         end
-        abspath = abspath .. '.lua'
-        return src, (gsub(abspath, '/[^/]+%.lua$', ''))
-      end,
+      end
+    end,
+  }
 
-      ['.*%.[ch]'] = function()
-        local path = gsub(module, '%.', '/')
-        local src = luke.variables.objdir .. '/' .. path .. '.$LIB_EXTENSION'
-        return src, (gsub('$INST_LIBDIR/' .. path, '/[^/]+$', ''))
-      end,
 
-      function(src)
-        fatal("unsupported source type '%s'", src)
-      end,
-    })
+  local function isenv(t)
+    return getmetatable(t) == env_mt
   end
+
+
+  return {
+    CONFIGENV = {
+      compile  = '$CC -c $CFLAGS $CPPFLAGS',
+      libs     = '',
+      link     = '$CC -o conftest $CFLAGS $CPPFLAGS $LDFLAGS',
+    },
+
+    DEFAULTENV = filter_platforms {
+      LUAVERSION    = LUAVERSION,
+
+      PREFIX        = '/usr/local',
+      INST_LIBDIR   = '$PREFIX/lib/lua/$LUAVERSION',
+      INST_LUADIR   = '$PREFIX/share/lua/$LUAVERSION',
+
+      LUA_INCDIR    = '/usr/include/lua$LUAVERSION',
+
+      LIB_EXTENSION = 'so',
+      OBJ_EXTENSION = 'o',
+
+      INSTALL       = 'cp',
+      MAKEDIRS      = 'mkdir -p',
+
+      COMPILE       = '$CC $CFLAGS $LIBFLAGS $PKGFLAGS $CPPFLAGS',
+      CFLAGS        = '-O2',
+      platforms     = {
+        macosx  = {
+          LIBFLAGS  = '-fPIC -bundle -undefined dynamic_lookup -all_load',
+        },
+        LIBFLAGS    = '-shared -fPIC',
+      },
+    },
+
+    SHELLENV = function(_, v)
+      return getenv(v)
+    end,
+
+    filter_platforms = filter_platforms,
+
+    makeenv = function(...)
+      local argu = reduce(filter(pack(...)), function(r, t)
+        if isenv(t) then
+          map(t, bind(append, {r}))
+        else
+          append(r, t)
+        end
+      end)
+    
+      return setmetatable(argu, env_mt)
+    end,
+  }
 end
 
 
-local function install_modules(env, luke, modules)
-  for module, rules in next, modules do
-    local src, dir = module_to_path(luke, module, rules)
-    local status = 0
-    if open(interpolate(env, dir)) == nil then
-      status = run(env, {'$MAKEDIRS', dir})
-    end
-    if status == 0 then
-      status = run(env, {'$INSTALL', src, dir .. '/'})
-    end
+
+package.preload['luke.lukefile'] = function()
+  local _ENV = require  'std.normalize' {
+    'luke._base',
+    'luke.configure',
+    'luke.environment',
+    'std.functional',
+    'type.context-manager',
+  }
+
+
+  local function has_anykey(t, keylist)
+    return any(map(keylist, function(k)
+      return t[k] ~= nil
+    end))
   end
-  return 0
-end
 
 
-local function c_modules(modules, targets)
-  return filter(targets, function(target)
-    if modules[target] then
-      local rules = modules[target]
-      for f in each(rules.sources) do
-        if match(f, '%.[ch]$') then
-          return true
+  local function isconfig(x)
+    return istable(x) and has_anykey(x, configure)
+  end
+
+
+  local function collect_configs(luke, modulename, configs)
+    configs = configs or {}
+    for k, v in next, luke do
+      if isconfig(v) then
+        append(configs, {t=luke, k=k, module=modulename})
+      elseif istable(v) then
+        if k == 'modules' then
+          for name, rules in next, v do
+            collect_configs(rules, name, configs)
+          end
+        else
+          collect_configs(v, modulename, configs)
         end
       end
     end
-    return false
-  end)
+    return configs
+  end
+
+
+  -- Sort according to the key order in configure itself.
+  local weighting = setmetatable(copy(configure), {
+    __call = function(self, config)
+      local t = config.t[config.k]
+      for i = 1, len(self) do
+        if t[self[i]] ~= nil then
+          return i
+        end
+      end
+    end
+  })
+
+
+  local function config_cmp(a, b)
+    return weighting(a) < weighting(b)
+  end
+
+
+  local function normalize_configs(config)
+    return cond({
+      [not istable(config)] = config
+    }, {
+      [not isconfig(config)] = function()
+        return mapvalues(config, normalize_configs)
+      end
+    }, {
+      [true] = function()
+        local seqkeys = {'includes', 'progs', 'searchlibs'}
+        local r = mapvalues(pluck(seqkeys, config), function(v)
+          return isstring(v) and {v} or v
+        end)
+        return merge(r, config)
+      end
+    })
+  end
+
+
+  local function normalize_rules(rules)
+    return case(type(rules), {
+      ['string'] = function()
+        return {sources={rules}}
+      end,
+
+      ['table'] = function()
+        if len(rules) > 0 then
+          return {sources=rules}
+        elseif isstring(rules.sources) then
+          return merge({sources = {rules.sources}}, normalize_configs(rules))
+        end
+        return normalize_configs(rules)
+      end,
+
+      function(v)
+        fatal("unsupported rule type '%s'", v)
+      end,
+    })
+  end
+
+
+  return {
+    loadluke = function(filename)
+      local content, err = slurp(File(filename))
+      if content == nil then
+        return nil, err
+      end
+      local r = {}
+      local chunk, err = loadstring(content, filename, r)
+      if chunk == nil then
+        return nil, "Error loading file: " .. err
+      end
+      local ok, err = pcall(chunk)
+      if not ok then
+        return nil, "Error running file: " .. err
+      end
+      r = filter_platforms(r)
+      for module in each(keys(r.modules)) do
+        r.modules[module] = normalize_rules(r.modules[module])
+      end
+      return r
+    end,
+
+    run_configs = function(L, env, luke, targets)
+      local all_configs = collect_configs(luke)
+      sort(all_configs, config_cmp)
+      for config in each(all_configs) do
+        t = config.t[config.k]
+        if config.module == nil or contains(targets, config.module) then
+          config.t[config.k] = configure(L, env, t)
+        end
+      end
+    end,
+  }
 end
 
 
-local function main()
-  local L    = parse_arguments(arg)
-  local c    = c_modules(L.luke.modules, L.targets)
-  local env  = pushenv(L.clidefs, pushenv(L.luke.variables, DEFAULTENV))
-  local conf = pushenv(CONFIGENV, env)
 
-  if len(c) > 0 then
-    config_compiler(conf)
+package.preload['std.functional'] = function()
+  local _ENV = require  'std.normalize' {
+    destructure	= next,
+    isfile	= function(x) return io.type(x) == 'file' end,
+    remove	= table.remove,
+    wrap	= coroutine.wrap,
+    yield	= coroutine.yield,
+  }
+
+
+  local function apply(fn, argu)
+    assert(fn ~= nil, 'cannot apply nil-valued function')
+    if iscallable(fn) then
+      return fn(unpack(argu))
+    end
+    return fn
   end
-  run_configs(conf, L.luke, L.targets)
 
-  local status = 0
-  for module in each(c) do
-    status = build_c_module(env, L.luke, module)
-    if status ~= 0 then
-      return status
+
+  local function call(fn, ...)
+    assert(fn ~= nil, 'cannot call nil-valued function')
+    if iscallable(fn) then
+      return fn(...)
+    end
+    return fn
+  end
+
+
+  local function filter(seq, block)
+    block = block or function(x) return x ~= nil end
+    local r = {}
+    for i = 1, int(seq.n) or len(seq) do
+      local v = seq[i]
+      if block(v) then
+        r[#r + 1] = v
+      end
+    end
+    return r
+  end
+
+
+  local function visit(x)
+    if type(x) == 'table' then
+      for i = 1, int(x.n) or len(x) do
+        visit(x[i])
+      end
+    else
+      yield(x)
     end
   end
 
-  if contains(L.targets, 'install') then
-    status = install_modules(env, L.luke, L.luke.modules)
+
+  local function flatten(...)
+    local r = {}
+    for v in wrap(visit), filter(pack(...)) do
+      r[#r + 1] = v
+    end
+    return r
   end
 
-  return status
+
+  return {
+    any = function(seq)
+      for i = 1, int(seq.n) or len(seq) do
+        if seq[i] then
+          return true
+        end
+      end
+      return false
+    end,
+
+    apply = apply,
+
+    bind = function(fn, bound)
+      local n = bound.n or maxn(bound)
+
+      return function (...)
+        local argu, unbound = copy(bound), pack(...)
+
+        local i = 1
+        for j = 1, unbound.n do
+          while argu[i] ~= nil do
+            i = i + 1
+          end
+          argu[i], i = unbound[j], i + 1
+        end
+        bound.n = n >= i and n or i - 1
+
+        return apply(fn, argu)
+      end
+    end,
+
+    call = call,
+
+    case = function(s, branches)
+      if branches[s] ~= nil then
+        return call(branches[s], s)
+      end
+      local DEFAULT = 1
+      for pattern, fn in next, branches do
+        if pattern ~= DEFAULT then
+          local argu = pack(match(s, '^' .. pattern .. '$'))
+          if argu[1] ~= nil then
+            return apply(fn, argu)
+          end
+        end
+      end
+      return call(branches[DEFAULT], s)
+    end,
+
+    cond = function(...)
+      local clauses = pack(...)
+      for i = 1, clauses.n do
+        local expr, branch = destructure(clauses[i])
+        if expr then
+          return call(branch, expr)
+        end
+      end
+    end,
+
+    contains = function(seq, v)
+      for i = 1, int(seq.n) or len(seq) do
+        if seq[i] == v then
+          return true
+        end
+      end
+    end,
+
+    destructure = destructure,
+
+    each = function(seq)
+      local i, n = 0, int(seq.n) or len(seq)
+      return function()
+        if i < n then
+          i = i + 1
+          return seq[i]
+        end
+      end
+    end,
+
+    filter = filter,
+
+    flatten = flatten,
+
+    hoist = function(keylist, dict)
+      local r = {}
+      for i = 1, int(keylist.n) or len(keylist) do
+        merge(r, dict[keylist[i]])
+      end
+      return next(r) and r or nil
+    end,
+
+    id = function(...)
+      return ...
+    end,
+
+    isempty = function(x)
+      return type(x) == 'table' and not next(x)
+    end,
+
+    isfile = isfile,
+
+    isfunction = function(x)
+      return type(x) == 'function'
+    end,
+
+    isnil = function(x)
+      return x == nil
+    end,
+
+    isstring = function(x)
+      return type(x) == 'string'
+    end,
+
+    istable = function(x)
+      return type(x) == 'table'
+    end,
+
+    keys = function(iterable)
+      local r = {}
+      for k in next, iterable do
+        r[#r + 1] = k
+      end
+      return r
+    end,
+
+    map = function(seq, block)
+      local r = {}
+      for i = 1, int(seq.n) or len(seq) do
+        r[i] = block(seq[i])
+      end
+      return r
+    end,
+
+    mapvalues = function(iterable, block)
+      local r = {}
+      for k, v in next, iterable do
+        r[k] = block(v)
+      end
+      return r
+    end,
+
+    nop = function()
+    end,
+
+    partition = function(seq, block)
+      local r, s = {}, {}
+      for i = 1, int(seq.n) or len(seq) do
+        local v = seq[i]
+        if block(v) then
+          r[#r + 1] = v
+        else
+          s[#s + 1] = v
+        end
+      end
+      return r, s
+    end,
+
+    pluck = function(keylist, dict)
+      local r = {}
+      for i = 1, int(keylist.n) or len(keylist) do
+        local k = keylist[i]
+        r[k] = dict[k]
+      end
+      return r
+    end,
+
+    pop = function(seq)
+      if int(seq.n) then
+        seq.n = seq.n - 1
+      end
+      return remove(seq)
+    end,
+
+    reduce = function(seq, acc, block)
+      if block == nil then
+        acc, block = {}, acc
+      end
+      for i = 1, len(seq) do
+        acc = block(acc, seq[i]) or acc
+      end
+      return acc
+    end,
+
+    values = function(iterable)
+      local r = {}
+      for _, v in next, iterable do
+        r[#r + 1] = v
+      end
+      return r
+    end,
+
+    zip_with = function(iterable, block)
+      local r = {}
+      for k, v in next, iterable do
+        r[#r + 1] = block(k, v)
+      end
+      return r
+    end,
+  }
 end
 
 
-exit(main())
+
+package.preload['std.normalize'] = function()
+  local _ENV = {
+    arg		  = arg,
+    append	  = table.insert,
+    assert	  = assert,
+    ceil	  = math.ceil,
+    close	  = io.close,
+    concat	  = table.concat,
+    exit	  = os.exit,
+    float	  = tonumber,
+    format	  = string.format,
+    getenv	  = os.getenv,
+    getmetatable  = getmetatable,
+    gsub	  = string.gsub,
+    load	  = load,
+    loadstring	  = loadstring,
+    match	  = string.match,
+    next	  = next,
+    nop		  = function() end,
+    open	  = io.open,
+    pack	  = table.pack or function(...) return {n=select('#', ...), ...} end,
+    pcall	  = pcall,
+    popen	  = io.popen,
+    require	  = require,
+    rm		  = os.remove,
+    select	  = select,
+    setfenv	  = setfenv,
+    setmetatable  = setmetatable,
+    sort	  = table.sort,
+    stderr	  = io.stderr,
+    stdout	  = io.stdout,
+    str		  = tostring,
+    table_unpack  = table.unpack or unpack,
+    tmpname	  = os.tmpname,
+    tointeger	  = math.tointeger,
+    type	  = type,
+  }
+  (setfenv or nop)(1, _ENV)
+
+
+  local function copy(iterable)
+    local r = {}
+    for k, v in next, iterable do
+      r[k] = v
+    end
+    return r
+  end
+
+
+  local int = tointeger or function(x)
+    local i = float(x)
+    if i and ceil(i) - i == 0.0 then
+      return i
+    end
+  end
+
+
+  local function iscallable(x)
+    return type(x) == 'function' and x or (getmetatable(x) or {}).__call
+  end
+
+
+  local function getmetamethod(x, n)
+    return iscallable((getmetatable (x) or {})[str(n)])
+  end
+
+
+  local function rawlen(x)
+    if type(x) == 'table' then
+      return #x
+    end
+
+    local n = #x
+    for i = 1, n do
+      if x[i] == nil then
+        return i - 1
+      end
+    end
+    return n
+  end
+
+
+  local function len(x)
+    local m = getmetamethod(x, '__len')
+    return m and m(x) or rawlen(x)
+  end
+
+
+  if setfenv ~= nil then
+
+    local _loadstring = loadstring
+    loadstring = function(str, filename, env)
+      chunk, err = _loadstring(str, filename)
+      if chunk ~= nil and env ~= nil then
+        setfenv(chunk, env)
+      end
+      return chunk, err
+    end
+
+  else
+
+    loadstring = function(str, filename, env)
+      return load(str, filename, "t", env)
+    end
+
+  end
+
+
+  local function maxn(iterable)
+    local n = 0
+    for k, v in next, iterable do
+      local i = int(k)
+      if i and i > n then
+        n = i
+      end
+    end
+    return n
+  end
+
+
+  local function merge(r, ...)
+    local argu = pack(...)
+    for i = 1, argu.n do
+      for k, v in next, argu[i] or {} do
+        r[k] = r[k] or v
+      end
+    end
+    return r
+  end
+
+
+  local function unpack(seq, i, j)
+    return table_unpack(seq, int(i) or 1, int(j) or int(seq.n) or len(seq))
+  end
+
+
+  return setmetatable({
+    append	  = append,
+    arg		  = arg,
+    assert	  = assert,
+    close	  = close,
+    concat	  = concat,
+    copy          = copy,
+    exit	  = exit,
+    float         = float,
+    format	  = format,
+    getenv	  = getenv,
+    getmetatable  = getmetatable,
+    getmetamethod = getmetamethod,
+    gsub	  = gsub,
+    int           = int,
+    iscallable    = iscallable,
+    len           = len,
+    loadstring    = loadstring,
+    maxn          = maxn,
+    match	  = match,
+    merge         = merge,
+    next	  = next,
+    open	  = open,
+    pack          = pack,
+    pcall	  = pcall,
+    popen	  = popen,
+    rm		  = rm,
+    select	  = select,
+    setmetatable  = setmetatable,
+    sort	  = sort,
+    stderr	  = stderr,
+    stdout	  = stdout,
+    str           = str,
+    tmpname	  = tmpname,
+    type	  = type,
+    unpack        = unpack,
+  }, {
+    __call = function(self, env, level)
+      local userenv = copy(self)
+      for name, value in next, env do
+        if int(name) and type(value) == 'string' then
+          for k, v in next, require(value) do
+            userenv[k] = userenv[k] or v
+          end
+        else
+          userenv[name] = value
+        end
+      end
+      (setfenv or nop)(1 + (int(level) or 1), userenv)
+      return userenv
+    end,
+  })
+end
+
+
+
+package.preload['type.context-manager'] = function()
+ local _ENV = require 'std.normalize' {
+    'std.functional',
+  }
+
+
+  local contextmanager_mt = {
+    -- Return a closure that forwards arguments to the named method
+    -- on the context object with the correct `self` argument value.
+    __index = function(self, key)
+      if iscallable(self.context[key]) then
+        return function(_, ...)
+          return self.context[key](self.context, ...)
+        end
+      end
+    end,
+  }
+
+
+  local function ContextManager(release, acquire, ...)
+    local cm = {
+      context = acquire(...),
+      release = release,
+      n       = select("#", ...), ...
+    }
+    if cm.context ~= nil then
+      setmetatable(cm, contextmanager_mt)
+    end
+    return cm
+  end
+
+
+  local function context_close(cm)
+    return isfile(cm.context) and close(cm.context)
+  end
+
+
+  local function with(...)
+    local argu = pack(...)
+    local block = pop(argu)
+    local r = pack(apply(block, argu))
+    for cm in each(argu) do
+      cm:release()
+    end
+    return unpack(r)
+  end
+
+
+  return {
+    File = function(fname, mode)
+      return ContextManager(context_close, open, fname, mode)
+    end,
+
+    Pipe = function(cmd, mode)
+      return ContextManager(context_close, popen, cmd, mode)
+    end,
+
+    TmpFile = function(fname, mode)
+      return ContextManager(function(cm)
+        if context_close(cm) then
+          return rm(cm[1])
+        end
+        return false
+      end, open, fname, mode)
+    end,
+
+    slurp = function(cm)
+      return with(cm, function(h)
+        return h:read '*a'
+      end)
+    end,
+
+    with = with,
+  }
+end
+
+
+
+package.preload['type.dict'] = function()
+  local _ENV = require 'std.normalize' {
+    destructure = next,
+  }
+
+  return {
+    OrderedDict = function(...)
+      local r, argu = {}, pack(...)
+      for i = 1, argu.n do
+        local k, v = destructure(argu[i])
+        append(r, k)
+        r[k] = v
+      end
+      return r
+    end,
+  }
+end
+
+
+
+os.exit(require 'luke'.main(arg))
