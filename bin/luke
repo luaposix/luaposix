@@ -2,7 +2,7 @@
 
 --[[
   TODO:
-  - factor away use of functional.each
+  - fix -DVERSION='""'
   - narrow lukefile at loadtime according to cli targets
   - add a --debug mode for tracing configs i/o
   - support copy_directories
@@ -12,7 +12,8 @@
 ]]
 
 
-package.loaders = {package.loaders[1]}
+package.loaders = {package.loaders[1]} -- everything is preloaded
+
 
 
 package.preload['luke'] = function()
@@ -32,19 +33,15 @@ package.preload['luke'] = function()
       local env  = makeenv(L.clidefs, L.luke.variables, DEFAULTENV)
       local conf = makeenv(CONFIGENV, unpack(env))
 
-      if len(c) > 0 then
+      if c ~= nil then
         conf = config_compiler(L, conf)
         env = makeenv({CC=conf.CC}, env)
       end
       run_configs(L, conf, L.luke, L.targets)
 
-      local status = 0
-      for module in each(c) do
-        status = build_c_module(L, env, L.luke, module)
-        if status ~= 0 then
-          return status
-        end
-      end
+      local status = dropuntil(c, isnonzero, function(name)
+        return build_c_module(L, env, L.luke, name)
+      end) or 0
 
       if contains(L.targets, 'install') then
         status = install_modules(L, env, L.luke, L.luke.modules)
@@ -251,13 +248,13 @@ package.preload['luke.compile'] = function()
   end
 
 
-  local function module_path(objdir, name)
+  local function c_module_path(objdir, name)
     return format('%s/%s.$LIB_EXTENSION', objdir, gsub(name, '%.', '/'))
   end
 
 
   local function module_to_path(luke, module, rules)
-    for source in each(rules.sources) do
+    return dropuntil(rules.sources, function(source)
       return case(source, {
         ['.*%.lua'] = function(src)
           local abspath = '$INST_LUADIR/' .. gsub(module, '%.', '/')
@@ -270,7 +267,7 @@ package.preload['luke.compile'] = function()
 
         ['.*%.[ch]'] = function()
           local path = gsub(module, '%.', '/')
-          local src = luke.variables.objdir .. '/' .. path .. '.$LIB_EXTENSION'
+          local src = c_module_path(luke.variables.objdir, path)
           return src, (gsub('$INST_LIBDIR/' .. path, '/[^/]+$', ''))
         end,
 
@@ -278,7 +275,7 @@ package.preload['luke.compile'] = function()
           fatal("unsupported source type '%s'", src)
         end,
       })
-    end
+    end)
   end
 
 
@@ -290,7 +287,7 @@ package.preload['luke.compile'] = function()
         defines(rules.defines, luke.defines),
         incdirs(rules.incdirs, luke.incdirs),
         rules.sources,
-        '-o', module_path(luke.variables.objdir, name),
+        '-o', c_module_path(luke.variables.objdir, name),
         "$LIBS",
         rules.libraries,
       }
@@ -299,15 +296,9 @@ package.preload['luke.compile'] = function()
 
     c_modules = function(modules, targets)
       return filter(targets, function(target)
-        if modules[target] then
-          local rules = modules[target]
-          for f in each(rules.sources) do
-            if match(f, '%.[ch]$') then
-              return true
-            end
-          end
+        if modules[target] ~= nil then
+          return dropuntil(modules[target].sources, bind(match, {[2]='%.[ch]$'}))
         end
-        return false
       end)
     end,
 
@@ -377,7 +368,7 @@ package.preload['luke.configure'] = function(...)
 
 
   local function found_prog(L, x)
-    L.verbose(x ~= nil and 'yes\n' or 'no\n')
+    L.verbose(x and 'yes\n' or 'no\n')
     return x
   end
 
@@ -389,17 +380,11 @@ package.preload['luke.configure'] = function(...)
 
 
   local function check_executable_in_path(env, prog)
-    local paths = {}
-    gsub(getenv'PATH', '[^:]+', function(path)
-      append(paths, path)
+    return nil ~= dropuntil(gmatch(getenv'PATH', '[^:]+'), function(path)
+      return with(File(path .. '/' .. prog, 'r'), function(h)
+        return isfile(h.context) or nil
+      end)
     end)
-    for path in each(paths) do
-      local h = open(path .. '/' .. prog, 'r')
-      if isfile(h) then
-        h:close()
-        return prog
-      end
-    end
   end
 
 
@@ -487,49 +472,47 @@ int main () {
 
 
   configure = setmetatable(OrderedDict({
-    checkprog = function(L, env, argv)
-      for prog in each(argv.progs) do
+    checkprog = function(L, env, config)
+      return dropuntil(config.progs, function(prog)
         checking(L, 'for', prog)
         if found_prog(L, check_executable_in_path(env, prog)) then
           return prog
         end
-      end
-      fatal('cannot find ' .. argv.checkprog)
+      end) or fatal('cannot find ' .. config.checkprog)
     end
   }, {
-    checkheader = function(L, env, argv)
-      checking(L, 'for', argv.checkheader)
+    checkheader = function(L, env, config)
+      checking(L, 'for', config.checkheader)
 
-      local extra_hdrs = map(argv.includes or {}, function(include)
+      local extra_hdrs = map(config.includes or {}, function(include)
         return format('#include "%s"', include)
       end)
       return found_result(
         L,
-        check_header_compile(env, argv.checkheader, concat(extra_hdrs, '\n'))
+        check_header_compile(env, config.checkheader, concat(extra_hdrs, '\n'))
       )
     end
   }, {
-    checkdecl = function(L, env, argv)
-      checking(L, 'whether', argv.checkdecl, 'is declared')
+    checkdecl = function(L, env, config)
+      checking(L, 'whether', config.checkdecl, 'is declared')
 
-      local extra_hdrs = map(argv.includes or {}, function(include)
+      local extra_hdrs = map(config.includes or {}, function(include)
         return format('#include "%s"', include)
       end)
       return found_result(
         L,
-        check_func_decl(env, argv.checkdecl, concat(extra_hdrs, '\n'))
+        check_func_decl(env, config.checkdecl, concat(extra_hdrs, '\n'))
       )
     end
   }, {
-    searchlibs = function(L, env, argv)
-      checking(L, 'for library containing', argv.symbol)
+    searchlibs = function(L, env, config)
+      checking(L, 'for library containing', config.symbol)
 
-      local libraries, symbol = argv.searchlibs, argv.symbol
-      local libs = {''}
-      for lib in each(libraries) do
-        append(libs, '-l' .. lib)
-      end
-      for lib in each(libs) do
+      local libraries, symbol = config.searchlibs, config.symbol
+      local libs = reduce(libraries, {''}, function(r, lib)
+        append(r, '-l' .. lib)
+      end)
+      return dropuntil(libs, function(lib)
         if try_link(env, lib, symbol) == 0 then
           if lib ~= '' then
             if CONFIGENV.libs ~= '' then
@@ -539,37 +522,35 @@ int main () {
           end
           return found_library(L, lib)
         end
-      end
-
-      verbose '\n'
-      libraries[1] = 'c'
-      fatal("required symbol '%s' not found in any of lib%s",
-        symbol, concat(libraries, ', lib'))
+      end) or call(function()
+        L.verbose '\n'
+        fatal("required symbol '%s' not found in any of libc, lib%s",
+          symbol, concat(libraries, ', lib'))
+      end)
     end
   }, {
-    checkfunc = function(L, env, argv)
-      checking(L, 'for', argv.checkfunc)
-      return found_result(L, check_func_link(env, argv.checkfunc))
+    checkfunc = function(L, env, config)
+      checking(L, 'for', config.checkfunc)
+      return found_result(L, check_func_link(env, config.checkfunc))
     end
   }), {
-    __call = function(self, L, env, v)
-      return case(type(v), {
+    __call = function(self, L, env, config)
+      return case(type(config), {
         ['number'] = function()
-          return str(v)
+          return str(config)
         end,
 
         ['string'] = function()
-          return v
+          return config
         end,
 
         ['table'] = function()
-          for fname in each(self) do
-            if v[fname] ~= nil then
-              return apply(self[fname], {L, env, v})
+          return dropuntil(self, function(fname)
+            if config[fname] ~= nil then
+              return apply(self[fname], {L, env, config})
             end
-          end
-          fatal("unable to configure with keys '%s'",
-            concat(keys(v), "', '"))
+          end) or fatal("unable to configure with keys '%s'",
+            concat(keys(config), "', '"))
         end,
 
         function(type)
@@ -864,21 +845,19 @@ package.preload['luke.lukefile'] = function()
         return nil, "Error running file: " .. err
       end
       r = filter_platforms(r)
-      for module in each(keys(r.modules)) do
-        r.modules[module] = normalize_rules(r.modules[module])
-      end
+      r.modules = mapvalues(r.modules, normalize_rules)
       return r
     end,
 
     run_configs = function(L, env, luke, targets)
       local all_configs = collect_configs(luke)
       sort(all_configs, config_cmp)
-      for config in each(all_configs) do
+      map(all_configs, function(config)
         t = config.t[config.k]
         if config.module == nil or contains(targets, config.module) then
           config.t[config.k] = configure(L, env, t)
         end
-      end
+      end)
     end,
   }
 end
@@ -889,7 +868,6 @@ package.preload['std.functional'] = function()
   local _ENV = require  'std.normalize' {
     destructure	= next,
     isfile	= function(x) return io.type(x) == 'file' end,
-    remove	= table.remove,
     wrap	= coroutine.wrap,
     yield	= coroutine.yield,
   }
@@ -913,13 +891,48 @@ package.preload['std.functional'] = function()
   end
 
 
-  local function filter(seq, block)
-    block = block or function(x) return x ~= nil end
+  local function wrapnonnil(iterator)
+    return function(...)
+      local r = pack(iterator(...))
+      if r[1] ~= nil then
+        return r
+      end
+    end
+  end
+
+
+  local function each(seq)
+    if type(seq) == 'function' then
+      return wrapnonnil(seq)
+    end
+    local i, n = 0, int(seq.n) or len(seq)
+    return function()
+      if i < n then
+        i = i + 1
+        return pack(seq[i]) -- support seq[i] == nil
+      end
+    end
+  end
+
+
+  local function equals(x)
+    return function(y)
+      return x == y
+    end
+  end
+
+
+  local function isnonnil(x)
+    return x ~= nil
+  end
+
+
+  local function filter(seq, predicate)
+    predicate = predicate or isnonnil
     local r = {}
-    for i = 1, int(seq.n) or len(seq) do
-      local v = seq[i]
-      if block(v) then
-        r[#r + 1] = v
+    for valu in each(seq) do
+      if predicate(unpack(valu)) then
+        r[#r + 1] = unpack(valu)
       end
     end
     return r
@@ -928,8 +941,8 @@ package.preload['std.functional'] = function()
 
   local function visit(x)
     if type(x) == 'table' then
-      for i = 1, int(x.n) or len(x) do
-        visit(x[i])
+      for valu in each(x) do
+        visit(unpack(valu))
       end
     else
       yield(x)
@@ -948,8 +961,8 @@ package.preload['std.functional'] = function()
 
   return {
     any = function(seq)
-      for i = 1, int(seq.n) or len(seq) do
-        if seq[i] then
+      for valu in each(seq) do
+        if unpack(valu) then
           return true
         end
       end
@@ -996,18 +1009,20 @@ package.preload['std.functional'] = function()
     end,
 
     cond = function(...)
-      local clauses = pack(...)
-      for i = 1, clauses.n do
-        local expr, branch = destructure(clauses[i])
+      for clauseu in each(pack(...)) do
+        local expr, consequence = destructure(unpack(clauseu))
         if expr then
-          return call(branch, expr)
+          return call(consequence, expr)
         end
       end
     end,
 
-    contains = function(seq, v)
-      for i = 1, int(seq.n) or len(seq) do
-        if seq[i] == v then
+    contains = function(seq, predicate)
+      if type(predicate) ~= 'function' then
+        predicate = equals(predicate)
+      end
+      for valu in each(seq) do
+        if predicate(unpack(valu)) then
           return true
         end
       end
@@ -1015,12 +1030,14 @@ package.preload['std.functional'] = function()
 
     destructure = destructure,
 
-    each = function(seq)
-      local i, n = 0, int(seq.n) or len(seq)
-      return function()
-        if i < n then
-          i = i + 1
-          return seq[i]
+    dropuntil = function(seq, predicate, block)
+      if block == nil then
+        predicate, block = isnonnil, predicate
+      end
+      for valu in each(seq) do
+        local r = pack(block(unpack(valu)))
+        if predicate(unpack(r)) then
+          return unpack(r)
         end
       end
     end,
@@ -1031,8 +1048,8 @@ package.preload['std.functional'] = function()
 
     hoist = function(keylist, dict)
       local r = {}
-      for i = 1, int(keylist.n) or len(keylist) do
-        merge(r, dict[keylist[i]])
+      for keyu in each(keylist) do
+        merge(r, dict[unpack(keyu)])
       end
       return next(r) and r or nil
     end,
@@ -1063,18 +1080,22 @@ package.preload['std.functional'] = function()
       return type(x) == 'table'
     end,
 
+    isnonzero = function(x)
+      return x ~= 0
+    end,
+
     keys = function(iterable)
-      local r = {}
+      local r = pack()
       for k in next, iterable do
-        r[#r + 1] = k
+        append(r, k)
       end
       return r
     end,
 
     map = function(seq, block)
-      local r = {}
-      for i = 1, int(seq.n) or len(seq) do
-        r[i] = block(seq[i])
+      local r = pack()
+      for valu in each(seq) do
+        append(r, block(unpack(valu)))
       end
       return r
     end,
@@ -1087,60 +1108,47 @@ package.preload['std.functional'] = function()
       return r
     end,
 
-    nop = function()
-    end,
+    nop = function() end,
 
     partition = function(seq, block)
-      local r, s = {}, {}
-      for i = 1, int(seq.n) or len(seq) do
-        local v = seq[i]
-        if block(v) then
-          r[#r + 1] = v
-        else
-          s[#s + 1] = v
-        end
+      local r, s = pack(), pack()
+      for valu in each(seq) do
+        append(block(unpack(valu)) and r or s, unpack(valu))
       end
       return r, s
     end,
 
     pluck = function(keylist, dict)
       local r = {}
-      for i = 1, int(keylist.n) or len(keylist) do
-        local k = keylist[i]
-        r[k] = dict[k]
+      for keyu in each(keylist) do
+        local key = unpack(keyu)
+        r[key] = dict[key]
       end
       return r
-    end,
-
-    pop = function(seq)
-      if int(seq.n) then
-        seq.n = seq.n - 1
-      end
-      return remove(seq)
     end,
 
     reduce = function(seq, acc, block)
       if block == nil then
         acc, block = {}, acc
       end
-      for i = 1, len(seq) do
-        acc = block(acc, seq[i]) or acc
+      for valu in each(seq) do
+        acc = block(acc, unpack(valu)) or acc
       end
       return acc
     end,
 
     values = function(iterable)
-      local r = {}
+      local r = pack()
       for _, v in next, iterable do
-        r[#r + 1] = v
+        append(r, v)
       end
       return r
     end,
 
     zip_with = function(iterable, block)
-      local r = {}
+      local r = pack()
       for k, v in next, iterable do
-        r[#r + 1] = block(k, v)
+        append(r, block(k, v))
       end
       return r
     end,
@@ -1150,43 +1158,12 @@ end
 
 
 package.preload['std.normalize'] = function()
-  local _ENV = {
-    arg		  = arg,
-    append	  = table.insert,
-    assert	  = assert,
-    ceil	  = math.ceil,
-    close	  = io.close,
-    concat	  = table.concat,
-    exit	  = os.exit,
-    float	  = tonumber,
-    format	  = string.format,
-    getenv	  = os.getenv,
-    getmetatable  = getmetatable,
-    gsub	  = string.gsub,
-    load	  = load,
-    loadstring	  = loadstring,
-    match	  = string.match,
-    next	  = next,
-    nop		  = function() end,
-    open	  = io.open,
-    pack	  = table.pack or function(...) return {n=select('#', ...), ...} end,
-    pcall	  = pcall,
-    popen	  = io.popen,
-    require	  = require,
-    rm		  = os.remove,
-    select	  = select,
-    setfenv	  = setfenv,
-    setmetatable  = setmetatable,
-    sort	  = table.sort,
-    stderr	  = io.stderr,
-    stdout	  = io.stdout,
-    str		  = tostring,
-    table_unpack  = table.unpack or unpack,
-    tmpname	  = os.tmpname,
-    tointeger	  = math.tointeger,
-    type	  = type,
-  }
-  (setfenv or nop)(1, _ENV)
+  local ceil = math.ceil
+  local loadstring = loadstring
+  local pack = table.pack or function(...) return {n=select('#', ...), ...} end
+  local remove = table.remove
+  local setfenv = setfenv
+  local unpack = table.unpack or unpack
 
 
   local function copy(iterable)
@@ -1198,8 +1175,8 @@ package.preload['std.normalize'] = function()
   end
 
 
-  local int = tointeger or function(x)
-    local i = float(x)
+  local int = math.tointeger or function(x)
+    local i = tonumber(x)
     if i and ceil(i) - i == 0.0 then
       return i
     end
@@ -1212,7 +1189,7 @@ package.preload['std.normalize'] = function()
 
 
   local function getmetamethod(x, n)
-    return iscallable((getmetatable (x) or {})[str(n)])
+    return iscallable((getmetatable (x) or {})[tostring(n)])
   end
 
 
@@ -1237,11 +1214,11 @@ package.preload['std.normalize'] = function()
   end
 
 
-  if setfenv ~= nil then
+  if setfenv then
 
     local _loadstring = loadstring
-    loadstring = function(str, filename, env)
-      chunk, err = _loadstring(str, filename)
+    loadstring = function(s, filename, env)
+      chunk, err = _loadstring(s, filename)
       if chunk ~= nil and env ~= nil then
         setfenv(chunk, env)
       end
@@ -1250,80 +1227,91 @@ package.preload['std.normalize'] = function()
 
   else
 
-    loadstring = function(str, filename, env)
-      return load(str, filename, "t", env)
+    loadstring = function(s, filename, env)
+      return load(s, filename, "t", env)
     end
 
-  end
+    setfenv = function() end
 
-
-  local function maxn(iterable)
-    local n = 0
-    for k, v in next, iterable do
-      local i = int(k)
-      if i and i > n then
-        n = i
-      end
-    end
-    return n
-  end
-
-
-  local function merge(r, ...)
-    local argu = pack(...)
-    for i = 1, argu.n do
-      for k, v in next, argu[i] or {} do
-        r[k] = r[k] or v
-      end
-    end
-    return r
-  end
-
-
-  local function unpack(seq, i, j)
-    return table_unpack(seq, int(i) or 1, int(j) or int(seq.n) or len(seq))
   end
 
 
   return setmetatable({
-    append	  = append,
-    arg		  = arg,
-    assert	  = assert,
-    close	  = close,
-    concat	  = concat,
-    copy          = copy,
-    exit	  = exit,
-    float         = float,
-    format	  = format,
-    getenv	  = getenv,
-    getmetatable  = getmetatable,
+    append = function(seq, v)
+      local n = (int(seq.n) or len(seq)) + 1
+      seq.n, seq[n] = n, v
+      return seq
+    end,
+
+    arg = arg,
+    assert = assert,
+    close = io.close,
+    concat = table.concat,
+    copy = copy,
+    exit = os.exit,
+    float = tonumber,
+    format = string.format,
+    getenv = os.getenv,
+    getmetatable = getmetatable,
     getmetamethod = getmetamethod,
-    gsub	  = gsub,
-    int           = int,
-    iscallable    = iscallable,
-    len           = len,
-    loadstring    = loadstring,
-    maxn          = maxn,
-    match	  = match,
-    merge         = merge,
-    next	  = next,
-    open	  = open,
-    pack          = pack,
-    pcall	  = pcall,
-    popen	  = popen,
-    rm		  = rm,
-    select	  = select,
-    setmetatable  = setmetatable,
-    sort	  = sort,
-    stderr	  = stderr,
-    stdout	  = stdout,
-    str           = str,
-    tmpname	  = tmpname,
-    type	  = type,
-    unpack        = unpack,
+    gmatch = string.gmatch,
+    gsub = string.gsub,
+    int = int,
+    iscallable = iscallable,
+    len = len,
+    loadstring = loadstring,
+    match = string.match,
+
+    maxn = function(iterable)
+      local n = 0
+      for k, v in next, iterable do
+        local i = int(k)
+        if i and i > n then
+          n = i
+        end
+      end
+      return n
+    end,
+
+    merge = function(r, ...)
+      local argu = pack(...)
+      for i = 1, argu.n do
+        for k, v in next, argu[i] or {} do
+          r[k] = r[k] or v
+        end
+      end
+      return r
+    end,
+
+    next = next,
+    open = io.open,
+    pack = pack,
+    pcall = pcall,
+
+    pop = function(seq)
+      if int(seq.n) then
+        seq.n = seq.n - 1
+      end
+      return remove(seq)
+    end,
+
+    popen = io.popen,
+    rm = os.remove,
+    select = select,
+    setmetatable = setmetatable,
+    sort = table.sort,
+    stderr = io.stderr,
+    stdout = io.stdout,
+    str = tostring,
+    tmpname = os.tmpname,
+    type = type,
+
+    unpack = function(seq, i, j)
+      return unpack(seq, int(i) or 1, int(j) or int(seq.n) or len(seq))
+    end,
   }, {
     __call = function(self, env, level)
-      local userenv = copy(self)
+      local userenv, level = copy(self), level or 1
       for name, value in next, env do
         if int(name) and type(value) == 'string' then
           for k, v in next, require(value) do
@@ -1333,7 +1321,7 @@ package.preload['std.normalize'] = function()
           userenv[name] = value
         end
       end
-      (setfenv or nop)(1 + (int(level) or 1), userenv)
+      setfenv(level + 1, userenv)
       return userenv
     end,
   })
@@ -1382,9 +1370,9 @@ package.preload['type.context-manager'] = function()
     local argu = pack(...)
     local block = pop(argu)
     local r = pack(apply(block, argu))
-    for cm in each(argu) do
+    map(argu, function(cm)
       cm:release()
-    end
+    end)
     return unpack(r)
   end
 
