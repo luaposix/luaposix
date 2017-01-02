@@ -1,10 +1,12 @@
 variables = {
-  objdir      = 'ext',
+  objdir    = 'ext',
+  PACKAGE   = 'luaposix',
+  VERSION   = '$USER',
 }
 
 defines   = {
-  PACKAGE          = '"luaposix"',
-  VERSION          = '"$USER"',
+  PACKAGE          = '"$PACKAGE"',
+  VERSION          = '"$VERSION"',
   NDEBUG           = 1,
   _FORTIFY_SOURCE  = 2,
   platforms = {    
@@ -25,7 +27,7 @@ defines   = {
   },
 }
 
-includes  = {
+incdirs  = {
   'ext/include',
   '$LUA_INCDIR',
 }
@@ -113,8 +115,12 @@ modules = {
     },
     sources   = 'ext/posix/unistd.c',
     libraries = {
-      {searchlibs='crypt', symbol = 'crypt'},
+      {searchlibs='crypt', symbol='crypt'},
     },
   },
   ['posix.utime']         = 'ext/posix/utime.c',
+}
+
+copy_directories = {
+  'doc',
 }

@@ -2,7 +2,6 @@
 
 --[[
   TODO:
-  - fix -DVERSION='""'
   - narrow lukefile at loadtime according to cli targets
   - add a --debug mode for tracing configs i/o
   - support copy_directories
@@ -30,12 +29,12 @@ package.preload['luke'] = function()
     main = function(args)
       local L    = parse_arguments(args)
       local c    = c_modules(L.luke.modules, L.targets)
-      local env  = makeenv(L.clidefs, L.luke.variables, DEFAULTENV)
-      local conf = makeenv(CONFIGENV, unpack(env))
+      local env  = makeenv(L.clidefs, L.luke.variables, DEFAULTENV, SHELLENV)
+      local conf = makeenv(CONFIGENV, env)
 
       if c ~= nil then
         conf = config_compiler(L, conf)
-        env = makeenv({CC=conf.CC}, env)
+        env = makeenv(env, {CC=conf.CC})
       end
       run_configs(L, conf, L.luke, L.targets)
 
@@ -210,6 +209,7 @@ package.preload['luke.compile'] = function()
   local _ENV = require  'std.normalize' {
     'luke._base',
     'luke.configure',
+    'luke.environment',
     'std.functional',
 
     SHELLMETACHARS = '[%s%$"]',
@@ -229,8 +229,8 @@ package.preload['luke.compile'] = function()
   end
 
 
-  local function defines(...)
-    return zip_with(merge({}, ...), function(name, value)
+  local function defines(env, deftables)
+    return zip_with(merge({}, unpack(deftables)), function(name, value)
       local fmt = cond(
         {[int(value) == 1]			= '-D%s'	},
         {[match(value, SHELLMETACHARS) ~= nil]	= "-D%s='%s'"	},
@@ -284,7 +284,7 @@ package.preload['luke.compile'] = function()
       local rules = luke.modules[name]
       local command = {
         '$COMPILE',
-        defines(rules.defines, luke.defines),
+        defines(env, filter(pack(rules.defines, luke.defines))),
         incdirs(rules.incdirs, luke.incdirs),
         rules.sources,
         '-o', c_module_path(luke.variables.objdir, name),
@@ -330,18 +330,6 @@ package.preload['luke.configure'] = function(...)
 
     CCPROGS = {'cc', 'gcc', 'clang'},
   }
-
-
-  local function interpolate(env, s)
-    local r = ''
-    while r ~= s do
-      r = s
-      s = gsub(r, '%$([%w_]+)', function(varname)
-        return env[varname] or ''
-      end)
-    end
-    return r
-  end
 
 
   local function spawn(env, ...)
@@ -568,7 +556,7 @@ int main () {
       local CC = env.CC
       if CC == nil then
         CC = configure(L, env, {checkprog='C compiler', progs=CCPROGS})
-        env = makeenv({CC=CC}, env)
+        env = makeenv(env, {CC=CC})
       end
 
       checking(L, interpolate(env, 'whether $CC works'))
@@ -587,8 +575,6 @@ int main () {
 
     configure = configure,
 
-    interpolate = interpolate,
-
     spawn = spawn,
   }
 end
@@ -597,72 +583,21 @@ end
 
 package.preload['luke.environment'] = function()
   local _ENV = require  'std.normalize' {
+    'luke.platforms',
     'std.functional',
     LUAVERSION = string.gsub(_VERSION, '[^0-9%.]+', ''),
-
-    CANON = {
-      ['AIX']       = {'unix', 'aix'},
-      ['FreeBSD']   = {'unix', 'freebsd', 'bsd'},
-      ['OpenBSD']   = {'unix', 'openbsd', 'bsd'},
-      ['NetBSD']    = {'unix', 'netbsd', 'bsd'},
-      ['Darwin']    = {'unix', 'macosx', 'bsd'},
-      ['Linux']     = {'unix', 'linux'},
-      ['SunOS']     = {'unix', 'solaris'},
-      ['CYGWIN.*']  = {'unix', 'cygwin'},
-      ['Windows.*'] = {'windows', 'win32'},
-      ['MINGW.*']   = {'windows', 'mingw32', 'win32'},
-      ['procnto.*'] = {'qnx'},
-      ['QNX']       = {'qnx'},
-    },
   }
-
-
-  local function set(seq)
-    return reduce(seq, function(r, v)
-      r[v] = true
-    end)
-  end
-
-
-  local allplatforms = set(reduce(values(CANON), function(acc, platforms)
-    map(platforms, bind(append, {acc}))
-  end))
-
-
-  local function isplatform(x)
-    return allplatforms[x] ~= nil
-  end
-
-
-  local platforms = CANON[popen('uname -s'):read'*l'] or {'unix'}
-
-
-  local function filter_platforms(t)
-    local r = {}
-    for k, v in next, t do
-      if k == 'platforms' then
-        local branches, defaults = partition(keys(v), isplatform)
-        local matches = filter(branches, bind(contains, {platforms}))
-        merge(r, hoist(matches, v) or pluck(defaults, v))
-      elseif istable(v) then
-        r[k] = filter_platforms(v)
-      else
-        r[k] = r[k] or v
-      end
-    end
-    return r
-  end
 
 
   local env_mt = {
     __index = function(self, varname)
-      for i = 1, len(self) do
-        local value = self[i][varname]
+      return dropuntil(self, function(env)
+        local value = env[varname]
         if value ~= nil then
           self[varname] = value
           return value
         end
-      end
+      end)
     end,
   }
 
@@ -704,14 +639,25 @@ package.preload['luke.environment'] = function()
       },
     },
 
-    SHELLENV = function(_, v)
-      return getenv(v)
+    SHELLENV = setmetatable({}, {
+      __index = function(_, v)
+        return getenv(v)
+      end,
+    }),
+
+    interpolate = function(env, s)
+      local r = ''
+      while r ~= s do
+        r = s
+        s = gsub(r, '%$([%w_]+)', function(varname)
+          return env[varname] or ''
+        end)
+      end
+      return r
     end,
 
-    filter_platforms = filter_platforms,
-
     makeenv = function(...)
-      local argu = reduce(filter(pack(...)), function(r, t)
+      local env = reduce(filter(pack(...)), function(r, t)
         if isenv(t) then
           map(t, bind(append, {r}))
         else
@@ -719,7 +665,7 @@ package.preload['luke.environment'] = function()
         end
       end)
     
-      return setmetatable(argu, env_mt)
+      return setmetatable(env, env_mt)
     end,
   }
 end
@@ -731,6 +677,7 @@ package.preload['luke.lukefile'] = function()
     'luke._base',
     'luke.configure',
     'luke.environment',
+    'luke.platforms',
     'std.functional',
     'type.context-manager',
   }
@@ -856,6 +803,65 @@ package.preload['luke.lukefile'] = function()
         end
       end)
     end,
+  }
+end
+
+
+
+package.preload['luke.platforms'] = function()
+  local _ENV = require  'std.normalize' {
+    'std.functional',
+
+    CANON = {
+      ['AIX']       = {'unix', 'aix'},
+      ['FreeBSD']   = {'unix', 'freebsd', 'bsd'},
+      ['OpenBSD']   = {'unix', 'openbsd', 'bsd'},
+      ['NetBSD']    = {'unix', 'netbsd', 'bsd'},
+      ['Darwin']    = {'unix', 'macosx', 'bsd'},
+      ['Linux']     = {'unix', 'linux'},
+      ['SunOS']     = {'unix', 'solaris'},
+      ['CYGWIN.*']  = {'unix', 'cygwin'},
+      ['Windows.*'] = {'windows', 'win32'},
+      ['MINGW.*']   = {'windows', 'mingw32', 'win32'},
+      ['procnto.*'] = {'qnx'},
+      ['QNX']       = {'qnx'},
+    },
+  }
+
+
+  local platforms = CANON[popen('uname -s'):read'*l'] or {'unix'}
+
+
+  local allplatforms = reduce(values(CANON), function(acc, platforms)
+    map(platforms, function(v)
+      acc[v] = true
+    end)
+  end)
+
+
+  local function isplatform(x)
+    return allplatforms[x] ~= nil
+  end
+
+
+  local function filter_platforms(t)
+    local r = {}
+    for k, v in next, t do
+      if k == 'platforms' then
+        local branches, defaults = partition(keys(v), isplatform)
+        local matches = filter(branches, bind(contains, {platforms}))
+        merge(r, hoist(matches, v) or pluck(defaults, v))
+      elseif istable(v) then
+        r[k] = filter_platforms(v)
+      else
+        r[k] = r[k] or v
+      end
+    end
+    return r
+  end
+
+  return {
+    filter_platforms = filter_platforms,
   }
 end
 
