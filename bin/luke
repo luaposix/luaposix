@@ -211,9 +211,9 @@ package.preload['luke.compile'] = function()
     'luke._base',
     'luke.configure',
     'std.functional',
-  }
 
-  local SHELLMETACHARS = '[%s%$"]'
+    SHELLMETACHARS = '[%s%$"]',
+  }
 
 
   local function run(L, env, command)
@@ -288,7 +288,7 @@ package.preload['luke.compile'] = function()
         incdirs(rules.incdirs, luke.incdirs),
         rules.sources,
         '-o', c_module_path(luke.variables.objdir, name),
-        "$LIBS",
+        '$LIBS',
         rules.libraries,
       }
       return run(L, env, flatten(command))
@@ -327,6 +327,8 @@ package.preload['luke.configure'] = function(...)
     'std.functional',
     'type.context-manager',
     'type.dict',
+
+    CCPROGS = {'cc', 'gcc', 'clang'},
   }
 
 
@@ -471,7 +473,7 @@ int main () {
   end
 
 
-  configure = setmetatable(OrderedDict({
+  local configure = setmetatable(OrderedDict({
     checkprog = function(L, env, config)
       return dropuntil(config.progs, function(prog)
         checking(L, 'for', prog)
@@ -561,8 +563,6 @@ int main () {
   })
 
 
-  local CCPROGS = {'cc', 'gcc', 'clang'}
-
   return {
     config_compiler = function(L, env)
       local CC = env.CC
@@ -598,36 +598,33 @@ end
 package.preload['luke.environment'] = function()
   local _ENV = require  'std.normalize' {
     'std.functional',
-    LUAVERSION	= string.gsub(_VERSION, '[^0-9%.]+', ''),
-  }
+    LUAVERSION = string.gsub(_VERSION, '[^0-9%.]+', ''),
 
-
-  local canon = {
-    ['AIX']       = {'unix', 'aix'},
-    ['FreeBSD']   = {'unix', 'freebsd', 'bsd'},
-    ['OpenBSD']   = {'unix', 'openbsd', 'bsd'},
-    ['NetBSD']    = {'unix', 'netbsd', 'bsd'},
-    ['Darwin']    = {'unix', 'macosx', 'bsd'},
-    ['Linux']     = {'unix', 'linux'},
-    ['SunOS']     = {'unix', 'solaris'},
-    ['CYGWIN.*']  = {'unix', 'cygwin'},
-    ['Windows.*'] = {'windows', 'win32'},
-    ['MINGW.*']   = {'windows', 'mingw32', 'win32'},
-    ['procnto.*'] = {'qnx'},
-    ['QNX']       = {'qnx'},
+    CANON = {
+      ['AIX']       = {'unix', 'aix'},
+      ['FreeBSD']   = {'unix', 'freebsd', 'bsd'},
+      ['OpenBSD']   = {'unix', 'openbsd', 'bsd'},
+      ['NetBSD']    = {'unix', 'netbsd', 'bsd'},
+      ['Darwin']    = {'unix', 'macosx', 'bsd'},
+      ['Linux']     = {'unix', 'linux'},
+      ['SunOS']     = {'unix', 'solaris'},
+      ['CYGWIN.*']  = {'unix', 'cygwin'},
+      ['Windows.*'] = {'windows', 'win32'},
+      ['MINGW.*']   = {'windows', 'mingw32', 'win32'},
+      ['procnto.*'] = {'qnx'},
+      ['QNX']       = {'qnx'},
+    },
   }
 
 
   local function set(seq)
-    local r = {}
-    for i = 1, len(seq) do
-      r[seq[i]] = true
-    end
-    return r
+    return reduce(seq, function(r, v)
+      r[v] = true
+    end)
   end
 
 
-  local allplatforms = set(reduce(values(canon), function(acc, platforms)
+  local allplatforms = set(reduce(values(CANON), function(acc, platforms)
     map(platforms, bind(append, {acc}))
   end))
 
@@ -637,7 +634,7 @@ package.preload['luke.environment'] = function()
   end
 
 
-  local platforms = canon[popen('uname -s'):read'*l'] or {'unix'}
+  local platforms = CANON[popen('uname -s'):read'*l'] or {'unix'}
 
 
   local function filter_platforms(t)
