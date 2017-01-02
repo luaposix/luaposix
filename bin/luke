@@ -2,7 +2,6 @@
 
 --[[
   TODO:
-  - narrow lukefile at loadtime according to cli targets
   - add a --debug mode for tracing configs i/o
   - support copy_directories
   - support adhoc targets
@@ -28,25 +27,21 @@ package.preload['luke'] = function()
   return {
     main = function(args)
       local L    = parse_arguments(args)
-      local c    = c_modules(L.luke.modules, L.targets)
+      local c    = c_modules(L.luke.modules)
       local env  = makeenv(L.clidefs, L.luke.variables, DEFAULTENV, SHELLENV)
       local conf = makeenv(CONFIGENV, env)
 
-      if c ~= nil then
+      if not isempty(c) then
         conf = config_compiler(L, conf)
         env = makeenv(env, {CC=conf.CC})
       end
-      run_configs(L, conf, L.luke, L.targets)
+      run_configs(L, conf, L.luke)
 
       local status = dropuntil(c, isnonzero, function(name)
         return build_c_module(L, env, L.luke, name)
       end) or 0
 
-      if contains(L.targets, 'install') then
-        status = install_modules(L, env, L.luke, L.luke.modules)
-      end
-
-      return status
+      return install_modules(L, env, L.luke, L.install)
     end,
   }
 end
@@ -134,7 +129,7 @@ Report bugs to https://github.com/gvvaughan/luke/issues.]]
 
   return {
     parse_arguments = function(args)
-      local clidefs, fname, targets = {}, 'lukefile', {}
+      local clidefs, fname, targets, install = {}, 'lukefile', {}, {}
       local verbose, write = nop, display
 
       map(args, function(opt)
@@ -180,7 +175,7 @@ Report bugs to https://github.com/gvvaughan/luke/issues.]]
 
       targets = call(function()
         if isempty(targets) or contains(targets, 'all') then
-          return keys(luke.modules)
+          return except(flatten(targets, keys(luke.modules)), 'all')
         end
         local r = filter(targets, function(target)
           if target ~= 'install' and luke.modules[target] == nil then
@@ -192,10 +187,16 @@ Report bugs to https://github.com/gvvaughan/luke/issues.]]
         return r
       end)
 
+      local build = pluck(targets, luke.modules)
+      if contains(targets, 'install') then
+        install = build or luke.modules
+      end
+      luke.modules = build
+
       return {
         clidefs = clidefs,
+        install = install,
         luke    = luke,
-        targets = targets,
         verbose	= verbose,
         write	= write,
       }
@@ -253,8 +254,8 @@ package.preload['luke.compile'] = function()
   end
 
 
-  local function module_to_path(luke, module, rules)
-    return dropuntil(rules.sources, function(source)
+  local function module_to_path(module, sources, objdir)
+    return dropuntil(sources, function(source)
       return case(source, {
         ['.*%.lua'] = function(src)
           local abspath = '$INST_LUADIR/' .. gsub(module, '%.', '/')
@@ -267,7 +268,7 @@ package.preload['luke.compile'] = function()
 
         ['.*%.[ch]'] = function()
           local path = gsub(module, '%.', '/')
-          local src = c_module_path(luke.variables.objdir, path)
+          local src = c_module_path(objdir, path)
           return src, (gsub('$INST_LIBDIR/' .. path, '/[^/]+$', ''))
         end,
 
@@ -284,7 +285,7 @@ package.preload['luke.compile'] = function()
       local rules = luke.modules[name]
       local command = {
         '$COMPILE',
-        defines(env, filter(pack(rules.defines, luke.defines))),
+        defines(env, except(pack(rules.defines, luke.defines), nil)),
         incdirs(rules.incdirs, luke.incdirs),
         rules.sources,
         '-o', c_module_path(luke.variables.objdir, name),
@@ -294,26 +295,25 @@ package.preload['luke.compile'] = function()
       return run(L, env, flatten(command))
     end,
 
-    c_modules = function(modules, targets)
-      return filter(targets, function(target)
-        if modules[target] ~= nil then
-          return dropuntil(modules[target].sources, bind(match, {[2]='%.[ch]$'}))
-        end
+    c_modules = function(modules)
+      return filter(keys(modules), function(name)
+        return dropuntil(modules[name].sources, bind(match, {[2]='%.[ch]$'}))
       end)
     end,
 
     install_modules = function(L, env, luke, modules)
-      for module, rules in next, modules do
-        local src, dir = module_to_path(luke, module, rules)
-        local status = 0
-        if open(interpolate(env, dir)) == nil then
-          status = run(L, env, {'$MAKEDIRS', dir})
-        end
+      return reduce(keys(modules), 0, function(status, name)
         if status == 0 then
-          status = run(L, env, {'$INSTALL', src, dir .. '/'})
+          local src, dir = module_to_path(name, modules[name].sources, luke.variables.objdir)
+          if open(interpolate(env, dir)) == nil then
+            status = run(L, env, {'$MAKEDIRS', dir})
+          end
+          if status == 0 then
+            status = run(L, env, {'$INSTALL', src, dir .. '/'})
+          end
         end
-      end
-      return 0
+        return status
+      end)
     end,
   }
 end
@@ -657,7 +657,7 @@ package.preload['luke.environment'] = function()
     end,
 
     makeenv = function(...)
-      local env = reduce(filter(pack(...)), function(r, t)
+      local env = reduce(except(pack(...), nil), function(r, t)
         if isenv(t) then
           map(t, bind(append, {r}))
         else
@@ -793,14 +793,12 @@ package.preload['luke.lukefile'] = function()
       return r
     end,
 
-    run_configs = function(L, env, luke, targets)
+    run_configs = function(L, env, luke)
       local all_configs = collect_configs(luke)
       sort(all_configs, config_cmp)
       map(all_configs, function(config)
         t = config.t[config.k]
-        if config.module == nil or contains(targets, config.module) then
-          config.t[config.k] = configure(L, env, t)
-        end
+        config.t[config.k] = configure(L, env, t)
       end)
     end,
   }
@@ -918,7 +916,7 @@ package.preload['std.functional'] = function()
   end
 
 
-  local function equals(x)
+  local function eq(x)
     return function(y)
       return x == y
     end
@@ -930,11 +928,16 @@ package.preload['std.functional'] = function()
   end
 
 
-  local function filter(seq, predicate)
-    predicate = predicate or isnonnil
+  local function mkpredicate(x)
+    return type(x) == 'function' and x or eq(x)
+  end
+
+
+  local function except(seq, predicate)
+    predicate = mkpredicate(predicate)
     local r = {}
     for valu in each(seq) do
-      if predicate(unpack(valu)) then
+      if not predicate(unpack(valu)) then
         r[#r + 1] = unpack(valu)
       end
     end
@@ -955,7 +958,7 @@ package.preload['std.functional'] = function()
 
   local function flatten(...)
     local r = {}
-    for v in wrap(visit), filter(pack(...)) do
+    for v in wrap(visit), except(pack(...), nil) do
       r[#r + 1] = v
     end
     return r
@@ -1022,7 +1025,7 @@ package.preload['std.functional'] = function()
 
     contains = function(seq, predicate)
       if type(predicate) ~= 'function' then
-        predicate = equals(predicate)
+        predicate = eq(predicate)
       end
       for valu in each(seq) do
         if predicate(unpack(valu)) then
@@ -1045,7 +1048,18 @@ package.preload['std.functional'] = function()
       end
     end,
 
-    filter = filter,
+    except = except,
+
+    filter = function(seq, predicate)
+      predicate = mkpredicate(predicate)
+      local r = {}
+      for valu in each(seq) do
+        if predicate(unpack(valu)) then
+          r[#r + 1] = unpack(valu)
+        end
+      end
+      return r
+    end,
 
     flatten = flatten,
 
@@ -1089,7 +1103,7 @@ package.preload['std.functional'] = function()
 
     keys = function(iterable)
       local r = pack()
-      for k in next, iterable do
+      for k in next, iterable or {} do
         append(r, k)
       end
       return r
@@ -1105,7 +1119,7 @@ package.preload['std.functional'] = function()
 
     mapvalues = function(iterable, block)
       local r = {}
-      for k, v in next, iterable do
+      for k, v in next, iterable or {} do
         r[k] = block(v)
       end
       return r
@@ -1127,7 +1141,7 @@ package.preload['std.functional'] = function()
         local key = unpack(keyu)
         r[key] = dict[key]
       end
-      return r
+      return next(r) and r or nil
     end,
 
     reduce = function(seq, acc, block)
@@ -1142,7 +1156,7 @@ package.preload['std.functional'] = function()
 
     values = function(iterable)
       local r = pack()
-      for _, v in next, iterable do
+      for _, v in next, iterable or {} do
         append(r, v)
       end
       return r
@@ -1150,7 +1164,7 @@ package.preload['std.functional'] = function()
 
     zip_with = function(iterable, block)
       local r = pack()
-      for k, v in next, iterable do
+      for k, v in next, iterable or {} do
         append(r, block(k, v))
       end
       return r
@@ -1171,7 +1185,7 @@ package.preload['std.normalize'] = function()
 
   local function copy(iterable)
     local r = {}
-    for k, v in next, iterable do
+    for k, v in next, iterable or {} do
       r[k] = v
     end
     return r
@@ -1267,7 +1281,7 @@ package.preload['std.normalize'] = function()
 
     maxn = function(iterable)
       local n = 0
-      for k, v in next, iterable do
+      for k, v in next, iterable or {} do
         local i = int(k)
         if i and i > n then
           n = i
