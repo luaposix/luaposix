@@ -7,9 +7,12 @@
 --[[--
  Lua POSIX bindings.
 
- In addition to the convenience functions documented in this module, all
- APIs from submodules are copied into the return table for convenience and
- backwards compatibility.
+ In addition to the convenience functions documented in this module, many
+ APIs from submodules are copied into the return table for backwards
+ compatibility and, if necessary, wrapped to match the deprecated API.
+
+ This means that your old code will continue to work, but that you can
+ use the improved documented APIs in new code.
 
  @module posix
 ]]
