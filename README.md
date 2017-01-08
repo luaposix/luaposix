@@ -25,8 +25,7 @@ Installation
 ------------
 
 The simplest and best way to install luaposix is with [LuaRocks][]. To
-install the
-latest release (recommended):
+install the latest release (recommended):
 
 ```bash
     luarocks install luaposix
@@ -36,30 +35,24 @@ To install current git master (for testing, before submitting a bug
 report for example):
 
 ```bash
-    luarocks install http://raw.github.com/luaposix/luaposix/release/luaposix-git-1.rockspec
+    luarocks install http://raw.github.com/luaposix/luaposix/master/luaposix-git-1.rockspec
 ```
 
-The best way to install without [LuaRocks][], is to download a github
-[release tarball][releases] and follow the instructions in the included
-[INSTALL][] fill.  Even if you are repackaging or redistributing
-[luaposix][github], this is by far the most straight forward place to
-begin.
+The best way to install without [LuaRocks][], is to call the bundled
+`build-aux/luke` command in a freshly cloned working copy.
 
 Note that you'll be responsible for providing dependencies if you choose
 not to let [LuaRocks][] handle them for you, though you can find a list
 of the minimal dependencies in the [rockspec.conf][] file.
 
-It is also possible to perform a complete bootstrap of the
-[master][github] development branch, although this branch is unstable,
-and sometimes breaks subtly, or does not build at all, or provides
-experimental new APIs that end up being removed prior to the next
-official release. Unfortunately, we don't have time to provide support
-for taking this most difficult and dangerous option. It is presumed that
-you already know enough to be aware of what you are getting yourself
-into - however, there are full logs of complete bootstrap builds in
-[Travis][] after every commit, that you can examine if you get stuck.
-Also, the bootstrap script tries very hard to tell you why it is unhappy
-and, sometimes, even how to fix things before trying again.
+If you are repackaging or redistributing [luaposix][github], it is better
+to start from a [release tarball][releases], because the [master][github]
+development branch is branch is unstable, and sometimes breaks subtly, or
+does not build at all, or provides experimental new APIs that end up
+being removed prior to the next official release.
+
+Note that there are full logs of complete builds for every commit in
+[Travis][], which you can compare with your progress if you get stuck.
 
 [install]: http://raw.githubusercontent.com/luaposix/luaposix/release/INSTALL
 [luarocks]: http://www.luarocks.org "Lua package manager"
@@ -75,11 +68,10 @@ The library is split into submodules according to the POSIX header file
 API declarations, which you can require individually:
 
 ```lua
-    local unistd = require "posix.unistd"
+    local unistd = require 'posix.unistd'
 ```
 
-The authoritative online POSIX reference is published at
-[SUSv3][].
+The authoritative online POSIX reference is published at [SUSv3][].
 
 [susv3]: http://www.opengroup.org/onlinepubs/007904875/toc.htm
 
