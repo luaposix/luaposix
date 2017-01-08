@@ -9,7 +9,11 @@
 ]]
 
 
-package.loaders = {package.loaders[1]} -- everything is preloaded
+-- Everything is preloaded.
+package.searchers = package.searchers or package.loaders
+for i = 2, #package.searchers do
+  package.searchers[i] = nil
+end
 
 
 
