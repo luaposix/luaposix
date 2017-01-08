@@ -10,8 +10,6 @@ addons:
 env:
   global:
     - _inst=$TRAVIS_BUILD_DIR/_inst
-    - luadir=$_inst/share/lua
-    - luaexecdir=$_inst/lib/lua
   matrix:
     - VLUA="lua=5.3"
     - VLUA="lua=5.2"
@@ -34,14 +32,6 @@ install:
        luarocks install --server=http://rocks.moonscript.org/manifests/gvvaughan $rock;
     done'
 
-  # Fudge timestamps on release branches.
-  - 'if test -f configure; then
-      test -f aclocal.m4 && touch aclocal.m4;
-      sleep 1; touch Makefile.in;
-      sleep 1; test -f config.h.in && touch config.h.in;
-      sleep 1; touch configure;
-    fi'
-
   # Build from rockspec, forcing uninstall of older luarocks installed
   # above when testing the git rockspec, both for enforcing backwards
   # compatibility by default, and for ease of maintenance.
@@ -53,35 +43,11 @@ install:
 
 
 script:
-  # Reconfigure for in-tree test install.
-  - test -f configure || ./bootstrap --verbose
-  - LUA=`pwd`/here/bin/lua
+  - build-aux/luke
+    LUA=`pwd`/here/bin/lua
     LUA_INCLUDE=-I`pwd`/here/include
-    ./configure --prefix="$_inst" --disable-silent-rules
+    PREFIX="$_inst" all install
 
-  # Verify luarocks installation.
-  - make installcheck || make installcheck V=1
-
-  # Verify local build.
-  - make
-  - make check || make check V=1
-
-  # Verify configured installation.
-  - make install prefix="$_inst" luadir="$luadir" luaexecdir="$luaexecdir"
-  - LUA_PATH="$luadir/?.lua;$luadir/?/init.lua;;"
-    LUA_CPATH="$luaexecdir/?.so;;"
-    make installcheck V=1
-
-
-# Run sanity checks on CI server, ignoring buggy automakes.
-after_success:
-  - '{ _assign="=";
-       if grep local-checks-to-skip build-aux/sanity-cfg.mk >/dev/null; then
-         _assign="+=";
-       fi;
-       printf "local-checks-to-skip %s sc_vulnerable_makefile_CVE-2012-3386\n" "$_assign";
-     } >> build-aux/sanity-cfg.mk'
-  - 'make syntax-check || : this will usually fail on the release branch'
 
 notifications:
   slack: aspirinc:JyWeNrIdS0J5nf2Pn2BS1cih
