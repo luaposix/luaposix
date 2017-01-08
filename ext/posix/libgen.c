@@ -17,8 +17,6 @@
 @module posix.libgen
 */
 
-#include <config.h>
-
 #include <libgen.h>
 
 #include "_helpers.c"
@@ -90,7 +88,7 @@ LUALIB_API int
 luaopen_posix_libgen(lua_State *L)
 {
 	luaL_register(L, "posix.libgen", posix_libgen_fns);
-	lua_pushliteral(L, "posix.libgen for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("libgen"));
 	lua_setfield(L, -2, "version");
 
 	return 1;

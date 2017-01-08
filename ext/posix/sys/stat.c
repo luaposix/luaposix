@@ -15,8 +15,6 @@
 @module posix.sys.stat
 */
 
-#include <config.h>
-
 #include <sys/stat.h>
 
 #include "_helpers.c"
@@ -358,7 +356,7 @@ LUALIB_API int
 luaopen_posix_sys_stat(lua_State *L)
 {
 	luaL_register(L, "posix.sys.stat", posix_sys_stat_fns);
-	lua_pushliteral(L, "posix.sys.stat for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("sys.stat"));
 	lua_setfield(L, -2, "version");
 
 	LPOSIX_CONST( S_IFMT		);

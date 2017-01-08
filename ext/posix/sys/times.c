@@ -15,8 +15,6 @@
 @module posix.sys.times
 */
 
-#include <config.h>
-
 #include <sys/times.h>
 
 #include "_helpers.c"
@@ -89,7 +87,7 @@ LUALIB_API int
 luaopen_posix_sys_times(lua_State *L)
 {
 	luaL_register(L, "posix.sys.times", posix_sys_times_fns);
-	lua_pushliteral(L, "posix.sys.times for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("sys.times"));
 	lua_setfield(L, -2, "version");
 
 	return 1;

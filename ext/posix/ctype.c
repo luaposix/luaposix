@@ -15,8 +15,6 @@
 @module posix.ctype
 */
 
-#include <config.h>
-
 #include <ctype.h>
 
 #include "_helpers.c"
@@ -73,7 +71,7 @@ LUALIB_API int
 luaopen_posix_ctype(lua_State *L)
 {
 	luaL_register(L, "posix.ctype", posix_ctype_fns);
-	lua_pushliteral(L, "posix.ctype for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("ctype"));
 	lua_setfield(L, -2, "version");
 
 	return 1;

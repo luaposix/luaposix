@@ -15,8 +15,6 @@
 @module posix.syslog
 */
 
-#include <config.h>
-
 #include "_helpers.c"		/* For LPOSIX_2001_COMPLIANT */
 
 #if LPOSIX_2001_COMPLIANT
@@ -177,7 +175,7 @@ LUALIB_API int
 luaopen_posix_syslog(lua_State *L)
 {
 	luaL_register(L, "posix.syslog", posix_syslog_fns);
-	lua_pushliteral(L, "posix.syslog for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("syslog"));
 	lua_setfield(L, -2, "version");
 
 #if LPOSIX_2001_COMPLIANT

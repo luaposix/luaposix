@@ -20,8 +20,6 @@
 @module posix.errno
 */
 
-#include <config.h>
-
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
@@ -176,7 +174,7 @@ LUALIB_API int
 luaopen_posix_errno(lua_State *L)
 {
 	luaL_register(L, "posix.errno", posix_errno_fns);
-	lua_pushliteral(L, "posix.errno for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("errno"));
 	lua_setfield(L, -2, "version");
 
 #ifdef E2BIG

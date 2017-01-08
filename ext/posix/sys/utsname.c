@@ -15,8 +15,6 @@
 @module posix.sys.utsname
 */
 
-#include <config.h>
-
 #include <sys/utsname.h>
 
 #include "_helpers.c"
@@ -81,7 +79,7 @@ LUALIB_API int
 luaopen_posix_sys_utsname(lua_State *L)
 {
 	luaL_register(L, "posix.sys.utsname", posix_sys_utsname_fns);
-	lua_pushliteral(L, "posix.sys.utsname for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("sys.utsname"));
 	lua_setfield(L, -2, "version");
 
 	return 1;

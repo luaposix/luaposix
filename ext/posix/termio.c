@@ -17,8 +17,6 @@
 @module posix.termio
 */
 
-#include <config.h>
-
 #include <termios.h>
 
 #include "_helpers.c"
@@ -253,7 +251,7 @@ LUALIB_API int
 luaopen_posix_termio(lua_State *L)
 {
 	luaL_register(L, "posix.termio", posix_termio_fns);
-	lua_pushliteral(L, "posix.termio for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("termio"));
 	lua_setfield(L, -2, "version");
 
 	/* tcsetattr */

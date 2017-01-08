@@ -19,8 +19,6 @@
 @module posix.fnmatch
 */
 
-#include <config.h>
-
 #include <fnmatch.h>
 
 #include "_helpers.c"
@@ -82,7 +80,7 @@ LUALIB_API int
 luaopen_posix_fnmatch(lua_State *L)
 {
 	luaL_register(L, "posix.fnmatch", posix_fnmatch_fns);
-	lua_pushliteral(L, "posix.fnmatch for " LUA_VERSION " / " PACKAGE_STRING);
+	lua_pushstring(L, LPOSIX_VERSION_STRING("fnmatch"));
 	lua_setfield(L, -2, "version");
 
 	/* from fnmatch.h */

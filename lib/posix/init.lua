@@ -47,8 +47,6 @@ for k, v in pairs (require "posix.compat") do
   M[k] = v
 end
 
-M.version = "posix for " .. _VERSION .. " / @PACKAGE_STRING@"
-
 
 local argerror, argtypeerror, checkstring, checktable, toomanyargerror =
   M.argerror, M.argtypeerror, M.checkstring, M.checktable, M.toomanyargerror
@@ -563,4 +561,24 @@ else
   M.glob = glob
 end
 
-return M
+return setmetatable (M, {
+  --- Metamethods
+  -- @section metamethods
+
+  --- Lazy loading of luaposix modules.
+  -- Don't load everything on initial startup, wait until first attempt
+  -- to access a submodule, and then load it on demand.
+  -- @function __index
+  -- @string name submodule name
+  -- @treturn table|nil the submodule that was loaded to satisfy the missing
+  --  `name`, otherise `nil` if nothing was found
+  -- @usage
+  -- local version = require 'posix'.version
+  __index = function (self, name)
+    local ok, t = pcall (require, 'posix.' ..name)
+    if ok then
+      rawset (self, name, t)
+      return t
+    end
+  end,
+})
