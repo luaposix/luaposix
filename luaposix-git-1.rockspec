@@ -22,7 +22,7 @@ dependencies = {
 
 build = {
   type = 'command',
-  build_command = 'bin/luke'
+  build_command = 'build-aux/luke'
     .. ' PACKAGE="' .. package .. '"'
     .. ' VERSION="' .. version .. '"'
     .. ' PREFIX="$(PREFIX)"'
@@ -35,7 +35,7 @@ build = {
     .. ' INST_LIBDIR="$(LIBDIR)"'
     .. ' INST_LUADIR="$(LUADIR)"'
     ,
-  install_command = 'bin/luke install'
+  install_command = 'build-aux/luke install'
     .. ' INST_LIBDIR="$(LIBDIR)"'
     .. ' INST_LUADIR="$(LUADIR)"'
     ,

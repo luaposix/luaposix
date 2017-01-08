@@ -2,11 +2,10 @@
 
 --[[
   TODO:
-  - add a --debug mode for tracing configs i/o
-  - support copy_directories
   - support adhoc targets
   - consolidate searchlibs with external_libraries
   - remove conftest.o, conftest and other file droppings
+  - add a --log mode for tracing configs i/o
 ]]
 
 
@@ -27,10 +26,12 @@ package.preload['luke'] = function()
   return {
     main = function(args)
       local L    = parse_arguments(args)
-      local c    = c_modules(L.luke.modules)
       local env  = makeenv(L.clidefs, L.luke.variables, DEFAULTENV, SHELLENV)
       local conf = makeenv(CONFIGENV, env)
 
+      run_templates(env, L.luke.modules)
+
+      local c = c_modules(L.luke.modules)
       if not isempty(c) then
         conf = config_compiler(L, conf)
         env = makeenv(env, {CC=conf.CC})
@@ -254,23 +255,30 @@ package.preload['luke.compile'] = function()
   end
 
 
+  local function c_source(module, objdir)
+    local path = gsub(module, '%.', '/')
+    local src = c_module_path(objdir, path)
+    return src, (gsub('$INST_LIBDIR/' .. path, '/[^/]+$', ''))
+  end
+
+
+  local function lua_source(module, src)
+    local abspath = '$INST_LUADIR/' .. gsub(module, '%.', '/')
+    if match(src, '/init%.lua$') then
+      abspath = abspath .. '/init'
+    end
+    abspath = abspath .. '.lua'
+    return src, (gsub(abspath, '/[^/]+%.lua$', ''))
+  end
+
+
   local function module_to_path(module, sources, objdir)
     return dropuntil(sources, function(source)
       return case(source, {
-        ['.*%.lua'] = function(src)
-          local abspath = '$INST_LUADIR/' .. gsub(module, '%.', '/')
-          if match(src, '/init%.lua$') then
-            abspath = abspath .. '/init'
-          end
-          abspath = abspath .. '.lua'
-          return src, (gsub(abspath, '/[^/]+%.lua$', ''))
-        end,
-
-        ['.*%.[ch]'] = function()
-          local path = gsub(module, '%.', '/')
-          local src = c_module_path(objdir, path)
-          return src, (gsub('$INST_LIBDIR/' .. path, '/[^/]+$', ''))
-        end,
+        ['.*%.[ch]']       = bind(c_source, {module, objdir}),
+        ['(.*%.[ch])%.in'] = bind(c_source, {module, objdir}),
+        ['.*%.lua']        = bind(lua_source, {module}),
+        ['(.*%.lua)%.in']  = bind(lua_source, {module}),
 
         function(src)
           fatal("unsupported source type '%s'", src)
@@ -602,6 +610,18 @@ package.preload['luke.environment'] = function()
   }
 
 
+  local function interpolate_with(pattern, env, s)
+    local r = ''
+    while r ~= s do
+      r = s
+      s = gsub(r, pattern, function(varname)
+        return env[varname] or ''
+      end)
+    end
+    return r
+  end
+
+
   local function isenv(t)
     return getmetatable(t) == env_mt
   end
@@ -645,16 +665,8 @@ package.preload['luke.environment'] = function()
       end,
     }),
 
-    interpolate = function(env, s)
-      local r = ''
-      while r ~= s do
-        r = s
-        s = gsub(r, '%$([%w_]+)', function(varname)
-          return env[varname] or ''
-        end)
-      end
-      return r
-    end,
+    expand = bind(interpolate_with, {'@([^@]+)@'}),
+    interpolate = bind(interpolate_with, {'%$([%w_]+)'}),
 
     makeenv = function(...)
       local env = reduce(except(pack(...), nil), function(r, t)
@@ -732,6 +744,16 @@ package.preload['luke.lukefile'] = function()
   end
 
 
+  local function fill_templates(env, src, dest)
+    with(File(dest, 'w'), function(cm)
+      for line in lines(src) do
+        cm:write(expand(env, line) .. '\n')
+      end
+    end)
+    return dest
+  end
+
+
   local function normalize_configs(config)
     return cond({
       [not istable(config)] = config
@@ -799,6 +821,20 @@ package.preload['luke.lukefile'] = function()
       map(all_configs, function(config)
         t = config.t[config.k]
         config.t[config.k] = configure(L, env, t)
+      end)
+    end,
+
+    run_templates = function(env, modules)
+      return mapvalues(modules, function(rules)
+        rules.sources = map(rules.sources, function(source)
+          return case(source, {
+            ['(.+)%.in'] = function(r)
+              return fill_templates(env, r .. '.in', r)
+            end,
+
+            source,
+          })
+        end)
       end)
     end,
   }
@@ -1011,7 +1047,11 @@ package.preload['std.functional'] = function()
           end
         end
       end
-      return call(branches[DEFAULT], s)
+      local default = branches[DEFAULT]
+      if iscallable(default) then
+        return call(default, s)
+      end
+      return default
     end,
 
     cond = function(...)
@@ -1276,6 +1316,7 @@ package.preload['std.normalize'] = function()
     int = int,
     iscallable = iscallable,
     len = len,
+    lines = io.lines,
     loadstring = loadstring,
     match = string.match,
 
@@ -1320,6 +1361,7 @@ package.preload['std.normalize'] = function()
     stderr = io.stderr,
     stdout = io.stdout,
     str = tostring,
+    sub = string.sub,
     tmpname = os.tmpname,
     type = type,
 

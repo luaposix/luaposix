@@ -24,6 +24,12 @@
 
   - New `posix.sys.socket.getpeername` binding.
 
+### Bugs Fixed
+
+  - Replaced all Autotools and supporting Slingshot code with new Lua-
+    based `build-aux/luke` and `lukefile` describing how to compile and
+    install everything.  Building with LuaRocks now leverages this too.
+
 
 ## Noteworthy changes in release 33.4.0 (2016-02-27) [stable]
 

@@ -1,10 +1,10 @@
-variables = {
+variables   = {
   objdir    = 'ext',
   PACKAGE   = 'luaposix',
   VERSION   = '$USER',
 }
 
-defines   = {
+defines     = {
   PACKAGE          = '"$PACKAGE"',
   VERSION          = '"$VERSION"',
   NDEBUG           = 1,
@@ -27,12 +27,12 @@ defines   = {
   },
 }
 
-incdirs  = {
+incdirs     = {
   'ext/include',
   '$LUA_INCDIR',
 }
 
-modules = {
+modules     = {
   ['posix']               = 'lib/posix/init.lua',
   ['posix._argcheck']     = 'lib/posix/_argcheck.lua',
   ['posix.compat']        = 'lib/posix/compat.lua',
@@ -44,10 +44,10 @@ modules = {
   ['posix.dirent']        = 'ext/posix/dirent.c',
   ['posix.errno']         = 'ext/posix/errno.c',
   ['posix.fcntl']         = {
-    defines   = {
+    defines = {
       HAVE_POSIX_FADVISE  = {checkfunc='posix_fadvise'},
     },
-    sources   = 'ext/posix/fcntl.c',
+    sources = 'ext/posix/fcntl.c',
   },
   ['posix.fnmatch']       = 'ext/posix/fnmatch.c',
   ['posix.glob']          = 'ext/posix/glob.c',
@@ -56,12 +56,12 @@ modules = {
   ['posix.poll']          = 'ext/posix/poll.c',
   ['posix.pwd']           = 'ext/posix/pwd.c',
   ['posix.sched']         = {
-    defines   = {
+    defines = {
       HAVE_SCHED_H            = {checkheader='sched.h'},
       HAVE_SCHED_GETSCHEDULER = {checkfunc='sched_getscheduler'},
       HAVE_SCHED_SETSCHEDULER = {checkfunc='sched_setscheduler'},
     },
-    sources   = 'ext/posix/sched.c',
+    sources = 'ext/posix/sched.c',
   },
   ['posix.signal']        = 'ext/posix/signal.c',
   ['posix.stdio']         = 'ext/posix/stdio.c',
@@ -72,7 +72,7 @@ modules = {
       HAVE_MSGRCV         = {checkfunc='msgrcv'},
       HAVE_MSGSND         = {checkfunc='msgsnd'},
     },
-    sources   = 'ext/posix/sys/msg.c',
+    sources = 'ext/posix/sys/msg.c',
   },
   ['posix.sys.resource']  = 'ext/posix/sys/resource.c',
   ['posix.sys.socket']    = {
@@ -87,10 +87,10 @@ modules = {
   },
   ['posix.sys.stat']      = 'ext/posix/sys/stat.c',
   ['posix.sys.statvfs']   = {
-    defines   = {
+    defines = {
       HAVE_STATVFS        = {checkfunc='statvfs'},
     },
-    sources   = 'ext/posix/sys/statvfs.c',
+    sources = 'ext/posix/sys/statvfs.c',
   },
   ['posix.sys.time']      = 'ext/posix/sys/time.c',
   ['posix.sys.times']     = 'ext/posix/sys/times.c',
@@ -106,21 +106,18 @@ modules = {
     },
   },
   ['posix.unistd']        = {
-    defines   = {
+    defines = {
       HAVE_CRYPT          = {checkfunc='crypt'},
       HAVE_CRYPT_H        = {checkheader='crypt.h'},
       HAVE_DECL_FDATASYNC = {checkdecl='fdatasync', includes='unistd.h'},
       HAVE_FDATASYNC      = {checkfunc='fdatasync'},
       HAVE_GETHOSTID      = {checkfunc='gethostid'},
     },
-    sources   = 'ext/posix/unistd.c',
+    sources = 'ext/posix/unistd.c',
     libraries = {
       {searchlibs='crypt', symbol='crypt'},
     },
   },
   ['posix.utime']         = 'ext/posix/utime.c',
-}
-
-copy_directories = {
-  'doc',
+  ['posix.version']       = 'lib/posix/version.lua.in',
 }

@@ -14,7 +14,7 @@ custom_see_handler("^([%w_]+)%((%d)%)$",function(name,section)
     return name .. "(" .. section .. ")", url
 end)
 
-dir = "."
+dir = "../doc"
 file = {
   "../lib/posix/init.lua",
   "../lib/posix/compat.lua",  -- Documents added to posix module
@@ -48,7 +48,7 @@ file = {
   "../ext/posix/unistd.c",
   "../ext/posix/utime.c",
 }
-examples = "../examples"
+examples = "../doc/examples"
 
 boilerplate = true
 backtick_references = false

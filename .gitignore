@@ -4,15 +4,13 @@
 *.html
 *.rockspec
 *.src.rock
-/.gitmodules
 /ChangeLog
 /COPYING
 /doc
 /Makefile
 /build-aux/config.ld
-/lib/posix/init.lua
+/lib/posix/version.lua
 /luaposix-*.rockspec
 !/luaposix-git-*.rockspec
 /luaposix-*.tar.gz
 /TAGS
-/travis.yml.in
