@@ -1358,6 +1358,7 @@ package.preload['std.normalize'] = function()
     end,
 
     popen = io.popen,
+    print = print,
     rm = os.remove,
     select = select,
     setmetatable = setmetatable,
