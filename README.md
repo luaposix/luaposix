@@ -43,7 +43,7 @@ The best way to install without [LuaRocks][], is to call the bundled
 
 Note that you'll be responsible for providing dependencies if you choose
 not to let [LuaRocks][] handle them for you, though you can find a list
-of the minimal dependencies in the [rockspec.conf][] file.
+of the minimal dependencies in the rockspec file.
 
 If you are repackaging or redistributing [luaposix][github], it is better
 to start from a [release tarball][releases], because the [master][github]
@@ -54,10 +54,8 @@ being removed prior to the next official release.
 Note that there are full logs of complete builds for every commit in
 [Travis][], which you can compare with your progress if you get stuck.
 
-[install]: http://raw.githubusercontent.com/luaposix/luaposix/release/INSTALL
 [luarocks]: http://www.luarocks.org "Lua package manager"
 [releases]: http://github.com/luaposix/luaposix/releases
-[rockspec.conf]: http://github.com/luaposix/luaposix/blob/release/rockspec.conf
 [travis]: http://travis-ci.org/luaposix/luaposix/builds
 
 
