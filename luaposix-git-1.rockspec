@@ -39,4 +39,5 @@ build = {
     .. ' INST_LIBDIR="$(LIBDIR)"'
     .. ' INST_LUADIR="$(LUADIR)"'
     ,
+  copy_directories = {'doc'},
 }
