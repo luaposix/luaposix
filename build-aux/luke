@@ -2,7 +2,6 @@
 
 --[[
   TODO:
-  - support adhoc targets
   - consolidate searchlibs with external_libraries
   - remove conftest.o, conftest and other file droppings
   - add a --log mode for tracing configs i/o
@@ -27,24 +26,39 @@ package.preload['luke'] = function()
     'std.functional',
   }
 
+
+  local function run_ldocs(L, env, ldocs)
+    if L.verbose == nop then
+      L.write('creating LDocs...')
+    end
+    return built_ok(L, run_command(L, env, flatten{'$LDOC -c', ldocs.sources, '.'}))
+  end
+
+
   return {
     main = function(args)
       local L    = parse_arguments(args)
       local env  = makeenv(L.clidefs, L.luke.variables, DEFAULTENV, SHELLENV)
       local conf = makeenv(CONFIGENV, env)
 
-      run_templates(env, L.luke.modules)
+      if not isempty(L.luke.ldocs) then
+        conf = config_ldoc(L, conf)
+        env = makeenv(env, {LDOC=conf.LDOC})
+      end
 
       local c = c_modules(L.luke.modules)
       if not isempty(c) then
         conf = config_compiler(L, conf)
         env = makeenv(env, {CC=conf.CC})
       end
-      run_configs(L, conf, L.luke)
+      run_configs(L, conf, L.luke) -- FIXME: shouldn't mutate L.luke here
+      L.luke = run_templates(L, env, L.luke)
 
       local status = dropuntil(c, isnonzero, function(name)
         return build_c_module(L, env, L.luke, name)
       end) or 0
+
+      run_ldocs(L, env, L.luke.ldocs)
 
       return install_modules(L, env, L.luke, L.install)
     end,
@@ -292,19 +306,30 @@ package.preload['luke.compile'] = function()
   end
 
 
+  local function built_ok(L, ...)
+    if L.verbose == nop then
+      L.write((...) and 'ok\n' or 'failed\n')
+    end
+    return ...
+  end
+
+
   return {
+    built_ok = built_ok,
+
     build_c_module = function(L, env, luke, name)
       local rules = luke.modules[name]
+      local c_module = c_module_path(luke.variables.objdir, name)
       local command = {
         '$COMPILE',
         defines(env, except(pack(rules.defines, luke.defines), nil)),
         incdirs(rules.incdirs, luke.incdirs),
         rules.sources,
-        '-o', c_module_path(luke.variables.objdir, name),
+        '-o', c_module,
         '$LIBS',
         rules.libraries,
       }
-      return run(L, env, flatten(command))
+      return built_ok(L, run(L, env, flatten(command)))
     end,
 
     c_modules = function(modules)
@@ -327,6 +352,8 @@ package.preload['luke.compile'] = function()
         return status
       end)
     end,
+
+    run_command = run,
   }
 end
 
@@ -585,6 +612,16 @@ int main () {
       return env
     end,
 
+    config_ldoc = function(L, env)
+      local LDOC = env.LDOC
+      if LDOC == nil then
+        LDOC = configure(L, env, {checkprog='LDocs generator', progs={'ldoc', 'true'}})
+        env = makeenv(env, {LDOC=LDOC})
+      end
+      return env
+    end,
+
+
     configure = configure,
 
     spawn = spawn,
@@ -758,6 +795,18 @@ package.preload['luke.lukefile'] = function()
   end
 
 
+  local function rewrite_template_files(L, env, source)
+    return case(source, {
+      ['(.+)%.in'] = function(r)
+        L.write('creating ' .. r .. '\n')
+        return fill_templates(env, r .. '.in', r)
+      end,
+
+      source,
+    })
+  end
+
+
   local function normalize_configs(config)
     return cond({
       [not istable(config)] = config
@@ -779,6 +828,8 @@ package.preload['luke.lukefile'] = function()
 
   local function normalize_rules(rules)
     return case(type(rules), {
+      ['nil'] = nop,
+
       ['string'] = function()
         return {sources={rules}}
       end,
@@ -816,6 +867,7 @@ package.preload['luke.lukefile'] = function()
       end
       r = filter_platforms(r)
       r.modules = mapvalues(r.modules, normalize_rules)
+      r.ldocs = normalize_rules(r.ldocs)
       return r
     end,
 
@@ -828,18 +880,16 @@ package.preload['luke.lukefile'] = function()
       end)
     end,
 
-    run_templates = function(env, modules)
-      return mapvalues(modules, function(rules)
-        rules.sources = map(rules.sources, function(source)
-          return case(source, {
-            ['(.+)%.in'] = function(r)
-              return fill_templates(env, r .. '.in', r)
-            end,
-
-            source,
-          })
-        end)
+    run_templates = function(L, env, luke)
+      local r = copy(luke)
+      local rewrite = bind(rewrite_template_files, {L, env})
+      r.modules = mapvalues(r.modules, function(rules)
+        rules.sources = map(rules.sources, rewrite)
       end)
+      if r.ldocs then
+        r.ldocs.sources = map(r.ldocs.sources, rewrite)
+      end
+      return r
     end,
   }
 end
@@ -1164,7 +1214,7 @@ package.preload['std.functional'] = function()
     mapvalues = function(iterable, block)
       local r = {}
       for k, v in next, iterable or {} do
-        r[k] = block(v)
+        r[k] = block(v) or v
       end
       return r
     end,

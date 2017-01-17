@@ -32,6 +32,8 @@ incdirs     = {
   '$LUA_INCDIR',
 }
 
+ldocs       = 'build-aux/config.ld.in'
+
 modules     = {
   ['posix']               = 'lib/posix/init.lua',
   ['posix._argcheck']     = 'lib/posix/_argcheck.lua',
