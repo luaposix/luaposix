@@ -141,7 +141,7 @@ Create a unique temporary file.
 @function mkstemp
 @string templ pattern that ends in six 'X' characters
 @treturn[1] int open file descriptor
-@treturn[2] string path to file, if successful
+@treturn[1] string path to file, if successful
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum
