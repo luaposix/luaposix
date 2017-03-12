@@ -1227,8 +1227,8 @@ Truncate a file to a specified length.
 static int
 Ptruncate(lua_State *L)
 {
-	int fd = checkint(L, 1);
-	const char *path = luaL_checkstring(L, 2);
+	const char *path = luaL_checkstring(L, 1);
+	off_t length = checkint(L, 2);
 	checknargs(L, 2);
 	return pushresult(L, truncate(path, length), NULL);
 }
