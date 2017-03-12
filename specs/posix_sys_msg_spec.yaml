@@ -1,9 +1,11 @@
 specify posix.sys.msg:
 - before:
-    errno = require "posix.errno"
-    msg   = require "posix.sys.msg"
-    st    = require "posix.sys.stat"
+    errno  = require 'posix.errno'
+    msg    = require 'posix.sys.msg'
+    st     = require 'posix.sys.stat'
+    unistd = require 'posix.unistd'
 
+    NOW   = require 'posix.time'.time ()
     EEXIST = errno.EEXIST
     msgget, msgsnd, msgrcv = msg.msgget, msg.msgsnd, msg.msgrcv
     IPC_CREAT, IPC_EXCL = msg.IPC_CREAT, msg.IPC_EXCL
@@ -15,13 +17,13 @@ specify posix.sys.msg:
       mq, err = msgget (100, mode)
     end
 
-    type = 42
-    data = "Answer to the Ultimate Question of Life"
+    mtype = 42
+    mdata = 'Answer to the Ultimate Question of Life'
 
 
 - describe msgget:
   - context with bad arguments:
-      badargs.diagnose (msgget, "(int, ?int)")
+      badargs.diagnose (msgget, '(int, ?int)')
 
   - it creates a queue:
       expect (mq).not_to_be (nil)
@@ -30,16 +32,137 @@ specify posix.sys.msg:
 
 - describe msgsnd:
   - context with bad arguments:
-      badargs.diagnose (msgsnd, "(int, int, string, ?int)")
+      badargs.diagnose (msgsnd, '(int, int, string, ?int)')
 
   - it sends a message:
-      ok, err = msgsnd (mq, type, data)
+      ok, err = msgsnd (mq, mtype, mdata)
       expect (ok).not_to_be (err)
 
 
 - describe msgrcv:
   - context with bad arguments:
-      badargs.diagnose (msgrcv, "(int, int, ?int, ?int)")
+      badargs.diagnose (msgrcv, '(int, int, ?int, ?int)')
 
   - it receives a message:
-      expect ({msgrcv (mq, 128)}).to_equal {type, data, nil}
+      expect ({msgrcv (mq, 128)}).to_equal {mtype, mdata, nil}
+
+
+- describe msgctl:
+  - before:
+      msgctl = msg.msgctl
+      IPC_RMID, IPC_SET, IPC_STAT = msg.IPC_RMID, msg.IPC_SET, msg.IPC_STAT
+
+      objtype = function(x) return (getmetatable(x) or {})._type end
+
+  - context with bad arguments:
+      # Not really 'any*' for arg3, but that's all we can do without knowing arg2!
+      badargs.diagnose (msgctl, '(int, int, any*)')
+
+  - context with IPC_STAT:
+    - it diagnoses too many arguments:
+        expect (msgctl (mq, IPC_STAT, false)).
+          to_raise 'no more than 2 arguments expected, got 3'
+
+    - it returns a new table on each invocation:
+        expect (msgctl (mq, IPC_STAT)).not_to_be (msgctl (mq, IPC_STAT))
+
+    - it returns correctly populated PosixMsqid table:
+        msqid = msgctl (mq, IPC_STAT)
+        expect (objtype (msqid)).to_be 'PosixMsqid'
+        expect (type(msqid.msg_qnum)).to_be 'number'
+        expect (type(msqid.msg_qbytes)).to_be 'number'
+        expect (msqid.msg_lspid).to_be (unistd.getpid())
+        expect (msqid.msg_lrpid).to_be (unistd.getpid())
+        expect (msqid.msg_stime - NOW < 1).to_be (true)
+        expect (msqid.msg_rtime - NOW < 1).to_be (true)
+        expect (msqid.msg_perm.uid).to_be (unistd.getuid())
+        expect (msqid.msg_perm.gid).to_be (unistd.getgid())
+        expect (msqid.msg_perm.cuid).to_be (msqid.msg_perm.uid)
+        expect (msqid.msg_perm.cgid).to_be (msqid.msg_perm.gid)
+        expect (msqid.msg_perm.mode).to_be (mode)
+
+  - context with IPC_SET:
+    - before:
+        sleep = require 'posix.unistd'.sleep
+        msqid = {
+          msg_perm = {
+            uid  = unistd.getuid(),
+            gid  = unistd.getgid(),
+            mode = bor (S_IRWXU, S_IRWXG, S_IRWXO),
+          },
+          msg_qbytes = 1024,
+        }
+
+    - 'it diagnoses missing argument #3':
+        expect (msgctl (mq, IPC_SET)).to_raise 'table expected, got no value'
+
+    - 'it diagnoses argument #3 type not table':
+        expect (msgctl (mq, IPC_SET, false)).to_raise 'table expected, got boolean'
+
+    - 'it diagnoses argument #3 with missing fields':
+        msqid.msg_qbytes = nil
+        expect (msgctl (mq, IPC_SET, msqid)).
+          to_raise "int expected for field 'msg_qbytes', got no value"
+        expect (msgctl (mq, IPC_SET, {msg_qbytes=1024})).
+          to_raise "table expected for field 'msg_perm', got no value"
+
+    - 'it diagnoses argument #3 with bad field types':
+        msqid.msg_qbytes = false
+        expect (msgctl (mq, IPC_SET, msqid)).
+          to_raise "int expected for field 'msg_qbytes', got boolean"
+        expect (msgctl (mq, IPC_SET, {msg_qbytes=1024, msg_perm=false})).
+          to_raise "table expected for field 'msg_perm', got boolean"
+
+    - 'it diagnoses argument #3 with bad field names':
+        msqid.bogus = 1
+        expect (msgctl (mq, IPC_SET, msqid)).
+          to_raise "invalid field name 'bogus'"
+
+    - 'it diagnoses argument #3 with missing subfields':
+        msqid.msg_perm.mode = nil
+        expect (msgctl (mq, IPC_SET, msqid)).
+          to_raise "int expected for field 'mode', got no value"
+
+    - 'it diagnoses argument #3 with bad subfield types':
+        msqid.msg_perm.mode = false
+        expect (msgctl (mq, IPC_SET, msqid)).
+          to_raise "int expected for field 'mode', got boolean"
+
+    - 'it diagnoses argument #3 with bad subfield names':
+        msqid.msg_perm.bogus = 1
+        expect (msgctl (mq, IPC_SET, msqid)).
+          to_raise "invalid field name 'bogus'"
+
+    - it diagnoses too many arguments:
+        expect (msgctl (mq, IPC_SET, {}, nil)).
+          to_raise 'no more than 3 arguments expected, got 4'
+
+    - it sets specified fields in the message queue:
+        expect (msgctl (mq, IPC_SET, msqid)).not_to_be (nil)
+        r = msgctl (mq, IPC_STAT)
+        expect (r.msg_perm.uid).to_be (unistd.getuid())
+        expect (r.msg_perm.gid).to_be (unistd.getgid())
+        expect (r.msg_perm.mode).to_be (bor (S_IRWXU, S_IRWXG, S_IRWXO))
+        expect (r.msg_qbytes).to_be (1024)
+
+    - it updates ctime field:
+        msqid.msg_qbytes = 666
+        ctime = msgctl (mq, IPC_STAT).msg_ctime
+        expect (ctime).not_to_be (nil)
+        sleep (2)
+        expect (msgctl (mq, IPC_SET, msqid)).not_to_be (nil)
+        expect (msgctl (mq, IPC_STAT).msg_ctime).not_to_be (ctime)
+
+
+  - context with IPC_RMID:
+    - it diagnoses too many arguments to IPC_RMID cmd:
+        expect (msgctl (mq, IPC_RMID, false)).to_raise 'no more than 2 arguments expected, got 3'
+
+    - it removes a queue:
+        ok, err = msgctl (mq, IPC_RMID)
+        expect (ok).not_to_be (err)
+
+    - it diagnoses a bad queue: |
+        ok, err = msgctl (mq, IPC_RMID)
+        expect (ok).to_be (nil)
+        expect (err).to_contain 'msgctl: '

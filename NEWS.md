@@ -24,6 +24,10 @@
 
   - New `posix.sys.socket.getpeername` binding.
 
+  - New `posix.sys.msg.msgctl` binding, and `posix.sys.msg.IPC_RMID`,
+    `posix.sys.msg.IPC_SET` and `posix.sys.msg.IPC_STAT` constants to
+    use with it.
+
 ### Bugs Fixed
 
   - Replaced all Autotools and supporting Slingshot code with new Lua-
