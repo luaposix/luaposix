@@ -32,6 +32,8 @@
     `posix.sys.msg.IPC_SET` and `posix.sys.msg.IPC_STAT` constants to
     use with it.
 
+  - New `posix.unistd.ftruncate` and `posix.unistd.truncate` bindings.
+
 
 ## Noteworthy changes in release 33.4.0 (2016-02-27) [stable]
 
