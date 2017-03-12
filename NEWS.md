@@ -28,7 +28,7 @@
     `posix.sys.msg.IPC_SET` and `posix.sys.msg.IPC_STAT` constants to
     use with it.
 
-  - New `posix.unistd.ftruncate` binding.
+  - New `posix.unistd.ftruncate` and `posix.unistd.truncate` bindings.
 
 ### Bugs Fixed
 

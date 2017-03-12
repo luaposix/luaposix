@@ -1213,6 +1213,26 @@ Pftruncate(lua_State *L)
 	return pushresult(L, ftruncate(fd, length), NULL);
 }
 
+/***
+Truncate a file to a specified length.
+@function truncate
+@string path file to act on
+@int length the length to truncate to
+@treturn[1] int `0`, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see ftruncate(2)
+*/
+static int
+Ptruncate(lua_State *L)
+{
+	int fd = checkint(L, 1);
+	const char *path = luaL_checkstring(L, 2);
+	checknargs(L, 2);
+	return pushresult(L, truncate(path, length), NULL);
+}
+
 static const luaL_Reg posix_unistd_fns[] =
 {
 	LPOSIX_FUNC( P_exit		),
@@ -1271,6 +1291,7 @@ static const luaL_Reg posix_unistd_fns[] =
 	LPOSIX_FUNC( Punlink		),
 	LPOSIX_FUNC( Pwrite		),
 	LPOSIX_FUNC( Pftruncate		),
+	LPOSIX_FUNC( Ptruncate		),
 	{NULL, NULL}
 };
 
