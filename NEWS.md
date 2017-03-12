@@ -28,6 +28,8 @@
     `posix.sys.msg.IPC_SET` and `posix.sys.msg.IPC_STAT` constants to
     use with it.
 
+  - New `posix.unistd.ftruncate` binding.
+
 ### Bugs Fixed
 
   - Replaced all Autotools and supporting Slingshot code with new Lua-

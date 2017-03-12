@@ -1193,6 +1193,25 @@ Pwrite(lua_State *L)
 	return pushresult(L, write(fd, buf, lua_objlen(L, 2)), NULL);
 }
 
+/***
+Truncate a file to a specified length.
+@function ftruncate
+@int fd the file descriptor to act on
+@int length the length to truncate to
+@treturn[1] int `0`, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see ftruncate(2)
+*/
+static int
+Pftruncate(lua_State *L)
+{
+	int fd = checkint(L, 1);
+	off_t length = checkint(L, 2);
+	checknargs(L, 2);
+	return pushresult(L, ftruncate(fd, length), NULL);
+}
 
 static const luaL_Reg posix_unistd_fns[] =
 {
@@ -1251,6 +1270,7 @@ static const luaL_Reg posix_unistd_fns[] =
 #endif
 	LPOSIX_FUNC( Punlink		),
 	LPOSIX_FUNC( Pwrite		),
+	LPOSIX_FUNC( Pftruncate		),
 	{NULL, NULL}
 };
 
