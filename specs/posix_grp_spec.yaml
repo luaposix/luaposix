@@ -1,4 +1,4 @@
-specify posix:grp:
+specify posix.grp:
 - before:
     grp = require "posix.grp"
 
