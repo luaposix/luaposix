@@ -45,7 +45,7 @@ install:
 script:
   - build-aux/luke
     LUA=`pwd`/here/bin/lua
-    LUA_INCLUDE=-I`pwd`/here/include
+    LUA_INCDIR=`pwd`/here/include
     PREFIX="$_inst" all install
 
 
