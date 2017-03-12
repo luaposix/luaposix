@@ -22,17 +22,15 @@
 
 ### New Features
 
+  - Replaced all Autotools and supporting Slingshot code with new Lua-
+    based `build-aux/luke` and `lukefile` describing how to compile and
+    install everything.  Building with LuaRocks now leverages this too.
+
   - New `posix.sys.socket.getpeername` binding.
 
   - New `posix.sys.msg.msgctl` binding, and `posix.sys.msg.IPC_RMID`,
     `posix.sys.msg.IPC_SET` and `posix.sys.msg.IPC_STAT` constants to
     use with it.
-
-### Bugs Fixed
-
-  - Replaced all Autotools and supporting Slingshot code with new Lua-
-    based `build-aux/luke` and `lukefile` describing how to compile and
-    install everything.  Building with LuaRocks now leverages this too.
 
 
 ## Noteworthy changes in release 33.4.0 (2016-02-27) [stable]
