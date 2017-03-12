@@ -14,6 +14,11 @@ specify posix.glob:
   - before:
       glob, MARK = glob.glob, glob.GLOB_MARK
       chdir, mkdir, mkdtemp = posix.chdir, posix.mkdir, posix.mkdtemp
+      origwd = posix.getcwd ()
+
+  - after:
+      chdir(origwd)
+
 
   - context with bad arguments:
       badargs.diagnose (glob, "(?string, int)")
