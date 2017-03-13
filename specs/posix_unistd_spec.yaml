@@ -1,5 +1,6 @@
 specify posix.unistd:
 - before: |
+    fcntl  = require "posix.fcntl"
     pwd    = require "posix.pwd"
     unistd = require "posix.unistd"
 
@@ -56,6 +57,38 @@ specify posix.unistd:
         expect (table.concat {msg, " ", tostring (ret)}).to_be "exited 0"
       end
   - "it sets argv[0]":
+
+
+- describe ftruncate:
+  - before: |
+      ftruncate = unistd.ftruncate
+
+      function echo (fname, s)
+        local fh = io.open (fname, 'w')
+        fh:write (s .. '\n')
+        fh:close ()
+        return #s + 1
+      end
+
+      function flen (fname)
+        local fh = io.open (fname, 'r')
+        local r = fh:read '*a'
+        fh:close ()
+        return #r
+      end
+
+  - context with bad arguments:
+      badargs.diagnose (ftruncate, "(int, int)")
+
+  - it truncates an open file descriptor:
+      fname = os.tmpname()
+      len = echo (fname, 'line 1')
+      echo (fname, 'line 2')
+      fd = fcntl.open (fname, bor (fcntl.O_CREAT, fcntl.O_WRONLY))
+      expect (ftruncate (fd, len)).not_to_be (nil)
+      unistd.close (fd)
+      expect (flen (fname)).to_be (len)
+      os.remove (fname)
 
 
 - describe getegid:
@@ -212,3 +245,34 @@ specify posix.unistd:
       expect (type (sysconf (unistd._SC_TZNAME_MAX))).to_be "number"
   - it fetches the POSIX.1 version:
       expect (type (sysconf (unistd._SC_VERSION))).to_be "number"
+
+
+- describe truncate:
+  - before: |
+      truncate = unistd.truncate
+
+      function echo (fname, s)
+        local fh = io.open (fname, 'w')
+        fh:write (s .. '\n')
+        fh:close ()
+        return #s + 1
+      end
+
+      function flen (fname)
+        local fh = io.open (fname, 'r')
+        local r = fh:read '*a'
+        fh:close ()
+        return #r
+      end
+
+  - context with bad arguments:
+      badargs.diagnose (truncate, "(string, int)")
+
+  - it truncates a named file:
+      fname = os.tmpname()
+      len = echo (fname, 'line 1')
+      echo (fname, 'line 2')
+      expect (ftruncate (fname, len)).not_to_be (nil)
+      expect (flen (fname)).to_be (len)
+      os.remove (fname)
+
