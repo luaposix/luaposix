@@ -81,7 +81,7 @@ package.preload['luke._base'] = function()
    return {
       fatal = function(...)
          local msg = (...)
-         if select("#", ...) > 1 then
+         if select('#', ...) > 1 then
             msg = format(...)
          end
          stderr:write('luke: fatal: ' .. msg .. '\n')
@@ -333,10 +333,10 @@ package.preload['luke.compile'] = function()
    local function module_to_path(module, sources, objdir)
       return dropuntil(sources, function(source)
          return case(source, {
-            ['.*%.[ch]']          = bind(c_source, {module, objdir}),
-            ['(.*%.[ch])%.in'] = bind(c_source, {module, objdir}),
-            ['.*%.lua']            = bind(lua_source, {module}),
-            ['(.*%.lua)%.in']   = bind(lua_source, {module}),
+            ['.*%.[ch]']       = bind(c_source,   {module, objdir}),
+            ['(.*%.[ch])%.in'] = bind(c_source,   {module, objdir}),
+            ['.*%.lua']        = bind(lua_source, {module}),
+            ['(.*%.lua)%.in']  = bind(lua_source, {module}),
 
             function(src)
                fatal("unsupported source type '%s'", src)
@@ -1008,16 +1008,31 @@ package.preload['luke.platforms'] = function()
          ['Darwin']    = {'macosx', 'bsd', 'unix'},
          ['Linux']     = {'linux', 'unix'},
          ['SunOS']     = {'solaris', 'unix'},
-         ['CYGWIN.*']  = {'cygwin', 'unix'},
-         ['Windows.*'] = {'win32', 'windows'},
-         ['MINGW.*']   = {'mingw32', 'win32', 'windows'},
-         ['procnto.*'] = {'qnx'},
+         ['^CYGWIN']   = {'cygwin', 'unix'},
+         ['^MSYS']     = {'msys', 'cygwin', 'unix'},
+         ['^Windows']  = {'win32', 'windows'},
+         ['^MINGW']    = {'mingw32', 'win32', 'windows'},
+         ['^procnto']  = {'qnx'},
          ['QNX']       = {'qnx'},
+         ['Haiku']     = {'haiku', 'unix'},
       },
    }
 
 
-   local platforms = CANON[popen('uname -s'):read'*l'] or {'unix'}
+   local UNAME = popen('uname -s'):read '*l'
+   local LITERALS, PATTERNS = partition(keys(CANON), function(k)
+      return sub(k, 1, 1) ~= '^'
+   end)
+
+
+   local function match_uname(x)
+      return match(UNAME, x) and CANON[x]
+   end
+
+
+   local platforms = LITERALS[UNAME]
+      or dropuntil(map(PATTERNS, match_uname))
+      or {'unix'}
 
 
    local allplatforms = reduce(values(CANON), function(acc, platforms)
@@ -1235,10 +1250,18 @@ package.preload['std.functional'] = function()
          if block == nil then
             predicate, block = isnonnil, predicate
          end
-         for valu in each(seq) do
-            local r = pack(block(unpack(valu)))
-            if predicate(unpack(r)) then
-               return unpack(r)
+         if block ~= nil then
+            for valu in each(seq) do
+               local r = pack(block(unpack(valu)))
+               if predicate(unpack(r)) then
+                  return unpack(r)
+               end
+            end
+         else
+            for r in each(seq) do
+               if predicate(unpack(r)) then
+                  return unpack(r)
+               end
             end
          end
       end,
