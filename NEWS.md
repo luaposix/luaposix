@@ -26,7 +26,8 @@
     based `build-aux/luke` and `lukefile` describing how to compile and
     install everything.  Building with LuaRocks now leverages this too.
 
-  - New `posix.sys.socket.getpeername` binding.
+  - New `posix.sys.socket.getsockopt` and `posix.sys.socket.getpeername`
+    bindings.
 
   - New `posix.sys.msg.msgctl` binding, and `posix.sys.msg.IPC_RMID`,
     `posix.sys.msg.IPC_SET` and `posix.sys.msg.IPC_STAT` constants to

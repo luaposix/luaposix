@@ -2,12 +2,14 @@ specify posix.sys.socket:
 - before:
     sock = require "posix.sys.socket"
 
-    bind, setsockopt, socket = sock.bind, sock.setsockopt, sock.socket
+    bind, setsockopt, socket, getsockopt =
+      sock.bind, sock.setsockopt, sock.socket, sock.getsockopt
     recvfrom, sendto = sock.recvfrom, sock.sendto
     AF_INET, AF_INET6, AF_UNIX, AF_NETLINK =
       sock.AF_INET, sock.AF_INET6, sock.AF_UNIX, sock.AF_NETLINK
     IPPROTO_TCP, SOCK_DGRAM = sock.IPPROTO_TCP, sock.SOCK_DGRAM
-    SOL_SOCKET, SO_RCVTIMEO = sock.SOL_SOCKET, sock.SO_RCVTIMEO
+    SOL_SOCKET, SO_RCVTIMEO, SO_SNDTIMEO =
+      sock.SOL_SOCKET, sock.SO_RCVTIMEO, sock.SO_SNDTIMEO
 
 
 - describe socket:
@@ -386,3 +388,40 @@ specify posix.sys.socket:
 
       data, so = recvfrom (fd, 1024)
       expect (data).to_be "Test ipv4"
+
+
+- describe getsockopt:
+  - before:
+      SO_LINGER, IPPROTO_TCP = sock.SO_LINGER, sock.IPPROTO_TCP
+      testsock = sock.socket(sock.AF_INET, sock.SOCK_STREAM, 0)
+
+      getsockopt, typeerrors = init (sock, "getsockopt")
+
+  - context with bad arguments:
+    - 'it diagnoses missing argument #1':
+        expect (getsockopt ()).to_raise.any_of (typeerrors (1, "int"))
+    - 'it diagnoses argument #1 type not int':
+        expect (getsockopt (false)).to_raise.any_of (typeerrors (1, "int", "boolean"))
+    - 'it diagnoses missing argument #2':
+        expect (getsockopt (1)).to_raise.any_of (typeerrors (2, "int"))
+    - 'it diagnoses argument #2 type not int':
+        expect (getsockopt (1, false)).to_raise.any_of (typeerrors (2, "int", "boolean"))
+    - 'it diagnoses missing argument #3':
+        expect (getsockopt (1, 2)).to_raise.any_of (typeerrors (3, "int"))
+    - 'it diagnoses argument #3 type not int':
+        expect (getsockopt (1, 2, false)).to_raise.any_of (typeerrors (3, "int", "boolean"))
+    - it diagnoses too many arguments:
+        expect (getsockopt (1, SOL_SOCKET, IPPROTO_TCP, 4)).
+          to_raise.any_of (typeerrors (4))
+  - it returns a timeval for SO_RCVTIMEO:
+      expect (getmetatable (getsockopt (testsock, SOL_SOCKET, SO_RCVTIMEO))._type).
+        to_be ("PosixTimeval")
+  - it returns a timeval for SO_SNDTIMEO:
+      expect (getmetatable (getsockopt (testsock, SOL_SOCKET, SO_SNDTIMEO))._type).
+        to_be ("PosixTimeval")
+  - it returns a linger struct for SO_LINGER:
+      expect (getmetatable (getsockopt (testsock, SOL_SOCKET, SO_LINGER))._type).
+        to_be ("PosixLinger")
+  - it returns a number for SO_ERROR:
+      expect (type (getsockopt (testsock, SOL_SOCKET, sock.SO_ERROR))).
+        to_be ("number")

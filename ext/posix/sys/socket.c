@@ -749,6 +749,109 @@ Psetsockopt(lua_State *L)
 
 
 /***
+Get options on sockets.
+@function getsockopt
+@int fd socket descriptor
+@int level one of `SOL_SOCKET`, `IPPROTO_IPV6`, `IPPROTO_TCP`
+@int name option name, varies according to `level` value
+@return[1] the value of the requested socket option
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see getsockopt(2)
+@usage
+  local sys_sock = require "posix.sys.socket"
+  val, errmsg, errnum = sys_sock.getsockopt(
+    sock, sys_sock.SOL_SOCKET, sys_sock.SO_SNDTIMEO
+  )
+  print('Send timeout ', val.tv_sec + val.tv_usec / 1000000)
+*/
+static int
+Pgetsockopt(lua_State *L)
+{
+	int fd = checkint(L, 1);
+	int level = checkint(L, 2);
+	int optname = checkint(L, 3);
+	checknargs(L, 3);
+	struct linger linger;
+	struct timeval tv;
+	int err = 0;
+#ifdef SO_BINDTODEVICE
+	char ifname[IFNAMSIZ];
+#endif
+	int vint = 0;
+	void *val = NULL;
+	socklen_t len = sizeof(vint);
+
+	switch (level)
+	{
+		case SOL_SOCKET:
+			switch (optname)
+			{
+				case SO_LINGER:
+					val = &linger;
+					len = sizeof(linger);
+					break;
+				case SO_RCVTIMEO:
+				case SO_SNDTIMEO:
+					val = &tv;
+					len = sizeof(tv);
+					break;
+#ifdef SO_BINDTODEVICE
+				case SO_BINDTODEVICE:
+					val = ifname;
+					len = IFNAMSIZ;
+					break;
+#endif
+				default:
+					break;
+			}
+			break;
+		default:
+			break;
+	}
+
+	/* Default fallback to int if no specific handling of type above */
+
+	if (val == NULL)
+	{
+		val = &vint;
+		len = sizeof(vint);
+	}
+
+	err = getsockopt(fd, level, optname, val, &len);
+	if (err == -1)
+	{
+		return pusherror(L, "getsockopt");
+	}
+
+	if (val == &ifname)
+	{
+		lua_pushlstring(L, ifname, len);
+	}
+	else if (val == &tv)
+	{
+		lua_createtable(L, 0, 2);
+		pushintegerfield("tv_sec", tv.tv_sec);
+		pushintegerfield("tv_usec", tv.tv_usec);
+		settypemetatable("PosixTimeval");
+	}
+	else if (val == &linger)
+	{
+	lua_createtable(L, 0, 2);
+		pushintegerfield("l_linger", linger.l_linger);
+		pushintegerfield("l_onoff", linger.l_onoff);
+		settypemetatable("PosixLinger");
+	}
+	else {
+		lua_pushinteger(L, vint);
+	}
+
+	return 1;
+}
+
+
+/***
 Get socket name.
 @function getsockname
 @see getsockname(2)
@@ -811,6 +914,7 @@ static const luaL_Reg posix_sys_socket_fns[] =
 	LPOSIX_FUNC( Psendto		),
 	LPOSIX_FUNC( Pshutdown		),
 	LPOSIX_FUNC( Psetsockopt	),
+	LPOSIX_FUNC( Pgetsockopt	),
 	LPOSIX_FUNC( Pgetsockname	),
 	LPOSIX_FUNC( Pgetpeername	),
 #endif
