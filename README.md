@@ -13,10 +13,15 @@ won't work on non-POSIX systems. However, it does try to detect the
 level of POSIX conformance of the underlying system and bind only
 available APIs.
 
+For a while, luaposix contained support for curses functionality too,
+but now it has its own [lcurses][] repository again, where it is being
+maintained separately.
+
 luaposix is released under the [MIT license][mit] (the same license as
 Lua itsef).  There is no warranty.
 
-[github]: https://github.com/luaposix/luaposix "Github repository"
+[github]: https://github.com/luaposix/luaposix "luaposix repository"
+[lcurses]: https://github.com/lcurses/lcurses "lcurses repository"
 [lua]: http://www.lua.org/ "The Lua Project"
 [mit]: http://mit-license.org "MIT license"
 
