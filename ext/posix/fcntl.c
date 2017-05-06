@@ -224,6 +224,7 @@ if they are usually bitwise ORed with other values, otherwise `nil`.
 @int O_RSYNC synchronise file read integrity
 @int O_SYNC synchronise file write integrity
 @int O_TRUNC truncate to zero length
+@int O_TMPFILE create an unnamed temporary file
 @int POSIX_FADV_NORMAL no advice
 @int POSIX_FADV_SEQUENTIAL expecting to access data sequentially
 @int POSIX_FADV_RANDOM expecting to access data randomly
@@ -276,6 +277,11 @@ luaopen_posix_fcntl(lua_State *L)
 	LPOSIX_CONST( O_SYNC		);
 	LPOSIX_CONST( O_TRUNC		);
 	LPOSIX_CONST( O_CLOEXEC		);
+
+	/* Linux 3.11 and above */
+#ifdef O_TMPFILE
+	LPOSIX_CONST( O_TMPFILE		);
+#endif
 
 	/* posix_fadvise flags */
 #ifdef POSIX_FADV_NORMAL
