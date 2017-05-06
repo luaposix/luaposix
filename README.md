@@ -125,7 +125,7 @@ points when proposing changes:
 2. No non-POSIX APIs; no platform-specific code. When wrapping APIs
    introduced in POSIX 2001 or later, add an appropriate #if. If your
    platform isn't quite POSIX, you may find a gnulib module to bridge
-   the gap. If absolutely necessary, use autoconf feature tests.
+   the gap. If absolutely necessary, use luke feature tests.
 
 3. Thin wrappers: although some existing code contradicts this, wrap
    POSIX APIs in the simplest way possible. If necessary, more
