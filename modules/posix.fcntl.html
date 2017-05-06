@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 33.4.0 Reference</title>
+    <title>luaposix 34.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 33.4.0</h1>
+<h1>luaposix 34.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -33,20 +33,19 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
 <li><a href="#Constants">Constants </a></li>
-<li><a href="#Tables">Tables </a></li>
 </ul>
 
 
 <h2>Modules</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../modules/posix.html">posix</a></li>
   <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
   <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
   <li><a href="../modules/posix.errno.html">posix.errno</a></li>
   <li><strong>posix.fcntl</strong></li>
   <li><a href="../modules/posix.fnmatch.html">posix.fnmatch</a></li>
-  <li><a href="../modules/posix.getopt.html">posix.getopt</a></li>
   <li><a href="../modules/posix.glob.html">posix.glob</a></li>
   <li><a href="../modules/posix.grp.html">posix.grp</a></li>
   <li><a href="../modules/posix.libgen.html">posix.libgen</a></li>
@@ -72,7 +71,7 @@
   <li><a href="../modules/posix.utime.html">posix.utime</a></li>
 </ul>
 <h2>Examples</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../examples/abstract-ns-client.lua.html">abstract-ns-client.lua</a></li>
   <li><a href="../examples/abstract-ns-server.lua.html">abstract-ns-server.lua</a></li>
   <li><a href="../examples/dir.lua.html">dir.lua</a></li>
@@ -118,18 +117,18 @@
 	<td class="summary">Instruct kernel on appropriate cache behaviour for a file or file segment.</td>
 	</tr>
 </table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#flock">flock</a></td>
+	<td class="summary">Advisory file locks.</td>
+	</tr>
+</table>
 <h2><a href="#Constants">Constants </a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#posix.fcntl">posix.fcntl</a></td>
 	<td class="summary">Fcntl constants.</td>
-	</tr>
-</table>
-<h2><a href="#Tables">Tables </a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#flock">flock</a></td>
-	<td class="summary">Advisory file locks.</td>
 	</tr>
 </table>
 
@@ -177,7 +176,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -208,7 +207,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
 
 
 
@@ -237,7 +236,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -252,8 +251,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
-<span class="keyword">local</span> P = <span class="global">require</span> <span class="string">"posix.fcntl"</span>
+        <pre class="example"><span class="keyword">local</span> P = <span class="global">require</span> <span class="string">"posix.fcntl"</span>
 fd = P.open (<span class="string">"data"</span>, bit.bor (P.O_CREAT, P.O_RDWR), bit.bor (P.S_IRWXU, P.S_IRGRP))</pre>
     </ul>
 
@@ -299,7 +297,7 @@ fd = P.open (<span class="string">"data"</span>, bit.bor (P.O_CREAT, P.O_RDWR), 
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -311,6 +309,48 @@ fd = P.open (<span class="string">"data"</span>, bit.bor (P.O_CREAT, P.O_RDWR), 
     <ul>
          <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_fadvise.html">posix_fadvise(2)</a>
     </ul>
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "flock"></a>
+    <strong>flock</strong>
+    </dt>
+    <dd>
+    Advisory file locks.
+Passed as <em>arg</em> to <a href="../modules/posix.fcntl.html">fcntl</a> when <em>cmd</em> is <code>F_GETLK</code>, <code>F_SETLK</code> or <code>F_SETLKW</code>.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">l_start</span>
+            <span class="types"><span class="type">int</span></span>
+         starting offset
+        </li>
+        <li><span class="parameter">l_len</span>
+            <span class="types"><span class="type">int</span></span>
+         len = 0 means until end of file
+        </li>
+        <li><span class="parameter">l_pid</span>
+            <span class="types"><span class="type">int</span></span>
+         lock owner
+        </li>
+        <li><span class="parameter">l_type</span>
+            <span class="types"><span class="type">int</span></span>
+         lock type
+        </li>
+        <li><span class="parameter">l_whence</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>SEEK_SET</code>, <code>SEEK_CUR</code> or <code>SEEK_END</code>
+        </li>
+    </ul>
+
+
+
 
 
 </dd>
@@ -469,56 +509,13 @@ if they are usually bitwise ORed with other values, otherwise <code>nil</code>.
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
-  <span class="comment">-- Print fcntl constants supported on this host.
-</span>  <span class="keyword">for</span> name, value <span class="keyword">in</span> <span class="global">pairs</span> (<span class="global">require</span> <span class="string">"posix.fcntl"</span>) <span class="keyword">do</span>
-    <span class="keyword">if</span> <span class="global">type</span> (value) == <span class="string">"number"</span> <span class="keyword">then</span>
-      <span class="global">print</span> (name, value)
-     <span class="keyword">end</span>
-  <span class="keyword">end</span></pre>
+        <pre class="example"><span class="comment">-- Print fcntl constants supported on this host.
+</span><span class="keyword">for</span> name, value <span class="keyword">in</span> <span class="global">pairs</span> (<span class="global">require</span> <span class="string">"posix.fcntl"</span>) <span class="keyword">do</span>
+  <span class="keyword">if</span> <span class="global">type</span> (value) == <span class="string">"number"</span> <span class="keyword">then</span>
+    <span class="global">print</span> (name, value)
+   <span class="keyword">end</span>
+<span class="keyword">end</span></pre>
     </ul>
-
-</dd>
-</dl>
-    <h2 class="section-header "><a name="Tables"></a>Tables </h2>
-
-    <dl class="function">
-    <dt>
-    <a name = "flock"></a>
-    <strong>flock</strong>
-    </dt>
-    <dd>
-    Advisory file locks.
-Passed as <em>arg</em> to <a href="../modules/posix.fcntl.html">fcntl</a> when <em>cmd</em> is <code>F_GETLK</code>, <code>F_SETLK</code> or <code>F_SETLKW</code>.
-
-
-    <h3>Fields:</h3>
-    <ul>
-        <li><span class="parameter">l_start</span>
-            <span class="types"><span class="type">int</span></span>
-         starting offset
-        </li>
-        <li><span class="parameter">l_len</span>
-            <span class="types"><span class="type">int</span></span>
-         len = 0 means until end of file
-        </li>
-        <li><span class="parameter">l_pid</span>
-            <span class="types"><span class="type">int</span></span>
-         lock owner
-        </li>
-        <li><span class="parameter">l_type</span>
-            <span class="types"><span class="type">int</span></span>
-         lock type
-        </li>
-        <li><span class="parameter">l_whence</span>
-            <span class="types"><span class="type">int</span></span>
-         one of <code>SEEK_SET</code>, <code>SEEK_CUR</code> or <code>SEEK_END</code>
-        </li>
-    </ul>
-
-
-
-
 
 </dd>
 </dl>
@@ -527,8 +524,8 @@ Passed as <em>arg</em> to <a href="../modules/posix.fcntl.html">fcntl</a> when <
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2016-03-06 15:33:23 </i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-05-06 11:50:52 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

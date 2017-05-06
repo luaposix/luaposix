@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 33.4.0 Reference</title>
+    <title>luaposix 34.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 33.4.0</h1>
+<h1>luaposix 34.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -39,14 +39,13 @@
 
 
 <h2>Modules</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../modules/posix.html">posix</a></li>
   <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
   <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
   <li><a href="../modules/posix.errno.html">posix.errno</a></li>
   <li><a href="../modules/posix.fcntl.html">posix.fcntl</a></li>
   <li><a href="../modules/posix.fnmatch.html">posix.fnmatch</a></li>
-  <li><a href="../modules/posix.getopt.html">posix.getopt</a></li>
   <li><a href="../modules/posix.glob.html">posix.glob</a></li>
   <li><a href="../modules/posix.grp.html">posix.grp</a></li>
   <li><a href="../modules/posix.libgen.html">posix.libgen</a></li>
@@ -72,7 +71,7 @@
   <li><a href="../modules/posix.utime.html">posix.utime</a></li>
 </ul>
 <h2>Examples</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../examples/abstract-ns-client.lua.html">abstract-ns-client.lua</a></li>
   <li><a href="../examples/abstract-ns-server.lua.html">abstract-ns-server.lua</a></li>
   <li><a href="../examples/dir.lua.html">dir.lua</a></li>
@@ -137,6 +136,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#chmod">chmod (path, mode)</a></td>
 	<td class="summary">Change the mode of the path.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#fstat">fstat (fd)</a></td>
+	<td class="summary">Information about a file descriptor.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#lstat">lstat (path)</a></td>
@@ -381,7 +384,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          existing file path to act on
         </li>
         <li><span class="parameter">mode</span>
@@ -401,7 +404,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -416,9 +419,47 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
-  <span class="keyword">local</span> sys_stat = <span class="global">require</span> <span class="string">"posix.sys.stat"</span>
-  sys_stat.chmod (<span class="string">'bin/dof'</span>, bit.bor (sys_stat.S_IRWXU, sys_stat.S_IRGRP))</pre>
+        <pre class="example"><span class="keyword">local</span> sys_stat = <span class="global">require</span> <span class="string">"posix.sys.stat"</span>
+sys_stat.chmod (<span class="string">'bin/dof'</span>, bit.bor (sys_stat.S_IRWXU, sys_stat.S_IRGRP))</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "fstat"></a>
+    <strong>fstat (fd)</strong>
+    </dt>
+    <dd>
+    Information about a file descriptor.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         file descriptor to act on
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/posix.sys.stat.html#PosixStat">PosixStat</a></span>
+        information about <em>fd</em>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/fstat.html">fstat(2)</a></li>
+         <li><a href="../modules/posix.sys.stat.html"></a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> fcntl = <span class="global">require</span> <span class="string">"posix.fcntl"</span>
+<span class="keyword">local</span> sys_stat = <span class="global">require</span> <span class="string">"posix.sys.stat"</span>
+<span class="keyword">local</span> fd = <span class="global">assert</span>(fcntl.open(<span class="string">"/etc/hostname"</span>, fcntl.O_RDONLY))
+<span class="keyword">for</span> a, b <span class="keyword">in</span> <span class="global">pairs</span> (sys_stat.fstat(fd)) <span class="keyword">do</span> <span class="global">print</span> (a, b) <span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -434,7 +475,7 @@ If file is a symbolic link, return information about the link itself.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          file to act on
         </li>
     </ul>
@@ -455,9 +496,8 @@ If file is a symbolic link, return information about the link itself.
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
-  <span class="keyword">local</span> sys_stat = <span class="global">require</span> <span class="string">"posix.sys.stat"</span>
-  <span class="keyword">for</span> a, b <span class="keyword">in</span> <span class="global">pairs</span> (sys_stat.lstat <span class="string">"/etc/"</span>) <span class="keyword">do</span> <span class="global">print</span> (a, b) <span class="keyword">end</span></pre>
+        <pre class="example"><span class="keyword">local</span> sys_stat = <span class="global">require</span> <span class="string">"posix.sys.stat"</span>
+<span class="keyword">for</span> a, b <span class="keyword">in</span> <span class="global">pairs</span> (sys_stat.lstat <span class="string">"/etc/"</span>) <span class="keyword">do</span> <span class="global">print</span> (a, b) <span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -472,7 +512,7 @@ If file is a symbolic link, return information about the link itself.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          location in file system to create directory
         </li>
         <li><span class="parameter">mode</span>
@@ -493,7 +533,7 @@ If file is a symbolic link, return information about the link itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -519,7 +559,7 @@ If file is a symbolic link, return information about the link itself.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          location in file system to create fifo
         </li>
         <li><span class="parameter">mode</span>
@@ -540,7 +580,7 @@ If file is a symbolic link, return information about the link itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -567,7 +607,7 @@ If file is a symbolic link, return information about the file the link points to
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          file to act on
         </li>
     </ul>
@@ -588,9 +628,8 @@ If file is a symbolic link, return information about the file the link points to
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
-  <span class="keyword">local</span> sys_stat = <span class="global">require</span> <span class="string">"posix.sys.stat"</span>
-  <span class="keyword">for</span> a, b <span class="keyword">in</span> <span class="global">pairs</span> (sys_stat.stat <span class="string">"/etc/"</span>) <span class="keyword">do</span> <span class="global">print</span> (a, b) <span class="keyword">end</span></pre>
+        <pre class="example"><span class="keyword">local</span> sys_stat = <span class="global">require</span> <span class="string">"posix.sys.stat"</span>
+<span class="keyword">for</span> a, b <span class="keyword">in</span> <span class="global">pairs</span> (sys_stat.stat <span class="string">"/etc/"</span>) <span class="keyword">do</span> <span class="global">print</span> (a, b) <span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -810,13 +849,12 @@ Any constants not available in the underlying system will be <code>nil</code> va
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
-  <span class="comment">-- Print stat constants supported on this host.
-</span>  <span class="keyword">for</span> name, value <span class="keyword">in</span> <span class="global">pairs</span> (<span class="global">require</span> <span class="string">"posix.sys.stat"</span>) <span class="keyword">do</span>
-    <span class="keyword">if</span> <span class="global">type</span> (value) == <span class="string">"number"</span> <span class="keyword">then</span>
-      <span class="global">print</span> (name, value)
-     <span class="keyword">end</span>
-  <span class="keyword">end</span></pre>
+        <pre class="example"><span class="comment">-- Print stat constants supported on this host.
+</span><span class="keyword">for</span> name, value <span class="keyword">in</span> <span class="global">pairs</span> (<span class="global">require</span> <span class="string">"posix.sys.stat"</span>) <span class="keyword">do</span>
+  <span class="keyword">if</span> <span class="global">type</span> (value) == <span class="string">"number"</span> <span class="keyword">then</span>
+    <span class="global">print</span> (name, value)
+   <span class="keyword">end</span>
+<span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -826,8 +864,8 @@ Any constants not available in the underlying system will be <code>nil</code> va
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2016-03-06 15:33:23 </i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-05-06 11:50:52 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 33.4.0 Reference</title>
+    <title>luaposix 34.0 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 33.4.0</h1>
+<h1>luaposix 34.0</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -33,19 +33,19 @@
 <h2>Contents</h2>
 <ul>
 <li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
 <li><a href="#Constants">Constants </a></li>
 </ul>
 
 
 <h2>Modules</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../modules/posix.html">posix</a></li>
   <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
   <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
   <li><a href="../modules/posix.errno.html">posix.errno</a></li>
   <li><a href="../modules/posix.fcntl.html">posix.fcntl</a></li>
   <li><a href="../modules/posix.fnmatch.html">posix.fnmatch</a></li>
-  <li><a href="../modules/posix.getopt.html">posix.getopt</a></li>
   <li><a href="../modules/posix.glob.html">posix.glob</a></li>
   <li><a href="../modules/posix.grp.html">posix.grp</a></li>
   <li><a href="../modules/posix.libgen.html">posix.libgen</a></li>
@@ -71,7 +71,7 @@
   <li><a href="../modules/posix.utime.html">posix.utime</a></li>
 </ul>
 <h2>Examples</h2>
-<ul class="$(kind=='Topics' and '' or 'nowrap'">
+<ul class="nowrap">
   <li><a href="../examples/abstract-ns-client.lua.html">abstract-ns-client.lua</a></li>
   <li><a href="../examples/abstract-ns-server.lua.html">abstract-ns-server.lua</a></li>
   <li><a href="../examples/dir.lua.html">dir.lua</a></li>
@@ -107,6 +107,12 @@
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
+	<td class="name" nowrap><a href="#msgctl">msgctl (id, cmd)</a></td>
+	<td class="summary">
+
+</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#msgget">msgget (key[, flags=0])</a></td>
 	<td class="summary">Get a message queue identifier</td>
 	</tr>
@@ -117,6 +123,13 @@
 	<tr>
 	<td class="name" nowrap><a href="#msgsnd">msgsnd (id, type, message[, flags=0])</a></td>
 	<td class="summary">Send message to a message queue</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#PosixMsqid">PosixMsqid</a></td>
+	<td class="summary">Message queue record.</td>
 	</tr>
 </table>
 <h2><a href="#Constants">Constants </a></h2>
@@ -134,6 +147,69 @@
     <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
+    <dt>
+    <a name = "msgctl"></a>
+    <strong>msgctl (id, cmd)</strong>
+    </dt>
+    <dd>
+
+
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+            <span class="types"><span class="type">int</span></span>
+         message queue identifier returned by <a href="../modules/posix.sys.msg.html#msgget">msgget</a>
+        </li>
+        <li><span class="parameter">cmd</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>IPC_STAT</code>, <code>IPC_SET</code> or <code>IPC_RMID</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/posix.sys.msg.html#PosixMsqid">PosixMsqid</a></span>
+        table for <em>id</em>, with <code>IPC_STAT</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+
+           <span class="types"><span class="type">non-nil,</span></span>
+        with <code>IPC_SET</code> or <code>IPC_RMID</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">nil</span></span>
+        otherwise</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/msgctl.html">msgctl(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> sysvmsg = <span class="global">require</span> <span class="string">'posix.sys.msg'</span>
+<span class="keyword">local</span> msq = sysvmsg.msgget(sysvmsg.IPC_PRIVATE)
+<span class="keyword">local</span> msqid, errmsg = sysvmsg.msgctl(msq, sysvmsg.IPC_STAT)
+<span class="global">assert</span>(msqid, errmsg)
+<span class="global">assert</span>(sysvmsg.msgctl(msq, sysvmsg.IPC_RMID))</pre>
+    </ul>
+
+</dd>
     <dt>
     <a name = "msgget"></a>
     <strong>msgget (key[, flags=0])</strong>
@@ -168,7 +244,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -219,7 +295,7 @@
            <span class="types"><span class="type">int</span></span>
         message type from <a href="../modules/posix.sys.msg.html#msgsnd">msgsnd</a></li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         message text, if successful</li>
     </ol>
      <h3>Or</h3>
@@ -227,7 +303,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -261,7 +337,7 @@
          arbitrary message type
         </li>
         <li><span class="parameter">message</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          content
         </li>
         <li><span class="parameter">flags</span>
@@ -282,7 +358,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -294,6 +370,55 @@
     <ul>
          <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/msgsnd.html">msgsnd(2)</a>
     </ul>
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "PosixMsqid"></a>
+    <strong>PosixMsqid</strong>
+    </dt>
+    <dd>
+    Message queue record.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">msg_qnum</span>
+            <span class="types"><span class="type">int</span></span>
+         number of messages on the queue
+        </li>
+        <li><span class="parameter">msg_qbytes</span>
+            <span class="types"><span class="type">int</span></span>
+         number of bytes allowed on the queue
+        </li>
+        <li><span class="parameter">msg_lspid</span>
+            <span class="types"><span class="type">int</span></span>
+         process id of last msgsnd
+        </li>
+        <li><span class="parameter">msg_lrpid</span>
+            <span class="types"><span class="type">int</span></span>
+         process id of last msgrcv
+        </li>
+        <li><span class="parameter">msg_stime</span>
+            <span class="types"><span class="type">int</span></span>
+         time of last msgsnd
+        </li>
+        <li><span class="parameter">msg_rtime</span>
+            <span class="types"><span class="type">int</span></span>
+         time of last msgrcv
+        </li>
+        <li><span class="parameter">msg_ctime</span>
+            <span class="types"><span class="type">int</span></span>
+         time of last change
+        </li>
+    </ul>
+
+
+
 
 
 </dd>
@@ -312,6 +437,18 @@ Any constants not available in the underlying system will be <code>nil</code> va
 
     <h3>Fields:</h3>
     <ul>
+        <li><span class="parameter">IPC_STAT</span>
+            <span class="types"><span class="type">int</span></span>
+         return a Msqid table from msgctl
+        </li>
+        <li><span class="parameter">IPC_SET</span>
+            <span class="types"><span class="type">int</span></span>
+         set the Msqid fields from msgctl
+        </li>
+        <li><span class="parameter">IPC_RMID</span>
+            <span class="types"><span class="type">int</span></span>
+         remove a message queue with msgctl
+        </li>
         <li><span class="parameter">IPC_CREAT</span>
             <span class="types"><span class="type">int</span></span>
          create entry if key does not exist
@@ -343,13 +480,12 @@ Any constants not available in the underlying system will be <code>nil</code> va
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example">
-  <span class="comment">-- Print msg constants supported on this host.
-</span>  <span class="keyword">for</span> name, value <span class="keyword">in</span> <span class="global">pairs</span> (<span class="global">require</span> <span class="string">"posix.sys.msg"</span>) <span class="keyword">do</span>
-    <span class="keyword">if</span> <span class="global">type</span> (value) == <span class="string">"number"</span> <span class="keyword">then</span>
-      <span class="global">print</span> (name, value)
-     <span class="keyword">end</span>
-  <span class="keyword">end</span></pre>
+        <pre class="example"><span class="comment">-- Print msg constants supported on this host.
+</span><span class="keyword">for</span> name, value <span class="keyword">in</span> <span class="global">pairs</span> (<span class="global">require</span> <span class="string">"posix.sys.msg"</span>) <span class="keyword">do</span>
+  <span class="keyword">if</span> <span class="global">type</span> (value) == <span class="string">"number"</span> <span class="keyword">then</span>
+    <span class="global">print</span> (name, value)
+   <span class="keyword">end</span>
+<span class="keyword">end</span></pre>
     </ul>
 
 </dd>
@@ -359,8 +495,8 @@ Any constants not available in the underlying system will be <code>nil</code> va
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2016-03-06 15:33:23 </i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-05-06 11:50:52 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
