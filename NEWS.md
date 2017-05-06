@@ -35,6 +35,9 @@
 
   - New `posix.unistd.ftruncate` and `posix.unistd.truncate` bindings.
 
+  - `posix.fcntl.fcntl` now accepts undocumented `posix.fcntl.O_TMPFILE`
+    value where supported by the host C library.
+
 
 ## Noteworthy changes in release 33.4.0 (2016-02-27) [stable]
 

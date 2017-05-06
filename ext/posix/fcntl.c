@@ -224,7 +224,6 @@ if they are usually bitwise ORed with other values, otherwise `nil`.
 @int O_RSYNC synchronise file read integrity
 @int O_SYNC synchronise file write integrity
 @int O_TRUNC truncate to zero length
-@int O_TMPFILE create an unnamed temporary file
 @int POSIX_FADV_NORMAL no advice
 @int POSIX_FADV_SEQUENTIAL expecting to access data sequentially
 @int POSIX_FADV_RANDOM expecting to access data randomly
