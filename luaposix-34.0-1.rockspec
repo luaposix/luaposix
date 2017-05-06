@@ -1,5 +1,5 @@
 package = 'luaposix'
-version = 'git-1'
+version = '34.0-1'
 
 description = {
   summary = 'Lua bindings for POSIX',
@@ -12,7 +12,8 @@ description = {
 }
 
 source = {
-  url = 'git://github.com/luaposix/luaposix.git',
+  dir = 'luaposix-34.0',
+  url = 'git://github.com/luaposix/luaposix/archive/v34.0.zip',
 }
 
 dependencies = {
