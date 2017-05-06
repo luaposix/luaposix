@@ -213,6 +213,31 @@ Plstat(lua_State *L)
 
 
 /***
+Information about a file descriptor.
+@function fstat
+@int fd file descriptor to act on
+@treturn PosixStat information about *fd*
+@see fstat(2)
+@see stat
+@usage
+  local fcntl = require "posix.fcntl"
+  local sys_stat = require "posix.sys.stat"
+  local fd = assert(fcntl.open("/etc/hostname", fcntl.O_RDONLY))
+  for a, b in pairs (sys_stat.fstat(fd)) do print (a, b) end
+*/
+static int
+Pfstat(lua_State *L)
+{
+	struct stat s;
+	int fd = checkint(L, 1);
+	checknargs(L, 1);
+	if (fstat(fd, &s) == -1)
+		return pusherror(L, "fstat");
+	return pushstat(L, &s);
+}
+
+
+/***
 Make a directory.
 @function mkdir
 @string path location in file system to create directory
@@ -303,6 +328,7 @@ static const luaL_Reg posix_sys_stat_fns[] =
 	LPOSIX_FUNC( PS_ISSOCK		),
 	LPOSIX_FUNC( Pchmod		),
 	LPOSIX_FUNC( Plstat		),
+	LPOSIX_FUNC( Pfstat		),
 	LPOSIX_FUNC( Pmkdir		),
 	LPOSIX_FUNC( Pmkfifo		),
 	LPOSIX_FUNC( Pstat		),

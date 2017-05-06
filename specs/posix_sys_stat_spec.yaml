@@ -141,6 +141,102 @@ specify posix.sys.stat:
       expect (blocks).to_be (lstat (dir .. "/hard").st_blocks)
 
 
+- describe fstat:
+  - before:
+      fc = require "posix.fcntl"
+
+      fd_dir = fc.open (dir, fc.O_RDONLY)
+      fd_file = fc.open (dir .. "/file", fc.O_RDONLY)
+      fd_hard = fc.open (dir .. "/hard", fc.O_RDONLY)
+      fd_fifo = fc.open (dir .. "/fifo", bor (fc.O_RDONLY, fc.O_NONBLOCK))
+      fd_subdir = fc.open (dir .. "/subdir", fc.O_RDONLY)
+
+      -- choose a format without seconds, that won't cause a race condition
+      fmt = "%b %d %H:%M"
+      now = os.date (fmt)
+      getegid, geteuid = posix.getegid, posix.geteuid
+
+      fstat = st.fstat
+
+  - context with bad arguments:
+      badargs.diagnose (fstat, "(int)")
+
+  - it returns a PosixStat:
+      expect (prototype (fstat (fd_file))).to_be "PosixStat"
+  - it fetches the device id:
+      dev = fstat (fd_file).st_dev
+      expect (type (dev)).to_be "number"
+      expect (dev >= 0).to_be (true)
+      expect (dev).to_be (fstat (fd_dir).st_dev)
+  - it fetches the file inode:
+      ino = fstat (fd_file).st_ino
+      expect (type (ino)).to_be "number"
+      expect (ino >= 0).to_be (true)
+      expect (ino).to_be (fstat (fd_hard).st_ino)
+  - context with file mode:
+    - it fetches the file access mode:
+        mode = fstat (fd_dir).st_mode
+        expect (type (mode)).to_be "number"
+        expect (band (mode, S_IRWXU)).to_be (S_IRWXU)
+    - it recognises directories:
+        expect (S_ISBLK (fstat (fd_dir).st_mode)).to_be (0)
+        expect (S_ISCHR (fstat (fd_dir).st_mode)).to_be (0)
+        expect (S_ISDIR (fstat (fd_dir).st_mode)).not_to_be (0)
+        expect (S_ISFIFO (fstat (fd_dir).st_mode)).to_be (0)
+        expect (S_ISREG (fstat (fd_dir).st_mode)).to_be (0)
+        expect (S_ISLNK (fstat (fd_dir).st_mode)).to_be (0)
+        expect (S_ISSOCK (fstat (fd_dir).st_mode)).to_be (0)
+    - it recognises fifos:
+        expect (S_ISBLK (fstat (fd_fifo).st_mode)).to_be (0)
+        expect (S_ISCHR (fstat (fd_fifo).st_mode)).to_be (0)
+        expect (S_ISDIR (fstat (fd_fifo).st_mode)).to_be (0)
+        expect (S_ISFIFO (fstat (fd_fifo).st_mode)).not_to_be (0)
+        expect (S_ISREG (fstat (fd_fifo).st_mode)).to_be (0)
+        expect (S_ISLNK (fstat (fd_fifo).st_mode)).to_be (0)
+        expect (S_ISSOCK (fstat (fd_fifo).st_mode)).to_be (0)
+    - it recognises regular files:
+        expect (S_ISBLK (fstat (fd_file).st_mode)).to_be (0)
+        expect (S_ISCHR (fstat (fd_file).st_mode)).to_be (0)
+        expect (S_ISDIR (fstat (fd_file).st_mode)).to_be (0)
+        expect (S_ISFIFO (fstat (fd_file).st_mode)).to_be (0)
+        expect (S_ISREG (fstat (fd_file).st_mode)).not_to_be (0)
+        expect (S_ISLNK (fstat (fd_file).st_mode)).to_be (0)
+        expect (S_ISSOCK (fstat (fd_file).st_mode)).to_be (0)
+  - it fetches the number of links:
+      expect (fstat (fd_file).st_nlink).to_be (2)
+      expect (fstat (fd_hard).st_nlink).
+        to_be (fstat (fd_file).st_nlink)
+      expect (fstat (fd_subdir).st_nlink).to_be (3)
+  - it fetches the owner id:
+      expect (fstat (fd_file).st_uid).to_be (geteuid ())
+      expect (fstat (fd_subdir).st_uid).to_be (geteuid ())
+  - it fetches the owner group id:
+      expect (fstat (fd_file).st_gid).to_be (getegid ())
+      expect (fstat (fd_subdir).st_gid).to_be (getegid ())
+  - it fetches the device special file id:
+      pending "mknod not yet bound"
+  - it fetches the file size:
+      # skip directory size, which is system dependent
+      expect (fstat (fd_file).st_size).to_be (0)
+      expect (fstat (fd_hard).st_size).to_be (fstat (fd_file).st_size)
+  - it fetches the file access time:
+      expect (os.date (fmt, fstat (fd_file).st_atime)).to_be (os.date (fmt))
+  - it fetches the file modification time:
+      expect (os.date (fmt, fstat (fd_file).st_mtime)).to_be (now)
+  - it fetches the file change time:
+      expect (os.date (fmt, fstat (fd_file).st_ctime)).to_be (now)
+  - it fetches the device block size:
+      blksize = fstat (fd_file).st_blksize
+      expect (type (blksize)).to_be "number"
+      expect (blksize > 0).to_be (true)
+      expect (blksize).to_be (fstat (fd_hard).st_blksize)
+  - it fetches the number of blocks:
+      blocks = fstat (fd_file).st_blocks
+      expect (type (blocks)).to_be "number"
+      expect (blocks >= 0).to_be (true)
+      expect (blocks).to_be (fstat (fd_hard).st_blocks)
+
+
 - describe mkdir:
   - before:
       dir = posix.mkdtemp (template)
