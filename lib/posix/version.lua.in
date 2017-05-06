@@ -1,1 +1,1 @@
-return 'posix for ' .. _VERSION .. ' / @PACKAGE@ @VERSION@'
+return 'posix for ' .. _VERSION .. ' / @package@ @version@'

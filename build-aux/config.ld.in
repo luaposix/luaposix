@@ -1,6 +1,6 @@
 -- -*- lua -*-
-title = "@PACKAGE@ @VERSION@ Reference"
-project = "@PACKAGE@ @VERSION@"
+title = "@package@ @version@ Reference"
+project = "@package@ @version@"
 description = "POSIX bindings for Lua"
 
 tparam_alias "string"

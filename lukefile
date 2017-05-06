@@ -76,8 +76,8 @@ modules  = {
    ['posix.sys.resource']  = 'ext/posix/sys/resource.c',
    ['posix.sys.socket']    = {
       defines    = {
-         HAVE_NET_IF_H     = {checkheader='net/if.h', includes='sys/socket.h'},
-         HAVE_NETLINK_H    = {checkheader='linux/netlink.h', includes='sys/socket.h'},
+         HAVE_NET_IF_H     = {checkheader='net/if.h', include='sys/socket.h'},
+         HAVE_NETLINK_H    = {checkheader='linux/netlink.h', include='sys/socket.h'},
       },
       external_dependencies   = {
          SOCKET            = {checksymbol='socket', library='socket'},
@@ -108,7 +108,7 @@ modules  = {
       defines = {
          HAVE_CRYPT           = {checkfunc='crypt'},
          HAVE_CRYPT_H         = {checkheader='crypt.h'},
-         HAVE_DECL_FDATASYNC  = {checkdecl='fdatasync', includes='unistd.h'},
+         HAVE_DECL_FDATASYNC  = {checkdecl='fdatasync', include='unistd.h'},
          HAVE_FDATASYNC       = {checkfunc='fdatasync'},
          HAVE_GETHOSTID       = {checkfunc='gethostid'},
       },
