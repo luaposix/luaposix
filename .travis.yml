@@ -2,14 +2,7 @@ language: python
 
 sudo: false
 
-addons:
-  apt:
-    packages:
-      - help2man
-
 env:
-  global:
-    - _inst=$TRAVIS_BUILD_DIR/_inst
   matrix:
     - VLUA="lua=5.3"
     - VLUA="lua=5.2"
@@ -25,29 +18,17 @@ before_install:
 
 
 install:
-  # Use Lua 5.3 compatible rocks, where available.
-  - 'for rock in ansicolors ldoc specl""; do
-       if test -z "$rock"; then break; fi;
-       if luarocks list | grep "^$rock$" >/dev/null; then continue; fi;
-       luarocks install --server=http://rocks.moonscript.org/manifests/gvvaughan $rock;
-    done'
-
-  # Build from rockspec, forcing uninstall of older luarocks installed
-  # above when testing the git rockspec, both for enforcing backwards
-  # compatibility by default, and for ease of maintenance.
-  - if test -f 'luaposix-33.4.0-1.rockspec'; then
-      luarocks make 'luaposix-33.4.0-1.rockspec';
-    else
-      luarocks make --force 'luaposix-git-1.rockspec';
-    fi
-
+  - luarocks install ldoc
+  - luarocks install ansicolors
+  - luarocks install specl
+  - luarocks install luacov
 
 script:
-  - build-aux/luke
-    LUA=`pwd`/here/bin/lua
-    LUA_INCDIR=`pwd`/here/include
-    PREFIX="$_inst" all install
+  - luarocks make --force LUA_INCDIR=$PWD/here/include
+  - VERSION=git-1 specl -vfreport --coverage specs/*_spec.yaml
 
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -f luacov.report.out
 
 notifications:
   slack: aspirinc:JyWeNrIdS0J5nf2Pn2BS1cih
