@@ -1109,8 +1109,16 @@ static int
 Pttyname(lua_State *L)
 {
 	int fd=optint(L, 1, 0);
+	char *name;
 	checknargs(L, 1);
-	return pushstringresult(ttyname(fd));
+	name = ttyname(fd);
+	if (name != NULL)
+		return pushstringresult(name);
+	if (errno != 0)
+		return pusherror(L, "ttyname");
+	lua_pushnil(L);
+	lua_pushliteral(L, "not a tty");
+	return 2;
 }
 
 

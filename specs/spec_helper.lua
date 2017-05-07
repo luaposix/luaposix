@@ -129,3 +129,8 @@ end
 function init (M, fname)
   return M[fname], function (...) return typeerrors (fname, ...) end
 end
+
+
+pack = table.pack or function(...)
+  return {n=select("#", ...), ...}
+end

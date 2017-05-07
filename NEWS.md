@@ -38,6 +38,11 @@
   - `posix.fcntl.fcntl` now accepts undocumented `posix.fcntl.O_TMPFILE`
     value where supported by the host C library.
 
+### Bugs Fixed
+
+  - `posix.unistd.ttyname` now returns an error message in addition to
+    `nil` when it fails.
+
 
 ## Noteworthy changes in release 33.4.0 (2016-02-27) [stable]
 
