@@ -267,6 +267,13 @@ luaopen_posix_fcntl(lua_State *L)
 #ifdef AT_SYMLINK_NOFOLLOW
 	LPOSIX_CONST( AT_SYMLINK_NOFOLLOW	);
 #endif
+	/* Linux-specific *at flags */
+#ifdef AT_EMPTY_PATH
+	LPOSIX_CONST( AT_EMPTY_PATH	);
+#endif
+#ifdef AT_NO_AUTOMOUNT
+	LPOSIX_CONST( AT_NO_AUTOMOUNT	);
+#endif
 
 	/* fcntl flags */
 	LPOSIX_CONST( FD_CLOEXEC	);
