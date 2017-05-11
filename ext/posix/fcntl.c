@@ -18,9 +18,9 @@
 @module posix.fcntl
 */
 
-#include <fcntl.h>
-
 #include "_helpers.c"
+
+#include <fcntl.h>
 
 
 /* Darwin fails to define O_RSYNC. */
