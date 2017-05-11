@@ -791,6 +791,34 @@ Plink(lua_State *L)
 	return pushresult(L, (symbolicp ? symlink : link)(oldpath, newpath), NULL);
 }
 
+
+/***
+Create a link at specified directory.
+@function linkat
+@int targetdir fd
+@string target name
+@int linkdir fd
+@string link name
+@int flags
+@treturn[1] int `0`, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see linkat(2)
+*/
+static int
+Plinkat(lua_State *L)
+{
+	int olddirfd = checkint(L, 1);
+	const char *oldpath = luaL_checkstring(L, 2);
+	int newdirfd = checkint(L, 3);
+	const char *newpath = luaL_checkstring(L, 4);
+	int flags = checkint(L, 5);
+	checknargs(L, 5);
+	return pushresult(L, linkat(olddirfd, oldpath, newdirfd, newpath, flags), NULL);
+}
+
+
 /***
 reposition read/write file offset
 @function lseek
@@ -1280,6 +1308,7 @@ static const luaL_Reg posix_unistd_fns[] =
 	LPOSIX_FUNC( Plchown		),
 #endif
 	LPOSIX_FUNC( Plink		),
+	LPOSIX_FUNC( Plinkat		),
 	LPOSIX_FUNC( Plseek		),
 	LPOSIX_FUNC( Pnice		),
 	LPOSIX_FUNC( Ppathconf		),
