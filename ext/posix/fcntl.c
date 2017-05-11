@@ -197,6 +197,11 @@ Fcntl constants.
 Any constants not available in the underlying system will be `0` valued,
 if they are usually bitwise ORed with other values, otherwise `nil`.
 @table posix.fcntl
+@int AT_EACCESS test access permitted for effective IDs, not real IDs
+@int AT_FDCWD indicate *at functions to use current directory
+@int AT_REMOVEDIR remove directory instead of unlinking file
+@int AT_SYMLINK_FOLLOW follow symbolic links
+@int AT_SYMLINK_NOFOLLOW do not follow symbolic links
 @int FD_CLOEXEC close file descriptor on exec flag
 @int F_DUPFD duplicate file descriptor
 @int F_GETFD get file descriptor flags
@@ -245,6 +250,23 @@ luaopen_posix_fcntl(lua_State *L)
 	luaL_register(L, "posix.fcntl", posix_fcntl_fns);
 	lua_pushstring(L, LPOSIX_VERSION_STRING("fcntl"));
 	lua_setfield(L, -2, "version");
+
+	/* posix *at flags */
+#ifdef AT_EACCESS
+	LPOSIX_CONST( AT_EACCESS		);
+#endif
+#ifdef AT_FDCWD
+	LPOSIX_CONST( AT_FDCWD			);
+#endif
+#ifdef AT_REMOVEDIR
+	LPOSIX_CONST( AT_REMOVEDIR		);
+#endif
+#ifdef AT_SYMLINK_FOLLOW
+	LPOSIX_CONST( AT_SYMLINK_FOLLOW		);
+#endif
+#ifdef AT_SYMLINK_NOFOLLOW
+	LPOSIX_CONST( AT_SYMLINK_NOFOLLOW	);
+#endif
 
 	/* fcntl flags */
 	LPOSIX_CONST( FD_CLOEXEC	);
