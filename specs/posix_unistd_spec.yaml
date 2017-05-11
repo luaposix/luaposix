@@ -189,6 +189,51 @@ specify posix.unistd:
       badargs.diagnose (unistd.lchown, "(string, ?string|int, ?string|int)")
 
 
+- describe link:
+  - before:
+      link = unistd.link
+
+      st = require "posix.sys.stat"
+      lstat = st.lstat
+      S_ISREG, S_ISLNK = st.S_ISREG, st.S_ISLNK
+
+      dir = posix.mkdtemp (template)
+      touch (dir .. "/file")
+
+  - after:
+      rmtmp (dir)
+
+  - context with bad arguments:
+      badargs.diagnose (link, "(string, string, ?boolean)")
+
+  - it creates hard link without optional param:
+      st_before = lstat (dir .. "/file")
+      link (dir .. "/file", dir .. "/hard")
+      st_after = lstat (dir .. "/file")
+      st_link = lstat (dir .. "/hard")
+      expect (st_before.st_nlink + 1).to_be(st_after.st_nlink)
+      expect (st_after.st_nlink).to_be(st_link.st_nlink)
+      expect (S_ISREG (st_link.st_mode)).not_to_be(0)
+      expect (S_ISLNK (st_link.st_mode)).to_be(0)
+  - it creates hard link with optional param:
+      st_before = lstat (dir .. "/file")
+      link (dir .. "/file", dir .. "/hard", false)
+      st_after = lstat (dir .. "/file")
+      st_link = lstat (dir .. "/hard")
+      expect (st_before.st_nlink + 1).to_be(st_after.st_nlink)
+      expect (st_after.st_nlink).to_be(st_link.st_nlink)
+      expect (S_ISREG (st_link.st_mode)).not_to_be(0)
+      expect (S_ISLNK (st_link.st_mode)).to_be(0)
+  - it creates soft link:
+      st_before = lstat (dir .. "/file")
+      link (dir .. "/file", dir .. "/soft", true)
+      st_after = lstat (dir .. "/file")
+      st_link = lstat (dir .. "/soft")
+      expect (st_before.st_nlink).to_be(st_after.st_nlink)
+      expect (S_ISREG (st_link.st_mode)).to_be(0)
+      expect (S_ISLNK (st_link.st_mode)).not_to_be(0)
+
+
 - describe pathconf:
   - before:
       pathconf = unistd.pathconf
