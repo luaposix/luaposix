@@ -1,5 +1,12 @@
 # luaposix NEWS - User visible changes
 
+## Noteworthy changes in release ?.? (????-??-??) [?]
+
+### Bugs Fixed
+
+  - `posix.sys.socket` works correctly on macOS again.
+
+
 ## Noteworthy changes in release 34.0 (2017-05-06) [stable]
 
 ### Incompatible Changes

@@ -825,11 +825,7 @@ Pgetsockopt(lua_State *L)
 		return pusherror(L, "getsockopt");
 	}
 
-	if (val == &ifname)
-	{
-		lua_pushlstring(L, ifname, len);
-	}
-	else if (val == &tv)
+	if (val == &tv)
 	{
 		lua_createtable(L, 0, 2);
 		pushintegerfield("tv_sec", tv.tv_sec);
@@ -838,11 +834,17 @@ Pgetsockopt(lua_State *L)
 	}
 	else if (val == &linger)
 	{
-	lua_createtable(L, 0, 2);
+		lua_createtable(L, 0, 2);
 		pushintegerfield("l_linger", linger.l_linger);
 		pushintegerfield("l_onoff", linger.l_onoff);
 		settypemetatable("PosixLinger");
 	}
+#ifdef SO_BINDTODEVICE
+	else if (val == &ifname)
+	{
+		lua_pushlstring(L, ifname, len);
+	}
+#endif
 	else {
 		lua_pushinteger(L, vint);
 	}
