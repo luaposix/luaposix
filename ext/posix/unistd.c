@@ -1190,6 +1190,46 @@ Ptcsetpgrp(lua_State *L)
 #endif
 
 
+#if LPOSIX_2001_COMPLIANT
+/***
+Get id of foreground process group of terminal *fd*.
+@function tcgetpgrp
+@int fd the file descriptor of the controlling terminal of the current process
+@treturn[1] int id of foreground process group
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see tcgetpgrp(2)
+*/
+static int
+Ptcgetpgrp(lua_State *L)
+{
+	int fd = checkint(L, 1);
+	return pushresult(L, tcgetpgrp(fd), NULL);
+}
+
+
+/***
+Make process group *pgid* the foreground process group of terminal *fd*.
+@function tcsetpgrp
+@int fd the file descriptor of the controlling terminal of the current process
+@int pgid id of the process group to make foreground process group
+@treturn[1] int 0, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see tcsetpgrp(2)
+*/
+static int
+Ptcsetpgrp(lua_State *L)
+{
+	int fd = checkint(L, 1);
+	int pgid = checkint(L, 2);
+	return pushresult(L, tcsetpgrp(fd, pgid), NULL);
+}
+#endif
+
+
 /***
 Unlink a file.
 @function unlink
