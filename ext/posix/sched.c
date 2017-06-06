@@ -26,6 +26,8 @@
 #include <sched.h>
 #endif
 
+#include <pthread.h>
+
 #include "_helpers.c"
 
 
