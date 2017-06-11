@@ -38,20 +38,16 @@ static int
 Popenlog(lua_State *L)
 {
 	static char *lua_ident = NULL;
-	const char *ident = luaL_checkstring(L, 1);
+	char *ident = strdup(luaL_checkstring(L, 1));
 	int option = optint(L, 2, 0);
 	int facility = optint(L, 3, LOG_USER);
 	checknargs(L, 3);
-
-	if (lua_ident) {
+	if (ident == NULL)
+		return pusherror(L, "strdup");
+	openlog(ident, option, facility);
+	if (lua_ident)
 		free(lua_ident);
-		lua_ident = NULL;
-	}
-	if (ident) {
-		lua_ident = strdup(ident);
-	}
-
-	openlog(lua_ident, option, facility);
+	lua_ident = ident;
 	return 0;
 }
 
