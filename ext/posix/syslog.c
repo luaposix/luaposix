@@ -18,6 +18,8 @@
 #include "_helpers.c"		/* For LPOSIX_2001_COMPLIANT */
 
 #if LPOSIX_2001_COMPLIANT
+#include <stdlib.h>
+#include <string.h>
 #include <syslog.h>
 
 /***
@@ -35,11 +37,17 @@ Open the system logger.
 static int
 Popenlog(lua_State *L)
 {
-	const char *ident = luaL_checkstring(L, 1);
+	static char *lua_ident = NULL;
+	char *ident = strdup(luaL_checkstring(L, 1));
 	int option = optint(L, 2, 0);
 	int facility = optint(L, 3, LOG_USER);
 	checknargs(L, 3);
+	if (ident == NULL)
+		return pusherror(L, "strdup");
 	openlog(ident, option, facility);
+	if (lua_ident)
+		free(lua_ident);
+	lua_ident = ident;
 	return 0;
 }
 
