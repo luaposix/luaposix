@@ -6,15 +6,15 @@ defines  = {
    VERSION           = '"$version"',
    NDEBUG            = 1,
    _FORTIFY_SOURCE   = 2,
-   platforms   = {
-      aix      = {_ALL_SOURCE       = 1},
-      bsd      = {_BSD_SOURCE       = 1},
-      freebsd  = {__BSD_VISIBLE     = 1},
-      macosx   = {_DARWIN_C_SOURCE  = 1},
+   platforms    = {
+      aix       = {_ALL_SOURCE       = 1},
+      bsd       = {_BSD_SOURCE       = 1},
+      freebsd   = {__BSD_VISIBLE     = 1},
+      macosx    = {_DARWIN_C_SOURCE  = 1},
       -- QNX is only POSIX 2001, but _XOPEN_SOURCE turns off other functions
       -- luaposix can bind.
-      qnx      = {_POSIX_C_SOURCE   = '200112L'},
-      unix     = {
+      qnx       = {_POSIX_C_SOURCE   = '200112L'},
+      unix      = {
          _POSIX_C_SOURCE   = '200809L',
          _XOPEN_SOURCE     = 700,
       },
@@ -46,7 +46,7 @@ modules  = {
       defines  = {
          HAVE_POSIX_FADVISE   = {checkfunc='posix_fadvise'},
       },
-      sources  = 'ext/posix/fcntl.c',
+      sources   = 'ext/posix/fcntl.c',
    },
    ['posix.fnmatch']       = 'ext/posix/fnmatch.c',
    ['posix.glob']          = 'ext/posix/glob.c',
@@ -55,41 +55,41 @@ modules  = {
    ['posix.poll']          = 'ext/posix/poll.c',
    ['posix.pwd']           = 'ext/posix/pwd.c',
    ['posix.sched']         = {
-      defines    = {
+      defines   = {
          HAVE_SCHED_H            = {checkheader='sched.h'},
          HAVE_SCHED_GETSCHEDULER = {checkfunc='sched_getscheduler'},
          HAVE_SCHED_SETSCHEDULER = {checkfunc='sched_setscheduler'},
       },
-      sources  = 'ext/posix/sched.c',
+      sources   = 'ext/posix/sched.c',
    },
    ['posix.signal']        = 'ext/posix/signal.c',
    ['posix.stdio']         = 'ext/posix/stdio.c',
    ['posix.stdlib']        = 'ext/posix/stdlib.c',
    ['posix.sys.msg']       = {
-      defines    = {
+      defines   = {
          HAVE_SYS_MSG_H    = {checkheader='sys/msg.h'},
          HAVE_MSGRCV       = {checkfunc='msgrcv'},
          HAVE_MSGSND       = {checkfunc='msgsnd'},
       },
-      sources  = 'ext/posix/sys/msg.c',
+      sources   = 'ext/posix/sys/msg.c',
    },
    ['posix.sys.resource']  = 'ext/posix/sys/resource.c',
    ['posix.sys.socket']    = {
-      defines    = {
+      defines   = {
          HAVE_NET_IF_H     = {checkheader='net/if.h', include='sys/socket.h'},
          HAVE_NETLINK_H    = {checkheader='linux/netlink.h', include='sys/socket.h'},
       },
-      external_dependencies   = {
-         SOCKET            = {checksymbol='socket', library='socket'},
+      libraries = {
+         {checksymbol='socket', library='socket'},
       },
-      sources  = 'ext/posix/sys/socket.c',
+      sources   = 'ext/posix/sys/socket.c',
    },
    ['posix.sys.stat']      = 'ext/posix/sys/stat.c',
    ['posix.sys.statvfs']   = {
-      defines  = {
+      defines   = {
          HAVE_STATVFS      = {checkfunc='statvfs'},
       },
-      sources  = 'ext/posix/sys/statvfs.c',
+      sources   = 'ext/posix/sys/statvfs.c',
    },
    ['posix.sys.time']      = 'ext/posix/sys/time.c',
    ['posix.sys.times']     = 'ext/posix/sys/times.c',
@@ -98,24 +98,28 @@ modules  = {
    ['posix.syslog']        = 'ext/posix/syslog.c',
    ['posix.termio']        = 'ext/posix/termio.c',
    ['posix.time']          = {
-      external_dependencies   = {
-         -- FIXME: Make -lrt conditional on _XOPEN_REALTIME
-         RT    = {checksymbol='clock_gettime', library='rt'},
+      libraries = {
+         {
+            ifdef          = '_XOPEN_REALTIME',
+            include        = 'unistd.h',
+            checksymbol    = 'clock_gettime',
+            library        = 'rt',
+         },
       },
-      sources  = 'ext/posix/time.c',
+      sources   = 'ext/posix/time.c',
    },
    ['posix.unistd']        = {
-      defines = {
+      defines   = {
          HAVE_CRYPT           = {checkfunc='crypt'},
          HAVE_CRYPT_H         = {checkheader='crypt.h'},
          HAVE_DECL_FDATASYNC  = {checkdecl='fdatasync', include='unistd.h'},
          HAVE_FDATASYNC       = {checkfunc='fdatasync'},
          HAVE_GETHOSTID       = {checkfunc='gethostid'},
       },
-      external_dependencies   = {
-         CRYPT = {checksymbol='crypt', library='crypt'},
+      libraries = {
+         {checksymbol='crypt', library='crypt'},
       },
-      sources  = 'ext/posix/unistd.c',
+      sources   = 'ext/posix/unistd.c',
    },
    ['posix.utime']         = 'ext/posix/utime.c',
    ['posix.version']       = 'lib/posix/version.lua.in',
