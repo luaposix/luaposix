@@ -2,6 +2,9 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+
+## Noteworthy changes in release 34.0.1 (2017-07-09) [stable]
+
 ### Bugs Fixed
 
   - `posix.sys.socket` works correctly on macOS again.
@@ -11,6 +14,9 @@
   - `posix.syslog.openlog` keeps a copy of it's ident parameter string
     in the Lua registry to ensure we don't hang on to a dangling
     pointer.
+
+  - latest `build-aux/luke` and upgraded lukefile work correctly on
+    macOS now.
 
 
 ## Noteworthy changes in release 34.0 (2017-05-06) [stable]
