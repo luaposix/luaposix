@@ -6,6 +6,10 @@
 
   - `posix.sys.socket` works correctly on macOS again.
 
+  - `posix.syslog.openlog` keeps a copy of it's ident parameter string
+    in the Lua registry to ensure we don't hang on to a dangling
+    pointer.
+
 
 ## Noteworthy changes in release 34.0 (2017-05-06) [stable]
 

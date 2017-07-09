@@ -39,7 +39,15 @@ Popenlog(lua_State *L)
 	int option = optint(L, 2, 0);
 	int facility = optint(L, 3, LOG_USER);
 	checknargs(L, 3);
-	openlog(ident, option, facility);
+
+	/* Save the ident string in our registry slot. */
+	lua_pushlightuserdata(L, &Popenlog);
+	lua_pushstring(L, ident);
+	lua_rawset(L, LUA_REGISTRYINDEX);
+
+	/* Use another copy of the same interned string for openlog(). */
+	lua_pushstring(L, ident);
+	openlog(lua_tostring(L, -1), option, facility);
 	return 0;
 }
 
