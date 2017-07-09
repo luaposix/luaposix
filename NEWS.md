@@ -6,6 +6,8 @@
 
   - `posix.sys.socket` works correctly on macOS again.
 
+  - `posix.sys.socket` abstract namespaces work correctly on Linux.
+
   - `posix.syslog.openlog` keeps a copy of it's ident parameter string
     in the Lua registry to ensure we don't hang on to a dangling
     pointer.

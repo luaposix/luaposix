@@ -229,32 +229,32 @@ sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *sa, socklen_
 		case AF_UNIX:
 		{
 			struct sockaddr_un *sau	= (struct sockaddr_un *)sa;
-			size_t len;
-			const char *path	= checklstringfield(L, index, "path", &len);
+			size_t bufsize		= sizeof(sau->sun_path);
+			size_t pathlen;
+			const char *path	= checklstringfield(L, index, "path", &pathlen);
 
 			checkfieldnames (L, index, Safunix_fields);
 
-			if (len > sizeof(sau->sun_path)) len = sizeof(sau->sun_path);
+			if (pathlen > bufsize) pathlen = bufsize;
+			memcpy(sau->sun_path, path, pathlen);
 
-			sau->sun_family	= family;
-			memcpy(sau->sun_path, path, len);
-			sau->sun_path[sizeof(sau->sun_path) - 1]= '\0';
-			*addrlen	= sizeof(*sau);
-			r		= 0;
+			sau->sun_family		= family;
+			*addrlen		= sizeof(*sau) - bufsize + pathlen;
+			r			= 0;
 			break;
 		}
 #if HAVE_LINUX_NETLINK_H
 		case AF_NETLINK:
 		{
 			struct sockaddr_nl *san	= (struct sockaddr_nl *)sa;
-			san->nl_family	= family;
-			san->nl_pid	= checkintfield(L, index, "pid");
-			san->nl_groups	= checkintfield(L, index, "groups");
-			*addrlen	= sizeof(*san);
+			san->nl_family		= family;
+			san->nl_pid		= checkintfield(L, index, "pid");
+			san->nl_groups		= checkintfield(L, index, "groups");
+			*addrlen		= sizeof(*san);
 
 			checkfieldnames (L, index, Safnetlink_fields);
 
-			r		= 0;
+			r			= 0;
 			break;
 		}
 #endif
