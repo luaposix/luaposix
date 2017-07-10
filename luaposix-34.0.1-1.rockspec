@@ -1,4 +1,4 @@
-local _MODREV, _SPECREV = 'git', '-1'
+local _MODREV, _SPECREV = '34.0.1', '-1'
 
 package = 'luaposix'
 version = _MODREV .. _SPECREV
@@ -14,15 +14,13 @@ description = {
 }
 
 source = {
-   url = 'git://github.com/luaposix/luaposix.git',
--- url = 'http://github.com/luaposix/luaposix/archive/v' .. _MODREV .. '.zip',
--- dir = 'luaposix-' .. _MODREV,  
+   url = 'http://github.com/luaposix/luaposix/archive/v' .. _MODREV .. '.zip',
+   dir = 'luaposix-' .. _MODREV,  
 }
 
 dependencies = {
    'lua >= 5.1, < 5.4',
    'bit32',
-   'ldoc',
 }
 
 build = {
