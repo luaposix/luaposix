@@ -40,7 +40,7 @@ build = {
       .. ' INST_LIBDIR="$(LIBDIR)"'
       .. ' INST_LUADIR="$(LUADIR)"'
       ,
-   install_command = 'build-aux/luke install --quiet'
+   install_command = '$(LUA) build-aux/luke install --quiet'
       .. ' INST_LIBDIR="$(LIBDIR)"'
       .. ' INST_LUADIR="$(LUADIR)"'
       ,
