@@ -1,4 +1,4 @@
-local _MODREV, _SPECREV = '34.0.1', '-2'
+local _MODREV, _SPECREV = '34.0.1', '-3'
 
 package = 'luaposix'
 version = _MODREV .. _SPECREV
@@ -38,7 +38,7 @@ build = {
       .. ' INST_LIBDIR="$(LIBDIR)"'
       .. ' INST_LUADIR="$(LUADIR)"'
       ,
-   install_command = 'build-aux/luke install --quiet'
+   install_command = '$(LUA) build-aux/luke install --quiet'
       .. ' INST_LIBDIR="$(LIBDIR)"'
       .. ' INST_LUADIR="$(LUADIR)"'
       ,
