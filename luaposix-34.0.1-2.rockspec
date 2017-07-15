@@ -1,4 +1,4 @@
-local _MODREV, _SPECREV = '34.0.1', '-1'
+local _MODREV, _SPECREV = '34.0.1', '-2'
 
 package = 'luaposix'
 version = _MODREV .. _SPECREV
@@ -25,7 +25,7 @@ dependencies = {
 
 build = {
    type = 'command',
-   build_command = 'build-aux/luke'
+   build_command = '$(LUA) build-aux/luke'
       .. ' package="' .. package .. '"'
       .. ' version="' .. version .. '"'
       .. ' PREFIX="$(PREFIX)"'
