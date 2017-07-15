@@ -27,7 +27,7 @@ dependencies = {
 
 build = {
    type = 'command',
-   build_command = 'build-aux/luke'
+   build_command = '$(LUA) build-aux/luke'
       .. ' package="' .. package .. '"'
       .. ' version="' .. version .. '"'
       .. ' PREFIX="$(PREFIX)"'
