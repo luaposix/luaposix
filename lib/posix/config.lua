@@ -1,4 +1,4 @@
-local mod = {}
-mod._DEBUG = false
+local M = {}
+M._DEBUG = false
 
-return mod
+return M
