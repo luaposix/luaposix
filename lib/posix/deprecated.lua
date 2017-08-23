@@ -111,7 +111,7 @@ end
 
 
 local M = {}
-
+local _DEBUG = require "posix.config"._DEBUG
 
 --- Bind an address to a socket.
 -- @function bind
