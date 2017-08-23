@@ -19,7 +19,7 @@
 
 local bit = require "bit32"
 local M = {}
-
+local _DEBUG = require "posix.config"._DEBUG
 
 -- For backwards compatibility, copy all table entries into M namespace.
 for _, sub in ipairs {
