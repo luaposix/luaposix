@@ -111,7 +111,7 @@ end
 
 
 local M = {}
-
+M.conf = { _DEBUG = false }
 
 --- Bind an address to a socket.
 -- @function bind
@@ -165,7 +165,7 @@ end
 
 if _clock_getres == nil then
   -- Not supported by underlying system
-elseif _DEBUG ~= false then
+elseif M.conf._DEBUG ~= false then
   M.clock_getres = function (...)
     local argt = {...}
     optstring ("clock_getres", 1, argt[1], "realtime")
@@ -199,7 +199,7 @@ end
 
 if _clock_gettime == nil then
   -- Not supported by underlying system
-elseif _DEBUG ~= false then
+elseif M.conf._DEBUG ~= false then
   M.clock_gettime = function (...)
     local argt = {...}
     optstring ("clock_gettime", 1, argt[1], "realtime")
@@ -252,7 +252,7 @@ local function exec (path, ...)
   return _exec (path, argt)
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.exec = function (...)
     local argt = {...}
     checkstring ("exec", 1, argt[1])
@@ -295,7 +295,7 @@ local function execp (path, ...)
   return _execp (path, argt)
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.execp = function (...)
     local argt = {...}
     checkstring ("execp", 1, argt[1])
@@ -344,7 +344,7 @@ end
 
 if posix_fadvise == nil then
   -- Not supported by underlying system
-elseif _DEBUG ~= false then
+elseif M.conf._DEBUG ~= false then
   M.fadvise = function (...)
     argt = {...}
     if io.type (argt[1]) ~= "file" then
@@ -419,7 +419,7 @@ local function getgroup (grp)
   end
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.getgroup = function (...)
     local argt = {...}
     if #argt > 1 then toomanyargerror ("getgroup", 1, #argt) end
@@ -469,7 +469,7 @@ local function getpasswd (user, ...)
   end
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.getpasswd = function (user, ...)
     checkselection ("getpasswd", 2, {...}, 2)
     return getpasswd (user, ...)
@@ -508,7 +508,7 @@ local function getpid (...)
   })
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.getpid = function (...)
     checkselection ("getpid", 1, {...}, 2)
     return getpid (...)
@@ -551,7 +551,7 @@ local function getrlimit (rcstr)
   return rlim.rlim_cur, rlim.rlim_max
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.getrlimit = function (...)
     local argt = {...}
     checkstring ("getrlimit", 1, argt[1])
@@ -594,7 +594,7 @@ local function gmtime (epoch)
   return LegacyTm (_gmtime (epoch or time ()))
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.gmtime = function (...)
     local argt = {...}
     optint ("gmtime", 1, argt[1])
@@ -661,7 +661,7 @@ local function localtime (epoch)
   return LegacyTm (_localtime (epoch or time ()))
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.localtime = function (...)
     local argt = {...}
     optint ("localtime", 1, argt[1])
@@ -689,7 +689,7 @@ local function mktime (legacytm)
   return _mktime (posixtm)
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.mktime = function (...)
     local argt = {...}
     opttable ("mktime", 1, argt[1])
@@ -724,7 +724,7 @@ local function nanosleep (sec, nsec)
   return r, errmsg, errno, timespec.tv_sec, timespec.tv_nsec
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.nanosleep = function (...)
     local argt = {...}
     checkint ("nanosleep", 1, argt[1])
@@ -775,7 +775,7 @@ local function openlog (ident, optstr, facility)
   return _openlog (ident, option, facility)
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.openlog = function (...)
     local argt = {...}
     checkstring ("openlog", 1, argt[1])
@@ -820,7 +820,7 @@ local function pathconf (path, ...)
   return doselection ("pathconf", 1, {...}, map)
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.pathconf = function (path, ...)
     if path ~= nil and Spathconf[path] ~= nil then
       checkselection ("pathconf", 1, {path, ...}, 2)
@@ -875,7 +875,7 @@ local function setrlimit (rcstr, cur, max)
   })
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.setrlimit = function (...)
     local argt = {...}
     checkstring ("setrlimit", 1, argt[1])
@@ -949,7 +949,7 @@ local function stat (path, ...)
   end
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.stat = function (path, ...)
     checkstring ("stat", 1, path, 2)
     checkselection ("stat", 2, {...}, 2)
@@ -995,7 +995,7 @@ local function statvfs (path, ...)
   end
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.statvfs = function (path, ...)
     checkstring ("statvfs", 1, path, 2)
     checkselection ("statvfs", 2, {...}, 2)
@@ -1022,7 +1022,7 @@ local function strftime (fmt, legacytm)
   return _strftime (fmt, posixtm)
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.strftime = function (...)
     local argt = {...}
     checkstring ("strftime", 1, argt[1])
@@ -1053,7 +1053,7 @@ local function strptime (s, fmt)
   return _strptime (s, fmt)
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.strptime = function (...)
     local argt = {...}
     checkstring ("strptime", 1, argt[1])
@@ -1099,7 +1099,7 @@ local function sysconf (...)
   })
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.sysconf = function (...)
     checkselection ("sysconf", 1, {...}, 2)
     return sysconf (...)
@@ -1135,7 +1135,7 @@ local function times (...)
   })
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.times = function (...)
     checkselection ("times", 1, {...}, 2)
     return times (...)
@@ -1179,7 +1179,7 @@ local function uname (spec)
   end)
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.uname = function (s, ...)
     local argt = {s, ...}
     if #argt > 1 then

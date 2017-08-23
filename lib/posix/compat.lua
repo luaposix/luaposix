@@ -118,6 +118,7 @@ local M = {
   optstring       = optstring,
   toomanyargerror = toomanyargerror,
 }
+M.conf = { _DEBUG = false }
 
 
 
@@ -152,7 +153,7 @@ local function chmod (path, modestr)
   return _chmod (path, band (bits, RWXALL))
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.chmod = function (...)
     local argt = {...}
     checkstring ("chmod", 1, argt[1])
@@ -197,7 +198,7 @@ local function creat (path, modestr)
   return open (path, creat_flags, band (mode, RWXALL))
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.creat = function (...)
     local argt = {...}
     checkstring ("creat", 1, argt[1])
@@ -228,7 +229,7 @@ local function mkdir (path)
   return _mkdir (path, RWXALL)
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.mkdir = function (...)
     local argt = {...}
     checkstring ("mkdir", 1, argt[1])
@@ -258,7 +259,7 @@ local function mkfifo (path)
   return _mkfifo (path, RWXALL)
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.mkfifo = function (...)
     local argt = {...}
     checkstring ("mkfifo", 1, argt[1])
@@ -299,7 +300,7 @@ end
 
 if not _msgget then
   -- Not supported by underlying system
-elseif _DEBUG ~= false then
+elseif M.conf._DEBUG ~= false then
   M.msgget = function (...)
     local argt = {...}
     checkint ("msgget", 1, argt[1])
@@ -350,7 +351,7 @@ local function open (path, oflags, modestr)
   return _open (path, oflags, mode)
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.open = function (...)
     local argt, maxt = {...}, 2
     checkstring ("open", 1, argt[1])
@@ -370,7 +371,7 @@ end
 --- Set log priority mask
 -- @function setlogmask
 -- @int ... zero or more of `LOG_EMERG`, `LOG_ALERT`, `LOG_CRIT`,
---   `LOG_WARNING`, `LOG_NOTICE`, `LOG_INFO` and `LOG_DEBUG`
+--   `LOG_WARNING`, `LOG_NOTICE`, `LOG_INFO` and `LOGM.conf._DEBUG`
 -- @treturn[1] int `0`, if successful
 -- @return[2] nil
 -- @treturn[2] string error message
@@ -390,7 +391,7 @@ local function setlogmask (...)
   return _setlogmask (mask)
 end
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.setlogmask = function (...)
     for i, v in ipairs {...} do
       optint ("setlogmask", i, v, 0) -- for "int or nil" error
@@ -430,7 +431,7 @@ local function umask (modestr)
 end
 
 
-if _DEBUG ~= false then
+if M.conf._DEBUG ~= false then
   M.umask = function (modestr, ...)
     local argt = {modestr, ...}
     optstring ("umask", 1, modestr, "")
