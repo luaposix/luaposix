@@ -48,7 +48,7 @@ Pwait(lua_State *L)
 	lua_pushinteger(L, pid);
 	if(pid == 0){
 		lua_pushliteral(L,"running");
-		return 2
+		return 2;
 	}
 	else if (WIFEXITED(status))
 	{
