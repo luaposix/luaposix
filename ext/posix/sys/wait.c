@@ -25,12 +25,14 @@ Wait for child process to terminate.
 @function wait
 @int[opt=-1] pid child process id to wait for, or -1 for any child process
 @int[opt] options bitwise OR of `WNOHANG` and `WUNTRACED`
-@treturn[1] int pid of terminated child, if successful
-@treturn[1] string "exited", "killed" or "stopped"
-@treturn[1] int exit status, or signal number responsible for "killed" or "stopped"
-@return[2] nil
-@treturn[2] string error message
-@treturn[2] int errnum
+@treturn[1] int pid of running child, if not exited yet and called with `WNOHANG`
+@treturn[1] string "running"
+@treturn[2] int pid of terminated child, if successful
+@treturn[2] string "exited", "killed" or "stopped"
+@treturn[2] int exit status, or signal number responsible for "killed" or "stopped"
+@return[3] nil
+@treturn[3] string error message
+@treturn[3] int errnum
 @see waitpid(2)
 @see posix.unistd.fork
 */
@@ -46,7 +48,8 @@ Pwait(lua_State *L)
 	if (pid == -1)
 		return pusherror(L, NULL);
 	lua_pushinteger(L, pid);
-	if(pid == 0){
+	if (pid == 0)
+	{
 		lua_pushliteral(L,"running");
 		return 2;
 	}

@@ -2,6 +2,12 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### Bugs Fixed
+
+  - `posix.sys.wait.wait` returns `<childpid>, "running"` when the
+    child has not exited yet, and `wait` was called with `WNOHANG`
+    set.
+
 
 ## Noteworthy changes in release 34.0.1 (2017-07-09) [stable]
 
