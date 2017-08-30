@@ -46,7 +46,11 @@ Pwait(lua_State *L)
 	if (pid == -1)
 		return pusherror(L, NULL);
 	lua_pushinteger(L, pid);
-	if (WIFEXITED(status))
+	if(pid == 0){
+		lua_pushliteral(L,"running");
+		return 2;
+	}
+	else if (WIFEXITED(status))
 	{
 		lua_pushliteral(L,"exited");
 		lua_pushinteger(L, WEXITSTATUS(status));
