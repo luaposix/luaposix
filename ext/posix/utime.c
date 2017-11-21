@@ -56,7 +56,7 @@ static const luaL_Reg posix_utime_fns[] =
 LUALIB_API int
 luaopen_posix_utime(lua_State *L)
 {
-	luaL_register(L, "posix.utime", posix_utime_fns);
+	luaL_newlib(L, posix_utime_fns);
 	lua_pushstring(L, LPOSIX_VERSION_STRING("utime"));
 	lua_setfield(L, -2, "version");
 

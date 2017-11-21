@@ -130,7 +130,7 @@ static const luaL_Reg posix_dirent_fns[] =
 LUALIB_API int
 luaopen_posix_dirent(lua_State *L)
 {
-	luaL_register(L, "posix.dirent", posix_dirent_fns);
+	luaL_newlib(L, posix_dirent_fns);
 	lua_pushstring(L, LPOSIX_VERSION_STRING("dirent"));
 	lua_setfield(L, -2, "version");
 

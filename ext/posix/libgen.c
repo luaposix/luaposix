@@ -87,7 +87,7 @@ static const luaL_Reg posix_libgen_fns[] =
 LUALIB_API int
 luaopen_posix_libgen(lua_State *L)
 {
-	luaL_register(L, "posix.libgen", posix_libgen_fns);
+	luaL_newlib(L, posix_libgen_fns);
 	lua_pushstring(L, LPOSIX_VERSION_STRING("libgen"));
 	lua_setfield(L, -2, "version");
 

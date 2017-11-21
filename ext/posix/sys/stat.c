@@ -381,7 +381,7 @@ Any constants not available in the underlying system will be `nil` valued.
 LUALIB_API int
 luaopen_posix_sys_stat(lua_State *L)
 {
-	luaL_register(L, "posix.sys.stat", posix_sys_stat_fns);
+	luaL_newlib(L, posix_sys_stat_fns);
 	lua_pushstring(L, LPOSIX_VERSION_STRING("sys.stat"));
 	lua_setfield(L, -2, "version");
 

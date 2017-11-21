@@ -344,7 +344,7 @@ static const luaL_Reg posix_time_fns[] =
 LUALIB_API int
 luaopen_posix_time(lua_State *L)
 {
-	luaL_register(L, "posix.time", posix_time_fns);
+	luaL_newlib(L, posix_time_fns);
 	lua_pushstring(L, LPOSIX_VERSION_STRING("time"));
 	lua_setfield(L, -2, "version");
 

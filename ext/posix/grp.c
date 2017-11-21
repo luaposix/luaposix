@@ -173,7 +173,7 @@ static const luaL_Reg posix_grp_fns[] =
 LUALIB_API int
 luaopen_posix_grp(lua_State *L)
 {
-	luaL_register(L, "posix.grp", posix_grp_fns);
+	luaL_newlib(L, posix_grp_fns);
 	lua_pushstring(L, LPOSIX_VERSION_STRING("grp"));
 	lua_setfield(L, -2, "version");
 

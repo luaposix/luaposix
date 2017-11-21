@@ -105,7 +105,8 @@ Any constants not available in the underlying system will be `nil` valued.
 LUALIB_API int
 luaopen_posix_sys_wait(lua_State *L)
 {
-	luaL_register(L, "posix.sys.wait", posix_sys_wait_fns);
+	luaL_newlib(L, posix_sys_wait_fns);
+
 	lua_pushstring(L, LPOSIX_VERSION_STRING("sys.wait"));
 	lua_setfield(L, -2, "version");
 

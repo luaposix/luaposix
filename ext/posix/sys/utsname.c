@@ -78,7 +78,7 @@ static const luaL_Reg posix_sys_utsname_fns[] =
 LUALIB_API int
 luaopen_posix_sys_utsname(lua_State *L)
 {
-	luaL_register(L, "posix.sys.utsname", posix_sys_utsname_fns);
+	luaL_newlib(L, posix_sys_utsname_fns);
 	lua_pushstring(L, LPOSIX_VERSION_STRING("sys.utsname"));
 	lua_setfield(L, -2, "version");
 

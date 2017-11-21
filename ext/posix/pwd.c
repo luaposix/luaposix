@@ -169,7 +169,7 @@ static const luaL_Reg posix_pwd_fns[] =
 LUALIB_API int
 luaopen_posix_pwd(lua_State *L)
 {
-	luaL_register(L, "posix.pwd", posix_pwd_fns);
+	luaL_newlib(L, posix_pwd_fns);
 	lua_pushstring(L, LPOSIX_VERSION_STRING("pwd"));
 	lua_setfield(L, -2, "version");
 

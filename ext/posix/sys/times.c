@@ -86,7 +86,7 @@ static const luaL_Reg posix_sys_times_fns[] =
 LUALIB_API int
 luaopen_posix_sys_times(lua_State *L)
 {
-	luaL_register(L, "posix.sys.times", posix_sys_times_fns);
+	luaL_newlib(L, posix_sys_times_fns);
 	lua_pushstring(L, LPOSIX_VERSION_STRING("sys.times"));
 	lua_setfield(L, -2, "version");
 
