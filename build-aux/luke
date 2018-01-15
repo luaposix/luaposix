@@ -75,7 +75,7 @@ end
 luke.substitute=merge(luke.substitute or{},{package=interpolate_to_substitute(luke.package),version=interpolate_to_substitute(luke.version),})luke.variables=merge(luke.variables or{},collect_variables(luke),{LUA_DIR='/usr',LUA_BINDIR='$LUA_DIR/bin',LUA_INCDIR='$LUA_DIR/include/lua$LUAVERSION',LUA_LIBDIR='$LUA_DIR/lib',objdir=platforms[1],package=luke.package,version=luke.version,})return{clidefs=parsed.clidefs,install=install,log=parsed.log,luke=luke,verbose=parsed.verbose,write=parsed.write,}end,}
 end
 package.preload['luke.compile']=function()
-local _ENV=require'std.normalize'{'luke._base','luke.environment','std.functional','type.context-manager',SHELLMETACHARS='[%s%$"]',}local function spawn(env,...)local command=interpolate(env,concat({...},' '))return with(TmpFile(),TmpFile(),function(out,err)local pipe=concat{command,' >',out.filename,' 2>',err.filename,'; printf $?'}return tonumber(slurp(Pipe(pipe))),slurp(File(err.filename)),slurp(File(out.filename))end)end
+local _ENV=require'std.normalize'{'luke._base','luke.environment','std.functional','type.context-manager','type.path',SHELLMETACHARS='[%s%$"]',}local function spawn(env,...)local command=interpolate(env,concat({...},' '))return with(TmpFile(),TmpFile(),function(out,err)local pipe=concat{command,' >',out.filename,' 2>',err.filename,'; printf $?'}return tonumber(slurp(Pipe(pipe))),slurp(File(err.filename)),slurp(File(out.filename))end)end
 local function run(L,env,command)L.write(interpolate(env,concat(command,' ')),'\n')local status,err,out=spawn(env,unpack(command))if status~=0 then
 if L.write==nop then
 stdout:write(concat(command,' ')..'\n')end
@@ -93,10 +93,10 @@ local function lua_source(module,src)local abspath='$INST_LUADIR/'..gsub(module,
 abspath=abspath..'/init'end
 abspath=abspath..'.lua'return src,(gsub(abspath,'/[^/]+%.lua$',''))end
 local function module_to_path(module,sources,objdir)return dropuntil(sources,function(source)return case(source,{['.*%.[ch]']=bind(c_source,{module,objdir}),['(.*%.[ch])%.in']=bind(c_source,{module,objdir}),['.*%.lua']=bind(lua_source,{module}),['(.*%.lua)%.in']=bind(lua_source,{module}),function(src)fatal("unsupported source type '%s'",src)end,})end)end
-return{build_c_module=function(L,env,luke,name)local rules=luke.modules[name]local c_module=c_module_path(luke.variables.objdir,name)local command={'$MAKEDIRS',(gsub(c_module,'/[^/]*$',''))}local status,err,out=spawn(env,unpack(command))if status~=0 then
+return{build_c_module=function(L,env,luke,name)local rules=luke.modules[name]local c_module=c_module_path(luke.variables.objdir,name)local command={'$MAKEDIRS',dirname(c_module)}local status,err,out=spawn(env,unpack(command))if status~=0 then
 stdout:write(concat(command,' ')..'\n')stderr:write(err..'\n')exit(status)end
 return run(L,env,flatten('$CC $CFLAGS $LIBFLAG $PKGFLAGS $CPPFLAGS',defines(env,except(list(rules.defines,luke.defines),nil)),incdirs(rules.incdirs,luke.incdirs),rules.sources,'-o',c_module,libdirs(rules.libdirs,luke.libdirs),'$LIBS',rules.libraries,luke.libraries))end,c_modules=function(modules)return filter(keys(modules),function(name)return dropuntil(modules[name].sources,bind(match,{[2]='%.[ch]$'}))end)end,incdirs=incdirs,install_modules=function(L,env,luke,modules)return reduce(keys(modules),0,function(status,name)if status==0 then
-local src,dir=module_to_path(name,modules[name].sources,luke.variables.objdir)if open(interpolate(env,dir))==nil then
+local src,dir=module_to_path(name,modules[name].sources,luke.variables.objdir)if not exists(interpolate(env,dir))then
 status=run(L,env,{'$MAKEDIRS',dir})end
 if status==0 then
 status=run(L,env,{'$INSTALL',src,dir..'/'})end
@@ -500,8 +500,10 @@ end
 package.preload['std.normalize']=function()
 local ceil=math.ceil
 local concat=table.concat
+local config=package.config
 local getmetatable=getmetatable
 local loadstring=loadstring
+local match=string.match
 local next=next
 local pack=table.pack or function(...)return{n=select('#',...),...}end
 local setfenv=setfenv
@@ -511,7 +513,7 @@ local tonumber=tonumber
 local tostring=tostring
 local type=type
 local unpack=table.unpack or unpack
-local function copy(iterable)local r={}for k,v in next,iterable or{}do
+local dirsep,pathsep,pathmark,execdir,igmark=match(config,'^([^\n]+)\n([^\n]+)\n([^\n]+)\n([^\n]+)\n([^\n]+)')local function copy(iterable)local r={}for k,v in next,iterable or{}do
 r[k]=v
 end
 return r
@@ -577,7 +579,7 @@ end
 return setmetatable({append=function(seq,v)local n=(int(seq.n)or len(seq))+1
 seq.n,seq[n]=n,v
 return seq
-end,arg=arg,assert=assert,char=string.char,close=io.close,concat=concat,copy=copy,exit=os.exit,format=string.format,getenv=os.getenv,getmetatable=getmetatable,getmetamethod=getmetamethod,gmatch=string.gmatch,gsub=string.gsub,int=int,iscallable=iscallable,len=len,lines=io.lines,list=pack,loadstring=loadstring,match=string.match,maxn=function(iterable)local n=0
+end,arg=arg,assert=assert,char=string.char,close=io.close,concat=concat,copy=copy,dirsep=dirsep,exit=os.exit,format=string.format,getenv=os.getenv,getmetatable=getmetatable,getmetamethod=getmetamethod,gmatch=string.gmatch,gsub=string.gsub,int=int,iscallable=iscallable,len=len,lines=io.lines,list=pack,loadstring=loadstring,match=string.match,maxn=function(iterable)local n=0
 for k,v in next,iterable or{}do
 local i=int(k)if i and i>n then
 n=i
@@ -616,7 +618,7 @@ return self[1]end
 end,}local function ContextManager(release,acquire,...)local fh,err=acquire(...)if not fh then
 return nil,err
 end
-local cm={context=acquire(...),release=release,n=select("#",...),...}if cm.context~=nil then
+local cm={context=fh,release=release,n=select("#",...),...}if cm.context~=nil then
 setmetatable(cm,contextmanager_mt)end
 return cm
 end
@@ -624,7 +626,7 @@ local function context_close(cm)return isfile(cm.context)and close(cm.context)en
 local function with(...)local argu=list(...)local block=pop(argu)local r=list(apply(block,argu))map(argu,function(cm)if cm~=nil then
 cm:release()end
 end)return unpack(r)end
-return{CTest=function()local conftest=tmpname()return ContextManager(function(cm)rm(conftest)rm(gsub(conftest,'^.*/','')..'.o')if context_close(cm)then
+return{ContextManager=ContextManager,CTest=function()local conftest=tmpname()return ContextManager(function(cm)rm(conftest)rm(gsub(conftest,'^.*/','')..'.o')if context_close(cm)then
 return rm(cm.filename)end
 return false
 end,open,conftest..'.c','w')end,File=function(fname,mode)return ContextManager(context_close,open,fname,mode)end,Pipe=function(cmd,mode)return ContextManager(context_close,popen,cmd,mode)end,TmpFile=function(fname,mode)return ContextManager(function(cm)if context_close(cm)then
@@ -639,6 +641,14 @@ local _ENV=require'std.normalize'{destructure=next,}return{OrderedDict=function(
 local k,v=destructure(argu[i])append(r,k)r[k]=v
 end
 return r
+end,}
+end
+package.preload['type.path']=function()
+local _ENV=require'std.normalize'{}local BASENAMEPAT='.*'..dirsep
+local DIRNAMEPAT=dirsep..'[^'..dirsep..']*$'return{basename=function(path)return(gsub(path,BASENAMEPAT,''))end,dirname=function(path)return(gsub(path,DIRNAMEPAT,'',1))end,exists=function(path)local fh=open(path)if fh==nil then
+return false
+end
+close(fh)return true
 end,}
 end
 os.exit(require'luke'.main(arg))
