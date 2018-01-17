@@ -8,6 +8,8 @@
     child has not exited yet, and `wait` was called with `WNOHANG`
     set.
 
+  - specs don't fail on valid -1 return values from `posix.sysconf`.
+
 
 ## Noteworthy changes in release 34.0.1 (2017-07-09) [stable]
 
