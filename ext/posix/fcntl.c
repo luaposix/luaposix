@@ -247,7 +247,7 @@ if they are usually bitwise ORed with other values, otherwise `nil`.
 LUALIB_API int
 luaopen_posix_fcntl(lua_State *L)
 {
-	luaL_register(L, "posix.fcntl", posix_fcntl_fns);
+	luaL_newlib(L, posix_fcntl_fns);
 	lua_pushstring(L, LPOSIX_VERSION_STRING("fcntl"));
 	lua_setfield(L, -2, "version");
 

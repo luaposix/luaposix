@@ -70,7 +70,7 @@ static const luaL_Reg posix_ctype_fns[] =
 LUALIB_API int
 luaopen_posix_ctype(lua_State *L)
 {
-	luaL_register(L, "posix.ctype", posix_ctype_fns);
+	luaL_newlib(L, posix_ctype_fns);
 	lua_pushstring(L, LPOSIX_VERSION_STRING("ctype"));
 	lua_setfield(L, -2, "version");
 

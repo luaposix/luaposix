@@ -322,7 +322,7 @@ static const luaL_Reg posix_stdlib_fns[] =
 LUALIB_API int
 luaopen_posix_stdlib(lua_State *L)
 {
-	luaL_register(L, "posix.stdlib", posix_stdlib_fns);
+	luaL_newlib(L, posix_stdlib_fns);
 	lua_pushstring(L, LPOSIX_VERSION_STRING("stdlib"));
 	lua_setfield(L, -2, "version");
 

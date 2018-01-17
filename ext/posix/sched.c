@@ -116,7 +116,7 @@ Any constants not available in the underlying system will be `nil` valued.
 LUALIB_API int
 luaopen_posix_sched(lua_State *L)
 {
-	luaL_register(L, "posix.sched", posix_sched_fns);
+	luaL_newlib(L, posix_sched_fns);
 	lua_pushstring(L, LPOSIX_VERSION_STRING("sched"));
 	lua_setfield(L, -2, "version");
 

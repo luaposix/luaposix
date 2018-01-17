@@ -86,7 +86,7 @@ Glob constants.
 LUALIB_API int
 luaopen_posix_glob(lua_State *L)
 {
-	luaL_register(L, "posix.glob", posix_glob_fns);
+	luaL_newlib(L, posix_glob_fns);
 	lua_pushstring(L, LPOSIX_VERSION_STRING("glob"));
 	lua_setfield(L, -2, "version");
 	LPOSIX_CONST( GLOB_MARK );

@@ -173,7 +173,7 @@ the symbolic name of the constant (from `/usr/include/errno.h` or equivalent).
 LUALIB_API int
 luaopen_posix_errno(lua_State *L)
 {
-	luaL_register(L, "posix.errno", posix_errno_fns);
+	luaL_newlib(L, posix_errno_fns);
 	lua_pushstring(L, LPOSIX_VERSION_STRING("errno"));
 	lua_setfield(L, -2, "version");
 
