@@ -1,11 +1,20 @@
+before:
+  this_module = 'posix.sys.time'
+  global_table = '_G'
+
+  M = require(this_module)
+
+
 specify posix.sys.time:
-- before:
-    systime = require "posix.sys.time"
+- context when required:
+  - it does not touch the global table:
+      expect(show_apis {added_to=global_table, by=this_module}).
+        to_equal {}
 
 
 - describe gettimeofday:
   - before:
-      gettimeofday = systime.gettimeofday
+      gettimeofday = M.gettimeofday
 
   - context with bad arguments:
       badargs.diagnose (gettimeofday, "()")

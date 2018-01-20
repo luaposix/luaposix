@@ -1,20 +1,29 @@
-specify posix.glob:
+before:
+  this_module = 'posix.glob'
+  global_table = '_G'
 
-- before:
-    glob = require "posix.glob"
+  M = require(this_module)
+
+specify posix.glob:
+- context when required:
+  - it does not touch the global table:
+      expect(show_apis {added_to=global_table, by=this_module}).
+        to_equal {}
 
 - describe glob.GLOB_MARK:
   - before:
-      MARK = glob.GLOB_MARK
+      MARK = M.GLOB_MARK
 
-  - it is an number:
+  - it is a number:
       expect (type(MARK)).to_be "number"
 
 - describe glob:
   - before:
-      glob, MARK = glob.glob, glob.GLOB_MARK
-      chdir, mkdir, mkdtemp = posix.chdir, posix.mkdir, posix.mkdtemp
-      origwd = posix.getcwd ()
+      glob, MARK = M.glob, M.GLOB_MARK
+      chdir = require 'posix'.chdir
+      mkdir = require 'posix'.mkdir
+      mkdtemp = require 'posix'.mkdtemp
+      origwd = require 'posix'.getcwd ()
 
   - after:
       chdir(origwd)

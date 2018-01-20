@@ -1,11 +1,21 @@
-specify posix.sys.stat:
-- before:
-    st = require "posix.sys.stat"
+before:
+  this_module = 'posix.sys.stat'
+  global_table = '_G'
 
-    S_IRWXU, S_IRWXG, S_IRWXO = st.S_IRWXU, st.S_IRWXG, st.S_IRWXO
-    S_ISBLK, S_ISCHR, S_ISDIR, S_ISFIFO, S_ISREG, S_ISLNK, S_ISSOCK =
-      st.S_ISBLK, st.S_ISCHR, st.S_ISDIR, st.S_ISFIFO, st.S_ISREG, st.S_ISLNK, st.S_ISSOCK
-    RWXALL = bor (S_IRWXU, S_IRWXG, S_IRWXO)
+  M = require(this_module)
+
+
+specify posix.sys.stat:
+- context when required:
+  - it does not touch the global table:
+      expect(show_apis {added_to=global_table, by=this_module}).
+        to_equal {}
+
+
+- before:
+    posix = require 'posix'
+
+    RWXALL = bor (M.S_IRWXU, M.S_IRWXG, M.S_IRWXO)
 
     dir = posix.mkdtemp (template)
     posix.mkdir (dir .. "/subdir")
@@ -22,21 +32,21 @@ specify posix.sys.stat:
 
 - describe chmod:
   - before:
-      chmod, lstat = st.chmod, st.lstat
-      chmod (dir .. "/file", bor (st.S_IRWXU, st.S_IRGRP, st.S_IXGRP))
+      chmod, lstat = M.chmod, M.lstat
+      chmod (dir .. "/file", bor (M.S_IRWXU, M.S_IRGRP, M.S_IXGRP))
 
   - context with bad arguments: |
       badargs.diagnose (chmod, "(string, int)")
 
       examples {
         ["it diagnoses non-existent files"] = function ()
-          expect (Emsg (chmod (dir .. "/not existing file", st.S_IRWXU))).
+          expect (Emsg (chmod (dir .. "/not existing file", M.S_IRWXU))).
             to_contain "No such file or directory"
         end
       }
 
   - it sets file mode:
-      mode = bor (st.S_IRUSR, st.S_IWUSR, st.S_IXGRP, st.S_IROTH)
+      mode = bor (M.S_IRUSR, M.S_IWUSR, M.S_IXGRP, M.S_IROTH)
       chmod (dir .. "/file", mode)
       expect (band (lstat (dir .. "/file").st_mode, RWXALL)).to_be (mode)
 
@@ -48,7 +58,7 @@ specify posix.sys.stat:
       now = os.date (fmt)
       getegid, geteuid = posix.getegid, posix.geteuid
 
-      lstat = st.lstat
+      lstat = M.lstat
 
   - context with bad arguments:
       badargs.diagnose (lstat, "(string)")
@@ -70,39 +80,39 @@ specify posix.sys.stat:
     - it fetches the file access mode:
         mode = lstat (dir).st_mode
         expect (type (mode)).to_be "number"
-        expect (band (mode, S_IRWXU)).to_be (S_IRWXU)
+        expect (band (mode, M.S_IRWXU)).to_be (M.S_IRWXU)
     - it recognises directories:
-        expect (S_ISBLK (lstat (dir).st_mode)).to_be (0)
-        expect (S_ISCHR (lstat (dir).st_mode)).to_be (0)
-        expect (S_ISDIR (lstat (dir).st_mode)).not_to_be (0)
-        expect (S_ISFIFO (lstat (dir).st_mode)).to_be (0)
-        expect (S_ISREG (lstat (dir).st_mode)).to_be (0)
-        expect (S_ISLNK (lstat (dir).st_mode)).to_be (0)
-        expect (S_ISSOCK (lstat (dir).st_mode)).to_be (0)
+        expect (M.S_ISBLK (lstat (dir).st_mode)).to_be (0)
+        expect (M.S_ISCHR (lstat (dir).st_mode)).to_be (0)
+        expect (M.S_ISDIR (lstat (dir).st_mode)).not_to_be (0)
+        expect (M.S_ISFIFO (lstat (dir).st_mode)).to_be (0)
+        expect (M.S_ISREG (lstat (dir).st_mode)).to_be (0)
+        expect (M.S_ISLNK (lstat (dir).st_mode)).to_be (0)
+        expect (M.S_ISSOCK (lstat (dir).st_mode)).to_be (0)
     - it recognises fifos:
-        expect (S_ISBLK (lstat (dir .. "/fifo").st_mode)).to_be (0)
-        expect (S_ISCHR (lstat (dir .. "/fifo").st_mode)).to_be (0)
-        expect (S_ISDIR (lstat (dir .. "/fifo").st_mode)).to_be (0)
-        expect (S_ISFIFO (lstat (dir .. "/fifo").st_mode)).not_to_be (0)
-        expect (S_ISREG (lstat (dir .. "/fifo").st_mode)).to_be (0)
-        expect (S_ISLNK (lstat (dir .. "/fifo").st_mode)).to_be (0)
-        expect (S_ISSOCK (lstat (dir .. "/fifo").st_mode)).to_be (0)
+        expect (M.S_ISBLK (lstat (dir .. "/fifo").st_mode)).to_be (0)
+        expect (M.S_ISCHR (lstat (dir .. "/fifo").st_mode)).to_be (0)
+        expect (M.S_ISDIR (lstat (dir .. "/fifo").st_mode)).to_be (0)
+        expect (M.S_ISFIFO (lstat (dir .. "/fifo").st_mode)).not_to_be (0)
+        expect (M.S_ISREG (lstat (dir .. "/fifo").st_mode)).to_be (0)
+        expect (M.S_ISLNK (lstat (dir .. "/fifo").st_mode)).to_be (0)
+        expect (M.S_ISSOCK (lstat (dir .. "/fifo").st_mode)).to_be (0)
     - it recognises regular files:
-        expect (S_ISBLK (lstat (dir .. "/file").st_mode)).to_be (0)
-        expect (S_ISCHR (lstat (dir .. "/file").st_mode)).to_be (0)
-        expect (S_ISDIR (lstat (dir .. "/file").st_mode)).to_be (0)
-        expect (S_ISFIFO (lstat (dir .. "/file").st_mode)).to_be (0)
-        expect (S_ISREG (lstat (dir .. "/file").st_mode)).not_to_be (0)
-        expect (S_ISLNK (lstat (dir .. "/file").st_mode)).to_be (0)
-        expect (S_ISSOCK (lstat (dir .. "/file").st_mode)).to_be (0)
+        expect (M.S_ISBLK (lstat (dir .. "/file").st_mode)).to_be (0)
+        expect (M.S_ISCHR (lstat (dir .. "/file").st_mode)).to_be (0)
+        expect (M.S_ISDIR (lstat (dir .. "/file").st_mode)).to_be (0)
+        expect (M.S_ISFIFO (lstat (dir .. "/file").st_mode)).to_be (0)
+        expect (M.S_ISREG (lstat (dir .. "/file").st_mode)).not_to_be (0)
+        expect (M.S_ISLNK (lstat (dir .. "/file").st_mode)).to_be (0)
+        expect (M.S_ISSOCK (lstat (dir .. "/file").st_mode)).to_be (0)
     - it recognises soft links:
-        expect (S_ISBLK (lstat (dir .. "/soft").st_mode)).to_be (0)
-        expect (S_ISCHR (lstat (dir .. "/soft").st_mode)).to_be (0)
-        expect (S_ISDIR (lstat (dir .. "/soft").st_mode)).to_be (0)
-        expect (S_ISFIFO (lstat (dir .. "/soft").st_mode)).to_be (0)
-        expect (S_ISREG (lstat (dir .. "/soft").st_mode)).to_be (0)
-        expect (S_ISLNK (lstat (dir .. "/soft").st_mode)).not_to_be (0)
-        expect (S_ISSOCK (lstat (dir .. "/soft").st_mode)).to_be (0)
+        expect (M.S_ISBLK (lstat (dir .. "/soft").st_mode)).to_be (0)
+        expect (M.S_ISCHR (lstat (dir .. "/soft").st_mode)).to_be (0)
+        expect (M.S_ISDIR (lstat (dir .. "/soft").st_mode)).to_be (0)
+        expect (M.S_ISFIFO (lstat (dir .. "/soft").st_mode)).to_be (0)
+        expect (M.S_ISREG (lstat (dir .. "/soft").st_mode)).to_be (0)
+        expect (M.S_ISLNK (lstat (dir .. "/soft").st_mode)).not_to_be (0)
+        expect (M.S_ISSOCK (lstat (dir .. "/soft").st_mode)).to_be (0)
   - it fetches the number of links:
       expect (lstat (dir .. "/file").st_nlink).to_be (2)
       expect (lstat (dir .. "/soft").st_nlink).to_be (1)
@@ -156,7 +166,7 @@ specify posix.sys.stat:
       now = os.date (fmt)
       getegid, geteuid = posix.getegid, posix.geteuid
 
-      fstat = st.fstat
+      fstat = M.fstat
 
   - context with bad arguments:
       badargs.diagnose (fstat, "(int)")
@@ -177,31 +187,31 @@ specify posix.sys.stat:
     - it fetches the file access mode:
         mode = fstat (fd_dir).st_mode
         expect (type (mode)).to_be "number"
-        expect (band (mode, S_IRWXU)).to_be (S_IRWXU)
+        expect (band (mode, M.S_IRWXU)).to_be (M.S_IRWXU)
     - it recognises directories:
-        expect (S_ISBLK (fstat (fd_dir).st_mode)).to_be (0)
-        expect (S_ISCHR (fstat (fd_dir).st_mode)).to_be (0)
-        expect (S_ISDIR (fstat (fd_dir).st_mode)).not_to_be (0)
-        expect (S_ISFIFO (fstat (fd_dir).st_mode)).to_be (0)
-        expect (S_ISREG (fstat (fd_dir).st_mode)).to_be (0)
-        expect (S_ISLNK (fstat (fd_dir).st_mode)).to_be (0)
-        expect (S_ISSOCK (fstat (fd_dir).st_mode)).to_be (0)
+        expect (M.S_ISBLK (fstat (fd_dir).st_mode)).to_be (0)
+        expect (M.S_ISCHR (fstat (fd_dir).st_mode)).to_be (0)
+        expect (M.S_ISDIR (fstat (fd_dir).st_mode)).not_to_be (0)
+        expect (M.S_ISFIFO (fstat (fd_dir).st_mode)).to_be (0)
+        expect (M.S_ISREG (fstat (fd_dir).st_mode)).to_be (0)
+        expect (M.S_ISLNK (fstat (fd_dir).st_mode)).to_be (0)
+        expect (M.S_ISSOCK (fstat (fd_dir).st_mode)).to_be (0)
     - it recognises fifos:
-        expect (S_ISBLK (fstat (fd_fifo).st_mode)).to_be (0)
-        expect (S_ISCHR (fstat (fd_fifo).st_mode)).to_be (0)
-        expect (S_ISDIR (fstat (fd_fifo).st_mode)).to_be (0)
-        expect (S_ISFIFO (fstat (fd_fifo).st_mode)).not_to_be (0)
-        expect (S_ISREG (fstat (fd_fifo).st_mode)).to_be (0)
-        expect (S_ISLNK (fstat (fd_fifo).st_mode)).to_be (0)
-        expect (S_ISSOCK (fstat (fd_fifo).st_mode)).to_be (0)
+        expect (M.S_ISBLK (fstat (fd_fifo).st_mode)).to_be (0)
+        expect (M.S_ISCHR (fstat (fd_fifo).st_mode)).to_be (0)
+        expect (M.S_ISDIR (fstat (fd_fifo).st_mode)).to_be (0)
+        expect (M.S_ISFIFO (fstat (fd_fifo).st_mode)).not_to_be (0)
+        expect (M.S_ISREG (fstat (fd_fifo).st_mode)).to_be (0)
+        expect (M.S_ISLNK (fstat (fd_fifo).st_mode)).to_be (0)
+        expect (M.S_ISSOCK (fstat (fd_fifo).st_mode)).to_be (0)
     - it recognises regular files:
-        expect (S_ISBLK (fstat (fd_file).st_mode)).to_be (0)
-        expect (S_ISCHR (fstat (fd_file).st_mode)).to_be (0)
-        expect (S_ISDIR (fstat (fd_file).st_mode)).to_be (0)
-        expect (S_ISFIFO (fstat (fd_file).st_mode)).to_be (0)
-        expect (S_ISREG (fstat (fd_file).st_mode)).not_to_be (0)
-        expect (S_ISLNK (fstat (fd_file).st_mode)).to_be (0)
-        expect (S_ISSOCK (fstat (fd_file).st_mode)).to_be (0)
+        expect (M.S_ISBLK (fstat (fd_file).st_mode)).to_be (0)
+        expect (M.S_ISCHR (fstat (fd_file).st_mode)).to_be (0)
+        expect (M.S_ISDIR (fstat (fd_file).st_mode)).to_be (0)
+        expect (M.S_ISFIFO (fstat (fd_file).st_mode)).to_be (0)
+        expect (M.S_ISREG (fstat (fd_file).st_mode)).not_to_be (0)
+        expect (M.S_ISLNK (fstat (fd_file).st_mode)).to_be (0)
+        expect (M.S_ISSOCK (fstat (fd_file).st_mode)).to_be (0)
   - it fetches the number of links:
       expect (fstat (fd_file).st_nlink).to_be (2)
       expect (fstat (fd_hard).st_nlink).
@@ -240,7 +250,7 @@ specify posix.sys.stat:
 - describe mkdir:
   - before:
       dir = posix.mkdtemp (template)
-      lstat, mkdir = st.lstat, st.mkdir
+      lstat, mkdir = M.lstat, M.mkdir
 
   - after:
       rmtmp (dir)
@@ -251,11 +261,11 @@ specify posix.sys.stat:
   - it creates the named directory:
       expect (Emsg (mkdir (dir .. "/subdir"))).not_to_contain "exists"
       mode = lstat (dir .. "/subdir").st_mode
-      expect (st.S_ISDIR (mode)).not_to_be (0)
+      expect (M.S_ISDIR (mode)).not_to_be (0)
   - it sets the new directory permissions:
-      mkdir (dir .. "/subdir", S_IRWXU)
+      mkdir (dir .. "/subdir", M.S_IRWXU)
       mode = lstat (dir .. "/subdir").st_mode
-      expect (band (mode, RWXALL)).to_be (S_IRWXU)
+      expect (band (mode, RWXALL)).to_be (M.S_IRWXU)
   - it diagnoses already existing directory:
       expect (Emsg (mkdir (dir, RWXALL))).to_contain "exists"
 
@@ -263,7 +273,7 @@ specify posix.sys.stat:
 - describe mkfifo:
   - before:
       dir = posix.mkdtemp (template)
-      lstat, mkfifo = st.lstat, st.mkfifo
+      lstat, mkfifo = M.lstat, M.mkfifo
 
   - after:
       rmtmp (dir)
@@ -274,11 +284,11 @@ specify posix.sys.stat:
   - it creates the named fifo:
       expect (Emsg (mkfifo (dir .. "/fifo"))).not_to_contain "exists"
       mode = lstat (dir .. "/fifo").st_mode
-      expect (st.S_ISFIFO (mode)).not_to_be (0)
+      expect (M.S_ISFIFO (mode)).not_to_be (0)
   - it sets the new fifo permissions:
-      mkfifo (dir .. "/fifo", S_IRWXU)
+      mkfifo (dir .. "/fifo", M.S_IRWXU)
       mode = lstat (dir .. "/fifo").st_mode
-      expect (band (mode, RWXALL)).to_be (S_IRWXU)
+      expect (band (mode, RWXALL)).to_be (M.S_IRWXU)
   - it diagnoses already existing fifo:
       expect (Emsg (mkfifo (dir, RWXALL))).to_contain "exists"
 
@@ -290,7 +300,7 @@ specify posix.sys.stat:
       now = os.date (fmt)
       getegid, geteuid = posix.getegid, posix.geteuid
 
-      stat = st.stat
+      stat = M.stat
 
   - context with bad arguments:
       badargs.diagnose (stat, "(string)")
@@ -312,39 +322,39 @@ specify posix.sys.stat:
     - it fetches the file access mode:
         mode = stat (dir).st_mode
         expect (type (mode)).to_be "number"
-        expect (band (mode, S_IRWXU)).to_be (S_IRWXU)
+        expect (band (mode, M.S_IRWXU)).to_be (M.S_IRWXU)
     - it recognises directories:
-        expect (S_ISBLK (stat (dir).st_mode)).to_be (0)
-        expect (S_ISCHR (stat (dir).st_mode)).to_be (0)
-        expect (S_ISDIR (stat (dir).st_mode)).not_to_be (0)
-        expect (S_ISFIFO (stat (dir).st_mode)).to_be (0)
-        expect (S_ISREG (stat (dir).st_mode)).to_be (0)
-        expect (S_ISLNK (stat (dir).st_mode)).to_be (0)
-        expect (S_ISSOCK (stat (dir).st_mode)).to_be (0)
+        expect (M.S_ISBLK (stat (dir).st_mode)).to_be (0)
+        expect (M.S_ISCHR (stat (dir).st_mode)).to_be (0)
+        expect (M.S_ISDIR (stat (dir).st_mode)).not_to_be (0)
+        expect (M.S_ISFIFO (stat (dir).st_mode)).to_be (0)
+        expect (M.S_ISREG (stat (dir).st_mode)).to_be (0)
+        expect (M.S_ISLNK (stat (dir).st_mode)).to_be (0)
+        expect (M.S_ISSOCK (stat (dir).st_mode)).to_be (0)
     - it recognises fifos:
-        expect (S_ISBLK (stat (dir .. "/fifo").st_mode)).to_be (0)
-        expect (S_ISCHR (stat (dir .. "/fifo").st_mode)).to_be (0)
-        expect (S_ISDIR (stat (dir .. "/fifo").st_mode)).to_be (0)
-        expect (S_ISFIFO (stat (dir .. "/fifo").st_mode)).not_to_be (0)
-        expect (S_ISREG (stat (dir .. "/fifo").st_mode)).to_be (0)
-        expect (S_ISLNK (stat (dir .. "/fifo").st_mode)).to_be (0)
-        expect (S_ISSOCK (stat (dir .. "/fifo").st_mode)).to_be (0)
+        expect (M.S_ISBLK (stat (dir .. "/fifo").st_mode)).to_be (0)
+        expect (M.S_ISCHR (stat (dir .. "/fifo").st_mode)).to_be (0)
+        expect (M.S_ISDIR (stat (dir .. "/fifo").st_mode)).to_be (0)
+        expect (M.S_ISFIFO (stat (dir .. "/fifo").st_mode)).not_to_be (0)
+        expect (M.S_ISREG (stat (dir .. "/fifo").st_mode)).to_be (0)
+        expect (M.S_ISLNK (stat (dir .. "/fifo").st_mode)).to_be (0)
+        expect (M.S_ISSOCK (stat (dir .. "/fifo").st_mode)).to_be (0)
     - it recognises regular files:
-        expect (S_ISBLK (stat (dir .. "/file").st_mode)).to_be (0)
-        expect (S_ISCHR (stat (dir .. "/file").st_mode)).to_be (0)
-        expect (S_ISDIR (stat (dir .. "/file").st_mode)).to_be (0)
-        expect (S_ISFIFO (stat (dir .. "/file").st_mode)).to_be (0)
-        expect (S_ISREG (stat (dir .. "/file").st_mode)).not_to_be (0)
-        expect (S_ISLNK (stat (dir .. "/file").st_mode)).to_be (0)
-        expect (S_ISSOCK (stat (dir .. "/file").st_mode)).to_be (0)
+        expect (M.S_ISBLK (stat (dir .. "/file").st_mode)).to_be (0)
+        expect (M.S_ISCHR (stat (dir .. "/file").st_mode)).to_be (0)
+        expect (M.S_ISDIR (stat (dir .. "/file").st_mode)).to_be (0)
+        expect (M.S_ISFIFO (stat (dir .. "/file").st_mode)).to_be (0)
+        expect (M.S_ISREG (stat (dir .. "/file").st_mode)).not_to_be (0)
+        expect (M.S_ISLNK (stat (dir .. "/file").st_mode)).to_be (0)
+        expect (M.S_ISSOCK (stat (dir .. "/file").st_mode)).to_be (0)
     - it recognises soft links:
-        expect (S_ISBLK (stat (dir .. "/soft").st_mode)).to_be (0)
-        expect (S_ISCHR (stat (dir .. "/soft").st_mode)).to_be (0)
-        expect (S_ISDIR (stat (dir .. "/soft").st_mode)).not_to_be (0)
-        expect (S_ISFIFO (stat (dir .. "/soft").st_mode)).to_be (0)
-        expect (S_ISREG (stat (dir .. "/soft").st_mode)).to_be (0)
-        expect (S_ISLNK (stat (dir .. "/soft").st_mode)).to_be (0)
-        expect (S_ISSOCK (stat (dir .. "/soft").st_mode)).to_be (0)
+        expect (M.S_ISBLK (stat (dir .. "/soft").st_mode)).to_be (0)
+        expect (M.S_ISCHR (stat (dir .. "/soft").st_mode)).to_be (0)
+        expect (M.S_ISDIR (stat (dir .. "/soft").st_mode)).not_to_be (0)
+        expect (M.S_ISFIFO (stat (dir .. "/soft").st_mode)).to_be (0)
+        expect (M.S_ISREG (stat (dir .. "/soft").st_mode)).to_be (0)
+        expect (M.S_ISLNK (stat (dir .. "/soft").st_mode)).to_be (0)
+        expect (M.S_ISSOCK (stat (dir .. "/soft").st_mode)).to_be (0)
   - it fetches the number of links:
       expect (stat (dir .. "/file").st_nlink).to_be (2)
       expect (stat (dir .. "/soft").st_nlink).
@@ -386,8 +396,8 @@ specify posix.sys.stat:
 
 - describe umask:
   - before:
-      lstat, umask = st.lstat, st.umask
-      newmask = band (st.S_IWGRP, st.S_IRWXO)
+      lstat, umask = M.lstat, M.umask
+      newmask = band (M.S_IWGRP, M.S_IRWXO)
       origmask = umask (newmask)
   - after:
       umask (origmask)
@@ -399,9 +409,9 @@ specify posix.sys.stat:
       expect (umask (0)).to_be (newmask)
       expect (umask (newmask)).to_be (0)
   - it controls the mode of newly created files:
-      all = bor (st.S_IRWXU, st.S_IRWXG, st.S_IRWXO)
-      xxx, mask = dir .. "/xxx", bor (st.S_IRWXO, st.S_IWGRP, st.S_IXGRP)
+      all = bor (M.S_IRWXU, M.S_IRWXG, M.S_IRWXO)
+      xxx, mask = dir .. "/xxx", bor (M.S_IRWXO, M.S_IWGRP, M.S_IXGRP)
       umask (mask)
       touch (xxx)
-      expect (band (lstat (xxx).st_mode, all)).to_be (bor (st.S_IRUSR, st.S_IWUSR, st.S_IRGRP))
+      expect (band (lstat (xxx).st_mode, all)).to_be (bor (M.S_IRUSR, M.S_IWUSR, M.S_IRGRP))
       os.remove (xxx)

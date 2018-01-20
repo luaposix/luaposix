@@ -1,11 +1,25 @@
+before:
+  this_module = 'posix.grp'
+  global_table = '_G'
+
+  M = require(this_module)
+
+
 specify posix.grp:
+- context when required:
+  - it does not touch the global table:
+      expect(show_apis {added_to=global_table, by=this_module}).
+        to_equal {}
+
+
 - before:
-    grp = require "posix.grp"
+    getgrgid = require 'posix'.getgrgid
+    getgrnam = require 'posix'.getgrnam
 
 
 - describe endgrent:
   - before:
-      endgrent = grp.endgrent
+      endgrent = M.endgrent
 
   - context with bad arguments:
       badargs.diagnose (endgrent, "()")
@@ -13,15 +27,15 @@ specify posix.grp:
   - it returns 'nil':
       expect (endgrent ()).to_be (nil)
   - it rewinds the group database:
-      g = grp.getgrent ()
-      grp.getgrent ()
+      g = M.getgrent ()
+      M.getgrent ()
       endgrent ()
-      expect (grp.getgrent ()).to_equal (g)
+      expect (M.getgrent ()).to_equal (g)
 
 
 - describe getgrent:
   - before:
-      getgrent = grp.getgrent
+      getgrent = M.getgrent
 
   - context with bad arguments:
       badargs.diagnose (getgrent, "()")
@@ -39,12 +53,11 @@ specify posix.grp:
         g = h
       end
       expect (g).to_be (nil)
-      grp.endgrent ()
+      M.endgrent ()
 
 
 - describe getgrgid:
   - before:
-      getgrgid = posix.getgrgid
       groot = getgrgid (0).gr_name
 
   - context with bad arguments:
@@ -60,7 +73,6 @@ specify posix.grp:
 
 - describe getgrnam:
   - before:
-      getgrgid, getgrnam = posix.getgrgid, posix.getgrnam
       groot = getgrgid (0).gr_name
 
   - context with bad arguments:
@@ -78,7 +90,7 @@ specify posix.grp:
 
 - describe setgrent:
   - before:
-      setgrent = grp.setgrent
+      setgrent = M.setgrent
 
   - context with bad arguments:
       badargs.diagnose (setgrent, "()")
@@ -86,7 +98,7 @@ specify posix.grp:
   - it returns 'nil':
       expect (setgrent ()).to_be (nil)
   - it rewinds the group database:
-      g = grp.getgrent ()
-      grp.getgrent ()
+      g = M.getgrent ()
+      M.getgrent ()
       setgrent ()
-      expect (grp.getgrent ()).to_equal (g)
+      expect (M.getgrent ()).to_equal (g)

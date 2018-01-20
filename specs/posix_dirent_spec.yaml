@@ -1,11 +1,19 @@
-specify posix.dirent:
-- before:
-    dirent = require "posix.dirent"
+before:
+  this_module = 'posix.dirent'
+  global_table = '_G'
 
+  M = require(this_module)
+  posix = require 'posix'
+
+specify posix.dirent:
+- context when required:
+  - it does not touch the global table:
+      expect(show_apis {added_to=global_table, by=this_module}).
+        to_equal {}
 
 - describe dir:
   - before:
-      dir = dirent.dir
+      dir = M.dir
 
   - context with bad arguments: |
       badargs.diagnose (dir, "(?string)")
@@ -33,7 +41,7 @@ specify posix.dirent:
       link (dir .. "/file", dir .. "/hard")
       link ("no such destination", dir .. "/dangling", true)
 
-      files = dirent.files
+      files = M.files
 
   - after:
       posix.chdir (origwd)

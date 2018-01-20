@@ -1,11 +1,20 @@
+before:
+  this_module = 'posix.pwd'
+  global_table = '_G'
+
+  M = require(this_module)
+
+
 specify posix.pwd:
-- before:
-    pwd = require "posix.pwd"
+- context when required:
+  - it does not touch the global table:
+      expect(show_apis {added_to=global_table, by=this_module}).
+        to_equal {}
 
 
 - describe endpwent:
   - before:
-      endpwent = pwd.endpwent
+      endpwent = M.endpwent
 
   - context with bad arguments:
       badargs.diagnose (endpwent, "()")
@@ -13,15 +22,15 @@ specify posix.pwd:
   - it returns 'nil':
       expect (endpwent ()).to_be (nil)
   - it rewinds the passwd database:
-      p = pwd.getpwent ()
-      pwd.getpwent ()
+      p = M.getpwent ()
+      M.getpwent ()
       endpwent ()
-      expect (pwd.getpwent ()).to_equal (p)
+      expect (M.getpwent ()).to_equal (p)
 
 
 - describe getpwent:
   - before:
-      getpwent = pwd.getpwent
+      getpwent = M.getpwent
 
   - context with bad arguments:
       badargs.diagnose (getpwent, "()")
@@ -39,12 +48,12 @@ specify posix.pwd:
         p = q
       end
       expect (p).to_be (nil)
-      pwd.endpwent ()
+      M.endpwent ()
 
 
 - describe getpwnam:
   - before:
-      getpwuid, getpwnam = posix.getpwuid, posix.getpwnam
+      getpwnam = M.getpwnam
 
   - context with bad arguments:
       badargs.diagnose (getpwnam, "(string)")
@@ -63,7 +72,7 @@ specify posix.pwd:
 
 - describe getpwuid:
   - before:
-      getpwuid = posix.getpwuid
+      getpwuid = M.getpwuid
 
   - context with bad arguments:
       badargs.diagnose (getpwuid, "(int)")
@@ -80,7 +89,7 @@ specify posix.pwd:
 
 - describe setpwent:
   - before:
-      setpwent = pwd.setpwent
+      setpwent = M.setpwent
 
   - context with bad arguments:
       badargs.diagnose (setpwent, "()")
@@ -88,7 +97,7 @@ specify posix.pwd:
   - it returns 'nil':
       expect (setpwent ()).to_be (nil)
   - it rewinds the passwd database:
-      p = pwd.getpwent ()
-      pwd.getpwent ()
+      p = M.getpwent ()
+      M.getpwent ()
       setpwent ()
-      expect (pwd.getpwent ()).to_equal (p)
+      expect (M.getpwent ()).to_equal (p)

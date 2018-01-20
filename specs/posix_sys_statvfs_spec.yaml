@@ -1,10 +1,20 @@
+before:
+  this_module = 'posix.sys.statvfs'
+  global_table = '_G'
+
+  M = require(this_module)
+
+
 specify posix.sys.statvfs:
-- before:
-    sv = require "posix.sys.statvfs"
+- context when required:
+  - it does not touch the global table:
+      expect(show_apis {added_to=global_table, by=this_module}).
+        to_equal {}
+
 
 - describe statvfs:
   - before:
-      statvfs = sv.statvfs
+      statvfs = M.statvfs
 
   - context with bad arguments:
       if statvfs then

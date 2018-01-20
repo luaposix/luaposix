@@ -1,11 +1,20 @@
+before:
+  this_module = 'posix.sys.utsname'
+  global_table = '_G'
+
+  M = require(this_module)
+
+
 specify posix.sys.utsname:
-- before:
-    utsname = require "posix.sys.utsname"
+- context when required:
+  - it does not touch the global table:
+      expect(show_apis {added_to=global_table, by=this_module}).
+        to_equal {}
 
 
 - describe uname:
   - before:
-      uname = utsname.uname
+      uname = M.uname
 
       u = uname ()
 

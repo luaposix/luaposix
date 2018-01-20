@@ -1,14 +1,22 @@
-specify posix.fcntl:
-- before:
-    fc = require "posix.fcntl"
+before:
+  this_module = 'posix.fcntl'
+  global_table = '_G'
 
+  M = require(this_module)
+  posix = require 'posix'
+
+specify posix.fcntl:
+- context when required:
+  - it does not touch the global table:
+      expect(show_apis {added_to=global_table, by=this_module}).
+        to_equal {}
 
 - describe open:
   - before: |
       unistd = require "posix.unistd"
 
-      O_CREAT, O_RDONLY, O_WRONLY = fc.O_CREAT, fc.O_RDONLY, fc.O_WRONLY
-      open = fc.open
+      O_CREAT, O_RDONLY, O_WRONLY = M.O_CREAT, M.O_RDONLY, M.O_WRONLY
+      open = M.open
       close, read, write = unistd.close, unistd.read, unistd.write
 
       dir = posix.mkdtemp (template)
@@ -39,7 +47,7 @@ specify posix.fcntl:
 
 - describe posix_fadvise:
   - before:
-      posix_fadvise = fc.posix_fadvise
+      posix_fadvise = M.posix_fadvise
 
   - context with bad arguments:
       if posix_fadvise then

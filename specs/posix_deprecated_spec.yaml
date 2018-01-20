@@ -1,13 +1,24 @@
+before:
+  this_module = 'posix'
+  global_table = '_G'
+
+  M = require(this_module)
+
 specify posix.deprecated:
 - before:
-    socket, getaddrinfo, close = posix.socket, posix.getaddrinfo, posix.close
+    socket, getaddrinfo, close = M.socket, M.getaddrinfo, M.close
     AF_INET, AF_INET6, AF_UNIX, AF_NETLINK =
-      posix.AF_INET, posix.AF_INET6, posix.AF_UNIX, posix.AF_NETLINK
-    SOCK_STREAM = posix.SOCK_STREAM
+      M.AF_INET, M.AF_INET6, M.AF_UNIX, M.AF_NETLINK
+    SOCK_STREAM = M.SOCK_STREAM
+
+- context when required:
+  - it does not touch the global table:
+      expect(show_apis {added_to=global_table, by=this_module}).
+        to_equal {}
 
 - describe connect:
   - before:
-      connect, typeerrors = init (posix, "connect")
+      connect, typeerrors = init (M, "connect")
 
   - context with bad arguments: |
       badargs.diagnose (connect, "connect (int, table)")
@@ -91,7 +102,7 @@ specify posix.deprecated:
 
 - describe bind:
   - before:
-      bind, typeerrors = init (posix, "bind")
+      bind, typeerrors = init (M, "bind")
 
   - context with bad arguments: |
       badargs.diagnose (bind, "bind (int, table)")
@@ -173,9 +184,9 @@ specify posix.deprecated:
 
 - describe exec:
   - before:
-      exec, typeerrors = init (posix, "exec")
+      exec, typeerrors = init (M, "exec")
 
-  # posix.exec takes a string or non-empty table as its second
+  # M.exec takes a string or non-empty table as its second
   # argument, followed by zero or more strings only if the second
   # argument was a string; since we can't express that with
   # `badargs.diagnose` do it all manually again...
@@ -196,7 +207,7 @@ specify posix.deprecated:
   - before:
       # redirect output to /dev/null
       dup2, fork, open, wait, O_WRONLY, O_APPEND =
-        posix.dup2, posix.fork, posix.open, posix.wait, posix.O_WRONLY, posix.O_APPEND
+        M.dup2, M.fork, M.open, M.wait, M.O_WRONLY, M.O_APPEND
       P_CHILD = 0
 
       function child (...)
@@ -206,9 +217,9 @@ specify posix.deprecated:
         expect ("not reached").to_be (true)
       end
 
-      execp, typeerrors = init (posix, "execp")
+      execp, typeerrors = init (M, "execp")
 
-  # posix.execp takes a string or non-empty table as its second
+  # M.execp takes a string or non-empty table as its second
   # argument, followed by zero or more strings only if the second
   # argument was a string; since we can't express that with
   # `badargs.diagnose` do it all manually again...
@@ -245,11 +256,11 @@ specify posix.deprecated:
 
 - describe getpid:
   - before:
-      unistd = require "posix.unistd"
+      unistd = M.unistd
 
-      getpid, typeerrors = init (posix, "getpid")
+      getpid, typeerrors = init (M, "getpid")
 
-  # posix.getpid takes an optional string or table as its first
+  # M.getpid takes an optional string or table as its first
   # argument, followed by zero or more strings only if the first
   # argument was a string; since we can't express that with
   # `badargs.diagnose` do it all manually again...
@@ -303,7 +314,7 @@ specify posix.deprecated:
 
 - describe openlog:
   - before:
-      openlog = posix.openlog
+      openlog = M.openlog
 
   - context with bad arguments: |
       if openlog then

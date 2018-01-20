@@ -1,13 +1,21 @@
+before:
+  this_module = 'posix.stdio'
+  global_table = '_G'
+
+  M = require(this_module)
+
+
 specify posix.stdio:
-- before:
-    stdio = require "posix.stdio"
-    unistd = require "posix.unistd"
+- context when required:
+  - it does not touch the global table:
+      expect(show_apis {added_to=global_table, by=this_module}).
+        to_equal {}
 
 
 - describe fdopen:
     - before:
-        fdopen = stdio.fdopen
-        fd = fdopen (unistd.STDOUT_FILENO, "w")
+        fdopen = M.fdopen
+        fd = fdopen (require 'posix.unistd'.STDOUT_FILENO, "w")
 
     - context with bad arguments:
         badargs.diagnose (fdopen, "(int,string)")
@@ -17,9 +25,8 @@ specify posix.stdio:
 
     - it writes to the duplicated stream: |
         script = [[
-          local stdio   = require "posix.stdio"
-          local unistd  = require "posix.unistd"
-          local fd      = stdio.fdopen (unistd.STDOUT_FILENO, "w")
+          local stdio = require "posix.stdio"
+          local fd = stdio.fdopen (require 'posix.unistd'.STDOUT_FILENO, "w")
 
           -- Lua 5.1 file.write returns true; > 5.1 returns file handle
           local r = fd:write ("writing to fdopen(stdout)")
@@ -32,10 +39,10 @@ specify posix.stdio:
 
 - describe rename:
     - before:
-        rename = stdio.rename
+        rename = M.rename
         fd, path = require "posix.stdlib".mkstemp (template)
     - after:
-        unistd.close (fd)
+        require 'posix.unistd'.close (fd)
         os.remove (path)
 
     - context with bad arguments:
@@ -44,7 +51,7 @@ specify posix.stdio:
     - it renames an existing file:
         newpath = path .. ".renamed"
         expect (fd).not_to_be (nil)
-        unistd.write (fd, "rename me")
+        require 'posix.unistd'.write (fd, "rename me")
         rename (path, newpath)
         expect (io.open (path, "r")).to_be (nil)
         fh = io.open (newpath, "r")

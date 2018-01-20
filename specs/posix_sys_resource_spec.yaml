@@ -1,22 +1,31 @@
+before:
+  this_module = 'posix.sys.resource'
+  global_table = '_G'
+
+  M = require(this_module)
+
+
 specify posix.sys.resource:
-- before:
-    resource = require "posix.sys.resource"
+- context when required:
+  - it does not touch the global table:
+      expect(show_apis {added_to=global_table, by=this_module}).
+        to_equal {}
 
 
 - describe getrlimit:
   - before:
-      getrlimit = resource.getrlimit
+      getrlimit = M.getrlimit
 
   - context with bad arguments:
       badargs.diagnose (getrlimit, "(int)")
 
   - it returns a PosixRlimit:
-      expect (prototype (getrlimit (resource.RLIMIT_AS))).to_be "PosixRlimit"
+      expect (prototype (getrlimit (M.RLIMIT_AS))).to_be "PosixRlimit"
   - it fetches resource limits for a process:
       for _, rc in pairs {"RLIMIT_CORE", "RLIMIT_CPU", "RLIMIT_DATA", "RLIMIT_FSIZE",
           "RLIMIT_NOFILE", "RLIMIT_STACK", "RLIMIT_AS"}
       do
-        rlim = getrlimit (resource[rc])
+        rlim = getrlimit (M[rc])
         expect (type (rlim.rlim_cur)).to_be "number"
         expect (type (rlim.rlim_max)).to_be "number"
       end
@@ -24,8 +33,8 @@ specify posix.sys.resource:
 
 - describe setrlimit:
   - before:
-      setrlimit, typeerrors = init (resource, "setrlimit")
-      getrlimit = resource.getrlimit
+      setrlimit, typeerrors = init (M, "setrlimit")
+      getrlimit = M.getrlimit
 
   - context with bad arguments: |
       badargs.diagnose (setrlimit, "(int, table)")
@@ -69,6 +78,6 @@ specify posix.sys.resource:
       for _, rc in pairs {"RLIMIT_CORE", "RLIMIT_CPU", "RLIMIT_DATA", "RLIMIT_FSIZE",
           "RLIMIT_NOFILE", "RLIMIT_STACK", "RLIMIT_AS"}
       do
-        rlim = getrlimit (resource[rc])
-        expect (setrlimit (resource[rc], rlim)).to_be (0)
+        rlim = getrlimit (M[rc])
+        expect (setrlimit (M[rc], rlim)).to_be (0)
       end

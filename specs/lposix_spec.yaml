@@ -1,11 +1,22 @@
-describe lposix:
+before:
+  this_module = 'posix'
+  global_table = '_G'
+
+  M = require(this_module)
+
+specify lposix:
 - before:
-    fcntl, fileno = posix.fcntl, posix.fileno
-    O_NONBLOCK = posix.O_NONBLOCK
+    fcntl, fileno = M.fcntl, M.fileno
+    O_NONBLOCK = M.O_NONBLOCK
+
+- context when required:
+  - it does not touch the global table:
+      expect(show_apis {added_to=global_table, by=this_module}).
+        to_equal {}
 
 - context with fcntl F_GETFL:
   - before:
-      F_GETFL, F_SETFL = posix.F_GETFL, posix.F_SETFL
+      F_GETFL, F_SETFL = M.F_GETFL, M.F_SETFL
 
       fdin  = fileno (io.stdin)
       flags = fcntl (fdin, F_GETFL)

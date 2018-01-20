@@ -1,41 +1,47 @@
+before:
+  this_module = 'posix.syslog'
+  global_table = '_G'
+
+  M = require(this_module)
+
+
 specify posix.syslog:
-- before:
-    log = require "posix.syslog"
+- context when required:
+  - it does not touch the global table:
+      expect(show_apis {added_to=global_table, by=this_module}).
+        to_equal {}
 
 
 - describe LOG_MASK:
   - context with bad arguments:
-      if log.LOG_MASK then
-        badargs.diagnose (log.LOG_MASK, "(int)")
+      if M.LOG_MASK then
+        badargs.diagnose (M.LOG_MASK, "(int)")
       end
 
 
 - describe closelog:
   - context with bad arguments:
-      if log.closelog then
-        badargs.diagnose (log.closelog, "()")
+      if M.closelog then
+        badargs.diagnose (M.closelog, "()")
       end
 
 
 - describe openlog:
-  - before:
-      openlog = log.openlog
-
   - context with bad arguments: |
-      if openlog then
-        badargs.diagnose (openlog, "(string, ?int, ?int)")
+      if M.openlog then
+        badargs.diagnose (M.openlog, "(string, ?int, ?int)")
       end
 
 
 - describe setlogmask:
   - context with bad arguments:
-      if log.setlogmask then
-        badargs.diagnose (log.setlogmask, "(?int)")
+      if M.setlogmask then
+        badargs.diagnose (M.setlogmask, "(?int)")
       end
 
 
 - describe syslog:
   - context with bad arguments:
-      if log.syslog then
-        badargs.diagnose (log.syslog, "(int, string)")
+      if M.syslog then
+        badargs.diagnose (M.syslog, "(int, string)")
       end

@@ -1,7 +1,18 @@
+before:
+  this_module = 'posix'
+  global_table = '_G'
+
+  M = require(this_module)
+
 specify posix.compat:
+- context when required:
+  - it does not touch the global table:
+      expect(show_apis {added_to=global_table, by=this_module}).
+        to_equal {}
+
 - describe chmod:
   - before:
-      chmod, stat = posix.chmod, posix.stat
+      chmod, stat = M.chmod, M.stat
       touch "xxx"
       chmod ("xxx", "rwxr-x---")
   - after:
@@ -42,7 +53,7 @@ specify posix.compat:
 
 - describe clock_getres:
   - before:
-      clock_getres = posix.clock_getres
+      clock_getres = M.clock_getres
 
   - context with bad arguments:
       if clock_getres then
@@ -52,7 +63,7 @@ specify posix.compat:
 
 - describe clock_gettime:
   - before:
-      clock_gettime = posix.clock_gettime
+      clock_gettime = M.clock_gettime
 
   - context with bad arguments:
       if clock_gettime then
@@ -62,7 +73,7 @@ specify posix.compat:
 
 - describe creat:
   - before:
-      creat = posix.creat
+      creat = M.creat
 
   - context with bad arguments: |
       badargs.diagnose (creat, "creat (string, string)")
@@ -79,15 +90,15 @@ specify posix.compat:
 
 - describe fadvise:
   - context with bad arguments:
-      if posix.fadvise then
-        badargs.diagnose (posix.fadvise, "fadvise (file, int, int, int)")
+      if M.fadvise then
+        badargs.diagnose (M.fadvise, "fadvise (file, int, int, int)")
       end
 
 
 - describe fnmatch:
   - before:
       fnmatch, FNM_PATHNAME, FNM_PERIOD =
-        posix.fnmatch, posix.FNM_PATHNAME, posix.FNM_PERIOD
+        M.fnmatch, M.FNM_PATHNAME, M.FNM_PERIOD
 
   - context with bad arguments:
       badargs.diagnose (fnmatch, "fnmatch (string, string, ?int)")
@@ -114,11 +125,11 @@ specify posix.compat:
 - describe getgroup:
   - before:
       getgrgid, getgroup, getegid =
-        posix.getgrgid, posix.getgroup, posix.getegid
+        M.getgrgid, M.getgroup, M.getegid
       groot = getgrgid (0).gr_name
 
   - context with bad arguments:
-      badargs.diagnose (posix.getgroup, "getgroup (?string|int)")
+      badargs.diagnose (M.getgroup, "getgroup (?string|int)")
 
   - it returns a table for an existing group:
       expect (type (getgroup (groot))).to_be "table"
@@ -137,7 +148,7 @@ specify posix.compat:
 - describe getpasswd:
   - before:
       getenv, getgid, getpasswd, getuid =
-        posix.getenv, posix.getgid, posix.getpasswd, posix.getuid
+        M.getenv, M.getgid, M.getpasswd, M.getuid
       user = getpasswd ((getenv "USER"), "name")
       root = getpasswd (0, "name")
 
@@ -180,7 +191,7 @@ specify posix.compat:
 
 - describe getrlimit:
   - before:
-      getrlimit = posix.getrlimit
+      getrlimit = M.getrlimit
 
   - context with bad arguments: |
       examples {
@@ -205,13 +216,13 @@ specify posix.compat:
 
 - describe gettimeofday:
   - before:
-      gettimeofday = posix.gettimeofday
+      gettimeofday = M.gettimeofday
 
   - context with bad arguments:
       badargs.diagnose (gettimeofday, "gettimeofday ()")
 
   - it fetches the current epoch time:
-      t, epoch = gettimeofday (), posix.time ()
+      t, epoch = gettimeofday (), M.time ()
       expect (t.sec).to_be (epoch)
       expect (type (t.usec)).to_be "number"
       expect (t.usec >= 0).to_be (true)
@@ -219,7 +230,7 @@ specify posix.compat:
 
 - describe gmtime:
   - before:
-      gmtime = posix.gmtime
+      gmtime = M.gmtime
 
   - context with bad arguments:
       badargs.diagnose (gmtime, "gmtime (?int)")
@@ -250,12 +261,12 @@ specify posix.compat:
 
 - describe hostid:
   - context with bad arguments:
-      badargs.diagnose (posix.hostid, "()")
+      badargs.diagnose (M.hostid, "()")
 
 
 - describe isgraph:
   - before:
-      isgraph = posix.isgraph
+      isgraph = M.isgraph
 
   - context with bad arguments:
       badargs.diagnose (isgraph, "isgraph (string)")
@@ -268,7 +279,7 @@ specify posix.compat:
 
 - describe isprint:
   - before:
-      isprint = posix.isprint
+      isprint = M.isprint
 
   - context with bad arguments:
       badargs.diagnose (isprint, "isprint (string)")
@@ -281,7 +292,7 @@ specify posix.compat:
 
 - describe localtime:
   - before:
-      localtime = posix.localtime
+      localtime = M.localtime
 
   - context with bad arguments:
       badargs.diagnose (localtime, "localtime (?int)")
@@ -312,9 +323,9 @@ specify posix.compat:
 
 - describe mkdir:
   - before:
-      dir = posix.mkdtemp (template)
-      chdir, mkdir = posix.chdir, posix.mkdir
-      cwd = posix.getcwd ()
+      dir = M.mkdtemp (template)
+      chdir, mkdir = M.chdir, M.mkdir
+      cwd = M.getcwd ()
 
   - after:
       chdir (cwd)
@@ -332,8 +343,8 @@ specify posix.compat:
 
 - describe mkfifo:
   - before:
-      dir    = posix.mkdtemp (template)
-      mkfifo = posix.mkfifo
+      dir    = M.mkdtemp (template)
+      mkfifo = M.mkfifo
 
   - after:
       rmtmp (dir)
@@ -343,14 +354,14 @@ specify posix.compat:
 
   - it creates the named fifo:
       expect (Emsg (mkfifo (dir .. "/fifo"))).not_to_contain "exists"
-      expect (posix.stat (dir .. "/fifo").type).to_be "fifo"
+      expect (M.stat (dir .. "/fifo").type).to_be "fifo"
   - it diagnoses already existing fifo:
       expect (Emsg (mkfifo (dir))).to_contain "exists"
 
 
 - describe mktime:
   - before:
-      localtime, mktime, time = posix.localtime, posix.mktime, posix.time
+      localtime, mktime, time = M.localtime, M.mktime, M.time
       epoch = time ()
       t = localtime (epoch)
 
@@ -368,8 +379,8 @@ specify posix.compat:
 
 - describe msgget:
   - before:
-      msgget = posix.msgget
-      EEXIST, IPC_CREAT, IPC_EXCL = posix.EEXIST, posix.IPC_CREAT, posix.IPC_EXCL
+      msgget = M.msgget
+      EEXIST, IPC_CREAT, IPC_EXCL = M.EEXIST, M.IPC_CREAT, M.IPC_EXCL
 
   - context with bad arguments:
       badargs.diagnose (msgget, "msgget (int, ?int, ?string)")
@@ -388,18 +399,18 @@ specify posix.compat:
 
   - describe nanosleep:
     - context with bad arguments:
-        badargs.diagnose (posix.nanosleep, "nanosleep (int, int)")
+        badargs.diagnose (M.nanosleep, "nanosleep (int, int)")
 
     - it returns an integer:
-        expect (posix.nanosleep (0, 10)).to_be (0)
+        expect (M.nanosleep (0, 10)).to_be (0)
 
 
 - describe open:
-  # posix.open ignores the mode argument if flags does not include
+  # M.open ignores the mode argument if flags does not include
   # O_CREAT, which `badargs.diagnose` can't express; ergo manual
   # checks here...
   - before:
-      O_CREAT = posix.O_CREAT
+      O_CREAT = M.O_CREAT
       open, typeerrors = init (posix, "open")
 
   - 'it diagnoses missing argument #1':
@@ -430,7 +441,7 @@ specify posix.compat:
   - before:
       pathconf, typeerrors = init (posix, "pathconf")
 
-  # posix.pathconf takes an optional string or table as its second
+  # M.pathconf takes an optional string or table as its second
   # argument, followed by zero or more strings only if the second
   # argument was a string; since we can't express that with
   # `badargs.diagnose` do it all manually again...
@@ -497,7 +508,7 @@ specify posix.compat:
 
 - describe setrlimit:
   - before:
-      setrlimit = posix.setrlimit
+      setrlimit = M.setrlimit
 
   - context with bad arguments: |
       examples {
@@ -516,21 +527,21 @@ specify posix.compat:
   - before:
       # choose a format without seconds, that won't cause a race condition
       fmt = "%b %d %H:%M"
-      getegid, geteuid = posix.getegid, posix.geteuid
+      getegid, geteuid = M.getegid, M.geteuid
       stat, typeerrors = init (posix, "stat")
 
-      dir = posix.mkdtemp (template)
-      posix.mkdir (dir .. "/subdir")
-      posix.link ("subdir", dir .. "/soft", true)
+      dir = M.mkdtemp (template)
+      M.mkdir (dir .. "/subdir")
+      M.link ("subdir", dir .. "/soft", true)
       touch (dir .. "/file")
-      posix.link (dir .. "/file", dir .. "/hard")
-      posix.link ("no such destination", dir .. "/dangling", true)
-      posix.mkfifo (dir .. "/fifo")
+      M.link (dir .. "/file", dir .. "/hard")
+      M.link ("no such destination", dir .. "/dangling", true)
+      M.mkfifo (dir .. "/fifo")
 
   - after:
       rmtmp (dir)
 
-  # posix.stat takes an optional string or table as its second
+  # M.stat takes an optional string or table as its second
   # argument, followed by zero or more strings only if the second
   # argument was a string; since we can't express that with
   # `badargs.diagnose` do it all manually again...
@@ -606,7 +617,7 @@ specify posix.compat:
   - before:
       statvfs, typeerrors = init (posix, "statvfs")
 
-  # posix.statvfs takes an optional string or table as its second
+  # M.statvfs takes an optional string or table as its second
   # argument, followed by zero or more strings only if the second
   # argument was a string; since we can't express that with
   # `badargs.diagnose` do it all manually again...
@@ -673,7 +684,7 @@ specify posix.compat:
 
 - describe strftime:
   - before:
-      strftime = posix.strftime
+      strftime = M.strftime
 
       t = {
         is_dst = true, weekday = 0, sec = 2, min = 3, hour = 4,
@@ -707,7 +718,7 @@ specify posix.compat:
 
 - describe strptime:
   - before:
-      strptime = posix.strptime
+      strptime = M.strptime
 
   - context with bad arguments:
       badargs.diagnose (strptime, "strptime (string, string)")
@@ -737,8 +748,8 @@ specify posix.compat:
 
 - describe setlogmask:
   - context with bad arguments:
-      if posix.setlogmask then
-        badargs.diagnose (posix.setlogmask, "setlogmask (?int*)")
+      if M.setlogmask then
+        badargs.diagnose (M.setlogmask, "setlogmask (?int*)")
       end
 
 
@@ -752,7 +763,7 @@ specify posix.compat:
          expect (value >= -1).to_be (true)
       end
 
-  # posix.sysconf takes an optional string or table as its first
+  # M.sysconf takes an optional string or table as its first
   # argument, followed by zero or more strings only if the first
   # argument was a string; since we can't express that with
   # `badargs.diagnose` do it all manually again...
@@ -819,7 +830,7 @@ specify posix.compat:
       table.unpack = table.unpack or unpack
       times, typeerrors = init (posix, "times")
 
-  # posix.times takes an optional string or table as its first
+  # M.times takes an optional string or table as its first
   # argument, followed by zero or more strings only if the first
   # argument was a string; since we can't express that with
   # `badargs.diagnose` do it all manually again...
@@ -870,11 +881,11 @@ specify posix.compat:
 
 - describe umask:
   - before:
-      stat, umask = posix.stat, posix.umask
+      stat, umask = M.stat, M.umask
       saved = umask ()
       umask "rwxr-x---"
 
-      dir = posix.mkdtemp (template)
+      dir = M.mkdtemp (template)
 
   - after:
       rmtmp (dir)
@@ -912,7 +923,7 @@ specify posix.compat:
 
 - describe uname:
   - before:
-      uname = posix.uname
+      uname = M.uname
 
   - context with bad arguments: |
       badargs.diagnose (uname, "uname (?string)")

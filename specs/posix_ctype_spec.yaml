@@ -1,11 +1,18 @@
-specify posix.ctype:
-- before:
-    ctype = require "posix.ctype"
+before:
+  this_module = 'posix.ctype'
+  global_table = '_G'
 
+  M = require(this_module)
+
+specify posix.ctype:
+- context when required:
+  - it does not touch the global table:
+      expect(show_apis {added_to=global_table, by=this_module}).
+        to_equal {}
 
 - describe isgraph:
   - before:
-      isgraph = ctype.isgraph
+      isgraph = M.isgraph
 
   - context with bad arguments:
       badargs.diagnose (isgraph, "(string)")
@@ -19,7 +26,7 @@ specify posix.ctype:
 
 - describe isprint:
   - before:
-      isprint = ctype.isprint
+      isprint = M.isprint
 
   - context with bad arguments:
       badargs.diagnose (isprint, "(string)")

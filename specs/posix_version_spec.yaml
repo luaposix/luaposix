@@ -1,5 +1,18 @@
-describe version:
+before:
+  this_module = 'posix.version'
+  global_table = '_G'
+
+  M = require(this_module)
+
+
+specify posix.version:
+- context when required:
+  - it does not touch the global table:
+      expect(show_apis {added_to=global_table, by=this_module}).
+        to_equal {}
+
+
 - it is set:
-    expect (posix.version).not_to_be (nil)
+    expect (M).not_to_be (nil)
 - it contains the correct release number:
-    expect (posix.version).to_contain (os.getenv "VERSION")
+    expect (M).to_contain (os.getenv "VERSION")

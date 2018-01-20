@@ -1,11 +1,21 @@
+before:
+  this_module = 'posix.sys.times'
+  global_table = '_G'
+
+  M = require(this_module)
+
+
 specify posix.sys.times:
-- before:
-    tms = require "posix.sys.times"
+- context when required:
+  - it does not touch the global table:
+      expect(show_apis {added_to=global_table, by=this_module}).
+        to_equal {}
+
 
 - describe times:
   - before:
       table.unpack = table.unpack or unpack
-      times = tms.times
+      times = M.times
 
   # posix.times takes an optional string or table as its first
   # argument, followed by zero or more strings only if the first

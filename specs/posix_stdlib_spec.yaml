@@ -1,16 +1,25 @@
+before:
+  this_module = 'posix.stdlib'
+  global_table = '_G'
+
+  M = require(this_module)
+
+
 specify posix.stdlib:
-- before:
-    stdlib = require "posix.stdlib"
+- context when required:
+  - it does not touch the global table:
+      expect(show_apis {added_to=global_table, by=this_module}).
+        to_equal {}
 
 
 - describe abort:
   - context with bad arguments:
-      badargs.diagnose (stdlib.abort, "()")
+      badargs.diagnose (M.abort, "()")
 
 
 - describe getenv:
   - before:
-      getenv = stdlib.getenv
+      getenv = M.getenv
 
   - context with bad arguments:
       badargs.diagnose (getenv, "(?string)")
@@ -33,13 +42,13 @@ specify posix.stdlib:
 
 - describe grantpt:
   - context with bad arguments:
-      badargs.diagnose (stdlib.grantpt, "(int)")
+      badargs.diagnose (M.grantpt, "(int)")
 
 
 - describe mkdtemp:
   - before:
       st = require "posix.sys.stat"
-      mkdtemp = stdlib.mkdtemp
+      mkdtemp = M.mkdtemp
       stat, IFMT, IFDIR, IRWXU = st.stat, st.S_IFMT, st.S_IFDIR, st.S_IRWXU
       IRWXA = bor (st.S_IRWXU, st.S_IRWXG, st.S_IRWXO)
 
@@ -61,7 +70,7 @@ specify posix.stdlib:
       st = require "posix.sys.stat"
       unistd = require "posix.unistd"
       O_RDONLY, open = fc.O_RDONLY, fc.open
-      mkstemp = stdlib.mkstemp
+      mkstemp = M.mkstemp
       close, isatty, read, write =
         unistd.close, unistd.isatty, unistd.read, unistd.write
       stat, IFMT, IFREG = st.stat, st.S_IFMT, st.S_IFREG
@@ -100,7 +109,7 @@ specify posix.stdlib:
       st = require "posix.sys.stat"
       close = require "posix.unistd".close
       grantpt, openpt, ptsname, unlockpt =
-        stdlib.grantpt, stdlib.openpt, stdlib.ptsname, stdlib.unlockpt
+        M.grantpt, M.openpt, M.ptsname, M.unlockpt
       O_RDWR, O_NOCTTY, open = fc.O_RDWR, fc.O_NOCTTY, fc.open
       stat, IFMT, IFCHR = st.stat, st.S_IFMT, st.S_IFCHR
 
@@ -125,20 +134,20 @@ specify posix.stdlib:
 
 - describe ptsname:
   - context with bad arguments:
-      badargs.diagnose (stdlib.ptsname, "(int)")
+      badargs.diagnose (M.ptsname, "(int)")
 
 
 - describe realpath:
   - context with bad arguments:
-      badargs.diagnose (stdlib.realpath, "(string)")
+      badargs.diagnose (M.realpath, "(string)")
 
 
 - describe setenv:
   - before:
-      getenv, setenv = stdlib.getenv, stdlib.setenv
+      getenv, setenv = M.getenv, M.setenv
 
   - context with bad arguments:
-      badargs.diagnose (stdlib.setenv, "(string, ?string, ?any)")
+      badargs.diagnose (M.setenv, "(string, ?string, ?any)")
 
   - it sets a new value in the process environment:
       setenv ("MYVAR", "123")
@@ -149,4 +158,4 @@ specify posix.stdlib:
 
 - describe unlockpt:
   - context with bad arguments:
-      badargs.diagnose (stdlib.unlockpt, "(int)")
+      badargs.diagnose (M.unlockpt, "(int)")

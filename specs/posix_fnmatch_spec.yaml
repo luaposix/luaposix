@@ -1,11 +1,19 @@
+before:
+  this_module = 'posix.fnmatch'
+  global_table = '_G'
+
+  M = require(this_module)
+
 specify posix.fnmatch:
-- before:
-    fnm = require "posix.fnmatch"
+- context when required:
+  - it does not touch the global table:
+      expect(show_apis {added_to=global_table, by=this_module}).
+        to_equal {}
 
 - describe fnmatch:
   - before:
       fnmatch, FNM_PATHNAME, FNM_PERIOD, FNM_NOMATCH =
-        fnm.fnmatch, fnm.FNM_PATHNAME, fnm.FNM_PERIOD, fnm.FNM_NOMATCH
+        M.fnmatch, M.FNM_PATHNAME, M.FNM_PERIOD, M.FNM_NOMATCH
 
   - context with bad arguments:
       badargs.diagnose (fnmatch, "(string, string, ?int)")

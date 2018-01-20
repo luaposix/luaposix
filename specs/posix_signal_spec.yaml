@@ -1,23 +1,32 @@
+before:
+  this_module = 'posix.signal'
+  global_table = '_G'
+
+  M = require(this_module)
+
+
 specify posix.signal:
-- before:
-    sig = require "posix.signal"
+- context when required:
+  - it does not touch the global table:
+      expect(show_apis {added_to=global_table, by=this_module}).
+        to_equal {}
 
 
 - describe kill:
   - context with bad arguments:
-      badargs.diagnose (sig.kill, "(int, ?int)")
+      badargs.diagnose (M.kill, "(int, ?int)")
 
 
 - describe killpg:
   - context with bad arguments:
-      badargs.diagnose (sig.killpg, "(int, ?int)")
+      badargs.diagnose (M.killpg, "(int, ?int)")
 
 
 - describe raise:
   - context with bad arguments:
-      badargs.diagnose (sig.raise, "(int)")
+      badargs.diagnose (M.raise, "(int)")
 
 
 - describe signal:
   - context with bad arguments:
-      badargs.diagnose (sig.signal, "(int, ?function|string, ?int)")
+      badargs.diagnose (M.signal, "(int, ?function|string, ?int)")
