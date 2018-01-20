@@ -118,7 +118,7 @@ local M = {
   optstring       = optstring,
   toomanyargerror = toomanyargerror,
 }
-
+local _DEBUG = require "posix.config"._DEBUG
 
 
 --- Change the mode of the path.
