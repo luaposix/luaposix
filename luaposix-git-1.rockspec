@@ -13,17 +13,25 @@ description = {
    license = 'MIT/X11',
 }
 
-source = {
-   url = 'git://github.com/luaposix/luaposix.git',
--- url = 'http://github.com/luaposix/luaposix/archive/v' .. _MODREV .. '.zip',
--- dir = 'luaposix-' .. _MODREV,  
-}
-
 dependencies = {
    'lua >= 5.1, < 5.4',
    'bit32',
-   'ldoc',
 }
+
+source = (function(gitp)
+   if gitp then
+      dependencies[#dependencies + 1] = 'ldoc'
+
+      return {
+         url = 'git://github.com/luaposix/luaposix.git',
+      }
+   else
+      return {
+         url = 'http://github.com/luaposix/luaposix/archive/v' .. _MODREV .. '.zip',
+         dir = 'luaposix-' .. _MODREV,  
+      }
+   end
+end)(_MODREV == 'git')
 
 build = {
    type = 'command',
