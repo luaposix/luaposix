@@ -250,7 +250,7 @@ static const luaL_Reg posix_termio_fns[] =
 LUALIB_API int
 luaopen_posix_termio(lua_State *L)
 {
-	luaL_register(L, "posix.termio", posix_termio_fns);
+	luaL_newlib(L, posix_termio_fns);
 	lua_pushstring(L, LPOSIX_VERSION_STRING("termio"));
 	lua_setfield(L, -2, "version");
 

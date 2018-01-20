@@ -2,6 +2,18 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### Incompatible Changes
+
+  - `require 'posix'` (or any of its submodules) always returns a
+    populated module table, but no longer sets `_G.posix` or any
+    other global symbol on Lua 5.1 (including LuaJIT).  If you were
+    relying on this behaviour, please change your require statments
+    to an assignment:
+
+    ```lua
+    local posix = require 'posix'
+    ```
+
 ### Bugs Fixed
 
   - `posix.sys.wait.wait` returns `<childpid>, "running"` when the
@@ -9,6 +21,9 @@
     set.
 
   - specs don't fail on valid -1 return values from `posix.sysconf`.
+
+  - loading posix (or any of its submodules) no longer leaks symbols
+    into the global namespace on Lua 5.1 (including LuaJIT).
 
 
 ## Noteworthy changes in release 34.0.1 (2017-07-09) [stable]
