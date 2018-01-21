@@ -10,6 +10,9 @@ specify posix.compat:
       expect(show_apis {added_to=global_table, by=this_module}).
         to_equal {}
 
+- before:
+    EPOCH = M.time()
+
 - describe chmod:
   - before:
       chmod, stat = M.chmod, M.stat
@@ -222,8 +225,8 @@ specify posix.compat:
       badargs.diagnose (gettimeofday, "gettimeofday ()")
 
   - it fetches the current epoch time:
-      t, epoch = gettimeofday (), M.time ()
-      expect (t.sec).to_be (epoch)
+      t = gettimeofday ()
+      expect (t.sec).to_be_within_n_of {value=EPOCH, delta=1}
       expect (type (t.usec)).to_be "number"
       expect (t.usec >= 0).to_be (true)
 
@@ -236,9 +239,9 @@ specify posix.compat:
       badargs.diagnose (gmtime, "gmtime (?int)")
 
   - it returns a table:
-      expect (prototype (gmtime (now))).to_be "table"
+      expect (prototype (gmtime (EPOCH))).to_be "table"
   - it fetches broken-down time values:
-      t = gmtime (now)
+      t = gmtime (EPOCH)
       fields = {"sec", "min", "hour", "day", "monthday", "month", "year",
                 "weekday", "yearday", "is_dst"}
       expect (t).to_contain.a_permutation_of (fields)
@@ -253,10 +256,10 @@ specify posix.compat:
   - it returns a month in the range 1-12:
       # A recent December afternoon in epoch seconds...
       expect (gmtime (1418734089).month).to_be (12)
-      t = gmtime (now)
+      t = gmtime (EPOCH)
       expect (t.month >= 1 and t.month <= 12).to_be (true)
   - it returns full year:
-      expect (gmtime (now).year > 2000).to_be (true)
+      expect (gmtime (EPOCH).year > 2000).to_be (true)
 
 
 - describe hostid:
@@ -298,9 +301,9 @@ specify posix.compat:
       badargs.diagnose (localtime, "localtime (?int)")
 
   - it returns a table:
-      expect (prototype (localtime (now))).to_be "table"
+      expect (prototype (localtime (EPOCH))).to_be "table"
   - it fetches broken-down time values:
-      t = localtime (now)
+      t = localtime (EPOCH)
       fields = {"sec", "min", "hour", "day", "monthday", "month", "year",
                 "weekday", "yearday", "is_dst"}
       expect (t).to_contain.a_permutation_of (fields)
@@ -315,10 +318,10 @@ specify posix.compat:
   - it returns a month in the range 1-12:
       # A recent December afternoon in epoch seconds...
       expect (localtime (1418734089).month).to_be (12)
-      t = localtime (now)
+      t = localtime (EPOCH)
       expect (t.month >= 1 and t.month <= 12).to_be (true)
   - it returns years since 1900:
-      expect (localtime (now).year > 2000).to_be (true)
+      expect (localtime (EPOCH).year > 2000).to_be (true)
 
 
 - describe mkdir:
@@ -362,8 +365,7 @@ specify posix.compat:
 - describe mktime:
   - before:
       localtime, mktime, time = M.localtime, M.mktime, M.time
-      epoch = time ()
-      t = localtime (epoch)
+      t = localtime (EPOCH)
 
   - context with bad arguments:
       badargs.diagnose (mktime, "mktime (?table)")
@@ -371,10 +373,9 @@ specify posix.compat:
   - it returns an epoch time:
       expect (prototype (mktime (t))).to_be "number"
   - it is the inverse of localtime:
-      expect (mktime (t)).to_be (epoch)
-  - it defaults to current time: |
-      -- avoid a race by discarding the unit seconds
-      expect (mktime () / 10).to_be (epoch / 10)
+      expect (mktime (t)).to_be_within_n_of {value=EPOCH, delta=1}
+  - it defaults to current time:
+      expect (mktime ()).to_be_within_n_of {value=EPOCH, delta=1}
 
 
 - describe msgget:
@@ -525,7 +526,6 @@ specify posix.compat:
 
 - describe stat:
   - before:
-      # choose a format without seconds, that won't cause a race condition
       fmt = "%b %d %H:%M"
       getegid, geteuid = M.getegid, M.geteuid
       stat, typeerrors = init (posix, "stat")
@@ -580,14 +580,14 @@ specify posix.compat:
       expect (stat (dir .. "/hard", "size")).
         to_be (stat (dir .. "/file", "size"))
   - it fetches the file access time:
-      expect (os.date (fmt, stat (dir .. "/file", "atime"))).
-        to_be (os.date (fmt))
+      expect (stat (dir .. "/file", "atime")).
+        to_be_within_n_of {value=EPOCH, delta=1}
   - it fetches the file modification time:
-      expect (os.date (fmt, stat (dir .. "/file", "mtime"))).
-        to_be (os.date (fmt))
+      expect (stat (dir .. "/file", "mtime")).
+        to_be_within_n_of {value=EPOCH, delta=1}
   - it fetches the file creation time:
-      expect (os.date (fmt, stat (dir .. "/file", "ctime"))).
-        to_be (os.date (fmt))
+      expect (stat (dir .. "/file", "ctime")).
+        to_be_within_n_of {value=EPOCH, delta=2}
   - it fetches the file access mode:
       expect (stat (dir .. "/file").mode).to_match ("^[-rwx]+$")
       expect (stat (dir .. "/subdir", "mode")).to_match ("^[-rwx]+$")

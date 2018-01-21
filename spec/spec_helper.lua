@@ -251,3 +251,31 @@ function show_apis(argt)
 
   assert (false, 'missing argument to show_apis')
 end
+
+
+do
+   --[[ ================ ]]--
+   --[[ Custom matchers. ]]--
+   --[[ ================ ]]--
+
+   local Matcher = require 'specl.matchers'.Matcher
+   local matchers = require 'specl.matchers'.matchers
+
+   -- Avoid timestamp race-conditions.
+   matchers.be_within_n_of = Matcher {
+      function(self, actual, expected)
+         local delta = expected.delta or 1
+         local value = expected.value or expected[1]
+         return (value <= actual + delta) and (value >= actual - delta)
+      end,
+
+      actual = 'within_of',
+
+      format_expect = function(self, expect)
+         local delta = tostring(expect.delta or 1)
+         local value = tostring(expect.value or expect[1])
+         return ' number within ' .. delta .. ' of ' .. value .. ', '
+      end,
+   }
+
+end

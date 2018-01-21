@@ -15,6 +15,7 @@ specify posix.sys.stat:
 - before:
     posix = require 'posix'
 
+    EPOCH = require 'posix.time'.time ()
     RWXALL = bor (M.S_IRWXU, M.S_IRWXG, M.S_IRWXO)
 
     dir = posix.mkdtemp (template)
@@ -53,9 +54,6 @@ specify posix.sys.stat:
 
 - describe lstat:
   - before:
-      # choose a format without seconds, that won't cause a race condition
-      fmt = "%b %d %H:%M"
-      now = os.date (fmt)
       getegid, geteuid = posix.getegid, posix.geteuid
 
       lstat = M.lstat
@@ -134,11 +132,14 @@ specify posix.sys.stat:
       expect (lstat (dir .. "/hard").st_size).
         to_be (lstat (dir .. "/file").st_size)
   - it fetches the file access time:
-      expect (os.date (fmt, lstat (dir .. "/file").st_atime)).to_be (os.date (fmt))
+      expect (lstat (dir .. "/file").st_atime).
+        to_be_within_n_of {value=EPOCH, delta=1}
   - it fetches the file modification time:
-      expect (os.date (fmt, lstat (dir .. "/file").st_mtime)).to_be (now)
+      expect (lstat (dir .. "/file").st_mtime).
+        to_be_within_n_of {value=EPOCH, delta=1}
   - it fetches the file change time:
-      expect (os.date (fmt, lstat (dir .. "/file").st_ctime)).to_be (now)
+      expect (lstat (dir .. "/file").st_ctime).
+        to_be_within_n_of {value=EPOCH, delta=1}
   - it fetches the device block size:
       blksize = lstat (dir .. "/file").st_blksize
       expect (type (blksize)).to_be "number"
@@ -161,9 +162,6 @@ specify posix.sys.stat:
       fd_fifo = fc.open (dir .. "/fifo", bor (fc.O_RDONLY, fc.O_NONBLOCK))
       fd_subdir = fc.open (dir .. "/subdir", fc.O_RDONLY)
 
-      -- choose a format without seconds, that won't cause a race condition
-      fmt = "%b %d %H:%M"
-      now = os.date (fmt)
       getegid, geteuid = posix.getegid, posix.geteuid
 
       fstat = M.fstat
@@ -230,11 +228,14 @@ specify posix.sys.stat:
       expect (fstat (fd_file).st_size).to_be (0)
       expect (fstat (fd_hard).st_size).to_be (fstat (fd_file).st_size)
   - it fetches the file access time:
-      expect (os.date (fmt, fstat (fd_file).st_atime)).to_be (os.date (fmt))
+      expect (fstat (fd_file).st_atime).
+        to_be_within_n_of {value=EPOCH, delta=1}
   - it fetches the file modification time:
-      expect (os.date (fmt, fstat (fd_file).st_mtime)).to_be (now)
+      expect (fstat (fd_file).st_mtime).
+        to_be_within_n_of {value=EPOCH, delta=1}
   - it fetches the file change time:
-      expect (os.date (fmt, fstat (fd_file).st_ctime)).to_be (now)
+      expect (fstat (fd_file).st_ctime).
+        to_be_within_n_of {value=EPOCH, delta=1}
   - it fetches the device block size:
       blksize = fstat (fd_file).st_blksize
       expect (type (blksize)).to_be "number"
@@ -295,9 +296,6 @@ specify posix.sys.stat:
 
 - describe stat:
   - before:
-      # choose a format without seconds, that won't cause a race condition
-      fmt = "%b %d %H:%M"
-      now = os.date (fmt)
       getegid, geteuid = posix.getegid, posix.geteuid
 
       stat = M.stat
@@ -377,11 +375,14 @@ specify posix.sys.stat:
       expect (stat (dir .. "/hard").st_size).
         to_be (stat (dir .. "/file").st_size)
   - it fetches the file access time:
-      expect (os.date (fmt, stat (dir .. "/file").st_atime)).to_be (os.date (fmt))
+      expect (stat (dir .. "/file").st_atime).
+        to_be_within_n_of {value=EPOCH, delta=1}
   - it fetches the file modification time:
-      expect (os.date (fmt, stat (dir .. "/file").st_mtime)).to_be (now)
+      expect (stat (dir .. "/file").st_mtime).
+        to_be_within_n_of {value=EPOCH, delta=1}
   - it fetches the file change time:
-      expect (os.date (fmt, stat (dir .. "/file").st_ctime)).to_be (now)
+      expect (stat (dir .. "/file").st_ctime).
+        to_be_within_n_of {value=EPOCH, delta=1}
   - it fetches the device block size:
       blksize = stat (dir .. "/file").st_blksize
       expect (type (blksize)).to_be "number"

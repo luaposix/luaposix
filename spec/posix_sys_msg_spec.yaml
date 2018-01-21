@@ -17,7 +17,7 @@ specify posix.sys.msg:
     st     = require 'posix.sys.stat'
     unistd = require 'posix.unistd'
 
-    NOW   = require 'posix.time'.time ()
+    EPOCH  = require 'posix.time'.time ()
     EEXIST = errno.EEXIST
     msgget, msgsnd, msgrcv = M.msgget, M.msgsnd, M.msgrcv
     IPC_CREAT, IPC_EXCL = M.IPC_CREAT, M.IPC_EXCL
@@ -85,8 +85,8 @@ specify posix.sys.msg:
         expect (type(msqid.msg_qbytes)).to_be 'number'
         expect (msqid.msg_lspid).to_be (unistd.getpid())
         expect (msqid.msg_lrpid).to_be (unistd.getpid())
-        expect (msqid.msg_stime - NOW < 1).to_be (true)
-        expect (msqid.msg_rtime - NOW < 1).to_be (true)
+        expect (msqid.msg_stime).to_be_within_n_of {value=EPOCH, delta=1}
+        expect (msqid.msg_rtime).to_be_within_n_of {value=EPOCH, delta=1}
         expect (msqid.msg_perm.uid).to_be (unistd.getuid())
         expect (msqid.msg_perm.gid).to_be (unistd.getgid())
         expect (msqid.msg_perm.cuid).to_be (msqid.msg_perm.uid)
