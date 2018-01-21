@@ -20,7 +20,7 @@ assert (rc == 0, errmsg)
 -- Receive datagrams on the socket and print out the contents
 local dgram
 while true do
-  dgram, errmsg = recv (s, 1024)
-  assert (dgram ~= nil, errmsg)
-  print ("Got packet: [" .. tostring (dgram) .. "]")
+   dgram, errmsg = recv (s, 1024)
+   assert (dgram ~= nil, errmsg)
+   print ("Got packet: [" .. tostring (dgram) .. "]")
 end

@@ -14,17 +14,17 @@ local pid, errmsg = unistd.fork ()
 assert (pid ~= nil, errmsg)
 
 if pid == 0 then
-  unistd.close (stdout_r)
-  unistd.close (stderr_r)
+   unistd.close (stdout_r)
+   unistd.close (stderr_r)
 
-  unistd.dup2 (stdout_w, unistd.STDOUT_FILENO)
-  unistd.dup2 (stderr_w, unistd.STDERR_FILENO)
+   unistd.dup2 (stdout_w, unistd.STDOUT_FILENO)
+   unistd.dup2 (stderr_w, unistd.STDERR_FILENO)
 
-  -- Exec() a subprocess here instead if you like --
+   -- Exec() a subprocess here instead if you like --
 
-  io.stdout:write "output string"
-  io.stderr:write "oh noes!"
-  os.exit (42)
+   io.stdout:write "output string"
+   io.stderr:write "oh noes!"
+   os.exit (42)
 end
 
 unistd.close (stdout_w)

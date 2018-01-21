@@ -119,7 +119,7 @@ points when proposing changes:
 0. Follow existing code. There are a lot of useful patterns and
    avoided traps there.
 
-1. 8-character indentation using TABs in C sources; 2-character
+1. 8-character indentation using TABs in C sources; 3-character
    indentation using SPACEs in Lua sources.
 
 2. No non-POSIX APIs; no platform-specific code. When wrapping APIs

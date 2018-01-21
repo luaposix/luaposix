@@ -10,11 +10,11 @@ local t = posix.times 'elapsed'
 
 local pid = posix.fork ()
 if pid == 0 then -- child
-  print 'start'
-  for i = 1, 1e9 do
-  end
-  print 'finish'
+   print 'start'
+   for i = 1, 1e9 do
+   end
+   print 'finish'
 else
-  print (posix.wait (pid))
-  print (posix.times 'elapsed' - t)
+   print (posix.wait (pid))
+   print (posix.times 'elapsed' - t)
 end

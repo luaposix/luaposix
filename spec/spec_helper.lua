@@ -2,34 +2,34 @@ local unpack = table.unpack or unpack
 
 
 if os.getenv "installcheck" == nil then
-  -- Unless we're running inside `make installcheck`, add the dev-tree
-  -- directories to the module search paths.
-  local std = require "specl.std"
+   -- Unless we're running inside `make installcheck`, add the dev-tree
+   -- directories to the module search paths.
+   local std = require "specl.std"
 
-  local top_srcdir = os.getenv "top_srcdir" or "."
-  local top_builddir = os.getenv "top_builddir" or "."
+   local top_srcdir = os.getenv "top_srcdir" or "."
+   local top_builddir = os.getenv "top_builddir" or "."
 
-  package.path  = std.package.normalize (
-		    top_builddir .. "/lib/?.lua",
-		    top_srcdir .. "/lib/?.lua",
-		    top_builddir .. "/lib/?/init.lua",
-		    top_srcdir .. "/lib/?/init.lua",
-		    package.path)
-  package.cpath = std.package.normalize (
-		    top_builddir .. "/ext/posix/.libs/?.so",
-		    top_srcdir .. "/ext/posix/.libs/?.so",
-		    top_builddir .. "/ext/posix/_libs/?.dll",
-		    top_srcdir .. "/ext/posix/_libs/?.dll",
-		    package.cpath)
+   package.path   = std.package.normalize (
+                              top_builddir .. "/lib/?.lua",
+                              top_srcdir .. "/lib/?.lua",
+                              top_builddir .. "/lib/?/init.lua",
+                              top_srcdir .. "/lib/?/init.lua",
+                              package.path)
+   package.cpath = std.package.normalize (
+                              top_builddir .. "/ext/posix/.libs/?.so",
+                              top_srcdir .. "/ext/posix/.libs/?.so",
+                              top_builddir .. "/ext/posix/_libs/?.dll",
+                              top_srcdir .. "/ext/posix/_libs/?.dll",
+                              package.cpath)
 end
 
 
 local bit = require "bit32"
 band, bnot, bor = bit.band, bit.bnot, bit.bor
 
-badargs = require "specl.badargs"
-hell    = require "specl.shell"
-posix   = require "posix"
+badargs	= require "specl.badargs"
+hell	= require "specl.shell"
+posix	= require "posix"
 
 
 -- Allow user override of LUA binary used by hell.spawn, falling
@@ -39,45 +39,45 @@ local LUA = os.getenv "LUA" or "lua"
 
 -- Easily check for std.object.type compatibility.
 function prototype (o)
-  return (getmetatable (o) or {})._type or io.type (o) or type (o)
+   return (getmetatable (o) or {})._type or io.type (o) or type (o)
 end
 
 
 local function mkscript (code)
-  local f = os.tmpname ()
-  local h = io.open (f, "w")
-  h:write (code)
-  h:close ()
-  return f
+   local f = os.tmpname ()
+   local h = io.open (f, "w")
+   h:write (code)
+   h:close ()
+   return f
 end
 
 
 --- Run some Lua code with the given arguments and input.
 -- @string code valid Lua code
 -- @tparam[opt={}] string|table arg single argument, or table of
---   arguments for the script invocation
+--    arguments for the script invocation
 -- @string[opt] stdin standard input contents for the script process
 -- @treturn specl.shell.Process|nil status of resulting process if
---   execution was successful, otherwise nil
+--    execution was successful, otherwise nil
 function luaproc (code, arg, stdin)
-  local f = mkscript (code)
-  if type (arg) ~= "table" then arg = {arg} end
-  local cmd = {LUA, f, unpack (arg)}
-  -- inject env and stdin keys separately to avoid truncating `...` in
-  -- cmd constructor
-  cmd.stdin = stdin
-  cmd.env = {
-    LUA		 = LUA,
-    LUA_CPATH    = package.cpath,
-    LUA_PATH     = package.path,
-    LUA_INIT     = "",
-    LUA_INIT_5_2 = "",
-    LUA_INIT_5_3 = "",
-    PATH	 = os.getenv "PATH"
-  }
-  local proc = hell.spawn (cmd)
-  os.remove (f)
-  return proc
+   local f = mkscript (code)
+   if type (arg) ~= "table" then arg = {arg} end
+   local cmd = {LUA, f, unpack (arg)}
+   -- inject env and stdin keys separately to avoid truncating `...` in
+   -- cmd constructor
+   cmd.stdin = stdin
+   cmd.env = {
+      LUA	= LUA,
+      LUA_CPATH	= package.cpath,
+      LUA_PATH	= package.path,
+      LUA_INIT	= "",
+      LUA_INIT_5_2	= "",
+      LUA_INIT_5_3	= "",
+      PATH	= os.getenv "PATH"
+   }
+   local proc = hell.spawn (cmd)
+   os.remove (f)
+   return proc
 end
 
 
@@ -90,7 +90,7 @@ function Emsg (_, msg) return msg or "" end
 
 -- Collect stdout from a shell command, and strip surrounding whitespace.
 function cmd_output (cmd)
-  return hell.spawn (cmd).output:gsub ("^%s+", ""):gsub ("%s+$", "")
+   return hell.spawn (cmd).output:gsub ("^%s+", ""):gsub ("%s+$", "")
 end
 
 
@@ -99,17 +99,17 @@ local stat, S_ISDIR = st.lstat, st.S_ISDIR
 
 -- Recursively remove a temporary directory.
 function rmtmp (dir)
-  for f in posix.files (dir) do
-    if f ~= "." and f ~= ".." then
-      local path = dir .. "/" .. f
-      if S_ISDIR (stat (path).st_mode) ~= 0 then
-        rmtmp (path)
-      else
-        os.remove (path)
+   for f in posix.files (dir) do
+      if f ~= "." and f ~= ".." then
+         local path = dir .. "/" .. f
+         if S_ISDIR (stat (path).st_mode) ~= 0 then
+            rmtmp (path)
+         else
+            os.remove (path)
+         end
       end
-    end
-  end
-  os.remove (dir)
+   end
+   os.remove (dir)
 end
 
 
@@ -119,137 +119,137 @@ function touch (path) io.open (path, "w+"):close () end
 
 -- Format a bad argument type error.
 local function typeerrors (fname, i, want, field, got)
-  return {
-    badargs.format ("?", i, want, field, got),   -- LuaJIT
-    badargs.format (fname, i, want, field, got), -- PUC-Rio
-  }
+   return {
+      badargs.format ("?", i, want, field, got),    -- LuaJIT
+      badargs.format (fname, i, want, field, got), -- PUC-Rio
+   }
 end
 
 
 function init (M, fname)
-  return M[fname], function (...) return typeerrors (fname, ...) end
+   return M[fname], function (...) return typeerrors (fname, ...) end
 end
 
 
 pack = table.pack or function(...)
-  return {n=select("#", ...), ...}
+   return {n=select("#", ...), ...}
 end
 
 
 local function tabulate_output(code)
-  local proc = luaproc(code)
-  if proc.status ~= 0 then
-    return error (proc.errout)
-  end
-  local r = {}
-  proc.output:gsub('(%S*)[%s]*', function (x)
-    if x ~= '' then
-      r[x] = true
-    end
-  end)
-  return r
+   local proc = luaproc(code)
+   if proc.status ~= 0 then
+      return error (proc.errout)
+   end
+   local r = {}
+   proc.output:gsub('(%S*)[%s]*', function (x)
+      if x ~= '' then
+         r[x] = true
+      end
+   end)
+   return r
 end
 
 
 --- Show changes to tables wrought by a require statement.
 -- There are a few modes to this function, controlled by what named
--- arguments are given.  Lists new keys in T1 after 'require 'import'`:
+-- arguments are given.   Lists new keys in T1 after 'require 'import'`:
 --
---     show_apis {added_to=T1, by=import}
+--       show_apis {added_to=T1, by=import}
 --
 -- List keys returned from `require 'import'`, which have the same
 -- value in T1:
 --
---     show_apis {from=T1, used_by=import}
+--       show_apis {from=T1, used_by=import}
 --
 -- List keys from `require 'import'`, which are also in T1 but with
 -- a different value:
 --
---     show_apis {from=T1, enhanced_by=import}
+--       show_apis {from=T1, enhanced_by=import}
 --
 -- List keys from T2, which are also in T1 but with a different value:
 --
---     show_apis {from=T1, enhanced_in=T2}
+--       show_apis {from=T1, enhanced_in=T2}
 --
 -- @tparam tabble argt one of the combinations above
 -- @treturn table a list of keys according to criteria above
 function show_apis(argt)
-  local added_to, from, not_in, enhanced_in, enhanced_after, by =
-    argt.added_to, argt.from, argt.not_in, argt.enhanced_in,
-    argt.enhanced_after, argt.by
+   local added_to, from, not_in, enhanced_in, enhanced_after, by =
+      argt.added_to, argt.from, argt.not_in, argt.enhanced_in,
+      argt.enhanced_after, argt.by
 
-  if added_to and by then
-    return tabulate_output([[
-      local before, after = {}, {}
-      for k in pairs(]] .. added_to .. [[) do
-        before[k] = true
-      end
+   if added_to and by then
+      return tabulate_output([[
+         local before, after = {}, {}
+         for k in pairs(]] .. added_to .. [[) do
+            before[k] = true
+         end
 
-      local M = require ']] .. by .. [['
-      for k in pairs(]] .. added_to .. [[) do
-        after[k] = true
-      end
+         local M = require ']] .. by .. [['
+         for k in pairs(]] .. added_to .. [[) do
+            after[k] = true
+         end
 
-      for k in pairs (after) do
-        if not before[k] then
-          print(k)
-        end
-      end
-    ]])
+         for k in pairs (after) do
+            if not before[k] then
+               print(k)
+            end
+         end
+      ]])
 
-  elseif from and not_in then
-    return tabulate_output([[
-      local _ENV = require 'std.normalize' {
-        from = ']] .. from .. [[',
-        M = require ']] .. not_in .. [[',
-      }
+   elseif from and not_in then
+      return tabulate_output([[
+         local _ENV = require 'std.normalize' {
+            from = ']] .. from .. [[',
+            M = require ']] .. not_in .. [[',
+         }
 
-      for k in pairs(M) do
-        -- M[1] is typically the module namespace name, don't match
-        -- that!
-        if k ~= 1 and from[k] ~= M[k] then
-          print (k)
-        end
-      end
-    ]])
+         for k in pairs(M) do
+            -- M[1] is typically the module namespace name, don't match
+            -- that!
+            if k ~= 1 and from[k] ~= M[k] then
+               print (k)
+            end
+         end
+      ]])
 
-  elseif from and enhanced_in then
-    return tabulate_output([[
-      local _ENV = require 'std.normalize' {
-        from = ']] .. from .. [[',
-        M = require ']] .. enhanced_in .. [[',
-      }
+   elseif from and enhanced_in then
+      return tabulate_output([[
+         local _ENV = require 'std.normalize' {
+            from = ']] .. from .. [[',
+            M = require ']] .. enhanced_in .. [[',
+         }
 
-      for k, v in pairs (M) do
-        if from[k] ~= M[k] and from[k] ~= nil then
-          print (k)
-        end
-      end
-    ]])
+         for k, v in pairs (M) do
+            if from[k] ~= M[k] and from[k] ~= nil then
+               print (k)
+            end
+         end
+      ]])
 
-  elseif from and enhanced_after then
-    return tabulate_output([[
-      local _ENV = require 'std.normalize' {
-        from = ']] .. from .. [[',
-      }
-      local before , after = {}, {}
-      for k, v in pairs (from) do
-        before[k] = v
-      end
-      ]] .. enhanced_after .. [[
-      for k, v in pairs(from) do
-        after[k] = v
-      end
+   elseif from and enhanced_after then
+      return tabulate_output([[
+         local _ENV = require 'std.normalize' {
+            from = ']] .. from .. [[',
+         }
+         local before , after = {}, {}
+         for k, v in pairs (from) do
+            before[k] = v
+         end
+         ]] .. enhanced_after .. [[
+         for k, v in pairs(from) do
+            after[k] = v
+         end
 
-      for k, v in pairs (before) do
-        if after[k] ~= nil and after[k] ~= v then
-          print (k)
-        end
-      end
-    ]])
-  end
+         for k, v in pairs (before) do
+            if after[k] ~= nil and after[k] ~= v then
+               print (k)
+            end
+         end
+      ]])
+   end
 
-  assert (false, 'missing argument to show_apis')
+   assert (false, 'missing argument to show_apis')
 end
 
 

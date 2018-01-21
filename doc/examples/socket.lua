@@ -17,11 +17,11 @@ if err then error (err) end
 sock.send (fd, "GET / HTTP/1.0\r\nHost: www.lua.org\r\n\r\n")
 local data = {}
 while true do
-	local b = sock.recv (fd, 1024)
-	if not b or #b == 0 then
-		break
-	end
-	table.insert (data, b)
+   local b = sock.recv (fd, 1024)
+   if not b or #b == 0 then
+      break
+   end
+   table.insert (data, b)
 end
 unistd.close (fd)
 data = table.concat (data)
@@ -33,12 +33,12 @@ sock.bind (fd, { family = sock.AF_INET6, addr = "::", port = 9999 })
 sock.sendto (fd, "Test ipv4", { family = sock.AF_INET, addr = "127.0.0.1", port = 9999 })
 sock.sendto (fd, "Test ipv6", { family = sock.AF_INET6, addr = "::", port = 9999 })
 for i = 1, 2 do
-	local ok, r = sock.recvfrom (fd, 1024)
-	if ok then
-		print (ok, r.addr, r.port)
-	else
-		print (ok, r)
-	end
+   local ok, r = sock.recvfrom (fd, 1024)
+   if ok then
+      print (ok, r.addr, r.port)
+   else
+      print (ok, r)
+   end
 end
 unistd.close (fd)
 
