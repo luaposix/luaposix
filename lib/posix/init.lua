@@ -17,22 +17,22 @@
  @module posix
 ]]
 
-local bit = require "bit32"
+local bit = require 'bit32'
 local M = {}
 
 
 -- For backwards compatibility, copy all table entries into M namespace.
 for _, sub in ipairs {
-   "ctype", "dirent", "errno", "fcntl", "fnmatch", "glob", "grp",
-   "libgen", "poll", "pwd", "sched", "signal", "stdio", "stdlib", "sys.msg",
-   "sys.resource", "sys.socket", "sys.stat", "sys.statvfs", "sys.time",
-   "sys.times", "sys.utsname", "sys.wait", "syslog", "termio", "time",
-   "unistd", "utime"
+   'ctype', 'dirent', 'errno', 'fcntl', 'fnmatch', 'glob', 'grp',
+   'libgen', 'poll', 'pwd', 'sched', 'signal', 'stdio', 'stdlib', 'sys.msg',
+   'sys.resource', 'sys.socket', 'sys.stat', 'sys.statvfs', 'sys.time',
+   'sys.times', 'sys.utsname', 'sys.wait', 'syslog', 'termio', 'time',
+   'unistd', 'utime'
 } do
-   local t = require ("posix." .. sub)
+   local t = require ('posix.' .. sub)
    for k, v in pairs (t) do
-      if k ~= "version" then
-         assert(M[k] == nil, "posix namespace clash: " .. sub .. "." .. k)
+      if k ~= 'version' then
+         assert(M[k] == nil, 'posix namespace clash: ' .. sub .. '.' .. k)
          M[k] = v
       end
    end
@@ -40,10 +40,10 @@ end
 
 
 -- Inject deprecated APIs (overwriting submodules) for backwards compatibility.
-for k, v in pairs (require "posix.deprecated") do
+for k, v in pairs (require 'posix.deprecated') do
    M[k] = v
 end
-for k, v in pairs (require "posix.compat") do
+for k, v in pairs (require 'posix.compat') do
    M[k] = v
 end
 
@@ -103,15 +103,15 @@ local function euidaccess (file, mode)
 
    -- The super-user can read and write any file, and execute any file
    -- that anyone can execute.
-   if euid == 0 and ((not string.match (mode, "x")) or
-                              string.match (stats.st_mode, "x")) then
+   if euid == 0 and ((not string.match (mode, 'x')) or
+                              string.match (stats.st_mode, 'x')) then
       return 0
    end
 
    -- Convert to simple list of modes.
-   mode = string.gsub (mode, "[^rwx]", "")
+   mode = string.gsub (mode, '[^rwx]', '')
 
-   if mode == "" then
+   if mode == '' then
       return 0 -- The file exists.
    end
 
@@ -122,9 +122,9 @@ local function euidaccess (file, mode)
    elseif egid == stats.st_gid or set.new (posix.getgroups ()):member (stats.st_gid) then
       granted = stats.st_mode:sub (4, 6)
    end
-   granted = string.gsub (granted, "[^rwx]", "")
+   granted = string.gsub (granted, '[^rwx]', '')
 
-   if string.gsub ("[^" .. granted .. "]", mode) == "" then
+   if string.gsub ('[^' .. granted .. ']', mode) == '' then
       return 0
    end
    set_errno (EACCESS)
@@ -133,9 +133,9 @@ end
 if _DEBUG ~= false then
    M.euidaccess = function (...)
       local argt = {...}
-      checkstring ("euidaccess", 1, argt[1])
-      checkstring ("euidaccess", 2, argt[2])
-      if #argt > 2 then toomanyargerror ("euidaccess", 2, #argt) end
+      checkstring ('euidaccess', 1, argt[1])
+      checkstring ('euidaccess', 2, argt[2])
+      if #argt > 2 then toomanyargerror ('euidaccess', 2, #argt) end
       return euidaccess (...)
    end
 else
@@ -152,10 +152,10 @@ end
 -- @return[2] nil
 -- @treturn[2] string error message
 
-local bit      = require "bit32"
-local fcntl   = require "posix.fcntl"
-local stdlib = require "posix.stdlib"
-local unistd = require "posix.unistd"
+local bit      = require 'bit32'
+local fcntl   = require 'posix.fcntl'
+local stdlib = require 'posix.stdlib'
+local unistd = require 'posix.unistd'
 
 local bor = bit.bor
 local open, O_RDWR, O_NOCTTY = fcntl.open, fcntl.O_RDWR, fcntl.O_NOCTTY
@@ -188,7 +188,7 @@ end
 if _DEBUG ~= false then
    M.openpty = function (...)
       local argt = {...}
-      if #argt > 0 then toomanyargerror ("openpty", 0, #argt) end
+      if #argt > 0 then toomanyargerror ('openpty', 0, #argt) end
       return openpty (...)
    end
 else
@@ -211,7 +211,7 @@ local errno, execp, _exit =
    M.errno, M.execp, M._exit
 
 local function execx (task, ...)
-   if type (task) == "table" then
+   if type (task) == 'table' then
       execp (unpack (task))
       -- Only get here if there's an error; kill the fork
       local _, n = errno ()
@@ -224,8 +224,8 @@ end
 if _DEBUG ~= false then
    M.execx = function (task, ...)
       local argt, typetask = {task, ...}, type (task)
-      if typetask ~= "table" and typetask ~= "function" then
-         argtypeerror ("execx", 1, "table or function", task)
+      if typetask ~= 'table' and typetask ~= 'function' then
+         argtypeerror ('execx', 1, 'table or function', task)
       end
       return execx (task, ...)
    end
@@ -262,8 +262,8 @@ end
 if _DEBUG ~= false then
    M.spawn = function (task, ...)
       local argt, typetask = {task, ...}, type (task)
-      if typetask ~= "table" and typetask ~= "function" then
-         argtypeerror ("spawn", 1, "table or function", task)
+      if typetask ~= 'table' and typetask ~= 'function' then
+         argtypeerror ('spawn', 1, 'table or function', task)
       end
       return spawn (task, ...)
    end
@@ -294,8 +294,8 @@ end
 if _DEBUG ~= false then
    M.pclose = function (...)
       local argt = {...}
-      checktable ("pclose", 1, argt[1])
-      if #argt > 2 then toomanyargerror ("pclose", 1, #argt) end
+      checktable ('pclose', 1, argt[1])
+      if #argt > 2 then toomanyargerror ('pclose', 1, #argt) end
       return pclose (...)
    end
 else
@@ -306,7 +306,7 @@ end
 local function move_fd (from_fd, to_fd)
    if from_fd ~= to_fd then
       if not dup2 (from_fd, to_fd) then
-         error "error dup2-ing"
+         error 'error dup2-ing'
       end
       close (from_fd)
    end
@@ -327,19 +327,19 @@ end
 local function popen (task, mode, pipe_fn)
    local read_fd, write_fd = (pipe_fn or pipe) ()
    if not read_fd then
-      error "error opening pipe"
+      error 'error opening pipe'
    end
    local parent_fd, child_fd, in_fd, out_fd
-   if mode == "r" then
+   if mode == 'r' then
       parent_fd, child_fd, in_fd, out_fd = read_fd, write_fd, STDIN_FILENO, STDOUT_FILENO
-   elseif mode == "w" then
+   elseif mode == 'w' then
       parent_fd, child_fd, in_fd, out_fd = write_fd, read_fd, STDOUT_FILENO, STDIN_FILENO
    else
-      error "invalid mode"
+      error 'invalid mode'
    end
    local pid = fork ()
    if pid == nil then
-      error "error forking"
+      error 'error forking'
    elseif pid == 0 then -- child process
       move_fd (child_fd, out_fd)
       close (parent_fd)
@@ -352,14 +352,14 @@ end
 if _DEBUG ~= false then
    M.popen = function (task, ...)
       local argt, typetask = {task, ...}, type (task)
-      if typetask ~= "table" and typetask ~= "function" then
-         argtypeerror ("popen", 1, "table or function", task)
+      if typetask ~= 'table' and typetask ~= 'function' then
+         argtypeerror ('popen', 1, 'table or function', task)
       end
-      checkstring ("popen", 2, argt[2])
-      if argt[3] ~= nil and type (argt[3]) ~= "function" then
-         argtypeerror ("popen", 3, "function or nil", argt[3])
+      checkstring ('popen', 2, argt[2])
+      if argt[3] ~= nil and type (argt[3]) ~= 'function' then
+         argtypeerror ('popen', 3, 'function or nil', argt[3])
       end
-      if #argt > 3 then toomanyargerror ("popen", 3, #argt) end
+      if #argt > 3 then toomanyargerror ('popen', 3, #argt) end
       return popen (task, ...)
    end
 else
@@ -379,7 +379,7 @@ local close, _exit = M.close, M._exit
 
 local function popen_pipeline (tasks, mode, pipe_fn)
    local first, from, to, inc = 1, 2, #tasks, 1
-   if mode == "w" then
+   if mode == 'w' then
       first, from, to, inc = #tasks, #tasks - 1, 1, -1
    end
    local pfd = popen (tasks[first], mode, pipe_fn)
@@ -400,12 +400,12 @@ end
 if _DEBUG ~= false then
    M.popen_pipeline = function (...)
       local argt = {...}
-      checktable ("popen_pipeline", 1, argt[1])
-      checkstring ("popen_pipeline", 2, argt[2])
-      if argt[3] ~= nil and type (argt[3]) ~= "function" then
-         argtypeerror ("popen_pipeline", 3, "function or nil", argt[3])
+      checktable ('popen_pipeline', 1, argt[1])
+      checkstring ('popen_pipeline', 2, argt[2])
+      if argt[3] ~= nil and type (argt[3]) ~= 'function' then
+         argtypeerror ('popen_pipeline', 3, 'function or nil', argt[3])
       end
-      if #argt > 3 then toomanyargerror ("popen_pipeline", 3, #argt) end
+      if #argt > 3 then toomanyargerror ('popen_pipeline', 3, #argt) end
       return popen_pipeline (...)
    end
 else
@@ -446,9 +446,9 @@ end
 if _DEBUG ~= false then
    M.timeradd = function (...)
       local argt = {...}
-      checktable ("timeradd", 1, argt[1])
-      checktable ("timeradd", 2, argt[2])
-      if #argt > 2 then toomanyargerror ("timeradd", 2, #argt) end
+      checktable ('timeradd', 1, argt[1])
+      checktable ('timeradd', 2, argt[2])
+      if #argt > 2 then toomanyargerror ('timeradd', 2, #argt) end
       return timeradd (...)
    end
 end
@@ -473,9 +473,9 @@ end
 if _DEBUG ~= false then
    M.timercmp = function (...)
       local argt = {...}
-      checktable ("timercmp", 1, argt[1])
-      checktable ("timercmp", 2, argt[2])
-      if #argt > 2 then toomanyargerror ("timercmp", 2, #argt) end
+      checktable ('timercmp', 1, argt[1])
+      checktable ('timercmp', 2, argt[2])
+      if #argt > 2 then toomanyargerror ('timercmp', 2, #argt) end
       return timercmp (...)
    end
 end
@@ -513,9 +513,9 @@ end
 if _DEBUG ~= false then
    M.timersub = function (...)
       local argt = {...}
-      checktable ("timersub", 1, argt[1])
-      checktable ("timersub", 2, argt[2])
-      if #argt > 2 then toomanyargerror ("timersub", 2, #argt) end
+      checktable ('timersub', 1, argt[1])
+      checktable ('timersub', 2, argt[2])
+      if #argt > 2 then toomanyargerror ('timersub', 2, #argt) end
       return timersub (...)
    end
 end
@@ -528,13 +528,13 @@ end
 -- `false` respectively. A table will be checked for optional keys `pattern`
 -- and `MARK`. A string will be used as the glob pattern.
 -- @treturn table matching files and directories
-local posix_glob = require "posix.glob"
+local posix_glob = require 'posix.glob'
 
 local function glob (args)
-   -- Support previous `glob ".*"` style calls.
-   if type(args) == "string" then
+   -- Support previous `glob '.*'` style calls.
+   if type(args) == 'string' then
       args = {pattern=args}
-   elseif type(args) ~= "table" then
+   elseif type(args) ~= 'table' then
       args = {}
    end
    local flags = 0
@@ -545,15 +545,15 @@ local function glob (args)
 end
 
 if _DEBUG ~= false then
-   local validtypes = { ["table"] = true, ["string"] = true, ["nil"] = true }
+   local validtypes = { ['table'] = true, ['string'] = true, ['nil'] = true }
 
    M.glob = function (...)
       local argt = {...}
       local argtype = type(argt[1])
       if validtypes[argtype] ~= true then
-         argtypeerror ("glob", 1, "table, string or nil", argt[1])
+         argtypeerror ('glob', 1, 'table, string or nil', argt[1])
       elseif #argt > 1 then
-         toomanyargerror ("glob", 1, #argt)
+         toomanyargerror ('glob', 1, #argt)
       end
       return glob (...)
    end

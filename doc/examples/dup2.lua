@@ -1,7 +1,7 @@
-local posix = require "posix"
+local posix = require 'posix'
 
-local unistd = require "posix.unistd"
-local sys_wait = require "posix.sys.wait"
+local unistd = require 'posix.unistd'
+local sys_wait = require 'posix.sys.wait'
 
 
 local stdout_r, stdout_w = unistd.pipe ()
@@ -22,8 +22,8 @@ if pid == 0 then
 
    -- Exec() a subprocess here instead if you like --
 
-   io.stdout:write "output string"
-   io.stderr:write "oh noes!"
+   io.stdout:write 'output string'
+   io.stderr:write 'oh noes!'
    os.exit (42)
 end
 
@@ -32,12 +32,12 @@ unistd.close (stderr_w)
 
 local outs, errmsg = unistd.read (stdout_r, 1024)
 assert (outs ~= nil, errmsg)
-print ("STDOUT:", outs)
+print ('STDOUT:', outs)
 
 local errs, errmsg = unistd.read (stderr_r, 1024)
 assert (errs ~= nil, errmsg)
-print ("STDERR:", errs)
+print ('STDERR:', errs)
 
 local pid, reason, status = sys_wait.wait (pid)
 assert (pid ~= nil, reason)
-print ("child " .. reason, status)
+print ('child ' .. reason, status)

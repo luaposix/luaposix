@@ -1,4 +1,4 @@
-local p = require "posix"
+local p = require 'posix'
 
 if p.SOCK_RAW and p.SO_BINDTODEVICE then
    -- Open raw socket
@@ -8,7 +8,7 @@ if p.SOCK_RAW and p.SO_BINDTODEVICE then
 
    -- Optionally, bind to specific device
 
-   local ok, err = p.setsockopt(fd, p.SOL_SOCKET, p.SO_BINDTODEVICE, "wlan0")
+   local ok, err = p.setsockopt(fd, p.SOL_SOCKET, p.SO_BINDTODEVICE, 'wlan0')
    assert(ok, err)
 
    -- Create raw ICMP echo (ping) message
@@ -17,7 +17,7 @@ if p.SOCK_RAW and p.SO_BINDTODEVICE then
 
    -- Send message
 
-   local ok, err = p.sendto(fd, data, { family = p.AF_INET, addr = "8.8.8.8", port = 0 })
+   local ok, err = p.sendto(fd, data, { family = p.AF_INET, addr = '8.8.8.8', port = 0 })
    assert(ok, err)
 
    -- Read reply
@@ -26,6 +26,6 @@ if p.SOCK_RAW and p.SO_BINDTODEVICE then
    assert(data, sa)
 
    if data then
-      print("Received ICMP message from " .. sa.addr)
+      print('Received ICMP message from ' .. sa.addr)
    end
 end

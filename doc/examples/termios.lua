@@ -1,11 +1,11 @@
-local p = require "posix"
-local dev = arg[1] or "/dev/ttyUSB0"
+local p = require 'posix'
+local dev = arg[1] or '/dev/ttyUSB0'
 
 -- Open serial port and do settings
 
 local fds, err = p.open(dev, p.O_RDWR + p.O_NONBLOCK);
 if not fds then
-   print("Could not open serial port " .. dev .. ":", err)
+   print('Could not open serial port ' .. dev .. ':', err)
    os.exit(1)
 end
 
@@ -36,11 +36,11 @@ local set = {
    [fds] = { events = { IN = true } },
 }
 
-p.write(1, "Starting terminal, hit ^C to exit\r\n")
+p.write(1, 'Starting terminal, hit ^C to exit\r\n')
 
 local function exit(msg)
    p.tcsetattr(0, 0, save)
-   print("\n")
+   print('\n')
    print(msg)
    os.exit(0)
 end
@@ -52,7 +52,7 @@ while true do
          if fd == 0 then
             local d, err = p.read(0, 1024)
             if not d then exit(err) end
-            if d == string.char(3) then exit("Bye") end
+            if d == string.char(3) then exit('Bye') end
             local ok, err = p.write(fds, d)
             if not ok then exit(err) end
          end

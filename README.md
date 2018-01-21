@@ -122,12 +122,15 @@ points when proposing changes:
 1. 8-character indentation using TABs in C sources; 3-character
    indentation using SPACEs in Lua sources.
 
-2. No non-POSIX APIs; no platform-specific code. When wrapping APIs
+2. Simple strings are easiest to type using single-quote delimiters
+   saving double-quotes for where a string contains apostrophes.
+
+3. No non-POSIX APIs; no platform-specific code. When wrapping APIs
    introduced in POSIX 2001 or later, add an appropriate #if. If your
    platform isn't quite POSIX, you may find a gnulib module to bridge
    the gap. If absolutely necessary, use luke feature tests.
 
-3. Thin wrappers: although some existing code contradicts this, wrap
+4. Thin wrappers: although some existing code contradicts this, wrap
    POSIX APIs in the simplest way possible. If necessary, more
    convenient wrappers can be added in Lua (posix.lua).
 

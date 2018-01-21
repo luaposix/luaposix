@@ -1,4 +1,4 @@
-local p = require "posix"
+local p = require 'posix'
 --[[ This example tests sched_setscheduler() / sched_getscheduler()
 -- The script must be run as privileged process (CAP_SYS_NICE on linux)
 ]]
@@ -130,7 +130,7 @@ do
    end
 
    -- stop child
-   p.write(w,"stop")
+   p.write(w,'stop')
    p.close(w)
    p.wait(cpid)
 end

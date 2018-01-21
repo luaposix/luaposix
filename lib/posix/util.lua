@@ -6,5 +6,5 @@
 -- Backwards compatibility alias.
 
 return {
-   openpty = require "posix".openpty,
+   openpty = require 'posix'.openpty,
 }

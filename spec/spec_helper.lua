@@ -1,40 +1,40 @@
 local unpack = table.unpack or unpack
 
 
-if os.getenv "installcheck" == nil then
+if os.getenv 'installcheck' == nil then
    -- Unless we're running inside `make installcheck`, add the dev-tree
    -- directories to the module search paths.
-   local std = require "specl.std"
+   local std = require 'specl.std'
 
-   local top_srcdir = os.getenv "top_srcdir" or "."
-   local top_builddir = os.getenv "top_builddir" or "."
+   local top_srcdir = os.getenv 'top_srcdir' or '.'
+   local top_builddir = os.getenv 'top_builddir' or '.'
 
    package.path   = std.package.normalize (
-                              top_builddir .. "/lib/?.lua",
-                              top_srcdir .. "/lib/?.lua",
-                              top_builddir .. "/lib/?/init.lua",
-                              top_srcdir .. "/lib/?/init.lua",
+                              top_builddir .. '/lib/?.lua',
+                              top_srcdir .. '/lib/?.lua',
+                              top_builddir .. '/lib/?/init.lua',
+                              top_srcdir .. '/lib/?/init.lua',
                               package.path)
    package.cpath = std.package.normalize (
-                              top_builddir .. "/ext/posix/.libs/?.so",
-                              top_srcdir .. "/ext/posix/.libs/?.so",
-                              top_builddir .. "/ext/posix/_libs/?.dll",
-                              top_srcdir .. "/ext/posix/_libs/?.dll",
+                              top_builddir .. '/ext/posix/.libs/?.so',
+                              top_srcdir .. '/ext/posix/.libs/?.so',
+                              top_builddir .. '/ext/posix/_libs/?.dll',
+                              top_srcdir .. '/ext/posix/_libs/?.dll',
                               package.cpath)
 end
 
 
-local bit = require "bit32"
+local bit = require 'bit32'
 band, bnot, bor = bit.band, bit.bnot, bit.bor
 
-badargs	= require "specl.badargs"
-hell	= require "specl.shell"
-posix	= require "posix"
+badargs	= require 'specl.badargs'
+hell	= require 'specl.shell'
+posix	= require 'posix'
 
 
 -- Allow user override of LUA binary used by hell.spawn, falling
--- back to environment PATH search for "lua" if nothing else works.
-local LUA = os.getenv "LUA" or "lua"
+-- back to environment PATH search for 'lua' if nothing else works.
+local LUA = os.getenv 'LUA' or 'lua'
 
 
 -- Easily check for std.object.type compatibility.
@@ -45,7 +45,7 @@ end
 
 local function mkscript (code)
    local f = os.tmpname ()
-   local h = io.open (f, "w")
+   local h = io.open (f, 'w')
    h:write (code)
    h:close ()
    return f
@@ -61,7 +61,7 @@ end
 --    execution was successful, otherwise nil
 function luaproc (code, arg, stdin)
    local f = mkscript (code)
-   if type (arg) ~= "table" then arg = {arg} end
+   if type (arg) ~= 'table' then arg = {arg} end
    local cmd = {LUA, f, unpack (arg)}
    -- inject env and stdin keys separately to avoid truncating `...` in
    -- cmd constructor
@@ -70,10 +70,10 @@ function luaproc (code, arg, stdin)
       LUA	= LUA,
       LUA_CPATH	= package.cpath,
       LUA_PATH	= package.path,
-      LUA_INIT	= "",
-      LUA_INIT_5_2	= "",
-      LUA_INIT_5_3	= "",
-      PATH	= os.getenv "PATH"
+      LUA_INIT	= '',
+      LUA_INIT_5_2	= '',
+      LUA_INIT_5_3	= '',
+      PATH	= os.getenv 'PATH'
    }
    local proc = hell.spawn (cmd)
    os.remove (f)
@@ -82,26 +82,26 @@ end
 
 
 -- Use a consistent template for all temporary files.
-TMPDIR = posix.getenv ("TMPDIR") or "/tmp"
-template = TMPDIR .. "/luaposix-test-XXXXXX"
+TMPDIR = posix.getenv ('TMPDIR') or '/tmp'
+template = TMPDIR .. '/luaposix-test-XXXXXX'
 
 -- Allow comparison against the error message of a function call result.
-function Emsg (_, msg) return msg or "" end
+function Emsg (_, msg) return msg or '' end
 
 -- Collect stdout from a shell command, and strip surrounding whitespace.
 function cmd_output (cmd)
-   return hell.spawn (cmd).output:gsub ("^%s+", ""):gsub ("%s+$", "")
+   return hell.spawn (cmd).output:gsub ('^%s+', ''):gsub ('%s+$', '')
 end
 
 
-local st = require "posix.sys.stat"
+local st = require 'posix.sys.stat'
 local stat, S_ISDIR = st.lstat, st.S_ISDIR
 
 -- Recursively remove a temporary directory.
 function rmtmp (dir)
    for f in posix.files (dir) do
-      if f ~= "." and f ~= ".." then
-         local path = dir .. "/" .. f
+      if f ~= '.' and f ~= '..' then
+         local path = dir .. '/' .. f
          if S_ISDIR (stat (path).st_mode) ~= 0 then
             rmtmp (path)
          else
@@ -114,13 +114,13 @@ end
 
 
 -- Create an empty file at PATH.
-function touch (path) io.open (path, "w+"):close () end
+function touch (path) io.open (path, 'w+'):close () end
 
 
 -- Format a bad argument type error.
 local function typeerrors (fname, i, want, field, got)
    return {
-      badargs.format ("?", i, want, field, got),    -- LuaJIT
+      badargs.format ('?', i, want, field, got),    -- LuaJIT
       badargs.format (fname, i, want, field, got), -- PUC-Rio
    }
 end
@@ -132,7 +132,7 @@ end
 
 
 pack = table.pack or function(...)
-   return {n=select("#", ...), ...}
+   return {n=select('#', ...), ...}
 end
 
 

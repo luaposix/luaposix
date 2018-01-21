@@ -1,4 +1,4 @@
--- tree view of the file system like the "tree" unix utility
+-- tree view of the file system like the 'tree' unix utility
 -- John Belmonte <jvb@prairienet.org>
 
 local posix = require 'posix'

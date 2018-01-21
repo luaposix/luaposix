@@ -13,7 +13,7 @@ if cpid == 0 then -- child reads from pipe
    p._exit(0)
 else -- parent writes to pipe
    p.close(r)
-   p.write(w,"hello dolly\n")
+   p.write(w,'hello dolly\n')
    p.close(w)
    -- wait for child to finish
    p.wait(cpid)

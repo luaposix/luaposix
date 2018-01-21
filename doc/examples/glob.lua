@@ -1,5 +1,5 @@
-local posix = require "posix"
+local posix = require 'posix'
 
-for i, j in pairs (posix.glob ("/proc/[0-9]*/exe")) do
+for i, j in pairs (posix.glob ('/proc/[0-9]*/exe')) do
    print(j)
 end
