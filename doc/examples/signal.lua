@@ -21,8 +21,12 @@ local verbose = #arg > 0
 local function sleepx(secs)
    while true do
       secs = unistd.sleep(secs)
-      if verbose then print('sleep', secs) end
-      if secs == 0 then return end
+      if verbose then
+         print('sleep', secs)
+      end
+      if secs == 0 then
+         return
+      end
    end
 end
 
@@ -32,7 +36,9 @@ M.signal(M.SIGCHLD, function()
    local pid, status, code = syswait.wait(-1, syswait.WNOHANG)
    while pid do
       if pid ~= 0 then
-         if verbose then print('wait', pid, status, code) end
+         if verbose then
+            print('wait', pid, status, code)
+         end
          nchild = nchild + 1
       end
       pid, status, code = syswait.wait(-1, syswait.WNOHANG)
@@ -40,7 +46,9 @@ M.signal(M.SIGCHLD, function()
 end)
 
 local function handler(signo)
-   if verbose then print('handled', signo) end
+   if verbose then
+      print('handled', signo)
+   end
    nsig = nsig + 1
 end
 

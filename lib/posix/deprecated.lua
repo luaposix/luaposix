@@ -63,7 +63,9 @@ end
 
 
 local function doselection(name, argoffset, fields, map)
-   if #fields == 1 and type(fields[1]) == 'table' then fields = fields[1] end
+   if #fields == 1 and type(fields[1]) == 'table' then
+      fields = fields[1]
+   end
 
    if not(next(fields)) then
       return map
@@ -98,13 +100,25 @@ local mode_map = {
 local function pushmode(mode)
    local m = {}
    for i = 1, 9 do
-      if band(mode, mode_map[i].b) ~= 0 then m[i] = mode_map[i].c else m[i] = '-' end
+      if band(mode, mode_map[i].b) ~= 0 then
+         m[i] = mode_map[i].c
+      else
+         m[i] = '-'
+      end
    end
    if band(mode, S_ISUID) ~= 0 then
-      if band(mode, S_IXUSR) ~= 0 then m[3] = 's' else m[3] = 'S' end
+      if band(mode, S_IXUSR) ~= 0 then
+         m[3] = 's'
+      else
+         m[3] = 'S'
+      end
    end
    if band(mode, S_ISGID) ~= 0 then
-      if band(mode, S_IXGRP) ~= 0 then m[6] = 's' else m[6] = 'S' end
+      if band(mode, S_IXGRP) ~= 0 then
+         m[6] = 's'
+      else
+         m[6] = 'S'
+      end
    end
    return table.concat(m)
 end
@@ -129,7 +143,9 @@ local bind = sock.bind
 
 function M.bind(...)
    local rt = {bind(...)}
-   if rt[1] == 0 then return true end
+   if rt[1] == 0 then
+      return true
+   end
    return unpack(rt)
 end
 
@@ -169,7 +185,9 @@ elseif _DEBUG ~= false then
    M.clock_getres = function(...)
       local argt = {...}
       optstring('clock_getres', 1, argt[1], 'realtime')
-      if #argt > 1 then toomanyargerror('clock_getres', 1, #argt) end
+      if #argt > 1 then
+         toomanyargerror('clock_getres', 1, #argt)
+      end
       return clock_getres(...)
    end
 else
@@ -203,7 +221,9 @@ elseif _DEBUG ~= false then
    M.clock_gettime = function(...)
       local argt = {...}
       optstring('clock_gettime', 1, argt[1], 'realtime')
-      if #argt > 1 then toomanyargerror('clock_gettime', 1, #argt) end
+      if #argt > 1 then
+         toomanyargerror('clock_gettime', 1, #argt)
+      end
       return clock_gettime(...)
    end
 else
@@ -227,7 +247,9 @@ local connect = sock.connect
 
 function M.connect(...)
    local rt = {connect(...)}
-   if rt[1] == 0 then return true end
+   if rt[1] == 0 then
+      return true
+   end
    return unpack(rt)
 end
 
@@ -353,7 +375,9 @@ elseif _DEBUG ~= false then
       checkint('fadvise', 2, argt[2])
       checkint('fadvise', 3, argt[3])
       checkint('fadvise', 4, argt[4])
-      if #argt > 4 then toomanyargerror('fadvise', 4, #argt) end
+      if #argt > 4 then
+         toomanyargerror('fadvise', 4, #argt)
+      end
       return fadvise(...)
    end
 else
@@ -403,7 +427,9 @@ local getgrgid, getgrnam = grp.getgrgid, grp.getgrnam
 local getegid = unistd.getegid
 
 local function getgroup(grp)
-   if grp == nil then grp = getegid() end
+   if grp == nil then
+      grp = getegid()
+   end
 
    local g
    if type(grp) == 'number' then
@@ -422,7 +448,9 @@ end
 if _DEBUG ~= false then
    M.getgroup = function(...)
       local argt = {...}
-      if #argt > 1 then toomanyargerror('getgroup', 1, #argt) end
+      if #argt > 1 then
+         toomanyargerror('getgroup', 1, #argt)
+      end
       return getgroup(...)
    end
 else
@@ -446,7 +474,9 @@ local getpwnam, getpwuid = pwd.getpwnam, pwd.getpwuid
 local geteuid = unistd.geteuid
 
 local function getpasswd(user, ...)
-   if user == nil then user = geteuid() end
+   if user == nil then
+      user = geteuid()
+   end
 
    local p
    if type(user) == 'number' then
@@ -555,7 +585,9 @@ if _DEBUG ~= false then
    M.getrlimit = function(...)
       local argt = {...}
       checkstring('getrlimit', 1, argt[1])
-      if #argt > 1 then toomanyargerror('getrlimit', 1, #argt) end
+      if #argt > 1 then
+         toomanyargerror('getrlimit', 1, #argt)
+      end
       return getrlimit(...)
    end
 else
@@ -598,7 +630,9 @@ if _DEBUG ~= false then
    M.gmtime = function(...)
       local argt = {...}
       optint('gmtime', 1, argt[1])
-      if #argt > 1 then toomanyargerror('gmtime', 1, #argt) end
+      if #argt > 1 then
+         toomanyargerror('gmtime', 1, #argt)
+      end
       return gmtime(...)
    end
 else
@@ -665,7 +699,9 @@ if _DEBUG ~= false then
    M.localtime = function(...)
       local argt = {...}
       optint('localtime', 1, argt[1])
-      if #argt > 1 then toomanyargerror('localtime', 1, #argt) end
+      if #argt > 1 then
+         toomanyargerror('localtime', 1, #argt)
+      end
       return localtime(...)
    end
 else
@@ -693,7 +729,9 @@ if _DEBUG ~= false then
    M.mktime = function(...)
       local argt = {...}
       opttable('mktime', 1, argt[1])
-      if #argt > 1 then toomanyargerror('mktime', 1, #argt) end
+      if #argt > 1 then
+         toomanyargerror('mktime', 1, #argt)
+      end
       return mktime(...)
    end
 else
@@ -720,7 +758,9 @@ local _nanosleep = tm.nanosleep
 
 local function nanosleep(sec, nsec)
    local r, errmsg, errno, timespec = _nanosleep {tv_sec=sec, tv_nsec=nsec}
-   if r == 0 then return 0 end
+   if r == 0 then
+      return 0
+   end
    return r, errmsg, errno, timespec.tv_sec, timespec.tv_nsec
 end
 
@@ -729,7 +769,9 @@ if _DEBUG ~= false then
       local argt = {...}
       checkint('nanosleep', 1, argt[1])
       checkint('nanosleep', 2, argt[2])
-      if #argt > 2 then toomanyargerror('nanosleep', 2, #argt) end
+      if #argt > 2 then
+         toomanyargerror('nanosleep', 2, #argt)
+      end
       return nanosleep(...)
    end
 else
@@ -781,7 +823,9 @@ if _DEBUG ~= false then
       checkstring('openlog', 1, argt[1])
       optstring('openlog', 2, argt[2])
       optint('openlog', 3, argt[3])
-      if #argt > 3 then toomanyargerror('openlog', 3, #argt) end
+      if #argt > 3 then
+         toomanyargerror('openlog', 3, #argt)
+      end
       return openlog(...)
    end
 else
@@ -881,7 +925,9 @@ if _DEBUG ~= false then
       checkstring('setrlimit', 1, argt[1])
       optint('setrlimit', 2, argt[2])
       optint('setrlimit', 3, argt[3])
-      if #argt > 3 then toomanyargerror('setrlimit', 3, #argt) end
+      if #argt > 3 then
+         toomanyargerror('setrlimit', 3, #argt)
+      end
       return setrlimit(...)
    end
 else
@@ -1027,7 +1073,9 @@ if _DEBUG ~= false then
       local argt = {...}
       checkstring('strftime', 1, argt[1])
       opttable('strftime', 2, argt[2])
-      if #argt > 2 then toomanyargerror('strftime', 2, #argt) end
+      if #argt > 2 then
+         toomanyargerror('strftime', 2, #argt)
+      end
       return strftime(...)
    end
 else
@@ -1058,7 +1106,9 @@ if _DEBUG ~= false then
       local argt = {...}
       checkstring('strptime', 1, argt[1])
       checkstring('strptime', 2, argt[2])
-      if #argt > 2 then toomanyargerror('strptime', 2, #argt) end
+      if #argt > 2 then
+         toomanyargerror('strptime', 2, #argt)
+      end
       local tm, i = strptime(...)
       return LegacyTm(tm), i
    end
@@ -1167,12 +1217,18 @@ local _uname = utsname.uname
 local function uname(spec)
    local u = _uname()
    return optstring('uname', 1, spec, '%s %n %r %v %m'):gsub('%%(.)', function(s)
-      if s == '%' then return '%'
-      elseif s == 'm' then return u.machine
-      elseif s == 'n' then return u.nodename
-      elseif s == 'r' then return u.release
-      elseif s == 's' then return u.sysname
-      elseif s == 'v' then return u.version
+      if s == '%' then
+         return '%'
+      elseif s == 'm' then
+         return u.machine
+      elseif s == 'n' then
+         return u.nodename
+      elseif s == 'r' then
+         return u.release
+      elseif s == 's' then
+         return u.sysname
+      elseif s == 'v' then
+         return u.version
       else
          badoption('uname', 1, 'format', s)
       end

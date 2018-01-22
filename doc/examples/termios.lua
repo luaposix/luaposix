@@ -56,16 +56,26 @@ while true do
       if d.revents and d.revents.IN then
          if fd == 0 then
             local d, err = U.read(0, 1024)
-            if not d then exit(err) end
-            if d == string.char(3) then exit('Bye') end
+            if not d then
+               exit(err)
+            end
+            if d == string.char(3) then
+               exit('Bye')
+            end
             local ok, err = U.write(fds, d)
-            if not ok then exit(err) end
+            if not ok then
+               exit(err)
+            end
          end
          if fd == fds then
             local d, err = U.read(fds, 1024)
-            if not d then exit(err) end
+            if not d then
+               exit(err)
+            end
             local ok, err = U.write(1, d)
-            if not ok then exit(err) end
+            if not ok then
+               exit(err)
+            end
          end
       end
    end

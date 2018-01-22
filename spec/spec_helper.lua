@@ -63,7 +63,9 @@ end
 --    execution was successful, otherwise nil
 function luaproc(code, arg, stdin)
    local f = mkscript(code)
-   if type(arg) ~= 'table' then arg = {arg} end
+   if type(arg) ~= 'table' then
+      arg = {arg}
+   end
    local cmd = {LUA, f, unpack(arg)}
    -- inject env and stdin keys separately to avoid truncating `...` in
    -- cmd constructor

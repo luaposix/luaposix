@@ -134,7 +134,9 @@ if _DEBUG ~= false then
       local argt = {...}
       checkstring('euidaccess', 1, argt[1])
       checkstring('euidaccess', 2, argt[2])
-      if #argt > 2 then toomanyargerror('euidaccess', 2, #argt) end
+      if #argt > 2 then
+         toomanyargerror('euidaccess', 2, #argt)
+      end
       return euidaccess(...)
    end
 else
@@ -187,7 +189,9 @@ end
 if _DEBUG ~= false then
    M.openpty = function(...)
       local argt = {...}
-      if #argt > 0 then toomanyargerror('openpty', 0, #argt) end
+      if #argt > 0 then
+         toomanyargerror('openpty', 0, #argt)
+      end
       return openpty(...)
    end
 else
@@ -293,7 +297,9 @@ if _DEBUG ~= false then
    M.pclose = function(...)
       local argt = {...}
       checktable('pclose', 1, argt[1])
-      if #argt > 2 then toomanyargerror('pclose', 1, #argt) end
+      if #argt > 2 then
+         toomanyargerror('pclose', 1, #argt)
+      end
       return pclose(...)
    end
 else
@@ -357,7 +363,9 @@ if _DEBUG ~= false then
       if argt[3] ~= nil and type(argt[3]) ~= 'function' then
          argtypeerror('popen', 3, 'function or nil', argt[3])
       end
-      if #argt > 3 then toomanyargerror('popen', 3, #argt) end
+      if #argt > 3 then
+         toomanyargerror('popen', 3, #argt)
+      end
       return popen(task, ...)
    end
 else
@@ -403,7 +411,9 @@ if _DEBUG ~= false then
       if argt[3] ~= nil and type(argt[3]) ~= 'function' then
          argtypeerror('popen_pipeline', 3, 'function or nil', argt[3])
       end
-      if #argt > 3 then toomanyargerror('popen_pipeline', 3, #argt) end
+      if #argt > 3 then
+         toomanyargerror('popen_pipeline', 3, #argt)
+      end
       return popen_pipeline(...)
    end
 else
@@ -446,7 +456,9 @@ if _DEBUG ~= false then
       local argt = {...}
       checktable('timeradd', 1, argt[1])
       checktable('timeradd', 2, argt[2])
-      if #argt > 2 then toomanyargerror('timeradd', 2, #argt) end
+      if #argt > 2 then
+         toomanyargerror('timeradd', 2, #argt)
+      end
       return timeradd(...)
    end
 end
@@ -473,7 +485,9 @@ if _DEBUG ~= false then
       local argt = {...}
       checktable('timercmp', 1, argt[1])
       checktable('timercmp', 2, argt[2])
-      if #argt > 2 then toomanyargerror('timercmp', 2, #argt) end
+      if #argt > 2 then
+         toomanyargerror('timercmp', 2, #argt)
+      end
       return timercmp(...)
    end
 end
@@ -513,7 +527,9 @@ if _DEBUG ~= false then
       local argt = {...}
       checktable('timersub', 1, argt[1])
       checktable('timersub', 2, argt[2])
-      if #argt > 2 then toomanyargerror('timersub', 2, #argt) end
+      if #argt > 2 then
+         toomanyargerror('timersub', 2, #argt)
+      end
       return timersub(...)
    end
 end

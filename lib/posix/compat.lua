@@ -40,13 +40,25 @@ local mode_map = {
 local function pushmode(mode)
    local m = {}
    for i = 1, 9 do
-      if band(mode, mode_map[i].b) ~= 0 then m[i] = mode_map[i].c else m[i] = '-' end
+      if band(mode, mode_map[i].b) ~= 0 then
+         m[i] = mode_map[i].c
+      else
+         m[i] = '-'
+      end
    end
    if band(mode, S_ISUID) ~= 0 then
-      if band(mode, S_IXUSR) ~= 0 then m[3] = 's' else m[3] = 'S' end
+      if band(mode, S_IXUSR) ~= 0 then
+         m[3] = 's'
+      else
+         m[3] = 'S'
+      end
    end
    if band(mode, S_ISGID) ~= 0 then
-      if band(mode, S_IXGRP) ~= 0 then m[6] = 's' else m[6] = 'S' end
+      if band(mode, S_IXGRP) ~= 0 then
+         m[6] = 's'
+      else
+         m[6] = 'S'
+      end
    end
    return table.concat(m)
 end
@@ -85,13 +97,27 @@ local function mode_munch(mode, modestr)
    elseif modestr:match '^[ugoa]+%s*[-+=]%s*[rswx]+,*' then
       modestr:gsub('%s*(%a+)%s*(.)%s*(%a+),*', function(who, op, what)
          local bits, bobs = 0, 0
-         if who:match '[ua]' then bits = bor(bits, S_ISUID, S_IRWXU) end
-         if who:match '[ga]' then bits = bor(bits, S_ISGID, S_IRWXG) end
-         if who:match '[oa]' then bits = bor(bits, S_IRWXO) end
-         if what:match 'r' then bobs = bor(bobs, S_IRUSR, S_IRGRP, S_IROTH) end
-         if what:match 'w' then bobs = bor(bobs, S_IWUSR, S_IWGRP, S_IWOTH) end
-         if what:match 'x' then bobs = bor(bobs, S_IXUSR, S_IXGRP, S_IXOTH) end
-         if what:match 's' then bobs = bor(bobs, S_ISUID, S_ISGID) end
+         if who:match '[ua]' then
+            bits = bor(bits, S_ISUID, S_IRWXU)
+         end
+         if who:match '[ga]' then
+            bits = bor(bits, S_ISGID, S_IRWXG)
+         end
+         if who:match '[oa]' then
+            bits = bor(bits, S_IRWXO)
+         end
+         if what:match 'r' then
+            bobs = bor(bobs, S_IRUSR, S_IRGRP, S_IROTH)
+         end
+         if what:match 'w' then
+            bobs = bor(bobs, S_IWUSR, S_IWGRP, S_IWOTH)
+         end
+         if what:match 'x' then
+            bobs = bor(bobs, S_IXUSR, S_IXGRP, S_IXOTH)
+         end
+         if what:match 's' then
+            bobs = bor(bobs, S_ISUID, S_ISGID)
+         end
          if op == '+' then
             -- mode |= bits & bobs
             mode = bor(mode, band(bits, bobs))
@@ -157,7 +183,9 @@ if _DEBUG ~= false then
       local argt = {...}
       checkstring('chmod', 1, argt[1])
       checkstring('chmod', 2, argt[2])
-      if #argt > 2 then toomanyargerror('chmod', 2, #argt) end
+      if #argt > 2 then
+         toomanyargerror('chmod', 2, #argt)
+      end
       return chmod(...)
    end
 else
@@ -202,7 +230,9 @@ if _DEBUG ~= false then
       local argt = {...}
       checkstring('creat', 1, argt[1])
       checkstring('creat', 2, argt[2])
-      if #argt > 2 then toomanyargerror('creat', 2, #argt) end
+      if #argt > 2 then
+         toomanyargerror('creat', 2, #argt)
+      end
       return creat(...)
    end
 else
@@ -232,7 +262,9 @@ if _DEBUG ~= false then
    M.mkdir = function(...)
       local argt = {...}
       checkstring('mkdir', 1, argt[1])
-      if #argt > 1 then toomanyargerror('mkdir', 1, #argt) end
+      if #argt > 1 then
+         toomanyargerror('mkdir', 1, #argt)
+      end
       return mkdir(...)
    end
 else
@@ -262,7 +294,9 @@ if _DEBUG ~= false then
    M.mkfifo = function(...)
       local argt = {...}
       checkstring('mkfifo', 1, argt[1])
-      if #argt > 1 then toomanyargerror('mkfifo', 1, #argt) end
+      if #argt > 1 then
+         toomanyargerror('mkfifo', 1, #argt)
+      end
       return mkfifo(...)
    end
 else
@@ -309,7 +343,9 @@ elseif _DEBUG ~= false then
       if argt[3] ~= nil and type(argt[3]) ~= 'string' then
          argtypeerror('msgget', 3, 'string or nil', argt[3])
       end
-      if #argt > 3 then toomanyargerror('msgget', 3, #argt) end
+      if #argt > 3 then
+         toomanyargerror('msgget', 3, #argt)
+      end
       return msgget(...)
    end
 else
@@ -359,7 +395,9 @@ if _DEBUG ~= false then
          checkstring('open', 3, argt[3])
          maxt = 3
       end
-      if #argt > maxt then toomanyargerror('open', maxt, #argt) end
+      if #argt > maxt then
+         toomanyargerror('open', maxt, #argt)
+      end
       return open(...)
    end
 else

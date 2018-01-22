@@ -24,7 +24,9 @@ while true do
       if fds[fd].revents.HUP then
          M.close(fd)
          fds[fd] = nil
-         if not next(fds) then return end
+         if not next(fds) then
+            return
+         end
       end
    end
 end

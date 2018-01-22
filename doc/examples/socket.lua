@@ -8,13 +8,17 @@ sig.signal(sig.SIGPIPE, function() print 'pipe' end)
 
 -- Get Lua web site title
 local r, err = M.getaddrinfo('www.lua.org', 'http', {family=M.AF_INET, socktype=M.SOCK_STREAM})
-if not r then error(err) end
+if not r then
+   error(err)
+end
 
 local fd = M.socket(M.AF_INET, M.SOCK_STREAM, 0)
 local ok, err, e = M.connect(fd, r[1])
 local sa = M.getsockname(fd)
 print('Local socket bound to ' .. sa.addr .. ':' .. tostring(sa.port))
-if err then error(err) end
+if err then
+   error(err)
+end
 
 M.send(fd, 'GET / HTTP/1.0\r\nHost: www.lua.org\r\n\r\n')
 local data = {}
