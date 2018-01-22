@@ -1,14 +1,17 @@
-local p = require 'posix'
+#! /usr/bin/env lua
 
-if p.SOCK_RAW and p.SO_BINDTODEVICE then
+local M = require 'posix.sys.socket'
+
+
+if M.SOCK_RAW and M.SO_BINDTODEVICE then
    -- Open raw socket
 
-   local fd, err = p.socket(p.AF_INET, p.SOCK_RAW, p.IPPROTO_ICMP)
+   local fd, err = M.socket(M.AF_INET, M.SOCK_RAW, M.IPPROTO_ICMP)
    assert(fd, err)
 
    -- Optionally, bind to specific device
 
-   local ok, err = p.setsockopt(fd, p.SOL_SOCKET, p.SO_BINDTODEVICE, 'wlan0')
+   local ok, err = M.setsockopt(fd, M.SOL_SOCKET, M.SO_BINDTODEVICE, 'wlan0')
    assert(ok, err)
 
    -- Create raw ICMP echo (ping) message
@@ -17,12 +20,12 @@ if p.SOCK_RAW and p.SO_BINDTODEVICE then
 
    -- Send message
 
-   local ok, err = p.sendto(fd, data, { family = p.AF_INET, addr = '8.8.8.8', port = 0 })
+   local ok, err = M.sendto(fd, data, {family=M.AF_INET, addr='8.8.8.8', port=0})
    assert(ok, err)
 
    -- Read reply
 
-   local data, sa = p.recvfrom(fd, 1024)
+   local data, sa = M.recvfrom(fd, 1024)
    assert(data, sa)
 
    if data then

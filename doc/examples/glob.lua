@@ -1,5 +1,8 @@
-local posix = require 'posix'
+#! /usr/bin/env lua
 
-for i, j in pairs (posix.glob ('/proc/[0-9]*/exe')) do
+local glob = require 'posix.glob'.glob
+
+
+for _, j in pairs(glob('/proc/[0-9]*/exe', 0)) do
    print(j)
 end

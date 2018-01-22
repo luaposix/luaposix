@@ -1,45 +1,48 @@
-local sig    = require 'posix.signal'
-local sock   = require 'posix.sys.socket'
-local unistd = require 'posix.unistd'
+#! /usr/bin/env lua
 
-sig.signal (sig.SIGPIPE, function () print 'pipe' end)
+local M = require 'posix.sys.socket'
+
+
+local sig = require 'posix.signal'
+sig.signal(sig.SIGPIPE, function() print 'pipe' end)
 
 -- Get Lua web site title
-local r, err = sock.getaddrinfo ('www.lua.org', 'http', { family = sock.AF_INET, socktype = sock.SOCK_STREAM })
-if not r then error (err) end
+local r, err = M.getaddrinfo('www.lua.org', 'http', {family=M.AF_INET, socktype=M.SOCK_STREAM})
+if not r then error(err) end
 
-local fd = sock.socket (sock.AF_INET, sock.SOCK_STREAM, 0)
-local ok, err, e = sock.connect (fd, r[1])
-local sa = sock.getsockname(fd)
+local fd = M.socket(M.AF_INET, M.SOCK_STREAM, 0)
+local ok, err, e = M.connect(fd, r[1])
+local sa = M.getsockname(fd)
 print('Local socket bound to ' .. sa.addr .. ':' .. tostring(sa.port))
-if err then error (err) end
+if err then error(err) end
 
-sock.send (fd, 'GET / HTTP/1.0\r\nHost: www.lua.org\r\n\r\n')
+M.send(fd, 'GET / HTTP/1.0\r\nHost: www.lua.org\r\n\r\n')
 local data = {}
 while true do
-   local b = sock.recv (fd, 1024)
+   local b = M.recv(fd, 1024)
    if not b or #b == 0 then
       break
    end
-   table.insert (data, b)
+   table.insert(data, b)
 end
-unistd.close (fd)
-data = table.concat (data)
-print (data:match '<TITLE>(.+)</TITLE>')
+require 'posix.unistd'.close(fd)
+
+data = table.concat(data)
+print(data:match '<TITLE>(.+)</TITLE>')
 
 -- Loopback UDP test, IPV4 and IPV6
-local fd = sock.socket (sock.AF_INET6, sock.SOCK_DGRAM, 0)
-sock.bind (fd, { family = sock.AF_INET6, addr = '::', port = 9999 })
-sock.sendto (fd, 'Test ipv4', { family = sock.AF_INET, addr = '127.0.0.1', port = 9999 })
-sock.sendto (fd, 'Test ipv6', { family = sock.AF_INET6, addr = '::', port = 9999 })
+local fd = M.socket(M.AF_INET6, M.SOCK_DGRAM, 0)
+M.bind(fd, {family=M.AF_INET6, addr='::', port=9999})
+M.sendto(fd, 'Test ipv4', {family=M.AF_INET, addr='127.0.0.1', port=9999})
+M.sendto(fd, 'Test ipv6', {family=M.AF_INET6, addr='::', port=9999})
 for i = 1, 2 do
-   local ok, r = sock.recvfrom (fd, 1024)
+   local ok, r = M.recvfrom(fd, 1024)
    if ok then
-      print (ok, r.addr, r.port)
+      print(ok, r.addr, r.port)
    else
-      print (ok, r)
+      print(ok, r)
    end
 end
-unistd.close (fd)
+require 'posix.unistd'.close(fd)
 
-os.exit (0)
+os.exit(0)

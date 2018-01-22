@@ -1,18 +1,23 @@
-p = require 'posix'
+#! /usr/bin/env lua
 
-if p.AF_NETLINK ~= nil then
-   local fd, err = p.socket(p.AF_NETLINK, p.SOCK_DGRAM, p.NETLINK_KOBJECT_UEVENT)
+local M = require 'posix.sys.socket'
+
+
+if M.AF_NETLINK ~= nil then
+   local getpid = require 'posix.unistd'.getpid
+
+   local fd, err = M.socket(M.AF_NETLINK, M.SOCK_DGRAM, M.NETLINK_KOBJECT_UEVENT)
    assert(fd, err)
 
-   local ok, err = p.bind(fd, { family = p.AF_NETLINK, pid = p.getpid('pid'), groups = -1 })
+   local ok, err = M.bind(fd, {family=M.AF_NETLINK, pid=getpid(), groups=-1})
    assert(ok, err)
 
    while true do
-      local data, err = p.recv(fd, 16384)
+      local data, err = M.recv(fd, 16384)
       assert(data, err)
       for k, v in data:gmatch('%z(%u+)=([^%z]+)') do
          print(k, v)
       end
-      print('\n')
+      print '\n'
    end
 end

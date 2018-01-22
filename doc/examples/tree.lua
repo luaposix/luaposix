@@ -1,7 +1,13 @@
+#! /usr/bin/env lua
+
 -- tree view of the file system like the 'tree' unix utility
 -- John Belmonte <jvb@prairienet.org>
 
-local posix = require 'posix'
+local dir = require 'posix.dirent'.dir
+local islink = require 'posix.sys.stat'.S_ISLNK
+local isdir = require 'posix.sys.stat'.S_ISDIR
+local readlink = require 'posix.unistd'.readlink
+local stat = require 'posix.sys.stat'.stat
 
 local leaf_indent = '|   '
 local tail_leaf_indent = '   '
@@ -16,24 +22,24 @@ end
 local function do_directory(directory, level, prefix)
    local num_dirs = 0
    local num_files = 0
-   local files = posix.dir(directory)
+   local files = dir(directory)
    local last_file_index = #files
    table.sort(files)
    for i, name in ipairs(files) do
       if name ~= '.' and name ~= '..' then
          local full_name = string.format('%s/%s', directory, name)
-         local info = assert(posix.stat(full_name))
+         local info = assert(stat(full_name))
          local is_tail = (i==last_file_index)
          local prefix2 = is_tail and tail_leaf_prefix or leaf_prefix
          local link = ''
-         if info.type == 'link' then
-            linked_name = assert(posix.readlink(full_name))
+         if islink(info.st_mode) ~= 0 then
+            linked_name = assert(readlink(full_name))
             link = string.format('%s%s', link_prefix, linked_name)
          end
          printf('%s%s%s%s\n', prefix, prefix2, name, link)
-         if info.type == 'directory' then
+         if isdir(info.st_mode) ~= 0 then
             local indent = is_tail and tail_leaf_indent or leaf_indent
-            -- TODO: cache string concatination
+            -- TODO: cache string concatenation
             sub_dirs, sub_files = do_directory(full_name, level+1,
                prefix .. indent)
             num_dirs = num_dirs + sub_dirs + 1
