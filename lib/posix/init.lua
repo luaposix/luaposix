@@ -29,8 +29,8 @@ for _, sub in ipairs {
    'sys.times', 'sys.utsname', 'sys.wait', 'syslog', 'termio', 'time',
    'unistd', 'utime'
 } do
-   local t = require ('posix.' .. sub)
-   for k, v in pairs (t) do
+   local t = require('posix.' .. sub)
+   for k, v in pairs(t) do
       if k ~= 'version' then
          assert(M[k] == nil, 'posix namespace clash: ' .. sub .. '.' .. k)
          M[k] = v
@@ -39,11 +39,11 @@ for _, sub in ipairs {
 end
 
 
--- Inject deprecated APIs (overwriting submodules) for backwards compatibility.
-for k, v in pairs (require 'posix.deprecated') do
+-- Inject deprecated APIs(overwriting submodules) for backwards compatibility.
+for k, v in pairs(require 'posix.deprecated') do
    M[k] = v
 end
-for k, v in pairs (require 'posix.compat') do
+for k, v in pairs(require 'posix.compat') do
    M[k] = v
 end
 
@@ -54,7 +54,7 @@ local argerror, argtypeerror, checkstring, checktable, toomanyargerror =
 
 -- Code extracted from lua-stdlib with minimal modifications
 local list = {
-   sub = function (l, from, to)
+   sub = function(l, from, to)
       local r = {}
       local len = #l
       from = from or 1
@@ -66,7 +66,7 @@ local list = {
          to = to + len + 1
       end
       for i = from, to do
-         table.insert (r, l[i])
+         table.insert(r, l[i])
       end
       return r
    end
@@ -88,55 +88,54 @@ local access, set_errno, stat = M.access, M.set_errno, M.stat
 local getegid, geteuid, getgid, getuid =
    M.getegid, M.geteuid, M.getgid, M.getuid
 
-local function euidaccess (file, mode)
-   local euid, egid = geteuid (), getegid ()
+local function euidaccess(file, mode)
+   local euid, egid = geteuid(), getegid()
 
-   if getuid () == euid and getgid () == egid then
+   if getuid() == euid and getgid() == egid then
       -- If we are not set-uid or set-gid, access does the same.
-      return access (file, mode)
+      return access(file, mode)
    end
 
-   local stats = stat (file)
+   local stats = stat(file)
    if not stats then
       return
    end
 
    -- The super-user can read and write any file, and execute any file
    -- that anyone can execute.
-   if euid == 0 and ((not string.match (mode, 'x')) or
-                              string.match (stats.st_mode, 'x')) then
+   if euid == 0 and((not string.match(mode, 'x')) or string.match(stats.st_mode, 'x')) then
       return 0
    end
 
    -- Convert to simple list of modes.
-   mode = string.gsub (mode, '[^rwx]', '')
+   mode = string.gsub(mode, '[^rwx]', '')
 
    if mode == '' then
       return 0 -- The file exists.
    end
 
    -- Get the modes we need.
-   local granted = stats.st_mode:sub (1, 3)
+   local granted = stats.st_mode:sub(1, 3)
    if euid == stats.st_uid then
-      granted = stats.st_mode:sub (7, 9)
-   elseif egid == stats.st_gid or set.new (posix.getgroups ()):member (stats.st_gid) then
-      granted = stats.st_mode:sub (4, 6)
+      granted = stats.st_mode:sub(7, 9)
+   elseif egid == stats.st_gid or set.new(posix.getgroups()):member(stats.st_gid) then
+      granted = stats.st_mode:sub(4, 6)
    end
-   granted = string.gsub (granted, '[^rwx]', '')
+   granted = string.gsub(granted, '[^rwx]', '')
 
-   if string.gsub ('[^' .. granted .. ']', mode) == '' then
+   if string.gsub('[^' .. granted .. ']', mode) == '' then
       return 0
    end
-   set_errno (EACCESS)
+   set_errno(EACCESS)
 end
 
 if _DEBUG ~= false then
-   M.euidaccess = function (...)
+   M.euidaccess = function(...)
       local argt = {...}
-      checkstring ('euidaccess', 1, argt[1])
-      checkstring ('euidaccess', 2, argt[2])
-      if #argt > 2 then toomanyargerror ('euidaccess', 2, #argt) end
-      return euidaccess (...)
+      checkstring('euidaccess', 1, argt[1])
+      checkstring('euidaccess', 2, argt[2])
+      if #argt > 2 then toomanyargerror('euidaccess', 2, #argt) end
+      return euidaccess(...)
    end
 else
    M.euidaccess = euidaccess
@@ -152,8 +151,8 @@ end
 -- @return[2] nil
 -- @treturn[2] string error message
 
-local bit      = require 'bit32'
-local fcntl   = require 'posix.fcntl'
+local bit = require 'bit32'
+local fcntl = require 'posix.fcntl'
 local stdlib = require 'posix.stdlib'
 local unistd = require 'posix.unistd'
 
@@ -163,33 +162,33 @@ local grantpt, openpt, ptsname, unlockpt =
    stdlib.grantpt, stdlib.openpt, stdlib.ptsname, stdlib.unlockpt
 local close = unistd.close
 
-local function openpty (term, win)
+local function openpty(term, win)
    local ok, errmsg, master, slave, slave_name
-   master, errmsg = openpt (bor (O_RDWR, O_NOCTTY))
+   master, errmsg = openpt(bor(O_RDWR, O_NOCTTY))
    if master then
-      ok, errmsg = grantpt (master)
+      ok, errmsg = grantpt(master)
       if ok then
-         ok, errmsg = unlockpt (master)
+         ok, errmsg = unlockpt(master)
          if ok then
-            slave_name, errmsg = ptsname (master)
+            slave_name, errmsg = ptsname(master)
             if slave_name then
-               slave, errmsg = open (slave_name, bor (O_RDWR, O_NOCTTY))
+               slave, errmsg = open(slave_name, bor(O_RDWR, O_NOCTTY))
                if slave then
                   return master, slave, slave_name
                end
             end
          end
       end
-      close (master)
+      close(master)
    end
    return nil, errmsg
 end
 
 if _DEBUG ~= false then
-   M.openpty = function (...)
+   M.openpty = function(...)
       local argt = {...}
-      if #argt > 0 then toomanyargerror ('openpty', 0, #argt) end
-      return openpty (...)
+      if #argt > 0 then toomanyargerror('openpty', 0, #argt) end
+      return openpty(...)
    end
 else
    M.openpty = openpty
@@ -202,32 +201,31 @@ end
 --    function, which should read from standard input, write to standard
 --    output, and return an exit code
 -- @param ... positional arguments to the function
--- @treturn nil on error (normally does not return)
+-- @treturn nil on error(normally does not return)
 -- @treturn string error message
 
 local unpack = table.unpack or unpack -- 5.3 compatibility
 
-local errno, execp, _exit =
-   M.errno, M.execp, M._exit
+local errno, execp, _exit = M.errno, M.execp, M._exit
 
-local function execx (task, ...)
-   if type (task) == 'table' then
-      execp (unpack (task))
+local function execx(task, ...)
+   if type(task) == 'table' then
+      execp(unpack(task))
       -- Only get here if there's an error; kill the fork
-      local _, n = errno ()
-      _exit (n)
+      local _, n = errno()
+      _exit(n)
    else
-      _exit (task (...) or 0)
+      _exit(task(...) or 0)
    end
 end
 
 if _DEBUG ~= false then
-   M.execx = function (task, ...)
-      local argt, typetask = {task, ...}, type (task)
+   M.execx = function(task, ...)
+      local argt, typetask = {task, ...}, type(task)
       if typetask ~= 'table' and typetask ~= 'function' then
-         argtypeerror ('execx', 1, 'table or function', task)
+         argtypeerror('execx', 1, 'table or function', task)
       end
-      return execx (task, ...)
+      return execx(task, ...)
    end
 else
    M.execx = execx
@@ -247,25 +245,25 @@ local unpack = table.unpack or unpack -- 5.3 compatibility
 local fork, wait =
    M.fork, M.wait
 
-local function spawn (task, ...)
-   local pid, err = fork ()
+local function spawn(task, ...)
+   local pid, err = fork()
    if pid == nil then
       return pid, err
    elseif pid == 0 then
-      execx (task, ...)
+      execx(task, ...)
    else
-      local _, reason, status = wait (pid)
+      local _, reason, status = wait(pid)
       return status, reason -- If wait failed, status is nil & reason is error
    end
 end
 
 if _DEBUG ~= false then
-   M.spawn = function (task, ...)
-      local argt, typetask = {task, ...}, type (task)
+   M.spawn = function(task, ...)
+      local argt, typetask = {task, ...}, type(task)
       if typetask ~= 'table' and typetask ~= 'function' then
-         argtypeerror ('spawn', 1, 'table or function', task)
+         argtypeerror('spawn', 1, 'table or function', task)
       end
-      return spawn (task, ...)
+      return spawn(task, ...)
    end
 else
    M.spawn = spawn
@@ -282,33 +280,33 @@ local STDIN_FILENO, STDOUT_FILENO = M.STDIN_FILENO, M.STDOUT_FILENO
 -- @return values as for @{posix.sys.wait.wait}, for the last (or only)
 --    stage of the pipeline
 
-local function pclose (pfd)
-   close (pfd.fd)
+local function pclose(pfd)
+   close(pfd.fd)
    for i = 1, #pfd.pids - 1 do
-      wait (pfd.pids[i])
+      wait(pfd.pids[i])
    end
-   local _, reason, status = wait (pfd.pids[#pfd.pids])
+   local _, reason, status = wait(pfd.pids[#pfd.pids])
    return reason, status
 end
 
 if _DEBUG ~= false then
-   M.pclose = function (...)
+   M.pclose = function(...)
       local argt = {...}
-      checktable ('pclose', 1, argt[1])
-      if #argt > 2 then toomanyargerror ('pclose', 1, #argt) end
-      return pclose (...)
+      checktable('pclose', 1, argt[1])
+      if #argt > 2 then toomanyargerror('pclose', 1, #argt) end
+      return pclose(...)
    end
 else
    M.pclose = pclose
 end
 
 
-local function move_fd (from_fd, to_fd)
+local function move_fd(from_fd, to_fd)
    if from_fd ~= to_fd then
-      if not dup2 (from_fd, to_fd) then
+      if not dup2(from_fd, to_fd) then
          error 'error dup2-ing'
       end
-      close (from_fd)
+      close(from_fd)
    end
 end
 
@@ -324,8 +322,8 @@ end
 -- @see posix.execx
 -- @see posix.spawn
 
-local function popen (task, mode, pipe_fn)
-   local read_fd, write_fd = (pipe_fn or pipe) ()
+local function popen(task, mode, pipe_fn)
+   local read_fd, write_fd =(pipe_fn or pipe)()
    if not read_fd then
       error 'error opening pipe'
    end
@@ -337,30 +335,30 @@ local function popen (task, mode, pipe_fn)
    else
       error 'invalid mode'
    end
-   local pid = fork ()
+   local pid = fork()
    if pid == nil then
       error 'error forking'
    elseif pid == 0 then -- child process
-      move_fd (child_fd, out_fd)
-      close (parent_fd)
-      _exit (execx (task, child_fd, in_fd, out_fd))
+      move_fd(child_fd, out_fd)
+      close(parent_fd)
+      _exit(execx(task, child_fd, in_fd, out_fd))
    end -- parent process
-   close (child_fd)
-   return {pids = {pid}, fd = parent_fd}
+   close(child_fd)
+   return {pids={pid}, fd=parent_fd}
 end
 
 if _DEBUG ~= false then
-   M.popen = function (task, ...)
-      local argt, typetask = {task, ...}, type (task)
+   M.popen = function(task, ...)
+      local argt, typetask = {task, ...}, type(task)
       if typetask ~= 'table' and typetask ~= 'function' then
-         argtypeerror ('popen', 1, 'table or function', task)
+         argtypeerror('popen', 1, 'table or function', task)
       end
-      checkstring ('popen', 2, argt[2])
-      if argt[3] ~= nil and type (argt[3]) ~= 'function' then
-         argtypeerror ('popen', 3, 'function or nil', argt[3])
+      checkstring('popen', 2, argt[2])
+      if argt[3] ~= nil and type(argt[3]) ~= 'function' then
+         argtypeerror('popen', 3, 'function or nil', argt[3])
       end
-      if #argt > 3 then toomanyargerror ('popen', 3, #argt) end
-      return popen (task, ...)
+      if #argt > 3 then toomanyargerror('popen', 3, #argt) end
+      return popen(task, ...)
    end
 else
    M.popen = popen
@@ -377,36 +375,36 @@ end
 
 local close, _exit = M.close, M._exit
 
-local function popen_pipeline (tasks, mode, pipe_fn)
+local function popen_pipeline(tasks, mode, pipe_fn)
    local first, from, to, inc = 1, 2, #tasks, 1
    if mode == 'w' then
       first, from, to, inc = #tasks, #tasks - 1, 1, -1
    end
-   local pfd = popen (tasks[first], mode, pipe_fn)
+   local pfd = popen(tasks[first], mode, pipe_fn)
    for i = from, to, inc do
-      local pfd_next = popen (function (fd, in_fd, out_fd)
-         move_fd (pfd.fd, in_fd)
-         _exit (execx (tasks[i]))
+      local pfd_next = popen(function(fd, in_fd, out_fd)
+         move_fd(pfd.fd, in_fd)
+         _exit(execx(tasks[i]))
       end,
       mode,
       pipe_fn)
-      close (pfd.fd)
+      close(pfd.fd)
       pfd.fd = pfd_next.fd
-      table.insert (pfd.pids, pfd_next.pids[1])
+      table.insert(pfd.pids, pfd_next.pids[1])
    end
    return pfd
 end
 
 if _DEBUG ~= false then
-   M.popen_pipeline = function (...)
+   M.popen_pipeline = function(...)
       local argt = {...}
-      checktable ('popen_pipeline', 1, argt[1])
-      checkstring ('popen_pipeline', 2, argt[2])
-      if argt[3] ~= nil and type (argt[3]) ~= 'function' then
-         argtypeerror ('popen_pipeline', 3, 'function or nil', argt[3])
+      checktable('popen_pipeline', 1, argt[1])
+      checkstring('popen_pipeline', 2, argt[2])
+      if argt[3] ~= nil and type(argt[3]) ~= 'function' then
+         argtypeerror('popen_pipeline', 3, 'function or nil', argt[3])
       end
-      if #argt > 3 then toomanyargerror ('popen_pipeline', 3, #argt) end
-      return popen_pipeline (...)
+      if #argt > 3 then toomanyargerror('popen_pipeline', 3, #argt) end
+      return popen_pipeline(...)
    end
 else
    M.popen_pipeline = popen_pipeline
@@ -419,37 +417,37 @@ end
 -- @param y another timeval
 -- @return x + y, adjusted for usec overflow
 
-local function timeradd (x, y)
+local function timeradd(x, y)
    local sec, usec = 0, 0
    if x.tv_sec or x.tv_usec then
-      sec = sec + (tonumber (x.tv_sec) or 0)
-      usec = usec + (tonumber (x.tv_usec) or 0)
+      sec = sec +(tonumber(x.tv_sec) or 0)
+      usec = usec +(tonumber(x.tv_usec) or 0)
    else
-      sec = sec + (tonumber (x.sec) or 0)
-      usec = usec + (tonumber (x.usec) or 0)
+      sec = sec +(tonumber(x.sec) or 0)
+      usec = usec +(tonumber(x.usec) or 0)
    end
    if y.tv_sec or y.tv_usec then
-      sec = sec + (tonumber (y.tv_sec) or 0)
-      usec = usec + (tonumber (y.tv_usec) or 0)
+      sec = sec +(tonumber(y.tv_sec) or 0)
+      usec = usec +(tonumber(y.tv_usec) or 0)
    else
-      sec = sec + (tonumber (y.sec) or 0)
-      usec = usec + (tonumber (y.usec) or 0)
+      sec = sec +(tonumber(y.sec) or 0)
+      usec = usec +(tonumber(y.usec) or 0)
    end
    while usec > 1000000 do
       sec = sec + 1
       usec = usec - 1000000
    end
 
-   return { sec = sec, usec = usec }
+   return {sec=sec, usec=usec}
 end
 
 if _DEBUG ~= false then
-   M.timeradd = function (...)
+   M.timeradd = function(...)
       local argt = {...}
-      checktable ('timeradd', 1, argt[1])
-      checktable ('timeradd', 2, argt[2])
-      if #argt > 2 then toomanyargerror ('timeradd', 2, #argt) end
-      return timeradd (...)
+      checktable('timeradd', 1, argt[1])
+      checktable('timeradd', 2, argt[2])
+      if #argt > 2 then toomanyargerror('timeradd', 2, #argt) end
+      return timeradd(...)
    end
 end
 
@@ -460,9 +458,9 @@ end
 -- @param y another timeval
 -- @return 0 if x and y are equal, >0 if x is newer, <0 if y is newer
 
-local function timercmp (x, y)
-   local x = { sec = x.tv_sec or x.sec or 0, usec = x.tv_usec or x.usec or 0 }
-   local y = { sec = y.tv_sec or y.sec or 0, usec = y.tv_usec or y.usec or 0 }
+local function timercmp(x, y)
+   local x = {sec=x.tv_sec or x.sec or 0, usec=x.tv_usec or x.usec or 0}
+   local y = {sec=y.tv_sec or y.sec or 0, usec=y.tv_usec or y.usec or 0}
    if x.sec ~= y.sec then
       return x.sec - y.sec
    else
@@ -471,12 +469,12 @@ local function timercmp (x, y)
 end
 
 if _DEBUG ~= false then
-   M.timercmp = function (...)
+   M.timercmp = function(...)
       local argt = {...}
-      checktable ('timercmp', 1, argt[1])
-      checktable ('timercmp', 2, argt[2])
-      if #argt > 2 then toomanyargerror ('timercmp', 2, #argt) end
-      return timercmp (...)
+      checktable('timercmp', 1, argt[1])
+      checktable('timercmp', 2, argt[2])
+      if #argt > 2 then toomanyargerror('timercmp', 2, #argt) end
+      return timercmp(...)
    end
 end
 
@@ -487,21 +485,21 @@ end
 -- @param y another timeval
 -- @return x - y, adjusted for usec underflow
 
-local function timersub (x,y)
+local function timersub(x,y)
    local sec, usec = 0, 0
    if x.tv_sec or x.tv_usec then
-      sec = (tonumber (x.tv_sec) or 0)
-      usec =(tonumber (x.tv_usec) or 0)
+      sec =(tonumber(x.tv_sec) or 0)
+      usec =(tonumber(x.tv_usec) or 0)
    else
-      sec = (tonumber (x.sec) or 0)
-      usec = (tonumber (x.usec) or 0)
+      sec =(tonumber(x.sec) or 0)
+      usec =(tonumber(x.usec) or 0)
    end
    if y.tv_sec or y.tv_usec then
-      sec = sec - (tonumber (y.tv_sec) or 0)
-      usec = usec - (tonumber (y.tv_usec) or 0)
+      sec = sec -(tonumber(y.tv_sec) or 0)
+      usec = usec -(tonumber(y.tv_usec) or 0)
    else
-      sec = sec - (tonumber (y.sec) or 0)
-      usec = usec - (tonumber (y.usec) or 0)
+      sec = sec -(tonumber(y.sec) or 0)
+      usec = usec -(tonumber(y.usec) or 0)
    end
    while usec < 0 do
       sec = sec - 1
@@ -511,12 +509,12 @@ local function timersub (x,y)
 end
 
 if _DEBUG ~= false then
-   M.timersub = function (...)
+   M.timersub = function(...)
       local argt = {...}
-      checktable ('timersub', 1, argt[1])
-      checktable ('timersub', 2, argt[2])
-      if #argt > 2 then toomanyargerror ('timersub', 2, #argt) end
-      return timersub (...)
+      checktable('timersub', 1, argt[1])
+      checktable('timersub', 2, argt[2])
+      if #argt > 2 then toomanyargerror('timersub', 2, #argt) end
+      return timersub(...)
    end
 end
 
@@ -530,7 +528,7 @@ end
 -- @treturn table matching files and directories
 local posix_glob = require 'posix.glob'
 
-local function glob (args)
+local function glob(args)
    -- Support previous `glob '.*'` style calls.
    if type(args) == 'string' then
       args = {pattern=args}
@@ -545,23 +543,23 @@ local function glob (args)
 end
 
 if _DEBUG ~= false then
-   local validtypes = { ['table'] = true, ['string'] = true, ['nil'] = true }
+   local validtypes = {['table']=true, ['string']=true, ['nil']=true}
 
-   M.glob = function (...)
+   M.glob = function(...)
       local argt = {...}
       local argtype = type(argt[1])
       if validtypes[argtype] ~= true then
-         argtypeerror ('glob', 1, 'table, string or nil', argt[1])
+         argtypeerror('glob', 1, 'table, string or nil', argt[1])
       elseif #argt > 1 then
-         toomanyargerror ('glob', 1, #argt)
+         toomanyargerror('glob', 1, #argt)
       end
-      return glob (...)
+      return glob(...)
    end
 else
    M.glob = glob
 end
 
-return setmetatable (M, {
+return setmetatable(M, {
    --- Metamethods
    -- @section metamethods
 
@@ -574,10 +572,10 @@ return setmetatable (M, {
    --   `name`, otherise `nil` if nothing was found
    -- @usage
    -- local version = require 'posix'.version
-   __index = function (self, name)
-      local ok, t = pcall (require, 'posix.' ..name)
+   __index = function(self, name)
+      local ok, t = pcall(require, 'posix.' ..name)
       if ok then
-         rawset (self, name, t)
+         rawset(self, name, t)
          return t
       end
    end,

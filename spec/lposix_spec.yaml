@@ -12,7 +12,7 @@ specify lposix:
 - context when required:
   - it does not touch the global table:
       expect(show_apis {added_to=global_table, by=this_module}).
-        to_equal {}
+         to_equal {}
 
 - context with fcntl F_GETFL:
   - before:

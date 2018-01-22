@@ -9,7 +9,7 @@ specify posix.grp:
 - context when required:
   - it does not touch the global table:
       expect(show_apis {added_to=global_table, by=this_module}).
-        to_equal {}
+         to_equal {}
 
 
 - before:
@@ -22,15 +22,15 @@ specify posix.grp:
       endgrent = M.endgrent
 
   - context with bad arguments:
-      badargs.diagnose (endgrent, "()")
+      badargs.diagnose(endgrent, "()")
 
   - it returns 'nil':
-      expect (endgrent ()).to_be (nil)
+      expect(endgrent()).to_be(nil)
   - it rewinds the group database:
-      g = M.getgrent ()
-      M.getgrent ()
-      endgrent ()
-      expect (M.getgrent ()).to_equal (g)
+      g = M.getgrent()
+      M.getgrent()
+      endgrent()
+      expect(M.getgrent()).to_equal(g)
 
 
 - describe getgrent:
@@ -38,54 +38,54 @@ specify posix.grp:
       getgrent = M.getgrent
 
   - context with bad arguments:
-      badargs.diagnose (getgrent, "()")
+      badargs.diagnose(getgrent, "()")
 
   - it returns a PosixGroup for an existing group:
-      expect (prototype (getgrent ())).to_be "PosixGroup"
+      expect(prototype(getgrent())).to_be "PosixGroup"
   - it fetches a different group on subsequent calls:
-      g = getgrent ()
-      expect (getgrent ()).not_to_equal (g)
+      g = getgrent()
+      expect(getgrent()).not_to_equal(g)
   - it returns nil after the last entry was fetched:
-      g = getgrent ()
-      while (g) do
-        h = getgrent ()
-        expect (g).not_to_equal (h)
-        g = h
+      g = getgrent()
+      while(g) do
+         h = getgrent()
+         expect(g).not_to_equal(h)
+         g = h
       end
-      expect (g).to_be (nil)
-      M.endgrent ()
+      expect(g).to_be(nil)
+      M.endgrent()
 
 
 - describe getgrgid:
   - before:
-      groot = getgrgid (0).gr_name
+      groot = getgrgid(0).gr_name
 
   - context with bad arguments:
-      badargs.diagnose (getgrgid, "(int)")
+      badargs.diagnose(getgrgid, "(int)")
 
   - it returns a PosixGroup for an existing group:
-      expect (prototype (getgrgid (0))).to_be "PosixGroup"
+      expect(prototype(getgrgid(0))).to_be "PosixGroup"
   - it fetches a group by gid:
-      expect (getgrgid (0).gr_name).to_be (groot)
-      expect (getgrgid (0).gr_gid).to_be (0)
-      expect (type (getgrgid (0).gr_mem)).to_be "table"
+      expect(getgrgid(0).gr_name).to_be(groot)
+      expect(getgrgid(0).gr_gid).to_be(0)
+      expect(type(getgrgid(0).gr_mem)).to_be "table"
 
 
 - describe getgrnam:
   - before:
-      groot = getgrgid (0).gr_name
+      groot = getgrgid(0).gr_name
 
   - context with bad arguments:
-      badargs.diagnose (getgrnam, "(string)")
+      badargs.diagnose(getgrnam, "(string)")
 
   - it returns 'nil' for a non-existent group:
-      expect (getgrnam "veryunlikelygroupname").to_be (nil)
+      expect(getgrnam "veryunlikelygroupname").to_be(nil)
   - it returns a PosixGroup for an existing group:
-      expect (prototype (getgrnam (groot))).to_be "PosixGroup"
+      expect(prototype(getgrnam(groot))).to_be "PosixGroup"
   - it fetches a group by name:
-      expect (getgrnam (groot).gr_name).to_be (groot)
-      expect (getgrnam (groot).gr_gid).to_be (0)
-      expect (type (getgrnam (groot).gr_mem)).to_be "table"
+      expect(getgrnam(groot).gr_name).to_be(groot)
+      expect(getgrnam(groot).gr_gid).to_be(0)
+      expect(type(getgrnam(groot).gr_mem)).to_be "table"
 
 
 - describe setgrent:
@@ -93,12 +93,12 @@ specify posix.grp:
       setgrent = M.setgrent
 
   - context with bad arguments:
-      badargs.diagnose (setgrent, "()")
+      badargs.diagnose(setgrent, "()")
 
   - it returns 'nil':
-      expect (setgrent ()).to_be (nil)
+      expect(setgrent()).to_be(nil)
   - it rewinds the group database:
-      g = M.getgrent ()
-      M.getgrent ()
-      setgrent ()
-      expect (M.getgrent ()).to_equal (g)
+      g = M.getgrent()
+      M.getgrent()
+      setgrent()
+      expect(M.getgrent()).to_equal(g)

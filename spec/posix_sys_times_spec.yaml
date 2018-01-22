@@ -9,7 +9,7 @@ specify posix.sys.times:
 - context when required:
   - it does not touch the global table:
       expect(show_apis {added_to=global_table, by=this_module}).
-        to_equal {}
+         to_equal {}
 
 
 - describe times:
@@ -22,16 +22,16 @@ specify posix.sys.times:
   # argument was a string; since we can't express that with
   # `badargs.diagnose` do it all manually again...
   - context with bad arguments:
-      badargs.diagnose (times, "()")
+      badargs.diagnose(times, "()")
 
   - it returns a PosixTms:
-      expect (prototype (times ())).to_be "PosixTms"
+      expect(prototype(times())).to_be "PosixTms"
   - it fetches everything without an argument:
       keys = {
-        "tms_utime", "tms_stime", "tms_cutime", "tms_cstime", "elapsed"
+         "tms_utime", "tms_stime", "tms_cutime", "tms_cstime", "elapsed"
       }
-      t = times ()
-      expect (t).to_contain.a_permutation_of (keys)
-      for _, key in ipairs (keys) do
-        expect (type (t[key])).to_be "number"
+      t = times()
+      expect(t).to_contain.a_permutation_of(keys)
+      for _, key in ipairs(keys) do
+         expect(type(t[key])).to_be "number"
       end

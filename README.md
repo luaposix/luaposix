@@ -125,12 +125,15 @@ points when proposing changes:
 2. Simple strings are easiest to type using single-quote delimiters
    saving double-quotes for where a string contains apostrophes.
 
-3. No non-POSIX APIs; no platform-specific code. When wrapping APIs
+3. Save horizontal space by only using SPACEs where the parser requires
+   them.
+
+4. No non-POSIX APIs; no platform-specific code. When wrapping APIs
    introduced in POSIX 2001 or later, add an appropriate #if. If your
    platform isn't quite POSIX, you may find a gnulib module to bridge
    the gap. If absolutely necessary, use luke feature tests.
 
-4. Thin wrappers: although some existing code contradicts this, wrap
+5. Thin wrappers: although some existing code contradicts this, wrap
    POSIX APIs in the simplest way possible. If necessary, more
    convenient wrappers can be added in Lua (posix.lua).
 

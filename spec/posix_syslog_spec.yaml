@@ -9,39 +9,39 @@ specify posix.syslog:
 - context when required:
   - it does not touch the global table:
       expect(show_apis {added_to=global_table, by=this_module}).
-        to_equal {}
+         to_equal {}
 
 
 - describe LOG_MASK:
   - context with bad arguments:
       if M.LOG_MASK then
-        badargs.diagnose (M.LOG_MASK, "(int)")
+         badargs.diagnose(M.LOG_MASK, "(int)")
       end
 
 
 - describe closelog:
   - context with bad arguments:
       if M.closelog then
-        badargs.diagnose (M.closelog, "()")
+         badargs.diagnose(M.closelog, "()")
       end
 
 
 - describe openlog:
   - context with bad arguments: |
       if M.openlog then
-        badargs.diagnose (M.openlog, "(string, ?int, ?int)")
+         badargs.diagnose(M.openlog, "(string, ?int, ?int)")
       end
 
 
 - describe setlogmask:
   - context with bad arguments:
       if M.setlogmask then
-        badargs.diagnose (M.setlogmask, "(?int)")
+         badargs.diagnose(M.setlogmask, "(?int)")
       end
 
 
 - describe syslog:
   - context with bad arguments:
       if M.syslog then
-        badargs.diagnose (M.syslog, "(int, string)")
+         badargs.diagnose(M.syslog, "(int, string)")
       end

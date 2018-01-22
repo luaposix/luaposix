@@ -9,7 +9,7 @@ specify posix.pwd:
 - context when required:
   - it does not touch the global table:
       expect(show_apis {added_to=global_table, by=this_module}).
-        to_equal {}
+         to_equal {}
 
 
 - describe endpwent:
@@ -17,15 +17,15 @@ specify posix.pwd:
       endpwent = M.endpwent
 
   - context with bad arguments:
-      badargs.diagnose (endpwent, "()")
+      badargs.diagnose(endpwent, "()")
 
   - it returns 'nil':
-      expect (endpwent ()).to_be (nil)
+      expect(endpwent()).to_be(nil)
   - it rewinds the passwd database:
-      p = M.getpwent ()
-      M.getpwent ()
-      endpwent ()
-      expect (M.getpwent ()).to_equal (p)
+      p = M.getpwent()
+      M.getpwent()
+      endpwent()
+      expect(M.getpwent()).to_equal(p)
 
 
 - describe getpwent:
@@ -33,22 +33,22 @@ specify posix.pwd:
       getpwent = M.getpwent
 
   - context with bad arguments:
-      badargs.diagnose (getpwent, "()")
+      badargs.diagnose(getpwent, "()")
 
   - it returns a PosixPasswd for an existing user:
-      expect (prototype (getpwent ())).to_be "PosixPasswd"
+      expect(prototype(getpwent())).to_be "PosixPasswd"
   - it fetches a different user on subsequent calls:
-      p = getpwent ()
-      expect (getpwent ()).not_to_equal (p)
+      p = getpwent()
+      expect(getpwent()).not_to_equal(p)
   - it returns nil after the last entry was fetched:
-      p = getpwent ()
-      while (p) do
-        q = getpwent ()
-        expect (p).not_to_equal (q)
-        p = q
+      p = getpwent()
+      while(p) do
+         q = getpwent()
+         expect(p).not_to_equal(q)
+         p = q
       end
-      expect (p).to_be (nil)
-      M.endpwent ()
+      expect(p).to_be(nil)
+      M.endpwent()
 
 
 - describe getpwnam:
@@ -56,18 +56,18 @@ specify posix.pwd:
       getpwnam = M.getpwnam
 
   - context with bad arguments:
-      badargs.diagnose (getpwnam, "(string)")
+      badargs.diagnose(getpwnam, "(string)")
 
   - it returns 'nil' for a non-existent user:
-      expect (getpwnam "veryunlikelyusername").to_be (nil)
+      expect(getpwnam "veryunlikelyusername").to_be(nil)
   - it returns a PosixPasswd for an existing user:
-      expect (prototype (getpwnam "root")).to_be "PosixPasswd"
+      expect(prototype(getpwnam "root")).to_be "PosixPasswd"
   - it fetches a passwd entry by name:
-      expect (getpwnam ("root").pw_name).to_be "root"
-      expect (getpwnam ("root").pw_uid).to_be (0)
-      expect (getpwnam ("root").pw_gid).to_be (0)
-      expect (type (getpwnam ("root").pw_dir)).to_be "string"
-      expect (type (getpwnam ("root").pw_shell)).to_be "string"
+      expect(getpwnam("root").pw_name).to_be "root"
+      expect(getpwnam("root").pw_uid).to_be(0)
+      expect(getpwnam("root").pw_gid).to_be(0)
+      expect(type(getpwnam("root").pw_dir)).to_be "string"
+      expect(type(getpwnam("root").pw_shell)).to_be "string"
 
 
 - describe getpwuid:
@@ -75,16 +75,16 @@ specify posix.pwd:
       getpwuid = M.getpwuid
 
   - context with bad arguments:
-      badargs.diagnose (getpwuid, "(int)")
+      badargs.diagnose(getpwuid, "(int)")
 
   - it returns a PosixPasswd for an existing user:
-      expect (prototype (getpwuid (0))).to_be "PosixPasswd"
+      expect(prototype(getpwuid(0))).to_be "PosixPasswd"
   - it fetches a passwd entry by gid:
-      expect (getpwuid (0).pw_name).to_be "root"
-      expect (getpwuid (0).pw_uid).to_be (0)
-      expect (getpwuid (0).pw_gid).to_be (0)
-      expect (type (getpwuid (0).pw_dir)).to_be "string"
-      expect (type (getpwuid (0).pw_shell)).to_be "string"
+      expect(getpwuid(0).pw_name).to_be "root"
+      expect(getpwuid(0).pw_uid).to_be(0)
+      expect(getpwuid(0).pw_gid).to_be(0)
+      expect(type(getpwuid(0).pw_dir)).to_be "string"
+      expect(type(getpwuid(0).pw_shell)).to_be "string"
 
 
 - describe setpwent:
@@ -92,12 +92,12 @@ specify posix.pwd:
       setpwent = M.setpwent
 
   - context with bad arguments:
-      badargs.diagnose (setpwent, "()")
+      badargs.diagnose(setpwent, "()")
 
   - it returns 'nil':
-      expect (setpwent ()).to_be (nil)
+      expect(setpwent()).to_be(nil)
   - it rewinds the passwd database:
-      p = M.getpwent ()
-      M.getpwent ()
-      setpwent ()
-      expect (M.getpwent ()).to_equal (p)
+      p = M.getpwent()
+      M.getpwent()
+      setpwent()
+      expect(M.getpwent()).to_equal(p)

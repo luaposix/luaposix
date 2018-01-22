@@ -9,53 +9,53 @@ specify posix.stdio:
 - context when required:
   - it does not touch the global table:
       expect(show_apis {added_to=global_table, by=this_module}).
-        to_equal {}
+         to_equal {}
 
 
 - describe fdopen:
     - before:
         fdopen = M.fdopen
-        fd = fdopen (require 'posix.unistd'.STDOUT_FILENO, "w")
+        fd = fdopen(require 'posix.unistd'.STDOUT_FILENO, "w")
 
     - context with bad arguments:
-        badargs.diagnose (fdopen, "(int,string)")
+        badargs.diagnose(fdopen, "(int,string)")
 
     - it duplicates a stream:
-        expect (type (fd)).to_be "userdata"
+        expect(type(fd)).to_be "userdata"
 
     - it writes to the duplicated stream: |
         script = [[
-          local stdio = require "posix.stdio"
-          local fd = stdio.fdopen (require 'posix.unistd'.STDOUT_FILENO, "w")
+           local stdio = require "posix.stdio"
+           local fd = stdio.fdopen(require 'posix.unistd'.STDOUT_FILENO, "w")
 
-          -- Lua 5.1 file.write returns true; > 5.1 returns file handle
-          local r = fd:write ("writing to fdopen(stdout)")
+           -- Lua 5.1 file.write returns true; > 5.1 returns file handle
+           local r = fd:write("writing to fdopen(stdout)")
 
-          os.exit (r ~= nil and 0 or 1)
+           os.exit(r ~= nil and 0 or 1)
         ]]
         pending "issue #217"
-        expect (luaproc (script)).to_succeed_with "writing to fdopen(stdout)"
+        expect(luaproc(script)).to_succeed_with "writing to fdopen(stdout)"
 
 
 - describe rename:
     - before:
         rename = M.rename
-        fd, path = require "posix.stdlib".mkstemp (template)
+        fd, path = require "posix.stdlib".mkstemp(template)
     - after:
-        require 'posix.unistd'.close (fd)
-        os.remove (path)
+        require 'posix.unistd'.close(fd)
+        os.remove(path)
 
     - context with bad arguments:
-        badargs.diagnose (rename, "(string,string)")
+        badargs.diagnose(rename, "(string,string)")
 
     - it renames an existing file:
         newpath = path .. ".renamed"
-        expect (fd).not_to_be (nil)
-        require 'posix.unistd'.write (fd, "rename me")
-        rename (path, newpath)
-        expect (io.open (path, "r")).to_be (nil)
-        fh = io.open (newpath, "r")
-        expect (fh).not_to_be (nil)
-        expect (fh:read ()).to_be "rename me"
-        fh:close ()
-        rename (newpath, path)
+        expect(fd).not_to_be(nil)
+        require 'posix.unistd'.write(fd, "rename me")
+        rename(path, newpath)
+        expect(io.open(path, "r")).to_be(nil)
+        fh = io.open(newpath, "r")
+        expect(fh).not_to_be(nil)
+        expect(fh:read()).to_be "rename me"
+        fh:close()
+        rename(newpath, path)

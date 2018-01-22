@@ -9,7 +9,7 @@ specify posix.sys.time:
 - context when required:
   - it does not touch the global table:
       expect(show_apis {added_to=global_table, by=this_module}).
-        to_equal {}
+         to_equal {}
 
 
 - describe gettimeofday:
@@ -17,12 +17,12 @@ specify posix.sys.time:
       gettimeofday = M.gettimeofday
 
   - context with bad arguments:
-      badargs.diagnose (gettimeofday, "()")
+      badargs.diagnose(gettimeofday, "()")
 
   - it returns a PosixTimeval:
-      expect (prototype (gettimeofday ())).to_be "PosixTimeval"
+      expect(prototype(gettimeofday())).to_be "PosixTimeval"
   - it fetches the current epoch time:
-      tv, epoch = gettimeofday (), posix.time ()
-      expect (tv.tv_sec).to_be (epoch)
-      expect (type (tv.tv_usec)).to_be "number"
-      expect (tv.tv_usec >= 0).to_be (true)
+      tv, epoch = gettimeofday(), posix.time()
+      expect(tv.tv_sec).to_be(epoch)
+      expect(type(tv.tv_usec)).to_be "number"
+      expect(tv.tv_usec >= 0).to_be(true)

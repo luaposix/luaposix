@@ -9,27 +9,27 @@ specify posix.sys.utsname:
 - context when required:
   - it does not touch the global table:
       expect(show_apis {added_to=global_table, by=this_module}).
-        to_equal {}
+         to_equal {}
 
 
 - describe uname:
   - before:
       uname = M.uname
 
-      u = uname ()
+      u = uname()
 
   - context with bad arguments:
-      badargs.diagnose (uname, "()")
+      badargs.diagnose(uname, "()")
 
   - it returns a PosixUtsname:
-      expect (prototype (u)).to_be "PosixUtsname"
+      expect(prototype(u)).to_be "PosixUtsname"
   - it returns machine name:
-      expect (u.machine).to_be (cmd_output "uname -m")
+      expect(u.machine).to_be(cmd_output "uname -m")
   - it returns nodename:
-      expect (u.nodename).to_be (cmd_output "uname -n")
+      expect(u.nodename).to_be(cmd_output "uname -n")
   - it returns operating system release:
-      expect (u.release).to_be (cmd_output "uname -r")
+      expect(u.release).to_be(cmd_output "uname -r")
   - it returns system name:
-      expect (u.sysname).to_be (cmd_output "uname -s")
+      expect(u.sysname).to_be(cmd_output "uname -s")
   - it returns operating system version:
-      expect (u.version).to_be (cmd_output "uname -v")
+      expect(u.version).to_be(cmd_output "uname -v")

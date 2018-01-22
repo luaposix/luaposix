@@ -9,16 +9,16 @@ specify posix.unistd:
 - context when required:
   - it does not touch the global table:
       expect(show_apis {added_to=global_table, by=this_module}).
-        to_equal {}
+         to_equal {}
 
 
 - before: |
-    bit     = require "bit32"
-    fcntl   = require "posix.fcntl"
-    pwd     = require "posix.pwd"
+    bit = require "bit32"
+    fcntl = require "posix.fcntl"
+    pwd = require "posix.pwd"
 
     -- Assume $USER is the process owner, egid is gid and euid is uid
-    ids = pwd.getpwnam (os.getenv "USER")
+    ids = pwd.getpwnam(os.getenv "USER")
 
 
 - describe alarm:
@@ -27,17 +27,17 @@ specify posix.unistd:
 
   - it returns zero when passed zero: |
       zero = alarm(0)
-      expect (zero).to_be (0)
+      expect(zero).to_be(0)
 
   - it can set and reset an alarm: |
       zero = alarm(10)
       ten = alarm(0)
-      expect (ten>0).to_be (true)
+      expect(ten>0).to_be(true)
 
 
 - describe exec:
   - context with bad arguments:
-      badargs.diagnose (M.exec, "(string, table)")
+      badargs.diagnose(M.exec, "(string, table)")
 
 
 - describe execp:
@@ -47,23 +47,23 @@ specify posix.unistd:
       P_CHILD = 0
 
       -- redirect output to /dev/null
-      function child (...)
-        quietly = fcntl.open ("/dev/null", bit.bor (fcntl.O_WRONLY, fcntl.O_APPEND))
-        M.dup2 (quietly, 1)
-        execp (...)
-        expect ("not reached").to_be (true)
+      function child(...)
+         quietly = fcntl.open("/dev/null", bit.bor(fcntl.O_WRONLY, fcntl.O_APPEND))
+         M.dup2(quietly, 1)
+         execp(...)
+         expect("not reached").to_be(true)
       end
 
   - context with bad arguments:
-      badargs.diagnose (execp, "(string, table)")
+      badargs.diagnose(execp, "(string, table)")
 
   - it overwrites the running process with a shell invocation:
-      process = M.fork ()
+      process = M.fork()
       if process == P_CHILD then
-        child ("date", {"+[%c]"})
+         child("date", {"+[%c]"})
       else
-        p, msg, ret = require 'posix.sys.wait'.wait (process)
-        expect (table.concat {msg, " ", tostring (ret)}).to_be "exited 0"
+         p, msg, ret = require 'posix.sys.wait'.wait(process)
+         expect(table.concat {msg, " ", tostring(ret)}).to_be "exited 0"
       end
   - "it sets argv[0]":
 
@@ -72,32 +72,32 @@ specify posix.unistd:
   - before: |
       ftruncate = M.ftruncate
 
-      function echo (fname, s)
-        local fh = io.open (fname, 'w')
-        fh:write (s .. '\n')
-        fh:close ()
-        return #s + 1
+      function echo(fname, s)
+         local fh = io.open(fname, 'w')
+         fh:write(s .. '\n')
+         fh:close()
+         return #s + 1
       end
 
-      function flen (fname)
-        local fh = io.open (fname, 'r')
-        local r = fh:read '*a'
-        fh:close ()
-        return #r
+      function flen(fname)
+         local fh = io.open(fname, 'r')
+         local r = fh:read '*a'
+         fh:close()
+         return #r
       end
 
   - context with bad arguments:
-      badargs.diagnose (ftruncate, "(int, int)")
+      badargs.diagnose(ftruncate, "(int, int)")
 
   - it truncates an open file descriptor:
       fname = os.tmpname()
-      len = echo (fname, 'line 1')
-      echo (fname, 'line 2')
-      fd = fcntl.open (fname, bor (fcntl.O_CREAT, fcntl.O_WRONLY))
-      expect (ftruncate (fd, len)).not_to_be (nil)
-      M.close (fd)
-      expect (flen (fname)).to_be (len)
-      os.remove (fname)
+      len = echo(fname, 'line 1')
+      echo(fname, 'line 2')
+      fd = fcntl.open(fname, bor(fcntl.O_CREAT, fcntl.O_WRONLY))
+      expect(ftruncate(fd, len)).not_to_be(nil)
+      M.close(fd)
+      expect(flen(fname)).to_be(len)
+      os.remove(fname)
 
 
 - describe getegid:
@@ -105,10 +105,10 @@ specify posix.unistd:
       getegid = M.getegid
 
   - context with bad arguments:
-      badargs.diagnose (getegid, "()")
+      badargs.diagnose(getegid, "()")
 
   - it returns the effective group id:
-      expect (getegid ()).to_be (ids.pw_gid)
+      expect(getegid()).to_be(ids.pw_gid)
 
 
 - describe geteuid:
@@ -116,10 +116,10 @@ specify posix.unistd:
       geteuid = M.geteuid
 
   - context with bad arguments:
-      badargs.diagnose (geteuid, "()")
+      badargs.diagnose(geteuid, "()")
 
   - it returns the effective user id:
-      expect (geteuid ()).to_be (ids.pw_uid)
+      expect(geteuid()).to_be(ids.pw_uid)
 
 
 - describe getgid:
@@ -127,10 +127,10 @@ specify posix.unistd:
       getgid = M.getgid
 
   - context with bad arguments:
-      badargs.diagnose (getgid, "()")
+      badargs.diagnose(getgid, "()")
 
   - it returns the group id:
-      expect (getgid ()).to_be (ids.pw_gid)
+      expect(getgid()).to_be(ids.pw_gid)
 
 
 - describe gethostid:
@@ -138,10 +138,10 @@ specify posix.unistd:
       gethostid = M.gethostid
 
   - context with bad arguments:
-      badargs.diagnose (gethostid, "()")
+      badargs.diagnose(gethostid, "()")
 
   - it returns an integer:
-      expect (math.floor (gethostid ())).to_be (gethostid ())
+      expect(math.floor(gethostid())).to_be(gethostid())
 
 
 - describe getuid:
@@ -149,10 +149,10 @@ specify posix.unistd:
       getuid = M.getuid
 
   - context with bad arguments:
-      badargs.diagnose (getuid, "()")
+      badargs.diagnose(getuid, "()")
 
   - it returns the user id:
-      expect (getuid ()).to_be (ids.pw_uid)
+      expect(getuid()).to_be(ids.pw_uid)
 
 
 - describe getpgrp:
@@ -160,11 +160,11 @@ specify posix.unistd:
       getpgrp = M.getpgrp
 
   - context with bad arguments:
-      badargs.diagnose (getpgrp, "()")
+      badargs.diagnose(getpgrp, "()")
 
   - it returns a positive integer:
-      expect (math.floor (getpgrp ())).to_be (getpgrp ())
-      expect (getpgrp () > 0).to_be (true)
+      expect(math.floor(getpgrp())).to_be(getpgrp())
+      expect(getpgrp() > 0).to_be(true)
 
 
 - describe getpid:
@@ -172,11 +172,11 @@ specify posix.unistd:
       getpid = M.getpid
 
   - context with bad arguments:
-      badargs.diagnose (getpid, "()")
+      badargs.diagnose(getpid, "()")
 
   - it returns the a positive integer:
-      expect (math.floor (getpid ())).to_be (getpid ())
-      expect (getpid () > 0).to_be (true)
+      expect(math.floor(getpid())).to_be(getpid())
+      expect(getpid() > 0).to_be(true)
 
 
 - describe getppid:
@@ -184,18 +184,18 @@ specify posix.unistd:
       getppid = M.getppid
 
   - context with bad arguments:
-      badargs.diagnose (getppid, "()")
+      badargs.diagnose(getppid, "()")
 
   - it returns a positive integer:
-      expect (math.floor (getppid ())).to_be (getppid ())
-      expect (getppid () > 0).to_be (true)
+      expect(math.floor(getppid())).to_be(getppid())
+      expect(getppid() > 0).to_be(true)
   - it does not return the process id:
-      expect (getppid ()).not_to_be (M.getpid ())
+      expect(getppid()).not_to_be(M.getpid())
 
 
 - describe lchown:
   - context with bad arguments:
-      badargs.diagnose (M.lchown, "(string, ?string|int, ?string|int)")
+      badargs.diagnose(M.lchown, "(string, ?string|int, ?string|int)")
 
 
 - describe link:
@@ -206,41 +206,41 @@ specify posix.unistd:
       lstat = st.lstat
       S_ISREG, S_ISLNK = st.S_ISREG, st.S_ISLNK
 
-      dir = posix.mkdtemp (template)
-      touch (dir .. "/file")
+      dir = posix.mkdtemp(template)
+      touch(dir .. "/file")
 
   - after:
-      rmtmp (dir)
+      rmtmp(dir)
 
   - context with bad arguments:
-      badargs.diagnose (link, "(string, string, ?boolean)")
+      badargs.diagnose(link, "(string, string, ?boolean)")
 
   - it creates hard link without optional param:
-      st_before = lstat (dir .. "/file")
-      link (dir .. "/file", dir .. "/hard")
-      st_after = lstat (dir .. "/file")
-      st_link = lstat (dir .. "/hard")
-      expect (st_before.st_nlink + 1).to_be(st_after.st_nlink)
-      expect (st_after.st_nlink).to_be(st_link.st_nlink)
-      expect (S_ISREG (st_link.st_mode)).not_to_be(0)
-      expect (S_ISLNK (st_link.st_mode)).to_be(0)
+      st_before = lstat(dir .. "/file")
+      link(dir .. "/file", dir .. "/hard")
+      st_after = lstat(dir .. "/file")
+      st_link = lstat(dir .. "/hard")
+      expect(st_before.st_nlink + 1).to_be(st_after.st_nlink)
+      expect(st_after.st_nlink).to_be(st_link.st_nlink)
+      expect(S_ISREG(st_link.st_mode)).not_to_be(0)
+      expect(S_ISLNK(st_link.st_mode)).to_be(0)
   - it creates hard link with optional param:
-      st_before = lstat (dir .. "/file")
-      link (dir .. "/file", dir .. "/hard", false)
-      st_after = lstat (dir .. "/file")
-      st_link = lstat (dir .. "/hard")
-      expect (st_before.st_nlink + 1).to_be(st_after.st_nlink)
-      expect (st_after.st_nlink).to_be(st_link.st_nlink)
-      expect (S_ISREG (st_link.st_mode)).not_to_be(0)
-      expect (S_ISLNK (st_link.st_mode)).to_be(0)
+      st_before = lstat(dir .. "/file")
+      link(dir .. "/file", dir .. "/hard", false)
+      st_after = lstat(dir .. "/file")
+      st_link = lstat(dir .. "/hard")
+      expect(st_before.st_nlink + 1).to_be(st_after.st_nlink)
+      expect(st_after.st_nlink).to_be(st_link.st_nlink)
+      expect(S_ISREG(st_link.st_mode)).not_to_be(0)
+      expect(S_ISLNK(st_link.st_mode)).to_be(0)
   - it creates soft link:
-      st_before = lstat (dir .. "/file")
-      link (dir .. "/file", dir .. "/soft", true)
-      st_after = lstat (dir .. "/file")
-      st_link = lstat (dir .. "/soft")
-      expect (st_before.st_nlink).to_be(st_after.st_nlink)
-      expect (S_ISREG (st_link.st_mode)).to_be(0)
-      expect (S_ISLNK (st_link.st_mode)).not_to_be(0)
+      st_before = lstat(dir .. "/file")
+      link(dir .. "/file", dir .. "/soft", true)
+      st_after = lstat(dir .. "/file")
+      st_link = lstat(dir .. "/soft")
+      expect(st_before.st_nlink).to_be(st_after.st_nlink)
+      expect(S_ISREG(st_link.st_mode)).to_be(0)
+      expect(S_ISLNK(st_link.st_mode)).not_to_be(0)
 
 
 - describe linkat:
@@ -254,57 +254,57 @@ specify posix.unistd:
 
       AT_FDCWD, AT_SYMLINK_FOLLOW = fcntl.AT_FDCWD, fcntl.AT_SYMLINK_FOLLOW
 
-      dir = posix.mkdtemp (template)
-      touch (dir .. "/file")
+      dir = posix.mkdtemp(template)
+      touch(dir .. "/file")
       dirfd = fcntl.open(dir, fcntl.O_RDONLY)
 
   - after:
-      M.close (dirfd)
-      rmtmp (dir)
+      M.close(dirfd)
+      rmtmp(dir)
 
   - context with bad arguments:
-      badargs.diagnose (linkat, "(int, string, int, string, int)")
+      badargs.diagnose(linkat, "(int, string, int, string, int)")
 
   - it creates hard link using AT_FDCWD:
-      st_before = lstat (dir .. "/file")
-      linkat (AT_FDCWD, dir .. "/file", AT_FDCWD, dir .. "/hard", 0)
-      st_after = lstat (dir .. "/file")
-      st_link = lstat (dir .. "/hard")
-      expect (st_before.st_nlink + 1).to_be(st_after.st_nlink)
-      expect (st_after.st_nlink).to_be(st_link.st_nlink)
-      expect (S_ISREG (st_link.st_mode)).not_to_be(0)
+      st_before = lstat(dir .. "/file")
+      linkat(AT_FDCWD, dir .. "/file", AT_FDCWD, dir .. "/hard", 0)
+      st_after = lstat(dir .. "/file")
+      st_link = lstat(dir .. "/hard")
+      expect(st_before.st_nlink + 1).to_be(st_after.st_nlink)
+      expect(st_after.st_nlink).to_be(st_link.st_nlink)
+      expect(S_ISREG(st_link.st_mode)).not_to_be(0)
   - it creates hard link in directory specified by fd:
-      st_before = lstat (dir .. "/file")
-      linkat (dirfd, "file", dirfd, "hard", 0)
-      st_after = lstat (dir .. "/file")
-      st_link = lstat (dir .. "/hard")
-      expect (st_before.st_nlink + 1).to_be(st_after.st_nlink)
-      expect (st_after.st_nlink).to_be(st_link.st_nlink)
-      expect (S_ISREG (st_link.st_mode)).not_to_be(0)
+      st_before = lstat(dir .. "/file")
+      linkat(dirfd, "file", dirfd, "hard", 0)
+      st_after = lstat(dir .. "/file")
+      st_link = lstat(dir .. "/hard")
+      expect(st_before.st_nlink + 1).to_be(st_after.st_nlink)
+      expect(st_after.st_nlink).to_be(st_link.st_nlink)
+      expect(S_ISREG(st_link.st_mode)).not_to_be(0)
   - it creates hard link to file symbolic link:
       # linkat without AT_SYMLINK_FOLLOW returns ENOTSUPP on some filesystems
-      link (dir .. "/file", dir .. "/soft", true)
-      st_before = lstat (dir .. "/file")
-      if linkat (dirfd, "soft", dirfd, "hard", 0) == 0 then
-         st_after = lstat (dir .. "/file")
-         st_hard = lstat (dir .. "/hard")
-         st_soft = lstat (dir .. "/soft")
-         expect (st_before.st_nlink).to_be(st_after.st_nlink)
-         expect (st_soft.st_nlink).to_be(st_hard.st_nlink)
-         expect (S_ISREG (st_hard.st_mode)).to_be(0)
-         expect (S_ISLNK (st_hard.st_mode)).not_to_be(0)
+      link(dir .. "/file", dir .. "/soft", true)
+      st_before = lstat(dir .. "/file")
+      if linkat(dirfd, "soft", dirfd, "hard", 0) == 0 then
+          st_after = lstat(dir .. "/file")
+          st_hard = lstat(dir .. "/hard")
+          st_soft = lstat(dir .. "/soft")
+          expect(st_before.st_nlink).to_be(st_after.st_nlink)
+          expect(st_soft.st_nlink).to_be(st_hard.st_nlink)
+          expect(S_ISREG(st_hard.st_mode)).to_be(0)
+          expect(S_ISLNK(st_hard.st_mode)).not_to_be(0)
       end
   - it creates hard link to file referenced by symbolic link:
-      link (dir .. "/file", dir .. "/soft", true)
-      st_before = lstat (dir .. "/file")
-      linkat (dirfd, "soft", dirfd, "hard", AT_SYMLINK_FOLLOW)
-      st_after = lstat (dir .. "/file")
-      st_hard = lstat (dir .. "/hard")
-      st_soft = lstat (dir .. "/soft")
-      expect (st_before.st_nlink + 1).to_be(st_after.st_nlink)
-      expect (st_after.st_nlink).to_be(st_hard.st_nlink)
-      expect (S_ISREG (st_hard.st_mode)).not_to_be(0)
-      expect (S_ISLNK (st_hard.st_mode)).to_be(0)
+      link(dir .. "/file", dir .. "/soft", true)
+      st_before = lstat(dir .. "/file")
+      linkat(dirfd, "soft", dirfd, "hard", AT_SYMLINK_FOLLOW)
+      st_after = lstat(dir .. "/file")
+      st_hard = lstat(dir .. "/hard")
+      st_soft = lstat(dir .. "/soft")
+      expect(st_before.st_nlink + 1).to_be(st_after.st_nlink)
+      expect(st_after.st_nlink).to_be(st_hard.st_nlink)
+      expect(S_ISREG(st_hard.st_mode)).not_to_be(0)
+      expect(S_ISLNK(st_hard.st_mode)).to_be(0)
 
 
 - describe pathconf:
@@ -312,26 +312,26 @@ specify posix.unistd:
       pathconf = M.pathconf
 
   - context with bad arguments:
-      badargs.diagnose (pathconf, "(string, int)")
+      badargs.diagnose(pathconf, "(string, int)")
 
   - it returns whether chown can be used on the given file:
-      expect (type (pathconf (".", M._PC_CHOWN_RESTRICTED))).to_be "number"
+      expect(type(pathconf(".", M._PC_CHOWN_RESTRICTED))).to_be "number"
   - it fetches the maximum number of links to the given file:
-      expect (type (pathconf (".", M._PC_LINK_MAX))).to_be "number"
+      expect(type(pathconf(".", M._PC_LINK_MAX))).to_be "number"
   - it fetches the maximum formatted line input length for a tty:
-      expect (type (pathconf (".", M._PC_MAX_CANON))).to_be "number"
+      expect(type(pathconf(".", M._PC_MAX_CANON))).to_be "number"
   - it fetches the maximum raw line input length for a tty:
-      expect (type (pathconf (".", M._PC_MAX_INPUT))).to_be "number"
+      expect(type(pathconf(".", M._PC_MAX_INPUT))).to_be "number"
   - it fetches the maximum filename length in this directory:
-      expect (type (pathconf (".", M._PC_NAME_MAX))).to_be "number"
+      expect(type(pathconf(".", M._PC_NAME_MAX))).to_be "number"
   - it fetches whether accessing overlong filenames is an error:
-      expect (type (pathconf (".", M._PC_NO_TRUNC))).to_be "number"
+      expect(type(pathconf(".", M._PC_NO_TRUNC))).to_be "number"
   - it fetches the maximum relative path length from this directory:
-      expect (type (pathconf (".", M._PC_PATH_MAX))).to_be "number"
+      expect(type(pathconf(".", M._PC_PATH_MAX))).to_be "number"
   - it fetches the size of the pipe buffer:
-      expect (type (pathconf (".", M._PC_PIPE_BUF))).to_be "number"
+      expect(type(pathconf(".", M._PC_PIPE_BUF))).to_be "number"
   - it fetches whether special character processing can be disabled:
-      expect (type (pathconf (".", M._PC_VDISABLE))).to_be "number"
+      expect(type(pathconf(".", M._PC_VDISABLE))).to_be "number"
 
 
 - describe sysconf:
@@ -339,58 +339,58 @@ specify posix.unistd:
       sysconf = M.sysconf
 
   - context with bad arguments:
-      badargs.diagnose (sysconf, "(int)")
+      badargs.diagnose(sysconf, "(int)")
 
   - it fetches the maximum number of exec arguments:
-      expect (type (sysconf (M._SC_ARG_MAX))).to_be "number"
+      expect(type(sysconf(M._SC_ARG_MAX))).to_be "number"
   - it fetches the number processes per user:
-      expect (type (sysconf (M._SC_CHILD_MAX))).to_be "number"
+      expect(type(sysconf(M._SC_CHILD_MAX))).to_be "number"
   - it fetches the number of clock ticks per second:
-      expect (type (sysconf (M._SC_CLK_TCK))).to_be "number"
+      expect(type(sysconf(M._SC_CLK_TCK))).to_be "number"
   - it fetches the job control version:
-      expect (type (sysconf (M._SC_JOB_CONTROL))).to_be "number"
+      expect(type(sysconf(M._SC_JOB_CONTROL))).to_be "number"
   - it fetches the maximum number of groups:
-      expect (type (sysconf (M._SC_NGROUPS_MAX))).to_be "number"
+      expect(type(sysconf(M._SC_NGROUPS_MAX))).to_be "number"
   - it fetches the maximum number of open descriptors:
-      expect (type (sysconf (M._SC_OPEN_MAX))).to_be "number"
+      expect(type(sysconf(M._SC_OPEN_MAX))).to_be "number"
   - it fetches the size of memory pages:
-      expect (type (sysconf (M._SC_PAGESIZE))).to_be "number"
+      expect(type(sysconf(M._SC_PAGESIZE))).to_be "number"
   - it fetches the number of saved ids:
-      expect (type (sysconf (M._SC_SAVED_IDS))).to_be "number"
+      expect(type(sysconf(M._SC_SAVED_IDS))).to_be "number"
   - it fetches the maximum number of open streams:
-      expect (type (sysconf (M._SC_STREAM_MAX))).to_be "number"
+      expect(type(sysconf(M._SC_STREAM_MAX))).to_be "number"
   - it fetches the maximum length of a timezone name:
-      expect (type (sysconf (M._SC_TZNAME_MAX))).to_be "number"
+      expect(type(sysconf(M._SC_TZNAME_MAX))).to_be "number"
   - it fetches the POSIX.1 version:
-      expect (type (sysconf (M._SC_VERSION))).to_be "number"
+      expect(type(sysconf(M._SC_VERSION))).to_be "number"
 
 
 - describe truncate:
   - before: |
       truncate = M.truncate
 
-      function echo (fname, s)
-        local fh = io.open (fname, 'w')
-        fh:write (s .. '\n')
-        fh:close ()
-        return #s + 1
+      function echo(fname, s)
+         local fh = io.open(fname, 'w')
+         fh:write(s .. '\n')
+         fh:close()
+         return #s + 1
       end
 
-      function flen (fname)
-        local fh = io.open (fname, 'r')
-        local r = fh:read '*a'
-        fh:close ()
-        return #r
+      function flen(fname)
+         local fh = io.open(fname, 'r')
+         local r = fh:read '*a'
+         fh:close()
+         return #r
       end
 
   - context with bad arguments:
-      badargs.diagnose (truncate, "(string, int)")
+      badargs.diagnose(truncate, "(string, int)")
 
   - it truncates a named file:
       fname = os.tmpname()
-      len = echo (fname, 'line 1')
-      echo (fname, 'line 2')
-      expect (ftruncate (fname, len)).not_to_be (nil)
-      expect (flen (fname)).to_be (len)
-      os.remove (fname)
+      len = echo(fname, 'line 1')
+      echo(fname, 'line 2')
+      expect(ftruncate(fname, len)).not_to_be(nil)
+      expect(flen(fname)).to_be(len)
+      os.remove(fname)
 

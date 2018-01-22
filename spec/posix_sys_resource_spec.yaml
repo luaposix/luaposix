@@ -9,7 +9,7 @@ specify posix.sys.resource:
 - context when required:
   - it does not touch the global table:
       expect(show_apis {added_to=global_table, by=this_module}).
-        to_equal {}
+         to_equal {}
 
 
 - describe getrlimit:
@@ -17,67 +17,67 @@ specify posix.sys.resource:
       getrlimit = M.getrlimit
 
   - context with bad arguments:
-      badargs.diagnose (getrlimit, "(int)")
+      badargs.diagnose(getrlimit, "(int)")
 
   - it returns a PosixRlimit:
-      expect (prototype (getrlimit (M.RLIMIT_AS))).to_be "PosixRlimit"
+      expect(prototype(getrlimit(M.RLIMIT_AS))).to_be "PosixRlimit"
   - it fetches resource limits for a process:
       for _, rc in pairs {"RLIMIT_CORE", "RLIMIT_CPU", "RLIMIT_DATA", "RLIMIT_FSIZE",
           "RLIMIT_NOFILE", "RLIMIT_STACK", "RLIMIT_AS"}
       do
-        rlim = getrlimit (M[rc])
-        expect (type (rlim.rlim_cur)).to_be "number"
-        expect (type (rlim.rlim_max)).to_be "number"
+         rlim = getrlimit(M[rc])
+         expect(type(rlim.rlim_cur)).to_be "number"
+         expect(type(rlim.rlim_max)).to_be "number"
       end
 
 
 - describe setrlimit:
   - before:
-      setrlimit, typeerrors = init (M, "setrlimit")
+      setrlimit, typeerrors = init(M, "setrlimit")
       getrlimit = M.getrlimit
 
   - context with bad arguments: |
-      badargs.diagnose (setrlimit, "(int, table)")
+      badargs.diagnose(setrlimit, "(int, table)")
 
       examples {
-        ["context diagnosing rlimit table fields"] = {
-          {
-            ["it diagnoses argument #2 missing rlim_cur field"] = function ()
-              expect (setrlimit (-1, {})).to_raise.
-                any_of (typeerrors (2, "number", "rlim_cur", "no value"))
-            end
-          },
-          {
-            ["it diagnoses argument #2 rlim_cur field type not int"] = function ()
-              expect (setrlimit (-1, {rlim_cur = false})).to_raise.
-                any_of (typeerrors (2, "number", "rlim_cur", "boolean"))
-            end
-          },
-          {
-            ["it diagnoses argument #2 missing rlim_max field"] = function ()
-              expect (setrlimit (-1, {rlim_cur = -1})).to_raise.
-                any_of (typeerrors (2, "number", "rlim_max", "no value"))
-            end
-          },
-          {
-            ["it diagnoses argument #2 rlim_max field type not int"] = function ()
-              expect (setrlimit (-1, {rlim_cur = -1, rlim_max = false})).to_raise.
-                any_of (typeerrors (2, "number", "rlim_max", "boolean"))
-            end
-          },
-          {
-            ["it diagnoses argument #2 spurious fields"] = function ()
-              expect (setrlimit (-1, {rlim_cur = -1, rlim_max = -1, bogus = false})).
-                to_raise.any_of (typeerrors (2, nil, "bogus"))
-            end
-          },
-        }
+         ["context diagnosing rlimit table fields"] = {
+            {
+               ["it diagnoses argument #2 missing rlim_cur field"] = function()
+                  expect(setrlimit(-1, {})).to_raise.
+                     any_of(typeerrors(2, "number", "rlim_cur", "no value"))
+               end
+            },
+            {
+               ["it diagnoses argument #2 rlim_cur field type not int"] = function()
+                  expect(setrlimit(-1, {rlim_cur = false})).to_raise.
+                     any_of(typeerrors(2, "number", "rlim_cur", "boolean"))
+               end
+            },
+            {
+               ["it diagnoses argument #2 missing rlim_max field"] = function()
+                  expect(setrlimit(-1, {rlim_cur = -1})).to_raise.
+                     any_of(typeerrors(2, "number", "rlim_max", "no value"))
+               end
+            },
+            {
+               ["it diagnoses argument #2 rlim_max field type not int"] = function()
+                  expect(setrlimit(-1, {rlim_cur = -1, rlim_max = false})).to_raise.
+                     any_of(typeerrors(2, "number", "rlim_max", "boolean"))
+               end
+            },
+            {
+               ["it diagnoses argument #2 spurious fields"] = function()
+                  expect(setrlimit(-1, {rlim_cur = -1, rlim_max = -1, bogus = false})).
+                     to_raise.any_of(typeerrors(2, nil, "bogus"))
+               end
+            },
+         }
       }
   - it accepts PosixRlimit argument:
       pending "requires elevated privileges"
       for _, rc in pairs {"RLIMIT_CORE", "RLIMIT_CPU", "RLIMIT_DATA", "RLIMIT_FSIZE",
           "RLIMIT_NOFILE", "RLIMIT_STACK", "RLIMIT_AS"}
       do
-        rlim = getrlimit (M[rc])
-        expect (setrlimit (M[rc], rlim)).to_be (0)
+         rlim = getrlimit(M[rc])
+         expect(setrlimit(M[rc], rlim)).to_be(0)
       end

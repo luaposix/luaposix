@@ -9,7 +9,7 @@ specify posix.fcntl:
 - context when required:
   - it does not touch the global table:
       expect(show_apis {added_to=global_table, by=this_module}).
-        to_equal {}
+         to_equal {}
 
 - describe open:
   - before: |
@@ -19,31 +19,31 @@ specify posix.fcntl:
       open = M.open
       close, read, write = unistd.close, unistd.read, unistd.write
 
-      dir = posix.mkdtemp (template)
-      fh = io.open (dir .. "/file", "w")
+      dir = posix.mkdtemp(template)
+      fh = io.open(dir .. "/file", "w")
       fh:write "garbage\n"
-      fh:close ()
+      fh:close()
 
   - after:
-      rmtmp (dir)
+      rmtmp(dir)
 
   - context with bad arguments:
-      badargs.diagnose (open, "(string, int, ?int)")
+      badargs.diagnose(open, "(string, int, ?int)")
 
   - it opens an existing file:
-      fd, err = open (dir .. "/file", O_RDONLY)
-      expect (type (fd)).to_be "number"
-      expect (fd >= 0).to_be (true)
-      expect (read (fd, 10)).to_be "garbage\n"
-      close (fd)
+      fd, err = open(dir .. "/file", O_RDONLY)
+      expect(type(fd)).to_be "number"
+      expect(fd >= 0).to_be(true)
+      expect(read(fd, 10)).to_be "garbage\n"
+      close(fd)
 
   - it opens a new file:
       buf = "more garbage\n"
-      fd, err = open (dir .. "/creat", bor (O_CREAT, O_WRONLY))
-      expect (type (fd)).to_be "number"
-      expect (fd >= 0).to_be (true)
-      expect (write (fd, buf)).to_be (#buf)
-      close (fd)
+      fd, err = open(dir .. "/creat", bor(O_CREAT, O_WRONLY))
+      expect(type(fd)).to_be "number"
+      expect(fd >= 0).to_be(true)
+      expect(write(fd, buf)).to_be(#buf)
+      close(fd)
 
 - describe posix_fadvise:
   - before:
@@ -51,5 +51,5 @@ specify posix.fcntl:
 
   - context with bad arguments:
       if posix_fadvise then
-        badargs.diagnose (posix_fadvise, "(int, int, int, int)")
+         badargs.diagnose(posix_fadvise, "(int, int, int, int)")
       end
