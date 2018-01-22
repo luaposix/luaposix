@@ -33,6 +33,8 @@ badargs = require 'specl.badargs'
 hell = require 'specl.shell'
 posix = require 'posix'
 
+local gsub = string.gsub
+
 
 -- Allow user override of LUA binary used by hell.spawn, falling
 -- back to environment PATH search for 'lua' if nothing else works.
@@ -146,7 +148,7 @@ local function tabulate_output(code)
       return error(proc.errout)
    end
    local r = {}
-   proc.output:gsub('(%S*)[%s]*', function(x)
+   gsub(proc.output, '(%S*)[%s]*', function(x)
       if x ~= '' then
          r[x] = true
       end

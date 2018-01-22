@@ -13,6 +13,10 @@
 local _argcheck = require 'posix._argcheck'
 local bit = require 'bit32'
 
+local gsub = string.gsub
+local match = string.match
+local sub = string.sub
+
 local argerror, argtypeerror, badoption =
    _argcheck.argerror, _argcheck.argtypeerror, _argcheck.badoption
 local band, bnot, bor = bit.band, bit.bnot, bit.bor
@@ -66,9 +70,9 @@ end
 local function rwxrwxrwx(modestr)
    local mode = 0
    for i = 1, 9 do
-      if modestr:sub(i, i) == mode_map[i].c then
+      if sub(modestr, i, i) == mode_map[i].c then
          mode = bor(mode, mode_map[i].b)
-      elseif modestr:sub(i, i) == 's' then
+      elseif sub(modestr, i, i) == 's' then
          if i == 3 then
             mode = bor(mode, S_ISUID, S_IXUSR)
          elseif i == 6 then
@@ -84,38 +88,38 @@ end
 local function octal_mode(modestr)
    local mode = 0
    for i = 1, #modestr do
-      mode = mode * 8 + tonumber(modestr:sub(i, i))
+      mode = mode * 8 + tonumber(sub(modestr, i, i))
    end
    return mode
 end
 
 local function mode_munch(mode, modestr)
-   if #modestr == 9 and modestr:match '^[-rswx]+$' then
+   if #modestr == 9 and match(modestr, '^[-rswx]+$') then
       return rwxrwxrwx(modestr)
-   elseif modestr:match '^[0-7]+$' then
+   elseif match(modestr, '^[0-7]+$') then
       return octal_mode(modestr)
-   elseif modestr:match '^[ugoa]+%s*[-+=]%s*[rswx]+,*' then
-      modestr:gsub('%s*(%a+)%s*(.)%s*(%a+),*', function(who, op, what)
+   elseif match(modestr, '^[ugoa]+%s*[-+=]%s*[rswx]+,*') then
+      gsub(modestr, '%s*(%a+)%s*(.)%s*(%a+),*', function(who, op, what)
          local bits, bobs = 0, 0
-         if who:match '[ua]' then
+         if match(who, '[ua]') then
             bits = bor(bits, S_ISUID, S_IRWXU)
          end
-         if who:match '[ga]' then
+         if match(who, '[ga]') then
             bits = bor(bits, S_ISGID, S_IRWXG)
          end
-         if who:match '[oa]' then
+         if match(who, '[oa]') then
             bits = bor(bits, S_IRWXO)
          end
-         if what:match 'r' then
+         if match(what, 'r') then
             bobs = bor(bobs, S_IRUSR, S_IRGRP, S_IROTH)
          end
-         if what:match 'w' then
+         if match(what, 'w') then
             bobs = bor(bobs, S_IWUSR, S_IWGRP, S_IWOTH)
          end
-         if what:match 'x' then
+         if match(what, 'x') then
             bobs = bor(bobs, S_IXUSR, S_IXGRP, S_IXOTH)
          end
-         if what:match 's' then
+         if match(what, 's') then
             bobs = bor(bobs, S_ISUID, S_ISGID)
          end
          if op == '+' then

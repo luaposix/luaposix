@@ -10,6 +10,9 @@
  @module posix._checkarg
 ]]
 
+local format = string.format
+local gsub = string.gsub
+
 
 local function argerror(name, i, extramsg, level)
    level = level or 1
@@ -26,7 +29,7 @@ local function toomanyargerror(name, expected, got, level)
    argerror(
       name,
       expected + 1,
-      fmt:format(expected, expected == 1 and '' or 's', got),
+      format(fmt, expected, expected == 1 and '' or 's', got),
       level + 1
    )
 end
@@ -37,7 +40,7 @@ local function argtypeerror(name, i, expect, actual, level)
    argerror(
       name,
       i,
-      fmt:format(expect, type(actual):gsub('nil', 'no value')),
+      format(fmt, expect, gsub(type(actual), 'nil', 'no value')),
       level + 1
    )
 end
@@ -45,7 +48,7 @@ end
 local function badoption(name, i, what, option, level)
    level = level or 1
    local fmt = "invalid %s option '%s'"
-   argerror(name, i, fmt:format(what, option), level + 1)
+   argerror(name, i, format(fmt, what, option), level + 1)
 end
 
 local function checkint(name, i, actual, level)

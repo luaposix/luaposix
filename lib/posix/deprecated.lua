@@ -13,6 +13,9 @@
 local _argcheck = require 'posix._argcheck'
 local bit = require 'bit32'
 
+local gsub = string.gsub
+local sub = string.sub
+
 -- Lua 5.3 has table.unpack but not _G.unpack
 -- Lua 5.2 has table.unpack and _G.unpack
 -- Lua 5.1 has _G.unpack but not table.unpack
@@ -807,7 +810,7 @@ local function openlog(ident, optstr, facility)
    local option = 0
    if optstr then
       for i = 1, #optstr do
-         local c = optstr:sub(i, i)
+         local c = sub(optstr, i, i)
          if optionmap[c] == nil then
             badoption('openlog', 2, 'openlog', c)
          end
@@ -1216,7 +1219,7 @@ local _uname = utsname.uname
 
 local function uname(spec)
    local u = _uname()
-   return optstring('uname', 1, spec, '%s %n %r %v %m'):gsub('%%(.)', function(s)
+   return gsub(optstring('uname', 1, spec, '%s %n %r %v %m'), '%%(.)', function(s)
       if s == '%' then
          return '%'
       elseif s == 'm' then

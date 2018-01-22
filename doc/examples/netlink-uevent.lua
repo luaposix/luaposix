@@ -15,7 +15,7 @@ if M.AF_NETLINK ~= nil then
    while true do
       local data, err = M.recv(fd, 16384)
       assert(data, err)
-      for k, v in data:gmatch('%z(%u+)=([^%z]+)') do
+      for k, v in string.gmatch(data, '%z(%u+)=([^%z]+)') do
          print(k, v)
       end
       print '\n'

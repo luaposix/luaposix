@@ -32,7 +32,7 @@ end
 require 'posix.unistd'.close(fd)
 
 data = table.concat(data)
-print(data:match '<TITLE>(.+)</TITLE>')
+print(string.match(data, '<TITLE>(.+)</TITLE>'))
 
 -- Loopback UDP test, IPV4 and IPV6
 local fd = M.socket(M.AF_INET6, M.SOCK_DGRAM, 0)

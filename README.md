@@ -131,12 +131,15 @@ points when proposing changes:
 4. Use vertical space to separate out compound statements to help the
    coverage reports discover untested lines.
 
-5. No non-POSIX APIs; no platform-specific code. When wrapping APIs
+5. Prefer explicit string function calls over object methods, to mitigate
+   issues with monkey-patching in caller environment. 
+
+6. No non-POSIX APIs; no platform-specific code. When wrapping APIs
    introduced in POSIX 2001 or later, add an appropriate #if. If your
    platform isn't quite POSIX, you may find a gnulib module to bridge
    the gap. If absolutely necessary, use luke feature tests.
 
-6. Thin wrappers: although some existing code contradicts this, wrap
+7. Thin wrappers: although some existing code contradicts this, wrap
    POSIX APIs in the simplest way possible. If necessary, more
    convenient wrappers can be added in Lua (posix.lua).
 

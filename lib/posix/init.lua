@@ -20,19 +20,21 @@
 local bit = require 'bit32'
 local M = {}
 
+local match = string.match
+local sub = string.sub
 
 -- For backwards compatibility, copy all table entries into M namespace.
-for _, sub in ipairs {
+for _, name in ipairs {
    'ctype', 'dirent', 'errno', 'fcntl', 'fnmatch', 'glob', 'grp',
    'libgen', 'poll', 'pwd', 'sched', 'signal', 'stdio', 'stdlib', 'sys.msg',
    'sys.resource', 'sys.socket', 'sys.stat', 'sys.statvfs', 'sys.time',
    'sys.times', 'sys.utsname', 'sys.wait', 'syslog', 'termio', 'time',
    'unistd', 'utime'
 } do
-   local t = require('posix.' .. sub)
+   local t = require('posix.' .. name)
    for k, v in pairs(t) do
       if k ~= 'version' then
-         assert(M[k] == nil, 'posix namespace clash: ' .. sub .. '.' .. k)
+         assert(M[k] == nil, 'posix namespace clash: ' .. name .. '.' .. k)
          M[k] = v
       end
    end
@@ -50,29 +52,6 @@ end
 
 local argerror, argtypeerror, checkstring, checktable, toomanyargerror =
    M.argerror, M.argtypeerror, M.checkstring, M.checktable, M.toomanyargerror
-
-
--- Code extracted from lua-stdlib with minimal modifications
-local list = {
-   sub = function(l, from, to)
-      local r = {}
-      local len = #l
-      from = from or 1
-      to = to or len
-      if from < 0 then
-         from = from + len + 1
-      end
-      if to < 0 then
-         to = to + len + 1
-      end
-      for i = from, to do
-         table.insert(r, l[i])
-      end
-      return r
-   end
-}
--- end of stdlib code
-
 
 
 --- Check permissions like @{posix.unistd.access}, but for euid.
@@ -103,23 +82,23 @@ local function euidaccess(file, mode)
 
    -- The super-user can read and write any file, and execute any file
    -- that anyone can execute.
-   if euid == 0 and((not string.match(mode, 'x')) or string.match(stats.st_mode, 'x')) then
+   if euid == 0 and((not match(mode, 'x')) or match(stats.st_mode, 'x')) then
       return 0
    end
 
    -- Convert to simple list of modes.
-   mode = string.gsub(mode, '[^rwx]', '')
+   mode = gsub(mode, '[^rwx]', '')
 
    if mode == '' then
       return 0 -- The file exists.
    end
 
    -- Get the modes we need.
-   local granted = stats.st_mode:sub(1, 3)
+   local granted = sub(stats.st_mode, 1, 3)
    if euid == stats.st_uid then
-      granted = stats.st_mode:sub(7, 9)
+      granted = sub(stats.st_mode, 7, 9)
    elseif egid == stats.st_gid or set.new(posix.getgroups()):member(stats.st_gid) then
-      granted = stats.st_mode:sub(4, 6)
+      granted = sub(stats.st_mode, 4, 6)
    end
    granted = string.gsub(granted, '[^rwx]', '')
 

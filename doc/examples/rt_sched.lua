@@ -12,11 +12,11 @@ local mypid = require 'posix.unistd'.getpid()
 
 -- get sched params from ps(1)
 local function get_ps_sched(pid)
-   local fp = io.popen(('ps --no-headers -o "policy,rtprio" %s'):format(pid))
+   local fp = io.popen(string.format('ps --no-headers -o "policy,rtprio" %s', pid))
    local res, err = fp:read'*a'
    assert(res, err)
    fp:close()
-   local policy, rtprio = res:match'([^%s]+)%s+([^%s]+)'
+   local policy, rtprio = string.match(res, '([^%s]+)%s+([^%s]+)')
    assert(policy)
    assert(rtprio)
    return policy, rtprio
