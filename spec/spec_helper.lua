@@ -6,21 +6,13 @@ if os.getenv 'installcheck' == nil then
    -- directories to the module search paths.
    local std = require 'specl.std'
 
-   local top_srcdir = os.getenv 'top_srcdir' or '.'
-   local top_builddir = os.getenv 'top_builddir' or '.'
-
    package.path = std.package.normalize (
-      top_builddir .. '/lib/?.lua',
-      top_srcdir .. '/lib/?.lua',
-      top_builddir .. '/lib/?/init.lua',
-      top_srcdir .. '/lib/?/init.lua',
+      './lib/?.lua',
+      './lib/?/init.lua',
       package.path
    )
    package.cpath = std.package.normalize(
-      top_builddir .. '/ext/posix/.libs/?.so',
-      top_srcdir .. '/ext/posix/.libs/?.so',
-      top_builddir .. '/ext/posix/_libs/?.dll',
-      top_srcdir .. '/ext/posix/_libs/?.dll',
+      './linux/?.so',
       package.cpath
    )
 end
