@@ -100,7 +100,7 @@ modules  = {
    ['posix.time']          = {
       libraries = {
          {
-            ifdef          = '_XOPEN_REALTIME',
+            ifdef          = '_POSIX_TIMERS',
             include        = 'unistd.h',
             checksymbol    = 'clock_gettime',
             library        = 'rt',
