@@ -19,20 +19,10 @@ dependencies = {
    'std.normalize',
 }
 
-source = (function(gitp)
-   if gitp then
-      dependencies[#dependencies + 1] = 'ldoc'
-
-      return {
-         url = 'git://github.com/luaposix/luaposix.git',
-      }
-   else
-      return {
-         url = 'http://github.com/luaposix/luaposix/archive/v' .. _MODREV .. '.zip',
-         dir = 'luaposix-' .. _MODREV,  
-      }
-   end
-end)(_MODREV == 'git')
+source = {
+   url = 'http://github.com/luaposix/luaposix/archive/v' .. _MODREV .. '.zip',
+   dir = 'luaposix-' .. _MODREV,  
+}
 
 build = {
    type = 'command',
@@ -54,3 +44,11 @@ build = {
       .. ' INST_LUADIR="$(LUADIR)"'
       ,
 }
+
+if _MODREV == 'git' then
+   dependencies[#dependencies + 1] = 'ldoc'
+
+   source = {
+      url = 'git://github.com/luaposix/luaposix.git',
+   }
+end
