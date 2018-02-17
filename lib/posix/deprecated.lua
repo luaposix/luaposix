@@ -10,26 +10,125 @@
  @module posix.deprecated
 ]]
 
-local _argcheck = require 'posix._argcheck'
-local bit = require 'bit32'
 
-local gsub = string.gsub
-local sub = string.sub
 
--- Lua 5.3 has table.unpack but not _G.unpack
--- Lua 5.2 has table.unpack and _G.unpack
--- Lua 5.1 has _G.unpack but not table.unpack
-local unpack = table.unpack or unpack
+local _ENV = require 'std.normalize' {
+   'std._debug',
+   'bit32.bor',
+   'posix._base.argscheck',
+   'posix._base.pushmode',
+   'posix.ctype.isgraph',
+   'posix.ctype.isprint',
+   'posix.fcntl.posix_fadvise',
+   'posix.fnmatch.FNM_NOMATCH',
+   'posix.fnmatch.fnmatch',
+   'posix.grp.getgrgid',
+   'posix.grp.getgrnam',
+   'posix.pwd.getpwnam',
+   'posix.pwd.getpwuid',
+   'posix.stdio.fileno',
+   'posix.sys.resource.RLIMIT_CORE',
+   'posix.sys.resource.RLIMIT_CPU',
+   'posix.sys.resource.RLIMIT_DATA',
+   'posix.sys.resource.RLIMIT_FSIZE',
+   'posix.sys.resource.RLIMIT_NOFILE',
+   'posix.sys.resource.RLIMIT_STACK',
+   'posix.sys.resource.RLIMIT_AS',
+   'posix.sys.resource.getrlimit',
+   'posix.sys.resource.setrlimit',
+   'posix.sys.socket.bind',
+   'posix.sys.socket.connect',
+   'posix.sys.stat.S_ISREG',
+   'posix.sys.stat.S_ISLNK',
+   'posix.sys.stat.S_ISDIR',
+   'posix.sys.stat.S_ISCHR',
+   'posix.sys.stat.S_ISBLK',
+   'posix.sys.stat.S_ISFIFO',
+   'posix.sys.stat.S_ISSOCK',
+   'posix.sys.stat.lstat',
+   'posix.sys.statvfs.statvfs',
+   'posix.sys.time.gettimeofday',
+   'posix.sys.times.times',
+   'posix.sys.utsname.uname',
+   'posix.syslog.LOG_CONS',
+   'posix.syslog.LOG_NDELAY',
+   'posix.syslog.LOG_PID',
+   'posix.syslog.openlog',
+   'posix.time.gmtime',
+   'posix.time.localtime',
+   'posix.time.mktime',
+   'posix.time.nanosleep',
+   'posix.time.strftime',
+   'posix.time.strptime',
+   'posix.time.time',
+   'posix.unistd._PC_CHOWN_RESTRICTED',
+   'posix.unistd._PC_LINK_MAX',
+   'posix.unistd._PC_MAX_CANON',
+   'posix.unistd._PC_MAX_INPUT',
+   'posix.unistd._PC_NAME_MAX',
+   'posix.unistd._PC_NO_TRUNC',
+   'posix.unistd._PC_PATH_MAX',
+   'posix.unistd._PC_PIPE_BUF',
+   'posix.unistd._PC_VDISABLE',
+   'posix.unistd._SC_ARG_MAX',
+   'posix.unistd._SC_CHILD_MAX',
+   'posix.unistd._SC_CLK_TCK',
+   'posix.unistd._SC_JOB_CONTROL',
+   'posix.unistd._SC_NGROUPS_MAX',
+   'posix.unistd._SC_OPEN_MAX',
+   'posix.unistd._SC_PAGESIZE',
+   'posix.unistd._SC_SAVED_IDS',
+   'posix.unistd._SC_STREAM_MAX',
+   'posix.unistd._SC_TZNAME_MAX',
+   'posix.unistd._SC_VERSION',
+   'posix.unistd.exec',
+   'posix.unistd.execp',
+   'posix.unistd.getegid',
+   'posix.unistd.geteuid',
+   'posix.unistd.getgid',
+   'posix.unistd.gethostid',
+   'posix.unistd.getpid',
+   'posix.unistd.getpgrp',
+   'posix.unistd.getppid',
+   'posix.unistd.getuid',
+   'posix.unistd.pathconf',
+   'posix.unistd.sysconf',
+   'string.format',
+   'string.gsub',
+   'string.lower',
+   'string.sub',
 
-local argerror, argtypeerror, badoption =
-   _argcheck.argerror, _argcheck.argtypeerror, _argcheck.badoption
-local band, bnot, bor = bit.band, bit.bnot, bit.bor
-local checkint, checkselection, checkstring, checktable =
-   _argcheck.checkint, _argcheck.checkselection, _argcheck.checkstring, _argcheck.checktable
-local optint, optstring, opttable =
-   _argcheck.optint, _argcheck.optstring, _argcheck.opttable
-local toomanyargerror = _argcheck.toomanyargerror
+   CLOCK_MONOTONIC = require 'posix.time'.CLOCK_MONOTONIC,
+   CLOCK_PROCESS_TIME_ID = require 'posix.time'.CLOCK_PROCESS_TIME_ID,
+   CLOCK_REALTIME = require 'posix.time'.CLOCK_REALTIME,
+   CLOCK_THREAD_CPUTIME_ID = require 'posix.time'.CLOCK_THREAD_CPUTIME_ID,
+   clock_getres = require 'posix.time'.clock_getres,
+   clock_gettime = require 'posix.time'.clock_gettime,
+}
 
+
+
+-- FIXME: specl-14.x breaks function environments here :(
+local bor, exec, getegid, getgrgid, getgrnam, getrlimit, gmtime, localtime, lower, mktime, nanosleep, strftime, strptime, time, uname =
+   bor, exec, getegid, getgrgid, getgrnam, getrlimit, gmtime, localtime, lower, mktime, nanosleep, strftime, strptime, time, uname
+
+
+local OPENLOG_MAP = {
+   [' '] = 0,
+   c = LOG_CONS,
+   n = LOG_NDELAY,
+   p = LOG_PID,
+}
+
+local RLIMIT_MAP = {
+   core = RLIMIT_CORE,
+   cpu = RLIMIT_CPU,
+   data = RLIMIT_DATA,
+   fsize = RLIMIT_FSIZE,
+   nofile = RLIMIT_NOFILE,
+   stack = RLIMIT_STACK,
+   as = RLIMIT_AS,
+}
 
 -- Convert a legacy API tm table to a posix.time.PosixTm compatible table.
 local function PosixTm(legacytm)
@@ -65,6 +164,79 @@ local function LegacyTm(posixtm)
 end
 
 
+local function argerror(name, i, extramsg, level)
+   level = level or 1
+   local s = format("bad argument #%d to '%s'", i, name)
+   if extramsg ~= nil then
+      s = s .. ' (' .. extramsg .. ')'
+   end
+   error(s, level + 1)
+end
+
+
+local function argtypeerror(name, i, expect, actual, level)
+   level = level or 1
+   local fmt = '%s expected, got %s'
+   argerror(
+      name,
+      i,
+      format(fmt, expect, gsub(type(actual), 'nil', 'no value')),
+      level + 1
+   )
+end
+
+
+local function badoption(name, i, what, option, level)
+   level = level or 1
+   local fmt = "invalid %s option '%s'"
+   argerror(name, i, format(fmt, what, option), level + 1)
+end
+
+
+local function checkstring(name, i, actual, level)
+   level = level or 1
+   if type(actual) ~= 'string' then
+      argtypeerror(name, i, 'string', actual, level + 1)
+   end
+   return actual
+end
+
+
+local function optstring(name, i, actual, def, level)
+   level = level or 1
+   if actual ~= nil and type(actual) ~= 'string' then
+      argtypeerror(name, i, 'string or nil', actual, level + 1)
+   end
+   return actual or def
+end
+
+
+local function toomanyargerror(name, expected, got, level)
+   level = level or 1
+   local fmt = 'no more than %d argument%s expected, got %d'
+   argerror(
+      name,
+      expected + 1,
+      format(fmt, expected, expected == 1 and '' or 's', got),
+      level + 1
+   )
+end
+
+
+local function checkselection(fname, argi, fields, level)
+   level = level or 1
+   local field1, type1 = fields[1], type(fields[1])
+   if type1 == 'table' and #fields > 1 then
+      toomanyargerror(fname, argi, #fields + argi - 1, level + 1)
+   elseif field1 ~= nil and type1 ~= 'table' and type1 ~= 'string' then
+      argtypeerror(fname, argi, 'string, table or nil', field1, level + 1)
+   end
+   for i = 2, #fields do
+      checkstring(fname, i + argi -1, fields[i], level + 1)
+   end
+end
+
+
 local function doselection(name, argoffset, fields, map)
    if #fields == 1 and type(fields[1]) == 'table' then
       fields = fields[1]
@@ -86,408 +258,112 @@ local function doselection(name, argoffset, fields, map)
 end
 
 
-local st = require 'posix.sys.stat'
-
-local S_IRUSR, S_IWUSR, S_IXUSR = st.S_IRUSR, st.S_IWUSR, st.S_IXUSR
-local S_IRGRP, S_IWGRP, S_IXGRP = st.S_IRGRP, st.S_IWGRP, st.S_IXGRP
-local S_IROTH, S_IWOTH, S_IXOTH = st.S_IROTH, st.S_IWOTH, st.S_IXOTH
-local S_ISUID, S_ISGID, S_IRWXU, S_IRWXG, S_IRWXO =
-   st.S_ISUID, st.S_ISGID, st.S_IRWXU, st.S_IRWXG, st.S_IRWXO
-
-local mode_map = {
-   {c='r', b=S_IRUSR}, {c='w', b=S_IWUSR}, {c='x', b=S_IXUSR},
-   {c='r', b=S_IRGRP}, {c='w', b=S_IWGRP}, {c='x', b=S_IXGRP},
-   {c='r', b=S_IROTH}, {c='w', b=S_IWOTH}, {c='x', b=S_IXOTH},
-}
-
-local function pushmode(mode)
-   local m = {}
-   for i = 1, 9 do
-      if band(mode, mode_map[i].b) ~= 0 then
-         m[i] = mode_map[i].c
-      else
-         m[i] = '-'
-      end
+local Pclock_getres
+if clock_getres ~= nil then
+   -- When supported by underlying system
+   local function get_clk_id_const(name)
+      local map = {
+         monotonic = CLOCK_MONOTONIC,
+         process_cputime_id = CLOCK_PROCESS_TIME_ID,
+         thread_cputime_id = CLOCK_THREAD_CPUTIME_ID,
+      }
+      return map[name] or CLOCK_REALTIME
    end
-   if band(mode, S_ISUID) ~= 0 then
-      if band(mode, S_IXUSR) ~= 0 then
-         m[3] = 's'
-      else
-         m[3] = 'S'
-      end
-   end
-   if band(mode, S_ISGID) ~= 0 then
-      if band(mode, S_IXGRP) ~= 0 then
-         m[6] = 's'
-      else
-         m[6] = 'S'
-      end
-   end
-   return table.concat(m)
+
+   Pclock_getres = argscheck('clock_getres(?string)', function(name)
+      local ts = clock_getres(get_clk_id_const(name))
+      return ts.tv_sec, ts.tv_nsec
+   end)
 end
 
 
-local M = {}
-
-
---- Bind an address to a socket.
--- @function bind
--- @int fd socket descriptor to act on
--- @tparam PosixSockaddr addr socket address
--- @treturn[1] bool `true`, if successful
--- @return[2] nil
--- @treturn[2] string error messag
--- @treturn[2] int errnum
--- @see bind(2)
-
-local sock = require 'posix.sys.socket'
-
-local bind = sock.bind
-
-function M.bind(...)
-   local rt = {bind(...)}
-   if rt[1] == 0 then
-      return true
-   end
-   return unpack(rt)
+local Pclock_gettime
+if clock_gettime ~= nil then
+   -- When supported by underlying system
+   Pclock_gettime = argscheck('clock_gettime(?string)', function(name)
+      local ts = _clock_gettime(get_clk_id_const(name))
+      return ts.tv_sec, ts.tv_nsec
+   end)
 end
 
 
---- Find the precision of a clock.
--- @function clock_getres
--- @string[opt='realtime'] name name of clock, one of 'monotonic',
---    'process\_cputime\_id', 'realtime', or 'thread\_cputime\_id'
--- @treturn[1] int seconds
--- @treturn[21 int nanoseconds, if successful
--- @return[2] nil
--- @treturn[2] string error message
--- @treturn[2] int errnum
--- @see clock_getres(3)
-
-local tm = require 'posix.time'
-
-local _clock_getres = tm.clock_getres
-
-local function get_clk_id_const(name)
-   local map = {
-      monotonic = tm.CLOCK_MONOTONIC,
-      process_cputime_id = tm.CLOCK_PROCESS_TIME_ID,
-      thread_cputime_id = tm.CLOCK_THREAD_CPUTIME_ID,
-   }
-   return map[name] or tm.CLOCK_REALTIME
-end
-
-local function clock_getres(name)
-   local ts = _clock_getres(get_clk_id_const(name))
-   return ts.tv_sec, ts.tv_nsec
-end
-
-if _clock_getres == nil then
-   -- Not supported by underlying system
-elseif _DEBUG ~= false then
-   M.clock_getres = function(...)
-      local argt = {...}
-      optstring('clock_getres', 1, argt[1], 'realtime')
-      if #argt > 1 then
-         toomanyargerror('clock_getres', 1, #argt)
-      end
-      return clock_getres(...)
-   end
-else
-   M.clock_getres = clock_getres
-end
-
-
---- Read a clock
--- @function clock_gettime
--- @string[opt='realtime'] name name of clock, one of 'monotonic',
---    'process\_cputime\_id', 'realtime', or 'thread\_cputime\_id'
--- @treturn[1] int seconds
--- @treturn[21 int nanoseconds, if successful
--- @return[2] nil
--- @treturn[2] string error message
--- @treturn[2] int errnum
--- @see clock_gettime(3)
-
-local tm = require 'posix.time'
-
-local _clock_gettime = tm.clock_gettime
-
-local function clock_gettime(name)
-   local ts = _clock_gettime(get_clk_id_const(name))
-   return ts.tv_sec, ts.tv_nsec
-end
-
-if _clock_gettime == nil then
-   -- Not supported by underlying system
-elseif _DEBUG ~= false then
-   M.clock_gettime = function(...)
-      local argt = {...}
-      optstring('clock_gettime', 1, argt[1], 'realtime')
-      if #argt > 1 then
-         toomanyargerror('clock_gettime', 1, #argt)
-      end
-      return clock_gettime(...)
-   end
-else
-   M.clock_gettime = clock_gettime
-end
-
-
---- Initiate a connection on a socket.
--- @function connect
--- @int fd socket descriptor to act on
--- @tparam PosixSockaddr addr socket address
--- @treturn[1] bool `true`, if successful
--- @return[2] nil
--- @treturn[2] string error message
--- @treturn[2] int errnum
--- @see connect(2)
-
-local sock = require 'posix.sys.socket'
-
-local connect = sock.connect
-
-function M.connect(...)
-   local rt = {connect(...)}
-   if rt[1] == 0 then
-      return true
-   end
-   return unpack(rt)
-end
-
-
---- Execute a program without using the shell.
--- @function exec
--- @string path
--- @tparam[opt] table|strings ... table or tuple of arguments(table can include index 0)
--- @return nil
--- @treturn string error message
--- @see execve(2)
-
-local unistd = require 'posix.unistd'
-
-local _exec = unistd.exec
-
-local function exec(path, ...)
-   local argt = {...}
-   if #argt == 1 and type(argt[1]) == 'table' then
-      argt = argt[1]
-   end
-   return _exec(path, argt)
-end
-
-if _DEBUG ~= false then
-   M.exec = function(...)
-      local argt = {...}
-      checkstring('exec', 1, argt[1])
-      if type(argt[2]) ~= 'table' and type(argt[2]) ~= 'string' and type(argt[2]) ~= 'nil' then
-         argtypeerror('exec', 2, 'string, table or nil', argt[2])
-      end
-      if #argt > 2 then
-         if type(argt[2]) == 'table' then
-            toomanyargerror('exec', 2, #argt)
-         else
-            for i = 3, #argt do
-               checkstring('exec', i, argt[i])
-            end
-         end
-      end
-      return exec(...)
-   end
-else
-   M.exec = exec
-end
-
-
---- Execute a program with the shell.
--- @function execp
--- @string path
--- @tparam[opt] table|strings ... table or tuple of arguments(table can include index 0)
--- @return nil
--- @treturn string error message
--- @see execve(2)
-
-local unistd = require 'posix.unistd'
-
-local _execp = unistd.execp
-
-local function execp(path, ...)
-   local argt = {...}
-   if #argt == 1 and type(argt[1]) == 'table' then
-      argt = argt[1]
-   end
-   return _execp(path, argt)
-end
-
-if _DEBUG ~= false then
-   M.execp = function(...)
-      local argt = {...}
-      checkstring('execp', 1, argt[1])
-      if type(argt[2]) ~= 'table' and type(argt[2]) ~= 'string' and type(argt[2]) ~= 'nil' then
-         argtypeerror('execp', 2, 'string, table or nil', argt[2])
-      end
-      if #argt > 2 then
-         if type(argt[2]) == 'table' then
-            toomanyargerror('execp', 2, #argt)
-         else
-            for i = 3, #argt do
-               checkstring('execp', i, argt[i])
-            end
-         end
-      end
-      return execp(...)
-   end
-else
-   M.execp = execp
-end
-
-
---- Instruct kernel on appropriate cache behaviour for a file or file segment.
--- @function fadvise
--- @tparam file fh Lua file object
--- @int offset start of region
--- @int len number of bytes in region
--- @int advice one of `POSIX_FADV_NORMAL, `POSIX_FADV_SEQUENTIAL,
--- `POSIX_FADV_RANDOM`, `POSIX_FADV_\NOREUSE`, `POSIX_FADV_WILLNEED` or
--- `POSIX_FADV_DONTNEED`
--- @treturn[1] int `0`, if successful
--- @return[2] nil
--- @treturn[2] string error message
--- @treturn[2] int errnum
--- @see posix_fadvise(2)
-
-local fc = require 'posix.fcntl'
-local stdio = require 'posix.stdio'
-
-local posix_fadvise = fc.posix_fadvise
-local fileno = stdio.fileno
-
-local function fadvise(fh, ...)
-   return posix_fadvise(fileno(fh), ...)
-end
-
-if posix_fadvise == nil then
-   -- Not supported by underlying system
-elseif _DEBUG ~= false then
-   M.fadvise = function(...)
+local function Pexec(path, ...)
+   local argt = (...)
+   if type(argt) ~= 'table' then
       argt = {...}
-      if io.type(argt[1]) ~= 'file' then
-         argtypeerror('fadvise', 1, 'FILE*', argt[1])
+   end
+   return exec(path, argt)
+end
+
+if _debug.argcheck then
+   Pexec = function(path, ...)
+      checkstring('exec', 1, path)
+      local argt = (...)
+      if type(argt) == 'string' then
+         argt = {...}
+         for i in ipairs(argt) do
+            checkstring('exec', i + 1, argt[i])
+         end
+      elseif type(argt) == 'table' then
+         local n = select('#', ...)
+         if n > 1 then
+            toomanyargerror('exec', 2, n + 1)
+         end
+      else
+         argtypeerror('exec', 2, 'string, table or nil', argt)
       end
-      checkint('fadvise', 2, argt[2])
-      checkint('fadvise', 3, argt[3])
-      checkint('fadvise', 4, argt[4])
-      if #argt > 4 then
-         toomanyargerror('fadvise', 4, #argt)
+      return exec(path, argt)
+   end
+end
+
+
+local function Pexecp(path, ...)
+   local argt = (...)
+   if type(argt) ~= 'table' then
+      argt = {...}
+   end
+   return execp(path, argt)
+end
+
+if _debug.argcheck then
+   Pexecp = function(path, ...)
+      checkstring('execp', 1, path)
+      local argt = (...)
+      if type(argt) == 'string' then
+         argt = {...}
+         for i in ipairs(argt) do
+            checkstring('execp', i + 1, argt[i])
+         end
+      elseif type(argt) == 'table' then
+         local n = select('#', ...)
+         if n > 1 then
+            toomanyargerror('execp', 2, n + 1)
+         end
+      else
+         argtypeerror('execp', 2, 'string, table or nil', argt)
       end
-      return fadvise(...)
-   end
-else
-   M.fadvise = fadvise
-end
-
-
---- Match a filename against a shell pattern.
--- @function fnmatch
--- @string pat shell pattern
--- @string name filename
--- @return true or false
--- @raise error if fnmatch failed
--- @see posix.fnmatch.fnmatch
-
-local fnm = require 'posix.fnmatch'
-
-function M.fnmatch(...)
-   local r = fnm.fnmatch(...)
-   if r == 0 then
-      return true
-   elseif r == fnm.FNM_NOMATCH then
-      return false
-   end
-   error 'fnmatch failed'
-end
-
-
---- Group information.
--- @table group
--- @string name name of group
--- @int gid unique group id
--- @string ... list of group members
-
-
---- Information about a group.
--- @function getgroup
--- @tparam[opt=current group] int|string group id or group name
--- @treturn group group information
--- @usage
---    print(posix.getgroup(posix.getgid()).name)
-
-local grp = require 'posix.grp'
-local unistd = require 'posix.unistd'
-
-local getgrgid, getgrnam = grp.getgrgid, grp.getgrnam
-local getegid = unistd.getegid
-
-local function getgroup(grp)
-   if grp == nil then
-      grp = getegid()
-   end
-
-   local g
-   if type(grp) == 'number' then
-      g = getgrgid(grp)
-   elseif type(grp) == 'string' then
-      g = getgrnam(grp)
-   else
-      argtypeerror('getgroup', 1, 'string, int or nil', grp)
-   end
-
-   if g ~= nil then
-      return {name=g.gr_name, gid=g.gr_gid, mem=g.gr_mem}
+      return execp(path, argt)
    end
 end
 
-if _DEBUG ~= false then
-   M.getgroup = function(...)
-      local argt = {...}
-      if #argt > 1 then
-         toomanyargerror('getgroup', 1, #argt)
-      end
-      return getgroup(...)
-   end
-else
-   M.getgroup = getgroup
+
+local Pfadvise
+if posix_fadvise ~= nil then
+   -- When supported by underlying system
+   Pfadvise = argscheck('fadvise(FILE*, int, int, int)', function(fh, ...)
+      return posix_fadvise(fileno(fh), ...)
+   end)
 end
 
 
---- Get the password entry for a user.
--- @function getpasswd
--- @tparam[opt=current user] int|string user name or id
--- @string ... field names, each one of 'uid', 'name', 'gid', 'passwd',
---    'dir' or 'shell'
--- @return ... values, or a table of all fields if *user* is `nil`
--- @usage for a,b in pairs(posix.getpasswd 'root') do print(a, b) end
--- @usage print(posix.getpasswd('root', 'shell'))
-
-local pwd = require 'posix.pwd'
-local unistd = require 'posix.unistd'
-
-local getpwnam, getpwuid = pwd.getpwnam, pwd.getpwuid
-local geteuid = unistd.geteuid
-
-local function getpasswd(user, ...)
-   if user == nil then
-      user = geteuid()
-   end
+local function Pgetpasswd(user, ...)
+   user = user or geteuid()
 
    local p
    if type(user) == 'number' then
       p = getpwuid(user)
    elseif type(user) == 'string' then
       p = getpwnam(user)
-   else
-      argtypeerror('getpasswd', 1, 'string, int or nil', user)
    end
 
    if p ~= nil then
@@ -502,459 +378,75 @@ local function getpasswd(user, ...)
    end
 end
 
-if _DEBUG ~= false then
-   M.getpasswd = function(user, ...)
+if _debug.argcheck then
+   local _getpasswd = Pgetpasswd
+
+   Pgetpasswd = function(user, ...)
       checkselection('getpasswd', 2, {...}, 2)
-      return getpasswd(user, ...)
+      return _getpasswd(user, ...)
    end
-else
-   M.getpasswd = getpasswd
 end
 
 
---- Get process identifiers.
--- @function getpid
--- @tparam[opt] table|string type one of 'egid', 'euid', 'gid', 'uid',
---    'pgrp', 'pid' or 'ppid'; or a single list of the same
--- @string[opt] ... unless *type* was a table, zero or more additional
---    type strings
--- @return ... values, or a table of all fields if no option given
--- @usage for a,b in pairs(posix.getpid()) do print(a, b) end
--- @usage print(posix.getpid('uid', 'euid'))
-
-local unistd = require 'posix.unistd'
-
-local getegid, geteuid, getgid, getuid =
-   unistd.getegid, unistd.geteuid, unistd.getgid, unistd.getuid
-local _getpid, getpgrp, getppid =
-   unistd.getpid, unistd.getpgrp, unistd.getppid
-
-local function getpid(...)
+local function Pgetpid(...)
    return doselection('getpid', 0, {...}, {
       egid = getegid(),
       euid = geteuid(),
       gid = getgid(),
       uid = getuid(),
       pgrp = getpgrp(),
-      pid = _getpid(),
+      pid = getpid(),
       ppid = getppid(),
    })
 end
 
-if _DEBUG ~= false then
-   M.getpid = function(...)
+if _debug.argcheck then
+   local _getpid = Pgetpid
+
+   Pgetpid = function(...)
       checkselection('getpid', 1, {...}, 2)
-      return getpid(...)
+      return _getpid(...)
    end
-else
-   M.getpid = getpid
 end
 
 
---- Get resource limits for this process.
--- @function getrlimit
--- @string resource one of 'core', 'cpu', 'data', 'fsize', 'nofile',
---    'stack' or 'as'
--- @treturn[1] int soft limit
--- @treturn[1] int hard limit, if successful
--- @return[2] nil
--- @treturn[2] string error message
--- @treturn[2] int errnum
-
-local resource = require 'posix.sys.resource'
-
-local _getrlimit = resource.getrlimit
-
-local rlimit_map = {
-   core = resource.RLIMIT_CORE,
-   cpu = resource.RLIMIT_CPU,
-   data = resource.RLIMIT_DATA,
-   fsize = resource.RLIMIT_FSIZE,
-   nofile = resource.RLIMIT_NOFILE,
-   stack = resource.RLIMIT_STACK,
-   as = resource.RLIMIT_AS,
+local Spathconf = {
+   CHOWN_RESTRICTED = _PC_CHOWN_RESTRICTED,
+   LINK_MAX = _PC_LINK_MAX,
+   MAX_CANON = _PC_MAX_CANON,
+   MAX_INPUT = _PC_MAX_INPUT,
+   NAME_MAX = _PC_NAME_MAX,
+   NO_TRUNC = _PC_NO_TRUNC,
+   PATH_MAX = _PC_PATH_MAX,
+   PIPE_BUF = _PC_PIPE_BUF,
+   VDISABLE = _PC_VDISABLE,
 }
 
-local function getrlimit(rcstr)
-   local rc = rlimit_map[string.lower(rcstr)]
-   if rc == nil then
-      argerror('getrlimit', 1, "invalid option '" .. rcstr .. "'")
-   end
-   local rlim = _getrlimit(rc)
-   return rlim.rlim_cur, rlim.rlim_max
-end
-
-if _DEBUG ~= false then
-   M.getrlimit = function(...)
-      local argt = {...}
-      checkstring('getrlimit', 1, argt[1])
-      if #argt > 1 then
-         toomanyargerror('getrlimit', 1, #argt)
-      end
-      return getrlimit(...)
-   end
-else
-   M.getrlimit = getrlimit
-end
-
-
---- Get time of day.
--- @function gettimeofday
--- @treturn timeval time elapsed since *epoch*
--- @see gettimeofday(2)
-
-local systime = require 'posix.sys.time'
-
-local gettimeofday = systime.gettimeofday
-
-function M.gettimeofday(...)
-   local tv = gettimeofday(...)
-   return {sec=tv.tv_sec, usec=tv.tv_usec}
-end
-
-
---- Convert epoch time value to a broken-down UTC time.
--- Here, broken-down time tables the month field is 1-based not
--- 0-based, and the year field is the full year, not years since
--- 1900.
--- @function gmtime
--- @int[opt=now] t seconds since epoch
--- @treturn table broken-down time
-
-local tm = require 'posix.time'
-
-local _gmtime, time = tm.gmtime, tm.time
-
-local function gmtime(epoch)
-   return LegacyTm(_gmtime(epoch or time()))
-end
-
-if _DEBUG ~= false then
-   M.gmtime = function(...)
-      local argt = {...}
-      optint('gmtime', 1, argt[1])
-      if #argt > 1 then
-         toomanyargerror('gmtime', 1, #argt)
-      end
-      return gmtime(...)
-   end
-else
-   M.gmtime = gmtime
-end
-
-
---- Get host id.
--- @function hostid
--- @treturn int unique host identifier
-
-local unistd = require 'posix.unistd'
-
-M.hostid = unistd.gethostid
-
-
---- Check for any printable character except space.
--- @function isgraph
--- @see isgraph(3)
--- @string character to act on
--- @treturn bool non-`false` if character is in the class
-
-local ctype = require 'posix.ctype'
-
-local isgraph = ctype.isgraph
-
-function M.isgraph(...)
-   return isgraph(...) ~= 0
-end
-
-
---- Check for any printable character including space.
--- @function isprint
--- @string character to act on
--- @treturn bool non-`false` if character is in the class
--- @see isprint(3)
-
-local ctype = require 'posix.ctype'
-
-local isprint = ctype.isprint
-
-function M.isprint(...)
-   return isprint(...) ~= 0
-end
-
-
---- Convert epoch time value to a broken-down local time.
--- Here, broken-down time tables the month field is 1-based not
--- 0-based, and the year field is the full year, not years since
--- 1900.
--- @function localtime
--- @int[opt=now] t seconds since epoch
--- @treturn table broken-down time
-
-local tm = require 'posix.time'
-
-local _localtime, time = tm.localtime, tm.time
-
-local function localtime(epoch)
-   return LegacyTm(_localtime(epoch or time()))
-end
-
-if _DEBUG ~= false then
-   M.localtime = function(...)
-      local argt = {...}
-      optint('localtime', 1, argt[1])
-      if #argt > 1 then
-         toomanyargerror('localtime', 1, #argt)
-      end
-      return localtime(...)
-   end
-else
-   M.localtime = localtime
-end
-
-
---- Convert a broken-down localtime table into an epoch time.
--- @function mktime
--- @tparam tm broken-down localtime table
--- @treturn in seconds since epoch
--- @see mktime(3)
--- @see localtime
-
-local tm = require 'posix.time'
-
-local _mktime, localtime, time = tm.mktime, tm.localtime, tm.time
-
-local function mktime(legacytm)
-   local posixtm = legacytm and PosixTm(legacytm) or localtime(time())
-   return _mktime(posixtm)
-end
-
-if _DEBUG ~= false then
-   M.mktime = function(...)
-      local argt = {...}
-      opttable('mktime', 1, argt[1])
-      if #argt > 1 then
-         toomanyargerror('mktime', 1, #argt)
-      end
-      return mktime(...)
-   end
-else
-   M.mktime = mktime
-end
-
-
---- Sleep with nanosecond precision.
--- @function nanosleep
--- @int seconds requested sleep time
--- @int nanoseconds requested sleep time
--- @treturn[1] int `0` if requested time has elapsed
--- @return[2] nil
--- @treturn[2] string error message
--- @treturn[2] int errnum
--- @treturn[2] int unslept seconds remaining, if interrupted
--- @treturn[2] int unslept nanoseconds remaining, if interrupted
--- @see nanosleep(2)
--- @see posix.unistd.sleep
-
-local tm = require 'posix.time'
-
-local _nanosleep = tm.nanosleep
-
-local function nanosleep(sec, nsec)
-   local r, errmsg, errno, timespec = _nanosleep {tv_sec=sec, tv_nsec=nsec}
-   if r == 0 then
-      return 0
-   end
-   return r, errmsg, errno, timespec.tv_sec, timespec.tv_nsec
-end
-
-if _DEBUG ~= false then
-   M.nanosleep = function(...)
-      local argt = {...}
-      checkint('nanosleep', 1, argt[1])
-      checkint('nanosleep', 2, argt[2])
-      if #argt > 2 then
-         toomanyargerror('nanosleep', 2, #argt)
-      end
-      return nanosleep(...)
-   end
-else
-   M.nanosleep = nanosleep
-end
-
-
---- Open the system logger.
--- @function openlog
--- @string ident all messages will start with this
--- @string[opt] option any combination of 'c'(directly to system console
---    if an error sending), 'n'(no delay) and 'p'(show PID)
--- @int [opt=`LOG_USER`] facility one of `LOG_AUTH`, `LOG_AUTHORITY`,
---    `LOG_CRON`, `LOG_DAEMON`, `LOG_KERN`, `LOG_LPR`, `LOG_MAIL`,
---    `LOG_NEWS`, `LOG_SECURITY`, `LOG_USER`, `LOG_UUCP` or `LOG_LOCAL0`
---    through `LOG_LOCAL7`
--- @see syslog(3)
-
-local bit = require 'bit32'
-local log = require 'posix.syslog'
-
-local bor = bit.bor
-local _openlog = log.openlog
-
-local optionmap = {
-   [' '] = 0,
-   c = log.LOG_CONS,
-   n = log.LOG_NDELAY,
-   p = log.LOG_PID,
-}
-
-local function openlog(ident, optstr, facility)
-   local option = 0
-   if optstr then
-      for i = 1, #optstr do
-         local c = sub(optstr, i, i)
-         if optionmap[c] == nil then
-            badoption('openlog', 2, 'openlog', c)
-         end
-         option = bor(option, optionmap[c])
-      end
-   end
-   return _openlog(ident, option, facility)
-end
-
-if _DEBUG ~= false then
-   M.openlog = function(...)
-      local argt = {...}
-      checkstring('openlog', 1, argt[1])
-      optstring('openlog', 2, argt[2])
-      optint('openlog', 3, argt[3])
-      if #argt > 3 then
-         toomanyargerror('openlog', 3, #argt)
-      end
-      return openlog(...)
-   end
-else
-   M.openlog = openlog
-end
-
-
---- Get configuration information at runtime.
--- @function pathconf
--- @string[opt='.'] path file to act on
--- @tparam[opt] table|string key one of 'CHOWN_RESTRICTED', 'LINK_MAX',
---    'MAX_CANON', 'MAX_INPUT', 'NAME_MAX', 'NO_TRUNC', 'PATH_MAX', 'PIPE_BUF'
---    or 'VDISABLE'
--- @string[opt] ... unless *type* was a table, zero or more additional
---    type strings
--- @return ... values, or a table of all fields if no option given
--- @see sysconf(2)
--- @usage for a,b in pairs(posix.pathconf '/dev/tty') do print(a, b) end
-
-local unistd = require 'posix.unistd'
-
-local _pathconf = unistd.pathconf
-
-local Spathconf = {CHOWN_RESTRICTED=1, LINK_MAX=1, MAX_CANON=1,
-   MAX_INPUT=1, NAME_MAX=1, NO_TRUNC=1, PATH_MAX=1, PIPE_BUF=1,
-   VDISABLE=1}
-
-local function pathconf(path, ...)
+local function Ppathconf(path, ...)
    local argt, map = {...}, {}
    if path ~= nil and Spathconf[path] ~= nil then
       path, argt = '.', {path, ...}
    end
-   for k in pairs(Spathconf) do
-      map[k] = _pathconf(path or '.', unistd['_PC_' .. k])
+   for k, v in pairs(Spathconf) do
+      map[k] = pathconf(path or '.', v)
    end
    return doselection('pathconf', 1, {...}, map)
 end
 
-if _DEBUG ~= false then
-   M.pathconf = function(path, ...)
+if _debug.argcheck then
+   local _pathconf = Ppathconf
+
+   Ppathconf = function(path, ...)
       if path ~= nil and Spathconf[path] ~= nil then
          checkselection('pathconf', 1, {path, ...}, 2)
       else
          optstring('pathconf', 1, path, '.', 2)
          checkselection('pathconf', 2, {...}, 2)
       end
-      return pathconf(path, ...)
+      return _pathconf(path, ...)
    end
-else
-   M.pathconf = pathconf
 end
 
-
---- Set resource limits for this process.
--- @function setrlimit
--- @string resource one of 'core', 'cpu', 'data', 'fsize', 'nofile',
---    'stack' or 'as'
--- @int[opt] softlimit process may receive a signal when reached
--- @int[opt] hardlimit process may be terminated when reached
--- @treturn[1] int `0`, if successful
--- @return[2] nil
--- @treturn[2] string error message
--- @treturn[2] int errnum
-
-local resource = require 'posix.sys.resource'
-
-local _setrlimit = resource.setrlimit
-
-local rlimit_map = {
-   core = resource.RLIMIT_CORE,
-   cpu = resource.RLIMIT_CPU,
-   data = resource.RLIMIT_DATA,
-   fsize = resource.RLIMIT_FSIZE,
-   nofile = resource.RLIMIT_NOFILE,
-   stack = resource.RLIMIT_STACK,
-   as = resource.RLIMIT_AS,
-}
-
-local function setrlimit(rcstr, cur, max)
-   local rc = rlimit_map[string.lower(rcstr)]
-   if rc == nil then
-      argerror('setrlimit', 1, "invalid option '" .. rcstr .. "'")
-   end
-   local lim
-   if cur == nil or max == nil then
-      lim= _getrlimit(rc)
-   end
-   return _setrlimit(rc, {
-      rlim_cur = cur or lim.rlim_cur,
-      rlim_max = max or lim.rlim_max,
-   })
-end
-
-if _DEBUG ~= false then
-   M.setrlimit = function(...)
-      local argt = {...}
-      checkstring('setrlimit', 1, argt[1])
-      optint('setrlimit', 2, argt[2])
-      optint('setrlimit', 3, argt[3])
-      if #argt > 3 then
-         toomanyargerror('setrlimit', 3, #argt)
-      end
-      return setrlimit(...)
-   end
-else
-   M.getrlimit = getrlimit
-end
-
-
---- Information about an existing file path.
--- If the file is a symbolic link, return information about the link
--- itself.
--- @function stat
--- @string path file to act on
--- @tparam[opt] table|string field one of 'dev', 'ino', 'mode', 'nlink',
---    'uid', 'gid', 'rdev', 'size', 'atime', 'mtime', 'ctime' or 'type'
--- @string[opt] ... unless *field* was a table, zero or more additional
---    field names
--- @return values, or table of all fields if no option given
--- @see stat(2)
--- @usage for a,b in pairs(P,stat '/etc/') do print(a, b) end
-
-local st = require 'posix.sys.stat'
-
-local S_ISREG, S_ISLNK, S_ISDIR, S_ISCHR, S_ISBLK, S_ISFIFO, S_ISSOCK =
-   st.S_ISREG, st.S_ISLNK, st.S_ISDIR, st.S_ISCHR, st.S_ISBLK, st.S_ISFIFO, st.S_ISSOCK
 
 local function filetype(mode)
    if S_ISREG(mode) ~= 0 then
@@ -977,10 +469,9 @@ local function filetype(mode)
 end
 
 
-local _stat = st.lstat   -- for bugwards compatibility with v<=32
-
-local function stat(path, ...)
-   local info = _stat(path)
+local function Pstat(path, ...)
+   -- for bugwards compatibility with v<=32
+   local info = lstat(path)
    if info ~= nil then
       return doselection('stat', 1, {...}, {
          dev = info.st_dev,
@@ -998,35 +489,19 @@ local function stat(path, ...)
    end
 end
 
-if _DEBUG ~= false then
-   M.stat = function(path, ...)
+if _debug.argcheck then
+   local _stat = Pstat
+
+   Pstat = function(path, ...)
       checkstring('stat', 1, path, 2)
       checkselection('stat', 2, {...}, 2)
-      return stat(path, ...)
+      return _stat(path, ...)
    end
-else
-   M.stat = stat
 end
 
 
---- Fetch file system statistics.
--- @function statvfs
--- @string path any path within the mounted file system
--- @tparam[opt] table|string field one of 'bsize', 'frsize', 'blocks',
---    'bfree', 'bavail', 'files', 'ffree', 'favail', 'fsid', 'flag',
---    'namemax'
--- @string[opt] ... unless *field* was a table, zero or more additional
---    field names
--- @return values, or table of all fields if no option given
--- @see statvfs(2)
--- @usage for a,b in pairs(P,statvfs '/') do print(a, b) end
-
-local sv = require 'posix.sys.statvfs'
-
-local _statvfs = sv.statvfs
-
-local function statvfs(path, ...)
-   local info = _statvfs(path)
+local function Pstatvfs(path, ...)
+   local info = statvfs(path)
    if info ~= nil then
       return doselection('statvfs', 1, {...}, {
          bsize = info.f_bsize,
@@ -1044,141 +519,45 @@ local function statvfs(path, ...)
    end
 end
 
-if _DEBUG ~= false then
-   M.statvfs = function(path, ...)
+if _debug.argcheck then
+   local _statvfs = Pstatvfs
+
+   Pstatvfs = function(path, ...)
       checkstring('statvfs', 1, path, 2)
       checkselection('statvfs', 2, {...}, 2)
-      return statvfs(path, ...)
+      return _statvfs(path, ...)
    end
-else
-   M.statvfs = statvfs
 end
 
 
---- Write a time out according to a format.
--- @function strftime
--- @string format specifier with `%` place-holders
--- @tparam PosixTm tm broken-down local time
--- @treturn string *format* with place-holders plugged with *tm* values
--- @see strftime(3)
-
-local tm = require 'posix.time'
-
-local _strftime, localtime, time = tm.strftime, tm.localtime, tm.time
-
-local function strftime(fmt, legacytm)
-   local posixtm = legacytm and PosixTm(legacytm) or localtime(time())
-   return _strftime(fmt, posixtm)
-end
-
-if _DEBUG ~= false then
-   M.strftime = function(...)
-      local argt = {...}
-      checkstring('strftime', 1, argt[1])
-      opttable('strftime', 2, argt[2])
-      if #argt > 2 then
-         toomanyargerror('strftime', 2, #argt)
-      end
-      return strftime(...)
-   end
-else
-   M.strftime = strftime
-end
-
-
---- Parse a date string.
--- @function strptime
--- @string s
--- @string format same as for `strftime`
--- @usage posix.strptime('20','%d').monthday == 20
--- @treturn[1] PosixTm broken-down local time
--- @treturn[1] int next index of first character not parsed as part of the date
--- @return[2] nil
--- @see strptime(3)
-
-local tm = require 'posix.time'
-
-local _strptime = tm.strptime
-
-local function strptime(s, fmt)
-   return _strptime(s, fmt)
-end
-
-if _DEBUG ~= false then
-   M.strptime = function(...)
-      local argt = {...}
-      checkstring('strptime', 1, argt[1])
-      checkstring('strptime', 2, argt[2])
-      if #argt > 2 then
-         toomanyargerror('strptime', 2, #argt)
-      end
-      local tm, i = strptime(...)
-      return LegacyTm(tm), i
-   end
-else
-   M.strptime = strptime
-end
-
-
---- Get configuration information at runtime.
--- @function sysconf
--- @tparam[opt] table|string key one of 'ARG_MAX', 'CHILD_MAX',
---    'CLK_TCK', 'JOB_CONTROL', 'NGROUPS_MAX', 'OPEN_MAX', 'SAVED_IDS',
---    'STREAM_MAX', 'TZNAME_MAX' or 'VERSION'
--- @string[opt] ... unless *type* was a table, zero or more additional
---    type strings
--- @return ... values, or a table of all fields if no option given
--- @see sysconf(2)
--- @usage for a,b in pairs(posix.sysconf()) do print(a, b) end
--- @usage print(posix.sysconf('STREAM_MAX', 'ARG_MAX'))
-
-local unistd = require 'posix.unistd'
-
-local _sysconf = unistd.sysconf
-
-local function sysconf(...)
+local function Psysconf(...)
    return doselection('sysconf', 0, {...}, {
-      ARG_MAX = _sysconf(unistd._SC_ARG_MAX),
-      CHILD_MAX = _sysconf(unistd._SC_CHILD_MAX),
-      CLK_TCK = _sysconf(unistd._SC_CLK_TCK),
-      JOB_CONTROL = _sysconf(unistd._SC_JOB_CONTROL),
-      NGROUPS_MAX = _sysconf(unistd._SC_NGROUPS_MAX),
-      OPEN_MAX = _sysconf(unistd._SC_OPEN_MAX),
-      PAGESIZE = _sysconf(unistd._SC_PAGESIZE),
-      SAVED_IDS = _sysconf(unistd._SC_SAVED_IDS),
-      STREAM_MAX = _sysconf(unistd._SC_STREAM_MAX),
-      TZNAME_MAX = _sysconf(unistd._SC_TZNAME_MAX),
-      VERSION = _sysconf(unistd._SC_VERSION),
+      ARG_MAX = sysconf(_SC_ARG_MAX),
+      CHILD_MAX = sysconf(_SC_CHILD_MAX),
+      CLK_TCK = sysconf(_SC_CLK_TCK),
+      JOB_CONTROL = sysconf(_SC_JOB_CONTROL),
+      NGROUPS_MAX = sysconf(_SC_NGROUPS_MAX),
+      OPEN_MAX = sysconf(_SC_OPEN_MAX),
+      PAGESIZE = sysconf(_SC_PAGESIZE),
+      SAVED_IDS = sysconf(_SC_SAVED_IDS),
+      STREAM_MAX = sysconf(_SC_STREAM_MAX),
+      TZNAME_MAX = sysconf(_SC_TZNAME_MAX),
+      VERSION = sysconf(_SC_VERSION),
    })
 end
 
-if _DEBUG ~= false then
-   M.sysconf = function(...)
+if _debug.argcheck then
+   local _sysconf = Psysconf
+
+   Psysconf = function(...)
       checkselection('sysconf', 1, {...}, 2)
-      return sysconf(...)
+      return _sysconf(...)
    end
-else
-   M.sysconf = sysconf
 end
 
 
---- Get the current process times.
--- @function times
--- @tparam[opt] table|string key one of 'utime', 'stime', 'cutime',
---    'cstime' or 'elapsed'
--- @string[opt] ... unless *key* was a table, zero or more additional
---    key strings.
--- @return values, or a table of all fields if no keys given
--- @see times(2)
--- @usage for a,b in pairs(posix.times()) do print(a, b) end
--- @usage print(posix.times('utime', 'elapsed')
-
-local tms = require 'posix.sys.times'
-
-local _times = tms.times
-
-local function times(...)
-   local info = _times()
+local function Ptimes(...)
+   local info = times()
    return doselection('times', 0, {...}, {
       utime = info.tms_utime,
       stime = info.tms_stime,
@@ -1188,67 +567,451 @@ local function times(...)
    })
 end
 
-if _DEBUG ~= false then
-   M.times = function(...)
+if _debug.argcheck then
+   local _times = Ptimes
+
+   Ptimes = function(...)
       checkselection('times', 1, {...}, 2)
-      return times(...)
+      return _times(...)
    end
-else
-   M.times = times
 end
 
 
---- Return information about this machine.
--- @function uname
--- @see uname(2)
--- @string[opt='%s %n %r %v %m'] format contains zero or more of:
---
--- * %m   machine name
--- * %n   node name
--- * %r   release
--- * %s   sys name
--- * %v   version
---
---@treturn[1] string filled *format* string, if successful
---@return[2] nil
---@treturn string error message
 
-local utsname = require 'posix.sys.utsname'
-
-local _uname = utsname.uname
-
-local function uname(spec)
-   local u = _uname()
-   return gsub(optstring('uname', 1, spec, '%s %n %r %v %m'), '%%(.)', function(s)
-      if s == '%' then
-         return '%'
-      elseif s == 'm' then
-         return u.machine
-      elseif s == 'n' then
-         return u.nodename
-      elseif s == 'r' then
-         return u.release
-      elseif s == 's' then
-         return u.sysname
-      elseif s == 'v' then
-         return u.version
-      else
-         badoption('uname', 1, 'format', s)
+return {
+      --- Bind an address to a socket.
+   -- @function bind
+   -- @int fd socket descriptor to act on
+   -- @tparam PosixSockaddr addr socket address
+   -- @treturn[1] bool `true`, if successful
+   -- @return[2] nil
+   -- @treturn[2] string error messag
+   -- @treturn[2] int errnum
+   -- @see bind(2)
+   bind = function(...)
+      local rt = {bind(...)}
+      if rt[1] == 0 then
+         return true
       end
-   end)
-end
+      return unpack(rt)
+   end,
 
-if _DEBUG ~= false then
-   M.uname = function(s, ...)
-      local argt = {s, ...}
-      if #argt > 1 then
-         toomanyargerror('uname', 1, #argt)
+   --- Find the precision of a clock.
+   -- @function clock_getres
+   -- @string[opt='realtime'] name name of clock, one of 'monotonic',
+   --    'process\_cputime\_id', 'realtime', or 'thread\_cputime\_id'
+   -- @treturn[1] int seconds
+   -- @treturn[21 int nanoseconds, if successful
+   -- @return[2] nil
+   -- @treturn[2] string error message
+   -- @treturn[2] int errnum
+   -- @see clock_getres(3)
+   clock_getres = Pclock_getres,
+
+   --- Read a clock
+   -- @function clock_gettime
+   -- @string[opt='realtime'] name name of clock, one of 'monotonic',
+   --    'process\_cputime\_id', 'realtime', or 'thread\_cputime\_id'
+   -- @treturn[1] int seconds
+   -- @treturn[21 int nanoseconds, if successful
+   -- @return[2] nil
+   -- @treturn[2] string error message
+   -- @treturn[2] int errnum
+   -- @see clock_gettime(3)
+   clock_gettime = Pclock_gettime,
+
+   --- Initiate a connection on a socket.
+   -- @function connect
+   -- @int fd socket descriptor to act on
+   -- @tparam PosixSockaddr addr socket address
+   -- @treturn[1] bool `true`, if successful
+   -- @return[2] nil
+   -- @treturn[2] string error message
+   -- @treturn[2] int errnum
+   -- @see connect(2)
+   connect = function(...)
+      local rt = {connect(...)}
+      if rt[1] == 0 then
+         return true
       end
-      return uname(s)
-   end
-else
-   M.uname = uname
-end
+      return unpack(rt)
+   end,
+
+   --- Execute a program without using the shell.
+   -- @function exec
+   -- @string path
+   -- @tparam[opt] table|strings ... table or tuple of arguments(table can include index 0)
+   -- @return nil
+   -- @treturn string error message
+   -- @see execve(2)
+   exec = Pexec,
+
+   --- Execute a program with the shell.
+   -- @function execp
+   -- @string path
+   -- @tparam[opt] table|strings ... table or tuple of arguments(table can include index 0)
+   -- @return nil
+   -- @treturn string error message
+   -- @see execve(2)
+   execp = Pexecp,
+
+   --- Instruct kernel on appropriate cache behaviour for a file or file segment.
+   -- @function fadvise
+   -- @tparam file fh Lua file object
+   -- @int offset start of region
+   -- @int len number of bytes in region
+   -- @int advice one of `POSIX_FADV_NORMAL, `POSIX_FADV_SEQUENTIAL,
+   -- `POSIX_FADV_RANDOM`, `POSIX_FADV_\NOREUSE`, `POSIX_FADV_WILLNEED` or
+   -- `POSIX_FADV_DONTNEED`
+   -- @treturn[1] int `0`, if successful
+   -- @return[2] nil
+   -- @treturn[2] string error message
+   -- @treturn[2] int errnum
+   -- @see posix_fadvise(2)
+   fadvise = Pfadvise,
+
+   --- Match a filename against a shell pattern.
+   -- @function fnmatch
+   -- @string pat shell pattern
+   -- @string name filename
+   -- @return true or false
+   -- @raise error if fnmatch failed
+   -- @see posix.fnmatch.fnmatch
+   fnmatch = function(...)
+      local r = fnmatch(...)
+      if r == 0 then
+         return true
+      elseif r == FNM_NOMATCH then
+         return false
+      end
+      error 'fnmatch failed'
+   end,
+
+   --- Information about a group.
+   -- @function getgroup
+   -- @tparam[opt=current group] int|string group id or group name
+   -- @treturn group group information
+   -- @usage
+   --    print(posix.getgroup(posix.getgid()).name)
+   getgroup = argscheck('getgroup(?int|string)', function(grp)
+      grp = grp or getegid()
+
+      local g
+      if type(grp) == 'number' then
+         g = getgrgid(grp)
+      elseif type(grp) == 'string' then
+         g = getgrnam(grp)
+      end
+
+      if g ~= nil then
+         return {name=g.gr_name, gid=g.gr_gid, mem=g.gr_mem}
+      end
+   end),
+
+   --- Get the password entry for a user.
+   -- @function getpasswd
+   -- @tparam[opt=current user] int|string user name or id
+   -- @string ... field names, each one of 'uid', 'name', 'gid', 'passwd',
+   --    'dir' or 'shell'
+   -- @return ... values, or a table of all fields if *user* is `nil`
+   -- @usage for a,b in pairs(posix.getpasswd 'root') do print(a, b) end
+   -- @usage print(posix.getpasswd('root', 'shell'))
+   getpasswd = argscheck('getpasswd(?int|string, ?string...)', Pgetpasswd),
+
+   --- Get process identifiers.
+   -- @function getpid
+   -- @tparam[opt] table|string type one of 'egid', 'euid', 'gid', 'uid',
+   --    'pgrp', 'pid' or 'ppid'; or a single list of the same
+   -- @string[opt] ... unless *type* was a table, zero or more additional
+   --    type strings
+   -- @return ... values, or a table of all fields if no option given
+   -- @usage for a,b in pairs(posix.getpid()) do print(a, b) end
+   -- @usage print(posix.getpid('uid', 'euid'))
+   getpid = Pgetpid,
+
+   --- Get resource limits for this process.
+   -- @function getrlimit
+   -- @string resource one of 'core', 'cpu', 'data', 'fsize', 'nofile',
+   --    'stack' or 'as'
+   -- @treturn[1] int soft limit
+   -- @treturn[1] int hard limit, if successful
+   -- @return[2] nil
+   -- @treturn[2] string error message
+   -- @treturn[2] int errnum
+   getrlimit = argscheck('getrlimit(string)', function (rcstr)
+      local rc = RLIMIT_MAP[lower(rcstr)]
+      if rc == nil then
+         argerror('getrlimit', 1, "invalid option '" .. rcstr .. "'")
+      end
+      local rlim = getrlimit(rc)
+      return rlim.rlim_cur, rlim.rlim_max
+   end),
+
+   --- Get time of day.
+   -- @function gettimeofday
+   -- @treturn timeval time elapsed since *epoch*
+   -- @see gettimeofday(2)
+   gettimeofday = function(...)
+      local tv = gettimeofday(...)
+      return {sec=tv.tv_sec, usec=tv.tv_usec}
+   end,
+
+   --- Convert epoch time value to a broken-down UTC time.
+   -- Here, broken-down time tables the month field is 1-based not
+   -- 0-based, and the year field is the full year, not years since
+   -- 1900.
+   -- @function gmtime
+   -- @int[opt=now] t seconds since epoch
+   -- @treturn table broken-down time
+   gmtime = argscheck('gmtime(?int)', function(epoch)
+      return LegacyTm(gmtime(epoch or time()))
+   end),
+
+   --- Get host id.
+   -- @function hostid
+   -- @treturn int unique host identifier
+   hostid = gethostid,
+
+   --- Check for any printable character except space.
+   -- @function isgraph
+   -- @see isgraph(3)
+   -- @string character to act on
+   -- @treturn bool non-`false` if character is in the class
+   isgraph = function(...)
+      return isgraph(...) ~= 0
+   end,
+
+   --- Check for any printable character including space.
+   -- @function isprint
+   -- @string character to act on
+   -- @treturn bool non-`false` if character is in the class
+   -- @see isprint(3)
+   isprint = function(...)
+      return isprint(...) ~= 0
+   end,
+
+   --- Convert epoch time value to a broken-down local time.
+   -- Here, broken-down time tables the month field is 1-based not
+   -- 0-based, and the year field is the full year, not years since
+   -- 1900.
+   -- @function localtime
+   -- @int[opt=now] t seconds since epoch
+   -- @treturn table broken-down time
+   localtime = argscheck('localtime(?int)', function(epoch)
+      return LegacyTm(localtime(epoch or time()))
+   end),
+
+   --- Convert a broken-down localtime table into an epoch time.
+   -- @function mktime
+   -- @tparam tm broken-down localtime table
+   -- @treturn in seconds since epoch
+   -- @see mktime(3)
+   -- @see localtime
+   mktime = argscheck('mktime(?table)', function(legacytm)
+      local posixtm = legacytm and PosixTm(legacytm) or localtime(time())
+      return mktime(posixtm)
+   end),
+
+   --- Sleep with nanosecond precision.
+   -- @function nanosleep
+   -- @int seconds requested sleep time
+   -- @int nanoseconds requested sleep time
+   -- @treturn[1] int `0` if requested time has elapsed
+   -- @return[2] nil
+   -- @treturn[2] string error message
+   -- @treturn[2] int errnum
+   -- @treturn[2] int unslept seconds remaining, if interrupted
+   -- @treturn[2] int unslept nanoseconds remaining, if interrupted
+   -- @see nanosleep(2)
+   -- @see posix.unistd.sleep
+   nanosleep = argscheck('nanosleep(int, int)', function(sec, nsec)
+      local r, errmsg, errno, timespec = nanosleep {tv_sec=sec, tv_nsec=nsec}
+      if r == 0 then
+         return 0
+      end
+      return r, errmsg, errno, timespec.tv_sec, timespec.tv_nsec
+   end),
+
+   --- Open the system logger.
+   -- @function openlog
+   -- @string ident all messages will start with this
+   -- @string[opt] option any combination of 'c'(directly to system console
+   --    if an error sending), 'n'(no delay) and 'p'(show PID)
+   -- @int [opt=`LOG_USER`] facility one of `LOG_AUTH`, `LOG_AUTHORITY`,
+   --    `LOG_CRON`, `LOG_DAEMON`, `LOG_KERN`, `LOG_LPR`, `LOG_MAIL`,
+   --    `LOG_NEWS`, `LOG_SECURITY`, `LOG_USER`, `LOG_UUCP` or `LOG_LOCAL0`
+   --    through `LOG_LOCAL7`
+   -- @see syslog(3)
+   openlog = argscheck('openlog(string, ?string, ?int)',
+      function(ident, optstr, facility)
+         local option = 0
+         if optstr then
+            for i = 1, #optstr do
+               local c = sub(optstr, i, i)
+               if OPENLOG_MAP[c] == nil then
+                  badoption('openlog', 2, 'openlog', c)
+               end
+               option = bor(option, OPENLOG_MAP[c])
+            end
+         end
+         return openlog(ident, option, facility)
+      end
+   ),
+
+   --- Get configuration information at runtime.
+   -- @function pathconf
+   -- @string[opt='.'] path file to act on
+   -- @tparam[opt] table|string key one of 'CHOWN_RESTRICTED', 'LINK_MAX',
+   --    'MAX_CANON', 'MAX_INPUT', 'NAME_MAX', 'NO_TRUNC', 'PATH_MAX', 'PIPE_BUF'
+   --    or 'VDISABLE'
+   -- @string[opt] ... unless *type* was a table, zero or more additional
+   --    type strings
+   -- @return ... values, or a table of all fields if no option given
+   -- @see sysconf(2)
+   -- @usage for a,b in pairs(posix.pathconf '/dev/tty') do print(a, b) end
+   pathconf = Ppathconf,
+
+   --- Set resource limits for this process.
+   -- @function setrlimit
+   -- @string resource one of 'core', 'cpu', 'data', 'fsize', 'nofile',
+   --    'stack' or 'as'
+   -- @int[opt] softlimit process may receive a signal when reached
+   -- @int[opt] hardlimit process may be terminated when reached
+   -- @treturn[1] int `0`, if successful
+   -- @return[2] nil
+   -- @treturn[2] string error message
+   -- @treturn[2] int errnum
+   setrlimit = argscheck('setrlimit(string, ?int, ?int)', function(rcstr, cur, max)
+      local rc = RLIMIT_MAP[lower(rcstr)]
+      if rc == nil then
+         argerror('setrlimit', 1, "invalid option '" .. rcstr .. "'")
+      end
+      local lim
+      if cur == nil or max == nil then
+         lim = getrlimit(rc)
+      end
+      return setrlimit(rc, {
+         rlim_cur = cur or lim.rlim_cur,
+         rlim_max = max or lim.rlim_max,
+      })
+   end),
+
+   --- Information about an existing file path.
+   -- If the file is a symbolic link, return information about the link
+   -- itself.
+   -- @function stat
+   -- @string path file to act on
+   -- @tparam[opt] table|string field one of 'dev', 'ino', 'mode', 'nlink',
+   --    'uid', 'gid', 'rdev', 'size', 'atime', 'mtime', 'ctime' or 'type'
+   -- @string[opt] ... unless *field* was a table, zero or more additional
+   --    field names
+   -- @return values, or table of all fields if no option given
+   -- @see stat(2)
+   -- @usage for a,b in pairs(P,stat '/etc/') do print(a, b) end
+   stat = Pstat,
+
+   --- Fetch file system statistics.
+   -- @function statvfs
+   -- @string path any path within the mounted file system
+   -- @tparam[opt] table|string field one of 'bsize', 'frsize', 'blocks',
+   --    'bfree', 'bavail', 'files', 'ffree', 'favail', 'fsid', 'flag',
+   --    'namemax'
+   -- @string[opt] ... unless *field* was a table, zero or more additional
+   --    field names
+   -- @return values, or table of all fields if no option given
+   -- @see statvfs(2)
+   -- @usage for a,b in pairs(P,statvfs '/') do print(a, b) end
+   statvfs = Pstatvfs,
+
+   --- Write a time out according to a format.
+   -- @function strftime
+   -- @string format specifier with `%` place-holders
+   -- @tparam[opt] PosixTm tm broken-down local time
+   -- @treturn string *format* with place-holders plugged with *tm* values
+   -- @see strftime(3)
+   strftime = argscheck('strftime(string, ?table)', function(fmt, legacytm)
+      local posixtm = legacytm and PosixTm(legacytm) or localtime(time())
+      return strftime(fmt, posixtm)
+   end),
+
+   --- Parse a date string.
+   -- @function strptime
+   -- @string s
+   -- @string format same as for `strftime`
+   -- @usage posix.strptime('20','%d').monthday == 20
+   -- @treturn[1] PosixTm broken-down local time
+   -- @treturn[1] int next index of first character not parsed as part of the date
+   -- @return[2] nil
+   -- @see strptime(3)
+   strptime = argscheck('strptime(string, string)', function(s, fmt)
+      local tm, i = strptime(s, fmt)
+      return LegacyTm(tm), i
+   end),
+
+   --- Get configuration information at runtime.
+   -- @function sysconf
+   -- @tparam[opt] table|string key one of 'ARG_MAX', 'CHILD_MAX',
+   --    'CLK_TCK', 'JOB_CONTROL', 'NGROUPS_MAX', 'OPEN_MAX', 'SAVED_IDS',
+   --    'STREAM_MAX', 'TZNAME_MAX' or 'VERSION'
+   -- @string[opt] ... unless *type* was a table, zero or more additional
+   --    type strings
+   -- @return ... values, or a table of all fields if no option given
+   -- @see sysconf(2)
+   -- @usage for a,b in pairs(posix.sysconf()) do print(a, b) end
+   -- @usage print(posix.sysconf('STREAM_MAX', 'ARG_MAX'))
+   sysconf = Psysconf,
+
+   --- Get the current process times.
+   -- @function times
+   -- @tparam[opt] table|string key one of 'utime', 'stime', 'cutime',
+   --    'cstime' or 'elapsed'
+   -- @string[opt] ... unless *key* was a table, zero or more additional
+   --    key strings.
+   -- @return values, or a table of all fields if no keys given
+   -- @see times(2)
+   -- @usage for a,b in pairs(posix.times()) do print(a, b) end
+   -- @usage print(posix.times('utime', 'elapsed')
+   times = Ptimes,
+
+   --- Return information about this machine.
+   -- @function uname
+   -- @see uname(2)
+   -- @string[opt='%s %n %r %v %m'] format contains zero or more of:
+   --
+   -- * %m   machine name
+   -- * %n   node name
+   -- * %r   release
+   -- * %s   sys name
+   -- * %v   version
+   --
+   -- @treturn[1] string filled *format* string, if successful
+   -- @return[2] nil
+   -- @treturn[2] string error message
+   uname = argscheck('uname(?string)', function(spec)
+      local u = uname()
+      return gsub(optstring('uname', 1, spec, '%s %n %r %v %m'), '%%(.)', function(s)
+         if s == '%' then
+            return '%'
+         elseif s == 'm' then
+            return u.machine
+         elseif s == 'n' then
+            return u.nodename
+         elseif s == 'r' then
+            return u.release
+         elseif s == 's' then
+            return u.sysname
+         elseif s == 'v' then
+            return u.version
+         else
+            badoption('uname', 1, 'format', s)
+         end
+      end)
+   end),
+}
 
 
-return M
+--- Group information.
+-- @table group
+-- @string name name of group
+-- @int gid unique group id
+-- @string ... list of group members

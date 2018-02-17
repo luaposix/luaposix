@@ -195,7 +195,7 @@ specify posix.unistd:
 
 - describe lchown:
   - context with bad arguments:
-      badargs.diagnose(M.lchown, "(string, ?string|int, ?string|int)")
+      badargs.diagnose(M.lchown, "(string, ?int|string, ?int|string)")
 
 
 - describe link:

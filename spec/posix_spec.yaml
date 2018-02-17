@@ -45,35 +45,70 @@ specify posix:
       badargs.diagnose(M.openpty, "openpty()")
 
 
-# spawn's tests also cover execx
+- describe execx:
+  - before:
+      fork = require 'posix.unistd'.fork
+      wait = require 'posix.sys.wait'.wait
+
+      f = function(...)
+         if fork() == 0 then
+            M.execx(...)
+         end
+         return ({wait()})[3]
+      end
+
+  - context with bad arguments:
+      badargs.diagnose(M.execx, "execx(function|table, ?any*)")
+
+  - it executes a command returning normal exit status:
+      expect(f{"true"}).to_be(0)
+  - it executes a command returning abnormal exit status:
+      expect(f{"false"}).to_be(1)
+  - it executes a command with additional arguments:
+      expect(luaproc([[
+         os.exit(require "posix".execx {"echo", "foo"})
+      ]])).to_succeed_with "foo\n"
+  - it propagates failed command errno:
+      expect(f{"no-such-command-exists"}).to_be(require 'posix.errno'.ENOENT)
+  - it executes a function returning normal exit status:
+      expect(f(function() end)).to_be(0)
+  - it executes a function and propagates result:
+      expect(f(function() return 2 end)).to_be(2)
+  - it executes a function with arguments and propagates result:
+      expect(f(function(i) return i end, 3)).to_be(3)
+  - it executes a function with output to stdout:
+      expect(luaproc([[
+         os.exit(require "posix".execx(function()
+            io.stdout:write "foo\n"
+         end))
+      ]])).to_succeed_with "foo\n"
+
+
 - describe spawn:
   - before: f = M.spawn
 
   - context with bad arguments:
-      badargs.diagnose(f, "spawn(table|function, ?any*)")
+      badargs.diagnose(f, "spawn(function|table, ?any*)")
 
   - it spawns a command and can detect success:
-      expect(f({"true"})).to_equal(0)
+      expect(f({"true"})).to_be(0)
   - it can detect failure:
-      expect(f({"false"})).to_equal(1)
+      expect(f({"false"})).to_be(1)
   - it can pass a table of arguments:
-      script = [[
-         local spawn = require "posix".spawn
-         os.exit(spawn {"echo", "foo"} and 0 or 1)
-      ]]
-      expect(luaproc(script)).to_succeed_with "foo\n"
+      expect(luaproc([[
+         os.exit(require "posix".spawn {"echo", "foo"})
+      ]])).to_succeed_with "foo\n"
   - it can pass a function:
-      # FIXME: If the function body contains:
-      # io.stdout.write("hello")
-      # then the specl results are printed twice; "hello" is not printed
-      expect(f(function() end)).to_equal(0)
+      expect(luaproc([[
+         os.exit(require "posix".spawn(function() io.stdout:write "foo\n" end))
+      ]])).to_succeed_with "foo\n"
 
 - describe popen:
   - before:
       popen, pclose = M.popen, M.pclose
       read, write, BUFSIZE = M.read, M.write, M.BUFSIZ
   - context with bad arguments:
-      badargs.diagnose(popen, "popen(table|function, string, ?function)")
+      badargs.diagnose(popen, "popen(function|table, string, ?function)")
 
   - it spawns a command and reads its output:
       p = popen({"echo", "foo"}, "r")
@@ -97,7 +132,7 @@ specify posix:
       popen_pipeline, pclose = M.popen_pipeline, M.pclose
       read, write, BUFSIZE = M.read, M.write, M.BUFSIZ
   - context with bad arguments:
-      badargs.diagnose(popen_pipeline, "popen_pipeline(table, string, ?function)")
+      badargs.diagnose(popen_pipeline, "popen_pipeline(function|table, string, ?function)")
 
   - it spawns a pipeline and reads its output:
       p = popen_pipeline({{"echo", "foo", "bar", "baz"}, {"wc"}, {"wc", "-l"}}, "r")
@@ -492,7 +527,7 @@ specify posix:
         mkdir = M.mkdir
 
     - context with bad arguments:
-        badargs.diagnose(glob, "glob(?table|string)")
+        badargs.diagnose(glob, "glob(?string|table)")
 
     - it matches files in the given directory:
         dir = mkdtemp(template)
@@ -670,7 +705,7 @@ specify posix:
 
   - describe chown:
     - context with bad arguments:
-        badargs.diagnose(M.chown, "(string, ?string|int, ?string|int)")
+        badargs.diagnose(M.chown, "(string, ?int|string, ?int|string)")
 
 
   - describe utime:

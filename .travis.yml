@@ -21,6 +21,7 @@ install:
   - luarocks install ldoc
   - luarocks install ansicolors
   - luarocks install specl
+  - luarocks install typecheck
   - luarocks install luacov
 
 script:

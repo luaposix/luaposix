@@ -14,8 +14,9 @@ description = {
 }
 
 dependencies = {
-   'lua >= 5.1, < 5.4',
    'bit32',
+   'lua >= 5.1, < 5.4',
+   'std.normalize',
 }
 
 source = (function(gitp)
