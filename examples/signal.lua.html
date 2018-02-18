@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 34.0.1 Reference</title>
+    <title>luaposix 34.0.2 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 34.0.1</h1>
+<h1>luaposix 34.0.2</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -92,67 +92,80 @@
 
     <h2>signal.lua</h2>
 <pre>
-<span class="keyword">local</span> sig     = <span class="global">require</span> <span class="string">"posix.signal"</span>
-<span class="keyword">local</span> unistd  = <span class="global">require</span> <span class="string">"posix.unistd"</span>
-<span class="keyword">local</span> syswait = <span class="global">require</span> <span class="string">"posix.sys.wait"</span>
+#! /usr/bin/env lua
 
-<span class="keyword">local</span> <span class="keyword">function</span> go (fn, ...)
-  <span class="keyword">local</span> cpid = unistd.fork ()
-  <span class="keyword">if</span> cpid == <span class="number">0</span> <span class="keyword">then</span> <span class="comment">-- run function as child
-</span>    unistd._exit (fn (...) <span class="keyword">or</span> <span class="number">0</span>)
-  <span class="keyword">else</span>
-    <span class="keyword">return</span> cpid
-  <span class="keyword">end</span>
+<span class="keyword">local</span> M = <span class="global">require</span> <span class="string">'posix.signal'</span>
+
+
+<span class="keyword">local</span> unistd = <span class="global">require</span> <span class="string">'posix.unistd'</span>
+<span class="keyword">local</span> syswait = <span class="global">require</span> <span class="string">'posix.sys.wait'</span>
+
+
+<span class="keyword">local</span> <span class="keyword">function</span> go(fn, ...)
+   <span class="keyword">local</span> childpid = unistd.fork()
+   <span class="keyword">if</span> childpid == <span class="number">0</span> <span class="keyword">then</span> <span class="comment">-- run function as child
+</span>      unistd._exit(fn(...) <span class="keyword">or</span> <span class="number">0</span>)
+   <span class="keyword">else</span>
+      <span class="keyword">return</span> childpid
+   <span class="keyword">end</span>
 <span class="keyword">end</span>
 
 <span class="keyword">local</span> verbose = #arg &gt; <span class="number">0</span>
 
-<span class="keyword">local</span> <span class="keyword">function</span> sleepx (secs)
-  <span class="keyword">while</span> <span class="keyword">true</span> <span class="keyword">do</span>
-    secs = unistd.sleep (secs)
-    <span class="keyword">if</span> verbose <span class="keyword">then</span> <span class="global">print</span> (<span class="string">"sleep"</span>, secs) <span class="keyword">end</span>
-    <span class="keyword">if</span> secs == <span class="number">0</span> <span class="keyword">then</span> <span class="keyword">return</span> <span class="keyword">end</span>
-  <span class="keyword">end</span>
+<span class="keyword">local</span> <span class="keyword">function</span> sleepx(secs)
+   <span class="keyword">while</span> <span class="keyword">true</span> <span class="keyword">do</span>
+      secs = unistd.sleep(secs)
+      <span class="keyword">if</span> verbose <span class="keyword">then</span>
+         <span class="global">print</span>(<span class="string">'sleep'</span>, secs)
+      <span class="keyword">end</span>
+      <span class="keyword">if</span> secs == <span class="number">0</span> <span class="keyword">then</span>
+         <span class="keyword">return</span>
+      <span class="keyword">end</span>
+   <span class="keyword">end</span>
 <span class="keyword">end</span>
 
 <span class="keyword">local</span> nchild, nsig = <span class="number">0</span>, <span class="number">0</span>
 
-sig.signal (sig.SIGCHLD, <span class="keyword">function</span>()
-  <span class="keyword">local</span> pid, status, code = syswait.wait (-<span class="number">1</span>, syswait.WNOHANG)
-  <span class="keyword">while</span> pid <span class="keyword">do</span>
-    <span class="keyword">if</span> pid ~= <span class="number">0</span> <span class="keyword">then</span>
-      <span class="keyword">if</span> verbose <span class="keyword">then</span> <span class="global">print</span> (<span class="string">"wait"</span>, pid, status, code) <span class="keyword">end</span>
-      nchild = nchild + <span class="number">1</span>
-    <span class="keyword">end</span>
-    pid, status, code = syswait.wait (-<span class="number">1</span>, syswait.WNOHANG)
-  <span class="keyword">end</span>
+M.signal(M.SIGCHLD, <span class="keyword">function</span>()
+   <span class="keyword">local</span> pid, status, code = syswait.wait(-<span class="number">1</span>, syswait.WNOHANG)
+   <span class="keyword">while</span> pid <span class="keyword">do</span>
+      <span class="keyword">if</span> pid ~= <span class="number">0</span> <span class="keyword">then</span>
+         <span class="keyword">if</span> verbose <span class="keyword">then</span>
+            <span class="global">print</span>(<span class="string">'wait'</span>, pid, status, code)
+         <span class="keyword">end</span>
+         nchild = nchild + <span class="number">1</span>
+      <span class="keyword">end</span>
+      pid, status, code = syswait.wait(-<span class="number">1</span>, syswait.WNOHANG)
+   <span class="keyword">end</span>
 <span class="keyword">end</span>)
 
-<span class="keyword">local</span> <span class="keyword">function</span> handler (signo)
-  <span class="keyword">if</span> verbose <span class="keyword">then</span> <span class="global">print</span> (<span class="string">"handled"</span>, signo) <span class="keyword">end</span>
-  nsig = nsig + <span class="number">1</span>
+<span class="keyword">local</span> <span class="keyword">function</span> handler(signo)
+   <span class="keyword">if</span> verbose <span class="keyword">then</span>
+      <span class="global">print</span>(<span class="string">'handled'</span>, signo)
+   <span class="keyword">end</span>
+   nsig = nsig + <span class="number">1</span>
 <span class="keyword">end</span>
 
-sig.signal (sig.SIGUSR1, handler)
-sig.signal (sig.SIGUSR2, handler)
-sig.signal (<span class="number">60</span>, handler)
+M.signal(M.SIGUSR1, handler)
+M.signal(M.SIGUSR2, handler)
+M.signal(<span class="number">60</span>, handler)
 
-<span class="keyword">local</span> <span class="keyword">function</span> killp (nsig)
-  <span class="keyword">return</span> sig.kill (unistd.getppid (), nsig)
+<span class="keyword">local</span> <span class="keyword">function</span> killp(nsig)
+   <span class="keyword">return</span> M.kill(unistd.getppid(), nsig)
 <span class="keyword">end</span>
 
-c1 = go (<span class="keyword">function</span>() unistd.sleep (<span class="number">1</span>); killp (sig.SIGUSR1); killp (sig.SIGUSR2) <span class="keyword">end</span>)
-c2 = go (<span class="keyword">function</span>() unistd.sleep (<span class="number">2</span>); killp (sig.SIGUSR2); <span class="keyword">end</span>)
-c3 = go (<span class="keyword">function</span>() unistd.sleep (<span class="number">2</span>); killp (sig.SIGUSR1) <span class="keyword">end</span>)
+c1 = go(<span class="keyword">function</span>() unistd.sleep(<span class="number">1</span>); killp(M.SIGUSR1); killp(M.SIGUSR2) <span class="keyword">end</span>)
+c2 = go(<span class="keyword">function</span>() unistd.sleep(<span class="number">2</span>); killp(M.SIGUSR2); <span class="keyword">end</span>)
+c3 = go(<span class="keyword">function</span>() unistd.sleep(<span class="number">2</span>); killp(M.SIGUSR1) <span class="keyword">end</span>)
 
 sleepx(<span class="number">3</span>)
 
 <span class="keyword">if</span> verbose <span class="keyword">then</span>
-  <span class="global">print</span> (<span class="string">"children"</span>, nchild, <span class="string">"signals"</span>, nsig)
+   <span class="global">print</span>(<span class="string">'children'</span>, nchild, <span class="string">'signals'</span>, nsig)
 <span class="keyword">else</span>
-  <span class="global">assert</span> (nchild == <span class="number">3</span>)
-  <span class="global">assert</span> (nsig ==  <span class="number">4</span>)
-  <span class="global">print</span> <span class="string">'+++ tests OK +++'</span>
+   <span class="global">assert</span>(nchild == <span class="number">3</span>)
+   <span class="global">assert</span>(nsig ==   <span class="number">4</span>)
+   <span class="global">print</span> <span class="string">'+++ tests OK +++'</span>
 <span class="keyword">end</span></pre>
 
 
@@ -160,7 +173,7 @@ sleepx(<span class="number">3</span>)
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2017-07-09 17:18:06 </i>
+<i style="float:right;">Last updated 2018-02-17 19:46:58 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

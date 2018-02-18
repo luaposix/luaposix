@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 34.0.1 Reference</title>
+    <title>luaposix 34.0.2 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 34.0.1</h1>
+<h1>luaposix 34.0.2</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -92,13 +92,19 @@
 
     <h2>tree.lua</h2>
 <pre>
-<span class="comment">-- tree view of the file system like the "tree" unix utility
+#! /usr/bin/env lua
+
+<span class="comment">-- tree view of the file system like the 'tree' unix utility
 </span><span class="comment">-- John Belmonte &lt;jvb@prairienet.org&gt;
 </span>
-<span class="keyword">local</span> posix = <span class="global">require</span> <span class="string">'posix'</span>
+<span class="keyword">local</span> dir = <span class="global">require</span> <span class="string">'posix.dirent'</span>.dir
+<span class="keyword">local</span> islink = <span class="global">require</span> <span class="string">'posix.sys.stat'</span>.S_ISLNK
+<span class="keyword">local</span> isdir = <span class="global">require</span> <span class="string">'posix.sys.stat'</span>.S_ISDIR
+<span class="keyword">local</span> readlink = <span class="global">require</span> <span class="string">'posix.unistd'</span>.readlink
+<span class="keyword">local</span> stat = <span class="global">require</span> <span class="string">'posix.sys.stat'</span>.stat
 
 <span class="keyword">local</span> leaf_indent = <span class="string">'|   '</span>
-<span class="keyword">local</span> tail_leaf_indent = <span class="string">'    '</span>
+<span class="keyword">local</span> tail_leaf_indent = <span class="string">'   '</span>
 <span class="keyword">local</span> leaf_prefix = <span class="string">'|-- '</span>
 <span class="keyword">local</span> tail_leaf_prefix = <span class="string">'`-- '</span>
 <span class="keyword">local</span> link_prefix = <span class="string">' -&gt; '</span>
@@ -108,42 +114,42 @@
 <span class="keyword">end</span>
 
 <span class="keyword">local</span> <span class="keyword">function</span> do_directory(directory, level, prefix)
-    <span class="keyword">local</span> num_dirs = <span class="number">0</span>
-    <span class="keyword">local</span> num_files = <span class="number">0</span>
-    <span class="keyword">local</span> files = posix.dir(directory)
-    <span class="keyword">local</span> last_file_index = #files
-    <span class="global">table</span>.sort(files)
-    <span class="keyword">for</span> i, name <span class="keyword">in</span> <span class="global">ipairs</span>(files) <span class="keyword">do</span>
-        <span class="keyword">if</span> name ~= <span class="string">'.'</span> <span class="keyword">and</span> name ~= <span class="string">'..'</span> <span class="keyword">then</span>
-            <span class="keyword">local</span> full_name = <span class="global">string</span>.format(<span class="string">'%s/%s'</span>, directory, name)
-            <span class="keyword">local</span> info = <span class="global">assert</span>(posix.stat(full_name))
-            <span class="keyword">local</span> is_tail = (i==last_file_index)
-            <span class="keyword">local</span> prefix2 = is_tail <span class="keyword">and</span> tail_leaf_prefix <span class="keyword">or</span> leaf_prefix
-            <span class="keyword">local</span> link = <span class="string">''</span>
-            <span class="keyword">if</span> info.<span class="global">type</span> == <span class="string">'link'</span> <span class="keyword">then</span>
-                linked_name = <span class="global">assert</span>(posix.readlink(full_name))
-                link = <span class="global">string</span>.format(<span class="string">'%s%s'</span>, link_prefix, linked_name)
-            <span class="keyword">end</span>
-            printf(<span class="string">'%s%s%s%s\n'</span>, prefix, prefix2, name, link)
-            <span class="keyword">if</span> info.<span class="global">type</span> == <span class="string">'directory'</span> <span class="keyword">then</span>
-                <span class="keyword">local</span> indent = is_tail <span class="keyword">and</span> tail_leaf_indent <span class="keyword">or</span> leaf_indent
-                <span class="comment">-- TODO: cache string concatination
-</span>                sub_dirs, sub_files = do_directory(full_name, level+<span class="number">1</span>,
-                    prefix .. indent)
-                num_dirs = num_dirs + sub_dirs + <span class="number">1</span>
-                num_files = num_files + sub_files
-            <span class="keyword">else</span>
-                num_files = num_files + <span class="number">1</span>
-            <span class="keyword">end</span>
-        <span class="keyword">end</span>
-    <span class="keyword">end</span>
-    <span class="keyword">return</span> num_dirs, num_files
+   <span class="keyword">local</span> num_dirs = <span class="number">0</span>
+   <span class="keyword">local</span> num_files = <span class="number">0</span>
+   <span class="keyword">local</span> files = dir(directory)
+   <span class="keyword">local</span> last_file_index = #files
+   <span class="global">table</span>.sort(files)
+   <span class="keyword">for</span> i, name <span class="keyword">in</span> <span class="global">ipairs</span>(files) <span class="keyword">do</span>
+      <span class="keyword">if</span> name ~= <span class="string">'.'</span> <span class="keyword">and</span> name ~= <span class="string">'..'</span> <span class="keyword">then</span>
+         <span class="keyword">local</span> full_name = <span class="global">string</span>.format(<span class="string">'%s/%s'</span>, directory, name)
+         <span class="keyword">local</span> info = <span class="global">assert</span>(stat(full_name))
+         <span class="keyword">local</span> is_tail = (i==last_file_index)
+         <span class="keyword">local</span> prefix2 = is_tail <span class="keyword">and</span> tail_leaf_prefix <span class="keyword">or</span> leaf_prefix
+         <span class="keyword">local</span> link = <span class="string">''</span>
+         <span class="keyword">if</span> islink(info.st_mode) ~= <span class="number">0</span> <span class="keyword">then</span>
+            linked_name = <span class="global">assert</span>(readlink(full_name))
+            link = <span class="global">string</span>.format(<span class="string">'%s%s'</span>, link_prefix, linked_name)
+         <span class="keyword">end</span>
+         printf(<span class="string">'%s%s%s%s\n'</span>, prefix, prefix2, name, link)
+         <span class="keyword">if</span> isdir(info.st_mode) ~= <span class="number">0</span> <span class="keyword">then</span>
+            <span class="keyword">local</span> indent = is_tail <span class="keyword">and</span> tail_leaf_indent <span class="keyword">or</span> leaf_indent
+            <span class="comment">-- TODO: cache string concatenation
+</span>            sub_dirs, sub_files = do_directory(full_name, level+<span class="number">1</span>,
+               prefix .. indent)
+            num_dirs = num_dirs + sub_dirs + <span class="number">1</span>
+            num_files = num_files + sub_files
+         <span class="keyword">else</span>
+            num_files = num_files + <span class="number">1</span>
+         <span class="keyword">end</span>
+      <span class="keyword">end</span>
+   <span class="keyword">end</span>
+   <span class="keyword">return</span> num_dirs, num_files
 <span class="keyword">end</span>
 
 <span class="keyword">local</span> <span class="keyword">function</span> fore(directory)
-    <span class="global">print</span>(directory)
-    num_dirs, num_files = do_directory(directory, <span class="number">0</span>, <span class="string">''</span>)
-    printf(<span class="string">'\n%d directories, %d files\n'</span>, num_dirs, num_files)
+   <span class="global">print</span>(directory)
+   num_dirs, num_files = do_directory(directory, <span class="number">0</span>, <span class="string">''</span>)
+   printf(<span class="string">'\n%d directories, %d files\n'</span>, num_dirs, num_files)
 <span class="keyword">end</span>
 
 directory = (arg <span class="keyword">and</span> #arg &gt; <span class="number">0</span>) <span class="keyword">and</span> arg[<span class="number">1</span>] <span class="keyword">or</span> <span class="string">'.'</span>
@@ -154,7 +160,7 @@ fore(directory)</pre>
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2017-07-09 17:18:06 </i>
+<i style="float:right;">Last updated 2018-02-17 19:46:58 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

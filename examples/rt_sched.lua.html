@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 34.0.1 Reference</title>
+    <title>luaposix 34.0.2 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 34.0.1</h1>
+<h1>luaposix 34.0.2</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -92,141 +92,147 @@
 
     <h2>rt_sched.lua</h2>
 <pre>
-<span class="keyword">local</span> p = <span class="global">require</span> <span class="string">"posix"</span>
-<span class="comment">--[[ This example tests sched_setscheduler() / sched_getscheduler()
--- The script must be run as privileged process (CAP_SYS_NICE on linux)
+#! /usr/bin/env lua
+
+<span class="comment">--[[
+ This example tests sched_setscheduler() / sched_getscheduler()
+ The script must be run as privileged process (CAP_SYS_NICE on linux)
 ]]</span>
 
+<span class="keyword">local</span> M = <span class="global">require</span> <span class="string">'posix.sched'</span>
 
-<span class="keyword">local</span> mypid = p.getpid<span class="string">'pid'</span>
+
+<span class="keyword">local</span> mypid = <span class="global">require</span> <span class="string">'posix.unistd'</span>.getpid()
 
 <span class="comment">-- get sched params from ps(1)
 </span><span class="keyword">local</span> <span class="keyword">function</span> get_ps_sched(pid)
-	<span class="keyword">local</span> fp = <span class="global">io</span>.popen((<span class="string">'ps --no-headers -o "policy,rtprio" %s'</span>):format(pid))
-	<span class="keyword">local</span> res, err = fp:read<span class="string">'*a'</span>
-	<span class="global">assert</span>(res, err )
-	fp:close()
-	<span class="keyword">local</span> policy, rtprio = res:match<span class="string">'([^%s]+)%s+([^%s]+)'</span>
-	<span class="global">assert</span>(policy)
-	<span class="global">assert</span>(rtprio)
-	<span class="keyword">return</span> policy, rtprio
+   <span class="keyword">local</span> fp = <span class="global">io</span>.popen(<span class="global">string</span>.format(<span class="string">'ps --no-headers -o "policy,rtprio" %s'</span>, pid))
+   <span class="keyword">local</span> res, err = fp:read<span class="string">'*a'</span>
+   <span class="global">assert</span>(res, err)
+   fp:close()
+   <span class="keyword">local</span> policy, rtprio = <span class="global">string</span>.match(res, <span class="string">'([^%s]+)%s+([^%s]+)'</span>)
+   <span class="global">assert</span>(policy)
+   <span class="global">assert</span>(rtprio)
+   <span class="keyword">return</span> policy, rtprio
 <span class="keyword">end</span>
 
 
 <span class="keyword">do</span> <span class="comment">-- Tests on own process
 </span>
-	<span class="comment">-- get scheduler policy for own process
-</span>	<span class="keyword">local</span> res, err = p.sched_getscheduler(<span class="number">0</span>) <span class="comment">-- 0 pid: own process
-</span>	<span class="global">assert</span>(res == p.SCHED_OTHER)
-	<span class="keyword">local</span> res, err = p.sched_getscheduler() <span class="comment">-- default pid: own process
-</span>	<span class="global">assert</span>(res == p.SCHED_OTHER)
+   <span class="comment">-- get scheduler policy for own process
+</span>   <span class="keyword">local</span> res, err = M.sched_getscheduler(<span class="number">0</span>) <span class="comment">-- 0 pid: own process
+</span>   <span class="global">assert</span>(res == M.SCHED_OTHER)
+   <span class="keyword">local</span> res, err = M.sched_getscheduler() <span class="comment">-- default pid: own process
+</span>   <span class="global">assert</span>(res == M.SCHED_OTHER)
 
-	<span class="keyword">local</span> policy, rtprio = get_ps_sched(mypid)
-	<span class="global">assert</span>(policy== <span class="string">'TS'</span>)
-	<span class="global">assert</span>(rtprio== <span class="string">'-'</span>)
-
-
-	<span class="comment">-- set realtime priority on own process : SCHED_FIFO
-</span>	<span class="keyword">local</span> res, err = p.sched_setscheduler(<span class="number">0</span>, p.SCHED_FIFO, <span class="number">10</span> )
-	<span class="global">assert</span>(res, err)
-
-	<span class="keyword">local</span> policy, rtprio = get_ps_sched(mypid)
-	<span class="global">assert</span>(policy== <span class="string">'FF'</span>)
-	<span class="global">assert</span>(rtprio== <span class="string">'10'</span>)
-
-	<span class="keyword">local</span> res, err = p.sched_getscheduler(<span class="number">0</span>)
-	<span class="global">assert</span>(res == p.SCHED_FIFO)
+   <span class="keyword">local</span> policy, rtprio = get_ps_sched(mypid)
+   <span class="global">assert</span>(policy== <span class="string">'TS'</span>)
+   <span class="global">assert</span>(rtprio== <span class="string">'-'</span>)
 
 
-	<span class="comment">-- set realtime priority on own process SCHED_RR
-</span>	<span class="keyword">local</span> res, err = p.sched_setscheduler(<span class="number">0</span>, p.SCHED_RR, <span class="number">11</span> )
-	<span class="global">assert</span>(res, err)
+   <span class="comment">-- set realtime priority on own process : SCHED_FIFO
+</span>   <span class="keyword">local</span> res, err = M.sched_setscheduler(<span class="number">0</span>, p.SCHED_FIFO, <span class="number">10</span> )
+   <span class="global">assert</span>(res, err)
 
-	<span class="keyword">local</span> policy, rtprio = get_ps_sched(mypid)
-	<span class="global">assert</span>(policy== <span class="string">'RR'</span>)
-	<span class="global">assert</span>(rtprio== <span class="string">'11'</span>)
+   <span class="keyword">local</span> policy, rtprio = get_ps_sched(mypid)
+   <span class="global">assert</span>(policy == <span class="string">'FF'</span>)
+   <span class="global">assert</span>(rtprio == <span class="string">'10'</span>)
 
-	<span class="keyword">local</span> res, err = p.sched_getscheduler(<span class="number">0</span>)
-	<span class="global">assert</span>(res == p.SCHED_RR)
+   <span class="keyword">local</span> res, err = M.sched_getscheduler(<span class="number">0</span>)
+   <span class="global">assert</span>(res == M.SCHED_FIFO)
 
 
-	<span class="comment">-- no parameters: reset own process to normal priority :
-</span>	<span class="keyword">local</span> res, err = p.sched_setscheduler()
-	<span class="global">assert</span>(res, err)
+   <span class="comment">-- set realtime priority on own process SCHED_RR
+</span>   <span class="keyword">local</span> res, err = M.sched_setscheduler(<span class="number">0</span>, M.SCHED_RR, <span class="number">11</span> )
+   <span class="global">assert</span>(res, err)
 
-	<span class="keyword">local</span> policy, rtprio = get_ps_sched(mypid)
-	<span class="global">assert</span>(policy== <span class="string">'TS'</span>)
-	<span class="global">assert</span>(rtprio== <span class="string">'-'</span>)
+   <span class="keyword">local</span> policy, rtprio = get_ps_sched(mypid)
+   <span class="global">assert</span>(policy == <span class="string">'RR'</span>)
+   <span class="global">assert</span>(rtprio == <span class="string">'11'</span>)
 
-	<span class="keyword">local</span> res, err = p.sched_getscheduler(<span class="number">0</span>)
-	<span class="global">assert</span>(res == p.SCHED_OTHER)
+   <span class="keyword">local</span> res, err = M.sched_getscheduler(<span class="number">0</span>)
+   <span class="global">assert</span>(res == M.SCHED_RR)
+
+
+   <span class="comment">-- no parameters: reset own process to normal priority :
+</span>   <span class="keyword">local</span> res, err = M.sched_setscheduler()
+   <span class="global">assert</span>(res, err)
+
+   <span class="keyword">local</span> policy, rtprio = get_ps_sched(mypid)
+   <span class="global">assert</span>(policy == <span class="string">'TS'</span>)
+   <span class="global">assert</span>(rtprio == <span class="string">'-'</span>)
+
+   <span class="keyword">local</span> res, err = M.sched_getscheduler(<span class="number">0</span>)
+   <span class="global">assert</span>(res == M.SCHED_OTHER)
 <span class="keyword">end</span>
 
 
 <span class="comment">-- fork a child to check sched_setscheduler on other process
 </span><span class="keyword">do</span>
-	<span class="keyword">local</span> r,w = p.pipe()
-	<span class="keyword">local</span> cpid = p.fork()
-	<span class="keyword">if</span> cpid == <span class="number">0</span> <span class="keyword">then</span>
-		<span class="comment">-- child: block on pipe until parent is finshed
-</span>		p.close(w)  <span class="comment">-- close unused write end
-</span>		<span class="keyword">local</span> b = p.read(r,<span class="number">1</span>)
-		p._exit(<span class="number">0</span>)
-	<span class="keyword">end</span>
+   <span class="keyword">local</span> U = <span class="global">require</span> <span class="string">'posix.unistd'</span>
 
-	<span class="comment">-- parent:
-</span>	p.close(r)
+   <span class="keyword">local</span> r, w = U.pipe()
+   <span class="keyword">local</span> childpid = U.fork()
+   <span class="keyword">if</span> childpid == <span class="number">0</span> <span class="keyword">then</span>
+      <span class="comment">-- child: block on pipe until parent is finshed
+</span>      U.close(w)  <span class="comment">-- close unused write end
+</span>      <span class="keyword">local</span> b = U.read(r,<span class="number">1</span>)
+      U._exit(<span class="number">0</span>)
+   <span class="keyword">end</span>
 
-	<span class="keyword">do</span> <span class="comment">-- do tests
-</span>		<span class="comment">-- get scheduler policy for child process
-</span>		<span class="keyword">local</span> res, err = p.sched_getscheduler(cpid)
-		<span class="global">assert</span>(res == p.SCHED_OTHER)
+   <span class="comment">-- parent:
+</span>   U.close(r)
 
-		<span class="keyword">local</span> policy, rtprio = get_ps_sched(cpid)
-		<span class="global">assert</span>(policy== <span class="string">'TS'</span>)
-		<span class="global">assert</span>(rtprio== <span class="string">'-'</span>)
+   <span class="keyword">do</span> <span class="comment">-- do tests
+</span>      <span class="comment">-- get scheduler policy for child process
+</span>      <span class="keyword">local</span> res, err = M.sched_getscheduler(childpid)
+      <span class="global">assert</span>(res == M.SCHED_OTHER)
 
-
-		<span class="comment">-- set realtime priority on child process : SCHED_FIFO
-</span>		<span class="keyword">local</span> res, err = p.sched_setscheduler(cpid, p.SCHED_FIFO, <span class="number">10</span> )
-		<span class="global">assert</span>(res, err)
-
-		<span class="keyword">local</span> policy, rtprio = get_ps_sched(cpid)
-		<span class="global">assert</span>(policy== <span class="string">'FF'</span>)
-		<span class="global">assert</span>(rtprio== <span class="string">'10'</span>)
-
-		<span class="keyword">local</span> res, err = p.sched_getscheduler(cpid)
-		<span class="global">assert</span>(res == p.SCHED_FIFO)
+      <span class="keyword">local</span> policy, rtprio = get_ps_sched(childpid)
+      <span class="global">assert</span>(policy == <span class="string">'TS'</span>)
+      <span class="global">assert</span>(rtprio == <span class="string">'-'</span>)
 
 
-		<span class="comment">-- set realtime priority on child process SCHED_RR
-</span>		<span class="keyword">local</span> res, err = p.sched_setscheduler(cpid, p.SCHED_RR, <span class="number">11</span> )
-		<span class="global">assert</span>(res, err)
+      <span class="comment">-- set realtime priority on child process : SCHED_FIFO
+</span>      <span class="keyword">local</span> res, err = M.sched_setscheduler(childpid, M.SCHED_FIFO, <span class="number">10</span> )
+      <span class="global">assert</span>(res, err)
 
-		<span class="keyword">local</span> policy, rtprio = get_ps_sched(cpid)
-		<span class="global">assert</span>(policy== <span class="string">'RR'</span>)
-		<span class="global">assert</span>(rtprio== <span class="string">'11'</span>)
+      <span class="keyword">local</span> policy, rtprio = get_ps_sched(childpid)
+      <span class="global">assert</span>(policy == <span class="string">'FF'</span>)
+      <span class="global">assert</span>(rtprio == <span class="string">'10'</span>)
 
-		<span class="keyword">local</span> res, err = p.sched_getscheduler(cpid)
-		<span class="global">assert</span>(res == p.SCHED_RR)
+      <span class="keyword">local</span> res, err = M.sched_getscheduler(childpid)
+      <span class="global">assert</span>(res == M.SCHED_FIFO)
 
 
-		<span class="comment">-- no parameters after pid: reset child process to normal priority :
-</span>		<span class="keyword">local</span> res, err = p.sched_setscheduler(cpid)
-		<span class="global">assert</span>(res, err)
+      <span class="comment">-- set realtime priority on child process SCHED_RR
+</span>      <span class="keyword">local</span> res, err = M.sched_setscheduler(childpid, M.SCHED_RR, <span class="number">11</span> )
+      <span class="global">assert</span>(res, err)
 
-		<span class="keyword">local</span> policy, rtprio = get_ps_sched(cpid)
-		<span class="global">assert</span>(policy== <span class="string">'TS'</span>)
-		<span class="global">assert</span>(rtprio== <span class="string">'-'</span>)
+      <span class="keyword">local</span> policy, rtprio = get_ps_sched(childpid)
+      <span class="global">assert</span>(policy == <span class="string">'RR'</span>)
+      <span class="global">assert</span>(rtprio == <span class="string">'11'</span>)
 
-		<span class="keyword">local</span> res, err = p.sched_getscheduler(cpid)
-		<span class="global">assert</span>(res == p.SCHED_OTHER)
-	<span class="keyword">end</span>
+      <span class="keyword">local</span> res, err = M.sched_getscheduler(childpid)
+      <span class="global">assert</span>(res == M.SCHED_RR)
 
-	<span class="comment">-- stop child
-</span>	p.write(w,<span class="string">"stop"</span>)
-	p.close(w)
-	p.wait(cpid)
+
+      <span class="comment">-- no parameters after pid: reset child process to normal priority :
+</span>      <span class="keyword">local</span> res, err = M.sched_setscheduler(childpid)
+      <span class="global">assert</span>(res, err)
+
+      <span class="keyword">local</span> policy, rtprio = get_ps_sched(childpid)
+      <span class="global">assert</span>(policy == <span class="string">'TS'</span>)
+      <span class="global">assert</span>(rtprio == <span class="string">'-'</span>)
+
+      <span class="keyword">local</span> res, err = M.sched_getscheduler(childpid)
+      <span class="global">assert</span>(res == M.SCHED_OTHER)
+   <span class="keyword">end</span>
+
+   <span class="comment">-- stop child
+</span>   U.write(w, <span class="string">'stop'</span>)
+   U.close(w)
+   <span class="global">require</span> <span class="string">'posix.sys.wait'</span>.wait(childpid)
 <span class="keyword">end</span></pre>
 
 
@@ -234,7 +240,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2017-07-09 17:18:06 </i>
+<i style="float:right;">Last updated 2018-02-17 19:46:58 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
