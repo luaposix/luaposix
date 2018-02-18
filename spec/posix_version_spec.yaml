@@ -14,5 +14,7 @@ specify posix.version:
 
 - it is set:
     expect(M).not_to_be(nil)
-- it contains the correct release number:
-    expect(M).to_contain(os.getenv "VERSION")
+- it describes this module:
+    expect(M).to_match '^posix '
+- it ends with the release number:
+    expect(M).to_match.any_of {' %d[%.%d]*$', ' git$'}

@@ -26,7 +26,7 @@ install:
 
 script:
   - luarocks make --force LUA_INCDIR=$PWD/here/include
-  - VERSION=git-1 specl -vfreport --coverage spec/*_spec.yaml
+  - specl -vfreport --coverage spec/*_spec.yaml
 
 after_success:
   - bash <(curl -s https://codecov.io/bash) -f luacov.report.out
