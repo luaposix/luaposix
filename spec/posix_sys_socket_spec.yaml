@@ -379,10 +379,10 @@ specify posix.sys.socket:
       expect(M.bind(fd, {family=M.AF_INET6, addr="::", port=9999})).
          to_be(0)
 
-      pending "issue #92"
       sockt = {family=M.AF_INET, addr="127.0.0.1", port=59999}
       expect(M.sendto(fd, "Test ipv4", sockt)).to_be(9)
 
+      pending "issue #92"
       data, so = M.recvfrom(fd, 1024)
       expect(data).to_be "Test ipv4"
 

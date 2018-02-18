@@ -74,7 +74,6 @@ specify posix.sys.resource:
          }
       }
   - it accepts PosixRlimit argument:
-      pending "requires elevated privileges"
       for _, rc in pairs {"RLIMIT_CORE", "RLIMIT_CPU", "RLIMIT_DATA", "RLIMIT_FSIZE",
           "RLIMIT_NOFILE", "RLIMIT_STACK", "RLIMIT_AS"}
       do
