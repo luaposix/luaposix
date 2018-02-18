@@ -1,8 +1,5 @@
 # luaposix NEWS - User visible changes
 
-## Noteworthy changes in release ?.? (????-??-??) [?]
-
-
 ## Noteworthy changes in release 34.0.2 (2018-02-17) [stable]
 
 ### Incompatible Changes
