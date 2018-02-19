@@ -6,6 +6,9 @@ before:
 
 
 specify posix.sys.time:
+- before:
+     EPOCH = require 'posix.time'.time()
+
 - context when required:
   - it does not touch the global table:
       expect(show_apis {added_to=global_table, by=this_module}).
@@ -22,7 +25,7 @@ specify posix.sys.time:
   - it returns a PosixTimeval:
       expect(prototype(gettimeofday())).to_be "PosixTimeval"
   - it fetches the current epoch time:
-      tv, epoch = gettimeofday(), posix.time()
-      expect(tv.tv_sec).to_be(epoch)
+      tv = gettimeofday()
+      expect(tv.tv_sec).to_be_within_n_of {value=EPOCH, delta=1}
       expect(type(tv.tv_usec)).to_be "number"
       expect(tv.tv_usec >= 0).to_be(true)
