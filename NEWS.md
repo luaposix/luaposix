@@ -2,6 +2,9 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+
+## Noteworthy changes in release 34.0.3 (2018-02-19) [stable]
+
 ### Bugs Fixed
 
   - `posix.deprecated.fadvise` is properly elided on macOS and other
