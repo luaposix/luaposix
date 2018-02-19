@@ -2,6 +2,11 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### Bugs Fixed
+
+  - `posix.deprecated.fadvise` is properly elided on macOS and other
+    hosts that have no `posix.fcntl.posix_fadvise` implementation.
+
 
 ## Noteworthy changes in release 34.0.2 (2018-02-17) [stable]
 

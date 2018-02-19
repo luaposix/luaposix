@@ -19,7 +19,6 @@ local _ENV = require 'std.normalize' {
    'posix._base.pushmode',
    'posix.ctype.isgraph',
    'posix.ctype.isprint',
-   'posix.fcntl.posix_fadvise',
    'posix.fnmatch.FNM_NOMATCH',
    'posix.fnmatch.fnmatch',
    'posix.grp.getgrgid',
@@ -104,6 +103,7 @@ local _ENV = require 'std.normalize' {
    CLOCK_THREAD_CPUTIME_ID = require 'posix.time'.CLOCK_THREAD_CPUTIME_ID,
    clock_getres = require 'posix.time'.clock_getres,
    clock_gettime = require 'posix.time'.clock_gettime,
+   posix_fadvise = require 'posix.fcntl'.posix_fadvise,
 }
 
 
