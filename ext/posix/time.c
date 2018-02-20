@@ -115,7 +115,7 @@ pushtm(lua_State *L, struct tm *t)
 }
 
 
-#if defined _POSIX_TIMERS
+#if defined _POSIX_TIMERS && _POSIX_TIMERS != -1
 /***
 Find the precision of a clock.
 @function clock_getres
@@ -326,7 +326,7 @@ Ptime(lua_State *L)
 
 static const luaL_Reg posix_time_fns[] =
 {
-#if defined _POSIX_TIMERS
+#if defined _POSIX_TIMERS && _POSIX_TIMERS != -1
 	LPOSIX_FUNC( Pclock_getres	),
 	LPOSIX_FUNC( Pclock_gettime	),
 #endif
@@ -348,7 +348,7 @@ luaopen_posix_time(lua_State *L)
 	lua_pushstring(L, LPOSIX_VERSION_STRING("time"));
 	lua_setfield(L, -2, "version");
 
-#if defined _POSIX_TIMERS
+#if defined _POSIX_TIMERS && _POSIX_TIMERS != -1
 	LPOSIX_CONST( CLOCK_MONOTONIC		);
 	LPOSIX_CONST( CLOCK_PROCESS_CPUTIME_ID	);
 	LPOSIX_CONST( CLOCK_REALTIME		);
