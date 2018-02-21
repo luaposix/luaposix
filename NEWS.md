@@ -2,6 +2,9 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+
+## Noteworthy changes in release 34.0.4 (2018-02-20) [stable]
+
 ### Bugs Fixed
 
   - `posix.time.clock_getres`, `posix.time.clock_gettime`
