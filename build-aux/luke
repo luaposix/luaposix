@@ -14,10 +14,10 @@ end,fatal=fatal,}
 end
 package.preload['luke.cli']=function()
 local _ENV=require'std.normalize'{'luke._base','luke.lukefile','luke.platforms','std.functional',}local function version()print[[
-luke (Luke) 0.1.2
+luke (Luke) 0.1.3
 Written by Gary V. Vaughan <gary@gnu.org>, 2014
 
-Copyright (C) 2017, Gary V. Vaughan
+Copyright (C) 2018, Gary V. Vaughan
 Luke comes with ABSOLUTELY NO WARRANTY.
 You may redistribute copies of Luke under the terms of the MIT license;
 it may be used for any purpose at absolutely no cost, without permission.
@@ -31,6 +31,7 @@ Use the source, Luke!
   --help        print this help, then exit
   --version     print version number, then exit
   --file=FILE   use FILE instead of lukefile
+  --value=NAME  print the value of variable NAME
   --quiet       without any output
   --verbose     provide more progress output
 
@@ -48,8 +49,9 @@ msg=gsub(msg,'%.$','')stderr:write('luke: error: '..msg..'.\n')stderr:write("luk
 local function display(...)return stdout:write(concat{...})end
 local function dump(...)gsub(concat(map(list(...),str)),'(.-)\n',function(line)stderr:write('   DEBUG: '..line..'\n')end)end
 local function interpolate_to_substitute(s)return(gsub(s,'%$([%w_]+)','@%1@'))end
-return{parse_arguments=function(args)local r={clidefs={},fname='lukefile',install={},log=nop,targets={},verbose=nop,write=display,}map(args,function(opt)case(opt,{['--debug']=function()r.log=dump
+return{parse_arguments=function(args)local r={clidefs={},valreqs={},fname='lukefile',install={},log=nop,targets={},verbose=nop,write=display,}map(args,function(opt)case(opt,{['--debug']=function()r.log=dump
 end,['%-%-file=(.+)']=function(optarg)r.fname=optarg
+end,['%-%-value=(.+)']=function(optarg)r.valreqs[#r.valreqs+1]=optarg
 end,['--quiet']=function()r.write=nop
 end,['--verbose']=function()r.verbose=display
 end,['--help']=help,['--version']=version,['([^-][^=]-)=(.+)']=function(name,value)r.clidefs[name]=value
@@ -72,7 +74,7 @@ luke.modules=build
 if isempty(luke.modules)then
 luke.external_dependencies=nil
 end
-luke.substitute=merge(luke.substitute or{},{package=interpolate_to_substitute(luke.package),version=interpolate_to_substitute(luke.version),})luke.variables=merge(luke.variables or{},collect_variables(luke),{LUA_DIR='/usr',LUA_BINDIR='$LUA_DIR/bin',LUA_INCDIR='$LUA_DIR/include/lua$LUAVERSION',LUA_LIBDIR='$LUA_DIR/lib',objdir=platforms[1],package=luke.package,version=luke.version,})return{clidefs=parsed.clidefs,install=install,log=parsed.log,luke=luke,verbose=parsed.verbose,write=parsed.write,}end,}
+luke.substitute=merge(luke.substitute or{},{package=interpolate_to_substitute(luke.package),version=interpolate_to_substitute(luke.version),})luke.variables=merge(luke.variables or{},collect_variables(luke),{LUA_DIR='/usr',LUA_BINDIR='$LUA_DIR/bin',LUA_INCDIR='$LUA_DIR/include/lua$LUAVERSION',LUA_LIBDIR='$LUA_DIR/lib',objdir=platforms[1],package=luke.package,version=luke.version,})return{clidefs=parsed.clidefs,install=install,log=parsed.log,luke=luke,valreqs=parsed.valreqs,verbose=parsed.verbose,write=parsed.write,}end,}
 end
 package.preload['luke.compile']=function()
 local _ENV=require'std.normalize'{'luke._base','luke.environment','std.functional','type.context-manager','type.path',SHELLMETACHARS='[%s%$"]',}local function spawn(env,...)local command=interpolate(env,concat({...},' '))return with(TmpFile(),TmpFile(),function(out,err)local pipe=concat{command,' >',out.filename,' 2>',err.filename,'; printf $?'}return tonumber(slurp(Pipe(pipe))),slurp(File(err.filename)),slurp(File(out.filename))end)end
@@ -264,6 +266,8 @@ status=run_ldocs(L,env,L.luke.ldocs)end
 return status
 end
 return{main=function(args)local L=validate_arguments(parse_arguments(args))local env=makeenv(L.clidefs,L.luke.variables,DEFAULTENV,SHELLENV)local status=0
+if not isempty(L.valreqs)then
+map(L.valreqs,function(name)print(interpolate(env,concat{name,"='$",name,"'"}))end)exit(0)end
 if status==0 and not isempty(L.luke.modules or{})then
 status=build_modules(L,env)end
 if status==0 then

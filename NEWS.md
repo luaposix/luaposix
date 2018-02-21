@@ -10,6 +10,11 @@
     `posix.time.CLOCK_THREAD_CPUTIME_ID` are all properly elided
     on macOS again.
 
+  - `spec/spec_helper.lua` now looks in the correct objdir
+    for object modules built by luke, instead of hard-coding
+    `./linux/?.so`, so specl examples work on macOS and others
+    again.
+
 
 ## Noteworthy changes in release 34.0.3 (2018-02-19) [stable]
 

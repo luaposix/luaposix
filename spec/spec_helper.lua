@@ -1,10 +1,10 @@
 local unpack = table.unpack or unpack
 
 
-if os.getenv 'installcheck' == nil then
-   -- Unless we're running inside `make installcheck`, add the dev-tree
-   -- directories to the module search paths.
+do
    local std = require 'specl.std'
+   local spawn = require 'specl.shell'.spawn
+   local objdir = spawn('./build-aux/luke --value=objdir').output
 
    package.path = std.package.normalize (
       './lib/?.lua',
@@ -12,7 +12,7 @@ if os.getenv 'installcheck' == nil then
       package.path
    )
    package.cpath = std.package.normalize(
-      './linux/?.so',
+      './' .. objdir:match("^objdir='(.*)'") .. '/?.so',
       package.cpath
    )
 end
