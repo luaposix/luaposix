@@ -101,9 +101,9 @@ local _ENV = require 'std.normalize' {
    CLOCK_PROCESS_TIME_ID = require 'posix.time'.CLOCK_PROCESS_TIME_ID,
    CLOCK_REALTIME = require 'posix.time'.CLOCK_REALTIME,
    CLOCK_THREAD_CPUTIME_ID = require 'posix.time'.CLOCK_THREAD_CPUTIME_ID,
-   clock_getres = require 'posix.time'.clock_getres,
-   clock_gettime = require 'posix.time'.clock_gettime,
-   posix_fadvise = require 'posix.fcntl'.posix_fadvise,
+   clock_getres = require 'posix.time'.clock_getres or false,
+   clock_gettime = require 'posix.time'.clock_gettime or false,
+   posix_fadvise = require 'posix.fcntl'.posix_fadvise or false,
 }
 
 
@@ -259,7 +259,7 @@ end
 
 
 local Pclock_getres
-if clock_getres ~= nil then
+if clock_getres then
    -- When supported by underlying system
    local function get_clk_id_const(name)
       local map = {
@@ -278,7 +278,7 @@ end
 
 
 local Pclock_gettime
-if clock_gettime ~= nil then
+if clock_gettime then
    -- When supported by underlying system
    Pclock_gettime = argscheck('clock_gettime(?string)', function(name)
       local ts = _clock_gettime(get_clk_id_const(name))
@@ -348,7 +348,7 @@ end
 
 
 local Pfadvise
-if posix_fadvise ~= nil then
+if posix_fadvise then
    -- When supported by underlying system
    Pfadvise = argscheck('fadvise(FILE*, int, int, int)', function(fh, ...)
       return posix_fadvise(fileno(fh), ...)
