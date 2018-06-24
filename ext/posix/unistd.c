@@ -321,7 +321,7 @@ runexec(lua_State *L, int use_shell)
 
 
 /***
-Execute a program without using the shell.
+Execute a program at exactly *path*..
 @function exec
 @string path
 @tparam table argt arguments (table can include index 0)
@@ -338,7 +338,7 @@ Pexec(lua_State *L)
 
 
 /***
-Execute a program using the shell.
+Execute a program found using command PATH search, like the shell.
 @function execp
 @string path
 @tparam table argt arguments (table can include index 0)
