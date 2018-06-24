@@ -338,7 +338,7 @@ return setmetatable(merge(M, {
    -- @function pclose
    -- @tparam table pfd pipeline object
    -- @return values as for @{posix.sys.wait.wait}, for the last (or only)
-   --    stage of the pipeline
+   --  stage of the pipeline
    pclose = argscheck('pclose(table)', Ppclose),
 
    --- Check permissions like @{posix.unistd.access}, but for euid.
@@ -354,8 +354,8 @@ return setmetatable(merge(M, {
    --- Exec a command or Lua function.
    -- @function execx
    -- @tparam table task argument list for @{posix.unistd.execp} or a Lua
-   --    function, which should read from standard input, write to standard
-   --    output, and return an exit code
+   --  function, which should read from standard input, write to standard
+   --  output, and return an exit code
    -- @param ... positional arguments to the function
    -- @treturn nil on error(normally does not return)
    -- @treturn string error message
@@ -385,11 +385,11 @@ return setmetatable(merge(M, {
    --- Run a commands or Lua function in a sub-process.
    -- @function popen
    -- @tparam table task argument list for @{posix.unistd.execp} or a Lua
-   --    function, which should read from standard input, write to standard
-   --    output, and return an exit code
+   --  function, which should read from standard input, write to standard
+   --  output, and return an exit code
    -- @tparam string mode `"r"` for read or `"w"` for write
    -- @func[opt] pipe_fn function returning a paired read and
-   --    write file descriptor (*default* @{posix.unistd.pipe})
+   --  write file descriptor (*default* @{posix.unistd.pipe})
    -- @treturn pfd pipeline object
    -- @see posix.execx
    -- @see posix.spawn
@@ -400,7 +400,7 @@ return setmetatable(merge(M, {
    -- @tparam table t tasks for @{posix.execx}
    -- @tparam string mode `"r"` for read or `"w"` for write
    -- @func[opt] pipe_fn function returning a paired read and
-   --    write file descriptor (*default* @{posix.unistd.pipe})
+   --  write file descriptor (*default* @{posix.unistd.pipe})
    -- @treturn pfd pipeline object
    popen_pipeline = argscheck('popen_pipeline(function|table, string, ?function)',
       Ppopen_pipeline),
@@ -408,8 +408,8 @@ return setmetatable(merge(M, {
    --- Run a command or function in a sub-process using @{posix.execx}.
    -- @function spawn
    -- @tparam table task argument list for @{posix.unistd.execp} or a Lua
-   --    function, which should read from standard input, write to standard
-   --    output, and return an exit code
+   --  function, which should read from standard input, write to standard
+   --  output, and return an exit code
    -- @param ... as for @{posix.execx}
    -- @return values as for @{posix.sys.wait.wait}
    spawn = argscheck('spawn(function|table, ?any...)', Pspawn),
@@ -445,7 +445,7 @@ return setmetatable(merge(M, {
    -- @function __index
    -- @string name submodule name
    -- @treturn table|nil the submodule that was loaded to satisfy the missing
-   --   `name`, otherise `nil` if nothing was found
+   --  `name`, otherise `nil` if nothing was found
    -- @usage
    -- local version = require 'posix'.version
    __index = function(self, name)

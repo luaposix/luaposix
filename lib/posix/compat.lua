@@ -231,8 +231,8 @@ return {
    -- @function open
    -- @string path file to act on
    -- @int oflags bitwise OR of zero or more of `O_RDONLY`, `O_WRONLY`, `O_RDWR`,
-   --    `O_APPEND`, `O_CREAT`, `O_DSYNC`, `O_EXCL`, `O_NOCTTY`, `O_NONBLOCK`,
-   --    `O_RSYNC`, `O_SYNC`, `O_TRUNC`
+   --  `O_APPEND`, `O_CREAT`, `O_DSYNC`, `O_EXCL`, `O_NOCTTY`, `O_NONBLOCK`,
+   --  `O_RSYNC`, `O_SYNC`, `O_TRUNC`
    -- @string modestr(used with `O_CREAT`; see @{chmod} for format)
    -- @treturn[1] int file descriptor for *path*, if successful
    -- @return[2] nil
@@ -256,7 +256,7 @@ return {
    --- Set log priority mask
    -- @function setlogmask
    -- @int ... zero or more of `LOG_EMERG`, `LOG_ALERT`, `LOG_CRIT`,
-   --    `LOG_WARNING`, `LOG_NOTICE`, `LOG_INFO` and `LOG_DEBUG`
+   --  `LOG_WARNING`, `LOG_NOTICE`, `LOG_INFO` and `LOG_DEBUG`
    -- @treturn[1] int `0`, if successful
    -- @return[2] nil
    -- @treturn[2] string error message
