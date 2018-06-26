@@ -90,6 +90,8 @@ pushsockaddrinfo(lua_State *L, int family, struct sockaddr *sa)
 			inet_ntop(family, &sa6->sin6_addr, addr, sizeof addr);
 			pushintegerfield("port", ntohs(sa6->sin6_port));
 			pushstringfield("addr", addr);
+			pushintegerfield("flowinfo", ntohl(sa6->sin6_flowinfo));
+			pushintegerfield("scope_id", sa6->sin6_scope_id);
 			break;
 		}
 		case AF_UNIX:
@@ -172,8 +174,12 @@ Psocketpair(lua_State *L)
 }
 
 
-static const char *Safinet_fields[] = { "family", "port", "addr",
+static const char *Safinet4_fields[] = { "family", "port", "addr",
 					/* Also allow getaddrinfo result tables */
+					"socktype", "canonname", "protocol" };
+static const char *Safinet6_fields[] = { "family", "port", "addr",
+					/* Also allow getaddrinfo result tables */
+					"flowinfo", "scope_id",
 					"socktype", "canonname", "protocol" };
 static const char *Safunix_fields[] = { "family", "path" };
 static const char *Safnetlink_fields[] = { "family", "pid", "groups" };
@@ -188,8 +194,6 @@ sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *sa, socklen_
 	luaL_checktype(L, index, LUA_TTABLE);
 	family = checkintfield(L, index, "family");
 
-	memset(sa, 0, sizeof *sa);
-
 	switch (family)
 	{
 		case AF_INET:
@@ -198,7 +202,7 @@ sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *sa, socklen_
 			int port		= checkintfield(L, index, "port");
 			const char *addr	= checkstringfield(L, index, "addr");
 
-			checkfieldnames (L, index, Safinet_fields);
+			checkfieldnames (L, index, Safinet4_fields);
 
 			if (inet_pton(AF_INET, addr, &sa4->sin_addr) == 1)
 			{
@@ -214,13 +218,17 @@ sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *sa, socklen_
 			struct sockaddr_in6 *sa6= (struct sockaddr_in6 *)sa;
 			int port		= checkintfield(L, index, "port");
 			const char *addr	= checkstringfield(L, index, "addr");
+			uint32_t flowinfo	= optintfield(L, index, "flowinfo", 0); // For compatibility, this field is optional
+			uint32_t scope_id	= optintfield(L, index, "scope_id", 0); // For compatibility, this field is optional
 
-			checkfieldnames (L, index, Safinet_fields);
+			checkfieldnames (L, index, Safinet6_fields);
 
 			if (inet_pton(AF_INET6, addr, &sa6->sin6_addr) == 1)
 			{
 				sa6->sin6_family= family;
 				sa6->sin6_port	= htons(port);
+				sa6->sin6_flowinfo	= htonl(flowinfo);
+				sa6->sin6_scope_id	= scope_id;
 				*addrlen	= sizeof(*sa6);
 				r		= 0;
 			}
@@ -228,6 +236,7 @@ sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *sa, socklen_
 		}
 		case AF_UNIX:
 		{
+			memset(sa, 0, sizeof *sa);
 			struct sockaddr_un *sau	= (struct sockaddr_un *)sa;
 			size_t bufsize		= sizeof(sau->sun_path);
 			size_t pathlen;
@@ -275,7 +284,7 @@ static const char *Sai_fields[] = { "family", "socktype", "protocol", "flags" };
 /***
 Network address and service translation.
 @function getaddrinfo
-@string host name of a host
+@string host name of a host. For IPv6, link-local addresses like 'ff02::1%eth0' are supported.
 @string service name of service
 @tparam[opt] PosixAddrInfo hints table
 @treturn[1] list of @{sockaddr} tables
@@ -386,7 +395,7 @@ Pconnect(lua_State *L)
 	int fd = checkint(L, 1);
 	checknargs (L, 2);
 	if (sockaddr_from_lua(L, 2, &sa, &salen) != 0)
-		return pusherror(L, "not a valid IPv4 dotted-decimal or IPv6 address string");
+		return pusherror(L, "not a valid IPv4 or IPv6 address argument");
 
 	return pushresult(L, connect(fd, (struct sockaddr *)&sa, salen), "connect");
 }
@@ -412,7 +421,7 @@ Pbind(lua_State *L)
 	checknargs (L, 2);
 	fd = checkint(L, 1);
 	if (sockaddr_from_lua(L, 2, &sa, &salen) != 0)
-		return pusherror(L, "not a valid IPv4 dotted-decimal or IPv6 address string");
+		return pusherror(L, "not a valid IPv4 or IPv6 argument");
 
 	return pushresult(L, bind(fd, (struct sockaddr *)&sa, salen), "bind");
 }
@@ -602,7 +611,7 @@ Psendto(lua_State *L)
 	socklen_t salen;
 	checknargs (L, 3);
 	if (sockaddr_from_lua(L, 3, &sa, &salen) != 0)
-		return pusherror (L, "not a valid IPv4 dotted-decimal or IPv6 address string");
+		return pusherror (L, "not a valid IPv4 or IPv6 argument");
 
 	return pushresult(L, sendto(fd, buf, len, 0, (struct sockaddr *)&sa, salen), "sendto");
 }
