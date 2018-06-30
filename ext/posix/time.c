@@ -341,6 +341,28 @@ static const luaL_Reg posix_time_fns[] =
 };
 
 
+/***
+Constants.
+@section constants
+*/
+
+/***
+Standard constants.
+Any constants not available in the underlying system will be `nil` valued.
+@table posix.time
+@int CLOCK_MONOTONIC the identifier for the system-wide monotonic clock
+@int CLOCK_PROCESS_CPUTIME_ID the identifier for the current process CPU-time clock
+@int CLOCK_REALTIME the identifier for the system-wide realtime clock
+@int CLOCK_THREAD_CPUTIME_ID the identifier for the current thread CPU-time clock
+@usage
+  -- Print posix.time constants supported on this host.
+  for name, value in pairs (require "posix.time") do
+    if type (value) == "number" then
+      print (name, value)
+     end
+  end
+*/
+
 LUALIB_API int
 luaopen_posix_time(lua_State *L)
 {
