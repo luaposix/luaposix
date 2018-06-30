@@ -304,7 +304,7 @@ Pstat(lua_State *L)
 /***
 Set file mode creation mask.
 @function umask
-@int[opt] mode new file creation mask
+@int mode new file creation mask
 @treturn int previous umask
 @see umask(2)
 @see posix.umask
