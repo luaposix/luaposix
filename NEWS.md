@@ -2,6 +2,10 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### New Features
+
+  - `posix.sys.socket` now supports IPV6 link-local addresses.
+
 
 ## Noteworthy changes in release 34.0.4 (2018-02-20) [stable]
 

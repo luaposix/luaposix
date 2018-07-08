@@ -174,15 +174,17 @@ Psocketpair(lua_State *L)
 }
 
 
-static const char *Safinet4_fields[] = { "family", "port", "addr",
-					/* Also allow getaddrinfo result tables */
-					"socktype", "canonname", "protocol" };
-static const char *Safinet6_fields[] = { "family", "port", "addr",
-					/* Also allow getaddrinfo result tables */
+static const char *Safinet_fields[] = { /* AF_INET6 only */
 					"flowinfo", "scope_id",
+					/* AF_INET4 and AF_INET6 shared */
+					"family", "port", "addr",
+					/* Also allow getaddrinfo result tables */
 					"socktype", "canonname", "protocol" };
 static const char *Safunix_fields[] = { "family", "path" };
 static const char *Safnetlink_fields[] = { "family", "pid", "groups" };
+
+#define Safinet4_fields (Safinet_fields + 2)
+#define Safinet6_fields Safinet_fields
 
 
 /* Populate a sockaddr_storage with the info from the given lua table */
@@ -194,6 +196,8 @@ sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *sa, socklen_
 	luaL_checktype(L, index, LUA_TTABLE);
 	family = checkintfield(L, index, "family");
 
+	memset(sa, 0, sizeof *sa);
+
 	switch (family)
 	{
 		case AF_INET:
@@ -201,8 +205,9 @@ sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *sa, socklen_
 			struct sockaddr_in *sa4 = (struct sockaddr_in *)sa;
 			int port		= checkintfield(L, index, "port");
 			const char *addr	= checkstringfield(L, index, "addr");
+			int nfields = (sizeof(Safinet_fields)/sizeof(*Safinet_fields))-2;
 
-			checkfieldnames (L, index, Safinet4_fields);
+			(checkfieldnames)(L, index, nfields, Safinet4_fields);
 
 			if (inet_pton(AF_INET, addr, &sa4->sin_addr) == 1)
 			{
@@ -218,8 +223,9 @@ sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *sa, socklen_
 			struct sockaddr_in6 *sa6= (struct sockaddr_in6 *)sa;
 			int port		= checkintfield(L, index, "port");
 			const char *addr	= checkstringfield(L, index, "addr");
-			uint32_t flowinfo	= optintfield(L, index, "flowinfo", 0); // For compatibility, this field is optional
-			uint32_t scope_id	= optintfield(L, index, "scope_id", 0); // For compatibility, this field is optional
+			/* For compatibility, the next two fields are optional */
+			uint32_t flowinfo	= optintfield(L, index, "flowinfo", 0);
+			uint32_t scope_id	= optintfield(L, index, "scope_id", 0);
 
 			checkfieldnames (L, index, Safinet6_fields);
 
@@ -236,7 +242,6 @@ sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *sa, socklen_
 		}
 		case AF_UNIX:
 		{
-			memset(sa, 0, sizeof *sa);
 			struct sockaddr_un *sau	= (struct sockaddr_un *)sa;
 			size_t bufsize		= sizeof(sau->sun_path);
 			size_t pathlen;
