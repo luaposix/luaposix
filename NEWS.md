@@ -4,10 +4,16 @@
 
 ### Bugs Fixed
 
+  - `posix.glob.glob` does not return a random errno on failure now, but
+    new module constants `GLOB_ABORTED`, `GLOB_NOMATCH` or `GLOB_NOSPACE`.
+
   - `posix.deprecated.clock_getres` and `posix.deprecated.clock_gettime`
     work again.
 
 ### New Features
+
+  - `posix.glob.glob` supports now module constants as a second argument:
+    `GLOB_NOCHECK` and `GLOB_ERR`.
 
   - `posix.sys.socket` now supports IPV6 link-local addresses.
 

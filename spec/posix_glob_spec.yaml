@@ -21,6 +21,7 @@ specify posix.glob:
   - before:
       glob, MARK = M.glob, M.GLOB_MARK
       chdir = require 'posix'.chdir
+      chmod = require 'posix'.chmod
       mkdir = require 'posix'.mkdir
       mkdtemp = require 'posix'.mkdtemp
       origwd = require 'posix'.getcwd()
@@ -32,12 +33,11 @@ specify posix.glob:
   - context with bad arguments:
       badargs.diagnose(glob, "(?string, int)")
 
-  - it returns nil and an error message if there are no matches:
+  - it returns nil and GLOB_NOMATCH if there are no matches:
       dir = mkdtemp(template)
       chdir(dir)
-      globlist, errmsg = glob("foo", 0)
-      expect(type(errmsg)).to_be "string"
-      expect(errmsg).to_be("foo:" .. " No such file or directory")
+      globlist, err = glob("foo", 0)
+      expect(err).to_be(M.GLOB_NOMATCH)
       expect(type(globlist)).to_be "nil"
       rmtmp(dir)
 
@@ -47,6 +47,19 @@ specify posix.glob:
       touch("match")
       globlist = glob("*", 0)
       expect(type(globlist)).to_be "table"
+      rmtmp(dir)
+
+  - it ignores non-readable directories:
+      dir = mkdtemp(template)
+      chdir(dir)
+      mkdir("readable")
+      mkdir("unreadable")
+      touch("readable/match")
+      touch("unreadable/match")
+      chmod("unreadable", "a-rwx")
+      globlist, err = glob("*/match", 0)
+      expect(globlist).to_equal {"readable/match"}
+      chmod("unreadable", "u+rwx")
       rmtmp(dir)
 
   - it matches files in the current directory:
@@ -71,6 +84,12 @@ specify posix.glob:
       expect(type(globlist)).to_be "table"
       expect(globlist).to_equal {"bar", "foo", "test.1", "test.2"}
       rmtmp(dir)
+
+  - it returns unmatched pattern for GLOB_NOCHECK:
+      dir = mkdtemp(template)
+      chdir(dir)
+      globlist = glob("nomatch", M.GLOB_NOCHECK)
+      expect(globlist).to_equal {"nomatch"}
 
   - it uses '*' as the pattern if pattern is nil:
       dir = mkdtemp(template)
