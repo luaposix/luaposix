@@ -98,7 +98,7 @@ local _ENV = require 'std.normalize' {
    'string.sub',
 
    CLOCK_MONOTONIC = require 'posix.time'.CLOCK_MONOTONIC,
-   CLOCK_PROCESS_TIME_ID = require 'posix.time'.CLOCK_PROCESS_TIME_ID,
+   CLOCK_PROCESS_CPUTIME_ID = require 'posix.time'.CLOCK_PROCESS_CPUTIME_ID,
    CLOCK_REALTIME = require 'posix.time'.CLOCK_REALTIME,
    CLOCK_THREAD_CPUTIME_ID = require 'posix.time'.CLOCK_THREAD_CPUTIME_ID,
    clock_getres = require 'posix.time'.clock_getres or false,
@@ -258,20 +258,22 @@ local function doselection(name, argoffset, fields, map)
 end
 
 
+local get_clk_id_const
+
 local Pclock_getres
 if clock_getres then
    -- When supported by underlying system
-   local function get_clk_id_const(name)
+   get_clk_id_const = function(name)
       local map = {
          monotonic = CLOCK_MONOTONIC,
-         process_cputime_id = CLOCK_PROCESS_TIME_ID,
+         process_cputime_id = CLOCK_PROCESS_CPUTIME_ID,
          thread_cputime_id = CLOCK_THREAD_CPUTIME_ID,
       }
       return map[name] or CLOCK_REALTIME
    end
 
    Pclock_getres = argscheck('clock_getres(?string)', function(name)
-      local ts = clock_getres(get_clk_id_const(name))
+      local ts = require 'posix.time'.clock_getres(get_clk_id_const(name))
       return ts.tv_sec, ts.tv_nsec
    end)
 end
@@ -281,7 +283,7 @@ local Pclock_gettime
 if clock_gettime then
    -- When supported by underlying system
    Pclock_gettime = argscheck('clock_gettime(?string)', function(name)
-      local ts = _clock_gettime(get_clk_id_const(name))
+      local ts = require 'posix.time'.clock_gettime(get_clk_id_const(name))
       return ts.tv_sec, ts.tv_nsec
    end)
 end

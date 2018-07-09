@@ -2,6 +2,11 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### Bugs Fixed
+
+  - `posix.deprecated.clock_getres` and `posix.deprecated.clock_gettime`
+    work again.
+
 ### New Features
 
   - `posix.sys.socket` now supports IPV6 link-local addresses.

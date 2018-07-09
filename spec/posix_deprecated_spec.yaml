@@ -193,6 +193,20 @@ specify posix.deprecated:
          badargs.diagnose(clock_getres, "clock_getres(?string)")
       end
 
+  - it takes deprecated string arguments:
+      if clock_getres then
+         local time = require 'posix.time'
+
+         expect(clock_getres()).
+            to_be(time.clock_getres(time.CLOCK_REALTIME).tv_sec)
+         expect(clock_getres 'monotonic').
+            to_be(time.clock_getres(time.CLOCK_MONOTONIC).tv_sec)
+         expect(clock_getres 'process_cputime_id').
+            to_be(time.clock_getres(time.CLOCK_PROCESS_CPUTIME_ID).tv_sec)
+         expect(clock_getres 'thread_cputime_id').
+            to_be(time.clock_getres(time.CLOCK_THREAD_CPUTIME_ID).tv_sec)
+      end
+
 
 - describe clock_gettime:
   - before:
@@ -201,6 +215,20 @@ specify posix.deprecated:
   - context with bad arguments:
       if clock_gettime then
          badargs.diagnose(clock_gettime, "clock_gettime(?string)")
+      end
+
+  - it takes deprecated string arguments:
+      if clock_gettime then
+         local time = require 'posix.time'
+
+         expect(clock_gettime()).
+            to_be(time.clock_gettime(time.CLOCK_REALTIME).tv_sec)
+         expect(clock_gettime 'monotonic').
+            to_be(time.clock_gettime(time.CLOCK_MONOTONIC).tv_sec)
+         expect(clock_gettime 'process_cputime_id').
+            to_be(time.clock_gettime(time.CLOCK_PROCESS_CPUTIME_ID).tv_sec)
+         expect(clock_gettime 'thread_cputime_id').
+            to_be(time.clock_gettime(time.CLOCK_THREAD_CPUTIME_ID).tv_sec)
       end
 
 
