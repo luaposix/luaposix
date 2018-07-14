@@ -52,8 +52,7 @@ Pdir(lua_State *L)
 			lua_rawseti(L, -2, i);
 		}
 		closedir(d);
-		lua_pushinteger(L, i-1);
-		return 2;
+		return 1;
 	}
 }
 
