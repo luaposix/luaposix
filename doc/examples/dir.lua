@@ -3,7 +3,7 @@
 local M = require 'posix.dirent'
 
 
-local ok, files = pcall(M.dir '/var/log')
+local ok, files = pcall(M.dir, '/var/log')
 if not ok then
    print('/var/log: ' .. files)
 end
