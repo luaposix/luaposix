@@ -13,42 +13,44 @@
 
 
 local _ENV = require 'std.normalize' {
-   'bit32.band',
-   'bit32.bnot',
-   'bit32.bor',
-   'posix._base.MODE_MAP',
-   'posix._base.argscheck',
-   'posix._base.pushmode',
-   'posix.fcntl.O_CREAT',
-   'posix.fcntl.O_TRUNC',
-   'posix.fcntl.O_WRONLY',
-   'posix.fcntl.open',
-   'posix.syslog.LOG_MASK',
-   'posix.syslog.setlogmask',
-   'posix.sys.msg.msgget',
-   'posix.sys.stat.S_IRUSR',
-   'posix.sys.stat.S_IWUSR',
-   'posix.sys.stat.S_IXUSR',
-   'posix.sys.stat.S_IRGRP',
-   'posix.sys.stat.S_IWGRP',
-   'posix.sys.stat.S_IXGRP',
-   'posix.sys.stat.S_IROTH',
-   'posix.sys.stat.S_IWOTH',
-   'posix.sys.stat.S_IXOTH',
-   'posix.sys.stat.S_ISUID',
-   'posix.sys.stat.S_ISGID',
-   'posix.sys.stat.S_IRWXU',
-   'posix.sys.stat.S_IRWXG',
-   'posix.sys.stat.S_IRWXO',
-   'posix.sys.stat.chmod',
-   'posix.sys.stat.mkdir',
-   'posix.sys.stat.mkfifo',
-   'posix.sys.stat.stat',
-   'posix.sys.stat.umask',
-   'string.gsub',
-   'string.match',
-   'string.sub',
-   'table.concat',
+   LOG_MASK = require 'posix.syslog'.LOG_MASK,
+   MODE_MAP = require 'posix._base'.MODE_MAP,
+   O_CREAT = require 'posix.fcntl'.O_CREAT,
+   O_TRUNC = require 'posix.fcntl'.O_TRUNC,
+   O_WRONLY = require 'posix.fcntl'.O_WRONLY,
+   S_IRGRP = require 'posix.sys.stat'.S_IRGRP,
+   S_IROTH = require 'posix.sys.stat'.S_IROTH,
+   S_IRUSR = require 'posix.sys.stat'.S_IRUSR,
+   S_IRWXG = require 'posix.sys.stat'.S_IRWXG,
+   S_IRWXO= require 'posix.sys.stat'.S_IRWXO,
+   S_IRWXU = require 'posix.sys.stat'.S_IRWXU,
+   S_ISGID = require 'posix.sys.stat'.S_ISGID,
+   S_ISUID = require 'posix.sys.stat'.S_ISUID,
+   S_IWGRP = require 'posix.sys.stat'.S_IWGRP,
+   S_IWOTH = require 'posix.sys.stat'.S_IWOTH,
+   S_IWUSR = require 'posix.sys.stat'.S_IWUSR,
+   S_IXGRP = require 'posix.sys.stat'.S_IXGRP,
+   S_IXOTH = require 'posix.sys.stat'.S_IXOTH,
+   S_IXUSR = require 'posix.sys.stat'.S_IXUSR,
+   argerror = require 'posix._base'.argscheck,
+   argscheck = require 'posix._base'.argscheck,
+   band = require 'bit32'.band,
+   bnot = require 'bit32'.bnot,
+   bor = require 'bit32'.bor,
+   chmod = require 'posix.sys.stat'.chmod,
+   concat = table.concat,
+   gsub = string.gsub,
+   match = string.match,
+   mkdir = require 'posix.sys.stat'.mkdir,
+   mkfifo = require 'posix.sys.stat'.mkfifo,
+   msgget = require 'posix.sys.msg'.msgget,
+   open = require 'posix.fcntl'.open,
+   pushmode = require 'posix._base'.pushmode,
+   setlogmask = require 'posix.syslog'.setlogmask,
+   stat = require 'posix.sys.stat'.stat,
+   sub = string.sub,
+   tonumber = tonumber,
+   umask = require 'posix.sys.stat'.umask,
 }
 
 
@@ -262,9 +264,10 @@ return {
    -- @treturn[2] string error message
    -- @treturn[2] int errnum
    setlogmask = argscheck('setlogmask(?int...)', function(...)
-      local mask = 0
-      for _, v in ipairs {...} do
-         mask = bor(mask, LOG_MASK(v))
+      local mask, i, t = 0, 1, {...}
+      while t[i] do
+         mask = bor(mask, LOG_MASK(t[i]))
+         i = i + 1
       end
       return setlogmask(mask)
    end),

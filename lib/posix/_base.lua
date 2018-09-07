@@ -11,24 +11,25 @@
 ]]
 
 
-
 local HAVE_TYPECHECK, typecheck = pcall(require, 'typecheck')
 
 
-local _ENV = require 'std.normalize' {
-   'bit32.band',
-   'posix.sys.stat.S_IRUSR',
-   'posix.sys.stat.S_IWUSR',
-   'posix.sys.stat.S_IXUSR',
-   'posix.sys.stat.S_IRGRP',
-   'posix.sys.stat.S_IWGRP',
-   'posix.sys.stat.S_IXGRP',
-   'posix.sys.stat.S_IROTH',
-   'posix.sys.stat.S_IWOTH',
-   'posix.sys.stat.S_IXOTH',
-   'posix.sys.stat.S_ISUID',
-   'posix.sys.stat.S_ISGID',
-   'table.concat',
+local _ENV = require 'posix._strict' {
+   S_IRUSR = require 'posix.sys.stat'.S_IRUSR,
+   S_IWUSR = require 'posix.sys.stat'.S_IWUSR,
+   S_IXUSR = require 'posix.sys.stat'.S_IXUSR,
+   S_IRGRP = require 'posix.sys.stat'.S_IRGRP,
+   S_IWGRP = require 'posix.sys.stat'.S_IWGRP,
+   S_IXGRP = require 'posix.sys.stat'.S_IXGRP,
+   S_IROTH = require 'posix.sys.stat'.S_IROTH,
+   S_IWOTH = require 'posix.sys.stat'.S_IWOTH,
+   S_IXOTH = require 'posix.sys.stat'.S_IXOTH,
+   S_ISUID = require 'posix.sys.stat'.S_ISUID,
+   S_ISGID = require 'posix.sys.stat'.S_ISGID,
+   band = require 'bit32'.band,
+   concat = table.concat,
+   error = error,
+   format = string.format,
 }
 
 
@@ -41,6 +42,15 @@ local MODE_MAP = {
 
 return {
    MODE_MAP = MODE_MAP,
+
+   argerror = function(name, i, extramsg, level)
+      level = level or 1
+      local s = format("bad argument #%d to '%s'", i, name)
+      if extramsg ~= nil then
+         s = s .. ' (' .. extramsg .. ')'
+      end
+      error(s, level + 1)
+   end,
 
    argscheck = HAVE_TYPECHECK and typecheck.argscheck or function(_, fn)
       return fn

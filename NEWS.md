@@ -17,6 +17,9 @@
 
   - `posix.sys.socket` now supports IPV6 link-local addresses.
 
+  - use `std.strict`, `std._debug` and `typecheck` modules when available,
+    otherwise behave normally without those additional runtime checks.
+
 
 ## Noteworthy changes in release 34.0.4 (2018-02-20) [stable]
 

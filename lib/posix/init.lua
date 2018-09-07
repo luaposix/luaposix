@@ -19,41 +19,50 @@
 
 
 
-local _ENV = require 'std.normalize' {
-   'bit32.bor',
-   'os.exit',
-   'posix._base.argscheck',
-   'posix.errno.errno',
-   'posix.errno.set_errno',
-   'posix.fcntl.O_RDWR',
-   'posix.fcntl.O_NOCTTY',
-   'posix.fcntl.open',
-   'posix.glob.GLOB_MARK',
-   'posix.glob.glob',
-   'posix.stdlib.grantpt',
-   'posix.stdlib.openpt',
-   'posix.stdlib.ptsname',
-   'posix.stdlib.unlockpt',
-   'posix.sys.stat.stat',
-   'posix.sys.wait.wait',
-   'posix.unistd.STDIN_FILENO',
-   'posix.unistd.STDOUT_FILENO',
-   'posix.unistd._exit',
-   'posix.unistd.access',
-   'posix.unistd.close',
-   'posix.unistd.dup2',
-   'posix.unistd.execp',
-   'posix.unistd.fork',
-   'posix.unistd.getegid',
-   'posix.unistd.geteuid',
-   'posix.unistd.getgid',
-   'posix.unistd.getuid',
-   'posix.unistd.pipe',
-   'string.gsub',
-   'string.match',
-   'string.sub',
-   'table.insert',
-   'table.remove',
+local _ENV = require 'posix._strict' {
+   GLOB_MARK = require 'posix.glob'.GLOB_MARK,
+   O_NOCTTY = require 'posix.fcntl'.O_NOCTTY,
+   O_RDWR = require 'posix.fcntl'.O_RDWR,
+   STDIN_FILENO = require 'posix.unistd'.STDIN_FILENO,
+   STDOUT_FILENO = require 'posix.unistd'.STDOUT_FILENO,
+   _exit = require 'posix.unistd'._exit,
+   access = require 'posix.unistd'.access,
+   argscheck = require 'posix._base'.argscheck,
+   assert = assert,
+   bor = require 'bit32'.bor,
+   close = require 'posix.unistd'.close,
+   dup2 = require 'posix.unistd'.dup2,
+   errno = require 'posix.errno'.errno,
+   error = error,
+   execp = require 'posix.unistd'.execp,
+   exit = os.exit,
+   fork = require 'posix.unistd'.fork,
+   getegid = require 'posix.unistd'.getegid,
+   geteuid = require 'posix.unistd'.geteuid,
+   getgid = require 'posix.unistd'.getgid,
+   getuid= require 'posix.unistd'.getuid,
+   glob = require 'posix.glob'.glob,
+   grantpt = require 'posix.stdlib'.grantpt,
+   gsub = string.gsub,
+   insert = table.insert,
+   match = string.match,
+   next = next,
+   open = require 'posix.fcntl'.open,
+   openpt = require 'posix.stdlib'.openpt,
+   pcall = pcall,
+   pipe = require 'posix.unistd'.pipe,
+   ptsname = require 'posix.stdlib'.ptsname,
+   rawset = rawset,
+   remove = table.remove,
+   require = require,
+   set_errno = require 'posix.errno'.set_errno,
+   setmetatable = setmetatable,
+   stat = require 'posix.sys.stat'.stat,
+   sub = string.sub,
+   tonumber = tonumber,
+   type = type,
+   unlockpt = require 'posix.stdlib'.unlockpt,
+   wait = require 'posix.sys.wait'.wait,
 }
 
 
@@ -77,7 +86,7 @@ local function Peuidaccess(file, mode)
 
    -- The super-user can read and write any file, and execute any file
    -- that anyone can execute.
-   if euid == 0 and((not match(mode, 'x')) or match(stats.st_mode, 'x')) then
+   if euid == 0 and ((not match(mode, 'x')) or match(stats.st_mode, 'x')) then
       return 0
    end
 
@@ -239,18 +248,18 @@ end
 local function Ptimeradd(x, y)
    local sec, usec = 0, 0
    if x.tv_sec or x.tv_usec then
-      sec = sec +(tonumber(x.tv_sec) or 0)
-      usec = usec +(tonumber(x.tv_usec) or 0)
+      sec = sec + (tonumber(x.tv_sec) or 0)
+      usec = usec + (tonumber(x.tv_usec) or 0)
    else
-      sec = sec +(tonumber(x.sec) or 0)
-      usec = usec +(tonumber(x.usec) or 0)
+      sec = sec + (tonumber(x.sec) or 0)
+      usec = usec + (tonumber(x.usec) or 0)
    end
    if y.tv_sec or y.tv_usec then
-      sec = sec +(tonumber(y.tv_sec) or 0)
-      usec = usec +(tonumber(y.tv_usec) or 0)
+      sec = sec + (tonumber(y.tv_sec) or 0)
+      usec = usec + (tonumber(y.tv_usec) or 0)
    else
-      sec = sec +(tonumber(y.sec) or 0)
-      usec = usec +(tonumber(y.usec) or 0)
+      sec = sec + (tonumber(y.sec) or 0)
+      usec = usec + (tonumber(y.usec) or 0)
    end
    while usec > 1000000 do
       sec = sec + 1
@@ -275,18 +284,18 @@ end
 local function Ptimersub(x,y)
    local sec, usec = 0, 0
    if x.tv_sec or x.tv_usec then
-      sec =(tonumber(x.tv_sec) or 0)
-      usec =(tonumber(x.tv_usec) or 0)
+      sec = (tonumber(x.tv_sec) or 0)
+      usec = (tonumber(x.tv_usec) or 0)
    else
-      sec =(tonumber(x.sec) or 0)
-      usec =(tonumber(x.usec) or 0)
+      sec = (tonumber(x.sec) or 0)
+      usec = (tonumber(x.usec) or 0)
    end
    if y.tv_sec or y.tv_usec then
-      sec = sec -(tonumber(y.tv_sec) or 0)
-      usec = usec -(tonumber(y.tv_usec) or 0)
+      sec = sec - (tonumber(y.tv_sec) or 0)
+      usec = usec - (tonumber(y.tv_usec) or 0)
    else
-      sec = sec -(tonumber(y.sec) or 0)
-      usec = usec -(tonumber(y.usec) or 0)
+      sec = sec - (tonumber(y.sec) or 0)
+      usec = usec - (tonumber(y.usec) or 0)
    end
    while usec < 0 do
       sec = sec - 1
@@ -299,15 +308,17 @@ end
 -- For backwards compatibility, copy all table entries into M namespace.
 local M = {}
 do
-   for _, name in ipairs {
+   local names = {
       'ctype', 'dirent', 'errno', 'fcntl', 'fnmatch', 'glob', 'grp',
       'libgen', 'poll', 'pwd', 'sched', 'signal', 'stdio', 'stdlib', 'sys.msg',
       'sys.resource', 'sys.socket', 'sys.stat', 'sys.statvfs', 'sys.time',
       'sys.times', 'sys.utsname', 'sys.wait', 'syslog', 'termio', 'time',
       'unistd', 'utime'
-   } do
+   }
+   for i = 1, #names do
+      local name = names[i]
       local t = require('posix.' .. name)
-      for k, v in pairs(t) do
+      for k, v in next, t do
          if k ~= 'version' then
             assert(M[k] == nil, 'posix namespace clash: ' .. name .. '.' .. k)
             M[k] = v
@@ -315,11 +326,11 @@ do
       end
    end
 
-   -- Inject deprecated APIs(overwriting submodules) for backwards compatibility.
-   for k, v in pairs(require 'posix.deprecated') do
+   -- Inject deprecated APIs (overwriting submodules) for backwards compatibility.
+   for k, v in next, require 'posix.deprecated' do
       M[k] = v
    end
-   for k, v in pairs(require 'posix.compat') do
+   for k, v in next, require 'posix.compat' do
       M[k] = v
    end
 end

@@ -10,100 +10,107 @@
  @module posix.deprecated
 ]]
 
+local HAVE_DEBUG, _debug = pcall(require, 'std._debug')
 
-
-local _ENV = require 'std.normalize' {
-   'std._debug',
-   'bit32.bor',
-   'posix._base.argscheck',
-   'posix._base.pushmode',
-   'posix.ctype.isgraph',
-   'posix.ctype.isprint',
-   'posix.fnmatch.FNM_NOMATCH',
-   'posix.fnmatch.fnmatch',
-   'posix.grp.getgrgid',
-   'posix.grp.getgrnam',
-   'posix.pwd.getpwnam',
-   'posix.pwd.getpwuid',
-   'posix.stdio.fileno',
-   'posix.sys.resource.RLIMIT_CORE',
-   'posix.sys.resource.RLIMIT_CPU',
-   'posix.sys.resource.RLIMIT_DATA',
-   'posix.sys.resource.RLIMIT_FSIZE',
-   'posix.sys.resource.RLIMIT_NOFILE',
-   'posix.sys.resource.RLIMIT_STACK',
-   'posix.sys.resource.RLIMIT_AS',
-   'posix.sys.resource.getrlimit',
-   'posix.sys.resource.setrlimit',
-   'posix.sys.socket.bind',
-   'posix.sys.socket.connect',
-   'posix.sys.stat.S_ISREG',
-   'posix.sys.stat.S_ISLNK',
-   'posix.sys.stat.S_ISDIR',
-   'posix.sys.stat.S_ISCHR',
-   'posix.sys.stat.S_ISBLK',
-   'posix.sys.stat.S_ISFIFO',
-   'posix.sys.stat.S_ISSOCK',
-   'posix.sys.stat.lstat',
-   'posix.sys.statvfs.statvfs',
-   'posix.sys.time.gettimeofday',
-   'posix.sys.times.times',
-   'posix.sys.utsname.uname',
-   'posix.syslog.LOG_CONS',
-   'posix.syslog.LOG_NDELAY',
-   'posix.syslog.LOG_PID',
-   'posix.syslog.openlog',
-   'posix.time.gmtime',
-   'posix.time.localtime',
-   'posix.time.mktime',
-   'posix.time.nanosleep',
-   'posix.time.strftime',
-   'posix.time.strptime',
-   'posix.time.time',
-   'posix.unistd._PC_CHOWN_RESTRICTED',
-   'posix.unistd._PC_LINK_MAX',
-   'posix.unistd._PC_MAX_CANON',
-   'posix.unistd._PC_MAX_INPUT',
-   'posix.unistd._PC_NAME_MAX',
-   'posix.unistd._PC_NO_TRUNC',
-   'posix.unistd._PC_PATH_MAX',
-   'posix.unistd._PC_PIPE_BUF',
-   'posix.unistd._PC_VDISABLE',
-   'posix.unistd._SC_ARG_MAX',
-   'posix.unistd._SC_CHILD_MAX',
-   'posix.unistd._SC_CLK_TCK',
-   'posix.unistd._SC_JOB_CONTROL',
-   'posix.unistd._SC_NGROUPS_MAX',
-   'posix.unistd._SC_OPEN_MAX',
-   'posix.unistd._SC_PAGESIZE',
-   'posix.unistd._SC_SAVED_IDS',
-   'posix.unistd._SC_STREAM_MAX',
-   'posix.unistd._SC_TZNAME_MAX',
-   'posix.unistd._SC_VERSION',
-   'posix.unistd.exec',
-   'posix.unistd.execp',
-   'posix.unistd.getegid',
-   'posix.unistd.geteuid',
-   'posix.unistd.getgid',
-   'posix.unistd.gethostid',
-   'posix.unistd.getpid',
-   'posix.unistd.getpgrp',
-   'posix.unistd.getppid',
-   'posix.unistd.getuid',
-   'posix.unistd.pathconf',
-   'posix.unistd.sysconf',
-   'string.format',
-   'string.gsub',
-   'string.lower',
-   'string.sub',
-
+local _ENV = require 'posix._strict' {
    CLOCK_MONOTONIC = require 'posix.time'.CLOCK_MONOTONIC,
    CLOCK_PROCESS_CPUTIME_ID = require 'posix.time'.CLOCK_PROCESS_CPUTIME_ID,
    CLOCK_REALTIME = require 'posix.time'.CLOCK_REALTIME,
    CLOCK_THREAD_CPUTIME_ID = require 'posix.time'.CLOCK_THREAD_CPUTIME_ID,
+   FNM_NOMATCH = require 'posix.fnmatch'.FNM_NOMATCH,
+   LOG_CONS = require 'posix.syslog'.LOG_CONS,
+   LOG_NDELAY = require 'posix.syslog'.LOG_NDELAY,
+   LOG_PID = require 'posix.syslog'.LOG_PID,
+   RLIMIT_AS = require 'posix.sys.resource'.RLIMIT_AS,
+   RLIMIT_CORE = require 'posix.sys.resource'.RLIMIT_CORE,
+   RLIMIT_CPU = require 'posix.sys.resource'.RLIMIT_CPU,
+   RLIMIT_DATA = require 'posix.sys.resource'.RLIMIT_DATA,
+   RLIMIT_FSIZE = require 'posix.sys.resource'.RLIMIT_FSIZE,
+   RLIMIT_NOFILE = require 'posix.sys.resource'.RLIMIT_NOFILE,
+   RLIMIT_STACK = require 'posix.sys.resource'.RLIMIT_STACK,
+   S_ISBLK = require 'posix.sys.stat'.S_ISBLK,
+   S_ISCHR = require 'posix.sys.stat'.S_ISCHR,
+   S_ISDIR = require 'posix.sys.stat'.S_ISDIR,
+   S_ISFIFO = require 'posix.sys.stat'.S_ISFIFO,
+   S_ISLNK = require 'posix.sys.stat'.S_ISLNK,
+   S_ISREG = require 'posix.sys.stat'.S_ISREG,
+   S_ISSOCK = require 'posix.sys.stat'.S_ISSOCK,
+   _PC_CHOWN_RESTRICTED = require 'posix.unistd'._PC_CHOWN_RESTRICTED,
+   _PC_LINK_MAX = require 'posix.unistd'._PC_LINK_MAX,
+   _PC_MAX_CANON = require 'posix.unistd'._PC_MAX_CANON,
+   _PC_MAX_INPUT = require 'posix.unistd'._PC_MAX_INPUT,
+   _PC_NAME_MAX = require 'posix.unistd'._PC_NAME_MAX,
+   _PC_NO_TRUNC = require 'posix.unistd'._PC_NO_TRUNC,
+   _PC_PATH_MAX = require 'posix.unistd'._PC_PATH_MAX,
+   _PC_PIPE_BUF = require 'posix.unistd'._PC_PIPE_BUF,
+   _PC_VDISABLE = require 'posix.unistd'._PC_VDISABLE,
+   _SC_ARG_MAX = require 'posix.unistd'._SC_ARG_MAX,
+   _SC_CHILD_MAX = require 'posix.unistd'._SC_CHILD_MAX,
+   _SC_CLK_TCK = require 'posix.unistd'._SC_CLK_TCK,
+   _SC_JOB_CONTROL = require 'posix.unistd'._SC_JOB_CONTROL,
+   _SC_NGROUPS_MAX = require 'posix.unistd'._SC_NGROUPS_MAX,
+   _SC_OPEN_MAX = require 'posix.unistd'._SC_OPEN_MAX,
+   _SC_PAGESIZE = require 'posix.unistd'._SC_PAGESIZE,
+   _SC_SAVED_IDS = require 'posix.unistd'._SC_SAVED_IDS,
+   _SC_STREAM_MAX = require 'posix.unistd'._SC_STREAM_MAX,
+   _SC_TZNAME_MAX = require 'posix.unistd'._SC_TZNAME_MAX,
+   _SC_VERSION = require 'posix.unistd'._SC_VERSION,
+   _debug = HAVE_DEBUG and _debug or {},
+   argerror = require 'posix._base'.argerror,
+   argscheck = require 'posix._base'.argscheck,
+   bind = require 'posix.sys.socket'.bind,
+   bor = require 'bit32'.bor,
    clock_getres = require 'posix.time'.clock_getres or false,
    clock_gettime = require 'posix.time'.clock_gettime or false,
+   connect = require 'posix.sys.socket'.connect,
+   error = error,
+   exec = require 'posix.unistd'.exec,
+   execp = require 'posix.unistd'.execp,
+   fileno = require 'posix.stdio'.fileno,
+   fnmatch = require 'posix.fnmatch'.fnmatch,
+   format = string.format,
+   getegid = require 'posix.unistd'.getegid,
+   geteuid = require 'posix.unistd'.geteuid,
+   getgid = require 'posix.unistd'.getgid,
+   getgrgid = require 'posix.grp'.getgrgid,
+   getgrnam = require 'posix.grp'.getgrnam,
+   gethostid = require 'posix.unistd'.gethostid,
+   getpgrp = require 'posix.unistd'.getpgrp,
+   getppid = require 'posix.unistd'.getppid,
+   getpwnam = require 'posix.pwd'.getpwnam,
+   getpwuid = require 'posix.pwd'.getpwuid,
+   getrlimit = require 'posix.sys.resource'.getrlimit,
+   gettimeofday = require 'posix.sys.time'.gettimeofday,
+   getuid = require 'posix.unistd'.getuid,
+   getpid = require 'posix.unistd'.getpid,
+   gmtime = require 'posix.time'.gmtime,
+   gsub = string.gsub,
+   isgraph = require 'posix.ctype'.isgraph,
+   isprint = require 'posix.ctype'.isprint,
+   localtime = require 'posix.time'.localtime,
+   lower = string.lower,
+   lstat = require 'posix.sys.stat'.lstat,
+   mktime = require 'posix.time'.mktime,
+   nanosleep = require 'posix.time'.nanosleep,
+   next = next,
+   nonempty = next,
+   openlog = require 'posix.syslog'.openlog,
+   pathconf = require 'posix.unistd'.pathconf,
    posix_fadvise = require 'posix.fcntl'.posix_fadvise or false,
+   pushmode = require 'posix._base'.pushmode,
+   require = require,
+   select = select,
+   setrlimit = require 'posix.sys.resource'.setrlimit,
+   statvfs = require 'posix.sys.statvfs'.statvfs,
+   strftime = require 'posix.time'.strftime,
+   strptime = require 'posix.time'.strptime,
+   sub = string.sub,
+   sysconf = require 'posix.unistd'.sysconf,
+   time = require 'posix.time'.time,
+   times = require 'posix.sys.times'.times,
+   type = type,
+   uname = require 'posix.sys.utsname'.uname,
+   unpack = table.unpack or unpack,
 }
 
 
@@ -161,16 +168,6 @@ local function LegacyTm(posixtm)
       yearday = posixtm.tm_yday,
       is_dst = posixtm.tm_isdst ~= 0,
    }
-end
-
-
-local function argerror(name, i, extramsg, level)
-   level = level or 1
-   local s = format("bad argument #%d to '%s'", i, name)
-   if extramsg ~= nil then
-      s = s .. ' (' .. extramsg .. ')'
-   end
-   error(s, level + 1)
 end
 
 
@@ -242,11 +239,10 @@ local function doselection(name, argoffset, fields, map)
       fields = fields[1]
    end
 
-   if not(next(fields)) then
-      return map
-   else
+   if nonempty(fields) then
       local r = {}
-      for i, v in ipairs(fields) do
+      for i = 1, #fields do
+         local v = fields[i]
          if map[v] then
             r[#r + 1] = map[v]
          else
@@ -254,6 +250,8 @@ local function doselection(name, argoffset, fields, map)
          end
       end
       return unpack(r)
+   else
+      return map
    end
 end
 
@@ -303,7 +301,7 @@ if _debug.argcheck then
       local argt = (...)
       if type(argt) == 'string' then
          argt = {...}
-         for i in ipairs(argt) do
+         for i = 1, #argt do
             checkstring('exec', i + 1, argt[i])
          end
       elseif type(argt) == 'table' then
@@ -333,7 +331,7 @@ if _debug.argcheck then
       local argt = (...)
       if type(argt) == 'string' then
          argt = {...}
-         for i in ipairs(argt) do
+         for i = 1, #argt do
             checkstring('execp', i + 1, argt[i])
          end
       elseif type(argt) == 'table' then
@@ -429,7 +427,7 @@ local function Ppathconf(path, ...)
    if path ~= nil and Spathconf[path] ~= nil then
       path, argt = '.', {path, ...}
    end
-   for k, v in pairs(Spathconf) do
+   for k, v in next, Spathconf do
       map[k] = pathconf(path or '.', v)
    end
    return doselection('pathconf', 1, {...}, map)
