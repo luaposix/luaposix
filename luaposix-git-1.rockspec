@@ -14,7 +14,6 @@ description = {
 }
 
 dependencies = {
-   'bit32',
    'lua >= 5.1, < 5.4',
 }
 

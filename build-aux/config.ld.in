@@ -19,6 +19,7 @@ file = {
   "../lib/posix/init.lua",
   "../lib/posix/compat.lua",  -- Documents added to posix module
 
+  "../ext/posix/bit32.c",
   "../ext/posix/ctype.c",
   "../ext/posix/dirent.c",
   "../ext/posix/errno.c",

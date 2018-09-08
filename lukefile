@@ -40,6 +40,7 @@ modules  = {
    ['posix.sys']           = 'lib/posix/sys.lua',
    ['posix.util']          = 'lib/posix/util.lua',
 
+   ['posix.bit32']         = 'ext/posix/bit32.c',
    ['posix.ctype']         = 'ext/posix/ctype.c',
    ['posix.dirent']        = 'ext/posix/dirent.c',
    ['posix.errno']         = 'ext/posix/errno.c',

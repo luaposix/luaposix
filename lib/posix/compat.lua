@@ -11,7 +11,6 @@
 ]]
 
 
-
 local _ENV = require 'std.normalize' {
    LOG_MASK = require 'posix.syslog'.LOG_MASK,
    MODE_MAP = require 'posix._base'.MODE_MAP,
@@ -34,9 +33,9 @@ local _ENV = require 'std.normalize' {
    S_IXUSR = require 'posix.sys.stat'.S_IXUSR,
    argerror = require 'posix._base'.argscheck,
    argscheck = require 'posix._base'.argscheck,
-   band = require 'bit32'.band,
-   bnot = require 'bit32'.bnot,
-   bor = require 'bit32'.bor,
+   band = require 'posix.bit32'.band,
+   bnot = require 'posix.bit32'.bnot,
+   bor = require 'posix.bit32'.bor,
    chmod = require 'posix.sys.stat'.chmod,
    concat = table.concat,
    gsub = string.gsub,
@@ -56,7 +55,6 @@ local _ENV = require 'std.normalize' {
 
 local RWXALL = bor(S_IRWXU, S_IRWXG, S_IRWXO)
 local FCREAT = bor(O_CREAT, O_WRONLY, O_TRUNC)
-
 
 -- FIXME: specl-14.x breaks function environments here :(
 local pushmode = pushmode

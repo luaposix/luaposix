@@ -13,7 +13,7 @@ specify posix.unistd:
 
 
 - before: |
-    bit = require "bit32"
+    bit = require "posix.bit32"
     fcntl = require "posix.fcntl"
     pwd = require "posix.pwd"
 

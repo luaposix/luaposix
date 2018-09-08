@@ -20,6 +20,8 @@
   - use `std.strict`, `std._debug` and `typecheck` modules when available,
     otherwise behave normally without those additional runtime checks.
 
+  - no dependency on external bit32 library, by reintroducing `posix.bit32`.
+
 
 ## Noteworthy changes in release 34.0.4 (2018-02-20) [stable]
 
