@@ -23,6 +23,8 @@
 #endif
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <grp.h>
+#include <pwd.h>
 #include <unistd.h>
 
 #include "_helpers.c"
