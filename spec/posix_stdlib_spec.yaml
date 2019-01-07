@@ -26,10 +26,11 @@ specify posix.stdlib:
 
   - it fetches a table of process environment variables: |
       volatile = { _=true, CWD=true, LUA_PATH=true, PWD=true, SHLVL=true, }
+      ESC = string.char(27)
       for k,v in pairs(getenv()) do
          if not volatile[k] then
-            expect(hell.spawn('echo "' .. k .. '=$' .. k .. '"')).
-               to_contain_output(k.."="..v)
+            expect(hell.spawn('echo "' .. k .. '=$' .. k .. '" | tr "' .. ESC .. '" "^"')).
+               to_contain_output(k .. "=" .. string.gsub(v, '\\033', '^'))
          end
       end
   - it fetches a named process environment variable:
