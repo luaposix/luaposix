@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 34.0.4 Reference</title>
+    <title>luaposix 34.1 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 34.0.4</h1>
+<h1>luaposix 34.1</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -34,6 +34,7 @@
 <ul>
 <li><a href="#Functions">Functions</a></li>
 <li><a href="#Tables">Tables</a></li>
+<li><a href="#Constants">Constants </a></li>
 </ul>
 
 
@@ -152,6 +153,13 @@
 	<td class="summary">Datetime record.</td>
 	</tr>
 </table>
+<h2><a href="#Constants">Constants </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#posix.time">posix.time</a></td>
+	<td class="summary">Standard constants.</td>
+	</tr>
+</table>
 
 <br/>
 <br/>
@@ -188,7 +196,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -231,7 +239,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -368,7 +376,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -398,7 +406,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">format</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          specifier with <code>%</code> place-holders
         </li>
         <li><span class="parameter">tm</span>
@@ -410,7 +418,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
         <em>format</em> with place-holders plugged with <em>tm</em> values
     </ol>
 
@@ -433,13 +441,13 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
 
 
 
         </li>
         <li><span class="parameter">format</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
          same as for <code>strftime</code>
         </li>
     </ul>
@@ -581,13 +589,60 @@
 
 </dd>
 </dl>
+    <h2 class="section-header "><a name="Constants"></a>Constants </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "posix.time"></a>
+    <strong>posix.time</strong>
+    </dt>
+    <dd>
+    Standard constants.
+Any constants not available in the underlying system will be <code>nil</code> valued.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">CLOCK_MONOTONIC</span>
+            <span class="types"><span class="type">int</span></span>
+         the identifier for the system-wide monotonic clock
+        </li>
+        <li><span class="parameter">CLOCK_PROCESS_CPUTIME_ID</span>
+            <span class="types"><span class="type">int</span></span>
+         the identifier for the current process CPU-time clock
+        </li>
+        <li><span class="parameter">CLOCK_REALTIME</span>
+            <span class="types"><span class="type">int</span></span>
+         the identifier for the system-wide realtime clock
+        </li>
+        <li><span class="parameter">CLOCK_THREAD_CPUTIME_ID</span>
+            <span class="types"><span class="type">int</span></span>
+         the identifier for the current thread CPU-time clock
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- Print posix.time constants supported on this host.
+</span><span class="keyword">for</span> name, value <span class="keyword">in</span> <span class="global">pairs</span> (<span class="global">require</span> <span class="string">"posix.time"</span>) <span class="keyword">do</span>
+  <span class="keyword">if</span> <span class="global">type</span> (value) == <span class="string">"number"</span> <span class="keyword">then</span>
+    <span class="global">print</span> (name, value)
+   <span class="keyword">end</span>
+<span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+</dl>
 
 
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2018-02-17 19:46:58 </i>
+<i style="float:right;">Last updated 2019-07-20 18:05:53 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
