@@ -1,9 +1,12 @@
 #!/usr/bin/env lua
 --[[ minified code follows, see --help text for source location! ]]
-package.searchers=package.searchers or package.loaders
-for i=2,#package.searchers do
-package.searchers[i]=nil
+local require=function(modname)if package.loaded[modname]==nil then
+if type(package.preload[modname])~="function"then
+io.stderr:write("module '" .. modname .. "' not found:\n   no valid field package.preload['" .. modname .. "']\n")
+return nil
 end
+package.loaded[modname]=package.preload[modname](modname,"package.preload")end
+return package.loaded[modname]end
 package.preload['luke._base']=function()
 local _ENV=require'std.normalize'{}local function fatal(...)local msg=(...)if select('#',...)>1 then
 msg=format(...)end
@@ -14,10 +17,10 @@ end,fatal=fatal,}
 end
 package.preload['luke.cli']=function()
 local _ENV=require'std.normalize'{'luke._base','luke.lukefile','luke.platforms','std.functional',}local function version()print[[
-luke (Luke) 0.1.3
+luke (Luke) 0.1.5
 Written by Gary V. Vaughan <gary@gnu.org>, 2014
 
-Copyright (C) 2018, Gary V. Vaughan
+Copyright (C) 2019, Gary V. Vaughan
 Luke comes with ABSOLUTELY NO WARRANTY.
 You may redistribute copies of Luke under the terms of the MIT license;
 it may be used for any purpose at absolutely no cost, without permission.

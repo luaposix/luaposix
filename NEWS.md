@@ -4,6 +4,8 @@
 
 ### Bugs Fixed
 
+  - `luke` works with upgraded bootstrap luarocks version of `require`.
+
   - `posix.glob.glob` does not return a random errno on failure now, but
     new module constants `GLOB_ABORTED`, `GLOB_NOMATCH` or `GLOB_NOSPACE`.
 
