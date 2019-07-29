@@ -1,16 +1,14 @@
 *~
 *.o
 *.so
-*.html
 *.rockspec
 *.src.rock
 /ChangeLog
 /COPYING
-/doc
 /Makefile
 /build-aux/config.ld
 /lib/posix/version.lua
 /luaposix-*.rockspec
-!/luaposix-git-*.rockspec
+!/luaposix-34.1.1-1.rockspec
 /luaposix-*.tar.gz
 /TAGS
