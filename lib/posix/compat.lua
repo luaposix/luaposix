@@ -11,55 +11,49 @@
 ]]
 
 
+local LOG_MASK = require 'posix.syslog'.LOG_MASK
+local MODE_MAP = require 'posix._base'.MODE_MAP
+local O_CREAT = require 'posix.fcntl'.O_CREAT
+local O_TRUNC = require 'posix.fcntl'.O_TRUNC
+local O_WRONLY = require 'posix.fcntl'.O_WRONLY
+local S_IRGRP = require 'posix.sys.stat'.S_IRGRP
+local S_IROTH = require 'posix.sys.stat'.S_IROTH
+local S_IRUSR = require 'posix.sys.stat'.S_IRUSR
+local S_IRWXG = require 'posix.sys.stat'.S_IRWXG
+local S_IRWXO= require 'posix.sys.stat'.S_IRWXO
+local S_IRWXU = require 'posix.sys.stat'.S_IRWXU
+local S_ISGID = require 'posix.sys.stat'.S_ISGID
+local S_ISUID = require 'posix.sys.stat'.S_ISUID
+local S_IWGRP = require 'posix.sys.stat'.S_IWGRP
+local S_IWOTH = require 'posix.sys.stat'.S_IWOTH
+local S_IWUSR = require 'posix.sys.stat'.S_IWUSR
+local S_IXGRP = require 'posix.sys.stat'.S_IXGRP
+local S_IXOTH = require 'posix.sys.stat'.S_IXOTH
+local S_IXUSR = require 'posix.sys.stat'.S_IXUSR
 
-local _ENV = require 'std.normalize' {
-   LOG_MASK = require 'posix.syslog'.LOG_MASK,
-   MODE_MAP = require 'posix._base'.MODE_MAP,
-   O_CREAT = require 'posix.fcntl'.O_CREAT,
-   O_TRUNC = require 'posix.fcntl'.O_TRUNC,
-   O_WRONLY = require 'posix.fcntl'.O_WRONLY,
-   S_IRGRP = require 'posix.sys.stat'.S_IRGRP,
-   S_IROTH = require 'posix.sys.stat'.S_IROTH,
-   S_IRUSR = require 'posix.sys.stat'.S_IRUSR,
-   S_IRWXG = require 'posix.sys.stat'.S_IRWXG,
-   S_IRWXO= require 'posix.sys.stat'.S_IRWXO,
-   S_IRWXU = require 'posix.sys.stat'.S_IRWXU,
-   S_ISGID = require 'posix.sys.stat'.S_ISGID,
-   S_ISUID = require 'posix.sys.stat'.S_ISUID,
-   S_IWGRP = require 'posix.sys.stat'.S_IWGRP,
-   S_IWOTH = require 'posix.sys.stat'.S_IWOTH,
-   S_IWUSR = require 'posix.sys.stat'.S_IWUSR,
-   S_IXGRP = require 'posix.sys.stat'.S_IXGRP,
-   S_IXOTH = require 'posix.sys.stat'.S_IXOTH,
-   S_IXUSR = require 'posix.sys.stat'.S_IXUSR,
-   argerror = require 'posix._base'.argscheck,
-   argscheck = require 'posix._base'.argscheck,
-   band = require 'bit32'.band,
-   bnot = require 'bit32'.bnot,
-   bor = require 'bit32'.bor,
-   chmod = require 'posix.sys.stat'.chmod,
-   concat = table.concat,
-   gsub = string.gsub,
-   match = string.match,
-   mkdir = require 'posix.sys.stat'.mkdir,
-   mkfifo = require 'posix.sys.stat'.mkfifo,
-   msgget = require 'posix.sys.msg'.msgget,
-   open = require 'posix.fcntl'.open,
-   pushmode = require 'posix._base'.pushmode,
-   setlogmask = require 'posix.syslog'.setlogmask,
-   stat = require 'posix.sys.stat'.stat,
-   sub = string.sub,
-   tonumber = tonumber,
-   umask = require 'posix.sys.stat'.umask,
-}
+local argerror = require 'posix._base'.argerror
+local argscheck = require 'posix._base'.argscheck
+local chmod = require 'posix.sys.stat'.chmod
+local band = require 'bit32'.band
+local bnot = require 'bit32'.bnot
+local bor = require 'bit32'.bor
+local concat = table.concat
+local gsub = string.gsub
+local match = string.match
+local mkdir = require 'posix.sys.stat'.mkdir
+local mkfifo = require 'posix.sys.stat'.mkfifo
+local msgget = require 'posix.sys.msg'.msgget
+local open = require 'posix.fcntl'.open
+local pushmode = require 'posix._base'.pushmode
+local setlogmask = require 'posix.syslog'.setlogmask
+local stat = require 'posix.sys.stat'.stat
+local sub = string.sub
+local tonumber = tonumber
+local umask = require 'posix.sys.stat'.umask
 
 
 local RWXALL = bor(S_IRWXU, S_IRWXG, S_IRWXO)
 local FCREAT = bor(O_CREAT, O_WRONLY, O_TRUNC)
-
-
--- FIXME: specl-14.x breaks function environments here :(
-local pushmode = pushmode
 
 
 local function rwxrwxrwx(modestr)
@@ -138,10 +132,6 @@ local function mode_munch(mode, modestr)
    end
 end
 
-
--- FIXME: specl-14.x breaks function environments here :(
-local O_CREAT, stat, band, bnot, bor, chmod, mkdir, mkfifo, msgget, open, umask =
-   O_CREAT, stat, band, bnot, bor, chmod, mkdir, mkfifo, msgget, open, umask
 
 return {
    --- Change the mode of the path.

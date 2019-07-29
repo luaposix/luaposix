@@ -2,6 +2,11 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### Bugs Fixed
+
+  - `posix.compat` really does work without `std.normalize` in the
+    `package.path` now.
+
 
 ## Noteworthy changes in release 34.1 (2019-07-20) [stable]
 
