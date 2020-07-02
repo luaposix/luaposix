@@ -2,6 +2,11 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### Bugs Fixed
+
+  - `posix.deprecated.getrlimit` and `posix.deprecated.setrlimit` pass
+    tests again.
+
 
 ## Noteworthy changes in release 34.1.1 (2019-07-27) [stable]
 

@@ -12,6 +12,8 @@
 
 local HAVE_DEBUG, _debug = pcall(require, 'std._debug')
 
+local argerror = require 'posix._base'.argerror
+
 local _ENV = require 'posix._strict' {
    CLOCK_MONOTONIC = require 'posix.time'.CLOCK_MONOTONIC,
    CLOCK_PROCESS_CPUTIME_ID = require 'posix.time'.CLOCK_PROCESS_CPUTIME_ID,
@@ -56,7 +58,6 @@ local _ENV = require 'posix._strict' {
    _SC_TZNAME_MAX = require 'posix.unistd'._SC_TZNAME_MAX,
    _SC_VERSION = require 'posix.unistd'._SC_VERSION,
    _debug = HAVE_DEBUG and _debug or {},
-   argerror = require 'posix._base'.argerror,
    argscheck = require 'posix._base'.argscheck,
    bind = require 'posix.sys.socket'.bind,
    bor = require 'bit32'.bor,
