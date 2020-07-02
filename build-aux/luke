@@ -17,10 +17,10 @@ end,fatal=fatal,}
 end
 package.preload['luke.cli']=function()
 local _ENV=require'std.normalize'{'luke._base','luke.lukefile','luke.platforms','std.functional',}local function version()print[[
-luke (Luke) 0.1.5
+luke (Luke) 0.2.0
 Written by Gary V. Vaughan <gary@gnu.org>, 2014
 
-Copyright (C) 2019, Gary V. Vaughan
+Copyright (C) 2020, Gary V. Vaughan
 Luke comes with ABSOLUTELY NO WARRANTY.
 You may redistribute copies of Luke under the terms of the MIT license;
 it may be used for any purpose at absolutely no cost, without permission.
@@ -50,7 +50,9 @@ local function opterr(...)local msg=(...)if select('#',...)>1 then
 msg=format(...)end
 msg=gsub(msg,'%.$','')stderr:write('luke: error: '..msg..'.\n')stderr:write("luke: try '"..arg[0].." --help' for help.\n")exit(2)end
 local function display(...)return stdout:write(concat{...})end
-local function dump(...)gsub(concat(map(list(...),str)),'(.-)\n',function(line)stderr:write('   DEBUG: '..line..'\n')end)end
+local function dump(...)local s=concat(map(list(...),str))if len(s)>0 then
+gsub(concat(map(list(...),str)),'\n*$','\n'):gsub('(.-)\n',function(line)stderr:write('   DEBUG: '..line..'\n')end)end
+end
 local function interpolate_to_substitute(s)return(gsub(s,'%$([%w_]+)','@%1@'))end
 return{parse_arguments=function(args)local r={clidefs={},valreqs={},fname='lukefile',install={},log=nop,targets={},verbose=nop,write=display,}map(args,function(opt)case(opt,{['--debug']=function()r.log=dump
 end,['%-%-file=(.+)']=function(optarg)r.fname=optarg
@@ -127,7 +129,7 @@ local function found_result(L,x)L.verbose(x==0 and'yes\n'or'no\n')return x~=0 an
 end
 local function bindirs(...)return map(flatten(...),function(v)return v..':'end)end
 local function compile_command(L,env,config,filename)local command=flatten('$CC','-c','$CFLAGS',incdirs(config.incdir),'$CPPFLAGS',filename)L.log(interpolate(env,concat(command,' ')))return unpack(command)end
-local function link_command(L,env,config,a_out,source,lib)local command=flatten('$CC','$CFLAGS',incdirs(config.incdir),'$CPPFLAGS','-o',a_out,source,libdirs(config.libdir),'$LDFLAGS','$libs',CONFIGENV.libs,lib)L.log(interpolate(env,concat(command,' ')))return unpack(command)end
+local function link_command(L,env,config,a_out,source,lib)local command=flatten('$CC','$CFLAGS',incdirs(config.incdir),'$CPPFLAGS','-o',a_out,source,libdirs(config.libdir),'$LDFLAGS',lib,'$libs',CONFIGENV.libs)L.log(interpolate(env,concat(command,' ')))return unpack(command)end
 local function check_executable_in_path(L,env,config,prog)local PATH=concat(bindirs(config.bindir))..getenv('PATH')local found=dropuntil(gmatch(PATH,'[^:]+'),function(path)local progpath=path..'/'..prog
 return with(File(progpath,'r'),function(h)return h and isfile(h.context)and progpath or nil
 end)end)L.log(found and'found '..found or prog..' not found')return found~=nil
@@ -285,7 +287,7 @@ local function isconfig(x)return istable(x)and has_anykey(x,configure)end
 local function collect_configs(luke,modulename,configs)configs=configs or{}for k,v in next,luke do
 if isconfig(v)then
 append(configs,{t=luke,k=k,module=modulename})elseif istable(v)then
-if k=='modules'then
+if k=='modules'or k=='external_dependencies'then
 for name,rules in next,v do
 collect_configs(rules,name,configs)end
 else
@@ -337,7 +339,7 @@ local ok,err=pcall(chunk)if not ok then
 return nil,"Error running file: "..err
 end
 r=filter_platforms(r)r.external_dependencies=normalize_configs(r.external_dependencies)r.ldocs=normalize_rules(r.ldocs)r.modules=mapvalues(r.modules,normalize_rules)return r
-end,collect_variables=function(luke)return collect_variables(luke,{})end,run_configs=function(L,env,luke)local r=deepcopy(luke)local all_configs=collect_configs(r)sort(all_configs,config_cmp)map(all_configs,function(config)config.t[config.k]=configure(L,env,config.t[config.k],config.k)end)return unwrap_external_dependencies(r)end,run_templates=function(L,env,luke)local r=copy(luke)local rewrite=bind(rewrite_template_files,{L,env})r.modules=mapvalues(r.modules,function(rules)rules.sources=map(rules.sources,rewrite)end)if r.ldocs then
+end,collect_variables=function(luke)return collect_variables(luke,{})end,run_configs=function(L,env,luke)local r=deepcopy(luke)local all_configs=collect_configs(r)sort(all_configs,config_cmp)map(all_configs,function(config)config.t[config.k]=configure(L,env,config.t[config.k],config.module)end)return unwrap_external_dependencies(r)end,run_templates=function(L,env,luke)local r=copy(luke)local rewrite=bind(rewrite_template_files,{L,env})r.modules=mapvalues(r.modules,function(rules)rules.sources=map(rules.sources,rewrite)end)if r.ldocs then
 r.ldocs.sources=map(r.ldocs.sources,rewrite)end
 return r
 end,}
