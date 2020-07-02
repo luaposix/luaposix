@@ -1,5 +1,5 @@
 --[[
- POSIX library for Lua 5.1, 5.2 & 5.3.
+ POSIX library for Lua 5.1, 5.2, 5.3 & 5.4.
  Copyright (C) 2013-2020 Gary V. Vaughan
  Copyright (C) 2010-2013 Reuben Thomas <rrt@sc3d.org>
  Copyright (C) 2008-2010 Natanael Copa <natanael.copa@gmail.com>
@@ -327,10 +327,10 @@ do
    end
 
    -- Inject deprecated APIs (overwriting submodules) for backwards compatibility.
-   for k, v in next, require 'posix.deprecated' do
+   for k, v in next, (require 'posix.deprecated') do
       M[k] = v
    end
-   for k, v in next, require 'posix.compat' do
+   for k, v in next, (require 'posix.compat') do
       M[k] = v
    end
 end

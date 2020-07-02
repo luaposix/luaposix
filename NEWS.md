@@ -6,12 +6,16 @@
 
   - Internally, we use our own bitwise operation wrapper functions
     rather than bit32 where possible.  This means bitwise operations
-    when running under Lua 5.3 work on 64bit integers.
+    when running under Lua 5.3+ work on 64bit integers.
 
 ### Bugs Fixed
 
   - `posix.deprecated.getrlimit` and `posix.deprecated.setrlimit` pass
     tests again.
+
+### New Features
+
+  - Initial support for Lua 5.4.
 
 
 ## Noteworthy changes in release 34.1.1 (2019-07-27) [stable]

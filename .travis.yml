@@ -4,6 +4,7 @@ sudo: false
 
 env:
   matrix:
+    - VLUA="lua=5.4"
     - VLUA="lua=5.3"
     - VLUA="lua=5.2"
     - VLUA="lua=5.1"
