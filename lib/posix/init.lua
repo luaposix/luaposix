@@ -327,10 +327,12 @@ do
    end
 
    -- Inject deprecated APIs (overwriting submodules) for backwards compatibility.
-   for k, v in next, require 'posix.deprecated' do
+   local funcs = require 'posix.deprecated'
+   for k, v in next, funcs do
       M[k] = v
    end
-   for k, v in next, require 'posix.compat' do
+   funcs = require 'posix.compat'
+   for k, v in next, funcs do
       M[k] = v
    end
 end
