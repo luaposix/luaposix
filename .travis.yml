@@ -12,7 +12,7 @@ env:
 
 
 before_install:
-  - pip install hererocks
+  - pip install git+https://github.com/luarocks/hererocks
   - hererocks here -r^ --$VLUA
   - export PATH=$PWD/here/bin:$PATH
 
