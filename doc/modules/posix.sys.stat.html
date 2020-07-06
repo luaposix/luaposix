@@ -1,0 +1,871 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luaposix 35.0 Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>luaposix 35.0</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
+<li><a href="#Constants">Constants </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/posix.html">posix</a></li>
+  <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
+  <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
+  <li><a href="../modules/posix.errno.html">posix.errno</a></li>
+  <li><a href="../modules/posix.fcntl.html">posix.fcntl</a></li>
+  <li><a href="../modules/posix.fnmatch.html">posix.fnmatch</a></li>
+  <li><a href="../modules/posix.glob.html">posix.glob</a></li>
+  <li><a href="../modules/posix.grp.html">posix.grp</a></li>
+  <li><a href="../modules/posix.libgen.html">posix.libgen</a></li>
+  <li><a href="../modules/posix.poll.html">posix.poll</a></li>
+  <li><a href="../modules/posix.pwd.html">posix.pwd</a></li>
+  <li><a href="../modules/posix.sched.html">posix.sched</a></li>
+  <li><a href="../modules/posix.signal.html">posix.signal</a></li>
+  <li><a href="../modules/posix.stdio.html">posix.stdio</a></li>
+  <li><a href="../modules/posix.stdlib.html">posix.stdlib</a></li>
+  <li><a href="../modules/posix.sys.msg.html">posix.sys.msg</a></li>
+  <li><a href="../modules/posix.sys.resource.html">posix.sys.resource</a></li>
+  <li><a href="../modules/posix.sys.socket.html">posix.sys.socket</a></li>
+  <li><strong>posix.sys.stat</strong></li>
+  <li><a href="../modules/posix.sys.statvfs.html">posix.sys.statvfs</a></li>
+  <li><a href="../modules/posix.sys.time.html">posix.sys.time</a></li>
+  <li><a href="../modules/posix.sys.times.html">posix.sys.times</a></li>
+  <li><a href="../modules/posix.sys.utsname.html">posix.sys.utsname</a></li>
+  <li><a href="../modules/posix.sys.wait.html">posix.sys.wait</a></li>
+  <li><a href="../modules/posix.syslog.html">posix.syslog</a></li>
+  <li><a href="../modules/posix.termio.html">posix.termio</a></li>
+  <li><a href="../modules/posix.time.html">posix.time</a></li>
+  <li><a href="../modules/posix.unistd.html">posix.unistd</a></li>
+  <li><a href="../modules/posix.utime.html">posix.utime</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/abstract-ns-client.lua.html">abstract-ns-client.lua</a></li>
+  <li><a href="../examples/abstract-ns-server.lua.html">abstract-ns-server.lua</a></li>
+  <li><a href="../examples/dir.lua.html">dir.lua</a></li>
+  <li><a href="../examples/dup2.lua.html">dup2.lua</a></li>
+  <li><a href="../examples/fork.lua.html">fork.lua</a></li>
+  <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
+  <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
+  <li><a href="../examples/glob.lua.html">glob.lua</a></li>
+  <li><a href="../examples/limit.lua.html">limit.lua</a></li>
+  <li><a href="../examples/lock.lua.html">lock.lua</a></li>
+  <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><a href="../examples/ping.lua.html">ping.lua</a></li>
+  <li><a href="../examples/poll.lua.html">poll.lua</a></li>
+  <li><a href="../examples/rt_sched.lua.html">rt_sched.lua</a></li>
+  <li><a href="../examples/signal.lua.html">signal.lua</a></li>
+  <li><a href="../examples/socket.lua.html">socket.lua</a></li>
+  <li><a href="../examples/termios.lua.html">termios.lua</a></li>
+  <li><a href="../examples/tree.lua.html">tree.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>posix.sys.stat</code></h1>
+<p>File Status Querying and Setting.</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#S_ISBLK">S_ISBLK (mode)</a></td>
+	<td class="summary">Test for a block special file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#S_ISCHR">S_ISCHR (mode)</a></td>
+	<td class="summary">Test for a character special file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#S_ISDIR">S_ISDIR (mode)</a></td>
+	<td class="summary">Test for a directory.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#S_ISFIFO">S_ISFIFO (mode)</a></td>
+	<td class="summary">Test for a fifo special file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#S_ISLNK">S_ISLNK (mode)</a></td>
+	<td class="summary">Test for a symbolic link.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#S_ISREG">S_ISREG (mode)</a></td>
+	<td class="summary">Test for a regular file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#S_ISSOCK">S_ISSOCK (mode)</a></td>
+	<td class="summary">Test for a socket.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#chmod">chmod (path, mode)</a></td>
+	<td class="summary">Change the mode of the path.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#fstat">fstat (fd)</a></td>
+	<td class="summary">Information about a file descriptor.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lstat">lstat (path)</a></td>
+	<td class="summary">Information about an existing file path.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#mkdir">mkdir (path[, mode=511])</a></td>
+	<td class="summary">Make a directory.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#mkfifo">mkfifo (path[, mode=511])</a></td>
+	<td class="summary">Make a FIFO pipe.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#stat">stat (path)</a></td>
+	<td class="summary">Information about an existing file path.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#umask">umask (mode)</a></td>
+	<td class="summary">Set file mode creation mask.</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#PosixStat">PosixStat</a></td>
+	<td class="summary">File state record.</td>
+	</tr>
+</table>
+<h2><a href="#Constants">Constants </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#posix.sys.stat">posix.sys.stat</a></td>
+	<td class="summary">Stat constants.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "S_ISBLK"></a>
+    <strong>S_ISBLK (mode)</strong>
+    </dt>
+    <dd>
+    Test for a block special file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">mode</span>
+            <span class="types"><span class="type">int</span></span>
+         the st_mode field of a <a href="../modules/posix.sys.stat.html#PosixStat">PosixStat</a>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        non-zero if <em>mode</em> represents a block special file
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "S_ISCHR"></a>
+    <strong>S_ISCHR (mode)</strong>
+    </dt>
+    <dd>
+    Test for a character special file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">mode</span>
+            <span class="types"><span class="type">int</span></span>
+         the st_mode field of a <a href="../modules/posix.sys.stat.html#PosixStat">PosixStat</a>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        non-zero if <em>mode</em> represents a character special file
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "S_ISDIR"></a>
+    <strong>S_ISDIR (mode)</strong>
+    </dt>
+    <dd>
+    Test for a directory.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">mode</span>
+            <span class="types"><span class="type">int</span></span>
+         the st_mode field of a <a href="../modules/posix.sys.stat.html#PosixStat">PosixStat</a>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        non-zero if <em>mode</em> represents a directory
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "S_ISFIFO"></a>
+    <strong>S_ISFIFO (mode)</strong>
+    </dt>
+    <dd>
+    Test for a fifo special file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">mode</span>
+            <span class="types"><span class="type">int</span></span>
+         the st_mode field of a <a href="../modules/posix.sys.stat.html#PosixStat">PosixStat</a>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        non-zero if <em>mode</em> represents a fifo special file
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "S_ISLNK"></a>
+    <strong>S_ISLNK (mode)</strong>
+    </dt>
+    <dd>
+    Test for a symbolic link.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">mode</span>
+            <span class="types"><span class="type">int</span></span>
+         the st_mode field of a <a href="../modules/posix.sys.stat.html#PosixStat">PosixStat</a>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        non-zero if <em>mode</em> represents a symbolic link
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "S_ISREG"></a>
+    <strong>S_ISREG (mode)</strong>
+    </dt>
+    <dd>
+    Test for a regular file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">mode</span>
+            <span class="types"><span class="type">int</span></span>
+         the st_mode field of a <a href="../modules/posix.sys.stat.html#PosixStat">PosixStat</a>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        non-zero if <em>mode</em> represents a regular file
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "S_ISSOCK"></a>
+    <strong>S_ISSOCK (mode)</strong>
+    </dt>
+    <dd>
+    Test for a socket.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">mode</span>
+            <span class="types"><span class="type">int</span></span>
+         the st_mode field of a <a href="../modules/posix.sys.stat.html#PosixStat">PosixStat</a>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        non-zero if <em>mode</em> represents a socket
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "chmod"></a>
+    <strong>chmod (path, mode)</strong>
+    </dt>
+    <dd>
+    Change the mode of the path.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         existing file path to act on
+        </li>
+        <li><span class="parameter">mode</span>
+            <span class="types"><span class="type">int</span></span>
+         access modes to set for <em>path</em>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/chmod.html">chmod(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> sys_stat = <span class="global">require</span> <span class="string">"posix.sys.stat"</span>
+sys_stat.chmod (<span class="string">'bin/dof'</span>, bit.bor (sys_stat.S_IRWXU, sys_stat.S_IRGRP))</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "fstat"></a>
+    <strong>fstat (fd)</strong>
+    </dt>
+    <dd>
+    Information about a file descriptor.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         file descriptor to act on
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/posix.sys.stat.html#PosixStat">PosixStat</a></span>
+        information about <em>fd</em>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/fstat.html">fstat(2)</a></li>
+         <li><a href="../modules/posix.sys.stat.html"></a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> fcntl = <span class="global">require</span> <span class="string">"posix.fcntl"</span>
+<span class="keyword">local</span> sys_stat = <span class="global">require</span> <span class="string">"posix.sys.stat"</span>
+<span class="keyword">local</span> fd = <span class="global">assert</span>(fcntl.open(<span class="string">"/etc/hostname"</span>, fcntl.O_RDONLY))
+<span class="keyword">for</span> a, b <span class="keyword">in</span> <span class="global">pairs</span> (sys_stat.fstat(fd)) <span class="keyword">do</span> <span class="global">print</span> (a, b) <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "lstat"></a>
+    <strong>lstat (path)</strong>
+    </dt>
+    <dd>
+    Information about an existing file path.
+If file is a symbolic link, return information about the link itself.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         file to act on
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/posix.sys.stat.html#PosixStat">PosixStat</a></span>
+        information about <em>path</em>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/lstat.html">lstat(2)</a></li>
+         <li><a href="../modules/posix.sys.stat.html"></a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> sys_stat = <span class="global">require</span> <span class="string">"posix.sys.stat"</span>
+<span class="keyword">for</span> a, b <span class="keyword">in</span> <span class="global">pairs</span> (sys_stat.lstat <span class="string">"/etc/"</span>) <span class="keyword">do</span> <span class="global">print</span> (a, b) <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "mkdir"></a>
+    <strong>mkdir (path[, mode=511])</strong>
+    </dt>
+    <dd>
+    Make a directory.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         location in file system to create directory
+        </li>
+        <li><span class="parameter">mode</span>
+            <span class="types"><span class="type">int</span></span>
+         access modes to set for <em>path</em>
+         (<em>default</em> 511)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/mkdir.html">mkdir(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "mkfifo"></a>
+    <strong>mkfifo (path[, mode=511])</strong>
+    </dt>
+    <dd>
+    Make a FIFO pipe.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         location in file system to create fifo
+        </li>
+        <li><span class="parameter">mode</span>
+            <span class="types"><span class="type">int</span></span>
+         access modes to set for <em>path</em>
+         (<em>default</em> 511)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        file descriptor for <em>path</em>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/mkfifo.html">mkfifo(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "stat"></a>
+    <strong>stat (path)</strong>
+    </dt>
+    <dd>
+    Information about an existing file path.
+If file is a symbolic link, return information about the file the link points to.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         file to act on
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/posix.sys.stat.html#PosixStat">PosixStat</a></span>
+        information about <em>path</em>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/stat.html">stat(2)</a></li>
+         <li><a href="../modules/posix.sys.stat.html#lstat">lstat</a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> sys_stat = <span class="global">require</span> <span class="string">"posix.sys.stat"</span>
+<span class="keyword">for</span> a, b <span class="keyword">in</span> <span class="global">pairs</span> (sys_stat.stat <span class="string">"/etc/"</span>) <span class="keyword">do</span> <span class="global">print</span> (a, b) <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "umask"></a>
+    <strong>umask (mode)</strong>
+    </dt>
+    <dd>
+    Set file mode creation mask.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">mode</span>
+            <span class="types"><span class="type">int</span></span>
+         new file creation mask
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        previous umask
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/umask.html">umask(2)</a></li>
+         <li><a href="../modules/posix.html#umask">posix.umask</a></li>
+    </ul>
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "PosixStat"></a>
+    <strong>PosixStat</strong>
+    </dt>
+    <dd>
+    File state record.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">st_dev</span>
+            <span class="types"><span class="type">int</span></span>
+         device id
+        </li>
+        <li><span class="parameter">st_ino</span>
+            <span class="types"><span class="type">int</span></span>
+         inode number
+        </li>
+        <li><span class="parameter">st_mode</span>
+            <span class="types"><span class="type">int</span></span>
+         mode of file
+        </li>
+        <li><span class="parameter">st_nlink</span>
+            <span class="types"><span class="type">int</span></span>
+         number of hardlinks to file
+        </li>
+        <li><span class="parameter">st_uid</span>
+            <span class="types"><span class="type">int</span></span>
+         user id of file owner
+        </li>
+        <li><span class="parameter">st_gid</span>
+            <span class="types"><span class="type">int</span></span>
+         group id of file owner
+        </li>
+        <li><span class="parameter">st_rdev</span>
+            <span class="types"><span class="type">int</span></span>
+         additional device specific id for special files
+        </li>
+        <li><span class="parameter">st_size</span>
+            <span class="types"><span class="type">int</span></span>
+         file size in bytes
+        </li>
+        <li><span class="parameter">st_atime</span>
+            <span class="types"><span class="type">int</span></span>
+         time of last access
+        </li>
+        <li><span class="parameter">st_mtime</span>
+            <span class="types"><span class="type">int</span></span>
+         time of last data modification
+        </li>
+        <li><span class="parameter">st_ctime</span>
+            <span class="types"><span class="type">int</span></span>
+         time of last state change
+        </li>
+        <li><span class="parameter">st_blksize</span>
+            <span class="types"><span class="type">int</span></span>
+         preferred block size
+        </li>
+        <li><span class="parameter">st_blocks</span>
+            <span class="types"><span class="type">int</span></span>
+         number of blocks allocated
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Constants"></a>Constants </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "posix.sys.stat"></a>
+    <strong>posix.sys.stat</strong>
+    </dt>
+    <dd>
+    Stat constants.
+Any constants not available in the underlying system will be <code>nil</code> valued.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">S_IFMT</span>
+            <span class="types"><span class="type">int</span></span>
+         file type mode bitmask
+        </li>
+        <li><span class="parameter">S_IFBLK</span>
+            <span class="types"><span class="type">int</span></span>
+         block special
+        </li>
+        <li><span class="parameter">S_IFCHR</span>
+            <span class="types"><span class="type">int</span></span>
+         character special
+        </li>
+        <li><span class="parameter">S_IFDIR</span>
+            <span class="types"><span class="type">int</span></span>
+         directory
+        </li>
+        <li><span class="parameter">S_IFIFO</span>
+            <span class="types"><span class="type">int</span></span>
+         fifo
+        </li>
+        <li><span class="parameter">S_IFLNK</span>
+            <span class="types"><span class="type">int</span></span>
+         symbolic link
+        </li>
+        <li><span class="parameter">S_IFREG</span>
+            <span class="types"><span class="type">int</span></span>
+         regular file
+        </li>
+        <li><span class="parameter">S_IFSOCK</span>
+            <span class="types"><span class="type">int</span></span>
+         socket
+        </li>
+        <li><span class="parameter">S_IRWXU</span>
+            <span class="types"><span class="type">int</span></span>
+         user read, write and execute
+        </li>
+        <li><span class="parameter">S_IRUSR</span>
+            <span class="types"><span class="type">int</span></span>
+         user read
+        </li>
+        <li><span class="parameter">S_IWUSR</span>
+            <span class="types"><span class="type">int</span></span>
+         user write
+        </li>
+        <li><span class="parameter">S_IXUSR</span>
+            <span class="types"><span class="type">int</span></span>
+         user execute
+        </li>
+        <li><span class="parameter">S_IRWXG</span>
+            <span class="types"><span class="type">int</span></span>
+         group read, write and execute
+        </li>
+        <li><span class="parameter">S_IRGRP</span>
+            <span class="types"><span class="type">int</span></span>
+         group read
+        </li>
+        <li><span class="parameter">S_IWGRP</span>
+            <span class="types"><span class="type">int</span></span>
+         group write
+        </li>
+        <li><span class="parameter">S_IXGRP</span>
+            <span class="types"><span class="type">int</span></span>
+         group execute
+        </li>
+        <li><span class="parameter">S_IRWXO</span>
+            <span class="types"><span class="type">int</span></span>
+         other read, write and execute
+        </li>
+        <li><span class="parameter">S_IROTH</span>
+            <span class="types"><span class="type">int</span></span>
+         other read
+        </li>
+        <li><span class="parameter">S_IWOTH</span>
+            <span class="types"><span class="type">int</span></span>
+         other write
+        </li>
+        <li><span class="parameter">S_IXOTH</span>
+            <span class="types"><span class="type">int</span></span>
+         other execute
+        </li>
+        <li><span class="parameter">S_ISGID</span>
+            <span class="types"><span class="type">int</span></span>
+         set group id on execution
+        </li>
+        <li><span class="parameter">S_ISUID</span>
+            <span class="types"><span class="type">int</span></span>
+         set user id on execution
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- Print stat constants supported on this host.
+</span><span class="keyword">for</span> name, value <span class="keyword">in</span> <span class="global">pairs</span> (<span class="global">require</span> <span class="string">"posix.sys.stat"</span>) <span class="keyword">do</span>
+  <span class="keyword">if</span> <span class="global">type</span> (value) == <span class="string">"number"</span> <span class="keyword">then</span>
+    <span class="global">print</span> (name, value)
+   <span class="keyword">end</span>
+<span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2020-07-06 12:02:06 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

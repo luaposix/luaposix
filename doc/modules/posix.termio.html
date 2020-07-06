@@ -1,0 +1,555 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luaposix 35.0 Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>luaposix 35.0</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/posix.html">posix</a></li>
+  <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
+  <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
+  <li><a href="../modules/posix.errno.html">posix.errno</a></li>
+  <li><a href="../modules/posix.fcntl.html">posix.fcntl</a></li>
+  <li><a href="../modules/posix.fnmatch.html">posix.fnmatch</a></li>
+  <li><a href="../modules/posix.glob.html">posix.glob</a></li>
+  <li><a href="../modules/posix.grp.html">posix.grp</a></li>
+  <li><a href="../modules/posix.libgen.html">posix.libgen</a></li>
+  <li><a href="../modules/posix.poll.html">posix.poll</a></li>
+  <li><a href="../modules/posix.pwd.html">posix.pwd</a></li>
+  <li><a href="../modules/posix.sched.html">posix.sched</a></li>
+  <li><a href="../modules/posix.signal.html">posix.signal</a></li>
+  <li><a href="../modules/posix.stdio.html">posix.stdio</a></li>
+  <li><a href="../modules/posix.stdlib.html">posix.stdlib</a></li>
+  <li><a href="../modules/posix.sys.msg.html">posix.sys.msg</a></li>
+  <li><a href="../modules/posix.sys.resource.html">posix.sys.resource</a></li>
+  <li><a href="../modules/posix.sys.socket.html">posix.sys.socket</a></li>
+  <li><a href="../modules/posix.sys.stat.html">posix.sys.stat</a></li>
+  <li><a href="../modules/posix.sys.statvfs.html">posix.sys.statvfs</a></li>
+  <li><a href="../modules/posix.sys.time.html">posix.sys.time</a></li>
+  <li><a href="../modules/posix.sys.times.html">posix.sys.times</a></li>
+  <li><a href="../modules/posix.sys.utsname.html">posix.sys.utsname</a></li>
+  <li><a href="../modules/posix.sys.wait.html">posix.sys.wait</a></li>
+  <li><a href="../modules/posix.syslog.html">posix.syslog</a></li>
+  <li><strong>posix.termio</strong></li>
+  <li><a href="../modules/posix.time.html">posix.time</a></li>
+  <li><a href="../modules/posix.unistd.html">posix.unistd</a></li>
+  <li><a href="../modules/posix.utime.html">posix.utime</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/abstract-ns-client.lua.html">abstract-ns-client.lua</a></li>
+  <li><a href="../examples/abstract-ns-server.lua.html">abstract-ns-server.lua</a></li>
+  <li><a href="../examples/dir.lua.html">dir.lua</a></li>
+  <li><a href="../examples/dup2.lua.html">dup2.lua</a></li>
+  <li><a href="../examples/fork.lua.html">fork.lua</a></li>
+  <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
+  <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
+  <li><a href="../examples/glob.lua.html">glob.lua</a></li>
+  <li><a href="../examples/limit.lua.html">limit.lua</a></li>
+  <li><a href="../examples/lock.lua.html">lock.lua</a></li>
+  <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><a href="../examples/ping.lua.html">ping.lua</a></li>
+  <li><a href="../examples/poll.lua.html">poll.lua</a></li>
+  <li><a href="../examples/rt_sched.lua.html">rt_sched.lua</a></li>
+  <li><a href="../examples/signal.lua.html">signal.lua</a></li>
+  <li><a href="../examples/socket.lua.html">socket.lua</a></li>
+  <li><a href="../examples/termios.lua.html">termios.lua</a></li>
+  <li><a href="../examples/tree.lua.html">tree.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>posix.termio</code></h1>
+<p>Control Terminal I/O.</p>
+<p> Functions and constants for controlling terminal behaviour.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#tcdrain">tcdrain (fd)</a></td>
+	<td class="summary">Wait for all written output to reach the terminal.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tcflow">tcflow (fd, action)</a></td>
+	<td class="summary">Suspend transmission or receipt of data.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tcflush">tcflush (fd, action)</a></td>
+	<td class="summary">Discard any data already written but not yet sent to the terminal.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tcgetattr">tcgetattr (fd)</a></td>
+	<td class="summary">Get termios state.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tcsendbreak">tcsendbreak (fd, duration)</a></td>
+	<td class="summary">Send a stream of zero valued bits.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tcsetattr">tcsetattr (fd, actions, a)</a></td>
+	<td class="summary">Set termios state.</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#ccs">ccs</a></td>
+	<td class="summary">Control characters.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#termios">termios</a></td>
+	<td class="summary">Terminal attributes.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "tcdrain"></a>
+    <strong>tcdrain (fd)</strong>
+    </dt>
+    <dd>
+    Wait for all written output to reach the terminal.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         terminal descriptor to act on
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/tcdrain.html">tcdrain(3)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "tcflow"></a>
+    <strong>tcflow (fd, action)</strong>
+    </dt>
+    <dd>
+    Suspend transmission or receipt of data.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         terminal descriptor to act on
+        </li>
+        <li><span class="parameter">action</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>TCOOFF</code>, <code>TCOON</code>, <code>TCIOFF</code> or <code>TCION</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/tcflow.html">tcflow(3)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "tcflush"></a>
+    <strong>tcflush (fd, action)</strong>
+    </dt>
+    <dd>
+    Discard any data already written but not yet sent to the terminal.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         terminal descriptor to act on
+        </li>
+        <li><span class="parameter">action</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>TCIFLUSH</code>, <code>TCOFLUSH</code>, <code>TCIOFLUSH</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/tcflush.html">tcflush(3)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "tcgetattr"></a>
+    <strong>tcgetattr (fd)</strong>
+    </dt>
+    <dd>
+    Get termios state.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         terminal descriptor
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        error message if failed
+    </ol>
+     <h3>Or</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/posix.termio.html#termios">termios</a></span>
+        terminal attributes, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/tcgetattr.html">tcgetattr(3)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> termios, errmsg = tcgetattr (fd)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "tcsendbreak"></a>
+    <strong>tcsendbreak (fd, duration)</strong>
+    </dt>
+    <dd>
+    Send a stream of zero valued bits.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         terminal descriptor
+        </li>
+        <li><span class="parameter">duration</span>
+            <span class="types"><span class="type">int</span></span>
+         if non-zero, stream for some implementation defined time
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        0 if successful, otherwise nil</li>
+        <li>
+        error message if failed</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/tcsendbreak.html">tcsendbreak(3)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "tcsetattr"></a>
+    <strong>tcsetattr (fd, actions, a)</strong>
+    </dt>
+    <dd>
+    Set termios state.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         terminal descriptor to act on
+        </li>
+        <li><span class="parameter">actions</span>
+            <span class="types"><span class="type">int</span></span>
+         bitwise OR of one or more of <code>TCSANOW</code>, <code>TCSADRAIN</code>,
+  <code>TCSAFLUSH</code> and <code>TSASOFT</code>
+        </li>
+        <li><span class="parameter">a</span>
+            <span class="types"><a class="type" href="../modules/posix.termio.html#termios">termios</a></span>
+         table with fields from iflag, oflag, cflag, lflag and cc,
+ each formed by <code>bor</code> operations with various posix constants
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        0 if successful, otherwise nil</li>
+        <li>
+        error message if failed</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/tcsetattr.html">tcsetattr(3)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> termio = <span class="global">require</span> <span class="string">"posix.termio"</span>
+ok, errmsg = tcsetattr (fd, <span class="number">0</span>, { cc = { [termio.VTIME] = <span class="number">0</span>, [termio.VMIN] = <span class="number">1</span> })</pre>
+    </ul>
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "ccs"></a>
+    <strong>ccs</strong>
+    </dt>
+    <dd>
+    Control characters.
+The field names below are not strings, but index constants each
+referring to a terminal control character.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">VINTR</span>
+            <span class="types"><span class="type">int</span></span>
+         interrupt control character
+        </li>
+        <li><span class="parameter">VQUIT</span>
+            <span class="types"><span class="type">int</span></span>
+         quit control character
+        </li>
+        <li><span class="parameter">WERASE</span>
+            <span class="types"><span class="type">int</span></span>
+         erase control character
+        </li>
+        <li><span class="parameter">VKILL</span>
+            <span class="types"><span class="type">int</span></span>
+         kill control character
+        </li>
+        <li><span class="parameter">VEOF</span>
+            <span class="types"><span class="type">int</span></span>
+         end-of-file control character
+        </li>
+        <li><span class="parameter">VEOL</span>
+            <span class="types"><span class="type">int</span></span>
+         end-of-line control charactor
+        </li>
+        <li><span class="parameter">VEOL2</span>
+            <span class="types"><span class="type">int</span></span>
+         another end-of-line control charactor
+        </li>
+        <li><span class="parameter">VMIN</span>
+            <span class="types"><span class="type">int</span></span>
+         1
+        </li>
+        <li><span class="parameter">VTIME</span>
+            <span class="types"><span class="type">int</span></span>
+         0
+        </li>
+        <li><span class="parameter">VSTART</span>
+            <span class="types"><span class="type">int</span></span>
+         xon/xoff start control character
+        </li>
+        <li><span class="parameter">VSTOP</span>
+            <span class="types"><span class="type">int</span></span>
+         xon/xoff stop control character
+        </li>
+        <li><span class="parameter">VSUSP</span>
+            <span class="types"><span class="type">int</span></span>
+         suspend control character
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "termios"></a>
+    <strong>termios</strong>
+    </dt>
+    <dd>
+    Terminal attributes.
+The constants named below are all available in this submodule's namespace,
+as long as they are supported by the underlying system.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">cc</span>
+            <span class="types"><a class="type" href="../modules/posix.termio.html#ccs">ccs</a></span>
+         array of terminal control characters
+        </li>
+        <li><span class="parameter">cflag</span>
+            <span class="types"><span class="type">int</span></span>
+         bitwise OR of zero or more of
+  <code>CSIZE</code>, <code>CS5</code>, <code>CS6</code>, <code>CS7</code>, <code>CS8</code>, <code>CSTOPB</code>, <code>CREAD</code>, <code>PARENB</code>,
+  <code>PARODD</code>, <code>HUPCL</code>, <code>CLOCAL</code> and <code>CRTSCTS</code>
+        </li>
+        <li><span class="parameter">iflag</span>
+            <span class="types"><span class="type">int</span></span>
+         input flags; bitwise OR of zero or more of <code>IGNBRK</code>, <code>BRKINT</code>,
+  <code>IGNPAR</code>, <code>PARMRK</code>, <code>INPCK</code>, <code>ISTRIP</code>, <code>INLCR</code>, <code>IGNCR</code>, <code>ICRNL</code>,
+  <code>IXON</code>, <code>IXOFF</code>, <code>IXANY</code>, <code>IMAXBEL</code> and <code>IUTF8</code>
+        </li>
+        <li><span class="parameter">lflags</span>
+            <span class="types"><span class="type">int</span></span>
+         local flags; bitwise OR of zero or more of <code>ISIG</code>, <code>ICANON</code>,
+  <code>ECHO</code>, <code>ECHOE</code>, <code>ECHOK', 'ECHONL</code>, <code>NOFLSH</code>, <code>IEXTEN</code> and <code>TOSTOP</code>
+        </li>
+        <li><span class="parameter">oflag</span>
+            <span class="types"><span class="type">int</span></span>
+         output flags; bitwise OR of zero or more of <code>OPOST</code>, <code>ONLCR</code>,
+  <code>OXTABS</code>, <code>ONOEOT</code>, <code>OCRNL</code>, <code>ONOCR</code>, <code>ONLRET</code>, <code>OFILL</code>, <code>NLDLY</code>,
+  <code>TABDLY</code>, <code>CRDLY</code>, <code>FFDLY</code>, <code>BSDLY</code>, <code>VTDLY</code> and <code>OFDEL</code>
+        </li>
+        <li><span class="parameter">ispeed</span>
+            <span class="types"><span class="type">int</span></span>
+         the input baud rate, one of <code>B0</code>, <code>B50</code>, <code>B75</code>, <code>B110</code>,
+  <code>B134</code>, <code>B150</code>, <code>B200</code>, <code>B300</code>, <code>B600</code>, <code>B1200</code>, <code>B1800</code>, <code>B2400</code>,
+  <code>B4800</code>, <code>B9600</code>, <code>B19200</code>, <code>B38400</code>, <code>B57600</code>, <code>B115200</code>,
+        </li>
+        <li><span class="parameter">ospeed</span>
+            <span class="types"><span class="type">int</span></span>
+         the output baud rate (see ispeed for possible values)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2020-07-06 12:02:06 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

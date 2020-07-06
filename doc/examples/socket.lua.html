@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luaposix 35.0 Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>luaposix 35.0</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/abstract-ns-client.lua.html">abstract-ns-client.lua</a></li>
+  <li><a href="../examples/abstract-ns-server.lua.html">abstract-ns-server.lua</a></li>
+  <li><a href="../examples/dir.lua.html">dir.lua</a></li>
+  <li><a href="../examples/dup2.lua.html">dup2.lua</a></li>
+  <li><a href="../examples/fork.lua.html">fork.lua</a></li>
+  <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
+  <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
+  <li><a href="../examples/glob.lua.html">glob.lua</a></li>
+  <li><a href="../examples/limit.lua.html">limit.lua</a></li>
+  <li><a href="../examples/lock.lua.html">lock.lua</a></li>
+  <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><a href="../examples/ping.lua.html">ping.lua</a></li>
+  <li><a href="../examples/poll.lua.html">poll.lua</a></li>
+  <li><a href="../examples/rt_sched.lua.html">rt_sched.lua</a></li>
+  <li><a href="../examples/signal.lua.html">signal.lua</a></li>
+  <li><strong>socket.lua</strong></li>
+  <li><a href="../examples/termios.lua.html">termios.lua</a></li>
+  <li><a href="../examples/tree.lua.html">tree.lua</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/posix.html">posix</a></li>
+  <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
+  <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
+  <li><a href="../modules/posix.errno.html">posix.errno</a></li>
+  <li><a href="../modules/posix.fcntl.html">posix.fcntl</a></li>
+  <li><a href="../modules/posix.fnmatch.html">posix.fnmatch</a></li>
+  <li><a href="../modules/posix.glob.html">posix.glob</a></li>
+  <li><a href="../modules/posix.grp.html">posix.grp</a></li>
+  <li><a href="../modules/posix.libgen.html">posix.libgen</a></li>
+  <li><a href="../modules/posix.poll.html">posix.poll</a></li>
+  <li><a href="../modules/posix.pwd.html">posix.pwd</a></li>
+  <li><a href="../modules/posix.sched.html">posix.sched</a></li>
+  <li><a href="../modules/posix.signal.html">posix.signal</a></li>
+  <li><a href="../modules/posix.stdio.html">posix.stdio</a></li>
+  <li><a href="../modules/posix.stdlib.html">posix.stdlib</a></li>
+  <li><a href="../modules/posix.sys.msg.html">posix.sys.msg</a></li>
+  <li><a href="../modules/posix.sys.resource.html">posix.sys.resource</a></li>
+  <li><a href="../modules/posix.sys.socket.html">posix.sys.socket</a></li>
+  <li><a href="../modules/posix.sys.stat.html">posix.sys.stat</a></li>
+  <li><a href="../modules/posix.sys.statvfs.html">posix.sys.statvfs</a></li>
+  <li><a href="../modules/posix.sys.time.html">posix.sys.time</a></li>
+  <li><a href="../modules/posix.sys.times.html">posix.sys.times</a></li>
+  <li><a href="../modules/posix.sys.utsname.html">posix.sys.utsname</a></li>
+  <li><a href="../modules/posix.sys.wait.html">posix.sys.wait</a></li>
+  <li><a href="../modules/posix.syslog.html">posix.syslog</a></li>
+  <li><a href="../modules/posix.termio.html">posix.termio</a></li>
+  <li><a href="../modules/posix.time.html">posix.time</a></li>
+  <li><a href="../modules/posix.unistd.html">posix.unistd</a></li>
+  <li><a href="../modules/posix.utime.html">posix.utime</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>socket.lua</h2>
+<pre>
+#! /usr/bin/env lua
+
+<span class="keyword">local</span> M = <span class="global">require</span> <span class="string">'posix.sys.socket'</span>
+
+
+<span class="keyword">local</span> sig = <span class="global">require</span> <span class="string">'posix.signal'</span>
+sig.signal(sig.SIGPIPE, <span class="keyword">function</span>() <span class="global">print</span> <span class="string">'pipe'</span> <span class="keyword">end</span>)
+
+<span class="comment">-- Get Lua web site title
+</span><span class="keyword">local</span> r, err = M.getaddrinfo(<span class="string">'www.lua.org'</span>, <span class="string">'http'</span>, {family=M.AF_INET, socktype=M.SOCK_STREAM})
+<span class="keyword">if</span> <span class="keyword">not</span> r <span class="keyword">then</span>
+   <span class="global">error</span>(err)
+<span class="keyword">end</span>
+
+<span class="keyword">local</span> fd = M.socket(M.AF_INET, M.SOCK_STREAM, <span class="number">0</span>)
+<span class="keyword">local</span> ok, err, e = M.connect(fd, r[<span class="number">1</span>])
+<span class="keyword">local</span> sa = M.getsockname(fd)
+<span class="global">print</span>(<span class="string">'Local socket bound to '</span> .. sa.addr .. <span class="string">':'</span> .. <span class="global">tostring</span>(sa.port))
+<span class="keyword">if</span> err <span class="keyword">then</span>
+   <span class="global">error</span>(err)
+<span class="keyword">end</span>
+
+M.send(fd, <span class="string">'GET / HTTP/1.0\r\nHost: www.lua.org\r\n\r\n'</span>)
+<span class="keyword">local</span> data = {}
+<span class="keyword">while</span> <span class="keyword">true</span> <span class="keyword">do</span>
+   <span class="keyword">local</span> b = M.recv(fd, <span class="number">1024</span>)
+   <span class="keyword">if</span> <span class="keyword">not</span> b <span class="keyword">or</span> #b == <span class="number">0</span> <span class="keyword">then</span>
+      <span class="keyword">break</span>
+   <span class="keyword">end</span>
+   <span class="global">table</span>.insert(data, b)
+<span class="keyword">end</span>
+<span class="global">require</span> <span class="string">'posix.unistd'</span>.close(fd)
+
+data = <span class="global">table</span>.concat(data)
+<span class="global">print</span>(<span class="global">string</span>.match(data, <span class="string">'&lt;TITLE&gt;(.+)&lt;/TITLE&gt;'</span>))
+
+<span class="comment">-- Loopback UDP test, IPV4 and IPV6
+</span><span class="keyword">local</span> fd = M.socket(M.AF_INET6, M.SOCK_DGRAM, <span class="number">0</span>)
+M.bind(fd, {family=M.AF_INET6, addr=<span class="string">'::'</span>, port=<span class="number">9999</span>})
+M.sendto(fd, <span class="string">'Test ipv4'</span>, {family=M.AF_INET, addr=<span class="string">'127.0.0.1'</span>, port=<span class="number">9999</span>})
+M.sendto(fd, <span class="string">'Test ipv6'</span>, {family=M.AF_INET6, addr=<span class="string">'::'</span>, port=<span class="number">9999</span>})
+<span class="keyword">for</span> i = <span class="number">1</span>, <span class="number">2</span> <span class="keyword">do</span>
+   <span class="keyword">local</span> ok, r = M.recvfrom(fd, <span class="number">1024</span>)
+   <span class="keyword">if</span> ok <span class="keyword">then</span>
+      <span class="global">print</span>(ok, r.addr, r.port)
+   <span class="keyword">else</span>
+      <span class="global">print</span>(ok, r)
+   <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="global">require</span> <span class="string">'posix.unistd'</span>.close(fd)
+
+<span class="global">os</span>.exit(<span class="number">0</span>)</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2020-07-06 12:02:06 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

@@ -1,0 +1,2353 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luaposix 35.0 Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>luaposix 35.0</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Constants">Constants </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/posix.html">posix</a></li>
+  <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
+  <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
+  <li><a href="../modules/posix.errno.html">posix.errno</a></li>
+  <li><a href="../modules/posix.fcntl.html">posix.fcntl</a></li>
+  <li><a href="../modules/posix.fnmatch.html">posix.fnmatch</a></li>
+  <li><a href="../modules/posix.glob.html">posix.glob</a></li>
+  <li><a href="../modules/posix.grp.html">posix.grp</a></li>
+  <li><a href="../modules/posix.libgen.html">posix.libgen</a></li>
+  <li><a href="../modules/posix.poll.html">posix.poll</a></li>
+  <li><a href="../modules/posix.pwd.html">posix.pwd</a></li>
+  <li><a href="../modules/posix.sched.html">posix.sched</a></li>
+  <li><a href="../modules/posix.signal.html">posix.signal</a></li>
+  <li><a href="../modules/posix.stdio.html">posix.stdio</a></li>
+  <li><a href="../modules/posix.stdlib.html">posix.stdlib</a></li>
+  <li><a href="../modules/posix.sys.msg.html">posix.sys.msg</a></li>
+  <li><a href="../modules/posix.sys.resource.html">posix.sys.resource</a></li>
+  <li><a href="../modules/posix.sys.socket.html">posix.sys.socket</a></li>
+  <li><a href="../modules/posix.sys.stat.html">posix.sys.stat</a></li>
+  <li><a href="../modules/posix.sys.statvfs.html">posix.sys.statvfs</a></li>
+  <li><a href="../modules/posix.sys.time.html">posix.sys.time</a></li>
+  <li><a href="../modules/posix.sys.times.html">posix.sys.times</a></li>
+  <li><a href="../modules/posix.sys.utsname.html">posix.sys.utsname</a></li>
+  <li><a href="../modules/posix.sys.wait.html">posix.sys.wait</a></li>
+  <li><a href="../modules/posix.syslog.html">posix.syslog</a></li>
+  <li><a href="../modules/posix.termio.html">posix.termio</a></li>
+  <li><a href="../modules/posix.time.html">posix.time</a></li>
+  <li><strong>posix.unistd</strong></li>
+  <li><a href="../modules/posix.utime.html">posix.utime</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/abstract-ns-client.lua.html">abstract-ns-client.lua</a></li>
+  <li><a href="../examples/abstract-ns-server.lua.html">abstract-ns-server.lua</a></li>
+  <li><a href="../examples/dir.lua.html">dir.lua</a></li>
+  <li><a href="../examples/dup2.lua.html">dup2.lua</a></li>
+  <li><a href="../examples/fork.lua.html">fork.lua</a></li>
+  <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
+  <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
+  <li><a href="../examples/glob.lua.html">glob.lua</a></li>
+  <li><a href="../examples/limit.lua.html">limit.lua</a></li>
+  <li><a href="../examples/lock.lua.html">lock.lua</a></li>
+  <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><a href="../examples/ping.lua.html">ping.lua</a></li>
+  <li><a href="../examples/poll.lua.html">poll.lua</a></li>
+  <li><a href="../examples/rt_sched.lua.html">rt_sched.lua</a></li>
+  <li><a href="../examples/signal.lua.html">signal.lua</a></li>
+  <li><a href="../examples/socket.lua.html">socket.lua</a></li>
+  <li><a href="../examples/termios.lua.html">termios.lua</a></li>
+  <li><a href="../examples/tree.lua.html">tree.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>posix.unistd</code></h1>
+<p>Unix Standard APIs.</p>
+<p> Where the underlying system does not support one of these functions, it
+ will have a <code>nil</code> value in the module table.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#_exit">_exit (status)</a></td>
+	<td class="summary">Terminate the calling process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#access">access (path[, mode="f"])</a></td>
+	<td class="summary">Check real user's permissions for a file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#alarm">alarm (seconds)</a></td>
+	<td class="summary">Schedule an alarm signal.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#chdir">chdir (path)</a></td>
+	<td class="summary">Set the working directory.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#chown">chown (path, uid, gid)</a></td>
+	<td class="summary">Change ownership of a file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#close">close (fd)</a></td>
+	<td class="summary">Close an open file descriptor.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#crypt">crypt (trypass, salt)</a></td>
+	<td class="summary">Encrypt a password.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#dup">dup (fd)</a></td>
+	<td class="summary">Duplicate an open file descriptor.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#dup2">dup2 (fd, newfd)</a></td>
+	<td class="summary">Duplicate one open file descriptor to another.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#exec">exec (path, argt)</a></td>
+	<td class="summary">Execute a program at exactly <em>path</em>..</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#execp">execp (path, argt)</a></td>
+	<td class="summary">Execute a program found using command PATH search, like the shell.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#fdatasync">fdatasync (fd)</a></td>
+	<td class="summary">Synchronize a file's in-core state with storage device without metadata.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#fork">fork ()</a></td>
+	<td class="summary">Fork this program.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#fsync">fsync (fd)</a></td>
+	<td class="summary">Synchronize a file's in-core state with storage device.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ftruncate">ftruncate (fd, length)</a></td>
+	<td class="summary">Truncate a file to a specified length.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getcwd">getcwd ()</a></td>
+	<td class="summary">Current working directory for this process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getegid">getegid ()</a></td>
+	<td class="summary">Return effective group id of calling process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#geteuid">geteuid ()</a></td>
+	<td class="summary">Return effective user id of calling process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getgid">getgid ()</a></td>
+	<td class="summary">Return group id of calling process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getgroups">getgroups ()</a></td>
+	<td class="summary">Get list of supplementary group ids.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#gethostid">gethostid ()</a></td>
+	<td class="summary">Get host id.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getopt">getopt (arg, opts[, opterr=0[, optind=1]])</a></td>
+	<td class="summary">Parse command-line options.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getpgrp">getpgrp ()</a></td>
+	<td class="summary">Return process group id of calling process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getpid">getpid ()</a></td>
+	<td class="summary">Return process id of calling process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getppid">getppid ()</a></td>
+	<td class="summary">Return parent process id of calling process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getuid">getuid ()</a></td>
+	<td class="summary">Return user id of calling process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#isatty">isatty (fd)</a></td>
+	<td class="summary">Test whether a file descriptor refers to a terminal.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lchown">lchown (path, uid, gid)</a></td>
+	<td class="summary">This is like <code>chown</code>, but does not dereference symbolic links.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#link">link (target, link[, soft=false])</a></td>
+	<td class="summary">Create a link.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#linkat">linkat (targetdir, target, linkdir, link, flags)</a></td>
+	<td class="summary">Create a link at specified directory.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lseek">lseek (fd, offset, whence)</a></td>
+	<td class="summary">reposition read/write file offset</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#nice">nice (inc)</a></td>
+	<td class="summary">change process priority</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pathconf">pathconf (path, key)</a></td>
+	<td class="summary">Get a value for a configuration option for a filename.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#pipe">pipe ()</a></td>
+	<td class="summary">Creates a pipe.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#read">read (fd, count)</a></td>
+	<td class="summary">Read bytes from a file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#readlink">readlink (path)</a></td>
+	<td class="summary">Read value of a symbolic link.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#rmdir">rmdir (path)</a></td>
+	<td class="summary">Remove a directory.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#setpid">setpid (what, id[, gid])</a></td>
+	<td class="summary">Set the uid, euid, gid, egid, sid or pid &amp; gid.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sleep">sleep (seconds)</a></td>
+	<td class="summary">Sleep for a number of seconds.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sync">sync ()</a></td>
+	<td class="summary">Commit buffer cache to disk.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sysconf">sysconf (key)</a></td>
+	<td class="summary">Get configuration information at runtime.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tcgetpgrp">tcgetpgrp (fd)</a></td>
+	<td class="summary">Get id of foreground process group of terminal <em>fd</em>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tcsetpgrp">tcsetpgrp (fd, pgid)</a></td>
+	<td class="summary">Make process group <em>pgid</em> the foreground process group of terminal <em>fd</em>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#truncate">truncate (path, length)</a></td>
+	<td class="summary">Truncate a file to a specified length.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ttyname">ttyname ([fd=0])</a></td>
+	<td class="summary">Name of a terminal device.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unlink">unlink (path)</a></td>
+	<td class="summary">Unlink a file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#write">write (fd, buf)</a></td>
+	<td class="summary">Write bytes to a file.</td>
+	</tr>
+</table>
+<h2><a href="#Constants">Constants </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#posix.unistd">posix.unistd</a></td>
+	<td class="summary">Standard constants.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "_exit"></a>
+    <strong>_exit (status)</strong>
+    </dt>
+    <dd>
+    Terminate the calling process.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">status</span>
+            <span class="types"><span class="type">int</span></span>
+         process exit status
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/_exit.html">_exit(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "access"></a>
+    <strong>access (path[, mode="f"])</strong>
+    </dt>
+    <dd>
+    Check real user's permissions for a file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         file to act on
+        </li>
+        <li><span class="parameter">mode</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         can contain 'r','w','x' and 'f'
+         (<em>default</em> "f")
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/access.html">access(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> unistd = <span class="global">require</span> <span class="string">"posix.unistd"</span>
+status, errstr, errno = unistd.access(<span class="string">"/etc/passwd"</span>, <span class="string">"rw"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "alarm"></a>
+    <strong>alarm (seconds)</strong>
+    </dt>
+    <dd>
+    Schedule an alarm signal.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seconds</span>
+            <span class="types"><span class="type">int</span></span>
+         number of seconds to send SIGALRM in
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        int number of seconds remaining in previous alarm or <code>0</code>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/alarm.html">alarm(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> unistd = <span class="global">require</span> <span class="string">"posix.unistd"</span>
+seconds = unistd.alarm(<span class="number">10</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "chdir"></a>
+    <strong>chdir (path)</strong>
+    </dt>
+    <dd>
+    Set the working directory.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         file to act on
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/chdir.html">chdir(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> unistd = <span class="global">require</span> <span class="string">"posix.unistd"</span>
+status, errstr, errno = unistd.chdir (<span class="string">"/var/tmp"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "chown"></a>
+    <strong>chown (path, uid, gid)</strong>
+    </dt>
+    <dd>
+    Change ownership of a file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         existing file path
+        </li>
+        <li><span class="parameter">uid</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a> or <span class="type">int</span></span>
+         new owner user id
+        </li>
+        <li><span class="parameter">gid</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a> or <span class="type">int</span></span>
+         new owner group id
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error messoge</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/chown.html">chown(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> unistd = <span class="global">require</span> <span class="string">"posix.unistd"</span>
+<span class="comment">-- will fail for a normal user, and print an error
+</span><span class="global">print</span>(unistd.chown (<span class="string">"/etc/passwd"</span>, <span class="number">100</span>, <span class="number">200</span>))</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "close"></a>
+    <strong>close (fd)</strong>
+    </dt>
+    <dd>
+    Close an open file descriptor.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         file descriptor to act on
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code> if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/close.html">close(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> unistd = <span class="global">require</span> <span class="string">"posix.unistd"</span>
+<span class="keyword">local</span> ok, errmsg = unistd.close (log)
+<span class="keyword">if</span> <span class="keyword">not</span> ok <span class="keyword">then</span> <span class="global">error</span> (errmsg) <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "crypt"></a>
+    <strong>crypt (trypass, salt)</strong>
+    </dt>
+    <dd>
+    Encrypt a password.
+Not recommended for general encryption purposes.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">trypass</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         string to hash
+        </li>
+        <li><span class="parameter">salt</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         two-character string from [a-zA-Z0-9./]
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        encrypted string
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/crypt.html">crypt(3)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> pwd = <span class="global">require</span> <span class="string">"posix.pwd"</span>
+<span class="keyword">local</span> unistd = <span class="global">require</span> <span class="string">"posix.unistd"</span>
+
+<span class="keyword">local</span> salt, hash = pwd.pwent:match <span class="string">":$6$(.-)$([^:]+)"</span>
+<span class="keyword">if</span> unistd.crypt (trypass, salt) ~= hash <span class="keyword">then</span>
+  <span class="global">error</span> <span class="string">"wrong password"</span>
+<span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "dup"></a>
+    <strong>dup (fd)</strong>
+    </dt>
+    <dd>
+    Duplicate an open file descriptor.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         file descriptor to act on
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        new file descriptor duplicating <em>fd</em>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/dup.html">dup(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> stdio = <span class="global">require</span> <span class="string">"posix.stdio"</span>
+<span class="keyword">local</span> unistd = <span class="global">require</span> <span class="string">"posix.unistd"</span>
+
+outfd = unistd.dup (stdio.fileno (<span class="global">io</span>.stdout))</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "dup2"></a>
+    <strong>dup2 (fd, newfd)</strong>
+    </dt>
+    <dd>
+    Duplicate one open file descriptor to another.
+If <em>newfd</em> references an open file already, it is closed before being
+reallocated to <em>fd</em>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         an open file descriptor to act on
+        </li>
+        <li><span class="parameter">newfd</span>
+            <span class="types"><span class="type">int</span></span>
+         new descriptor to duplicate <em>fd</em>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        new file descriptor, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/dup2.html">dup2(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "exec"></a>
+    <strong>exec (path, argt)</strong>
+    </dt>
+    <dd>
+    Execute a program at exactly <em>path</em>..
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">argt</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+         arguments (table can include index 0)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/execve.html">execve(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">exec (<span class="string">"/bin/bash"</span>, {[<span class="number">0</span>] = <span class="string">"-sh"</span>, <span class="string">"--norc"</span>})</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "execp"></a>
+    <strong>execp (path, argt)</strong>
+    </dt>
+    <dd>
+    Execute a program found using command PATH search, like the shell.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">argt</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+         arguments (table can include index 0)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/execve.html">execve(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "fdatasync"></a>
+    <strong>fdatasync (fd)</strong>
+    </dt>
+    <dd>
+    Synchronize a file's in-core state with storage device without metadata.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/fdatasync.html">fdatasync(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "fork"></a>
+    <strong>fork ()</strong>
+    </dt>
+    <dd>
+    Fork this program.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code> in the resulting child process
+    </ol>
+     <h3>Or</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        process id of child, in the calling process
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/fork.html">fork(2)</a></li>
+         <li><a href="../examples/fork.lua.html#">fork.lua</a></li>
+         <li><a href="../examples/fork2.lua.html#">fork2.lua</a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> unistd = <span class="global">require</span> <span class="string">"posix.unistd"</span>
+
+<span class="keyword">local</span> pid, errmsg = unistd.fork ()
+<span class="keyword">if</span> pid == <span class="keyword">nil</span> <span class="keyword">then</span>
+  <span class="global">error</span> (errmsg)
+<span class="keyword">elseif</span> pid == <span class="number">0</span> <span class="keyword">then</span>
+  <span class="global">print</span> (<span class="string">"in child:"</span>, unistd.getpid <span class="string">"pid"</span>)
+<span class="keyword">else</span>
+  <span class="global">print</span> (<span class="global">require</span> <span class="string">"posix.sys.wait"</span>.wait (pid))
+<span class="keyword">end</span>
+<span class="global">os</span>.exit ()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "fsync"></a>
+    <strong>fsync (fd)</strong>
+    </dt>
+    <dd>
+    Synchronize a file's in-core state with storage device.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/fsync.html">fsync(2)</a></li>
+         <li><a href="../modules/posix.unistd.html#sync">sync</a></li>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "ftruncate"></a>
+    <strong>ftruncate (fd, length)</strong>
+    </dt>
+    <dd>
+    Truncate a file to a specified length.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         the file descriptor to act on
+        </li>
+        <li><span class="parameter">length</span>
+            <span class="types"><span class="type">int</span></span>
+         the length to truncate to
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/ftruncate.html">ftruncate(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "getcwd"></a>
+    <strong>getcwd ()</strong>
+    </dt>
+    <dd>
+    Current working directory for this process.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        path of current working directory, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/getcwd.html">getcwd(3)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "getegid"></a>
+    <strong>getegid ()</strong>
+    </dt>
+    <dd>
+    Return effective group id of calling process.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        effective group id of calling process
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/posix.unistd.html#getgid">getgid</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "geteuid"></a>
+    <strong>geteuid ()</strong>
+    </dt>
+    <dd>
+    Return effective user id of calling process.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        effective user id of calling process
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/posix.unistd.html#getuid">getuid</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "getgid"></a>
+    <strong>getgid ()</strong>
+    </dt>
+    <dd>
+    Return group id of calling process.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        group id of calling process
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/posix.unistd.html#getegid">getegid</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "getgroups"></a>
+    <strong>getgroups ()</strong>
+    </dt>
+    <dd>
+    Get list of supplementary group ids.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+        group id
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/getgroups.html">getgroups(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "gethostid"></a>
+    <strong>gethostid ()</strong>
+    </dt>
+    <dd>
+    Get host id.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        host id
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/gethostid.html">gethostid(3)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "getopt"></a>
+    <strong>getopt (arg, opts[, opterr=0[, optind=1]])</strong>
+    </dt>
+    <dd>
+    Parse command-line options.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">arg</span>
+         command line arguments
+        </li>
+        <li><span class="parameter">opts</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         short option specifier
+        </li>
+        <li><span class="parameter">opterr</span>
+            <span class="types"><span class="type">int</span></span>
+         index of the option with an error
+         (<em>default</em> 0)
+        </li>
+        <li><span class="parameter">optind</span>
+            <span class="types"><span class="type">int</span></span>
+         index of the next unprocessed option
+         (<em>default</em> 1)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">option</span></span>
+        iterator, returning 3 values
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/getopt.html">getopt(3)</a></li>
+         <li><a href="../examples/getopt.lua.html#">getopt.lua</a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> getopt = <span class="global">require</span> <span class="string">"posix.getopt"</span>.getopt
+<span class="keyword">for</span> opt, opterr, i <span class="keyword">in</span> getopt (arg, <span class="string">"ho:v"</span>, opterr, i) <span class="keyword">do</span>
+  process (arg, opterr, i)
+<span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "getpgrp"></a>
+    <strong>getpgrp ()</strong>
+    </dt>
+    <dd>
+    Return process group id of calling process.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        process group id of calling process
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/posix.unistd.html#getpid">getpid</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "getpid"></a>
+    <strong>getpid ()</strong>
+    </dt>
+    <dd>
+    Return process id of calling process.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        process id of calling process
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "getppid"></a>
+    <strong>getppid ()</strong>
+    </dt>
+    <dd>
+    Return parent process id of calling process.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        parent process id of calling process
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/posix.unistd.html#getpid">getpid</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "getuid"></a>
+    <strong>getuid ()</strong>
+    </dt>
+    <dd>
+    Return user id of calling process.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        user id of calling process
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/posix.unistd.html#geteuid">geteuid</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "isatty"></a>
+    <strong>isatty (fd)</strong>
+    </dt>
+    <dd>
+    Test whether a file descriptor refers to a terminal.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         file descriptor to act on
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>1</code> if <em>fd</em> is open and refers to a terminal, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/isatty.html">isatty(3)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "lchown"></a>
+    <strong>lchown (path, uid, gid)</strong>
+    </dt>
+    <dd>
+    This is like <code>chown</code>, but does not dereference symbolic links.
+In other words, if a file is a symlink, then it changes ownership of the
+symlink itself.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         existing file path
+        </li>
+        <li><span class="parameter">uid</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a> or <span class="type">int</span></span>
+         new owner user id
+        </li>
+        <li><span class="parameter">gid</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a> or <span class="type">int</span></span>
+         new owner group id
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error messoge</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/lchown.html">lchown(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> unistd = <span class="global">require</span> <span class="string">"posix.unistd"</span>
+<span class="comment">-- will fail for a normal user, and print an error
+</span><span class="global">print</span>(unistd.lchown (<span class="string">"/etc/passwd"</span>, <span class="number">100</span>, <span class="number">200</span>))</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "link"></a>
+    <strong>link (target, link[, soft=false])</strong>
+    </dt>
+    <dd>
+    Create a link.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">target</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         name
+        </li>
+        <li><span class="parameter">link</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         name
+        </li>
+        <li><span class="parameter">soft</span>
+            <span class="types"><span class="type">bool</span></span>
+         link
+         (<em>default</em> false)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/link.html">link(2)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/symlink.html">symlink(2)</a></li>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "linkat"></a>
+    <strong>linkat (targetdir, target, linkdir, link, flags)</strong>
+    </dt>
+    <dd>
+    Create a link at specified directory.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">targetdir</span>
+            <span class="types"><span class="type">int</span></span>
+         fd
+        </li>
+        <li><span class="parameter">target</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         name
+        </li>
+        <li><span class="parameter">linkdir</span>
+            <span class="types"><span class="type">int</span></span>
+         fd
+        </li>
+        <li><span class="parameter">link</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         name
+        </li>
+        <li><span class="parameter">flags</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/linkat.html">linkat(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "lseek"></a>
+    <strong>lseek (fd, offset, whence)</strong>
+    </dt>
+    <dd>
+    reposition read/write file offset
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         open file descriptor to act on
+        </li>
+        <li><span class="parameter">offset</span>
+            <span class="types"><span class="type">int</span></span>
+         bytes to seek
+        </li>
+        <li><span class="parameter">whence</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>SEEK_SET</code>, <code>SEEK_CUR</code> or <code>SEEK_END</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        new offset, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/lseek.html">lseek(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "nice"></a>
+    <strong>nice (inc)</strong>
+    </dt>
+    <dd>
+    change process priority
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">inc</span>
+            <span class="types"><span class="type">int</span></span>
+         adds inc to the nice value for the calling process
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        new nice value, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+        string error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/nice.html">nice(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "pathconf"></a>
+    <strong>pathconf (path, key)</strong>
+    </dt>
+    <dd>
+    Get a value for a configuration option for a filename.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         optional
+        </li>
+        <li><span class="parameter">key</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>_PC_LINK_MAX</code>, <code>_PC_MAX_CANON</code>, <code>_PC_NAME_MAX</code>,
+  <code>_PC_PIPE_BUF</code>, <code>_PC_CHOWN_RESTRICTED</code>, <code>_PC_NO_TRUNC</code> or
+  <code>_PC_VDISABLE</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        associated path configuration value
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/pathconf.html">pathconf(3)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> unistd = <span class="global">require</span> <span class="string">"posix.unistd"</span>
+<span class="keyword">for</span> a, b <span class="keyword">in</span> <span class="global">pairs</span> (unistd.pathconf <span class="string">"/dev/tty"</span>) <span class="keyword">do</span> <span class="global">print</span>(a, b) <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "pipe"></a>
+    <strong>pipe ()</strong>
+    </dt>
+    <dd>
+    Creates a pipe.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        read end file descriptor</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        write end file descriptor</li>
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/pipe.html">pipe(2)</a></li>
+         <li><a href="../examples/fork.lua.html#">fork.lua</a></li>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "read"></a>
+    <strong>read (fd, count)</strong>
+    </dt>
+    <dd>
+    Read bytes from a file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         the file descriptor to act on
+        </li>
+        <li><span class="parameter">count</span>
+            <span class="types"><span class="type">int</span></span>
+         maximum number of bytes to read
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        string from <em>fd</em> with at most <em>count</em> bytes, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/read.html">read(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "readlink"></a>
+    <strong>readlink (path)</strong>
+    </dt>
+    <dd>
+    Read value of a symbolic link.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         file to act on
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        link target, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/readlink.html">readlink(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "rmdir"></a>
+    <strong>rmdir (path)</strong>
+    </dt>
+    <dd>
+    Remove a directory.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         file to act on
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/rmdir.html">rmdir(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "setpid"></a>
+    <strong>setpid (what, id[, gid])</strong>
+    </dt>
+    <dd>
+    Set the uid, euid, gid, egid, sid or pid &amp; gid.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">what</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         one of 'u', 'U', 'g', 'G', 's', 'p' (upper-case means "effective")
+        </li>
+        <li><span class="parameter">id</span>
+            <span class="types"><span class="type">int</span></span>
+         (uid, gid or pid for every value of <code>what</code> except 's')
+        </li>
+        <li><span class="parameter">gid</span>
+            <span class="types"><span class="type">int</span></span>
+         (only for <code>what</code> value 'p')
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/setuid.html">setuid(2)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/seteuid.html">seteuid(2)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/setgid.html">setgid(2)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/setegid.html">setegid(2)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/setsid.html">setsid(2)</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/setpgid.html">setpgid(2)</a></li>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "sleep"></a>
+    <strong>sleep (seconds)</strong>
+    </dt>
+    <dd>
+    Sleep for a number of seconds.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seconds</span>
+            <span class="types"><span class="type">int</span></span>
+         minimum numebr of seconds to sleep
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code> if the requested time has elapsed
+    </ol>
+     <h3>Or</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        unslept seconds remaining, if interrupted
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/sleep.html">sleep(3)</a></li>
+         <li><a href="../modules/posix.time.html#nanosleep">posix.time.nanosleep</a></li>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "sync"></a>
+    <strong>sync ()</strong>
+    </dt>
+    <dd>
+    Commit buffer cache to disk.
+
+
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../modules/posix.unistd.html#fsync">fsync</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/sync.html">sync(2)</a></li>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "sysconf"></a>
+    <strong>sysconf (key)</strong>
+    </dt>
+    <dd>
+    Get configuration information at runtime.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">key</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>_SC_ARG_MAX</code>, <code>_SC_CHILD_MAX</code>, <code>_SC_CLK_TCK</code>, <code>_SC_JOB_CONTROL</code>,
+  <code>_SC_OPEN_MAX</code>, <code>_SC_NGROUPS_MAX</code>, <code>_SC_SAVED_IDS</code>, <code>_SC_STREAM_MAX</code>,
+  <code>_SC_PAGESIZE</code>, <code>_SC_TZNAME_MAX</code> or <code>_SC_VERSION</code>,
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        associated system configuration value
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/sysconf.html">sysconf(3)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "tcgetpgrp"></a>
+    <strong>tcgetpgrp (fd)</strong>
+    </dt>
+    <dd>
+    Get id of foreground process group of terminal <em>fd</em>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         the file descriptor of the controlling terminal of the current process
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        id of foreground process group
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/tcgetpgrp.html">tcgetpgrp(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "tcsetpgrp"></a>
+    <strong>tcsetpgrp (fd, pgid)</strong>
+    </dt>
+    <dd>
+    Make process group <em>pgid</em> the foreground process group of terminal <em>fd</em>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         the file descriptor of the controlling terminal of the current process
+        </li>
+        <li><span class="parameter">pgid</span>
+            <span class="types"><span class="type">int</span></span>
+         id of the process group to make foreground process group
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        0, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/tcsetpgrp.html">tcsetpgrp(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "truncate"></a>
+    <strong>truncate (path, length)</strong>
+    </dt>
+    <dd>
+    Truncate a file to a specified length.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         file to act on
+        </li>
+        <li><span class="parameter">length</span>
+            <span class="types"><span class="type">int</span></span>
+         the length to truncate to
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/ftruncate.html">ftruncate(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "ttyname"></a>
+    <strong>ttyname ([fd=0])</strong>
+    </dt>
+    <dd>
+    Name of a terminal device.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         file descriptor to process
+         (<em>default</em> 0)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string name
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/ttyname.html">ttyname(3)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "unlink"></a>
+    <strong>unlink (path)</strong>
+    </dt>
+    <dd>
+    Unlink a file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/unlink.html">unlink(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "write"></a>
+    <strong>write (fd, buf)</strong>
+    </dt>
+    <dd>
+    Write bytes to a file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         the file descriptor to act on
+        </li>
+        <li><span class="parameter">buf</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         containing bytes to write
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        number of bytes written, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/write.html">write(2)</a>
+    </ul>
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Constants"></a>Constants </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "posix.unistd"></a>
+    <strong>posix.unistd</strong>
+    </dt>
+    <dd>
+    Standard constants.
+Any constants not available in the underlying system will be <code>nil</code> valued.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">_PC_CHOWN_RESTRICTED</span>
+            <span class="types"><span class="type">int</span></span>
+         return 1 if chown requires appropriate privileges, 0 otherwise
+        </li>
+        <li><span class="parameter">_PC_LINK_MAX</span>
+            <span class="types"><span class="type">int</span></span>
+         maximum file link count
+        </li>
+        <li><span class="parameter">_PC_MAX_CANON</span>
+            <span class="types"><span class="type">int</span></span>
+         maximum bytes in terminal canonical input line
+        </li>
+        <li><span class="parameter">_PC_MAX_INPUT</span>
+            <span class="types"><span class="type">int</span></span>
+         maximum number of bytes in a terminal input queue
+        </li>
+        <li><span class="parameter">_PC_NAME_MAX</span>
+            <span class="types"><span class="type">int</span></span>
+         maximum number of bytes in a file name
+        </li>
+        <li><span class="parameter">_PC_NO_TRUNC</span>
+            <span class="types"><span class="type">int</span></span>
+         return 1 if over-long file names are truncated
+        </li>
+        <li><span class="parameter">_PC_PATH_MAXmaximum</span>
+            <span class="types"><span class="type">int</span></span>
+         number of bytes in a pathname
+        </li>
+        <li><span class="parameter">_PC_PIPE_BUF</span>
+            <span class="types"><span class="type">int</span></span>
+         maximum number of bytes in an atomic pipe write
+        </li>
+        <li><span class="parameter">_PC_VDISABLE</span>
+            <span class="types"><span class="type">int</span></span>
+         terminal character disabling value
+        </li>
+        <li><span class="parameter">_SC_ARG_MAX</span>
+            <span class="types"><span class="type">int</span></span>
+         maximum bytes of argument to <a href="../modules/posix.unistd.html#execp">posix.unistd.execp</a>
+        </li>
+        <li><span class="parameter">_SC_CHILD_MAX</span>
+            <span class="types"><span class="type">int</span></span>
+         maximum number of processes per user
+        </li>
+        <li><span class="parameter">_SC_CLK_TCK</span>
+            <span class="types"><span class="type">int</span></span>
+         statistics clock frequency
+        </li>
+        <li><span class="parameter">_SC_JOB_CONTROL</span>
+            <span class="types"><span class="type">int</span></span>
+         return 1 if system has job control, -1 otherwise
+        </li>
+        <li><span class="parameter">_SC_NGROUPS_MAX</span>
+            <span class="types"><span class="type">int</span></span>
+         maximum number of supplemental groups
+        </li>
+        <li><span class="parameter">_SC_OPEN_MAX</span>
+            <span class="types"><span class="type">int</span></span>
+         maximum number of open files per user
+        </li>
+        <li><span class="parameter">_SC_SAVED_IDS</span>
+            <span class="types"><span class="type">int</span></span>
+         return 1 if system supports saved user and group ids, -1 otherwise
+        </li>
+        <li><span class="parameter">_SC_STREAM_MAX</span>
+            <span class="types"><span class="type">int</span></span>
+         maximum number of streams per process
+        </li>
+        <li><span class="parameter">_SC_TZNAME_MAX</span>
+            <span class="types"><span class="type">int</span></span>
+         maximum number of timezone types
+        </li>
+        <li><span class="parameter">_SC_VERSION</span>
+            <span class="types"><span class="type">int</span></span>
+         POSIX.1 compliance version
+        </li>
+        <li><span class="parameter">SEEK_CUR</span>
+            <span class="types"><span class="type">int</span></span>
+         relative file pointer position
+        </li>
+        <li><span class="parameter">SEEK_END</span>
+            <span class="types"><span class="type">int</span></span>
+         set file pointer to the end of file
+        </li>
+        <li><span class="parameter">SEEK_SET</span>
+            <span class="types"><span class="type">int</span></span>
+         absolute file pointer position
+        </li>
+        <li><span class="parameter">STDERR_FILENO</span>
+            <span class="types"><span class="type">int</span></span>
+         standard error file descriptor
+        </li>
+        <li><span class="parameter">STDIN_FILENO</span>
+            <span class="types"><span class="type">int</span></span>
+         standard input file descriptor
+        </li>
+        <li><span class="parameter">STDOUT_FILENO</span>
+            <span class="types"><span class="type">int</span></span>
+         standard output file descriptor
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- Print unistd constants supported on this host.
+</span><span class="keyword">for</span> name, value <span class="keyword">in</span> <span class="global">pairs</span> (<span class="global">require</span> <span class="string">"posix.unistd"</span>) <span class="keyword">do</span>
+  <span class="keyword">if</span> <span class="global">type</span> (value) == <span class="string">"number"</span> <span class="keyword">then</span>
+    <span class="global">print</span> (name, value)
+   <span class="keyword">end</span>
+<span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2020-07-06 12:02:06 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

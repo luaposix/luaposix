@@ -1,0 +1,239 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luaposix 35.0 Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>luaposix 35.0</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Constants">Constants </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/posix.html">posix</a></li>
+  <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
+  <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
+  <li><a href="../modules/posix.errno.html">posix.errno</a></li>
+  <li><a href="../modules/posix.fcntl.html">posix.fcntl</a></li>
+  <li><a href="../modules/posix.fnmatch.html">posix.fnmatch</a></li>
+  <li><strong>posix.glob</strong></li>
+  <li><a href="../modules/posix.grp.html">posix.grp</a></li>
+  <li><a href="../modules/posix.libgen.html">posix.libgen</a></li>
+  <li><a href="../modules/posix.poll.html">posix.poll</a></li>
+  <li><a href="../modules/posix.pwd.html">posix.pwd</a></li>
+  <li><a href="../modules/posix.sched.html">posix.sched</a></li>
+  <li><a href="../modules/posix.signal.html">posix.signal</a></li>
+  <li><a href="../modules/posix.stdio.html">posix.stdio</a></li>
+  <li><a href="../modules/posix.stdlib.html">posix.stdlib</a></li>
+  <li><a href="../modules/posix.sys.msg.html">posix.sys.msg</a></li>
+  <li><a href="../modules/posix.sys.resource.html">posix.sys.resource</a></li>
+  <li><a href="../modules/posix.sys.socket.html">posix.sys.socket</a></li>
+  <li><a href="../modules/posix.sys.stat.html">posix.sys.stat</a></li>
+  <li><a href="../modules/posix.sys.statvfs.html">posix.sys.statvfs</a></li>
+  <li><a href="../modules/posix.sys.time.html">posix.sys.time</a></li>
+  <li><a href="../modules/posix.sys.times.html">posix.sys.times</a></li>
+  <li><a href="../modules/posix.sys.utsname.html">posix.sys.utsname</a></li>
+  <li><a href="../modules/posix.sys.wait.html">posix.sys.wait</a></li>
+  <li><a href="../modules/posix.syslog.html">posix.syslog</a></li>
+  <li><a href="../modules/posix.termio.html">posix.termio</a></li>
+  <li><a href="../modules/posix.time.html">posix.time</a></li>
+  <li><a href="../modules/posix.unistd.html">posix.unistd</a></li>
+  <li><a href="../modules/posix.utime.html">posix.utime</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/abstract-ns-client.lua.html">abstract-ns-client.lua</a></li>
+  <li><a href="../examples/abstract-ns-server.lua.html">abstract-ns-server.lua</a></li>
+  <li><a href="../examples/dir.lua.html">dir.lua</a></li>
+  <li><a href="../examples/dup2.lua.html">dup2.lua</a></li>
+  <li><a href="../examples/fork.lua.html">fork.lua</a></li>
+  <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
+  <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
+  <li><a href="../examples/glob.lua.html">glob.lua</a></li>
+  <li><a href="../examples/limit.lua.html">limit.lua</a></li>
+  <li><a href="../examples/lock.lua.html">lock.lua</a></li>
+  <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><a href="../examples/ping.lua.html">ping.lua</a></li>
+  <li><a href="../examples/poll.lua.html">poll.lua</a></li>
+  <li><a href="../examples/rt_sched.lua.html">rt_sched.lua</a></li>
+  <li><a href="../examples/signal.lua.html">signal.lua</a></li>
+  <li><a href="../examples/socket.lua.html">socket.lua</a></li>
+  <li><a href="../examples/termios.lua.html">termios.lua</a></li>
+  <li><a href="../examples/tree.lua.html">tree.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>posix.glob</code></h1>
+<p>Generate pathnames matching a shell-style pattern.</p>
+<p> Functions generating a table of filenames that match a shell-style
+ pattern string.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#glob">glob ([pat="*"], flags)</a></td>
+	<td class="summary">Find all files in this directory matching a shell pattern.</td>
+	</tr>
+</table>
+<h2><a href="#Constants">Constants </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#posix.glob">posix.glob</a></td>
+	<td class="summary">Glob constants.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "glob"></a>
+    <strong>glob ([pat="*"], flags)</strong>
+    </dt>
+    <dd>
+    Find all files in this directory matching a shell pattern.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">pat</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         shell glob pattern
+         (<em>default</em> "*")
+        </li>
+        <li><span class="parameter">flags</span>
+         bitwise inclusive OR of zero or more of <code>GLOB_ERR</code>, <code>GLOB_MARK</code>
+ and <code>GLOB_NOCHECK</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+        matching filenames, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">nil</span></span>
+
+
+</li>
+        <li>
+           <span class="types"><span class="type">one</span></span>
+        of <code>GLOB_ABORTED</code>, <code>GLOB_NOMATCH</code> or <code>GLOB_NOSPACE</code></li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/glob.html">glob(3)</a></li>
+         <li><a href="../examples/glob.lua.html#">glob.lua</a></li>
+    </ul>
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Constants"></a>Constants </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "posix.glob"></a>
+    <strong>posix.glob</strong>
+    </dt>
+    <dd>
+    Glob constants.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">GLOB_MARK</span>
+            <span class="types"><span class="type">int</span></span>
+         append slashes to matches that are directories.
+        </li>
+        <li><span class="parameter">GLOB_ERR</span>
+            <span class="types"><span class="type">int</span></span>
+         instead of ignoring non-readable directories, return GLOB_ABORTED
+        </li>
+        <li><span class="parameter">GLOB_ABORTED</span>
+            <span class="types"><span class="type">int</span></span>
+         encountered a non-readable directory
+        </li>
+        <li><span class="parameter">GLOB_NOCHECK</span>
+            <span class="types"><span class="type">int</span></span>
+         return the original pattern if there are no matches
+        </li>
+        <li><span class="parameter">GLOB_NOMATCH</span>
+            <span class="types"><span class="type">int</span></span>
+         pattern does not match any existing pathname
+        </li>
+        <li><span class="parameter">GLOB_NOSPACE</span>
+            <span class="types"><span class="type">int</span></span>
+         not enough memory to continue
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- Print glob constants supported on this host.
+</span><span class="keyword">for</span> name, value <span class="keyword">in</span> <span class="global">pairs</span> (<span class="global">require</span> <span class="string">"posix.glob"</span>) <span class="keyword">do</span>
+  <span class="keyword">if</span> <span class="global">type</span> (value) == <span class="string">"number"</span> <span class="keyword">then</span>
+    <span class="global">print</span> (name, value)
+  <span class="keyword">end</span>
+<span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2020-07-06 12:02:06 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

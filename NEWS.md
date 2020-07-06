@@ -1,8 +1,5 @@
 # luaposix NEWS - User visible changes
 
-## Noteworthy changes in release ?.? (????-??-??) [?]
-
-
 ## Noteworthy changes in release 35.0 (2020-07-06) [stable]
 
 ### Incompatible Changes

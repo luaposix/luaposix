@@ -1,0 +1,458 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luaposix 35.0 Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>luaposix 35.0</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Constants">Constants </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/posix.html">posix</a></li>
+  <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
+  <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
+  <li><a href="../modules/posix.errno.html">posix.errno</a></li>
+  <li><a href="../modules/posix.fcntl.html">posix.fcntl</a></li>
+  <li><a href="../modules/posix.fnmatch.html">posix.fnmatch</a></li>
+  <li><a href="../modules/posix.glob.html">posix.glob</a></li>
+  <li><a href="../modules/posix.grp.html">posix.grp</a></li>
+  <li><a href="../modules/posix.libgen.html">posix.libgen</a></li>
+  <li><a href="../modules/posix.poll.html">posix.poll</a></li>
+  <li><a href="../modules/posix.pwd.html">posix.pwd</a></li>
+  <li><a href="../modules/posix.sched.html">posix.sched</a></li>
+  <li><a href="../modules/posix.signal.html">posix.signal</a></li>
+  <li><a href="../modules/posix.stdio.html">posix.stdio</a></li>
+  <li><a href="../modules/posix.stdlib.html">posix.stdlib</a></li>
+  <li><a href="../modules/posix.sys.msg.html">posix.sys.msg</a></li>
+  <li><a href="../modules/posix.sys.resource.html">posix.sys.resource</a></li>
+  <li><a href="../modules/posix.sys.socket.html">posix.sys.socket</a></li>
+  <li><a href="../modules/posix.sys.stat.html">posix.sys.stat</a></li>
+  <li><a href="../modules/posix.sys.statvfs.html">posix.sys.statvfs</a></li>
+  <li><a href="../modules/posix.sys.time.html">posix.sys.time</a></li>
+  <li><a href="../modules/posix.sys.times.html">posix.sys.times</a></li>
+  <li><a href="../modules/posix.sys.utsname.html">posix.sys.utsname</a></li>
+  <li><a href="../modules/posix.sys.wait.html">posix.sys.wait</a></li>
+  <li><strong>posix.syslog</strong></li>
+  <li><a href="../modules/posix.termio.html">posix.termio</a></li>
+  <li><a href="../modules/posix.time.html">posix.time</a></li>
+  <li><a href="../modules/posix.unistd.html">posix.unistd</a></li>
+  <li><a href="../modules/posix.utime.html">posix.utime</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/abstract-ns-client.lua.html">abstract-ns-client.lua</a></li>
+  <li><a href="../examples/abstract-ns-server.lua.html">abstract-ns-server.lua</a></li>
+  <li><a href="../examples/dir.lua.html">dir.lua</a></li>
+  <li><a href="../examples/dup2.lua.html">dup2.lua</a></li>
+  <li><a href="../examples/fork.lua.html">fork.lua</a></li>
+  <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
+  <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
+  <li><a href="../examples/glob.lua.html">glob.lua</a></li>
+  <li><a href="../examples/limit.lua.html">limit.lua</a></li>
+  <li><a href="../examples/lock.lua.html">lock.lua</a></li>
+  <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><a href="../examples/ping.lua.html">ping.lua</a></li>
+  <li><a href="../examples/poll.lua.html">poll.lua</a></li>
+  <li><a href="../examples/rt_sched.lua.html">rt_sched.lua</a></li>
+  <li><a href="../examples/signal.lua.html">signal.lua</a></li>
+  <li><a href="../examples/socket.lua.html">socket.lua</a></li>
+  <li><a href="../examples/termios.lua.html">termios.lua</a></li>
+  <li><a href="../examples/tree.lua.html">tree.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>posix.syslog</code></h1>
+<p>Control System Log.</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#LOG_MASK">LOG_MASK (priority)</a></td>
+	<td class="summary">Mask bit for given log priority.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#closelog">closelog ()</a></td>
+	<td class="summary">Close system log.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#openlog">openlog (ident[, option[, facility=`LOG_USER`]])</a></td>
+	<td class="summary">Open the system logger.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#setlogmask">setlogmask (mask)</a></td>
+	<td class="summary">Set log priority mask.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#syslog">syslog (priority, message)</a></td>
+	<td class="summary">Write to the system logger.</td>
+	</tr>
+</table>
+<h2><a href="#Constants">Constants </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#posix.syslog">posix.syslog</a></td>
+	<td class="summary">System logging constants.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "LOG_MASK"></a>
+    <strong>LOG_MASK (priority)</strong>
+    </dt>
+    <dd>
+    Mask bit for given log priority.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">priority</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>LOG_EMERG</code>, <code>LOG_ALERT</code>, <code>LOG_CRIT</code>, <code>LOG_WARNING</code>,
+  <code>LOG_NOTICE</code>, <code>LOG_INFO</code> or <code>LOG_DEBUG</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        mask bit corresponding to <em>priority</em>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/setlogmask.html">setlogmask(3)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "closelog"></a>
+    <strong>closelog ()</strong>
+    </dt>
+    <dd>
+    Close system log.
+
+
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/syslog.html">syslog(3)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "openlog"></a>
+    <strong>openlog (ident[, option[, facility=`LOG_USER`]])</strong>
+    </dt>
+    <dd>
+    Open the system logger.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ident</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         all messages will start with this
+        </li>
+        <li><span class="parameter">option</span>
+            <span class="types"><span class="type">int</span></span>
+         bitwise OR of zero or more of <code>LOG_CONS</code>, <code>LOG_NDELAY</code>,
+  or <code>LOG_PID</code>
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">facility</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>LOG_AUTH</code>, <code>LOG_CRON</code>,
+  <code>LOG_DAEMON</code>, <code>LOG_KERN</code>, <code>LOG_LPR</code>, <code>LOG_MAIL</code>, <code>LOG_NEWS</code>,
+  <code>LOG_SECURITY</code>, <code>LOG_USER</code>, <code>LOG_UUCP</code> or <code>LOG_LOCAL0</code> through
+  <code>LOG_LOCAL7</code>
+         (<em>default</em> `LOG_USER`)
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/syslog.html">syslog(3)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "setlogmask"></a>
+    <strong>setlogmask (mask)</strong>
+    </dt>
+    <dd>
+    Set log priority mask.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">mask</span>
+            <span class="types"><span class="type">int</span></span>
+         bitwise OR of <a href="../modules/posix.syslog.html#LOG_MASK">LOG_MASK</a> bits.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        previous mask, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/setlogmask.html">setlogmask(3)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "syslog"></a>
+    <strong>syslog (priority, message)</strong>
+    </dt>
+    <dd>
+    Write to the system logger.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">priority</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>LOG_EMERG</code>, <code>LOG_ALERT</code>, <code>LOG_CRIT</code>, <code>LOG_WARNING</code>,
+  <code>LOG_NOTICE</code>, <code>LOG_INFO</code> or <code>LOG_DEBUG</code>
+        </li>
+        <li><span class="parameter">message</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         log message
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/syslog.html">syslog(3)</a>
+    </ul>
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Constants"></a>Constants </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "posix.syslog"></a>
+    <strong>posix.syslog</strong>
+    </dt>
+    <dd>
+    System logging constants.
+Any constants not available in the underlying system will be <code>nil</code> valued.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">LOG_AUTH</span>
+            <span class="types"><span class="type">int</span></span>
+         security/authorisation messages
+        </li>
+        <li><span class="parameter">LOG_CONS</span>
+            <span class="types"><span class="type">int</span></span>
+         write directly to system console
+        </li>
+        <li><span class="parameter">LOG_CRON</span>
+            <span class="types"><span class="type">int</span></span>
+         clock daemon
+        </li>
+        <li><span class="parameter">LOG_DAEMON</span>
+            <span class="types"><span class="type">int</span></span>
+         system daemons
+        </li>
+        <li><span class="parameter">LOG_KERN</span>
+            <span class="types"><span class="type">int</span></span>
+         kernel messages
+        </li>
+        <li><span class="parameter">LOG_LOCAL0</span>
+            <span class="types"><span class="type">int</span></span>
+         reserved for local use
+        </li>
+        <li><span class="parameter">LOG_LOCAL1</span>
+            <span class="types"><span class="type">int</span></span>
+         reserved for local use
+        </li>
+        <li><span class="parameter">LOG_LOCAL2</span>
+            <span class="types"><span class="type">int</span></span>
+         reserved for local use
+        </li>
+        <li><span class="parameter">LOG_LOCAL3</span>
+            <span class="types"><span class="type">int</span></span>
+         reserved for local use
+        </li>
+        <li><span class="parameter">LOG_LOCAL4</span>
+            <span class="types"><span class="type">int</span></span>
+         reserved for local use
+        </li>
+        <li><span class="parameter">LOG_LOCAL5</span>
+            <span class="types"><span class="type">int</span></span>
+         reserved for local use
+        </li>
+        <li><span class="parameter">LOG_LOCAL6</span>
+            <span class="types"><span class="type">int</span></span>
+         reserved for local use
+        </li>
+        <li><span class="parameter">LOG_LOCAL7</span>
+            <span class="types"><span class="type">int</span></span>
+         reserved for local use
+        </li>
+        <li><span class="parameter">LOG_LPR</span>
+            <span class="types"><span class="type">int</span></span>
+         line printer subsystem
+        </li>
+        <li><span class="parameter">LOG_MAIL</span>
+            <span class="types"><span class="type">int</span></span>
+         mail system
+        </li>
+        <li><span class="parameter">LOG_NDELAY</span>
+            <span class="types"><span class="type">int</span></span>
+         open the connection immediately
+        </li>
+        <li><span class="parameter">LOG_NEWS</span>
+            <span class="types"><span class="type">int</span></span>
+         network news subsystem
+        </li>
+        <li><span class="parameter">LOG_PID</span>
+            <span class="types"><span class="type">int</span></span>
+         include process id with each log message
+        </li>
+        <li><span class="parameter">LOG_USER</span>
+            <span class="types"><span class="type">int</span></span>
+         random user-level messages
+        </li>
+        <li><span class="parameter">LOG_UUCP</span>
+            <span class="types"><span class="type">int</span></span>
+         unix-to-unix copy subsystem
+        </li>
+        <li><span class="parameter">LOG_EMERG</span>
+            <span class="types"><span class="type">int</span></span>
+         system is unusable
+        </li>
+        <li><span class="parameter">LOG_ALERT</span>
+            <span class="types"><span class="type">int</span></span>
+         action must be taken immediately
+        </li>
+        <li><span class="parameter">LOG_CRIT</span>
+            <span class="types"><span class="type">int</span></span>
+         critical conditions
+        </li>
+        <li><span class="parameter">LOG_ERR</span>
+            <span class="types"><span class="type">int</span></span>
+         error conditions
+        </li>
+        <li><span class="parameter">LOG_WARNING</span>
+            <span class="types"><span class="type">int</span></span>
+         warning conditions
+        </li>
+        <li><span class="parameter">LOG_NOTICE</span>
+            <span class="types"><span class="type">int</span></span>
+         normal but significant conditions
+        </li>
+        <li><span class="parameter">LOG_INFO</span>
+            <span class="types"><span class="type">int</span></span>
+         informational
+        </li>
+        <li><span class="parameter">LOG_DEBUG</span>
+            <span class="types"><span class="type">int</span></span>
+         debug-level messages
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- Print syslog constants supported on this host.
+</span><span class="keyword">for</span> name, value <span class="keyword">in</span> <span class="global">pairs</span> (<span class="global">require</span> <span class="string">"posix.syslog"</span>) <span class="keyword">do</span>
+  <span class="keyword">if</span> <span class="global">type</span> (value) == <span class="string">"number"</span> <span class="keyword">then</span>
+    <span class="global">print</span> (name, value)
+   <span class="keyword">end</span>
+<span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2020-07-06 12:02:06 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

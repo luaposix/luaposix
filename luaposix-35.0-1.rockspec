@@ -1,4 +1,4 @@
-local _MODREV, _SPECREV = 'git', '-1'
+local _MODREV, _SPECREV = '35.0', '-1'
 
 package = 'luaposix'
 version = _MODREV .. _SPECREV

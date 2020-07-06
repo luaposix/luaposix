@@ -1,0 +1,552 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luaposix 35.0 Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>luaposix 35.0</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
+<li><a href="#Constants">Constants </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/posix.html">posix</a></li>
+  <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
+  <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
+  <li><a href="../modules/posix.errno.html">posix.errno</a></li>
+  <li><strong>posix.fcntl</strong></li>
+  <li><a href="../modules/posix.fnmatch.html">posix.fnmatch</a></li>
+  <li><a href="../modules/posix.glob.html">posix.glob</a></li>
+  <li><a href="../modules/posix.grp.html">posix.grp</a></li>
+  <li><a href="../modules/posix.libgen.html">posix.libgen</a></li>
+  <li><a href="../modules/posix.poll.html">posix.poll</a></li>
+  <li><a href="../modules/posix.pwd.html">posix.pwd</a></li>
+  <li><a href="../modules/posix.sched.html">posix.sched</a></li>
+  <li><a href="../modules/posix.signal.html">posix.signal</a></li>
+  <li><a href="../modules/posix.stdio.html">posix.stdio</a></li>
+  <li><a href="../modules/posix.stdlib.html">posix.stdlib</a></li>
+  <li><a href="../modules/posix.sys.msg.html">posix.sys.msg</a></li>
+  <li><a href="../modules/posix.sys.resource.html">posix.sys.resource</a></li>
+  <li><a href="../modules/posix.sys.socket.html">posix.sys.socket</a></li>
+  <li><a href="../modules/posix.sys.stat.html">posix.sys.stat</a></li>
+  <li><a href="../modules/posix.sys.statvfs.html">posix.sys.statvfs</a></li>
+  <li><a href="../modules/posix.sys.time.html">posix.sys.time</a></li>
+  <li><a href="../modules/posix.sys.times.html">posix.sys.times</a></li>
+  <li><a href="../modules/posix.sys.utsname.html">posix.sys.utsname</a></li>
+  <li><a href="../modules/posix.sys.wait.html">posix.sys.wait</a></li>
+  <li><a href="../modules/posix.syslog.html">posix.syslog</a></li>
+  <li><a href="../modules/posix.termio.html">posix.termio</a></li>
+  <li><a href="../modules/posix.time.html">posix.time</a></li>
+  <li><a href="../modules/posix.unistd.html">posix.unistd</a></li>
+  <li><a href="../modules/posix.utime.html">posix.utime</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/abstract-ns-client.lua.html">abstract-ns-client.lua</a></li>
+  <li><a href="../examples/abstract-ns-server.lua.html">abstract-ns-server.lua</a></li>
+  <li><a href="../examples/dir.lua.html">dir.lua</a></li>
+  <li><a href="../examples/dup2.lua.html">dup2.lua</a></li>
+  <li><a href="../examples/fork.lua.html">fork.lua</a></li>
+  <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
+  <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
+  <li><a href="../examples/glob.lua.html">glob.lua</a></li>
+  <li><a href="../examples/limit.lua.html">limit.lua</a></li>
+  <li><a href="../examples/lock.lua.html">lock.lua</a></li>
+  <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><a href="../examples/ping.lua.html">ping.lua</a></li>
+  <li><a href="../examples/poll.lua.html">poll.lua</a></li>
+  <li><a href="../examples/rt_sched.lua.html">rt_sched.lua</a></li>
+  <li><a href="../examples/signal.lua.html">signal.lua</a></li>
+  <li><a href="../examples/socket.lua.html">socket.lua</a></li>
+  <li><a href="../examples/termios.lua.html">termios.lua</a></li>
+  <li><a href="../examples/tree.lua.html">tree.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>posix.fcntl</code></h1>
+<p>File Control.</p>
+<p> Low-level control over file descriptors, including creating new file
+ descriptors with <code>open</code>.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#fcntl">fcntl (fd, cmd[, arg=0])</a></td>
+	<td class="summary">Manipulate file descriptor.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#open">open (path, oflags[, mode=511])</a></td>
+	<td class="summary">Open a file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#posix_fadvise">posix_fadvise (fd, offset, len, advice)</a></td>
+	<td class="summary">Instruct kernel on appropriate cache behaviour for a file or file segment.</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#flock">flock</a></td>
+	<td class="summary">Advisory file locks.</td>
+	</tr>
+</table>
+<h2><a href="#Constants">Constants </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#posix.fcntl">posix.fcntl</a></td>
+	<td class="summary">Fcntl constants.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "fcntl"></a>
+    <strong>fcntl (fd, cmd[, arg=0])</strong>
+    </dt>
+    <dd>
+    Manipulate file descriptor.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         file descriptor to act on
+        </li>
+        <li><span class="parameter">cmd</span>
+            <span class="types"><span class="type">int</span></span>
+         operation to perform
+        </li>
+        <li><span class="parameter">arg</span>
+            <span class="types"><span class="type">int</span> or <a class="type" href="../modules/posix.fcntl.html#flock">flock</a></span>
+         when <em>cmd</em> is <code>F_GETLK</code>, <code>F_SETLK</code> or <code>F_SETLKW</code>,
+  then <em>arg</em> is a <a href="../modules/posix.fcntl.html#flock">flock</a> table, otherwise an integer with meaning dependent
+  upon the value of <em>cmd</em>.
+         (<em>default</em> 0)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        integer return value depending on <em>cmd</em>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/fcntl.html">fcntl(2)</a></li>
+         <li><a href="../examples/lock.lua.html#">lock.lua</a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> flag = posix.fcntl (fd, posix.F_GETFL)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "open"></a>
+    <strong>open (path, oflags[, mode=511])</strong>
+    </dt>
+    <dd>
+    Open a file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">oflags</span>
+            <span class="types"><span class="type">int</span></span>
+         bitwise OR of zero or more of <code>O_RDONLY</code>, <code>O_WRONLY</code>, <code>O_RDWR</code>,
+  <code>O_APPEND</code>, <code>O_CREAT</code>, <code>O_DSYNC</code>, <code>O_EXCL</code>, <code>O_NOCTTY</code>, <code>O_NONBLOCK</code>,
+  <code>O_RSYNC</code>, <code>O_SYNC</code> and <code>O_TRUNC</code> (and <code>O_CLOEXEC</code>, where supported)
+        </li>
+        <li><span class="parameter">mode</span>
+            <span class="types"><span class="type">int</span></span>
+         access modes used by <code>O_CREAT</code>
+         (<em>default</em> 511)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        file descriptor for <em>path</em>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/open.html">open(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> P = <span class="global">require</span> <span class="string">"posix.fcntl"</span>
+fd = P.open (<span class="string">"data"</span>, bit.bor (P.O_CREAT, P.O_RDWR), bit.bor (P.S_IRWXU, P.S_IRGRP))</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "posix_fadvise"></a>
+    <strong>posix_fadvise (fd, offset, len, advice)</strong>
+    </dt>
+    <dd>
+    Instruct kernel on appropriate cache behaviour for a file or file segment.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         open file descriptor
+        </li>
+        <li><span class="parameter">offset</span>
+            <span class="types"><span class="type">int</span></span>
+         start of region
+        </li>
+        <li><span class="parameter">len</span>
+            <span class="types"><span class="type">int</span></span>
+         number of bytes in region
+        </li>
+        <li><span class="parameter">advice</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>POSIX_FADV_NORMAL</code>, <code>POSIX_FADV_SEQUENTIAL</code>,
+  <code>POSIX_FADV_RANDOM</code>, <code>POSIX_FADV_NOREUSE</code>, <code>POSIX_FADV_WILLNEED</code> or
+  <code>POSIX_FADV_DONTNEED</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_fadvise.html">posix_fadvise(2)</a>
+    </ul>
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "flock"></a>
+    <strong>flock</strong>
+    </dt>
+    <dd>
+    Advisory file locks.
+Passed as <em>arg</em> to <a href="../modules/posix.fcntl.html">fcntl</a> when <em>cmd</em> is <code>F_GETLK</code>, <code>F_SETLK</code> or <code>F_SETLKW</code>.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">l_start</span>
+            <span class="types"><span class="type">int</span></span>
+         starting offset
+        </li>
+        <li><span class="parameter">l_len</span>
+            <span class="types"><span class="type">int</span></span>
+         len = 0 means until end of file
+        </li>
+        <li><span class="parameter">l_pid</span>
+            <span class="types"><span class="type">int</span></span>
+         lock owner
+        </li>
+        <li><span class="parameter">l_type</span>
+            <span class="types"><span class="type">int</span></span>
+         lock type
+        </li>
+        <li><span class="parameter">l_whence</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>SEEK_SET</code>, <code>SEEK_CUR</code> or <code>SEEK_END</code>
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Constants"></a>Constants </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "posix.fcntl"></a>
+    <strong>posix.fcntl</strong>
+    </dt>
+    <dd>
+    Fcntl constants.
+Any constants not available in the underlying system will be <code>0</code> valued,
+if they are usually bitwise ORed with other values, otherwise <code>nil</code>.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">AT_EACCESS</span>
+            <span class="types"><span class="type">int</span></span>
+         test access permitted for effective IDs, not real IDs
+        </li>
+        <li><span class="parameter">AT_FDCWD</span>
+            <span class="types"><span class="type">int</span></span>
+         indicate *at functions to use current directory
+        </li>
+        <li><span class="parameter">AT_REMOVEDIR</span>
+            <span class="types"><span class="type">int</span></span>
+         remove directory instead of unlinking file
+        </li>
+        <li><span class="parameter">AT_SYMLINK_FOLLOW</span>
+            <span class="types"><span class="type">int</span></span>
+         follow symbolic links
+        </li>
+        <li><span class="parameter">AT_SYMLINK_NOFOLLOW</span>
+            <span class="types"><span class="type">int</span></span>
+         do not follow symbolic links
+        </li>
+        <li><span class="parameter">FD_CLOEXEC</span>
+            <span class="types"><span class="type">int</span></span>
+         close file descriptor on exec flag
+        </li>
+        <li><span class="parameter">F_DUPFD</span>
+            <span class="types"><span class="type">int</span></span>
+         duplicate file descriptor
+        </li>
+        <li><span class="parameter">F_GETFD</span>
+            <span class="types"><span class="type">int</span></span>
+         get file descriptor flags
+        </li>
+        <li><span class="parameter">F_SETFD</span>
+            <span class="types"><span class="type">int</span></span>
+         set file descriptor flags
+        </li>
+        <li><span class="parameter">F_GETFL</span>
+            <span class="types"><span class="type">int</span></span>
+         get file status flags
+        </li>
+        <li><span class="parameter">F_SETFL</span>
+            <span class="types"><span class="type">int</span></span>
+         set file status flags
+        </li>
+        <li><span class="parameter">F_GETLK</span>
+            <span class="types"><span class="type">int</span></span>
+         get record locking information
+        </li>
+        <li><span class="parameter">F_SETLK</span>
+            <span class="types"><span class="type">int</span></span>
+         set record locking information
+        </li>
+        <li><span class="parameter">F_SETLKW</span>
+            <span class="types"><span class="type">int</span></span>
+         set lock, and wait if blocked
+        </li>
+        <li><span class="parameter">F_GETOWN</span>
+            <span class="types"><span class="type">int</span></span>
+         get SIGIO/SIGURG process owner
+        </li>
+        <li><span class="parameter">F_SETOWN</span>
+            <span class="types"><span class="type">int</span></span>
+         set SIGIO/SIGURG process owner
+        </li>
+        <li><span class="parameter">F_RDLCK</span>
+            <span class="types"><span class="type">int</span></span>
+         shared or read lock
+        </li>
+        <li><span class="parameter">F_WRLCK</span>
+            <span class="types"><span class="type">int</span></span>
+         exclusive or write lock
+        </li>
+        <li><span class="parameter">F_UNLCK</span>
+            <span class="types"><span class="type">int</span></span>
+         unlock
+        </li>
+        <li><span class="parameter">O_RDONLY</span>
+            <span class="types"><span class="type">int</span></span>
+         open for reading only
+        </li>
+        <li><span class="parameter">O_WRONLY</span>
+            <span class="types"><span class="type">int</span></span>
+         open for writing only
+        </li>
+        <li><span class="parameter">O_RDWR</span>
+            <span class="types"><span class="type">int</span></span>
+         open for reading and writing
+        </li>
+        <li><span class="parameter">O_APPEND</span>
+            <span class="types"><span class="type">int</span></span>
+         set append mode
+        </li>
+        <li><span class="parameter">O_CLOEXEC</span>
+            <span class="types"><span class="type">int</span></span>
+         set FD_CLOEXEC atomically
+        </li>
+        <li><span class="parameter">O_CREAT</span>
+            <span class="types"><span class="type">int</span></span>
+         create if nonexistent
+        </li>
+        <li><span class="parameter">O_DSYNC</span>
+            <span class="types"><span class="type">int</span></span>
+         synchronise io data integrity
+        </li>
+        <li><span class="parameter">O_EXCL</span>
+            <span class="types"><span class="type">int</span></span>
+         error if file already exists
+        </li>
+        <li><span class="parameter">O_NOCTTY</span>
+            <span class="types"><span class="type">int</span></span>
+         don't assign controlling terminal
+        </li>
+        <li><span class="parameter">O_NONBLOCK</span>
+            <span class="types"><span class="type">int</span></span>
+         no delay
+        </li>
+        <li><span class="parameter">O_RSYNC</span>
+            <span class="types"><span class="type">int</span></span>
+         synchronise file read integrity
+        </li>
+        <li><span class="parameter">O_SYNC</span>
+            <span class="types"><span class="type">int</span></span>
+         synchronise file write integrity
+        </li>
+        <li><span class="parameter">O_TRUNC</span>
+            <span class="types"><span class="type">int</span></span>
+         truncate to zero length
+        </li>
+        <li><span class="parameter">POSIX_FADV_NORMAL</span>
+            <span class="types"><span class="type">int</span></span>
+         no advice
+        </li>
+        <li><span class="parameter">POSIX_FADV_SEQUENTIAL</span>
+            <span class="types"><span class="type">int</span></span>
+         expecting to access data sequentially
+        </li>
+        <li><span class="parameter">POSIX_FADV_RANDOM</span>
+            <span class="types"><span class="type">int</span></span>
+         expecting to access data randomly
+        </li>
+        <li><span class="parameter">POSIX_FADV_NOREUSE</span>
+            <span class="types"><span class="type">int</span></span>
+         expecting to access data once only
+        </li>
+        <li><span class="parameter">POSIX_FADV_WILLNEED</span>
+            <span class="types"><span class="type">int</span></span>
+         expecting to access data in the near future
+        </li>
+        <li><span class="parameter">POSIX_FADV_DONTNEED</span>
+            <span class="types"><span class="type">int</span></span>
+         not expecting to access the data in the near future
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- Print fcntl constants supported on this host.
+</span><span class="keyword">for</span> name, value <span class="keyword">in</span> <span class="global">pairs</span> (<span class="global">require</span> <span class="string">"posix.fcntl"</span>) <span class="keyword">do</span>
+  <span class="keyword">if</span> <span class="global">type</span> (value) == <span class="string">"number"</span> <span class="keyword">then</span>
+    <span class="global">print</span> (name, value)
+   <span class="keyword">end</span>
+<span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2020-07-06 12:02:06 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

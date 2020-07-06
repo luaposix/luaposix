@@ -1,0 +1,481 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luaposix 35.0 Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>luaposix 35.0</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Constants">Constants </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/posix.html">posix</a></li>
+  <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
+  <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
+  <li><a href="../modules/posix.errno.html">posix.errno</a></li>
+  <li><a href="../modules/posix.fcntl.html">posix.fcntl</a></li>
+  <li><a href="../modules/posix.fnmatch.html">posix.fnmatch</a></li>
+  <li><a href="../modules/posix.glob.html">posix.glob</a></li>
+  <li><a href="../modules/posix.grp.html">posix.grp</a></li>
+  <li><a href="../modules/posix.libgen.html">posix.libgen</a></li>
+  <li><a href="../modules/posix.poll.html">posix.poll</a></li>
+  <li><a href="../modules/posix.pwd.html">posix.pwd</a></li>
+  <li><a href="../modules/posix.sched.html">posix.sched</a></li>
+  <li><strong>posix.signal</strong></li>
+  <li><a href="../modules/posix.stdio.html">posix.stdio</a></li>
+  <li><a href="../modules/posix.stdlib.html">posix.stdlib</a></li>
+  <li><a href="../modules/posix.sys.msg.html">posix.sys.msg</a></li>
+  <li><a href="../modules/posix.sys.resource.html">posix.sys.resource</a></li>
+  <li><a href="../modules/posix.sys.socket.html">posix.sys.socket</a></li>
+  <li><a href="../modules/posix.sys.stat.html">posix.sys.stat</a></li>
+  <li><a href="../modules/posix.sys.statvfs.html">posix.sys.statvfs</a></li>
+  <li><a href="../modules/posix.sys.time.html">posix.sys.time</a></li>
+  <li><a href="../modules/posix.sys.times.html">posix.sys.times</a></li>
+  <li><a href="../modules/posix.sys.utsname.html">posix.sys.utsname</a></li>
+  <li><a href="../modules/posix.sys.wait.html">posix.sys.wait</a></li>
+  <li><a href="../modules/posix.syslog.html">posix.syslog</a></li>
+  <li><a href="../modules/posix.termio.html">posix.termio</a></li>
+  <li><a href="../modules/posix.time.html">posix.time</a></li>
+  <li><a href="../modules/posix.unistd.html">posix.unistd</a></li>
+  <li><a href="../modules/posix.utime.html">posix.utime</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/abstract-ns-client.lua.html">abstract-ns-client.lua</a></li>
+  <li><a href="../examples/abstract-ns-server.lua.html">abstract-ns-server.lua</a></li>
+  <li><a href="../examples/dir.lua.html">dir.lua</a></li>
+  <li><a href="../examples/dup2.lua.html">dup2.lua</a></li>
+  <li><a href="../examples/fork.lua.html">fork.lua</a></li>
+  <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
+  <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
+  <li><a href="../examples/glob.lua.html">glob.lua</a></li>
+  <li><a href="../examples/limit.lua.html">limit.lua</a></li>
+  <li><a href="../examples/lock.lua.html">lock.lua</a></li>
+  <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><a href="../examples/ping.lua.html">ping.lua</a></li>
+  <li><a href="../examples/poll.lua.html">poll.lua</a></li>
+  <li><a href="../examples/rt_sched.lua.html">rt_sched.lua</a></li>
+  <li><a href="../examples/signal.lua.html">signal.lua</a></li>
+  <li><a href="../examples/socket.lua.html">socket.lua</a></li>
+  <li><a href="../examples/termios.lua.html">termios.lua</a></li>
+  <li><a href="../examples/tree.lua.html">tree.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>posix.signal</code></h1>
+<p>Software Signal Facilities.</p>
+<p> Constants and functions for propagating signals among processes.</p>
+
+<p> Note that <code>posix.signal.signal</code> is implemented with sigaction(2) for
+ consistent semantics across platforms.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#kill">kill (pid, opt)</a></td>
+	<td class="summary">Send a signal to the given process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#killpg">killpg (pgrp[, sig=`SIGTERM`])</a></td>
+	<td class="summary">Send a signal to the given process group.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#raise">raise (sig)</a></td>
+	<td class="summary">Raise a signal on this process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#signal">signal (signum[, handler=SIG_DFL[, flags]])</a></td>
+	<td class="summary">Install a signal handler for this signal number.</td>
+	</tr>
+</table>
+<h2><a href="#Constants">Constants </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#posix.signal">posix.signal</a></td>
+	<td class="summary">Signal constants.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "kill"></a>
+    <strong>kill (pid, opt)</strong>
+    </dt>
+    <dd>
+    Send a signal to the given process.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">pid</span>
+            <span class="types"><span class="type">int</span></span>
+         process to act on
+        </li>
+        <li><span class="parameter">opt</span>
+            <span class="types"><span class="type">int</span></span>
+        =<code>SIGTERM</code> sig signal to send
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/kill.html">kill(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "killpg"></a>
+    <strong>killpg (pgrp[, sig=`SIGTERM`])</strong>
+    </dt>
+    <dd>
+    Send a signal to the given process group.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">pgrp</span>
+            <span class="types"><span class="type">int</span></span>
+         group id to act on, or <code>0</code> for the sending process`s group
+        </li>
+        <li><span class="parameter">sig</span>
+            <span class="types"><span class="type">int</span></span>
+         signal to send
+         (<em>default</em> `SIGTERM`)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/killpg.html">killpg(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "raise"></a>
+    <strong>raise (sig)</strong>
+    </dt>
+    <dd>
+    Raise a signal on this process.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">sig</span>
+            <span class="types"><span class="type">int</span></span>
+         signal to send
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/raise.html">raise(3)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "signal"></a>
+    <strong>signal (signum[, handler=SIG_DFL[, flags]])</strong>
+    </dt>
+    <dd>
+    Install a signal handler for this signal number.
+Although this is the same API as signal(2), it uses sigaction for guaranteed semantics.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">signum</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">handler</span>
+            <span class="types"><span class="type">function</span></span>
+         function, or <code>SIG_IGN</code> or <code>SIG_DFL</code> constants
+         (<em>default</em> SIG_DFL)
+        </li>
+        <li><span class="parameter">flags</span>
+         the <code>sa_flags</code> element of <code>struct sigaction</code>
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">function</span></span>
+        previous handler function
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="../examples/signal.lua.html#">signal.lua</a></li>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigaction.html">sigaction(2)</a></li>
+    </ul>
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Constants"></a>Constants </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "posix.signal"></a>
+    <strong>posix.signal</strong>
+    </dt>
+    <dd>
+    Signal constants.
+Any constants not available in the underlying system will be <code>nil</code> valued.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">SIGABRT</span>
+            <span class="types"><span class="type">int</span></span>
+         abort ()
+        </li>
+        <li><span class="parameter">SIGALRM</span>
+            <span class="types"><span class="type">int</span></span>
+         alarm clock
+        </li>
+        <li><span class="parameter">SIGBUS</span>
+            <span class="types"><span class="type">int</span></span>
+         bus error
+        </li>
+        <li><span class="parameter">SIGCHLD</span>
+            <span class="types"><span class="type">int</span></span>
+         to parent on child stop or exit
+        </li>
+        <li><span class="parameter">SIGCONT</span>
+            <span class="types"><span class="type">int</span></span>
+         continue a stopped process
+        </li>
+        <li><span class="parameter">SIGFPE</span>
+            <span class="types"><span class="type">int</span></span>
+         floating point error
+        </li>
+        <li><span class="parameter">SIGHUP</span>
+            <span class="types"><span class="type">int</span></span>
+         hangup
+        </li>
+        <li><span class="parameter">SIGILL</span>
+            <span class="types"><span class="type">int</span></span>
+         illegal instruction
+        </li>
+        <li><span class="parameter">SIGINT</span>
+            <span class="types"><span class="type">int</span></span>
+         interrupt
+        </li>
+        <li><span class="parameter">SIGKILL</span>
+            <span class="types"><span class="type">int</span></span>
+         kill
+        </li>
+        <li><span class="parameter">SIGPIPE</span>
+            <span class="types"><span class="type">int</span></span>
+         write on pipe with no reader
+        </li>
+        <li><span class="parameter">SIGQUIT</span>
+            <span class="types"><span class="type">int</span></span>
+         quit
+        </li>
+        <li><span class="parameter">SIGSEGV</span>
+            <span class="types"><span class="type">int</span></span>
+         segmentation violation
+        </li>
+        <li><span class="parameter">SIGSTOP</span>
+            <span class="types"><span class="type">int</span></span>
+         stop
+        </li>
+        <li><span class="parameter">SIGTERM</span>
+            <span class="types"><span class="type">int</span></span>
+         terminate
+        </li>
+        <li><span class="parameter">SIGTSTP</span>
+            <span class="types"><span class="type">int</span></span>
+         stop signal from tty
+        </li>
+        <li><span class="parameter">SIGTTIN</span>
+            <span class="types"><span class="type">int</span></span>
+         to readers process group on background tty read
+        </li>
+        <li><span class="parameter">SIGTTOU</span>
+            <span class="types"><span class="type">int</span></span>
+         to readers process group on background tty output
+        </li>
+        <li><span class="parameter">SIGUSR1</span>
+            <span class="types"><span class="type">int</span></span>
+         user defined
+        </li>
+        <li><span class="parameter">SIGUSR2</span>
+            <span class="types"><span class="type">int</span></span>
+         user defined
+        </li>
+        <li><span class="parameter">SIGSYS</span>
+            <span class="types"><span class="type">int</span></span>
+         bad argument to system call
+        </li>
+        <li><span class="parameter">SIGTRAP</span>
+            <span class="types"><span class="type">int</span></span>
+         trace trap
+        </li>
+        <li><span class="parameter">SIGURG</span>
+            <span class="types"><span class="type">int</span></span>
+         urgent condition on i/o channel
+        </li>
+        <li><span class="parameter">SIGVTALRM</span>
+            <span class="types"><span class="type">int</span></span>
+         virtual time alarm
+        </li>
+        <li><span class="parameter">SIGXCPU</span>
+            <span class="types"><span class="type">int</span></span>
+         exceeded cpu time limit
+        </li>
+        <li><span class="parameter">SIGXFSZ</span>
+            <span class="types"><span class="type">int</span></span>
+         exceeded file size limit
+        </li>
+        <li><span class="parameter">SA_NOCLDSTOP</span>
+            <span class="types"><span class="type">int</span></span>
+         do not generate a SIGCHLD on child stop
+        </li>
+        <li><span class="parameter">SA_NOCLDWAIT</span>
+            <span class="types"><span class="type">int</span></span>
+         don't keep zombies child processes
+        </li>
+        <li><span class="parameter">SA_RESETHAND</span>
+            <span class="types"><span class="type">int</span></span>
+         reset to SIG_DFL when taking a signal
+        </li>
+        <li><span class="parameter">SA_NODEFER</span>
+            <span class="types"><span class="type">int</span></span>
+         don't mask the signal we're delivering
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- Print signal constants supported on this host.
+</span><span class="keyword">for</span> name, value <span class="keyword">in</span> <span class="global">pairs</span> (<span class="global">require</span> <span class="string">"posix.signal"</span>) <span class="keyword">do</span>
+  <span class="keyword">if</span> <span class="global">type</span> (value) == <span class="string">"number"</span> <span class="keyword">then</span>
+    <span class="global">print</span> (name, value)
+   <span class="keyword">end</span>
+<span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2020-07-06 12:02:06 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

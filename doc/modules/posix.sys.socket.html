@@ -1,0 +1,1444 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luaposix 35.0 Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>luaposix 35.0</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
+<li><a href="#Constants">Constants </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/posix.html">posix</a></li>
+  <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
+  <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
+  <li><a href="../modules/posix.errno.html">posix.errno</a></li>
+  <li><a href="../modules/posix.fcntl.html">posix.fcntl</a></li>
+  <li><a href="../modules/posix.fnmatch.html">posix.fnmatch</a></li>
+  <li><a href="../modules/posix.glob.html">posix.glob</a></li>
+  <li><a href="../modules/posix.grp.html">posix.grp</a></li>
+  <li><a href="../modules/posix.libgen.html">posix.libgen</a></li>
+  <li><a href="../modules/posix.poll.html">posix.poll</a></li>
+  <li><a href="../modules/posix.pwd.html">posix.pwd</a></li>
+  <li><a href="../modules/posix.sched.html">posix.sched</a></li>
+  <li><a href="../modules/posix.signal.html">posix.signal</a></li>
+  <li><a href="../modules/posix.stdio.html">posix.stdio</a></li>
+  <li><a href="../modules/posix.stdlib.html">posix.stdlib</a></li>
+  <li><a href="../modules/posix.sys.msg.html">posix.sys.msg</a></li>
+  <li><a href="../modules/posix.sys.resource.html">posix.sys.resource</a></li>
+  <li><strong>posix.sys.socket</strong></li>
+  <li><a href="../modules/posix.sys.stat.html">posix.sys.stat</a></li>
+  <li><a href="../modules/posix.sys.statvfs.html">posix.sys.statvfs</a></li>
+  <li><a href="../modules/posix.sys.time.html">posix.sys.time</a></li>
+  <li><a href="../modules/posix.sys.times.html">posix.sys.times</a></li>
+  <li><a href="../modules/posix.sys.utsname.html">posix.sys.utsname</a></li>
+  <li><a href="../modules/posix.sys.wait.html">posix.sys.wait</a></li>
+  <li><a href="../modules/posix.syslog.html">posix.syslog</a></li>
+  <li><a href="../modules/posix.termio.html">posix.termio</a></li>
+  <li><a href="../modules/posix.time.html">posix.time</a></li>
+  <li><a href="../modules/posix.unistd.html">posix.unistd</a></li>
+  <li><a href="../modules/posix.utime.html">posix.utime</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/abstract-ns-client.lua.html">abstract-ns-client.lua</a></li>
+  <li><a href="../examples/abstract-ns-server.lua.html">abstract-ns-server.lua</a></li>
+  <li><a href="../examples/dir.lua.html">dir.lua</a></li>
+  <li><a href="../examples/dup2.lua.html">dup2.lua</a></li>
+  <li><a href="../examples/fork.lua.html">fork.lua</a></li>
+  <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
+  <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
+  <li><a href="../examples/glob.lua.html">glob.lua</a></li>
+  <li><a href="../examples/limit.lua.html">limit.lua</a></li>
+  <li><a href="../examples/lock.lua.html">lock.lua</a></li>
+  <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><a href="../examples/ping.lua.html">ping.lua</a></li>
+  <li><a href="../examples/poll.lua.html">poll.lua</a></li>
+  <li><a href="../examples/rt_sched.lua.html">rt_sched.lua</a></li>
+  <li><a href="../examples/signal.lua.html">signal.lua</a></li>
+  <li><a href="../examples/socket.lua.html">socket.lua</a></li>
+  <li><a href="../examples/termios.lua.html">termios.lua</a></li>
+  <li><a href="../examples/tree.lua.html">tree.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>posix.sys.socket</code></h1>
+<p>BSD Sockets.</p>
+<p> Where supported by the underlying system, functions and constants to create,
+ connect and communicate over BSD sockets.  If the module loads successfully,
+ but there is no kernel support, then <code>posix.sys.socket.version</code> will be set,
+ but the unsupported APIs will be <code>nil</code>.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#accept">accept (fd)</a></td>
+	<td class="summary">Accept a connection on a socket.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#bind">bind (fd, addr)</a></td>
+	<td class="summary">Bind an address to a socket.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#connect">connect (fd, addr)</a></td>
+	<td class="summary">Initiate a connection on a socket.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getaddrinfo">getaddrinfo (host, service[, hints])</a></td>
+	<td class="summary">Network address and service translation.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getpeername">getpeername (sockfd)</a></td>
+	<td class="summary">Get socket peer name.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getsockname">getsockname (sockfd)</a></td>
+	<td class="summary">Get socket name.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#getsockopt">getsockopt (fd, level, name)</a></td>
+	<td class="summary">Get options on sockets.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#listen">listen (fd, backlog)</a></td>
+	<td class="summary">Listen for connections on a socket.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#recv">recv (fd, count)</a></td>
+	<td class="summary">Receive a message from a socket.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#recvfrom">recvfrom (fd, count)</a></td>
+	<td class="summary">Receive a message from a socket.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#send">send (fd, buffer)</a></td>
+	<td class="summary">Send a message from a socket.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sendto">sendto (fd, buffer, destination)</a></td>
+	<td class="summary">Send a message from a socket.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#setsockopt">setsockopt (fd, level, name, value1[, value2])</a></td>
+	<td class="summary">Get and set options on sockets.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#shutdown">shutdown (fd, how)</a></td>
+	<td class="summary">Shut down part of a full-duplex connection.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#socket">socket (domain, type, options)</a></td>
+	<td class="summary">Create an endpoint for communication.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#socketpair">socketpair (domain, socktype, options)</a></td>
+	<td class="summary">Create a pair of connected sockets.</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#PosixAddrInfo">PosixAddrInfo</a></td>
+	<td class="summary">Address information hints.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sockaddr">sockaddr</a></td>
+	<td class="summary">Socket address.</td>
+	</tr>
+</table>
+<h2><a href="#Constants">Constants </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#posix.sys.socket">posix.sys.socket</a></td>
+	<td class="summary">Socket constants.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "accept"></a>
+    <strong>accept (fd)</strong>
+    </dt>
+    <dd>
+    Accept a connection on a socket.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         socket descriptor to act on
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        connection descriptor</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+        connection address, if successful</li>
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/accept.html">accept(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "bind"></a>
+    <strong>bind (fd, addr)</strong>
+    </dt>
+    <dd>
+    Bind an address to a socket.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         socket descriptor to act on
+        </li>
+        <li><span class="parameter">addr</span>
+            <span class="types"><a class="type" href="../modules/posix.sys.socket.html#sockaddr">sockaddr</a></span>
+         socket address
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/bind.html">bind(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "connect"></a>
+    <strong>connect (fd, addr)</strong>
+    </dt>
+    <dd>
+    Initiate a connection on a socket.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         socket descriptor to act on
+        </li>
+        <li><span class="parameter">addr</span>
+            <span class="types"><a class="type" href="../modules/posix.sys.socket.html#sockaddr">sockaddr</a></span>
+         socket address
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/connect.html">connect(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "getaddrinfo"></a>
+    <strong>getaddrinfo (host, service[, hints])</strong>
+    </dt>
+    <dd>
+    Network address and service translation.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">host</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         name of a host. For IPv6, link-local addresses like 'ff02::1%eth0' are supported.
+        </li>
+        <li><span class="parameter">service</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         name of service
+        </li>
+        <li><span class="parameter">hints</span>
+            <span class="types"><a class="type" href="../modules/posix.sys.socket.html#PosixAddrInfo">PosixAddrInfo</a></span>
+         table
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">list</span></span>
+        of <a href="../modules/posix.sys.socket.html#sockaddr">sockaddr</a> tables
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/getaddrinfo.html">getaddrinfo(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> sys_sock = <span class="global">require</span> <span class="string">"posix.sys.socket"</span>
+<span class="keyword">local</span> res, errmsg, errcode = sys_sock.getaddrinfo (<span class="string">"www.lua.org"</span>, <span class="string">"http"</span>,
+  { family = sys_sock.IF_INET, socktype = sys_sock.SOCK_STREAM }</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "getpeername"></a>
+    <strong>getpeername (sockfd)</strong>
+    </dt>
+    <dd>
+    Get socket peer name.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">sockfd</span>
+            <span class="types"><span class="type">int</span></span>
+         socket descriptor
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/posix.sys.socket.html#sockaddr">sockaddr</a></span>
+        the address to which the socket <em>sockfd</em> is connected to
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/getpeername.html">getpeername(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">sa, err = posix.getpeername (sockfd)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "getsockname"></a>
+    <strong>getsockname (sockfd)</strong>
+    </dt>
+    <dd>
+    Get socket name.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">sockfd</span>
+            <span class="types"><span class="type">int</span></span>
+         socket descriptor
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/posix.sys.socket.html#sockaddr">sockaddr</a></span>
+        the current address to which the socket <em>sockfd</em> is bound
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/getsockname.html">getsockname(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">sa, err = posix.getsockname (sockfd)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "getsockopt"></a>
+    <strong>getsockopt (fd, level, name)</strong>
+    </dt>
+    <dd>
+    Get options on sockets.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         socket descriptor
+        </li>
+        <li><span class="parameter">level</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>SOL_SOCKET</code>, <code>IPPROTO_IPV6</code>, <code>IPPROTO_TCP</code>
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><span class="type">int</span></span>
+         option name, varies according to <code>level</code> value
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the value of the requested socket option
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/getsockopt.html">getsockopt(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> sys_sock = <span class="global">require</span> <span class="string">"posix.sys.socket"</span>
+val, errmsg, errnum = sys_sock.getsockopt(
+  sock, sys_sock.SOL_SOCKET, sys_sock.SO_SNDTIMEO
+)
+<span class="global">print</span>(<span class="string">'Send timeout '</span>, val.tv_sec + val.tv_usec / <span class="number">1000000</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "listen"></a>
+    <strong>listen (fd, backlog)</strong>
+    </dt>
+    <dd>
+    Listen for connections on a socket.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         socket descriptor to act on
+        </li>
+        <li><span class="parameter">backlog</span>
+            <span class="types"><span class="type">int</span></span>
+         maximum length for queue of pending connections
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/listen.html">listen(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "recv"></a>
+    <strong>recv (fd, count)</strong>
+    </dt>
+    <dd>
+    Receive a message from a socket.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         socket descriptor to act on
+        </li>
+        <li><span class="parameter">count</span>
+            <span class="types"><span class="type">int</span></span>
+         maximum number of bytes to receive
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        received bytes, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/recv.html">recv(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "recvfrom"></a>
+    <strong>recvfrom (fd, count)</strong>
+    </dt>
+    <dd>
+    Receive a message from a socket.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         socket descriptor to act on
+        </li>
+        <li><span class="parameter">count</span>
+            <span class="types"><span class="type">int</span></span>
+         maximum number of bytes to receive
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        received bytes</li>
+        <li>
+           <span class="types"><a class="type" href="../modules/posix.sys.socket.html#sockaddr">sockaddr</a></span>
+        address of message source, if successful</li>
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/recvfrom.html">recvfrom(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "send"></a>
+    <strong>send (fd, buffer)</strong>
+    </dt>
+    <dd>
+    Send a message from a socket.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         socket descriptor to act on
+        </li>
+        <li><span class="parameter">buffer</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         message bytes to send
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        number of bytes sent, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/send.html">send(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "sendto"></a>
+    <strong>sendto (fd, buffer, destination)</strong>
+    </dt>
+    <dd>
+    Send a message from a socket.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         socket descriptor to act on
+        </li>
+        <li><span class="parameter">buffer</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         message bytes to send
+        </li>
+        <li><span class="parameter">destination</span>
+            <span class="types"><a class="type" href="../modules/posix.sys.socket.html#sockaddr">sockaddr</a></span>
+         socket address
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        number of bytes sent, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/sendto.html">sendto(2)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "setsockopt"></a>
+    <strong>setsockopt (fd, level, name, value1[, value2])</strong>
+    </dt>
+    <dd>
+    Get and set options on sockets.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         socket descriptor
+        </li>
+        <li><span class="parameter">level</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>SOL_SOCKET</code>, <code>IPPROTO_IPV6</code>, <code>IPPROTO_TCP</code>
+        </li>
+        <li><span class="parameter">name</span>
+            <span class="types"><span class="type">int</span></span>
+         option name, varies according to <code>level</code> value
+        </li>
+        <li><span class="parameter">value1</span>
+         option value to set
+        </li>
+        <li><span class="parameter">value2</span>
+         some option <em>name</em>s need an additional value
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/setsockopt.html">setsockopt(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> sys_sock = <span class="global">require</span> <span class="string">"posix.sys.socket"</span>
+ok, errmsg = sys_sock.setsockopt (
+  sock, sys_sock.SOL_SOCKET, sys_sock.SO_SNDTIMEO, <span class="number">1</span>, <span class="number">0</span>
+)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "shutdown"></a>
+    <strong>shutdown (fd, how)</strong>
+    </dt>
+    <dd>
+    Shut down part of a full-duplex connection.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         socket descriptor to act on
+        </li>
+        <li><span class="parameter">how</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>SHUT_RD</code>, <code>SHUT_WR</code> or <code>SHUT_RDWR</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/shutdown.html">shutdown(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> sys_sock = <span class="global">require</span> <span class="string">"posix.sys.socket"</span>
+ok, errmsg = sys_sock.shutdown (sock, sys_sock.SHUT_RDWR)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "socket"></a>
+    <strong>socket (domain, type, options)</strong>
+    </dt>
+    <dd>
+    Create an endpoint for communication.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">domain</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>AF_INET</code>, <code>AF_INET6</code>, <code>AF_UNIX</code> or <code>AF_NETLINK</code>
+        </li>
+        <li><span class="parameter">type</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>SOCK_STREAM</code>, <code>SOCK_DGRAM</code> or <code>SOCK_RAW</code>
+        </li>
+        <li><span class="parameter">options</span>
+            <span class="types"><span class="type">int</span></span>
+         usually 0, but some socket types might implement other protocols.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        socket descriptor, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/socket.html">socket(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> sys_sock = <span class="global">require</span> <span class="string">"posix.sys.socket"</span>
+sockd = sys_sock.socket (sys_sock.AF_INET, sys_sock.SOCK_STREAM, <span class="number">0</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "socketpair"></a>
+    <strong>socketpair (domain, socktype, options)</strong>
+    </dt>
+    <dd>
+    Create a pair of connected sockets.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">domain</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>AF_INET</code>, <code>AF_INET6</code>, <code>AF_UNIX</code> or <code>AF_NETLINK</code>
+        </li>
+        <li><span class="parameter">socktype</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>SOCK_STREAM</code>, <code>SOCK_DGRAM</code> or <code>SOCK_RAW</code>
+        </li>
+        <li><span class="parameter">options</span>
+            <span class="types"><span class="type">int</span></span>
+         usually 0, but some socket types might implement other protocols.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        descriptor of one end of the socket pair</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        descriptor of the other end of the pair, if successful</li>
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> sys_sock = <span class="global">require</span> <span class="string">"posix.sys.socket"</span>
+sockr, sockw = sys_sock.socketpair (sys_sock.AF_INET, sys_sock.SOCK_STREAM, <span class="number">0</span>)</pre>
+    </ul>
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "PosixAddrInfo"></a>
+    <strong>PosixAddrInfo</strong>
+    </dt>
+    <dd>
+    Address information hints.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">family</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>AF_INET</code>, <code>AF_INET6</code>, <code>AF_UNIX</code> or <code>AF_NETLINK</code>
+        </li>
+        <li><span class="parameter">flags</span>
+            <span class="types"><span class="type">int</span></span>
+         bitwise OR of zero or more of <code>AI_ADDRCONFIG</code>, <code>AI_ALL</code>,
+  <code>AI_CANONNAME</code>, <code>AI_NUMERICHOST</code>, <code>AI_NUMERICSERV</code>, <code>AI_PASSIVE</code> and
+  <code>AI_V4MAPPED</code>
+        </li>
+        <li><span class="parameter">socktype</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>SOCK_STREAM</code>, <code>SOCK_DGRAM</code> or <code>SOCK_RAW</code>
+        </li>
+        <li><span class="parameter">protocol</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>IPPROTO_TCP</code> or <code>IPPROTO_UDP</code>
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sockaddr"></a>
+    <strong>sockaddr</strong>
+    </dt>
+    <dd>
+    Socket address.
+All sockaddr tables have the <em>family</em> field, and depending on its value, also
+a subset of the following fields too.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">family</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>AF_INET</code>, <code>AF_INET6</code>, <code>AF_UNIX</code> or (where supported) <code>AF_NETLINK</code>
+        </li>
+        <li><span class="parameter">port</span>
+            <span class="types"><span class="type">int</span></span>
+         socket port number for <code>AF_INET</code> (and equivalently <code>AF_INET6</code>) <em>family</em>
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">addr</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         socket host address in correct format, for <code>AF_INET</code> <em>family</em>
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">socktype</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>SOCK_STREAM</code>, <code>SOCK_DGRAM</code> or <code>SOCK_RAW</code> for <code>AF_INET</code> <em>family</em>
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">canonname</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         canonical name for service location, for <code>AF_INET</code> <em>family</em>
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">protocol</span>
+            <span class="types"><span class="type">int</span></span>
+         one of <code>IPPROTO_TCP</code> or <code>IPPROTO_UDP</code>, for <code>AF_INET</code> <em>family</em>
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         location in file system, for <code>AF_UNIX</code> <em>family</em>
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">pid</span>
+            <span class="types"><span class="type">int</span></span>
+         process identifier, for <code>AF_NETLINK</code> <em>family</em>
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">groups</span>
+            <span class="types"><span class="type">int</span></span>
+         process group owner identifier, for <code>AF_NETLINK</code> <em>family</em>
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Constants"></a>Constants </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "posix.sys.socket"></a>
+    <strong>posix.sys.socket</strong>
+    </dt>
+    <dd>
+    Socket constants.
+Any constants not available in the underlying system will be <code>nil</code> valued.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">AF_INET</span>
+            <span class="types"><span class="type">int</span></span>
+         IP protocol family
+        </li>
+        <li><span class="parameter">AF_INET6</span>
+            <span class="types"><span class="type">int</span></span>
+         IP version 6
+        </li>
+        <li><span class="parameter">AF_NETLINK</span>
+            <span class="types"><span class="type">int</span></span>
+         Netlink protocol family
+        </li>
+        <li><span class="parameter">AF_UNIX</span>
+            <span class="types"><span class="type">int</span></span>
+         local to host
+        </li>
+        <li><span class="parameter">AF_UNSPEC</span>
+            <span class="types"><span class="type">int</span></span>
+         unspecified
+        </li>
+        <li><span class="parameter">AI_ADDRCONFIG</span>
+            <span class="types"><span class="type">int</span></span>
+         use host configuration for returned address type
+        </li>
+        <li><span class="parameter">AI_ALL</span>
+            <span class="types"><span class="type">int</span></span>
+         return IPv4 mapped and IPv6 addresses
+        </li>
+        <li><span class="parameter">AI_CANONNAME</span>
+            <span class="types"><span class="type">int</span></span>
+         request canonical name
+        </li>
+        <li><span class="parameter">AI_NUMERICHOST</span>
+            <span class="types"><span class="type">int</span></span>
+         don't use domain name resolution
+        </li>
+        <li><span class="parameter">AI_NUMERICSERV</span>
+            <span class="types"><span class="type">int</span></span>
+         don't use service name resolution
+        </li>
+        <li><span class="parameter">AI_PASSIVE</span>
+            <span class="types"><span class="type">int</span></span>
+         address is intended for <a href="../modules/posix.sys.socket.html#bind">bind</a>
+        </li>
+        <li><span class="parameter">AI_V4MAPPED</span>
+            <span class="types"><span class="type">int</span></span>
+         IPv4 mapped addresses are acceptable
+        </li>
+        <li><span class="parameter">IPPROTO_ICMP</span>
+            <span class="types"><span class="type">int</span></span>
+         internet control message protocol
+        </li>
+        <li><span class="parameter">IPPROTO_IP</span>
+            <span class="types"><span class="type">int</span></span>
+         internet protocol
+        </li>
+        <li><span class="parameter">IPPROTO_IPV6</span>
+            <span class="types"><span class="type">int</span></span>
+         IPv6 header
+        </li>
+        <li><span class="parameter">IPPROTO_TCP</span>
+            <span class="types"><span class="type">int</span></span>
+         transmission control protocol
+        </li>
+        <li><span class="parameter">IPPROTO_UDP</span>
+            <span class="types"><span class="type">int</span></span>
+         user datagram protocol
+        </li>
+        <li><span class="parameter">IPV6_JOIN_GROUP</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">IPV6_LEAVE_GROUP</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">IPV6_MULTICAST_HOPS</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">IPV6_MULTICAST_IF</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">IPV6_MULTICAST_LOOP</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">IPV6_UNICAST_HOPS</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">IPV6_V6ONLY</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">NETLINK_AUDIT</span>
+            <span class="types"><span class="type">int</span></span>
+         auditing
+        </li>
+        <li><span class="parameter">NETLINK_CONNECTOR</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">NETLINK_DNRTMSG</span>
+            <span class="types"><span class="type">int</span></span>
+         decnet routing messages
+        </li>
+        <li><span class="parameter">NETLINK_ECRYPTFS</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">NETLINK_FIB_LOOKUP</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">NETLINK_FIREWALL</span>
+            <span class="types"><span class="type">int</span></span>
+         firewalling hook
+        </li>
+        <li><span class="parameter">NETLINK_GENERIC</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">NETLINK_IP6_FW</span>
+            <span class="types"><span class="type">int</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">NETLINK_ISCSI</span>
+            <span class="types"><span class="type">int</span></span>
+         open iSCSI
+        </li>
+        <li><span class="parameter">NETLINK_KOBJECT_UEVENT</span>
+            <span class="types"><span class="type">int</span></span>
+         kernel messages to userspace
+        </li>
+        <li><span class="parameter">NETLINK_NETFILTER</span>
+            <span class="types"><span class="type">int</span></span>
+         netfilter subsystem
+        </li>
+        <li><span class="parameter">NETLINK_NFLOG</span>
+            <span class="types"><span class="type">int</span></span>
+         netfilter/iptables ULOG
+        </li>
+        <li><span class="parameter">NETLINK_ROUTE</span>
+            <span class="types"><span class="type">int</span></span>
+         routing/device hook
+        </li>
+        <li><span class="parameter">NETLINK_SCSITRANSPORT</span>
+            <span class="types"><span class="type">int</span></span>
+         SCSI transports
+        </li>
+        <li><span class="parameter">NETLINK_SELINUX</span>
+            <span class="types"><span class="type">int</span></span>
+         SELinux event notifications
+        </li>
+        <li><span class="parameter">NETLINK_UNUSED</span>
+            <span class="types"><span class="type">int</span></span>
+         unused number
+        </li>
+        <li><span class="parameter">NETLINK_USERSOCK</span>
+            <span class="types"><span class="type">int</span></span>
+         reserved for user mode socket protocols
+        </li>
+        <li><span class="parameter">NETLINK_XFRM</span>
+            <span class="types"><span class="type">int</span></span>
+         ipsec
+        </li>
+        <li><span class="parameter">SHUT_RD</span>
+            <span class="types"><span class="type">int</span></span>
+         no more receptions
+        </li>
+        <li><span class="parameter">SHUT_RDWR</span>
+            <span class="types"><span class="type">int</span></span>
+         no more receptions or transmissions
+        </li>
+        <li><span class="parameter">SHUT_WR</span>
+            <span class="types"><span class="type">int</span></span>
+         no more transmissions
+        </li>
+        <li><span class="parameter">SOCK_DGRAM</span>
+            <span class="types"><span class="type">int</span></span>
+         connectionless unreliable datagrams
+        </li>
+        <li><span class="parameter">SOCK_RAW</span>
+            <span class="types"><span class="type">int</span></span>
+         raw protocol interface
+        </li>
+        <li><span class="parameter">SOCK_STREAM</span>
+            <span class="types"><span class="type">int</span></span>
+         connection based byte stream
+        </li>
+        <li><span class="parameter">SOL_SOCKET</span>
+            <span class="types"><span class="type">int</span></span>
+         socket level
+        </li>
+        <li><span class="parameter">SOMAXCONN</span>
+            <span class="types"><span class="type">int</span></span>
+         maximum concurrent connections
+        </li>
+        <li><span class="parameter">SO_ACCEPTCONN</span>
+            <span class="types"><span class="type">int</span></span>
+         does this socket accept connections
+        </li>
+        <li><span class="parameter">SO_BINDTODEVICE</span>
+            <span class="types"><span class="type">int</span></span>
+         bind to a particular device
+        </li>
+        <li><span class="parameter">SO_BROADCAST</span>
+            <span class="types"><span class="type">int</span></span>
+         permit broadcasts
+        </li>
+        <li><span class="parameter">SO_DEBUG</span>
+            <span class="types"><span class="type">int</span></span>
+         turn-on socket debugging
+        </li>
+        <li><span class="parameter">SO_DONTROUTE</span>
+            <span class="types"><span class="type">int</span></span>
+         bypass standard routing
+        </li>
+        <li><span class="parameter">SO_ERROR</span>
+            <span class="types"><span class="type">int</span></span>
+         set socket error flag
+        </li>
+        <li><span class="parameter">SO_KEEPALIVE</span>
+            <span class="types"><span class="type">int</span></span>
+         periodically transmit keep-alive message
+        </li>
+        <li><span class="parameter">SO_LINGER</span>
+            <span class="types"><span class="type">int</span></span>
+         linger on a <a href="../modules/posix.unistd.html#close">posix.unistd.close</a> if data is still present
+        </li>
+        <li><span class="parameter">SO_OOBINLINE</span>
+            <span class="types"><span class="type">int</span></span>
+         leave out-of-band data inline
+        </li>
+        <li><span class="parameter">SO_RCVBUF</span>
+            <span class="types"><span class="type">int</span></span>
+         set receive buffer size
+        </li>
+        <li><span class="parameter">SO_RCVLOWAT</span>
+            <span class="types"><span class="type">int</span></span>
+         set receive buffer low water mark
+        </li>
+        <li><span class="parameter">SO_RCVTIMEO</span>
+            <span class="types"><span class="type">int</span></span>
+         set receive timeout
+        </li>
+        <li><span class="parameter">SO_REUSEADDR</span>
+            <span class="types"><span class="type">int</span></span>
+         reuse local addresses
+        </li>
+        <li><span class="parameter">SO_SNDBUF</span>
+            <span class="types"><span class="type">int</span></span>
+         set send buffer size
+        </li>
+        <li><span class="parameter">SO_SNDLOWAT</span>
+            <span class="types"><span class="type">int</span></span>
+         set send buffer low water mark
+        </li>
+        <li><span class="parameter">SO_SNDTIMEO</span>
+            <span class="types"><span class="type">int</span></span>
+         set send timeout
+        </li>
+        <li><span class="parameter">SO_TYPE</span>
+            <span class="types"><span class="type">int</span></span>
+         get the socket type
+        </li>
+        <li><span class="parameter">TCP_NODELAY</span>
+            <span class="types"><span class="type">int</span></span>
+         don't delay send for packet coalescing
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- Print socket constants supported on this host.
+</span><span class="keyword">for</span> name, value <span class="keyword">in</span> <span class="global">pairs</span> (<span class="global">require</span> <span class="string">"posix.sys.socket"</span>) <span class="keyword">do</span>
+  <span class="keyword">if</span> <span class="global">type</span> (value) == <span class="string">"number"</span> <span class="keyword">then</span>
+    <span class="global">print</span> (name, value)
+   <span class="keyword">end</span>
+<span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2020-07-06 12:02:06 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

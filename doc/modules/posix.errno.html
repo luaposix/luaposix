@@ -1,0 +1,529 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luaposix 35.0 Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>luaposix 35.0</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Constants">Constants </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/posix.html">posix</a></li>
+  <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
+  <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
+  <li><strong>posix.errno</strong></li>
+  <li><a href="../modules/posix.fcntl.html">posix.fcntl</a></li>
+  <li><a href="../modules/posix.fnmatch.html">posix.fnmatch</a></li>
+  <li><a href="../modules/posix.glob.html">posix.glob</a></li>
+  <li><a href="../modules/posix.grp.html">posix.grp</a></li>
+  <li><a href="../modules/posix.libgen.html">posix.libgen</a></li>
+  <li><a href="../modules/posix.poll.html">posix.poll</a></li>
+  <li><a href="../modules/posix.pwd.html">posix.pwd</a></li>
+  <li><a href="../modules/posix.sched.html">posix.sched</a></li>
+  <li><a href="../modules/posix.signal.html">posix.signal</a></li>
+  <li><a href="../modules/posix.stdio.html">posix.stdio</a></li>
+  <li><a href="../modules/posix.stdlib.html">posix.stdlib</a></li>
+  <li><a href="../modules/posix.sys.msg.html">posix.sys.msg</a></li>
+  <li><a href="../modules/posix.sys.resource.html">posix.sys.resource</a></li>
+  <li><a href="../modules/posix.sys.socket.html">posix.sys.socket</a></li>
+  <li><a href="../modules/posix.sys.stat.html">posix.sys.stat</a></li>
+  <li><a href="../modules/posix.sys.statvfs.html">posix.sys.statvfs</a></li>
+  <li><a href="../modules/posix.sys.time.html">posix.sys.time</a></li>
+  <li><a href="../modules/posix.sys.times.html">posix.sys.times</a></li>
+  <li><a href="../modules/posix.sys.utsname.html">posix.sys.utsname</a></li>
+  <li><a href="../modules/posix.sys.wait.html">posix.sys.wait</a></li>
+  <li><a href="../modules/posix.syslog.html">posix.syslog</a></li>
+  <li><a href="../modules/posix.termio.html">posix.termio</a></li>
+  <li><a href="../modules/posix.time.html">posix.time</a></li>
+  <li><a href="../modules/posix.unistd.html">posix.unistd</a></li>
+  <li><a href="../modules/posix.utime.html">posix.utime</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/abstract-ns-client.lua.html">abstract-ns-client.lua</a></li>
+  <li><a href="../examples/abstract-ns-server.lua.html">abstract-ns-server.lua</a></li>
+  <li><a href="../examples/dir.lua.html">dir.lua</a></li>
+  <li><a href="../examples/dup2.lua.html">dup2.lua</a></li>
+  <li><a href="../examples/fork.lua.html">fork.lua</a></li>
+  <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
+  <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
+  <li><a href="../examples/glob.lua.html">glob.lua</a></li>
+  <li><a href="../examples/limit.lua.html">limit.lua</a></li>
+  <li><a href="../examples/lock.lua.html">lock.lua</a></li>
+  <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><a href="../examples/ping.lua.html">ping.lua</a></li>
+  <li><a href="../examples/poll.lua.html">poll.lua</a></li>
+  <li><a href="../examples/rt_sched.lua.html">rt_sched.lua</a></li>
+  <li><a href="../examples/signal.lua.html">signal.lua</a></li>
+  <li><a href="../examples/socket.lua.html">socket.lua</a></li>
+  <li><a href="../examples/termios.lua.html">termios.lua</a></li>
+  <li><a href="../examples/tree.lua.html">tree.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>posix.errno</code></h1>
+<p>System error codes and messages.</p>
+<p> Usually, you'll be able to work with the error messages returned as the
+ second value from failed calls directly, without having to manually save
+ and stringify the system messages as you would in C.  For completeness,
+ the functions are still available here.</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#errno">errno ([n=current errno])</a></td>
+	<td class="summary">Describe an error code/and or read <code>errno</code></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#set_errno">set_errno (n)</a></td>
+	<td class="summary">Set errno.</td>
+	</tr>
+</table>
+<h2><a href="#Constants">Constants </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#posix.errno">posix.errno</a></td>
+	<td class="summary">Error constants.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "errno"></a>
+    <strong>errno ([n=current errno])</strong>
+    </dt>
+    <dd>
+    Describe an error code/and or read <code>errno</code>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">n</span>
+            <span class="types"><span class="type">int</span></span>
+         optional error code
+         (<em>default</em> current errno)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        description</li>
+        <li>
+        error code</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/strerror.html">strerror(3)</a></li>
+         <li><a href="../modules/posix.errno.html"></a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> strerr, nerr = posix.errno ()</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "set_errno"></a>
+    <strong>set_errno (n)</strong>
+    </dt>
+    <dd>
+    Set errno.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">n</span>
+            <span class="types"><span class="type">int</span></span>
+         error code
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/errno.html">errno(3)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">posix.errno (posix.EBADF)</pre>
+    </ul>
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Constants"></a>Constants </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "posix.errno"></a>
+    <strong>posix.errno</strong>
+    </dt>
+    <dd>
+    Error constants.
+Any constants not available in the underlying system will be <code>nil</code> valued.</p>
+
+<p>If you find one of the luaposix APIs returns an error code not listed here,
+please raise an issue <a href="http://github.com/luaposix/luaposixissues">here</a>, stating
+the symbolic name of the constant (from <code>/usr/include/errno.h</code> or equivalent).
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">E2BIG</span>
+            <span class="types"><span class="type">int</span></span>
+         argument list too long
+        </li>
+        <li><span class="parameter">EACCES</span>
+            <span class="types"><span class="type">int</span></span>
+         permission denied
+        </li>
+        <li><span class="parameter">EADDRINUSE</span>
+            <span class="types"><span class="type">int</span></span>
+         address already in use
+        </li>
+        <li><span class="parameter">EADDRNOTAVAIL</span>
+            <span class="types"><span class="type">int</span></span>
+         can't assign requested address
+        </li>
+        <li><span class="parameter">EAFNOSUPPORT</span>
+            <span class="types"><span class="type">int</span></span>
+         address family not supported by protocol family
+        </li>
+        <li><span class="parameter">EAGAIN</span>
+            <span class="types"><span class="type">int</span></span>
+         resource temporarily unavailable
+        </li>
+        <li><span class="parameter">EALREADY</span>
+            <span class="types"><span class="type">int</span></span>
+         operation already in progress
+        </li>
+        <li><span class="parameter">EBADF</span>
+            <span class="types"><span class="type">int</span></span>
+         bad file descriptor
+        </li>
+        <li><span class="parameter">EBADMSG</span>
+            <span class="types"><span class="type">int</span></span>
+         bad message
+        </li>
+        <li><span class="parameter">EBUSY</span>
+            <span class="types"><span class="type">int</span></span>
+         resource busy
+        </li>
+        <li><span class="parameter">ECANCELED</span>
+            <span class="types"><span class="type">int</span></span>
+         operation canceled
+        </li>
+        <li><span class="parameter">ECHILD</span>
+            <span class="types"><span class="type">int</span></span>
+         no child processes
+        </li>
+        <li><span class="parameter">ECONNABORTED</span>
+            <span class="types"><span class="type">int</span></span>
+         software caused connection abort
+        </li>
+        <li><span class="parameter">ECONNREFUSED</span>
+            <span class="types"><span class="type">int</span></span>
+         connection refused
+        </li>
+        <li><span class="parameter">ECONNRESET</span>
+            <span class="types"><span class="type">int</span></span>
+         connection reset by peer
+        </li>
+        <li><span class="parameter">EDEADLK</span>
+            <span class="types"><span class="type">int</span></span>
+         resource deadlock avoided
+        </li>
+        <li><span class="parameter">EDESTADDRREQ</span>
+            <span class="types"><span class="type">int</span></span>
+         destination address required
+        </li>
+        <li><span class="parameter">EDOM</span>
+            <span class="types"><span class="type">int</span></span>
+         numerical argument out of domain
+        </li>
+        <li><span class="parameter">EEXIST</span>
+            <span class="types"><span class="type">int</span></span>
+         file exists
+        </li>
+        <li><span class="parameter">EFAULT</span>
+            <span class="types"><span class="type">int</span></span>
+         bad address
+        </li>
+        <li><span class="parameter">EFBIG</span>
+            <span class="types"><span class="type">int</span></span>
+         file too large
+        </li>
+        <li><span class="parameter">EHOSTUNREACH</span>
+            <span class="types"><span class="type">int</span></span>
+         no route to host
+        </li>
+        <li><span class="parameter">EIDRM</span>
+            <span class="types"><span class="type">int</span></span>
+         identifier removed
+        </li>
+        <li><span class="parameter">EILSEQ</span>
+            <span class="types"><span class="type">int</span></span>
+         illegal byte sequence
+        </li>
+        <li><span class="parameter">EINPROGRESS</span>
+            <span class="types"><span class="type">int</span></span>
+         operation now in progress
+        </li>
+        <li><span class="parameter">EINTR</span>
+            <span class="types"><span class="type">int</span></span>
+         interrupted system call
+        </li>
+        <li><span class="parameter">EINVAL</span>
+            <span class="types"><span class="type">int</span></span>
+         invalid argument
+        </li>
+        <li><span class="parameter">EIO</span>
+            <span class="types"><span class="type">int</span></span>
+         input/output error
+        </li>
+        <li><span class="parameter">EISCONN</span>
+            <span class="types"><span class="type">int</span></span>
+         socket is already connected
+        </li>
+        <li><span class="parameter">EISDIR</span>
+            <span class="types"><span class="type">int</span></span>
+         is a directory
+        </li>
+        <li><span class="parameter">ELOOP</span>
+            <span class="types"><span class="type">int</span></span>
+         too many levels of symbolic links
+        </li>
+        <li><span class="parameter">EMFILE</span>
+            <span class="types"><span class="type">int</span></span>
+         too many open files
+        </li>
+        <li><span class="parameter">EMLINK</span>
+            <span class="types"><span class="type">int</span></span>
+         too many links
+        </li>
+        <li><span class="parameter">EMSGSIZE</span>
+            <span class="types"><span class="type">int</span></span>
+         message too long
+        </li>
+        <li><span class="parameter">ENAMETOOLONG</span>
+            <span class="types"><span class="type">int</span></span>
+         file name too long
+        </li>
+        <li><span class="parameter">ENETDOWN</span>
+            <span class="types"><span class="type">int</span></span>
+         network is down
+        </li>
+        <li><span class="parameter">ENETRESET</span>
+            <span class="types"><span class="type">int</span></span>
+         network dropped connection on reset
+        </li>
+        <li><span class="parameter">ENETUNREACH</span>
+            <span class="types"><span class="type">int</span></span>
+         network is unreachable
+        </li>
+        <li><span class="parameter">ENFILE</span>
+            <span class="types"><span class="type">int</span></span>
+         too many open files in system
+        </li>
+        <li><span class="parameter">ENOBUFS</span>
+            <span class="types"><span class="type">int</span></span>
+         no buffer space available
+        </li>
+        <li><span class="parameter">ENODEV</span>
+            <span class="types"><span class="type">int</span></span>
+         operation not supported by device
+        </li>
+        <li><span class="parameter">ENOENT</span>
+            <span class="types"><span class="type">int</span></span>
+         no such file or directory
+        </li>
+        <li><span class="parameter">ENOEXEC</span>
+            <span class="types"><span class="type">int</span></span>
+         exec format error
+        </li>
+        <li><span class="parameter">ENOLCK</span>
+            <span class="types"><span class="type">int</span></span>
+         no locks available
+        </li>
+        <li><span class="parameter">ENOMEM</span>
+            <span class="types"><span class="type">int</span></span>
+         cannot allocate memory
+        </li>
+        <li><span class="parameter">ENOMSG</span>
+            <span class="types"><span class="type">int</span></span>
+         no message of desired type
+        </li>
+        <li><span class="parameter">ENOPROTOOPT</span>
+            <span class="types"><span class="type">int</span></span>
+         protocol not available
+        </li>
+        <li><span class="parameter">ENOSPC</span>
+            <span class="types"><span class="type">int</span></span>
+         no space left on device
+        </li>
+        <li><span class="parameter">ENOSYS</span>
+            <span class="types"><span class="type">int</span></span>
+         function not implemented
+        </li>
+        <li><span class="parameter">ENOTCONN</span>
+            <span class="types"><span class="type">int</span></span>
+         socket is not connected
+        </li>
+        <li><span class="parameter">ENOTDIR</span>
+            <span class="types"><span class="type">int</span></span>
+         not a directory
+        </li>
+        <li><span class="parameter">ENOTEMPTY</span>
+            <span class="types"><span class="type">int</span></span>
+         directory not empty
+        </li>
+        <li><span class="parameter">ENOTSOCK</span>
+            <span class="types"><span class="type">int</span></span>
+         socket operation on non-socket
+        </li>
+        <li><span class="parameter">ENOTSUP</span>
+            <span class="types"><span class="type">int</span></span>
+         operation not supported
+        </li>
+        <li><span class="parameter">ENOTTY</span>
+            <span class="types"><span class="type">int</span></span>
+         inappropriate ioctl for device
+        </li>
+        <li><span class="parameter">ENXIO</span>
+            <span class="types"><span class="type">int</span></span>
+         device not configured
+        </li>
+        <li><span class="parameter">EOPNOTSUPP</span>
+            <span class="types"><span class="type">int</span></span>
+         operation not supported on socket
+        </li>
+        <li><span class="parameter">EOVERFLOW</span>
+            <span class="types"><span class="type">int</span></span>
+         value too large to be stored in data type
+        </li>
+        <li><span class="parameter">EPERM</span>
+            <span class="types"><span class="type">int</span></span>
+         operation not permitted
+        </li>
+        <li><span class="parameter">EPIPE</span>
+            <span class="types"><span class="type">int</span></span>
+         broken pipe
+        </li>
+        <li><span class="parameter">EPROTO</span>
+            <span class="types"><span class="type">int</span></span>
+         protocol error
+        </li>
+        <li><span class="parameter">EPROTONOSUPPORT</span>
+            <span class="types"><span class="type">int</span></span>
+         protocol not supported
+        </li>
+        <li><span class="parameter">EPROTOTYPE</span>
+            <span class="types"><span class="type">int</span></span>
+         protocol wrong type for socket
+        </li>
+        <li><span class="parameter">ERANGE</span>
+            <span class="types"><span class="type">int</span></span>
+         result too large
+        </li>
+        <li><span class="parameter">EROFS</span>
+            <span class="types"><span class="type">int</span></span>
+         read-only file system
+        </li>
+        <li><span class="parameter">ESPIPE</span>
+            <span class="types"><span class="type">int</span></span>
+         illegal seek
+        </li>
+        <li><span class="parameter">ESRCH</span>
+            <span class="types"><span class="type">int</span></span>
+         no such process
+        </li>
+        <li><span class="parameter">ETIMEDOUT</span>
+            <span class="types"><span class="type">int</span></span>
+         operation timed out
+        </li>
+        <li><span class="parameter">ETXTBSY</span>
+            <span class="types"><span class="type">int</span></span>
+         text file busy
+        </li>
+        <li><span class="parameter">EWOULDBLOCK</span>
+            <span class="types"><span class="type">int</span></span>
+         operation would block
+        </li>
+        <li><span class="parameter">EXDEV</span>
+            <span class="types"><span class="type">int</span></span>
+         cross-device link
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- Print errno constants supported on this host.
+</span><span class="keyword">for</span> name, value <span class="keyword">in</span> <span class="global">pairs</span> (<span class="global">require</span> <span class="string">"posix.errno"</span>) <span class="keyword">do</span>
+  <span class="keyword">if</span> <span class="global">type</span> (value) == <span class="string">"number"</span> <span class="keyword">then</span>
+    <span class="global">print</span> (name, value)
+  <span class="keyword">end</span>
+<span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2020-07-06 12:02:06 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

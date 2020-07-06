@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luaposix 35.0 Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>luaposix 35.0</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/abstract-ns-client.lua.html">abstract-ns-client.lua</a></li>
+  <li><a href="../examples/abstract-ns-server.lua.html">abstract-ns-server.lua</a></li>
+  <li><a href="../examples/dir.lua.html">dir.lua</a></li>
+  <li><a href="../examples/dup2.lua.html">dup2.lua</a></li>
+  <li><a href="../examples/fork.lua.html">fork.lua</a></li>
+  <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
+  <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
+  <li><a href="../examples/glob.lua.html">glob.lua</a></li>
+  <li><a href="../examples/limit.lua.html">limit.lua</a></li>
+  <li><a href="../examples/lock.lua.html">lock.lua</a></li>
+  <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><a href="../examples/ping.lua.html">ping.lua</a></li>
+  <li><a href="../examples/poll.lua.html">poll.lua</a></li>
+  <li><a href="../examples/rt_sched.lua.html">rt_sched.lua</a></li>
+  <li><a href="../examples/signal.lua.html">signal.lua</a></li>
+  <li><a href="../examples/socket.lua.html">socket.lua</a></li>
+  <li><a href="../examples/termios.lua.html">termios.lua</a></li>
+  <li><strong>tree.lua</strong></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/posix.html">posix</a></li>
+  <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
+  <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
+  <li><a href="../modules/posix.errno.html">posix.errno</a></li>
+  <li><a href="../modules/posix.fcntl.html">posix.fcntl</a></li>
+  <li><a href="../modules/posix.fnmatch.html">posix.fnmatch</a></li>
+  <li><a href="../modules/posix.glob.html">posix.glob</a></li>
+  <li><a href="../modules/posix.grp.html">posix.grp</a></li>
+  <li><a href="../modules/posix.libgen.html">posix.libgen</a></li>
+  <li><a href="../modules/posix.poll.html">posix.poll</a></li>
+  <li><a href="../modules/posix.pwd.html">posix.pwd</a></li>
+  <li><a href="../modules/posix.sched.html">posix.sched</a></li>
+  <li><a href="../modules/posix.signal.html">posix.signal</a></li>
+  <li><a href="../modules/posix.stdio.html">posix.stdio</a></li>
+  <li><a href="../modules/posix.stdlib.html">posix.stdlib</a></li>
+  <li><a href="../modules/posix.sys.msg.html">posix.sys.msg</a></li>
+  <li><a href="../modules/posix.sys.resource.html">posix.sys.resource</a></li>
+  <li><a href="../modules/posix.sys.socket.html">posix.sys.socket</a></li>
+  <li><a href="../modules/posix.sys.stat.html">posix.sys.stat</a></li>
+  <li><a href="../modules/posix.sys.statvfs.html">posix.sys.statvfs</a></li>
+  <li><a href="../modules/posix.sys.time.html">posix.sys.time</a></li>
+  <li><a href="../modules/posix.sys.times.html">posix.sys.times</a></li>
+  <li><a href="../modules/posix.sys.utsname.html">posix.sys.utsname</a></li>
+  <li><a href="../modules/posix.sys.wait.html">posix.sys.wait</a></li>
+  <li><a href="../modules/posix.syslog.html">posix.syslog</a></li>
+  <li><a href="../modules/posix.termio.html">posix.termio</a></li>
+  <li><a href="../modules/posix.time.html">posix.time</a></li>
+  <li><a href="../modules/posix.unistd.html">posix.unistd</a></li>
+  <li><a href="../modules/posix.utime.html">posix.utime</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>tree.lua</h2>
+<pre>
+#! /usr/bin/env lua
+
+<span class="comment">-- tree view of the file system like the 'tree' unix utility
+</span><span class="comment">-- John Belmonte &lt;jvb@prairienet.org&gt;
+</span>
+<span class="keyword">local</span> dir = <span class="global">require</span> <span class="string">'posix.dirent'</span>.dir
+<span class="keyword">local</span> islink = <span class="global">require</span> <span class="string">'posix.sys.stat'</span>.S_ISLNK
+<span class="keyword">local</span> isdir = <span class="global">require</span> <span class="string">'posix.sys.stat'</span>.S_ISDIR
+<span class="keyword">local</span> readlink = <span class="global">require</span> <span class="string">'posix.unistd'</span>.readlink
+<span class="keyword">local</span> stat = <span class="global">require</span> <span class="string">'posix.sys.stat'</span>.stat
+
+<span class="keyword">local</span> leaf_indent = <span class="string">'|   '</span>
+<span class="keyword">local</span> tail_leaf_indent = <span class="string">'   '</span>
+<span class="keyword">local</span> leaf_prefix = <span class="string">'|-- '</span>
+<span class="keyword">local</span> tail_leaf_prefix = <span class="string">'`-- '</span>
+<span class="keyword">local</span> link_prefix = <span class="string">' -&gt; '</span>
+
+<span class="keyword">local</span> <span class="keyword">function</span> printf(...)
+  <span class="global">io</span>.write(<span class="global">string</span>.format(...))
+<span class="keyword">end</span>
+
+<span class="keyword">local</span> <span class="keyword">function</span> do_directory(directory, level, prefix)
+   <span class="keyword">local</span> num_dirs = <span class="number">0</span>
+   <span class="keyword">local</span> num_files = <span class="number">0</span>
+   <span class="keyword">local</span> files = dir(directory)
+   <span class="keyword">local</span> last_file_index = #files
+   <span class="global">table</span>.sort(files)
+   <span class="keyword">for</span> i, name <span class="keyword">in</span> <span class="global">ipairs</span>(files) <span class="keyword">do</span>
+      <span class="keyword">if</span> name ~= <span class="string">'.'</span> <span class="keyword">and</span> name ~= <span class="string">'..'</span> <span class="keyword">then</span>
+         <span class="keyword">local</span> full_name = <span class="global">string</span>.format(<span class="string">'%s/%s'</span>, directory, name)
+         <span class="keyword">local</span> info = <span class="global">assert</span>(stat(full_name))
+         <span class="keyword">local</span> is_tail = (i==last_file_index)
+         <span class="keyword">local</span> prefix2 = is_tail <span class="keyword">and</span> tail_leaf_prefix <span class="keyword">or</span> leaf_prefix
+         <span class="keyword">local</span> link = <span class="string">''</span>
+         <span class="keyword">if</span> islink(info.st_mode) ~= <span class="number">0</span> <span class="keyword">then</span>
+            linked_name = <span class="global">assert</span>(readlink(full_name))
+            link = <span class="global">string</span>.format(<span class="string">'%s%s'</span>, link_prefix, linked_name)
+         <span class="keyword">end</span>
+         printf(<span class="string">'%s%s%s%s\n'</span>, prefix, prefix2, name, link)
+         <span class="keyword">if</span> isdir(info.st_mode) ~= <span class="number">0</span> <span class="keyword">then</span>
+            <span class="keyword">local</span> indent = is_tail <span class="keyword">and</span> tail_leaf_indent <span class="keyword">or</span> leaf_indent
+            <span class="comment">-- TODO: cache string concatenation
+</span>            sub_dirs, sub_files = do_directory(full_name, level+<span class="number">1</span>,
+               prefix .. indent)
+            num_dirs = num_dirs + sub_dirs + <span class="number">1</span>
+            num_files = num_files + sub_files
+         <span class="keyword">else</span>
+            num_files = num_files + <span class="number">1</span>
+         <span class="keyword">end</span>
+      <span class="keyword">end</span>
+   <span class="keyword">end</span>
+   <span class="keyword">return</span> num_dirs, num_files
+<span class="keyword">end</span>
+
+<span class="keyword">local</span> <span class="keyword">function</span> fore(directory)
+   <span class="global">print</span>(directory)
+   num_dirs, num_files = do_directory(directory, <span class="number">0</span>, <span class="string">''</span>)
+   printf(<span class="string">'\n%d directories, %d files\n'</span>, num_dirs, num_files)
+<span class="keyword">end</span>
+
+directory = (arg <span class="keyword">and</span> #arg &gt; <span class="number">0</span>) <span class="keyword">and</span> arg[<span class="number">1</span>] <span class="keyword">or</span> <span class="string">'.'</span>
+fore(directory)</pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2020-07-06 12:02:06 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

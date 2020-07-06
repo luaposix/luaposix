@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luaposix 35.0 Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>luaposix 35.0</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/abstract-ns-client.lua.html">abstract-ns-client.lua</a></li>
+  <li><a href="../examples/abstract-ns-server.lua.html">abstract-ns-server.lua</a></li>
+  <li><a href="../examples/dir.lua.html">dir.lua</a></li>
+  <li><a href="../examples/dup2.lua.html">dup2.lua</a></li>
+  <li><a href="../examples/fork.lua.html">fork.lua</a></li>
+  <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
+  <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
+  <li><a href="../examples/glob.lua.html">glob.lua</a></li>
+  <li><a href="../examples/limit.lua.html">limit.lua</a></li>
+  <li><a href="../examples/lock.lua.html">lock.lua</a></li>
+  <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><a href="../examples/ping.lua.html">ping.lua</a></li>
+  <li><a href="../examples/poll.lua.html">poll.lua</a></li>
+  <li><strong>rt_sched.lua</strong></li>
+  <li><a href="../examples/signal.lua.html">signal.lua</a></li>
+  <li><a href="../examples/socket.lua.html">socket.lua</a></li>
+  <li><a href="../examples/termios.lua.html">termios.lua</a></li>
+  <li><a href="../examples/tree.lua.html">tree.lua</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/posix.html">posix</a></li>
+  <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
+  <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
+  <li><a href="../modules/posix.errno.html">posix.errno</a></li>
+  <li><a href="../modules/posix.fcntl.html">posix.fcntl</a></li>
+  <li><a href="../modules/posix.fnmatch.html">posix.fnmatch</a></li>
+  <li><a href="../modules/posix.glob.html">posix.glob</a></li>
+  <li><a href="../modules/posix.grp.html">posix.grp</a></li>
+  <li><a href="../modules/posix.libgen.html">posix.libgen</a></li>
+  <li><a href="../modules/posix.poll.html">posix.poll</a></li>
+  <li><a href="../modules/posix.pwd.html">posix.pwd</a></li>
+  <li><a href="../modules/posix.sched.html">posix.sched</a></li>
+  <li><a href="../modules/posix.signal.html">posix.signal</a></li>
+  <li><a href="../modules/posix.stdio.html">posix.stdio</a></li>
+  <li><a href="../modules/posix.stdlib.html">posix.stdlib</a></li>
+  <li><a href="../modules/posix.sys.msg.html">posix.sys.msg</a></li>
+  <li><a href="../modules/posix.sys.resource.html">posix.sys.resource</a></li>
+  <li><a href="../modules/posix.sys.socket.html">posix.sys.socket</a></li>
+  <li><a href="../modules/posix.sys.stat.html">posix.sys.stat</a></li>
+  <li><a href="../modules/posix.sys.statvfs.html">posix.sys.statvfs</a></li>
+  <li><a href="../modules/posix.sys.time.html">posix.sys.time</a></li>
+  <li><a href="../modules/posix.sys.times.html">posix.sys.times</a></li>
+  <li><a href="../modules/posix.sys.utsname.html">posix.sys.utsname</a></li>
+  <li><a href="../modules/posix.sys.wait.html">posix.sys.wait</a></li>
+  <li><a href="../modules/posix.syslog.html">posix.syslog</a></li>
+  <li><a href="../modules/posix.termio.html">posix.termio</a></li>
+  <li><a href="../modules/posix.time.html">posix.time</a></li>
+  <li><a href="../modules/posix.unistd.html">posix.unistd</a></li>
+  <li><a href="../modules/posix.utime.html">posix.utime</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>rt_sched.lua</h2>
+<pre>
+#! /usr/bin/env lua
+
+<span class="comment">--[[
+ This example tests sched_setscheduler() / sched_getscheduler()
+ The script must be run as privileged process (CAP_SYS_NICE on linux)
+]]</span>
+
+<span class="keyword">local</span> M = <span class="global">require</span> <span class="string">'posix.sched'</span>
+
+
+<span class="keyword">local</span> mypid = <span class="global">require</span> <span class="string">'posix.unistd'</span>.getpid()
+
+<span class="comment">-- get sched params from ps(1)
+</span><span class="keyword">local</span> <span class="keyword">function</span> get_ps_sched(pid)
+   <span class="keyword">local</span> fp = <span class="global">io</span>.popen(<span class="global">string</span>.format(<span class="string">'ps --no-headers -o "policy,rtprio" %s'</span>, pid))
+   <span class="keyword">local</span> res, err = fp:read<span class="string">'*a'</span>
+   <span class="global">assert</span>(res, err)
+   fp:close()
+   <span class="keyword">local</span> policy, rtprio = <span class="global">string</span>.match(res, <span class="string">'([^%s]+)%s+([^%s]+)'</span>)
+   <span class="global">assert</span>(policy)
+   <span class="global">assert</span>(rtprio)
+   <span class="keyword">return</span> policy, rtprio
+<span class="keyword">end</span>
+
+
+<span class="keyword">do</span> <span class="comment">-- Tests on own process
+</span>
+   <span class="comment">-- get scheduler policy for own process
+</span>   <span class="keyword">local</span> res, err = M.sched_getscheduler(<span class="number">0</span>) <span class="comment">-- 0 pid: own process
+</span>   <span class="global">assert</span>(res == M.SCHED_OTHER)
+   <span class="keyword">local</span> res, err = M.sched_getscheduler() <span class="comment">-- default pid: own process
+</span>   <span class="global">assert</span>(res == M.SCHED_OTHER)
+
+   <span class="keyword">local</span> policy, rtprio = get_ps_sched(mypid)
+   <span class="global">assert</span>(policy== <span class="string">'TS'</span>)
+   <span class="global">assert</span>(rtprio== <span class="string">'-'</span>)
+
+
+   <span class="comment">-- set realtime priority on own process : SCHED_FIFO
+</span>   <span class="keyword">local</span> res, err = M.sched_setscheduler(<span class="number">0</span>, p.SCHED_FIFO, <span class="number">10</span> )
+   <span class="global">assert</span>(res, err)
+
+   <span class="keyword">local</span> policy, rtprio = get_ps_sched(mypid)
+   <span class="global">assert</span>(policy == <span class="string">'FF'</span>)
+   <span class="global">assert</span>(rtprio == <span class="string">'10'</span>)
+
+   <span class="keyword">local</span> res, err = M.sched_getscheduler(<span class="number">0</span>)
+   <span class="global">assert</span>(res == M.SCHED_FIFO)
+
+
+   <span class="comment">-- set realtime priority on own process SCHED_RR
+</span>   <span class="keyword">local</span> res, err = M.sched_setscheduler(<span class="number">0</span>, M.SCHED_RR, <span class="number">11</span> )
+   <span class="global">assert</span>(res, err)
+
+   <span class="keyword">local</span> policy, rtprio = get_ps_sched(mypid)
+   <span class="global">assert</span>(policy == <span class="string">'RR'</span>)
+   <span class="global">assert</span>(rtprio == <span class="string">'11'</span>)
+
+   <span class="keyword">local</span> res, err = M.sched_getscheduler(<span class="number">0</span>)
+   <span class="global">assert</span>(res == M.SCHED_RR)
+
+
+   <span class="comment">-- no parameters: reset own process to normal priority :
+</span>   <span class="keyword">local</span> res, err = M.sched_setscheduler()
+   <span class="global">assert</span>(res, err)
+
+   <span class="keyword">local</span> policy, rtprio = get_ps_sched(mypid)
+   <span class="global">assert</span>(policy == <span class="string">'TS'</span>)
+   <span class="global">assert</span>(rtprio == <span class="string">'-'</span>)
+
+   <span class="keyword">local</span> res, err = M.sched_getscheduler(<span class="number">0</span>)
+   <span class="global">assert</span>(res == M.SCHED_OTHER)
+<span class="keyword">end</span>
+
+
+<span class="comment">-- fork a child to check sched_setscheduler on other process
+</span><span class="keyword">do</span>
+   <span class="keyword">local</span> U = <span class="global">require</span> <span class="string">'posix.unistd'</span>
+
+   <span class="keyword">local</span> r, w = U.pipe()
+   <span class="keyword">local</span> childpid = U.fork()
+   <span class="keyword">if</span> childpid == <span class="number">0</span> <span class="keyword">then</span>
+      <span class="comment">-- child: block on pipe until parent is finshed
+</span>      U.close(w)  <span class="comment">-- close unused write end
+</span>      <span class="keyword">local</span> b = U.read(r,<span class="number">1</span>)
+      U._exit(<span class="number">0</span>)
+   <span class="keyword">end</span>
+
+   <span class="comment">-- parent:
+</span>   U.close(r)
+
+   <span class="keyword">do</span> <span class="comment">-- do tests
+</span>      <span class="comment">-- get scheduler policy for child process
+</span>      <span class="keyword">local</span> res, err = M.sched_getscheduler(childpid)
+      <span class="global">assert</span>(res == M.SCHED_OTHER)
+
+      <span class="keyword">local</span> policy, rtprio = get_ps_sched(childpid)
+      <span class="global">assert</span>(policy == <span class="string">'TS'</span>)
+      <span class="global">assert</span>(rtprio == <span class="string">'-'</span>)
+
+
+      <span class="comment">-- set realtime priority on child process : SCHED_FIFO
+</span>      <span class="keyword">local</span> res, err = M.sched_setscheduler(childpid, M.SCHED_FIFO, <span class="number">10</span> )
+      <span class="global">assert</span>(res, err)
+
+      <span class="keyword">local</span> policy, rtprio = get_ps_sched(childpid)
+      <span class="global">assert</span>(policy == <span class="string">'FF'</span>)
+      <span class="global">assert</span>(rtprio == <span class="string">'10'</span>)
+
+      <span class="keyword">local</span> res, err = M.sched_getscheduler(childpid)
+      <span class="global">assert</span>(res == M.SCHED_FIFO)
+
+
+      <span class="comment">-- set realtime priority on child process SCHED_RR
+</span>      <span class="keyword">local</span> res, err = M.sched_setscheduler(childpid, M.SCHED_RR, <span class="number">11</span> )
+      <span class="global">assert</span>(res, err)
+
+      <span class="keyword">local</span> policy, rtprio = get_ps_sched(childpid)
+      <span class="global">assert</span>(policy == <span class="string">'RR'</span>)
+      <span class="global">assert</span>(rtprio == <span class="string">'11'</span>)
+
+      <span class="keyword">local</span> res, err = M.sched_getscheduler(childpid)
+      <span class="global">assert</span>(res == M.SCHED_RR)
+
+
+      <span class="comment">-- no parameters after pid: reset child process to normal priority :
+</span>      <span class="keyword">local</span> res, err = M.sched_setscheduler(childpid)
+      <span class="global">assert</span>(res, err)
+
+      <span class="keyword">local</span> policy, rtprio = get_ps_sched(childpid)
+      <span class="global">assert</span>(policy == <span class="string">'TS'</span>)
+      <span class="global">assert</span>(rtprio == <span class="string">'-'</span>)
+
+      <span class="keyword">local</span> res, err = M.sched_getscheduler(childpid)
+      <span class="global">assert</span>(res == M.SCHED_OTHER)
+   <span class="keyword">end</span>
+
+   <span class="comment">-- stop child
+</span>   U.write(w, <span class="string">'stop'</span>)
+   U.close(w)
+   <span class="global">require</span> <span class="string">'posix.sys.wait'</span>.wait(childpid)
+<span class="keyword">end</span></pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2020-07-06 12:02:06 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

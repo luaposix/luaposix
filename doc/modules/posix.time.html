@@ -1,0 +1,649 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luaposix 35.0 Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>luaposix 35.0</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
+<li><a href="#Constants">Constants </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/posix.html">posix</a></li>
+  <li><a href="../modules/posix.ctype.html">posix.ctype</a></li>
+  <li><a href="../modules/posix.dirent.html">posix.dirent</a></li>
+  <li><a href="../modules/posix.errno.html">posix.errno</a></li>
+  <li><a href="../modules/posix.fcntl.html">posix.fcntl</a></li>
+  <li><a href="../modules/posix.fnmatch.html">posix.fnmatch</a></li>
+  <li><a href="../modules/posix.glob.html">posix.glob</a></li>
+  <li><a href="../modules/posix.grp.html">posix.grp</a></li>
+  <li><a href="../modules/posix.libgen.html">posix.libgen</a></li>
+  <li><a href="../modules/posix.poll.html">posix.poll</a></li>
+  <li><a href="../modules/posix.pwd.html">posix.pwd</a></li>
+  <li><a href="../modules/posix.sched.html">posix.sched</a></li>
+  <li><a href="../modules/posix.signal.html">posix.signal</a></li>
+  <li><a href="../modules/posix.stdio.html">posix.stdio</a></li>
+  <li><a href="../modules/posix.stdlib.html">posix.stdlib</a></li>
+  <li><a href="../modules/posix.sys.msg.html">posix.sys.msg</a></li>
+  <li><a href="../modules/posix.sys.resource.html">posix.sys.resource</a></li>
+  <li><a href="../modules/posix.sys.socket.html">posix.sys.socket</a></li>
+  <li><a href="../modules/posix.sys.stat.html">posix.sys.stat</a></li>
+  <li><a href="../modules/posix.sys.statvfs.html">posix.sys.statvfs</a></li>
+  <li><a href="../modules/posix.sys.time.html">posix.sys.time</a></li>
+  <li><a href="../modules/posix.sys.times.html">posix.sys.times</a></li>
+  <li><a href="../modules/posix.sys.utsname.html">posix.sys.utsname</a></li>
+  <li><a href="../modules/posix.sys.wait.html">posix.sys.wait</a></li>
+  <li><a href="../modules/posix.syslog.html">posix.syslog</a></li>
+  <li><a href="../modules/posix.termio.html">posix.termio</a></li>
+  <li><strong>posix.time</strong></li>
+  <li><a href="../modules/posix.unistd.html">posix.unistd</a></li>
+  <li><a href="../modules/posix.utime.html">posix.utime</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/abstract-ns-client.lua.html">abstract-ns-client.lua</a></li>
+  <li><a href="../examples/abstract-ns-server.lua.html">abstract-ns-server.lua</a></li>
+  <li><a href="../examples/dir.lua.html">dir.lua</a></li>
+  <li><a href="../examples/dup2.lua.html">dup2.lua</a></li>
+  <li><a href="../examples/fork.lua.html">fork.lua</a></li>
+  <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
+  <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
+  <li><a href="../examples/glob.lua.html">glob.lua</a></li>
+  <li><a href="../examples/limit.lua.html">limit.lua</a></li>
+  <li><a href="../examples/lock.lua.html">lock.lua</a></li>
+  <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><a href="../examples/ping.lua.html">ping.lua</a></li>
+  <li><a href="../examples/poll.lua.html">poll.lua</a></li>
+  <li><a href="../examples/rt_sched.lua.html">rt_sched.lua</a></li>
+  <li><a href="../examples/signal.lua.html">signal.lua</a></li>
+  <li><a href="../examples/socket.lua.html">socket.lua</a></li>
+  <li><a href="../examples/termios.lua.html">termios.lua</a></li>
+  <li><a href="../examples/tree.lua.html">tree.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>posix.time</code></h1>
+<p>Time and Clock Functions.</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#clock_getres">clock_getres (clk)</a></td>
+	<td class="summary">Find the precision of a clock.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#clock_gettime">clock_gettime (clk)</a></td>
+	<td class="summary">Read a clock.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#gmtime">gmtime (t)</a></td>
+	<td class="summary">Convert epoch time value to a broken-down UTC time.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#localtime">localtime (t)</a></td>
+	<td class="summary">Convert epoch time value to a broken-down local time.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#mktime">mktime (broken)</a></td>
+	<td class="summary">Convert a broken-down localtime table into an epoch time.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#nanosleep">nanosleep (requested)</a></td>
+	<td class="summary">Sleep with nanosecond precision.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#strftime">strftime (format, tm)</a></td>
+	<td class="summary">Write a time out according to a format.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#strptime">strptime (s, format)</a></td>
+	<td class="summary">Parse a date string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#time">time ()</a></td>
+	<td class="summary">Get current time.</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#PosixTimespec">PosixTimespec</a></td>
+	<td class="summary">Timespec record.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#PosixTm">PosixTm</a></td>
+	<td class="summary">Datetime record.</td>
+	</tr>
+</table>
+<h2><a href="#Constants">Constants </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#posix.time">posix.time</a></td>
+	<td class="summary">Standard constants.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "clock_getres"></a>
+    <strong>clock_getres (clk)</strong>
+    </dt>
+    <dd>
+    Find the precision of a clock.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">clk</span>
+            <span class="types"><span class="type">int</span></span>
+         name of clock, one of <code>CLOCK_REALTIME</code>, <code>CLOCK_PROCESS_CPUTIME_ID</code>,
+  <code>CLOCK_MONOTONIC</code> or <code>CLOCK_THREAD_CPUTIME_ID</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/posix.time.html#PosixTimespec">PosixTimespec</a></span>
+        resolution of <em>clk</em>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/clock_getres.html">clock_getres(3)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "clock_gettime"></a>
+    <strong>clock_gettime (clk)</strong>
+    </dt>
+    <dd>
+    Read a clock.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">clk</span>
+            <span class="types"><span class="type">int</span></span>
+         name of clock, one of <code>CLOCK_REALTIME</code>, <code>CLOCK_PROCESS_CPUTIME_ID</code>,
+  <code>CLOCK_MONOTONIC</code> or <code>CLOCK_THREAD_CPUTIME_ID</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/posix.time.html#PosixTimespec">PosixTimespec</a></span>
+        current value of <em>clk</em>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/clock_gettime.html">clock_gettime(3)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "gmtime"></a>
+    <strong>gmtime (t)</strong>
+    </dt>
+    <dd>
+    Convert epoch time value to a broken-down UTC time.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><span class="type">int</span></span>
+         seconds since epoch
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/posix.time.html#PosixTm">PosixTm</a></span>
+        broken-down time
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/gmtime.html">gmtime(3)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "localtime"></a>
+    <strong>localtime (t)</strong>
+    </dt>
+    <dd>
+    Convert epoch time value to a broken-down local time.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><span class="type">int</span></span>
+         seconds since epoch
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/posix.time.html#PosixTm">PosixTm</a></span>
+        broken-down time
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/localtime.html">localtime(3)</a></li>
+         <li><a href="../modules/posix.time.html#mktime">mktime</a></li>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "mktime"></a>
+    <strong>mktime (broken)</strong>
+    </dt>
+    <dd>
+    Convert a broken-down localtime table into an epoch time.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">broken</span>
+            <span class="types"><a class="type" href="../modules/posix.time.html#PosixTm">PosixTm</a></span>
+        -down localtime
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        seconds since epoch
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/mktime.html">mktime(3)</a></li>
+         <li><a href="../modules/posix.time.html#localtime">localtime</a></li>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "nanosleep"></a>
+    <strong>nanosleep (requested)</strong>
+    </dt>
+    <dd>
+    Sleep with nanosecond precision.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">requested</span>
+            <span class="types"><a class="type" href="../modules/posix.time.html#PosixTimespec">PosixTimespec</a></span>
+         sleep time
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code> if requested time has elapsed
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+        <li>
+           <span class="types"><a class="type" href="../modules/posix.time.html#PosixTimespec">PosixTimespec</a></span>
+        unslept time remaining, if interrupted</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/nanosleep.html">nanosleep(2)</a></li>
+         <li><a href="../modules/posix.unistd.html#sleep">posix.unistd.sleep</a></li>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "strftime"></a>
+    <strong>strftime (format, tm)</strong>
+    </dt>
+    <dd>
+    Write a time out according to a format.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">format</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         specifier with <code>%</code> place-holders
+        </li>
+        <li><span class="parameter">tm</span>
+            <span class="types"><a class="type" href="../modules/posix.time.html#PosixTm">PosixTm</a></span>
+         broken-down local time
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+        <em>format</em> with place-holders plugged with <em>tm</em> values
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/strftime.html">strftime(3)</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "strptime"></a>
+    <strong>strptime (s, format)</strong>
+    </dt>
+    <dd>
+    Parse a date string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">s</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">format</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         same as for <code>strftime</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><a class="type" href="../modules/posix.time.html#PosixTm">PosixTm</a></span>
+        broken-down local time</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        next index of first character not parsed as part of the date</li>
+    </ol>
+     <h3>Or</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/strptime.html">strptime(3)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">posix.strptime(<span class="string">'20'</span>,<span class="string">'%d'</span>).monthday == <span class="number">20</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "time"></a>
+    <strong>time ()</strong>
+    </dt>
+    <dd>
+    Get current time.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        time in seconds since epoch
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/time.html">time(2)</a>
+    </ul>
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "PosixTimespec"></a>
+    <strong>PosixTimespec</strong>
+    </dt>
+    <dd>
+    Timespec record.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">tv_sec</span>
+            <span class="types"><span class="type">int</span></span>
+         seconds
+        </li>
+        <li><span class="parameter">tv_nsec</span>
+            <span class="types"><span class="type">int</span></span>
+         nanoseconds
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/posix.sys.time.html#PosixTimeval">posix.sys.time.PosixTimeval</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "PosixTm"></a>
+    <strong>PosixTm</strong>
+    </dt>
+    <dd>
+    Datetime record.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">tm_sec</span>
+            <span class="types"><span class="type">int</span></span>
+         second [0,60]
+        </li>
+        <li><span class="parameter">tm_min</span>
+            <span class="types"><span class="type">int</span></span>
+         minute [0,59]
+        </li>
+        <li><span class="parameter">tm_hour</span>
+            <span class="types"><span class="type">int</span></span>
+         hour [0,23]
+        </li>
+        <li><span class="parameter">tm_mday</span>
+            <span class="types"><span class="type">int</span></span>
+         day of month [1, 31]
+        </li>
+        <li><span class="parameter">tm_mon</span>
+            <span class="types"><span class="type">int</span></span>
+         month of year [0,11]
+        </li>
+        <li><span class="parameter">tm_year</span>
+            <span class="types"><span class="type">int</span></span>
+         years since 1900
+        </li>
+        <li><span class="parameter">tm_wday</span>
+            <span class="types"><span class="type">int</span></span>
+         day of week [0=Sunday,6]
+        </li>
+        <li><span class="parameter">tm_yday</span>
+            <span class="types"><span class="type">int</span></span>
+         day of year [0,365[
+        </li>
+        <li><span class="parameter">tm_isdst</span>
+            <span class="types"><span class="type">int</span></span>
+         0 if daylight savings time is not in effect
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Constants"></a>Constants </h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "posix.time"></a>
+    <strong>posix.time</strong>
+    </dt>
+    <dd>
+    Standard constants.
+Any constants not available in the underlying system will be <code>nil</code> valued.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">CLOCK_MONOTONIC</span>
+            <span class="types"><span class="type">int</span></span>
+         the identifier for the system-wide monotonic clock
+        </li>
+        <li><span class="parameter">CLOCK_PROCESS_CPUTIME_ID</span>
+            <span class="types"><span class="type">int</span></span>
+         the identifier for the current process CPU-time clock
+        </li>
+        <li><span class="parameter">CLOCK_REALTIME</span>
+            <span class="types"><span class="type">int</span></span>
+         the identifier for the system-wide realtime clock
+        </li>
+        <li><span class="parameter">CLOCK_THREAD_CPUTIME_ID</span>
+            <span class="types"><span class="type">int</span></span>
+         the identifier for the current thread CPU-time clock
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- Print posix.time constants supported on this host.
+</span><span class="keyword">for</span> name, value <span class="keyword">in</span> <span class="global">pairs</span> (<span class="global">require</span> <span class="string">"posix.time"</span>) <span class="keyword">do</span>
+  <span class="keyword">if</span> <span class="global">type</span> (value) == <span class="string">"number"</span> <span class="keyword">then</span>
+    <span class="global">print</span> (name, value)
+   <span class="keyword">end</span>
+<span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2020-07-06 12:02:06 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
