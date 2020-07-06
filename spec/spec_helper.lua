@@ -18,7 +18,7 @@ do
 end
 
 
-local bit = require 'bit32'
+local bit = require 'posix._base'
 band, bnot, bor = bit.band, bit.bnot, bit.bor
 
 badargs = require 'specl.badargs'

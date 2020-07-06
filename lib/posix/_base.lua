@@ -13,6 +13,12 @@
 
 local HAVE_TYPECHECK, typecheck = pcall(require, 'typecheck')
 
+local HAVE_BITWISE_OPS, bitwise = pcall(require, 'posix._bitwise')
+
+if not HAVE_BITWISE_OPS then
+   bitwise = require 'bit32'
+end
+
 
 local _ENV = require 'posix._strict' {
    S_IRUSR = require 'posix.sys.stat'.S_IRUSR,
@@ -26,7 +32,7 @@ local _ENV = require 'posix._strict' {
    S_IXOTH = require 'posix.sys.stat'.S_IXOTH,
    S_ISUID = require 'posix.sys.stat'.S_ISUID,
    S_ISGID = require 'posix.sys.stat'.S_ISGID,
-   band = require 'bit32'.band,
+   band = bitwise.band,
    concat = table.concat,
    error = error,
    format = string.format,
@@ -55,6 +61,12 @@ return {
    argscheck = HAVE_TYPECHECK and typecheck.argscheck or function(_, fn)
       return fn
    end,
+
+   band = bitwise.band,
+
+   bor = bitwise.bor,
+
+   bnot = bitwise.bnot,
 
    pushmode = function(mode)
       local m = {}
