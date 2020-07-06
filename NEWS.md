@@ -2,6 +2,9 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+
+## Noteworthy changes in release 35.0 (2020-07-06) [stable]
+
 ### Incompatible Changes
 
   - Internally, we use our own bitwise operation wrapper functions
