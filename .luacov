@@ -1,0 +1,8 @@
+modules = {
+   ['posix'] = 'lib/posix/init.lua',
+   ['posix.*'] = 'lib',
+}
+
+runreport = true
+
+tick = true
