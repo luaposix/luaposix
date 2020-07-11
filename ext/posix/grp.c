@@ -60,6 +60,7 @@ pushgroup(lua_State *L, struct group *g)
 /***
 Release group database resources.
 @function endgrent
+@see endgrent(3)
 @see getgrent
 */
 static int
@@ -75,6 +76,7 @@ Pendgrent(lua_State *L)
 Fetch next group.
 @function getgrent
 @treturn PosixGroup next group record
+@see getgrent(3)
 @see endgrent
 @usage
   local grp = require "posix.grp"
@@ -101,7 +103,11 @@ Pgetgrent(lua_State *L)
 Fetch group with given group id.
 @function getgrgid
 @int gid group id
-@treturn PosixGroup group record for *gid*
+@treturn[1] PosixGroup group record for *gid*, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see getgrgid(3)
 @usage
   local grp = require "posix.grp"
   t = grp.getgrgid (0)
@@ -125,7 +131,11 @@ Pgetgrgid(lua_State *L)
 Fetch named group.
 @function getgrnam
 @string name group name
-@treturn PosixGroup group record for *name*
+@treturn[1] PosixGroup group record for *name*, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see getgrnam(3)
 @usage
   local grp = require "posix.grp"
   t = grp.getgrnam "wheel"
@@ -148,6 +158,7 @@ Pgetgrnam(lua_State *L)
 /***
 Rewind next @{getgrent} back to start of database.
 @function setgrent
+@see setgrent(3)
 @see getgrent
 */
 static int

@@ -143,16 +143,16 @@ end
 
 
 local function Popenpty(term, win)
-   local ok, errmsg, master, slave, slave_name
-   master, errmsg = openpt(bor(O_RDWR, O_NOCTTY))
+   local ok, slave, slave_name
+   local master, errmsg, errnum = openpt(bor(O_RDWR, O_NOCTTY))
    if master then
-      ok, errmsg = grantpt(master)
+      ok, errmsg, errnum = grantpt(master)
       if ok then
-         ok, errmsg = unlockpt(master)
+         ok, errmsg, errnum = unlockpt(master)
          if ok then
-            slave_name, errmsg = ptsname(master)
+            slave_name, errmsg, errnum = ptsname(master)
             if slave_name then
-               slave, errmsg = open(slave_name, bor(O_RDWR, O_NOCTTY))
+               slave, errmsg, errnum = open(slave_name, bor(O_RDWR, O_NOCTTY))
                if slave then
                   return master, slave, slave_name
                end
@@ -161,7 +161,7 @@ local function Popenpty(term, win)
       end
       close(master)
    end
-   return nil, errmsg
+   return nil, errmsg, errnum
 end
 
 
@@ -359,16 +359,17 @@ return setmetatable(merge(M, {
    -- @function euidaccess
    -- @string file file to check
    -- @string mode checks to perform (as for access)
-   -- @return 0 if access allowed; <code>nil</code> otherwise (and errno is set)
+   -- @treturn[1] int `0`, if access allowed
+   -- @return[2] nil (and errno is set)
    euidaccess = argscheck('euidaccess(string, string)', Peuidaccess),
 
    --- Exec a command or Lua function.
    -- @function execx
-   -- @tparam table task argument list for @{posix.unistd.execp} or a Lua
-   --  function, which should read from standard input, write to standard
-   --  output, and return an exit code
+   -- @tparam table|function task argument list for @{posix.unistd.execp}
+   --  or a Lua function, which should read from standard input, write to
+   --  standard output, and return an exit code
    -- @param ... positional arguments to the function
-   -- @treturn nil on error(normally does not return)
+   -- @treturn nil on error (normally does not return)
    -- @treturn string error message
    execx = argscheck('execx(function|table, ?any...)', Pexecx),
 
@@ -379,7 +380,10 @@ return setmetatable(merge(M, {
    -- override the default values for `pattern` and `MARK`, which are `"*"` and
    -- `false` respectively. A table will be checked for optional keys `pattern`
    -- and `MARK`. A string will be used as the glob pattern.
-   -- @treturn table matching files and directories
+   -- @treturn[1] table matching files and directories, if successful
+   -- @return[2] nil
+   -- @treturn[2] one of `GLOB_BORTED`, `GLOB_NOMATCH` or `GLOB_NOSPACE`
+   -- @see posix.glob.glob
    glob = argscheck('glob(?string|table)', Pglob),
 
    --- Open a pseudo-terminal.
@@ -388,12 +392,13 @@ return setmetatable(merge(M, {
    -- @fixme add support for term and win arguments
    -- @treturn[1] int master file descriptor
    -- @treturn[1] int slave file descriptor
-   -- @treturn[1] string slave file name
+   -- @treturn[1] string slave file name, if successful
    -- @return[2] nil
    -- @treturn[2] string error message
+   -- @treturn[2] int errnum
    openpty = argscheck('openpty()', Popenpty),
 
-   --- Run a commands or Lua function in a sub-process.
+   --- Run a command or Lua function in a sub-process.
    -- @function popen
    -- @tparam table task argument list for @{posix.unistd.execp} or a Lua
    --  function, which should read from standard input, write to standard

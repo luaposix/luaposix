@@ -30,7 +30,7 @@ Open the system logger.
   `LOG_DAEMON`, `LOG_KERN`, `LOG_LPR`, `LOG_MAIL`, `LOG_NEWS`,
   `LOG_SECURITY`, `LOG_USER`, `LOG_UUCP` or `LOG_LOCAL0` through
   `LOG_LOCAL7`
-@see syslog(3)
+@see openlog(3)
 */
 static int
 Popenlog(lua_State *L)
@@ -74,7 +74,7 @@ Psyslog(lua_State *L)
 /***
 Close system log.
 @function closelog
-@see syslog(3)
+@see closelog(3)
 */
 static int
 Pcloselog(lua_State *L)

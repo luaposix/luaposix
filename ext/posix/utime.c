@@ -24,7 +24,6 @@
 /***
 Change file last access and modification times.
 @function utime
-@see utime(2)
 @string path existing file path
 @int[opt=now] mtime modification time
 @int[opt=now] atime access time
@@ -32,6 +31,7 @@ Change file last access and modification times.
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum
+@see utime(2)
 */
 static int
 Putime(lua_State *L)

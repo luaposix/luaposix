@@ -51,7 +51,7 @@ pushutsname(lua_State *L, struct utsname *u)
 /***
 Return information about this machine.
 @function uname
-@treturn[1] utsname system information
+@treturn[1] utsname system information, if successful
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum

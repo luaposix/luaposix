@@ -55,7 +55,6 @@ Psched_getscheduler(lua_State *L)
 /***
 set scheduling policy/priority
 @function sched_setscheduler
-@see sched_setscheduler(2)
 @int[opt=0] pid process to act on, or `0` for caller process
 @int[opt=`SCHED_OTHER`] policy one of `SCHED_FIFO`, `SCHED_RR` or
   `SCHED_OTHER`
@@ -65,6 +64,7 @@ set scheduling policy/priority
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum
+@see sched_setscheduler(2)
 */
 #if HAVE_SCHED_SETSCHEDULER
 static int

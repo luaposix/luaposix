@@ -580,7 +580,7 @@ end
 
 
 return {
-      --- Bind an address to a socket.
+   --- Bind an address to a socket.
    -- @function bind
    -- @int fd socket descriptor to act on
    -- @tparam PosixSockaddr addr socket address
@@ -602,7 +602,7 @@ return {
    -- @string[opt='realtime'] name name of clock, one of 'monotonic',
    --    'process\_cputime\_id', 'realtime', or 'thread\_cputime\_id'
    -- @treturn[1] int seconds
-   -- @treturn[21 int nanoseconds, if successful
+   -- @treturn[1] int nanoseconds, if successful
    -- @return[2] nil
    -- @treturn[2] string error message
    -- @treturn[2] int errnum
@@ -614,7 +614,7 @@ return {
    -- @string[opt='realtime'] name name of clock, one of 'monotonic',
    --    'process\_cputime\_id', 'realtime', or 'thread\_cputime\_id'
    -- @treturn[1] int seconds
-   -- @treturn[21 int nanoseconds, if successful
+   -- @treturn[1] int nanoseconds, if successful
    -- @return[2] nil
    -- @treturn[2] string error message
    -- @treturn[2] int errnum
@@ -644,6 +644,7 @@ return {
    -- @tparam[opt] table|strings ... table or tuple of arguments(table can include index 0)
    -- @return nil
    -- @treturn string error message
+   -- @treturn int errnum
    -- @see execve(2)
    exec = Pexec,
 
@@ -653,6 +654,7 @@ return {
    -- @tparam[opt] table|strings ... table or tuple of arguments(table can include index 0)
    -- @return nil
    -- @treturn string error message
+   -- @treturn int errnum
    -- @see execve(2)
    execp = Pexecp,
 
@@ -675,7 +677,7 @@ return {
    -- @function fnmatch
    -- @string pat shell pattern
    -- @string name filename
-   -- @return true or false
+   -- @treturn bool `true` if *pat* matched *name*, otherwise `false`
    -- @raise error if fnmatch failed
    -- @see posix.fnmatch.fnmatch
    fnmatch = function(...)
@@ -775,9 +777,9 @@ return {
 
    --- Check for any printable character except space.
    -- @function isgraph
-   -- @see isgraph(3)
    -- @string character to act on
    -- @treturn bool non-`false` if character is in the class
+   -- @see isgraph(3)
    isgraph = function(...)
       return isgraph(...) ~= 0
    end,
@@ -817,7 +819,7 @@ return {
    -- @function nanosleep
    -- @int seconds requested sleep time
    -- @int nanoseconds requested sleep time
-   -- @treturn[1] int `0` if requested time has elapsed
+   -- @treturn[1] int `0` if requested time has elapsed, if successful
    -- @return[2] nil
    -- @treturn[2] string error message
    -- @treturn[2] int errnum
@@ -941,7 +943,7 @@ return {
    -- @string format same as for `strftime`
    -- @usage posix.strptime('20','%d').monthday == 20
    -- @treturn[1] PosixTm broken-down local time
-   -- @treturn[1] int next index of first character not parsed as part of the date
+   -- @treturn[1] int next index of first character not parsed as part of the date, if successful
    -- @return[2] nil
    -- @see strptime(3)
    strptime = argscheck('strptime(string, string)', function(s, fmt)

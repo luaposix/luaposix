@@ -185,12 +185,12 @@ sig_handler_wrap (lua_State *L)
 Install a signal handler for this signal number.
 Although this is the same API as signal(2), it uses sigaction for guaranteed semantics.
 @function signal
-@see signal.lua
 @int signum
 @tparam[opt=SIG_DFL] function handler function, or `SIG_IGN` or `SIG_DFL` constants
 @param[opt] flags the `sa_flags` element of `struct sigaction`
 @treturn function previous handler function
 @see sigaction(2)
+@see signal.lua
 */
 static int
 Psignal (lua_State *L)

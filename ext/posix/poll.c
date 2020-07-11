@@ -208,7 +208,7 @@ Wait for events on multiple file descriptors.
 @function poll
 @tparam table fds list of file descriptors
 @int[opt=-1] timeout maximum timeout in milliseconds, or -1 to block indefinitely
-@treturn[1] int 0 if timed out, 1 if *fd* is ready
+@treturn[1] int `0` if timed out, `1` if *fd* is ready, if successful
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum
@@ -246,8 +246,8 @@ Wait for some event on a file descriptor.
 Based on [http://lua-users.org/lists/lua-l/2007-11/msg00346.html]().
 @function rpoll
 @int fd file descriptor
-@int[opt=-1] timeout maximum timeout in milliseconds, or -1 to block indefinitely
-@treturn[1] int 0 if timed out, 1 if *fd* is ready
+@int[opt=-1] timeout maximum timeout in milliseconds, or `-1` to block indefinitely
+@treturn[1] int `0` if timed out, `1` if *fd* is ready, if successful
 @return[2] nil
 @return[2] error message
 @treturn[2] int errnum

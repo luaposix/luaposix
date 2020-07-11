@@ -42,6 +42,7 @@ File descriptor corresponding to a Lua file object.
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum
+@see fileno(3)
 @usage
 local stdio = require "posix.stdio"
 local unistd = require "posix.unistd"
@@ -80,10 +81,11 @@ Create a Lua file object from a file descriptor.
 @function fdopen
 @tparam int fd file descriptor
 @tparam string mode the mode in which to open the file descriptor
-@treturn[1] file file Lua file object *fd*, if successful
+@treturn[1] file Lua file object *fd*, if successful
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum
+@see fdopen(3)
 @usage
 local fdopen = require "posix.stdio".fdopen
 local STDOUT_FILENO = require "posix.unistd".STDOUT_FILENO
@@ -105,7 +107,7 @@ Change the name or location of a file
 @function rename
 @tparam string oldpath
 @tparam string newpath
-@treturn[1] int `0` if successful
+@treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum

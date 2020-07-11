@@ -154,6 +154,7 @@ Create a pair of connected sockets.
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum
+@see socketpair(2)
 @usage
   local sys_sock = require "posix.sys.socket"
   sockr, sockw = sys_sock.socketpair (sys_sock.AF_INET, sys_sock.SOCK_STREAM, 0)
@@ -293,7 +294,7 @@ Network address and service translation.
 @string host name of a host. For IPv6, link-local addresses like 'ff02::1%eth0' are supported.
 @string service name of service
 @tparam[opt] PosixAddrInfo hints table
-@treturn[1] list of @{sockaddr} tables
+@treturn[1] list of @{sockaddr} tables, if successful
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum
@@ -769,7 +770,7 @@ Get options on sockets.
 @int fd socket descriptor
 @int level one of `SOL_SOCKET`, `IPPROTO_IPV6`, `IPPROTO_TCP`
 @int name option name, varies according to `level` value
-@return[1] the value of the requested socket option
+@return[1] the value of the requested socket option, if successful
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum
@@ -873,7 +874,7 @@ Get socket name.
 @function getsockname
 @see getsockname(2)
 @int sockfd socket descriptor
-@treturn[1] sockaddr the current address to which the socket *sockfd* is bound
+@treturn[1] sockaddr the current address to which the socket *sockfd* is bound, if successful
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum
@@ -894,12 +895,12 @@ static int Pgetsockname(lua_State *L)
 /***
 Get socket peer name.
 @function getpeername
-@see getpeername(2)
 @int sockfd socket descriptor
-@treturn[1] sockaddr the address to which the socket *sockfd* is connected to
+@treturn[1] sockaddr the address to which the socket *sockfd* is connected to, if successful
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum
+@see getpeername(2)
 @usage sa, err = posix.getpeername (sockfd)
 */
 static int Pgetpeername(lua_State *L)

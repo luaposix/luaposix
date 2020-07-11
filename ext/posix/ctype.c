@@ -34,9 +34,9 @@ bind_ctype(lua_State *L, int (*cb)(int))
 /***
 Check for any printable character except space.
 @function isgraph
-@see isgraph(3)
 @string character to act on
 @treturn int non-zero if character is not in the class
+@see isgraph(3)
 */
 static int
 Pisgraph(lua_State *L)

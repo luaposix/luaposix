@@ -26,7 +26,10 @@
 File part of path.
 @function basename
 @string path file to act on
-@treturn string filename part of *path*
+@treturn[1] string filename part of *path*, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
 @see basename(3)
 */
 static int
@@ -53,7 +56,10 @@ Pbasename(lua_State *L)
 Directory name of path.
 @function dirname
 @string path file to act on
-@treturn string directory part of *path*
+@treturn[1] string directory part of *path*, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
 @see dirname(3)
 */
 static int

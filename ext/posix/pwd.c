@@ -56,6 +56,7 @@ pushpasswd(lua_State *L, struct passwd *p)
 /***
 Release password database resources.
 @function endpwent
+@see endpwent(3)
 @see getpwent
 */
 static int
@@ -71,6 +72,7 @@ Pendpwent(lua_State *L)
 Fetch next password entry.
 @function getpwent
 @treturn PosixPasswd next password record
+@see getpwent(3)
 @see endpwent
 @usage
   local pwd = require "posix.pwd"
@@ -97,7 +99,11 @@ Pgetpwent(lua_State *L)
 Fetch named user.
 @function getpwnam
 @string name user name
-@treturn PosixPasswd passwd record for *name*
+@treturn[1] PosixPasswd passwd record for *name*, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see getpwnam(3)
 @usage
   local pwd = require "posix.pwd"
   t = pwd.getpwnam "root"
@@ -121,7 +127,11 @@ Pgetpwnam(lua_State *L)
 Fetch password entry with given user id.
 @function getpwuid
 @int uid user id
-@treturn PosixPasswd passwd record for *uid*
+@treturn[1] PosixPasswd passwd record for *uid*, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see getpwuid(3)
 @usage
   local pwd = require "posix.pwd"
   t = pwd.getpwuid (0)
@@ -144,6 +154,7 @@ Pgetpwuid(lua_State *L)
 /***
 Rewind next @{getpwent} back to start of database.
 @function setpwent
+@see setpwent(3)
 @see getpwent
 */
 static int

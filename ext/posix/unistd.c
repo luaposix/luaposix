@@ -183,7 +183,7 @@ Pchown(lua_State *L)
 Close an open file descriptor.
 @function close
 @int fd file descriptor to act on
-@treturn[1] int `0` if successful
+@treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum
@@ -323,12 +323,13 @@ runexec(lua_State *L, int use_shell)
 
 
 /***
-Execute a program at exactly *path*..
+Execute a program at exactly *path*.
 @function exec
 @string path
 @tparam table argt arguments (table can include index 0)
 @return nil
 @treturn string error message
+@treturn int errnum
 @see execve(2)
 @usage exec ("/bin/bash", {[0] = "-sh", "--norc"})
 */
@@ -346,6 +347,7 @@ Execute a program found using command PATH search, like the shell.
 @tparam table argt arguments (table can include index 0)
 @return nil
 @treturn string error message
+@treturn int errnum
 @see execve(2)
 */
 static int
@@ -518,8 +520,11 @@ Pgetgid(lua_State *L)
 /***
 Get list of supplementary group ids.
 @function getgroups
+@treturn[1] table group id, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
 @see getgroups(2)
-@treturn table group id
 */
 static int
 Pgetgroups(lua_State *L)
@@ -701,10 +706,10 @@ Pgetuid(lua_State *L)
 /***
 Get host id.
 @function gethostid
-@see gethostid(3)
-@treturn[1] int host id
+@treturn[1] int host id, if successful
 @return[2] nil
 @treturn[2] string error message
+@see gethostid(3)
 */
 static int
 Pgethostid(lua_State *L)
@@ -824,7 +829,6 @@ Plinkat(lua_State *L)
 /***
 reposition read/write file offset
 @function lseek
-@see lseek(2)
 @int fd open file descriptor to act on
 @int offset bytes to seek
 @int whence one of `SEEK_SET`, `SEEK_CUR` or `SEEK_END`
@@ -832,6 +836,7 @@ reposition read/write file offset
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum
+@see lseek(2)
 */
 static int
 Plseek(lua_State *L)
@@ -889,7 +894,7 @@ Ppathconf(lua_State *L)
 Creates a pipe.
 @function pipe
 @treturn[1] int read end file descriptor
-@treturn[1] int write end file descriptor
+@treturn[1] int write end file descriptor, if successful
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum
@@ -1131,9 +1136,12 @@ Psysconf(lua_State *L)
 /***
 Name of a terminal device.
 @function ttyname
-@see ttyname(3)
 @int[opt=0] fd file descriptor to process
-@return string name
+@treturn[1] string name, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see ttyname(3)
 */
 static int
 Pttyname(lua_State *L)
@@ -1157,7 +1165,7 @@ Pttyname(lua_State *L)
 Get id of foreground process group of terminal *fd*.
 @function tcgetpgrp
 @int fd the file descriptor of the controlling terminal of the current process
-@treturn[1] int id of foreground process group
+@treturn[1] int id of foreground process group, if successful
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum
@@ -1176,7 +1184,7 @@ Make process group *pgid* the foreground process group of terminal *fd*.
 @function tcsetpgrp
 @int fd the file descriptor of the controlling terminal of the current process
 @int pgid id of the process group to make foreground process group
-@treturn[1] int 0, if successful
+@treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum

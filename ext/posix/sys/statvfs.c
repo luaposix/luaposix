@@ -70,7 +70,10 @@ pushstatvfs(lua_State *L, struct statvfs *sv)
 Get file system statistics.
 @function statvfs
 @string path any path within the mounted file system
-@treturn PosixStatvfs information about file system containing *path*
+@treturn[1] PosixStatvfs information about file system containing *path*, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
 @see statvfs(3)
 @usage
   local statvfs = require "posix.sys.statvfs".statvfs

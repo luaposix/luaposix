@@ -167,7 +167,10 @@ Pclock_gettime(lua_State *L)
 Convert epoch time value to a broken-down UTC time.
 @function gmtime
 @int t seconds since epoch
-@treturn PosixTm broken-down time
+@treturn[1] PosixTm broken-down time, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
 @see gmtime(3)
 */
 static int
@@ -186,7 +189,10 @@ Pgmtime(lua_State *L)
 Convert epoch time value to a broken-down local time.
 @function localtime
 @int t seconds since epoch
-@treturn PosixTm broken-down time
+@treturn[1] PosixTm broken-down time, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
 @see localtime(3)
 @see mktime
 */
@@ -227,7 +233,7 @@ Pmktime(lua_State *L)
 Sleep with nanosecond precision.
 @function nanosleep
 @tparam PosixTimespec requested sleep time
-@treturn[1] int `0` if requested time has elapsed
+@treturn[1] int `0` if requested time has elapsed, if successful
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum
@@ -281,7 +287,7 @@ Parse a date string.
 @string format same as for `strftime`
 @usage posix.strptime('20','%d').monthday == 20
 @treturn[1] PosixTm broken-down local time
-@treturn[1] int next index of first character not parsed as part of the date
+@treturn[1] int next index of first character not parsed as part of the date, if successful
 @return[2] nil
 @see strptime(3)
 */
@@ -309,8 +315,11 @@ Pstrptime(lua_State *L)
 /***
 Get current time.
 @function time
+@treturn[1] int time in seconds since epoch, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
 @see time(2)
-@return time in seconds since epoch
 */
 static int
 Ptime(lua_State *L)

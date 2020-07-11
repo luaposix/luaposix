@@ -174,11 +174,13 @@ Ptcgetattr(lua_State *L)
 /***
 Send a stream of zero valued bits.
 @function tcsendbreak
-@see tcsendbreak(3)
 @int fd terminal descriptor
 @int duration if non-zero, stream for some implementation defined time
-@return 0 if successful, otherwise nil
-@return error message if failed
+@treturn[1] int `0`, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see tcsendbreak(3)
 */
 static int
 Ptcsendbreak(lua_State *L)
@@ -198,8 +200,10 @@ Set termios state.
   `TCSAFLUSH` and `TSASOFT`
 @tparam termios a table with fields from iflag, oflag, cflag, lflag and cc,
  each formed by `bor` operations with various posix constants
-@return 0 if successful, otherwise nil
-@return error message if failed
+@treturn[1] int `0`, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
 @see tcsetattr(3)
 @usage
   local termio = require "posix.termio"

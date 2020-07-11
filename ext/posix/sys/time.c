@@ -46,7 +46,10 @@ pushtimeval(lua_State *L, struct timeval *tv)
 /***
 Get time of day.
 @function gettimeofday
-@treturn PosixTimeval time elapsed since *epoch*
+@treturn[1] PosixTimeval time elapsed since *epoch*, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
 @see gettimeofday(2)
 */
 static int

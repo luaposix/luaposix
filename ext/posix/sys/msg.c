@@ -177,7 +177,7 @@ Send message to a message queue
 @int type arbitrary message type
 @string message content
 @int[opt=0] flags optionally `IPC_NOWAIT`
-@treturn int 0, if successful
+@treturn[1] int `0`, if successful
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum

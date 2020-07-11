@@ -39,9 +39,9 @@ Pabort(lua_State *L)
 /***
 Get value of environment variable, or _all_ variables.
 @function getenv
-@see getenv(3)
 @string[opt] name if nil, get all
 @return value if name given, otherwise a name-indexed table of values.
+@see getenv(3)
 @usage for a,b in pairs(posix.getenv()) do print(a, b) end
 */
 static int

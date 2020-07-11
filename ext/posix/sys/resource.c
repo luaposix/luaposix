@@ -84,7 +84,8 @@ Set a resource limit for subsequent child processes.
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum
-@see getrlimit(2)
+@see setrlimit(2)
+@see getrlimit
 @see limit.lua
 @usage
   local sysres = require "posix.sys.resource"

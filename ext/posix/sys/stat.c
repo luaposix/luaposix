@@ -193,7 +193,10 @@ Information about an existing file path.
 If file is a symbolic link, return information about the link itself.
 @function lstat
 @string path file to act on
-@treturn PosixStat information about *path*
+@treturn[1] PosixStat information about *path*, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
 @see lstat(2)
 @see stat
 @usage
@@ -216,7 +219,10 @@ Plstat(lua_State *L)
 Information about a file descriptor.
 @function fstat
 @int fd file descriptor to act on
-@treturn PosixStat information about *fd*
+@treturn[1] PosixStat information about *fd*, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
 @see fstat(2)
 @see stat
 @usage
@@ -282,7 +288,10 @@ Information about an existing file path.
 If file is a symbolic link, return information about the file the link points to.
 @function stat
 @string path file to act on
-@treturn PosixStat information about *path*
+@treturn[1] PosixStat information about *path*, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
 @see stat(2)
 @see lstat
 @usage
