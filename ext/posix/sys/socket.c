@@ -493,7 +493,7 @@ Receive a message from a socket.
 @function recv
 @int fd socket descriptor to act on
 @int count maximum number of bytes to receive
-@treturn[1] int received bytes, if successful
+@treturn[1] string received bytes, if successful
 @return[2] nil
 @treturn[2] string error message
 @treturn[2] int errnum
