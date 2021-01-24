@@ -102,6 +102,10 @@ modules  = {
    ['posix.syslog']        = 'ext/posix/syslog.c',
    ['posix.termio']        = 'ext/posix/termio.c',
    ['posix.time']          = {
+      defines   = {
+         HAVE_TM_GMTOFF    = {checkmember='struct tm.tm_gmtoff', include='time.h'},
+         HAVE_TM_ZONE      = {checkmember='struct tm.tm_zone', include='time.h'},
+      },
       libraries = {
          {
             ifdef          = '_POSIX_TIMERS',
