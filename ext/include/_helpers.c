@@ -291,7 +291,7 @@ checklstringfield(lua_State *L, int index, const char *k, size_t *plen)
 	checkfieldtype(L, index, k, LUA_TSTRING, NULL);
 	r = lua_tolstring(L, -1, plen);
 	lua_pop(L, 1);
-	return r;
+	return r; /* XXX UNSAFE! */
 }
 #define checkstringfield(L,i,s) (checklstringfield(L,i,s,NULL))
 
@@ -310,8 +310,8 @@ optintfield(lua_State *L, int index, const char *k, int def)
 static const char *
 optstringfield(lua_State *L, int index, const char *k, const char *def)
 {
-	const char *r;
 	int got_type;
+	lua_getfield(L, index, k);
 	got_type = lua_type(L, -1);
 	lua_pop(L, 1);
 	if (got_type == LUA_TNONE || got_type == LUA_TNIL)
