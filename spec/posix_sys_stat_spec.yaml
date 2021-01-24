@@ -19,6 +19,7 @@ specify posix.sys.stat:
     RWXALL = bor(M.S_IRWXU, M.S_IRWXG, M.S_IRWXO)
 
     dir = posix.mkdtemp(template)
+    posix.chown(dir, posix.geteuid(), posix.getegid())
     posix.mkdir(dir .. "/subdir")
     posix.mkdir(dir .. "/subdir/deeper")
     posix.link("subdir", dir .. "/soft", true)

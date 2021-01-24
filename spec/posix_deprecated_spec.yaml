@@ -743,6 +743,7 @@ specify posix.deprecated:
       stat, typeerrors = init(posix, "stat")
 
       dir = M.mkdtemp(template)
+      M.chown(dir, geteuid(), getegid())
       M.mkdir(dir .. "/subdir")
       M.link("subdir", dir .. "/soft", true)
       touch(dir .. "/file")
@@ -924,9 +925,10 @@ specify posix.deprecated:
     - it plugs yearday:
         expect(strftime("%j", t)).to_be "009"
   - it defaults to current time:
+      f = io.popen("date +'%Y-%m-%d'", "r")
       expect(strftime "%Y-%m-%d\n").
-         to_be(io.popen("date +'%Y-%m-%d'", "r"):read "*a")
-
+         to_be(f:read("*a"))
+      f:close()
 
 - describe strptime:
   - before:
@@ -1105,4 +1107,4 @@ specify posix.deprecated:
   - it substitutes %r:
       expect(uname "%r").to_be(cmd_output "uname -r")
   - it outputs everything with no arguments:
-      expect(uname()).to_be(cmd_output "uname -s -n -r -v -m")
+      expect(uname():gsub("%s+"," "):gsub("%s$","")).to_be(cmd_output("uname -s -n -r -v -m"):gsub("%s+"," "):gsub("%s$",""))
