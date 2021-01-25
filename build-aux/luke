@@ -1,4 +1,4 @@
-#!/usr/bin/env lua53
+#!/usr/bin/env lua
 --[[ minified code follows, see --help text for source location! ]]
 local require=function(modname)if package.loaded[modname]==nil then
 if type(package.preload[modname])~="function"then
