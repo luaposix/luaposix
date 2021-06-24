@@ -288,6 +288,7 @@ Any constants not available in the underlying system will be `nil` valued.
 @int SIGFPE floating point error
 @int SIGHUP hangup
 @int SIGILL illegal instruction
+@int SIGINFO information request
 @int SIGINT interrupt
 @int SIGKILL kill
 @int SIGPIPE write on pipe with no reader
@@ -304,12 +305,14 @@ Any constants not available in the underlying system will be `nil` valued.
 @int SIGUSR1 user defined
 @int SIGUSR2 user defined
 @int SIGVTALRM virtual time alarm
+@int SIGWINCH window size change
 @int SIGXCPU exceeded cpu time limit
 @int SIGXFSZ exceeded file size limit
 @int SA_NOCLDSTOP do not generate a SIGCHLD on child stop
 @int SA_NOCLDWAIT don't keep zombies child processes
 @int SA_NODEFER don't mask the signal we're delivering
 @int SA_RESETHAND reset to SIG_DFL when taking a signal
+@int SA_RESTART allow syscalls to restart instead of returning EINTR
 @usage
   -- Print signal constants supported on this host.
   for name, value in pairs (require "posix.signal") do
@@ -357,6 +360,9 @@ luaopen_posix_signal(lua_State *L)
 #endif
 #ifdef SIGILL
 	LPOSIX_CONST( SIGILL		);
+#endif
+#ifdef SIGINFO
+	LPOSIX_CONST( SIGINFO		);
 #endif
 #ifdef SIGINT
 	LPOSIX_CONST( SIGINT		);
@@ -406,6 +412,9 @@ luaopen_posix_signal(lua_State *L)
 #ifdef SIGVTALRM
 	LPOSIX_CONST( SIGVTALRM		);
 #endif
+#ifdef SIGWINCH
+	LPOSIX_CONST( SIGWINCH		);
+#endif
 #ifdef SIGXCPU
 	LPOSIX_CONST( SIGXCPU		);
 #endif
@@ -433,6 +442,9 @@ luaopen_posix_signal(lua_State *L)
 #endif
 #ifdef SA_RESETHAND
 	LPOSIX_CONST( SA_RESETHAND	);
+#endif
+#ifdef SA_RESTART
+	LPOSIX_CONST( SA_RESTART	);
 #endif
 
 	return 1;
