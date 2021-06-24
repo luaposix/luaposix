@@ -294,22 +294,22 @@ Any constants not available in the underlying system will be `nil` valued.
 @int SIGQUIT quit
 @int SIGSEGV segmentation violation
 @int SIGSTOP stop
+@int SIGSYS bad argument to system call
 @int SIGTERM terminate
+@int SIGTRAP trace trap
 @int SIGTSTP stop signal from tty
 @int SIGTTIN to readers process group on background tty read
 @int SIGTTOU to readers process group on background tty output
+@int SIGURG urgent condition on i/o channel
 @int SIGUSR1 user defined
 @int SIGUSR2 user defined
-@int SIGSYS bad argument to system call
-@int SIGTRAP trace trap
-@int SIGURG urgent condition on i/o channel
 @int SIGVTALRM virtual time alarm
 @int SIGXCPU exceeded cpu time limit
 @int SIGXFSZ exceeded file size limit
 @int SA_NOCLDSTOP do not generate a SIGCHLD on child stop
 @int SA_NOCLDWAIT don't keep zombies child processes
-@int SA_RESETHAND reset to SIG_DFL when taking a signal
 @int SA_NODEFER don't mask the signal we're delivering
+@int SA_RESETHAND reset to SIG_DFL when taking a signal
 @usage
   -- Print signal constants supported on this host.
   for name, value in pairs (require "posix.signal") do
@@ -404,7 +404,7 @@ luaopen_posix_signal(lua_State *L)
 	LPOSIX_CONST( SIGURG		);
 #endif
 #ifdef SIGVTALRM
-	LPOSIX_CONST( SIGVTALRM	);
+	LPOSIX_CONST( SIGVTALRM		);
 #endif
 #ifdef SIGXCPU
 	LPOSIX_CONST( SIGXCPU		);
@@ -428,11 +428,11 @@ luaopen_posix_signal(lua_State *L)
 #ifdef SA_NOCLDWAIT
 	LPOSIX_CONST( SA_NOCLDWAIT	);
 #endif
-#ifdef SA_RESETHAND
-	LPOSIX_CONST( SA_RESETHAND	);
-#endif
 #ifdef SA_NODEFER
 	LPOSIX_CONST( SA_NODEFER	);
+#endif
+#ifdef SA_RESETHAND
+	LPOSIX_CONST( SA_RESETHAND	);
 #endif
 
 	return 1;
