@@ -116,7 +116,7 @@ specify posix.compat:
 
   - it creates a queue:
       if msgget then
-         modestr = "rwxrwxrwx"
+         modestr = "rw-rw-rw-"
          mq, err, errnum = msgget(100, bor(IPC_CREAT, IPC_EXCL), modestr)
          if errnum == EEXIST then
             mq, err = msgget(100, 0, modestr)

@@ -151,7 +151,9 @@ local function PosixTm(legacytm)
       tm_year = legacytm.year - 1900,
       tm_wday = legacytm.weekday,
       tm_yday = legacytm.yearday,
-      tm_isdst = legacytm.is_dst and 1 or 0,
+      tm_isdst = legacytm.is_dst and 1 or (legacytm.is_dst ~= nil and 0 or -1),
+      tm_gmtoff = legacytm.gmtoff,
+      tm_zone = legacytm.zone
    }
 end
 
@@ -167,7 +169,9 @@ local function LegacyTm(posixtm)
       year = posixtm.tm_year + 1900,
       weekday = posixtm.tm_wday,
       yearday = posixtm.tm_yday,
-      is_dst = posixtm.tm_isdst ~= 0,
+      is_dst = posixtm.tm_isdst > 0 or (posixtm.tm_isdst < 0 and nil),
+      gmtoff = posixtm.tm_gmtoff,
+      zone = posixtm.tm_zone
    }
 end
 

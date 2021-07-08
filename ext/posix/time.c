@@ -55,15 +55,19 @@ pushtimespec(lua_State *L, struct timespec *ts)
 	return 1;
 }
 
-
+/* for compatibility, we accept tm_gmtoff and tm_zone as fields even
+ * if the underlying OS doesn't. */
 static const char *Stm_fields[] = {
   "tm_sec", "tm_min", "tm_hour", "tm_mday", "tm_mon", "tm_year", "tm_wday",
-  "tm_yday", "tm_isdst",
+  "tm_yday", "tm_isdst", "tm_gmtoff", "tm_zone"
 };
 
 static void
 totm(lua_State *L, int index, struct tm *t)
 {
+	static const struct tm nulltm;
+	*t = nulltm;
+
 	luaL_checktype(L, index, LUA_TTABLE);
 	t->tm_sec   = optintfield(L, index, "tm_sec", 0);
 	t->tm_min   = optintfield(L, index, "tm_min", 0);
@@ -74,6 +78,12 @@ totm(lua_State *L, int index, struct tm *t)
 	t->tm_wday  = optintfield(L, index, "tm_wday", 0);
 	t->tm_yday  = optintfield(L, index, "tm_yday", 0);
 	t->tm_isdst = optintfield(L, index, "tm_isdst", 0);
+#if HAVE_TM_GMTOFF
+	t->tm_gmtoff = optintfield(L, index, "tm_gmtoff", 0);
+#endif
+#if HAVE_TM_ZONE
+	t->tm_zone = optstringfield(L, index, "tm_zone", NULL);
+#endif
 
 	checkfieldnames(L, index, Stm_fields);
 }
@@ -103,12 +113,17 @@ pushtm(lua_State *L, struct tm *t)
 	setintegerfield(t, tm_min);
 	setintegerfield(t, tm_hour);
 	setintegerfield(t, tm_mday);
-	setintegerfield(t, tm_mday);
 	setintegerfield(t, tm_mon);
 	setintegerfield(t, tm_year);
 	setintegerfield(t, tm_wday);
 	setintegerfield(t, tm_yday);
 	setintegerfield(t, tm_isdst);
+#if HAVE_TM_GMTOFF
+	setintegerfield(t, tm_gmtoff);
+#endif
+#if HAVE_TM_ZONE
+	setstringfield(t, tm_zone);
+#endif
 
 	settypemetatable("PosixTm");
 	return 1;
