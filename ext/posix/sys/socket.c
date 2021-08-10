@@ -28,6 +28,9 @@
 #if HAVE_LINUX_NETLINK_H
 #include <linux/netlink.h>
 #endif
+#if HAVE_LINUX_IF_PACKET_H
+#include <linux/if_packet.h>
+#endif
 #include <sys/socket.h>		/* Needs to be before net/if.h on OpenBSD 5.6 */
 #ifdef HAVE_NET_IF_H
 #include <net/if.h>
@@ -45,7 +48,7 @@ Socket address.
 All sockaddr tables have the *family* field, and depending on its value, also
 a subset of the following fields too.
 @table sockaddr
-@int family one of `AF_INET`, `AF_INET6`, `AF_UNIX` or (where supported) `AF_NETLINK`
+@int family one of `AF_INET`, `AF_INET6`, `AF_UNIX`, `AF_NETLINK` or `AF_PACKET`
 @int[opt] port socket port number for `AF_INET` (and equivalently `AF_INET6`) *family*
 @string[opt] addr socket host address in correct format, for `AF_INET` *family*
 @int[opt] socktype one of `SOCK_STREAM`, `SOCK_DGRAM` or `SOCK_RAW` for `AF_INET` *family*
@@ -54,13 +57,15 @@ a subset of the following fields too.
 @string[opt] path location in file system, for `AF_UNIX` *family*
 @int[opt] pid process identifier, for `AF_NETLINK` *family*
 @int[opt] groups process group owner identifier, for `AF_NETLINK` *family*
+@int[opt] ifindex interface index, for `AF_PACKET` *family*
 */
 
 
 /***
 Address information hints.
 @table PosixAddrInfo
-@int family one of `AF_INET`, `AF_INET6`, `AF_UNIX` or `AF_NETLINK`
+@int family one of `AF_INET`, `AF_INET6`, `AF_UNIX`, `AF_NETLINK` or
+  `AF_PACKET`
 @int flags bitwise OR of zero or more of `AI_ADDRCONFIG`, `AI_ALL`,
   `AI_CANONNAME`, `AI_NUMERICHOST`, `AI_NUMERICSERV`, `AI_PASSIVE` and
   `AI_V4MAPPED`
@@ -110,6 +115,14 @@ pushsockaddrinfo(lua_State *L, int family, struct sockaddr *sa)
 			break;
 		}
 #endif
+#if HAVE_LINUX_IF_PACKET_H
+		case AF_PACKET:
+		{
+			struct sockaddr_ll *sal = (struct sockaddr_ll *)sa;
+			pushintegerfield("ifindex", sal->sll_ifindex);
+			break;
+		}
+#endif
 	}
 
 	settypemetatable("PosixAddrInfo");
@@ -120,7 +133,8 @@ pushsockaddrinfo(lua_State *L, int family, struct sockaddr *sa)
 /***
 Create an endpoint for communication.
 @function socket
-@int domain one of `AF_INET`, `AF_INET6`, `AF_UNIX` or `AF_NETLINK`
+@int domain one of `AF_INET`, `AF_INET6`, `AF_UNIX`, `AF_NETLINK` or
+  `AF_PACKET`
 @int type one of `SOCK_STREAM`, `SOCK_DGRAM` or `SOCK_RAW`
 @int options usually 0, but some socket types might implement other protocols.
 @treturn[1] int socket descriptor, if successful
@@ -184,6 +198,7 @@ static const char *Safinet_fields[] = { /* AF_INET6 only */
 					"socktype", "canonname", "protocol" };
 static const char *Safunix_fields[] = { "family", "path" };
 static const char *Safnetlink_fields[] = { "family", "pid", "groups" };
+static const char *Safpacket_fields[] = { "family", "ifindex" };
 
 #define Safinet4_fields (Safinet_fields + 2)
 #define Safinet6_fields Safinet_fields
@@ -269,6 +284,20 @@ sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *sa, socklen_
 			*addrlen		= sizeof(*san);
 
 			checkfieldnames (L, index, Safnetlink_fields);
+
+			r			= 0;
+			break;
+		}
+#endif
+#if HAVE_LINUX_IF_PACKET_H
+		case AF_PACKET:
+		{
+			struct sockaddr_ll *sal	= (struct sockaddr_ll *)sa;
+			sal->sll_family		= family;
+			sal->sll_ifindex	= checkintfield(L, index, "ifindex");
+			*addrlen		= sizeof(*sal);
+
+			checkfieldnames (L, index, Safpacket_fields);
 
 			r			= 0;
 			break;
@@ -913,6 +942,32 @@ static int Pgetpeername(lua_State *L)
 		return pusherror(L, "getpeername");
 	return pushsockaddrinfo(L, sa.ss_family, (struct sockaddr *)&sa);
 }
+
+
+/***
+Get network interface index by name.
+Needed for packet sockets, since SO_BINDTODEVICE won't work on packet family.
+@function if_nametoindex
+@string ifname interface name
+@treturn[1] int interface index, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see if_nametoindex(3)
+@usage
+  local sys_sock = require "posix.sys.socket"
+  ifindex, errmsg, errnum = sys_sock.if_nametoindex("eth0")
+*/
+static int Pif_nametoindex(lua_State *L)
+{
+	const char *ifname = luaL_checkstring(L, 1);
+	checknargs (L, 1);
+	int ifindex = (int)if_nametoindex(ifname);
+	if (ifindex == 0)
+		return pusherror(L, "if_nametoindex");
+	lua_pushinteger(L, ifindex);
+	return 1;
+}
 #endif
 
 
@@ -935,6 +990,7 @@ static const luaL_Reg posix_sys_socket_fns[] =
 	LPOSIX_FUNC( Pgetsockopt	),
 	LPOSIX_FUNC( Pgetsockname	),
 	LPOSIX_FUNC( Pgetpeername	),
+	LPOSIX_FUNC( Pif_nametoindex	),
 #endif
 	{NULL, NULL}
 };
@@ -952,6 +1008,7 @@ Any constants not available in the underlying system will be `nil` valued.
 @int AF_INET IP protocol family
 @int AF_INET6 IP version 6
 @int AF_NETLINK Netlink protocol family
+@int AF_PACKET Packet protocol family
 @int AF_UNIX local to host
 @int AF_UNSPEC unspecified
 @int AI_ADDRCONFIG use host configuration for returned address type
@@ -1041,6 +1098,9 @@ luaopen_posix_sys_socket(lua_State *L)
 	LPOSIX_CONST( AF_UNIX		);
 # if HAVE_LINUX_NETLINK_H
 	LPOSIX_CONST( AF_NETLINK	);
+# endif
+# if HAVE_LINUX_IF_PACKET_H
+	LPOSIX_CONST( AF_PACKET		);
 # endif
 	LPOSIX_CONST( SOL_SOCKET	);
 	LPOSIX_CONST( IPPROTO_TCP	);
