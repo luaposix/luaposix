@@ -2,6 +2,9 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+
+## Noteworthy changes in release 36.1 (2023-01-31) [stable]
+
 ### Bugs Fixed
 
   - `luke` now uses the same cpp defines for conftests as
