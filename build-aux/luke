@@ -17,10 +17,10 @@ end,fatal=fatal,}
 end
 package.preload['luke.cli']=function()
 local _ENV=require'std.normalize'{'luke._base','luke.lukefile','luke.platforms','std.functional',}local function version()print[[
-luke (Luke) 0.2.0
+luke (Luke) 0.2.2
 Written by Gary V. Vaughan <gary@gnu.org>, 2014
 
-Copyright (C) 2020, Gary V. Vaughan
+Copyright (C) 2021, Gary V. Vaughan
 Luke comes with ABSOLUTELY NO WARRANTY.
 You may redistribute copies of Luke under the terms of the MIT license;
 it may be used for any purpose at absolutely no cost, without permission.
@@ -102,7 +102,7 @@ abspath=abspath..'.lua'return src,(gsub(abspath,'/[^/]+%.lua$',''))end
 local function module_to_path(module,sources,objdir)return dropuntil(sources,function(source)return case(source,{['.*%.[ch]']=bind(c_source,{module,objdir}),['(.*%.[ch])%.in']=bind(c_source,{module,objdir}),['.*%.lua']=bind(lua_source,{module}),['(.*%.lua)%.in']=bind(lua_source,{module}),function(src)fatal("unsupported source type '%s'",src)end,})end)end
 return{build_c_module=function(L,env,luke,name)local rules=luke.modules[name]local c_module=c_module_path(luke.variables.objdir,name)local command={'$MAKEDIRS',dirname(c_module)}local status,err,out=spawn(env,unpack(command))if status~=0 then
 stdout:write(concat(command,' ')..'\n')stderr:write(err..'\n')exit(status)end
-return run(L,env,flatten('$CC $CFLAGS $LIBFLAG $PKGFLAGS $CPPFLAGS',defines(env,except(list(rules.defines,luke.defines),nil)),incdirs(rules.incdirs,luke.incdirs),rules.sources,'-o',c_module,libdirs(rules.libdirs,luke.libdirs),'$LIBS',rules.libraries,luke.libraries))end,c_modules=function(modules)return filter(keys(modules),function(name)return dropuntil(modules[name].sources,bind(match,{[2]='%.[ch]$'}))end)end,incdirs=incdirs,install_modules=function(L,env,luke,modules)return reduce(keys(modules),0,function(status,name)if status==0 then
+return run(L,env,flatten('$CC $CFLAGS $LIBFLAG $PKGFLAGS $CPPFLAGS',defines(env,except(list(rules.defines,luke.defines),nil)),incdirs(rules.incdirs,luke.incdirs),rules.sources,'-o',c_module,'$LDFLAGS',libdirs(rules.libdirs,luke.libdirs),'$LIBS',rules.libraries,luke.libraries))end,c_modules=function(modules)return filter(keys(modules),function(name)return dropuntil(modules[name].sources,bind(match,{[2]='%.[ch]$'}))end)end,incdirs=incdirs,install_modules=function(L,env,luke,modules)return reduce(keys(modules),0,function(status,name)if status==0 then
 local src,dir=module_to_path(name,modules[name].sources,luke.variables.objdir)if not exists(interpolate(env,dir))then
 status=run(L,env,{'$MAKEDIRS',dir})end
 if status==0 then
@@ -135,6 +135,15 @@ return with(File(progpath,'r'),function(h)return h and isfile(h.context)and prog
 end)end)L.log(found and'found '..found or prog..' not found')return found~=nil
 end
 local function check_header_compile(L,env,config,header,extra_hdrs)return with(CTest(),function(conftest)conftest:write(format('%s\n#include "%s"\n',extra_hdrs,header))return logspawn(L,env,compile_command(L,env,config,conftest.filename))end)end
+local function check_struct_member_compile(L,env,config,structname,member,extra_hdrs)return with(CTest(),function(conftest)conftest:write(format([[
+%s
+int main () {
+static %s aggr;
+if (sizeof aggr.%s)
+    return 0;
+return 0;
+}
+]],extra_hdrs,structname,member))return logspawn(L,env,compile_command(L,env,config,conftest.filename))end)end
 local function try_link(L,env,config,lib,symbol)return with(CTest(),TmpFile(),function(conftest,a_out)conftest:write(format([[
 /* Override any GCC internal prototype to avoid an error.
  Use char because int might match the return type of a GCC
@@ -225,7 +234,7 @@ end
 CONFIGENV.libs=lib..CONFIGENV.libs
 end
 return found_library(L,lib)end
-end)or call(function()L.verbose'\n'fatal("required symbol '%s' not found in any of libc, lib%s",symbol,concat(libraries,', lib'))end)end},{checkfunc=function(L,env,config)checking(L,'for',config.checkfunc)return found_result(L,check_func_link(L,env,config,config.checkfunc))end}),{__call=function(self,L,env,config,prefix)return case(type(config),{['number']=function()return str(config)end,['string']=function()return config
+end)or call(function()L.verbose'\n'fatal("required symbol '%s' not found in any of libc, lib%s",symbol,concat(libraries,', lib'))end)end},{checkfunc=function(L,env,config)checking(L,'for',config.checkfunc)return found_result(L,check_func_link(L,env,config,config.checkfunc))end},{checkmember=function(L,env,config)checking(L,'for',config.checkmember)local extra_hdrs=concat(format_includes(config.includes),'\n')local i=find(config.checkmember,'%.')local structname=sub(config.checkmember,1,i-1)local member=sub(config.checkmember,i+1)return found_result(L,check_struct_member_compile(L,env,config,structname,member,extra_hdrs))end}),{__call=function(self,L,env,config,prefix)return case(type(config),{['number']=function()return str(config)end,['string']=function()return config
 end,['table']=function()return dropuntil(self,function(fname)if config[fname]~=nil then
 add_external_deps(env,config,prefix)return apply(self[fname],list(L,env,config))end
 end)or fatal("unable to configure with keys '%s'",concat(keys(config),"', '"))end,function(type)fatal("unsupported configure type '%s'",type)end,})end,})return{config_compiler=function(L,env)local CC=env.CC
@@ -588,7 +597,7 @@ end
 return setmetatable({append=function(seq,v)local n=(int(seq.n)or len(seq))+1
 seq.n,seq[n]=n,v
 return seq
-end,arg=arg,assert=assert,char=string.char,close=io.close,concat=concat,copy=copy,dirsep=dirsep,exit=os.exit,format=string.format,getenv=os.getenv,getmetatable=getmetatable,getmetamethod=getmetamethod,gmatch=string.gmatch,gsub=string.gsub,int=int,iscallable=iscallable,len=len,lines=io.lines,list=pack,loadstring=loadstring,match=string.match,maxn=function(iterable)local n=0
+end,arg=arg,assert=assert,char=string.char,close=io.close,concat=concat,copy=copy,dirsep=dirsep,exit=os.exit,find=string.find,format=string.format,getenv=os.getenv,getmetatable=getmetatable,getmetamethod=getmetamethod,gmatch=string.gmatch,gsub=string.gsub,int=int,iscallable=iscallable,len=len,lines=io.lines,list=pack,loadstring=loadstring,match=string.match,maxn=function(iterable)local n=0
 for k,v in next,iterable or{}do
 local i=int(k)if i and i>n then
 n=i
