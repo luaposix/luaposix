@@ -3,6 +3,24 @@
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
 
+## Noteworthy changes in release 35.1 (2021-09-09) [stable]
+
+### Bugs Fixed
+
+  - Documentation cleanups: full and correct return docs including an
+    errnum where necessary; make sure we have a link to SUSv3 wherever
+    available; add an ', if successful' suffix to a normap return
+    result followed by error return results; fixed several typos.
+
+  - Update fork2.lua example to match current APIs
+
+### New Features
+
+  - Support AF_PACKET socket family, where available.
+
+  - Support SIGINFO, SIGWINCH and SA_RESTART, where available.
+
+
 ## Noteworthy changes in release 35.0 (2020-07-06) [stable]
 
 ### Incompatible Changes
