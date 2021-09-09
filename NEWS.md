@@ -2,6 +2,9 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+
+## Noteworthy changes in release 36.0 (2023-01-29) [stable]
+
 ### Incompatible Changes
 
   - `posix.spawn` always returns `integer`, `string` whether
