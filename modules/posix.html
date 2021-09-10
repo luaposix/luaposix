@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 35.0 Reference</title>
+    <title>luaposix 35.1 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 35.0</h1>
+<h1>luaposix 35.1</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -82,6 +82,7 @@
   <li><a href="../examples/limit.lua.html">limit.lua</a></li>
   <li><a href="../examples/lock.lua.html">lock.lua</a></li>
   <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><a href="../examples/packet-socket.lua.html">packet-socket.lua</a></li>
   <li><a href="../examples/ping.lua.html">ping.lua</a></li>
   <li><a href="../examples/poll.lua.html">poll.lua</a></li>
   <li><a href="../examples/rt_sched.lua.html">rt_sched.lua</a></li>
@@ -153,7 +154,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#popen">popen (task, mode[, pipe_fn])</a></td>
-	<td class="summary">Run a commands or Lua function in a sub-process.</td>
+	<td class="summary">Run a command or Lua function in a sub-process.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#popen_pipeline">popen_pipeline (t, mode[, pipe_fn])</a></td>
@@ -210,11 +211,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          existing file path
         </li>
         <li><span class="parameter">mode</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
 
 <p> one of the following formats:</p>
 
@@ -237,7 +238,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -268,11 +269,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          name of file to create
         </li>
         <li><span class="parameter">mode</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          permissions with which to create file
         </li>
     </ul>
@@ -288,7 +289,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -322,11 +323,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">file</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          file to check
         </li>
         <li><span class="parameter">mode</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          checks to perform (as for access)
         </li>
     </ul>
@@ -334,7 +335,13 @@
     <h3>Returns:</h3>
     <ol>
 
-        0 if access allowed; <code>nil</code> otherwise (and errno is set)
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if access allowed
+    </ol>
+     <h3>Or</h3>
+    <ol>
+
+        nil (and errno is set)
     </ol>
 
 
@@ -352,10 +359,10 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">task</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
-         argument list for <a href="../modules/posix.unistd.html#execp">posix.unistd.execp</a> or a Lua
-  function, which should read from standard input, write to standard
-  output, and return an exit code
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <span class="type">function</span></span>
+         argument list for <a href="../modules/posix.unistd.html#execp">posix.unistd.execp</a>
+  or a Lua function, which should read from standard input, write to
+  standard output, and return an exit code
         </li>
         <li><span class="parameter">...</span>
          positional arguments to the function
@@ -366,9 +373,9 @@
     <ol>
         <li>
            <span class="types"><span class="type">nil</span></span>
-        on error(normally does not return)</li>
+        on error (normally does not return)</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
     </ol>
 
@@ -388,7 +395,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">args</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a>, <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a> or <span class="type">nil</span></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a>, <a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span class="type">nil</span></span>
          the three possible parameters can be used to
  override the default values for <code>pattern</code> and <code>MARK</code>, which are <code>"*"</code> and
  <code>false</code> respectively. A table will be checked for optional keys <code>pattern</code>
@@ -399,11 +406,23 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
-        matching files and directories
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+        matching files and directories, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><span class="type">one</span></span>
+        of <code>GLOB_BORTED</code>, <code>GLOB_NOMATCH</code> or <code>GLOB_NOSPACE</code></li>
     </ol>
 
 
+    <h3>See also:</h3>
+    <ul>
+         <a href="../modules/posix.glob.html#glob">posix.glob.glob</a>
+    </ul>
 
 
 </dd>
@@ -418,7 +437,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          location in file system to create directory
         </li>
     </ul>
@@ -434,7 +453,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -456,7 +475,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          location in file system to create fifo
         </li>
     </ul>
@@ -472,7 +491,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -503,7 +522,7 @@
          (<em>default</em> 0)
         </li>
         <li><span class="parameter">mode</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          execute bits are ignored
          (<em>default</em> 'rw-rw-rw-')
         </li>
@@ -520,7 +539,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -546,7 +565,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          file to act on
         </li>
         <li><span class="parameter">oflags</span>
@@ -556,7 +575,7 @@
   <code>O_RSYNC</code>, <code>O_SYNC</code>, <code>O_TRUNC</code>
         </li>
         <li><span class="parameter">modestr</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         (used with <code>O_CREAT</code>; see <a href="../modules/posix.html#chmod">chmod</a> for format)
         </li>
     </ul>
@@ -572,7 +591,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -610,16 +629,19 @@
            <span class="types"><span class="type">int</span></span>
         slave file descriptor</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
-        slave file name</li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        slave file name, if successful</li>
     </ol>
      <h3>Or</h3>
     <ol>
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
     </ol>
 
 
@@ -637,7 +659,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">pfd</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          pipeline object
         </li>
     </ul>
@@ -658,19 +680,19 @@
     <strong>popen (task, mode[, pipe_fn])</strong>
     </dt>
     <dd>
-    Run a commands or Lua function in a sub-process.
+    Run a command or Lua function in a sub-process.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">task</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          argument list for <a href="../modules/posix.unistd.html#execp">posix.unistd.execp</a> or a Lua
   function, which should read from standard input, write to standard
   output, and return an exit code
         </li>
         <li><span class="parameter">mode</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          <code>"r"</code> for read or <code>"w"</code> for write
         </li>
         <li><span class="parameter">pipe_fn</span>
@@ -708,11 +730,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">t</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          tasks for <a href="../modules/posix.html#execx">posix.execx</a>
         </li>
         <li><span class="parameter">mode</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          <code>"r"</code> for read or <code>"w"</code> for write
         </li>
         <li><span class="parameter">pipe_fn</span>
@@ -762,7 +784,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -784,7 +806,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">task</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          argument list for <a href="../modules/posix.unistd.html#execp">posix.unistd.execp</a> or a Lua
   function, which should read from standard input, write to standard
   output, and return an exit code
@@ -899,7 +921,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">mode</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          file creation mask string
          (<em>optional</em>)
         </li>
@@ -908,7 +930,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         previous umask
     </ol>
 
@@ -938,7 +960,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">name</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          submodule name
         </li>
     </ul>
@@ -946,7 +968,7 @@
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a> or <span class="type">nil</span></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <span class="type">nil</span></span>
         the submodule that was loaded to satisfy the missing
   <code>name</code>, otherise <code>nil</code> if nothing was found
     </ol>
@@ -966,7 +988,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2020-07-06 12:02:06 </i>
+<i style="float:right;">Last updated 2021-09-09 17:41:28 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

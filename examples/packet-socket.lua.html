@@ -40,12 +40,12 @@
   <li><a href="../examples/dup2.lua.html">dup2.lua</a></li>
   <li><a href="../examples/fork.lua.html">fork.lua</a></li>
   <li><a href="../examples/fork2.lua.html">fork2.lua</a></li>
-  <li><strong>getopt.lua</strong></li>
+  <li><a href="../examples/getopt.lua.html">getopt.lua</a></li>
   <li><a href="../examples/glob.lua.html">glob.lua</a></li>
   <li><a href="../examples/limit.lua.html">limit.lua</a></li>
   <li><a href="../examples/lock.lua.html">lock.lua</a></li>
   <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
-  <li><a href="../examples/packet-socket.lua.html">packet-socket.lua</a></li>
+  <li><strong>packet-socket.lua</strong></li>
   <li><a href="../examples/ping.lua.html">ping.lua</a></li>
   <li><a href="../examples/poll.lua.html">poll.lua</a></li>
   <li><a href="../examples/rt_sched.lua.html">rt_sched.lua</a></li>
@@ -91,30 +91,19 @@
 
 <div id="content">
 
-    <h2>getopt.lua</h2>
+    <h2>packet-socket.lua</h2>
 <pre>
 #! /usr/bin/env lua
 
-<span class="keyword">local</span> getopt = <span class="global">require</span> <span class="string">'posix.unistd'</span>.getopt
+<span class="keyword">local</span> M = <span class="global">require</span> <span class="string">'posix.sys.socket'</span>
 
-
-<span class="keyword">local</span> last_index = <span class="number">1</span>
-<span class="keyword">for</span> r, optarg, optind <span class="keyword">in</span> getopt(arg, <span class="string">'ha:s:'</span>) <span class="keyword">do</span>
-   <span class="keyword">if</span> r == <span class="string">'?'</span> <span class="keyword">then</span>
-      <span class="keyword">return</span> <span class="global">print</span>(<span class="string">'unrecognized option'</span>, arg[optind -<span class="number">1</span>])
-   <span class="keyword">end</span>
-   last_index = optind
-   <span class="keyword">if</span> r == <span class="string">'h'</span> <span class="keyword">then</span>
-      <span class="global">print</span> <span class="string">'-h      print this help text'</span>
-      <span class="global">print</span> <span class="string">'-a ARG  a flag with required argument'</span>
-      <span class="global">print</span> <span class="string">'-s ARG  a different flag with a required argument'</span>
-   <span class="keyword">elseif</span> r == <span class="string">'a'</span> <span class="keyword">or</span> r == <span class="string">'s'</span> <span class="keyword">then</span>
-      <span class="global">print</span>(<span class="string">'we were passed'</span>, r, optarg)
-   <span class="keyword">end</span>
-<span class="keyword">end</span>
-
-<span class="keyword">for</span> i = last_index, #arg <span class="keyword">do</span>
-   <span class="global">print</span>(i, arg[i])
+<span class="comment">-- Packet socket loopback test
+</span><span class="comment">-- Need CAP_NET_RAW, otherwise get "Operation not permitted"
+</span><span class="keyword">if</span> M.AF_PACKET ~= <span class="keyword">nil</span> <span class="keyword">then</span>
+    <span class="keyword">local</span> fd = <span class="global">assert</span>(M.socket(M.AF_PACKET, M.SOCK_RAW, <span class="number">0</span>))
+    <span class="global">assert</span>(M.bind(fd, {family=M.AF_PACKET, ifindex=M.if_nametoindex(<span class="string">"lo"</span>)}))
+    <span class="global">assert</span>(M.send(fd, <span class="global">string</span>.rep(<span class="string">"1"</span>, <span class="number">64</span>)) == <span class="number">64</span>)
+    <span class="global">require</span> <span class="string">'posix.unistd'</span>.close(fd)
 <span class="keyword">end</span></pre>
 
 

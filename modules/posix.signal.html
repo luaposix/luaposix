@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 35.0 Reference</title>
+    <title>luaposix 35.1 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 35.0</h1>
+<h1>luaposix 35.1</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -82,6 +82,7 @@
   <li><a href="../examples/limit.lua.html">limit.lua</a></li>
   <li><a href="../examples/lock.lua.html">lock.lua</a></li>
   <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><a href="../examples/packet-socket.lua.html">packet-socket.lua</a></li>
   <li><a href="../examples/ping.lua.html">ping.lua</a></li>
   <li><a href="../examples/poll.lua.html">poll.lua</a></li>
   <li><a href="../examples/rt_sched.lua.html">rt_sched.lua</a></li>
@@ -168,7 +169,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -215,7 +216,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -257,7 +258,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -310,8 +311,8 @@ Although this is the same API as signal(2), it uses sigaction for guaranteed sem
 
     <h3>See also:</h3>
     <ul>
-         <li><a href="../examples/signal.lua.html#">signal.lua</a></li>
          <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/sigaction.html">sigaction(2)</a></li>
+         <li><a href="../examples/signal.lua.html#">signal.lua</a></li>
     </ul>
 
 
@@ -363,6 +364,10 @@ Any constants not available in the underlying system will be <code>nil</code> va
             <span class="types"><span class="type">int</span></span>
          illegal instruction
         </li>
+        <li><span class="parameter">SIGINFO</span>
+            <span class="types"><span class="type">int</span></span>
+         information request
+        </li>
         <li><span class="parameter">SIGINT</span>
             <span class="types"><span class="type">int</span></span>
          interrupt
@@ -387,9 +392,17 @@ Any constants not available in the underlying system will be <code>nil</code> va
             <span class="types"><span class="type">int</span></span>
          stop
         </li>
+        <li><span class="parameter">SIGSYS</span>
+            <span class="types"><span class="type">int</span></span>
+         bad argument to system call
+        </li>
         <li><span class="parameter">SIGTERM</span>
             <span class="types"><span class="type">int</span></span>
          terminate
+        </li>
+        <li><span class="parameter">SIGTRAP</span>
+            <span class="types"><span class="type">int</span></span>
+         trace trap
         </li>
         <li><span class="parameter">SIGTSTP</span>
             <span class="types"><span class="type">int</span></span>
@@ -403,6 +416,10 @@ Any constants not available in the underlying system will be <code>nil</code> va
             <span class="types"><span class="type">int</span></span>
          to readers process group on background tty output
         </li>
+        <li><span class="parameter">SIGURG</span>
+            <span class="types"><span class="type">int</span></span>
+         urgent condition on i/o channel
+        </li>
         <li><span class="parameter">SIGUSR1</span>
             <span class="types"><span class="type">int</span></span>
          user defined
@@ -411,21 +428,13 @@ Any constants not available in the underlying system will be <code>nil</code> va
             <span class="types"><span class="type">int</span></span>
          user defined
         </li>
-        <li><span class="parameter">SIGSYS</span>
-            <span class="types"><span class="type">int</span></span>
-         bad argument to system call
-        </li>
-        <li><span class="parameter">SIGTRAP</span>
-            <span class="types"><span class="type">int</span></span>
-         trace trap
-        </li>
-        <li><span class="parameter">SIGURG</span>
-            <span class="types"><span class="type">int</span></span>
-         urgent condition on i/o channel
-        </li>
         <li><span class="parameter">SIGVTALRM</span>
             <span class="types"><span class="type">int</span></span>
          virtual time alarm
+        </li>
+        <li><span class="parameter">SIGWINCH</span>
+            <span class="types"><span class="type">int</span></span>
+         window size change
         </li>
         <li><span class="parameter">SIGXCPU</span>
             <span class="types"><span class="type">int</span></span>
@@ -443,13 +452,17 @@ Any constants not available in the underlying system will be <code>nil</code> va
             <span class="types"><span class="type">int</span></span>
          don't keep zombies child processes
         </li>
+        <li><span class="parameter">SA_NODEFER</span>
+            <span class="types"><span class="type">int</span></span>
+         don't mask the signal we're delivering
+        </li>
         <li><span class="parameter">SA_RESETHAND</span>
             <span class="types"><span class="type">int</span></span>
          reset to SIG_DFL when taking a signal
         </li>
-        <li><span class="parameter">SA_NODEFER</span>
+        <li><span class="parameter">SA_RESTART</span>
             <span class="types"><span class="type">int</span></span>
-         don't mask the signal we're delivering
+         allow syscalls to restart instead of returning EINTR
         </li>
     </ul>
 
@@ -474,7 +487,7 @@ Any constants not available in the underlying system will be <code>nil</code> va
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2020-07-06 12:02:06 </i>
+<i style="float:right;">Last updated 2021-09-09 17:41:28 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

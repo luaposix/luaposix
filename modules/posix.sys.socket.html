@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 35.0 Reference</title>
+    <title>luaposix 35.1 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 35.0</h1>
+<h1>luaposix 35.1</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -83,6 +83,7 @@
   <li><a href="../examples/limit.lua.html">limit.lua</a></li>
   <li><a href="../examples/lock.lua.html">lock.lua</a></li>
   <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><a href="../examples/packet-socket.lua.html">packet-socket.lua</a></li>
   <li><a href="../examples/ping.lua.html">ping.lua</a></li>
   <li><a href="../examples/poll.lua.html">poll.lua</a></li>
   <li><a href="../examples/rt_sched.lua.html">rt_sched.lua</a></li>
@@ -133,6 +134,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#getsockopt">getsockopt (fd, level, name)</a></td>
 	<td class="summary">Get options on sockets.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#if_nametoindex">if_nametoindex (ifname)</a></td>
+	<td class="summary">Get network interface index by name.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#listen">listen (fd, backlog)</a></td>
@@ -219,7 +224,7 @@
            <span class="types"><span class="type">int</span></span>
         connection descriptor</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         connection address, if successful</li>
     </ol>
      <h3>Or</h3>
@@ -227,7 +232,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -273,7 +278,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -319,7 +324,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -345,11 +350,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">host</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          name of a host. For IPv6, link-local addresses like 'ff02::1%eth0' are supported.
         </li>
         <li><span class="parameter">service</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          name of service
         </li>
         <li><span class="parameter">hints</span>
@@ -363,14 +368,14 @@
     <ol>
 
            <span class="types"><span class="type">list</span></span>
-        of <a href="../modules/posix.sys.socket.html#sockaddr">sockaddr</a> tables
+        of <a href="../modules/posix.sys.socket.html#sockaddr">sockaddr</a> tables, if successful
     </ol>
      <h3>Or</h3>
     <ol>
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -411,14 +416,14 @@
     <ol>
 
            <span class="types"><a class="type" href="../modules/posix.sys.socket.html#sockaddr">sockaddr</a></span>
-        the address to which the socket <em>sockfd</em> is connected to
+        the address to which the socket <em>sockfd</em> is connected to, if successful
     </ol>
      <h3>Or</h3>
     <ol>
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -457,14 +462,14 @@
     <ol>
 
            <span class="types"><a class="type" href="../modules/posix.sys.socket.html#sockaddr">sockaddr</a></span>
-        the current address to which the socket <em>sockfd</em> is bound
+        the current address to which the socket <em>sockfd</em> is bound, if successful
     </ol>
      <h3>Or</h3>
     <ol>
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -510,14 +515,14 @@
     <h3>Returns:</h3>
     <ol>
 
-        the value of the requested socket option
+        the value of the requested socket option, if successful
     </ol>
      <h3>Or</h3>
     <ol>
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -537,6 +542,54 @@ val, errmsg, errnum = sys_sock.getsockopt(
   sock, sys_sock.SOL_SOCKET, sys_sock.SO_SNDTIMEO
 )
 <span class="global">print</span>(<span class="string">'Send timeout '</span>, val.tv_sec + val.tv_usec / <span class="number">1000000</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "if_nametoindex"></a>
+    <strong>if_nametoindex (ifname)</strong>
+    </dt>
+    <dd>
+    Get network interface index by name.
+Needed for packet sockets, since SO_BINDTODEVICE won't work on packet family.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ifname</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         interface name
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        interface index, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/if_nametoindex.html">if_nametoindex(3)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> sys_sock = <span class="global">require</span> <span class="string">"posix.sys.socket"</span>
+ifindex, errmsg, errnum = sys_sock.if_nametoindex(<span class="string">"eth0"</span>)</pre>
     </ul>
 
 </dd>
@@ -571,7 +624,7 @@ val, errmsg, errnum = sys_sock.getsockopt(
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -609,7 +662,7 @@ val, errmsg, errnum = sys_sock.getsockopt(
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><span class="type">int</span></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         received bytes, if successful
     </ol>
      <h3>Or</h3>
@@ -617,7 +670,7 @@ val, errmsg, errnum = sys_sock.getsockopt(
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -666,7 +719,7 @@ val, errmsg, errnum = sys_sock.getsockopt(
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -696,7 +749,7 @@ val, errmsg, errnum = sys_sock.getsockopt(
          socket descriptor to act on
         </li>
         <li><span class="parameter">buffer</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          message bytes to send
         </li>
     </ul>
@@ -712,7 +765,7 @@ val, errmsg, errnum = sys_sock.getsockopt(
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -742,7 +795,7 @@ val, errmsg, errnum = sys_sock.getsockopt(
          socket descriptor to act on
         </li>
         <li><span class="parameter">buffer</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          message bytes to send
         </li>
         <li><span class="parameter">destination</span>
@@ -762,7 +815,7 @@ val, errmsg, errnum = sys_sock.getsockopt(
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -819,7 +872,7 @@ val, errmsg, errnum = sys_sock.getsockopt(
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -872,7 +925,7 @@ ok, errmsg = sys_sock.setsockopt (
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -904,7 +957,8 @@ ok, errmsg = sys_sock.shutdown (sock, sys_sock.SHUT_RDWR)</pre>
     <ul>
         <li><span class="parameter">domain</span>
             <span class="types"><span class="type">int</span></span>
-         one of <code>AF_INET</code>, <code>AF_INET6</code>, <code>AF_UNIX</code> or <code>AF_NETLINK</code>
+         one of <code>AF_INET</code>, <code>AF_INET6</code>, <code>AF_UNIX</code>, <code>AF_NETLINK</code> or
+  <code>AF_PACKET</code>
         </li>
         <li><span class="parameter">type</span>
             <span class="types"><span class="type">int</span></span>
@@ -927,7 +981,7 @@ ok, errmsg = sys_sock.shutdown (sock, sys_sock.SHUT_RDWR)</pre>
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -985,7 +1039,7 @@ sockd = sys_sock.socket (sys_sock.AF_INET, sys_sock.SOCK_STREAM, <span class="nu
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -993,6 +1047,10 @@ sockd = sys_sock.socket (sys_sock.AF_INET, sys_sock.SOCK_STREAM, <span class="nu
     </ol>
 
 
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/socketpair.html">socketpair(2)</a>
+    </ul>
 
     <h3>Usage:</h3>
     <ul>
@@ -1017,7 +1075,8 @@ sockr, sockw = sys_sock.socketpair (sys_sock.AF_INET, sys_sock.SOCK_STREAM, <spa
     <ul>
         <li><span class="parameter">family</span>
             <span class="types"><span class="type">int</span></span>
-         one of <code>AF_INET</code>, <code>AF_INET6</code>, <code>AF_UNIX</code> or <code>AF_NETLINK</code>
+         one of <code>AF_INET</code>, <code>AF_INET6</code>, <code>AF_UNIX</code>, <code>AF_NETLINK</code> or
+  <code>AF_PACKET</code>
         </li>
         <li><span class="parameter">flags</span>
             <span class="types"><span class="type">int</span></span>
@@ -1054,7 +1113,7 @@ a subset of the following fields too.
     <ul>
         <li><span class="parameter">family</span>
             <span class="types"><span class="type">int</span></span>
-         one of <code>AF_INET</code>, <code>AF_INET6</code>, <code>AF_UNIX</code> or (where supported) <code>AF_NETLINK</code>
+         one of <code>AF_INET</code>, <code>AF_INET6</code>, <code>AF_UNIX</code>, <code>AF_NETLINK</code> or <code>AF_PACKET</code>
         </li>
         <li><span class="parameter">port</span>
             <span class="types"><span class="type">int</span></span>
@@ -1062,7 +1121,7 @@ a subset of the following fields too.
          (<em>optional</em>)
         </li>
         <li><span class="parameter">addr</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          socket host address in correct format, for <code>AF_INET</code> <em>family</em>
          (<em>optional</em>)
         </li>
@@ -1072,7 +1131,7 @@ a subset of the following fields too.
          (<em>optional</em>)
         </li>
         <li><span class="parameter">canonname</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          canonical name for service location, for <code>AF_INET</code> <em>family</em>
          (<em>optional</em>)
         </li>
@@ -1082,7 +1141,7 @@ a subset of the following fields too.
          (<em>optional</em>)
         </li>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          location in file system, for <code>AF_UNIX</code> <em>family</em>
          (<em>optional</em>)
         </li>
@@ -1094,6 +1153,11 @@ a subset of the following fields too.
         <li><span class="parameter">groups</span>
             <span class="types"><span class="type">int</span></span>
          process group owner identifier, for <code>AF_NETLINK</code> <em>family</em>
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">ifindex</span>
+            <span class="types"><span class="type">int</span></span>
+         interface index, for <code>AF_PACKET</code> <em>family</em>
          (<em>optional</em>)
         </li>
     </ul>
@@ -1129,6 +1193,10 @@ Any constants not available in the underlying system will be <code>nil</code> va
         <li><span class="parameter">AF_NETLINK</span>
             <span class="types"><span class="type">int</span></span>
          Netlink protocol family
+        </li>
+        <li><span class="parameter">AF_PACKET</span>
+            <span class="types"><span class="type">int</span></span>
+         Packet protocol family
         </li>
         <li><span class="parameter">AF_UNIX</span>
             <span class="types"><span class="type">int</span></span>
@@ -1437,7 +1505,7 @@ Any constants not available in the underlying system will be <code>nil</code> va
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2020-07-06 12:02:06 </i>
+<i style="float:right;">Last updated 2021-09-09 17:41:28 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

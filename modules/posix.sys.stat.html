@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 35.0 Reference</title>
+    <title>luaposix 35.1 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 35.0</h1>
+<h1>luaposix 35.1</h1>
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -83,6 +83,7 @@
   <li><a href="../examples/limit.lua.html">limit.lua</a></li>
   <li><a href="../examples/lock.lua.html">lock.lua</a></li>
   <li><a href="../examples/netlink-uevent.lua.html">netlink-uevent.lua</a></li>
+  <li><a href="../examples/packet-socket.lua.html">packet-socket.lua</a></li>
   <li><a href="../examples/ping.lua.html">ping.lua</a></li>
   <li><a href="../examples/poll.lua.html">poll.lua</a></li>
   <li><a href="../examples/rt_sched.lua.html">rt_sched.lua</a></li>
@@ -384,7 +385,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          existing file path to act on
         </li>
         <li><span class="parameter">mode</span>
@@ -404,7 +405,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -444,7 +445,18 @@ sys_stat.chmod (<span class="string">'bin/dof'</span>, bit.bor (sys_stat.S_IRWXU
     <ol>
 
            <span class="types"><a class="type" href="../modules/posix.sys.stat.html#PosixStat">PosixStat</a></span>
-        information about <em>fd</em>
+        information about <em>fd</em>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
     </ol>
 
 
@@ -475,7 +487,7 @@ If file is a symbolic link, return information about the link itself.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          file to act on
         </li>
     </ul>
@@ -484,7 +496,18 @@ If file is a symbolic link, return information about the link itself.
     <ol>
 
            <span class="types"><a class="type" href="../modules/posix.sys.stat.html#PosixStat">PosixStat</a></span>
-        information about <em>path</em>
+        information about <em>path</em>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
     </ol>
 
 
@@ -512,7 +535,7 @@ If file is a symbolic link, return information about the link itself.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          location in file system to create directory
         </li>
         <li><span class="parameter">mode</span>
@@ -533,7 +556,7 @@ If file is a symbolic link, return information about the link itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -559,7 +582,7 @@ If file is a symbolic link, return information about the link itself.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          location in file system to create fifo
         </li>
         <li><span class="parameter">mode</span>
@@ -580,7 +603,7 @@ If file is a symbolic link, return information about the link itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -607,7 +630,7 @@ If file is a symbolic link, return information about the file the link points to
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          file to act on
         </li>
     </ul>
@@ -616,7 +639,18 @@ If file is a symbolic link, return information about the file the link points to
     <ol>
 
            <span class="types"><a class="type" href="../modules/posix.sys.stat.html#PosixStat">PosixStat</a></span>
-        information about <em>path</em>
+        information about <em>path</em>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
     </ol>
 
 
@@ -864,7 +898,7 @@ Any constants not available in the underlying system will be <code>nil</code> va
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2020-07-06 12:02:06 </i>
+<i style="float:right;">Last updated 2021-09-09 17:41:28 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
