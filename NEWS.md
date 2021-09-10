@@ -1,8 +1,5 @@
 # luaposix NEWS - User visible changes
 
-## Noteworthy changes in release ?.? (????-??-??) [?]
-
-
 ## Noteworthy changes in release 35.1 (2021-09-09) [stable]
 
 ### Bugs Fixed

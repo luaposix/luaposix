@@ -4,8 +4,8 @@ luaposix
 By the [luaposix project][github]
 
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://mit-license.org)
-[![travis-ci status](https://secure.travis-ci.org/luaposix/luaposix.png?branch=master)](http://travis-ci.org/luaposix/luaposix/builds)
-[![codecov.io](https://codecov.io/github/luaposix/luaposix/coverage.svg?branch=master)](https://codecov.io/github/luaposix/luaposix?branch=master)
+[![travis-ci status](https://secure.travis-ci.org/luaposix/luaposix.png?branch=release-v35.1)](http://travis-ci.org/luaposix/luaposix/builds)
+[![codecov.io](https://codecov.io/github/luaposix/luaposix/coverage.svg?branch=release-v35.1)](https://codecov.io/github/luaposix/luaposix?branch=release-v35.1)
 
 This is a POSIX binding for LuaJIT, [Lua][] 5.1, 5.2, 5.3 and 5.4; like
 most libraries it simply binds to C APIs on the underlying system, so it
