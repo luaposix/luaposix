@@ -17,10 +17,10 @@ end,fatal=fatal,}
 end
 package.preload['luke.cli']=function()
 local _ENV=require'std.normalize'{'luke._base','luke.lukefile','luke.platforms','std.functional',}local function version()print[[
-luke (Luke) 0.2.2
+luke (Luke) 0.2.3
 Written by Gary V. Vaughan <gary@gnu.org>, 2014
 
-Copyright (C) 2021, Gary V. Vaughan
+Copyright (C) 2022, Gary V. Vaughan
 Luke comes with ABSOLUTELY NO WARRANTY.
 You may redistribute copies of Luke under the terms of the MIT license;
 it may be used for any purpose at absolutely no cost, without permission.
@@ -617,7 +617,7 @@ return r
 end,popen=io.popen,print=print,rawget=rawget,rawset=rawset,rep=string.rep,rm=os.remove,select=select,setmetatable=setmetatable,sort=sort,stderr=io.stderr,stdout=io.stdout,str=str,sub=string.sub,tmpname=os.tmpname,tonumber=tonumber,type=type,unpack=function(seq,i,j)return unpack(seq,int(i)or 1,int(j)or int(seq.n)or len(seq))end,write=io.write,},{__call=function(self,env,level)local userenv,level=copy(self),level or 1
 for name,value in next,env do
 if int(name)and type(value)=='string'then
-for k,v in next,require(value)do
+for k,v in next,(require(value))do
 userenv[k]=userenv[k]or v
 end
 else
