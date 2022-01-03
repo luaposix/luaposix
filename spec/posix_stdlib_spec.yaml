@@ -36,7 +36,6 @@ specify posix.stdlib:
   - it fetches a named process environment variable:
       expect(getenv "USER").to_be(cmd_output('echo "$USER"'))
       expect(getenv "HOME").to_be(cmd_output('echo "$HOME"'))
-      expect(getenv "SHELL").to_be(cmd_output('echo "$SHELL"'))
   - it returns nil for an absent environment setting:
       expect(getenv "very_unlikely_to_be_set").to_be(nil)
 

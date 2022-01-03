@@ -393,11 +393,9 @@ specify posix.deprecated:
       expect(getpasswd(root, "passwd")).to_match.any_of {"x", "%*+"}
   - it fetches the user home directory:
       expect(getpasswd(user, "dir")).to_be(getenv "HOME")
-  - it fetches the user shell:
-      expect(getpasswd(user, "shell")).to_be(getenv "SHELL")
   - it fetches a subtable of named fields:
-      expect({getpasswd(user, "name", "shell", "dir")}).
-         to_equal {user, getenv "SHELL", getenv "HOME"}
+      expect({getpasswd(user, "name", "dir")}).
+         to_equal {user, getenv "HOME"}
   - it fetches everything without an argument:
       t = getpasswd(user)
       for k, v in pairs(t) do
