@@ -4,7 +4,7 @@ luaposix
 By the [luaposix project][github]
 
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://mit-license.org)
-[![travis-ci status](https://secure.travis-ci.org/luaposix/luaposix.png?branch=master)](http://travis-ci.org/luaposix/luaposix/builds)
+[![workflow status](https://github.com/luaposix/luaposix/actions/workflows/spec.yml/badge.svg?branch=master)](https://github.com/luaposix/luaposix/actions)
 [![codecov.io](https://codecov.io/github/luaposix/luaposix/coverage.svg?branch=master)](https://codecov.io/github/luaposix/luaposix?branch=master)
 
 This is a POSIX binding for LuaJIT, [Lua][] 5.1, 5.2, 5.3 and 5.4; like
