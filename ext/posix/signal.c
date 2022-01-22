@@ -15,7 +15,12 @@
  Constants and functions for propagating signals among processes.
 
  Note that `posix.signal.signal` is implemented with sigaction(2) for
- consistent semantics across platforms.
+ consistent semantics across platforms. Also note that installed signal
+ handlers are not called immediatly upon occurrence of a signal. Instead,
+ in order to keep the interperter state clean, they are executed in the
+ context of a debug hook which is called as soon as the interpreter enters
+ a new function, returns from the currently executing function, or after the
+ execution of the current instruction has ended.
 
 @module posix.signal
 */
