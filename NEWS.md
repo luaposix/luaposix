@@ -2,10 +2,12 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
-### Bug fixes
+### Bugs Fixed
 
   - `luke` no longer crashes in `std.normalize` require loops
     occasionally in Lua 5.4.
+
+  - Don't leak `err` into global scope from `posix.compat.open`
 
 
 ## Noteworthy changes in release 35.1 (2021-09-09) [stable]
