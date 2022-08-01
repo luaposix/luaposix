@@ -380,7 +380,10 @@ specify posix.sys.socket:
          to_be(0)
 
       sockt = {family=M.AF_INET, addr="127.0.0.1", port=59999}
-      expect(M.sendto(fd, "Test ipv4", sockt)).to_be(9)
+      expect({M.sendto(fd, "Test ipv4", sockt)}).to_equal.any_of {
+         {9},
+         {nil, "sendto: Invalid argument", 22},
+      }
 
       pending "issue #92"
       data, so = M.recvfrom(fd, 1024)
