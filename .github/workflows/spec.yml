@@ -13,7 +13,6 @@ jobs:
       matrix:
         lua-version: ["5.4", "5.3", "5.2", "5.1", "luajit"]
         strict: ["std.strict", ""]
-        typecheck: ["typecheck", ""]
 
     runs-on: ubuntu-latest
 
@@ -33,9 +32,9 @@ jobs:
           luarocks install ldoc
           luarocks install luacov
           luarocks install specl
-          test -n "${{ matrix.strict }}${{ matrix.typecheck }}" && luarocks install std._debug || true
+          luarocks install std._debug
+          luarocks install typecheck
           test -n "${{ matrix.strict }}" && luarocks install std.strict || true
-          test -n "${{ matrix.typecheck }}" && luarocks install typecheck || true
 
       - name: build
         run: |
