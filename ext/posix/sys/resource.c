@@ -59,6 +59,9 @@ Get resource limits for this process.
 @treturn[2] int errnum
 @see getrlimit(2)
 @see setrlimit
+@usage
+  local sysres = require "posix.sys.resource"
+  sysres.getrlimit(sysres.RLIMIT_NOFILE)
 */
 static int
 Pgetrlimit(lua_State *L)
@@ -76,8 +79,8 @@ Pgetrlimit(lua_State *L)
 /***
 Set a resource limit for subsequent child processes.
 @function setrlimit
-@string resource one of "core", "cpu", "data", "fsize",
- "nofile", "stack" or "as"
+@int resource one of `RLIMIT_CORE`, `RLIMIT_CPU`, `RLIMIT_DATA`, `RLIMIT_FSIZE`,
+  `RLIMIT_NOFILE`, `RLIMIT_STACK` or `RLIMIT_AS`
 @param[opt] softlimit process may receive a signal when reached
 @param[opt] hardlimit process may be terminated when reached
 @treturn[1] int `0`, if successful
@@ -89,7 +92,9 @@ Set a resource limit for subsequent child processes.
 @see limit.lua
 @usage
   local sysres = require "posix.sys.resource"
-  sysres.setrlimit ("nofile", 1000, 2000)
+  local lim = sysres.getlimit(sysres.RLIMIT_NOFILE)
+  lim.rlim_cur = lim.rlim_cur / 2
+  sysres.setrlimit(sysres.RLIMIT_NOFILE, lim)
 */
 
 static const char *Srlimit_fields[] = { "rlim_cur", "rlim_max" };

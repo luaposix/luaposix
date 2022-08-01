@@ -9,6 +9,8 @@
 
   - Don't leak `err` into global scope from `posix.compat.open`
 
+  - Correct LDoc comments for `sys.resource.setrlimit.
+
 
 ## Noteworthy changes in release 35.1 (2021-09-09) [stable]
 
