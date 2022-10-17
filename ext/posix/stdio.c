@@ -61,7 +61,10 @@ Pfileno(lua_State *L)
 static int
 stdio_fclose (lua_State *L) {
 	luaL_Stream *p = ((luaL_Stream *)luaL_checkudata(L, 1, LUA_FILEHANDLE));
+	if (p->f == NULL)
+		return 0;
 	int res = fclose(p->f);
+	p->f = NULL;
 	return luaL_fileresult(L, (res == 0), NULL);
 }
 
@@ -71,6 +74,10 @@ pushfile (lua_State *L, int fd, const char *mode) {
 	luaL_Stream *p = (luaL_Stream *)lua_newuserdata(L, sizeof(luaL_Stream));
 	luaL_getmetatable(L, LUA_FILEHANDLE);
 	lua_setmetatable(L, -2);
+	lua_createtable(L, 0, 1);
+	lua_pushcfunction(L, stdio_fclose);
+	lua_setfield(L, -2, "__close");
+	lua_setfenv(L, -2);  /* set fenv for 'fdopen' */
 	p->closef = stdio_fclose;
 	p->f = fdopen(fd, mode);
 	return p->f != NULL;
