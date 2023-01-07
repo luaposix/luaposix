@@ -76,6 +76,9 @@ specify posix.pwd:
 
   - context with bad arguments:
       badargs.diagnose(getpwuid, "(int)")
+  - context with weird arguments:
+      - it accepts integer valued float arguments:
+          expect(prototype(getpwuid(0.0))).to_be "PosixPasswd"
 
   - it returns a PosixPasswd for an existing user:
       expect(prototype(getpwuid(0))).to_be "PosixPasswd"

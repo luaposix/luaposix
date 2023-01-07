@@ -154,8 +154,9 @@ checktype(lua_State *L, int narg, int t, const char *expected)
 static lua_Integer
 checkinteger(lua_State *L, int narg, const char *expected)
 {
-	lua_Integer d = lua_tointeger(L, narg);
-	if (d == 0 && !lua_isinteger(L, narg))
+	int isconverted = 0;
+	lua_Integer d = lua_tointegerx(L, narg, &isconverted);
+	if (!isconverted)
 		argtypeerror(L, narg, expected);
 	return d;
 }

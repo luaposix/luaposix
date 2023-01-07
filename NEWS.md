@@ -9,7 +9,11 @@
 
   - Don't leak `err` into global scope from `posix.compat.open`
 
-  - Correct LDoc comments for `sys.resource.setrlimit.
+  - Correct LDoc comments for `sys.resource.setrlimit`.
+
+  - Where an integer argument is expected, for consistency with
+    Lua 5.2 and older, always allow 0.0 to be accepted as if 0
+    had been passed.  For example: `pwd.getpwuid(0.0)`.
 
 
 ## Noteworthy changes in release 35.1 (2021-09-09) [stable]
