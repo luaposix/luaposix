@@ -15,6 +15,16 @@
     Lua 5.2 and older, always allow 0.0 to be accepted as if 0
     had been passed.  For example: `pwd.getpwuid(0.0)`.
 
+  - `require 'posix'.glob '.*'` continues to invoke the
+    backwards compatibility `glob` function, but that no longer
+    prevents access to the preloaded `require 'posix'.glob.glob`
+    binding.
+
+  - The `fcntl` binding is still available from the top-level
+    `posix` module as `require 'posix'.fcntl`, but that no longer
+    prevents access to the preloaded `require 'posix'.fcntl.fcntl`
+    binding.
+
 
 ## Noteworthy changes in release 35.1 (2021-09-09) [stable]
 
