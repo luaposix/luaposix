@@ -1224,6 +1224,7 @@ Write bytes to a file.
 @function write
 @int fd the file descriptor to act on
 @string buf containing bytes to write
+@int[opt=#buf] nbytes number of bytes to write
 @treturn[1] int number of bytes written, if successful
 @return[2] nil
 @treturn[2] string error message
@@ -1235,8 +1236,9 @@ Pwrite(lua_State *L)
 {
 	int fd = checkint(L, 1);
 	const char *buf = luaL_checkstring(L, 2);
-	checknargs(L, 2);
-	return pushresult(L, write(fd, buf, lua_objlen(L, 2)), NULL);
+	int nbytes = optint(L, 3, lua_objlen(L, 2));
+	checknargs(L, 3);
+	return pushresult(L, write(fd, buf, nbytes), NULL);
 }
 
 /***

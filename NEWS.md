@@ -25,6 +25,11 @@
     prevents access to the preloaded `require 'posix'.fcntl.fcntl`
     binding.
 
+  - `posix.unistd.write` takes an optional third argument `nbytes`
+    to conform better to the SUSv3 specification.  For backwards
+    compatibility, the entirety of `buf` is written when a third
+    argument is not passed (or is `nil`).
+
 
 ## Noteworthy changes in release 35.1 (2021-09-09) [stable]
 
