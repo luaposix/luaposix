@@ -1224,7 +1224,8 @@ Write bytes to a file.
 @function write
 @int fd the file descriptor to act on
 @string buf containing bytes to write
-@int[opt=#buf] nbytes number of bytes to write
+@int[opt=#buf-buf_offset] nbytes number of bytes to write
+@int[opt=0] buf_offset skip the first buf_offset bytes of buf
 @treturn[1] int number of bytes written, if successful
 @return[2] nil
 @treturn[2] string error message
@@ -1234,11 +1235,34 @@ Write bytes to a file.
 static int
 Pwrite(lua_State *L)
 {
-	int fd = checkint(L, 1);
+	const int fd = checkint(L, 1);
 	const char *buf = luaL_checkstring(L, 2);
-	int nbytes = optint(L, 3, lua_objlen(L, 2));
-	checknargs(L, 3);
-	return pushresult(L, write(fd, buf, nbytes), NULL);
+	const int buf_len = lua_objlen(L, 2);
+	int nbytes = optint(L, 3, buf_len);
+	const int buf_offset = optint(L, 4, 0);
+
+	checknargs(L, 4);
+
+	if (buf_offset < 0 || buf_offset > buf_len)
+	{
+#ifdef ERANGE
+		errno = ERANGE;
+#endif
+		return pusherror(L, "buf_offset out of bounds");
+	}
+
+	if (buf_offset && lua_type(L, 3) == LUA_TNIL)
+		nbytes -= buf_offset;
+
+	if (buf_offset + nbytes > buf_len)
+	{
+#ifdef ERANGE
+		errno = ERANGE;
+#endif
+		return pusherror(L, "buf_offset + nbytes out of bounds");
+	}
+
+	return pushresult(L, write(fd, buf + buf_offset, nbytes), NULL);
 }
 
 /***
