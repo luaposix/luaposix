@@ -1252,7 +1252,7 @@ Pwrite(lua_State *L)
 	}
 
 	if (buf_offset && lua_type(L, 3) == LUA_TNIL)
-		nbytes -= buf_offset;
+		nbytes = buf_len - buf_offset;
 
 	if (buf_offset + nbytes > buf_len)
 	{
