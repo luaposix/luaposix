@@ -130,6 +130,10 @@
 extern int errno;
 #endif
 
+/* Well defined negative error codes for luaposix bindings that can't
+   clash with host error codes.  */
+#define PEOOB -1		/* buffer offset out of bounds. */
+
 
 /* ========================= *
  * Bad argument diagnostics. *

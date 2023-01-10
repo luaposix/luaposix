@@ -47,7 +47,14 @@ Perrno(lua_State *L)
 {
 	int n = optint(L, 1, errno);
 	checknargs(L, 1);
-	lua_pushstring(L, strerror(n));
+	switch(n)
+	{
+		case PEOOB:
+			lua_pushstring(L, "buffer offset out of bounds");
+			break;
+		default:
+			lua_pushstring(L, strerror(n));
+	}
 	lua_pushinteger(L, n);
 	return 2;
 }
@@ -91,6 +98,7 @@ If you find one of the luaposix APIs returns an error code not listed here,
 please raise an issue [here](http://github.com/luaposix/luaposixissues), stating
 the symbolic name of the constant (from `/usr/include/errno.h` or equivalent).
 @table posix.errno
+@int PEOOB buffer access out of bounds
 @int E2BIG argument list too long
 @int EACCES permission denied
 @int EADDRINUSE address already in use
@@ -176,6 +184,8 @@ luaopen_posix_errno(lua_State *L)
 	luaL_newlib(L, posix_errno_fns);
 	lua_pushstring(L, LPOSIX_VERSION_STRING("errno"));
 	lua_setfield(L, -2, "version");
+
+	LPOSIX_CONST( PEOOB		);
 
 #ifdef E2BIG
 	LPOSIX_CONST( E2BIG		);

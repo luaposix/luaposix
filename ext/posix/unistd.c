@@ -1221,11 +1221,17 @@ Punlink(lua_State *L)
 
 /***
 Write bytes to a file.
+If *nbytes* is `nil` or omitted, write all bytes from *offset*
+through to the end of *buf*.  If *offset* is `nil` or omitted,
+start writing bytes from the beginning of *buf*.
+Bounds checks are enforced, returning the non-POSIX error code
+`posix.errno.PEOOB` before attempting to write any bytes, if the
+requested parameters would access bytes outside *buf*.
 @function write
 @int fd the file descriptor to act on
 @string buf containing bytes to write
-@int[opt=#buf-buf_offset] nbytes number of bytes to write
-@int[opt=0] buf_offset skip the first buf_offset bytes of buf
+@int[opt=#buf] nbytes number of bytes to write
+@int[opt=0] offset skip the first offset bytes of buf
 @treturn[1] int number of bytes written, if successful
 @return[2] nil
 @treturn[2] string error message
@@ -1239,31 +1245,34 @@ Pwrite(lua_State *L)
 	const char *buf = luaL_checkstring(L, 2);
 	const int buf_len = lua_objlen(L, 2);
 	int nbytes = optint(L, 3, buf_len);
-	const int buf_offset = optint(L, 4, 0);
+	const int offset = optint(L, 4, 0);
 
 	checknargs(L, 4);
 
-	if (buf_offset < 0 || buf_offset > buf_len)
+	if (offset < 0 || offset > buf_len)
 	{
-#ifdef ERANGE
-		errno = ERANGE;
-#endif
-		return pusherror(L, "buf_offset out of bounds");
+		errno = PEOOB;
+		lua_pushnil(L);
+		lua_pushfstring(L, "offset argument '%d' out of bounds for %d-byte buffer", offset, buf_len);
+		lua_pushinteger(L, errno);
+		return 3;
 	}
 
-	if (buf_offset && lua_type(L, 3) == LUA_TNIL)
-		nbytes = buf_len - buf_offset;
+	if (offset && lua_type(L, 3) == LUA_TNIL)
+		nbytes = buf_len - offset;
 
-	if (buf_offset + nbytes > buf_len)
+	if (offset + nbytes < 0 || offset + nbytes > buf_len)
 	{
-#ifdef ERANGE
-		errno = ERANGE;
-#endif
-		return pusherror(L, "buf_offset + nbytes out of bounds");
+		errno = PEOOB;
+		lua_pushnil(L);
+		lua_pushfstring(L, "nbytes argument '%d' out of bounds for %d-byte buffer", nbytes, buf_len);
+		lua_pushinteger(L, errno);
+		return 3;
 	}
 
-	return pushresult(L, write(fd, buf + buf_offset, nbytes), NULL);
+	return pushresult(L, write(fd, buf + offset, nbytes), NULL);
 }
+
 
 /***
 Truncate a file to a specified length.
