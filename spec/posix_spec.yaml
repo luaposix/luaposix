@@ -316,7 +316,7 @@ specify posix:
 
   - describe write:
     - context with bad arguments:
-        badargs.diagnose(M.write, "(int, string, ?int)")
+        badargs.diagnose(M.write, "(int, string, ?int, ?int)")
 
 
   - describe fcntl:
