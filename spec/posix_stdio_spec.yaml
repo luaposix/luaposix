@@ -23,6 +23,39 @@ specify posix.stdio:
     - it duplicates a stream:
         expect(type(fd)).to_be "userdata"
 
+    - it closes an open stream: |
+        script = [[
+          local fcntl = require "posix.fcntl"
+          local stdio = require "posix.stdio"
+          local sys_stat = require "posix.sys.stat"
+          local unlink = require "posix.unistd".unlink
+
+          function create_file(path)
+            local flags = fcntl.O_WRONLY + fcntl.O_CREAT + fcntl.O_EXCL
+            local mode = sys_stat.S_IRUSR + sys_stat.S_IWUSR
+            local fd, message, open_err = fcntl.open(path, flags, mode)
+
+            if not fd then
+              return nil, message
+            end
+            return stdio.fdopen(fd, "w")
+          end
+
+          local path = '.delete.me'
+          unlink(path)
+          local f, msg = create_file(path)
+          if not f then
+            print(msg)
+          else
+            f:close()
+          end
+          unlink(path)
+          os.exit(0)
+        ]]
+        pending "issue #217"
+        expect(luaproc(script)).to_succeed_with ''
+
+
     - it writes to the duplicated stream: |
         script = [[
            local stdio = require "posix.stdio"
