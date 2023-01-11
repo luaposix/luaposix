@@ -3,18 +3,18 @@ luaposix
 
 By the [luaposix project][github]
 
-[![License](http://img.shields.io/:license-mit-blue.svg)](http://mit-license.org)
+[![License](https://img.shields.io/:license-mit-blue.svg)](https://mit-license.org)
 [![workflow status](https://github.com/luaposix/luaposix/actions/workflows/spec.yml/badge.svg?branch=master)](https://github.com/luaposix/luaposix/actions)
 [![codecov.io](https://codecov.io/github/luaposix/luaposix/coverage.svg?branch=master)](https://codecov.io/github/luaposix/luaposix?branch=master)
 
-This is a POSIX binding for LuaJIT, [Lua][] 5.1, 5.2, 5.3 and 5.4; like
+This is a POSIX binding for [LuaJIT][], [Lua][] 5.1, 5.2, 5.3 and 5.4; like
 most libraries it simply binds to C APIs on the underlying system, so it
 won't work on non-POSIX systems. However, it does try to detect the
 level of POSIX conformance of the underlying system and bind only
 available APIs.
 
 For a while, luaposix contained support for curses functionality too,
-but now it has its own [lcurses][] repository again, where it is being
+but now that has its own [lcurses][] repository again, where it is being
 maintained separately.
 
 luaposix is released under the [MIT license][mit] (the same license as
@@ -22,8 +22,9 @@ Lua itsef).  There is no warranty.
 
 [github]: https://github.com/luaposix/luaposix "luaposix repository"
 [lcurses]: https://github.com/lcurses/lcurses "lcurses repository"
-[lua]: http://www.lua.org/ "The Lua Project"
-[mit]: http://mit-license.org "MIT license"
+[lua]: https://www.lua.org/ "The Lua Project"
+[luajit]: https://luajit.org/ "The LuaJIT Project"
+[mit]: https://mit-license.org "MIT license"
 
 
 Installation
@@ -44,11 +45,12 @@ report for example):
 ```
 
 The best way to install without [LuaRocks][], is to call the bundled
-`build-aux/luke` command in a freshly cloned working copy.
+`build-aux/luke` command, as shown in the `build` section of the
+included rockspec file, from a freshly cloned working copy.
 
 Note that you'll be responsible for providing dependencies if you choose
 not to let [LuaRocks][] handle them for you, though you can find a list
-of the minimal dependencies in the rockspec file.
+of minimal dependencies in the rockspec file.
 
 If you are repackaging or redistributing [luaposix][github], it is better
 to start from a [release tarball][releases], because the [master][github]
@@ -57,11 +59,12 @@ does not build at all, or provides experimental new APIs that end up
 being removed prior to the next official release.
 
 Note that there are full logs of complete builds for every commit in
-[Travis][], which you can compare with your progress if you get stuck.
+[Github Actions][actions], which you can compare with your progress if you
+get stuck.
 
 [luarocks]: http://www.luarocks.org "Lua package manager"
 [releases]: http://github.com/luaposix/luaposix/releases
-[travis]: http://travis-ci.org/luaposix/luaposix/builds
+[actions]: https://github.com/luaposix/luaposix/actions
 
 
 Use
@@ -108,8 +111,8 @@ These libraries are maintained by their users.
 Please make bug reports and suggestions as [GitHub issues][issues].
 Pull requests are especially appreciated.
 
-But first, please check that you issue has not already been reported by
-someone else, and that it is not already fixed by [master][github] in
+But first, please check that your issue has not already been reported by
+someone else, and that it is not already fixed on [master][github] in
 preparation for the next release (See Installation section above for how
 to temporarily install master with [LuaRocks][]).
 
