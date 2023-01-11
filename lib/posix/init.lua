@@ -1,6 +1,6 @@
 --[[
  POSIX library for Lua 5.1, 5.2, 5.3 & 5.4.
- Copyright (C) 2013-2020 Gary V. Vaughan
+ Copyright (C) 2013-2023 Gary V. Vaughan
  Copyright (C) 2010-2013 Reuben Thomas <rrt@sc3d.org>
  Copyright (C) 2008-2010 Natanael Copa <natanael.copa@gmail.com>
 ]]
@@ -52,6 +52,7 @@ local _ENV = require 'posix._strict' {
    pcall = pcall,
    pipe = require 'posix.unistd'.pipe,
    ptsname = require 'posix.stdlib'.ptsname,
+   rawget = rawget,
    rawset = rawset,
    remove = table.remove,
    require = require,
@@ -306,45 +307,7 @@ end
 
 
 -- For backwards compatibility, copy all table entries into M namespace.
-local M = {}
-do
-   local names = {
-      'ctype', 'dirent', 'errno', 'fcntl', 'fnmatch', 'glob', 'grp',
-      'libgen', 'poll', 'pwd', 'sched', 'signal', 'stdio', 'stdlib', 'sys.msg',
-      'sys.resource', 'sys.socket', 'sys.stat', 'sys.statvfs', 'sys.time',
-      'sys.times', 'sys.utsname', 'sys.wait', 'syslog', 'termio', 'time',
-      'unistd', 'utime'
-   }
-   for i = 1, #names do
-      local name = names[i]
-      local t = require('posix.' .. name)
-      for k, v in next, t do
-         if k ~= 'version' then
-            assert(M[k] == nil, 'posix namespace clash: ' .. name .. '.' .. k)
-            M[k] = v
-         end
-      end
-   end
-
-   -- Inject deprecated APIs (overwriting submodules) for backwards compatibility.
-   for k, v in next, (require 'posix.deprecated') do
-      M[k] = v
-   end
-   for k, v in next, (require 'posix.compat') do
-      M[k] = v
-   end
-end
-
-
-local function merge(t, r)
-   for k, v in next, t do
-      r[k] = r[k] or v
-   end
-   return r
-end
-
-
-return setmetatable(merge(M, {
+local M = {
    --- Close a pipeline opened with popen or popen_pipeline.
    -- @function pclose
    -- @tparam table pfd pipeline object
@@ -447,29 +410,67 @@ return setmetatable(merge(M, {
    --- Subtract one gettimeofday() returned timeval from another.
    -- @function timersub
    -- @param x a timeval
-   -- @param y another timeval
+   -- @param y another tiimeval
    -- @return x - y, adjusted for usec underflow
    timersub = argscheck('timersub(table, table)', Ptimersub),
+}
 
-}), {
+do
+   local names = {
+      'ctype', 'dirent', 'errno', 'fcntl', 'fnmatch', 'glob', 'grp',
+      'libgen', 'poll', 'pwd', 'sched', 'signal', 'stdio', 'stdlib', 'sys.msg',
+      'sys.resource', 'sys.socket', 'sys.stat', 'sys.statvfs', 'sys.time',
+      'sys.times', 'sys.utsname', 'sys.wait', 'syslog', 'termio', 'time',
+      'unistd', 'utime'
+   }
+   for i = 1, #names do
+      local name = names[i]
+      local t = require('posix.' .. name)
+      for k, v in next, t do
+         if k ~= 'version' and k ~= 'glob' then
+            assert(M[k] == nil, 'posix namespace clash: ' .. name .. '.' .. k)
+            rawset(M, k, v)
+         end
+      end
+   end
+
+   -- Inject deprecated APIs (overwriting submodules) for backwards compatibility.
+   for k, v in next, (require 'posix.deprecated') do
+      rawset(M, k, v)
+   end
+   for k, v in next, (require 'posix.compat') do
+      rawset(M, k, v)
+   end
+
    --- Metamethods
    -- @section metamethods
 
-   --- Lazy loading of luaposix modules.
-   -- Don't load everything on initial startup, wait until first attempt
-   -- to access a submodule, and then load it on demand.
+   --- Preloading of luaposix modules.
+   -- Submodule tables are also preloaded into this top-level module, where
+   -- they can be accessed without requiring them separately.
    -- @function __index
    -- @string name submodule name
-   -- @treturn table|nil the submodule that was loaded to satisfy the missing
-   --  `name`, otherise `nil` if nothing was found
+   -- @treturn table|nil the submodule that was preloaded to satisfy `name`,
+   --  otherwise `nil` if no such submodule is available.
    -- @usage
    -- local version = require 'posix'.version
-   __index = function(self, name)
-      local ok, t = pcall(require, 'posix.' ..name)
-      if ok then
-         rawset(self, name, t)
-         return t
+   for i = 1, #names do
+      local name = names[i]
+      local t = require('posix.' .. name)
+      -- careful assignment to not change the function name in error messages
+      local fn = {[name] = rawget(M, name)}
+      if fn[name] then
+         -- replace with a functable with a __call metamethod for existing function!
+         setmetatable(t, {
+            __call = function(_, ...)
+               return fn[name](...)
+            end,
+         })
       end
-   end,
-})
+      rawset(M, name, t)
+   end
+   rawset(M, 'version', require('posix.version'))
+end
 
+
+return M

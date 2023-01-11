@@ -1,6 +1,6 @@
 /*
  * POSIX library for Lua 5.1, 5.2, 5.3 & 5.4.
- * Copyright (C) 2013-2020 Gary V. Vaughan
+ * Copyright (C) 2013-2023 Gary V. Vaughan
  * Copyright (C) 2010-2013 Reuben Thomas <rrt@sc3d.org>
  * Copyright (C) 2008-2010 Natanael Copa <natanael.copa@gmail.com>
  * Clean up and bug fixes by Leo Razoumov <slonik.az@gmail.com> 2006-10-11
@@ -15,7 +15,12 @@
  Constants and functions for propagating signals among processes.
 
  Note that `posix.signal.signal` is implemented with sigaction(2) for
- consistent semantics across platforms.
+ consistent semantics across platforms. Also note that installed signal
+ handlers are not called immediatly upon occurrence of a signal. Instead,
+ in order to keep the interperter state clean, they are executed in the
+ context of a debug hook which is called as soon as the interpreter enters
+ a new function, returns from the currently executing function, or after the
+ execution of the current instruction has ended.
 
 @module posix.signal
 */
@@ -288,28 +293,31 @@ Any constants not available in the underlying system will be `nil` valued.
 @int SIGFPE floating point error
 @int SIGHUP hangup
 @int SIGILL illegal instruction
+@int SIGINFO information request
 @int SIGINT interrupt
 @int SIGKILL kill
 @int SIGPIPE write on pipe with no reader
 @int SIGQUIT quit
 @int SIGSEGV segmentation violation
 @int SIGSTOP stop
+@int SIGSYS bad argument to system call
 @int SIGTERM terminate
+@int SIGTRAP trace trap
 @int SIGTSTP stop signal from tty
 @int SIGTTIN to readers process group on background tty read
 @int SIGTTOU to readers process group on background tty output
+@int SIGURG urgent condition on i/o channel
 @int SIGUSR1 user defined
 @int SIGUSR2 user defined
-@int SIGSYS bad argument to system call
-@int SIGTRAP trace trap
-@int SIGURG urgent condition on i/o channel
 @int SIGVTALRM virtual time alarm
+@int SIGWINCH window size change
 @int SIGXCPU exceeded cpu time limit
 @int SIGXFSZ exceeded file size limit
 @int SA_NOCLDSTOP do not generate a SIGCHLD on child stop
 @int SA_NOCLDWAIT don't keep zombies child processes
-@int SA_RESETHAND reset to SIG_DFL when taking a signal
 @int SA_NODEFER don't mask the signal we're delivering
+@int SA_RESETHAND reset to SIG_DFL when taking a signal
+@int SA_RESTART allow syscalls to restart instead of returning EINTR
 @usage
   -- Print signal constants supported on this host.
   for name, value in pairs (require "posix.signal") do
@@ -358,6 +366,9 @@ luaopen_posix_signal(lua_State *L)
 #ifdef SIGILL
 	LPOSIX_CONST( SIGILL		);
 #endif
+#ifdef SIGINFO
+	LPOSIX_CONST( SIGINFO		);
+#endif
 #ifdef SIGINT
 	LPOSIX_CONST( SIGINT		);
 #endif
@@ -404,7 +415,10 @@ luaopen_posix_signal(lua_State *L)
 	LPOSIX_CONST( SIGURG		);
 #endif
 #ifdef SIGVTALRM
-	LPOSIX_CONST( SIGVTALRM	);
+	LPOSIX_CONST( SIGVTALRM		);
+#endif
+#ifdef SIGWINCH
+	LPOSIX_CONST( SIGWINCH		);
 #endif
 #ifdef SIGXCPU
 	LPOSIX_CONST( SIGXCPU		);
@@ -428,11 +442,14 @@ luaopen_posix_signal(lua_State *L)
 #ifdef SA_NOCLDWAIT
 	LPOSIX_CONST( SA_NOCLDWAIT	);
 #endif
+#ifdef SA_NODEFER
+	LPOSIX_CONST( SA_NODEFER	);
+#endif
 #ifdef SA_RESETHAND
 	LPOSIX_CONST( SA_RESETHAND	);
 #endif
-#ifdef SA_NODEFER
-	LPOSIX_CONST( SA_NODEFER	);
+#ifdef SA_RESTART
+	LPOSIX_CONST( SA_RESTART	);
 #endif
 
 	return 1;

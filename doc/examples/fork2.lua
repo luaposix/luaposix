@@ -5,10 +5,10 @@ local M = require 'posix.unistd'
 
 print ('parent: my pid is: ' .. M.getpid())
 
-local childpid = M.fork ()
+local childpid, errmsg = M.fork ()
 
-if childpid == -1 then
-   print('parent: The fork failed.')
+if childpid == nil then
+   print('parent: The fork failed: ' .. errmsg)
 elseif childpid == 0 then
    print('child: Hello World! I am pid: ' .. M.getpid())
    print("child: I'll sleep for 1 second ... ")

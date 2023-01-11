@@ -1,6 +1,6 @@
 /*
  * POSIX library for Lua 5.1, 5.2, 5.3 & 5.4.
- * Copyright (C) 2013-2020 Gary V. Vaughan
+ * Copyright (C) 2013-2023 Gary V. Vaughan
  * Copyright (C) 2010-2013 Reuben Thomas <rrt@sc3d.org>
  * Copyright (C) 2008-2010 Natanael Copa <natanael.copa@gmail.com>
  * Clean up and bug fixes by Leo Razoumov <slonik.az@gmail.com> 2006-10-11
@@ -1221,9 +1221,17 @@ Punlink(lua_State *L)
 
 /***
 Write bytes to a file.
+If *nbytes* is `nil` or omitted, write all bytes from *offset*
+through to the end of *buf*.  If *offset* is `nil` or omitted,
+start writing bytes from the beginning of *buf*.
+Bounds checks are enforced, returning the non-POSIX error code
+`posix.errno.PEOOB` before attempting to write any bytes, if the
+requested parameters would access bytes outside *buf*.
 @function write
 @int fd the file descriptor to act on
 @string buf containing bytes to write
+@int[opt=#buf] nbytes number of bytes to write
+@int[opt=0] offset skip the first offset bytes of buf
 @treturn[1] int number of bytes written, if successful
 @return[2] nil
 @treturn[2] string error message
@@ -1233,11 +1241,38 @@ Write bytes to a file.
 static int
 Pwrite(lua_State *L)
 {
-	int fd = checkint(L, 1);
+	const int fd = checkint(L, 1);
 	const char *buf = luaL_checkstring(L, 2);
-	checknargs(L, 2);
-	return pushresult(L, write(fd, buf, lua_objlen(L, 2)), NULL);
+	const int buf_len = lua_objlen(L, 2);
+	int nbytes = optint(L, 3, buf_len);
+	const int offset = optint(L, 4, 0);
+
+	checknargs(L, 4);
+
+	if (offset < 0 || offset > buf_len)
+	{
+		errno = PEOOB;
+		lua_pushnil(L);
+		lua_pushfstring(L, "offset argument '%d' out of bounds for %d-byte buffer", offset, buf_len);
+		lua_pushinteger(L, errno);
+		return 3;
+	}
+
+	if (offset && lua_type(L, 3) == LUA_TNIL)
+		nbytes = buf_len - offset;
+
+	if (offset + nbytes < 0 || offset + nbytes > buf_len)
+	{
+		errno = PEOOB;
+		lua_pushnil(L);
+		lua_pushfstring(L, "nbytes argument '%d' out of bounds for %d-byte buffer", nbytes, buf_len);
+		lua_pushinteger(L, errno);
+		return 3;
+	}
+
+	return pushresult(L, write(fd, buf + offset, nbytes), NULL);
 }
+
 
 /***
 Truncate a file to a specified length.

@@ -1,6 +1,6 @@
 --[[
  POSIX library for Lua 5.1, 5.2, 5.3 & 5.4.
- Copyright (C) 2014-2020 Gary V. Vaughan
+ Copyright (C) 2014-2023 Gary V. Vaughan
 ]]
 --[[--
  Private argument checking helpers.
@@ -16,7 +16,11 @@ local HAVE_TYPECHECK, typecheck = pcall(require, 'typecheck')
 local HAVE_BITWISE_OPS, bitwise = pcall(require, 'posix._bitwise')
 
 if not HAVE_BITWISE_OPS then
-   bitwise = require 'bit32'
+   if jit and bit then
+      bitwise = bit
+   else
+      bitwise = require 'bit32'
+   end
 end
 
 

@@ -1,6 +1,6 @@
 --[[
  POSIX library for Lua 5.1, 5.2, 5.3 & 5.4.
- Copyright (C) 2014-2020 Gary V. Vaughan
+ Copyright (C) 2014-2023 Gary V. Vaughan
 ]]
 --[[--
  Legacy Lua POSIX bindings.
@@ -234,7 +234,7 @@ return {
    -- @usage
    -- fd = posix.open('data', bit.bor(posix.O_CREAT, posix.O_RDWR), 'rw-r-----')
    open = argscheck('open(string, int, [string])', function(path, oflags, modestr)
-      local bits
+      local bits, err
       if band(oflags, O_CREAT) ~= 0 then
          bits, err = mode_munch(0, modestr)
          if bits == nil then

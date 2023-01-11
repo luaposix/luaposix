@@ -1,6 +1,6 @@
 /*
  * POSIX library for Lua 5.1, 5.2, 5.3 & 5.4.
- * Copyright (C) 2013-2020 Gary V. Vaughan
+ * Copyright (C) 2013-2023 Gary V. Vaughan
  * Copyright (C) 2010-2013 Reuben Thomas <rrt@sc3d.org>
  * Copyright (C) 2008-2010 Natanael Copa <natanael.copa@gmail.com>
  * Clean up and bug fixes by Leo Razoumov <slonik.az@gmail.com> 2006-10-11
@@ -130,6 +130,10 @@
 extern int errno;
 #endif
 
+/* Well defined negative error codes for luaposix bindings that can't
+   clash with host error codes.  */
+#define PEOOB -1		/* buffer offset out of bounds. */
+
 
 /* ========================= *
  * Bad argument diagnostics. *
@@ -154,8 +158,9 @@ checktype(lua_State *L, int narg, int t, const char *expected)
 static lua_Integer
 checkinteger(lua_State *L, int narg, const char *expected)
 {
-	lua_Integer d = lua_tointeger(L, narg);
-	if (d == 0 && !lua_isinteger(L, narg))
+	int isconverted = 0;
+	lua_Integer d = lua_tointegerx(L, narg, &isconverted);
+	if (!isconverted)
 		argtypeerror(L, narg, expected);
 	return d;
 }

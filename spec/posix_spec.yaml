@@ -294,17 +294,20 @@ specify posix:
   - describe pipe:
     - before:
         pipe, read, write = M.pipe, M.read, M.write
+        data = "0123456789"
+        pout, pin = pipe()
+
+    - after:
+        M.close(pin)
+        M.close(pout)
 
     - context with bad arguments:
         badargs.diagnose(pipe, "()")
 
     - it creates a pipe:
-        pout, pin = pipe()
         expect(pout > 0).to_be(true)
         expect(pin > 0).to_be(true)
     - it can buffer characters:
-        pout, pin = pipe()
-        data = "test characters"
         write(pin, data)
         expect(read(pout, data:len())).to_be(data)
 
@@ -315,8 +318,55 @@ specify posix:
 
 
   - describe write:
+    - before:
+        PEOOB, read, write = M.PEOOB, M.read, M.write
+        data = "0123456789"
+        pout, pin = M.pipe()
+
+    - after:
+        M.close(pin)
+        M.close(pout)
+
     - context with bad arguments:
-        badargs.diagnose(M.write, "(int, string)")
+        badargs.diagnose(M.write, "(int, string, ?int, ?int)")
+
+    - context out of bounds:
+        - 'it diagnoses argument #3 too small': 
+            expect({write(pin, data, -1)}).to_equal {
+              nil, "nbytes argument '-1' out of bounds for 10-byte buffer", PEOOB,
+            }
+        - 'it diagnoses argument #3 too large': 
+            expect({write(pin, data, 99)}).to_equal {
+              nil, "nbytes argument '99' out of bounds for 10-byte buffer", PEOOB,
+            }
+        - 'it diagnoses argument #4 too small': 
+            expect({write(pin, data, nil, -1)}).to_equal {
+              nil, "offset argument '-1' out of bounds for 10-byte buffer", PEOOB,
+            }
+        - 'it diagnoses argument #4 too large': 
+            expect({write(pin, data, nil, 99)}).to_equal {
+              nil, "offset argument '99' out of bounds for 10-byte buffer", PEOOB,
+            }
+
+    - it returns number of bytes written:
+        expect(write(pin, data)).to_be(data:len())
+        expect(write(pin, data, 4)).to_be(4)
+        expect(write(pin, data, nil, 4)).to_be(data:len() - 4)
+    - it accepts a zero-length buffer:
+        expect(write(pin, '')).to_be(0)
+        expect(write(pin, data, 0)).to_be(0)
+    - it writes buffer contents:
+        write(pin, data)
+        expect(read(pout, data:len())).to_be(data)
+    - it writes first nbytes of buffer:
+        write(pin, data, 4)
+        expect(read(pout, data:len())).to_be '0123'
+    - it writes a substring of buffer:
+        write(pin, data, 4, 4)
+        expect(read(pout, data:len())).to_be '4567'
+    - it writes to end of buffer when nbytes is nil:
+        write(pin, data, nil, 4)
+        expect(read(pout, data:len())).to_be '456789'
 
 
   - describe fcntl:

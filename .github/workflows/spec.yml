@@ -1,0 +1,46 @@
+name: spec
+
+on:
+  push:
+    branches: [ '*' ]
+  pull_request:
+    branches: [ 'master' ]
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        lua-version: ["5.4", "5.3", "5.2", "5.1", "luajit"]
+        strict: ["std.strict", ""]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: leafo/gh-actions-lua@v8.0.0
+        with:
+          luaVersion: ${{ matrix.lua-version }}
+
+      - uses: leafo/gh-actions-luarocks@v4.0.0
+
+      - name: install
+        run: |
+          sudo apt-get install -y libyaml-dev
+          luarocks install ansicolors
+          luarocks install ldoc
+          luarocks install luacov
+          luarocks install specl
+          luarocks install std._debug
+          luarocks install typecheck
+          test -n "${{ matrix.strict }}" && luarocks install std.strict || true
+
+      - name: build
+        run: |
+          luarocks make --force
+
+      - name: test
+        run: |
+          specl -vfreport --coverage spec/*_spec.yaml
+          bash <(curl -s https://codecov.io/bash) -f luacov.report.out

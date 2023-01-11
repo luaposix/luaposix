@@ -2,6 +2,65 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### Bugs Fixed
+
+  - `luke` no longer crashes in `std.normalize` require loops
+    occasionally in Lua 5.4.
+
+  - Don't leak `err` into global scope from `posix.compat.open`
+
+  - Correct LDoc comments for `sys.resource.setrlimit`.
+
+  - Where an integer argument is expected, for consistency with
+    Lua 5.2 and older, always allow 0.0 to be accepted as if 0
+    had been passed.  For example: `pwd.getpwuid(0.0)`.
+
+  - `require 'posix'.glob '.*'` continues to invoke the
+    backwards compatibility `glob` function, but that no longer
+    prevents access to the preloaded `require 'posix'.glob.glob`
+    binding.
+
+  - The `fcntl` binding is still available from the top-level
+    `posix` module as `require 'posix'.fcntl`, but that no longer
+    prevents access to the preloaded `require 'posix'.fcntl.fcntl`
+    binding.
+
+  - `posix.unistd.write` takes an optional third argument `nbytes`
+    to conform better to the SUSv3 specification.  For backwards
+    compatibility, the entirety of `buf` is written when a third
+    argument is not passed (or is `nil`).
+
+  - `posix.stdio.fdopen` returned streams can be closed from
+    Lua 5.1 without a NULL pointer dereference crash.
+
+### New Features
+
+  - `posix.unistd.write` takes an optional fourth argument `offset` to
+    allow efficent writing of a substring of `buf`.  For backwards
+    compatibility, the entirety of `buf` is written when the third and
+    fourth arguments are not passed (or are `nil`).
+
+  - When running in luajit, use luajit's internal `bit` functions
+    instead of depending on the `bit32` module being available.
+
+
+## Noteworthy changes in release 35.1 (2021-09-09) [stable]
+
+### Bugs Fixed
+
+  - Documentation cleanups: full and correct return docs including an
+    errnum where necessary; make sure we have a link to SUSv3 wherever
+    available; add an ', if successful' suffix to a normap return
+    result followed by error return results; fixed several typos.
+
+  - Update fork2.lua example to match current APIs
+
+### New Features
+
+  - Support AF_PACKET socket family, where available.
+
+  - Support SIGINFO, SIGWINCH and SA_RESTART, where available.
+
 
 ## Noteworthy changes in release 35.0 (2020-07-06) [stable]
 

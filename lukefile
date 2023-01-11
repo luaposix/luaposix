@@ -79,8 +79,9 @@ modules  = {
    ['posix.sys.resource']  = 'ext/posix/sys/resource.c',
    ['posix.sys.socket']    = {
       defines   = {
-         HAVE_NET_IF_H         = {checkheader='net/if.h', include='sys/socket.h'},
-         HAVE_LINUX_NETLINK_H  = {checkheader='linux/netlink.h', include='sys/socket.h'},
+         HAVE_NET_IF_H           = {checkheader='net/if.h', include='sys/socket.h'},
+         HAVE_LINUX_NETLINK_H    = {checkheader='linux/netlink.h', include='sys/socket.h'},
+         HAVE_LINUX_IF_PACKET_H  = {checkheader='linux/if_packet.h', include='sys/socket.h'},
       },
       libraries = {
          {checksymbol='socket', library='socket'},

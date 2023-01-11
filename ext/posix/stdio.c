@@ -1,6 +1,6 @@
 /*
  * POSIX library for Lua 5.1, 5.2, 5.3 & 5.4.
- * Copyright (C) 2013-2020 Gary V. Vaughan
+ * Copyright (C) 2013-2023 Gary V. Vaughan
  * Copyright (C) 2010-2013 Reuben Thomas <rrt@sc3d.org>
  * Copyright (C) 2008-2010 Natanael Copa <natanael.copa@gmail.com>
  * Clean up and bug fixes by Leo Razoumov <slonik.az@gmail.com> 2006-10-11
@@ -60,8 +60,12 @@ Pfileno(lua_State *L)
 /* This helper function is adapted from Lua 5.3's liolib.c */
 static int
 stdio_fclose (lua_State *L) {
+	int res = -1;    
 	luaL_Stream *p = ((luaL_Stream *)luaL_checkudata(L, 1, LUA_FILEHANDLE));
-	int res = fclose(p->f);
+	if (p->f == NULL)
+		return 0;
+	res = fclose(p->f);
+	p->f = NULL;
 	return luaL_fileresult(L, (res == 0), NULL);
 }
 
@@ -71,6 +75,17 @@ pushfile (lua_State *L, int fd, const char *mode) {
 	luaL_Stream *p = (luaL_Stream *)lua_newuserdata(L, sizeof(luaL_Stream));
 	luaL_getmetatable(L, LUA_FILEHANDLE);
 	lua_setmetatable(L, -2);
+#if !defined(LUA_VERSION_NUM) || LUA_VERSION_NUM == 501
+	/* PUC-Rio Lua uses lconfig_h as include guard for luaconf.h,
+	   LuaJIT uses luaconf_h. If you use PUC-Rio's include files
+	   but LuaJIT's library, you're on your own here!  */
+#  if !defined(luaconf_h)
+	lua_createtable(L, 0, 1);
+	lua_pushcfunction(L, stdio_fclose);
+	lua_setfield(L, -2, "__close");
+	lua_setfenv(L, -2);  /* set fenv for 'fdopen' */
+#  endif
+#endif
 	p->closef = stdio_fclose;
 	p->f = fdopen(fd, mode);
 	return p->f != NULL;
