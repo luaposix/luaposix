@@ -30,6 +30,9 @@
     compatibility, the entirety of `buf` is written when a third
     argument is not passed (or is `nil`).
 
+  - `posix.stdio.fdopen` returned streams can be closed from
+    Lua 5.1 without a NULL pointer dereference crash.
+
 ### New Features
 
   - `posix.unistd.write` takes an optional fourth argument `offset` to
