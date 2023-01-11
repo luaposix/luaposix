@@ -16,14 +16,11 @@ local HAVE_TYPECHECK, typecheck = pcall(require, 'typecheck')
 local HAVE_BITWISE_OPS, bitwise = pcall(require, 'posix._bitwise')
 
 if not HAVE_BITWISE_OPS then
-  if jit and bit then
-     bitwise = bit
-     HAVE_BITWISE_OPS = true
-  end
-end
-
-if not HAVE_BITWISE_OPS then
-   bitwise = require 'bit32'
+   if jit and bit then
+      bitwise = bit
+   else
+      bitwise = require 'bit32'
+   end
 end
 
 

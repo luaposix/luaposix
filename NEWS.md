@@ -37,6 +37,9 @@
     compatibility, the entirety of `buf` is written when the third and
     fourth arguments are not passed (or are `nil`).
 
+  - When running in luajit, use luajit's internal `bit` functions
+    instead of depending on the `bit32` module being available.
+
 
 ## Noteworthy changes in release 35.1 (2021-09-09) [stable]
 
