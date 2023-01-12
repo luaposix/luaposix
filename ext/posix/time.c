@@ -397,10 +397,16 @@ luaopen_posix_time(lua_State *L)
 	lua_pushstring(L, LPOSIX_VERSION_STRING("time"));
 	lua_setfield(L, -2, "version");
 
-#if defined _POSIX_TIMERS && _POSIX_TIMERS != -1
+#if defined CLOCK_MONOTONIC
 	LPOSIX_CONST( CLOCK_MONOTONIC		);
+#endif
+#if defined CLOCK_PROCESS_CPUTIME_ID
 	LPOSIX_CONST( CLOCK_PROCESS_CPUTIME_ID	);
+#endif
+#if defined CLOCK_REALTIME
 	LPOSIX_CONST( CLOCK_REALTIME		);
+#endif
+#if defined CLOCK_THREAD_CPUTIME_ID
 	LPOSIX_CONST( CLOCK_THREAD_CPUTIME_ID	);
 #endif
 

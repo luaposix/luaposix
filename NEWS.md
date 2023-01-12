@@ -49,6 +49,10 @@
         local zulu_t = t.strftime("%c UTC+0000", t.gmtime(now)))
         local localt = t.strftime("%c %Z UTC%z", t.localtime(now)))
 
+  - `posix.time` constants are `nil` valued, even on hosts which
+    fail to define them when _POSIX_TIMERS is set as if they should
+    be.
+
   - `posix.unistd.getcwd` no longer leaks memory if __GNU__ was
     defined at compile time.
 
