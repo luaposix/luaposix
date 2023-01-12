@@ -463,23 +463,23 @@ specify posix:
       - it returns error if cannot lock file with F_SETLK: |
           parent_fd = open(path, O_RDWR)
           result = fcntl(parent_fd, F_SETLK, write_lock)
-          expect(result).to_be(0)
+          expect(result).to_be(SUCCESS)
           process = fork()
           if process == P_CHILD then
              child_fd = open(path, O_RDWR)
-             result = fcntl(child_fd, F_SETLK, write_lock)
+             result, errmsg, errcode = fcntl(child_fd, F_SETLK, write_lock)
              close(child_fd)
              --(not sure how to expect() in subprocess)
              if result == SUCCESS then
-                os.exit(10)
-             elseif errno() ~= errno(EACCES) and errno() ~= errno(EAGAIN) then
-                os.exit(11)
+                os.exit(100)
+             elseif result == nil and errcode ~= EACCES and errcode ~= EAGAIN then
+                os.exit(errcode)
              else
-                os.exit(12)
+                os.exit(101)
              end
           else
              _, _, exit_code = wait(process)
-             expect(exit_code).to_be(12)
+             expect({exit_code, errno(exit_code)}).to_equal {101, errno(101)}
           end
           close(parent_fd)
 
