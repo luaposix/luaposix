@@ -49,6 +49,9 @@
         local zulu_t = t.strftime("%c UTC+0000", t.gmtime(now)))
         local localt = t.strftime("%c %Z UTC%z", t.localtime(now)))
 
+  - `posix.unistd.getcwd` no longer leaks memory if __GNU__ was
+    defined at compile time.
+
   - Most of the spec examples run correctly on FreeBSD now!
 
 ### New Features

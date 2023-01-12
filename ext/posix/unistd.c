@@ -448,12 +448,11 @@ static int
 Pgetcwd(lua_State *L)
 {
 #ifdef __GNU__
-	char *b = get_current_dir_name();
+	char *r = get_current_dir_name();
 	checknargs(L, 0);
-	if (b == NULL)
-		/* we return the same error as below */
-		return pusherror(L, ".");
-	return pushstringresult(b);
+	if (r != NULL)
+        lua_pushstring(L, r);
+    free(r);
 #else
 	long size = pathconf(".", _PC_PATH_MAX);
 	void *ud;
@@ -469,8 +468,8 @@ Pgetcwd(lua_State *L)
 	if (r != NULL)
 		lua_pushstring(L, b);
 	lalloc(ud, b, (size_t)size + 1, 0);
-	return (r == NULL) ? pusherror(L, ".") : 1;
 #endif
+	return (r == NULL) ? pusherror(L, ".") : 1;
 }
 
 
