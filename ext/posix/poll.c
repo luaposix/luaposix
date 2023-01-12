@@ -243,7 +243,7 @@ Ppoll(lua_State *L)
 
 /***
 Wait for some event on a file descriptor.
-Based on [http://lua-users.org/lists/lua-l/2007-11/msg00346.html]().
+Based on [a lua-l list post](http://lua-users.org/lists/lua-l/2007-11/msg00346.html).
 @function rpoll
 @int fd file descriptor
 @int[opt=-1] timeout maximum timeout in milliseconds, or `-1` to block indefinitely
