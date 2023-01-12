@@ -273,7 +273,10 @@ Pnanosleep(lua_State *L)
 
 
 /***
-Write a time out according to a format.
+Return a time string according to *format*.
+Note that if your host POSIX library provides a `strftime` that
+assumes the local timezone, %z will always print the local UTC
+offset, regardless of the `tm_gmoffset` field value passed in.
 @function strftime
 @string format specifier with `%` place-holders
 @tparam PosixTm tm broken-down local time

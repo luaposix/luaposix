@@ -171,8 +171,9 @@ specify posix.time:
       strftime = M.strftime
 
       t = {
-         tm_wday=0, tm_isdst=1, tm_sec=2, tm_min=3, tm_hour=4,
-         tm_mday=5, tm_mon=6, tm_year=7, tm_yday=8
+         tm_isdst=0, tm_wday=1, tm_sec=2, tm_min=3, tm_hour=4,
+         tm_mday=5, tm_mon=6, tm_year=7, tm_yday=8, tm_gmtoff=-32400,
+         tm_zone="AKST"
       }
 
   - context with bad arguments:
@@ -180,7 +181,7 @@ specify posix.time:
 
   - context with place-holders:
     - it plugs tm_wday:
-        expect(strftime("%w", t)).to_be "0"
+        expect(strftime("%w", t)).to_be "1"
     - it plugs tm_sec:
         expect(strftime("%S", t)).to_be "02"
     - it plugs tm_min:
@@ -195,6 +196,8 @@ specify posix.time:
         expect(strftime("%y", t)).to_be "07"
     - it plugs tm_yday:
         expect(strftime("%j", t)).to_be "009"
+    - it plugs timezone:
+        expect(strftime("%Z", t)).to_be "AKST"
 
 
 - describe strptime:

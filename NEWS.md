@@ -33,6 +33,24 @@
   - `posix.stdio.fdopen` returned streams can be closed from
     Lua 5.1 without a NULL pointer dereference crash.
 
+  - `posix.time.gmtime` and `posix.time.localtime` propagate any
+    `tm_gmoffset` and `tm_zone` fields supported by the host's
+    `struct tm`.
+
+  - `posix.time.strftime` reliably fills %z and %Z specifiers.
+    Note that if your host POSIX library provides a `strftime` that
+    assumes the local timezone, %z will always print the local UTC
+    offset, regardless of the `tm_gmoffset` field value passed in.
+
+    Consider (subject to host strftime implementation!):
+
+        local t = require 'posix.time'
+        local now = t.time()
+        local zulu_t = t.strftime("%c UTC+0000", t.gmtime(now)))
+        local localt = t.strftime("%c %Z UTC%z", t.localtime(now)))
+
+  - Most of the spec examples run correctly on FreeBSD now!
+
 ### New Features
 
   - `posix.unistd.write` takes an optional fourth argument `offset` to

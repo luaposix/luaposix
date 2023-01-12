@@ -901,7 +901,8 @@ specify posix.deprecated:
 
       t = {
          is_dst = true, weekday = 0, sec = 2, min = 3, hour = 4,
-         monthday = 5, month = 6, year = 7, yearday = 8
+         monthday = 5, month = 6, year = 7, yearday = 8, gmtoff = -32400,
+         zone = "AKST",
       }
 
   - context with bad arguments:
@@ -924,6 +925,8 @@ specify posix.deprecated:
         expect(strftime("%y", t)).to_be "07"
     - it plugs yearday:
         expect(strftime("%j", t)).to_be "009"
+    - it plugs timezone:
+        expect(strftime("%Z", t)).to_be "AKST"
   - it defaults to current time:
       f = io.popen("date +'%Y-%m-%d'", "r")
       expect(strftime "%Y-%m-%d\n").
