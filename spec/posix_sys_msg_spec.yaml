@@ -21,9 +21,10 @@ specify posix.sys.msg:
     EEXIST = errno.EEXIST
     msgget, msgsnd, msgrcv = M.msgget, M.msgsnd, M.msgrcv
     IPC_CREAT, IPC_EXCL = M.IPC_CREAT, M.IPC_EXCL
-    S_IRWXU, S_IRWXG, S_IRWXO = st.S_IRWXU, st.S_IRWXG, st.S_IRWXO
+    S_IRUSR, S_IRGRP, S_IROTH = st.S_IRUSR, st.S_IRGRP, st.S_IROTH
+    S_IWUSR, S_IWGRP, S_IWOTH = st.S_IWUSR, st.S_IWGRP, st.S_IWOTH
 
-    mode = bor(S_IRWXU, S_IRWXG, S_IRWXO)
+    mode = bor(S_IRUSR, S_IRGRP, S_IROTH, S_IWUSR, S_IWGRP, S_IWOTH)
     mq, err, errnum = msgget(100, bor(IPC_CREAT, IPC_EXCL, mode))
     if errnum == EEXIST then
        mq, err = msgget(100, mode)
@@ -100,7 +101,7 @@ specify posix.sys.msg:
            msg_perm = {
               uid = unistd.getuid(),
               gid = unistd.getgid(),
-              mode = bor(S_IRWXU, S_IRWXG, S_IRWXO),
+              mode = mode,
            },
            msg_qbytes = 1024,
         }
@@ -154,7 +155,7 @@ specify posix.sys.msg:
         r = msgctl(mq, IPC_STAT)
         expect(r.msg_perm.uid).to_be(unistd.getuid())
         expect(r.msg_perm.gid).to_be(unistd.getgid())
-        expect(r.msg_perm.mode).to_be(bor(S_IRWXU, S_IRWXG, S_IRWXO))
+        expect(r.msg_perm.mode).to_be(mode)
         expect(r.msg_qbytes).to_be(1024)
 
     - it updates ctime field:

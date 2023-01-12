@@ -59,10 +59,20 @@ specify posix.time:
       t = gmtime(EPOCH)
       fields = {"tm_sec", "tm_min", "tm_hour", "tm_mday",
                 "tm_mon", "tm_year", "tm_wday", "tm_yday", "tm_isdst"}
+      if t.tm_gmtoff ~= nil then fields[1+#fields] = "tm_gmtoff" end
+      if t.tm_zone ~= nil then fields[1+#fields] = "tm_zone" end
       expect(t).to_contain.a_permutation_of(fields)
       for _, field in pairs(fields) do
-         expect(type(t[field])).to_be "number"
-         expect(t[field] >= 0).to_be(true)
+         if field == "tm_zone" then
+           expect(type(t[field])).to_be "string"
+         else
+           expect(type(t[field])).to_be "number"
+           if field ~= "tm_gmtoff" then
+             expect(t[field] >= 0).to_be(true)
+           else
+             expect(t[field] == 0).to_be(true)
+           end
+         end
       end
   - it returns a month in the range 0-11:
       # A recent December afternoon in epoch seconds...
@@ -86,10 +96,18 @@ specify posix.time:
       t = localtime(EPOCH)
       fields = {"tm_sec", "tm_min", "tm_hour", "tm_mday",
                 "tm_mon", "tm_year", "tm_wday", "tm_yday", "tm_isdst"}
+      if t.tm_gmtoff ~= nil then fields[1+#fields] = "tm_gmtoff" end
+      if t.tm_zone ~= nil then fields[1+#fields] = "tm_zone" end
       expect(t).to_contain.a_permutation_of(fields)
       for _, field in pairs(fields) do
-         expect(type(t[field])).to_be "number"
-         expect(t[field] >= 0).to_be(true)
+         if field == "tm_zone" then
+           expect(type(t[field])).to_be "string"
+         else
+           expect(type(t[field])).to_be "number"
+           if field ~= "tm_gmtoff" then
+             expect(t[field] >= 0).to_be(true)
+           end
+         end
       end
   - it returns a month in the range 0-11:
       # A recent December afternoon in epoch seconds...

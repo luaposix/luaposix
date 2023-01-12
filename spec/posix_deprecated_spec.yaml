@@ -513,13 +513,21 @@ specify posix.deprecated:
       t = gmtime(EPOCH)
       fields = {"sec", "min", "hour", "day", "monthday", "month", "year",
          "weekday", "yearday", "is_dst"}
+      if t.gmtoff ~= nil then fields[1+#fields] = "gmtoff" end
+      if t.zone ~= nil then fields[1+#fields] = "zone" end
       expect(t).to_contain.a_permutation_of(fields)
       for _, field in pairs(fields) do
-         if field == "is_dst" then
-            expect(type(t.is_dst)).to_be "boolean"
+         if field == "zone" then
+           expect(type(t[field])).to_be "string"
+         elseif field == "is_dst" then
+           expect(type(t[field])).to_be "boolean"
          else
-            expect(type(t[field])).to_be "number"
-            expect(t[field] >= 0).to_be(true)
+           expect(type(t[field])).to_be "number"
+           if field ~= "gmtoff" then
+             expect(t[field] >= 0).to_be(true)
+           else
+             expect(t[field] == 0).to_be(true)
+           end
          end
       end
   - it returns a month in the range 1-12:
@@ -575,13 +583,19 @@ specify posix.deprecated:
       t = localtime(EPOCH)
       fields = {"sec", "min", "hour", "day", "monthday", "month", "year",
          "weekday", "yearday", "is_dst"}
+      if t.gmtoff ~= nil then fields[1+#fields] = "gmtoff" end
+      if t.zone ~= nil then fields[1+#fields] = "zone" end
       expect(t).to_contain.a_permutation_of(fields)
       for _, field in pairs(fields) do
-         if field == "is_dst" then
-            expect(type(t.is_dst)).to_be "boolean"
+         if field == "zone" then
+           expect(type(t[field])).to_be "string"
+         elseif field == "is_dst" then
+           expect(type(t[field])).to_be "boolean"
          else
-            expect(type(t[field])).to_be "number"
-            expect(t[field] >= 0).to_be(true)
+           expect(type(t[field])).to_be "number"
+           if field ~= "gmtoff" then
+             expect(t[field] >= 0).to_be(true)
+           end
          end
       end
   - it returns a month in the range 1-12:
@@ -729,6 +743,7 @@ specify posix.deprecated:
       stat, typeerrors = init(posix, "stat")
 
       dir = M.mkdtemp(template)
+      M.chown(dir, geteuid(), getegid())
       M.mkdir(dir .. "/subdir")
       M.link("subdir", dir .. "/soft", true)
       touch(dir .. "/file")
@@ -910,9 +925,10 @@ specify posix.deprecated:
     - it plugs yearday:
         expect(strftime("%j", t)).to_be "009"
   - it defaults to current time:
+      f = io.popen("date +'%Y-%m-%d'", "r")
       expect(strftime "%Y-%m-%d\n").
-         to_be(io.popen("date +'%Y-%m-%d'", "r"):read "*a")
-
+         to_be(f:read("*a"))
+      f:close()
 
 - describe strptime:
   - before:
@@ -1091,4 +1107,4 @@ specify posix.deprecated:
   - it substitutes %r:
       expect(uname "%r").to_be(cmd_output "uname -r")
   - it outputs everything with no arguments:
-      expect(uname()).to_be(cmd_output "uname -s -n -r -v -m")
+      expect(uname():gsub("%s+"," "):gsub("%s$","")).to_be(cmd_output("uname -s -n -r -v -m"):gsub("%s+"," "):gsub("%s$",""))
