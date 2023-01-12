@@ -2,6 +2,25 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### Incompatible Changes
+
+  - `posix.spawn` always returns `integer`, `string` whether
+    `fork` fails immediately, or whatever `wait`ing for the
+    spawned process reports.  When the second result value is
+    "exited", the first is the exit status; for "killed" or
+    "stopped" second value, the first is the signal number
+    that caused it; otherwise first the `errno` error number,
+    followed by the associated error string.
+
+    The documentation for `posix.spawn` has always been wrong
+    up until now, but this small change to simplify the returned
+    results will require checking whether the second result
+    value is "exited", "killed", "stopped" or any other string
+    before interpreting the first result... which was also
+    necessary in prior versions too, but now the interpretion
+    of non-zero status by clients is less messy and somewhat
+    compatible with the happy path of using previous releases.
+
 ### Bugs Fixed
 
   - `luke` no longer crashes in `std.normalize` require loops

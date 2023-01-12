@@ -205,7 +205,7 @@ local function Ppopen(task, mode, pipe_fn)
    elseif pid == 0 then -- child process
       move_fd(child_fd, out_fd)
       close(parent_fd)
-      _exit(Pexecx(task, child_fd, in_fd, out_fd))
+      Pexecx(task, child_fd, in_fd, out_fd)
    end -- parent process
    close(child_fd)
    return {pids={pid}, fd=parent_fd}
@@ -221,7 +221,7 @@ local function Ppopen_pipeline(tasks, mode, pipe_fn)
    for i = from, to, inc do
       local pfd_next = Ppopen(function(fd, in_fd, out_fd)
          move_fd(pfd.fd, in_fd)
-         _exit(Pexecx(tasks[i]))
+         Pexecx(tasks[i])
       end,
       mode,
       pipe_fn)
@@ -234,15 +234,15 @@ end
 
 
 local function Pspawn(task, ...)
-   local pid, err = fork()
-   if pid == nil then
-      return pid, err
-   elseif pid == 0 then
+   local pid, errmsg, errnum = fork()
+   if pid == nil then -- fork failed
+      return errnum, errmsg
+   elseif pid == 0 then -- child process
       Pexecx(task, ...)
-   else
-      local _, reason, status = wait(pid)
-      return status, reason -- If wait failed, status is nil & reason is error
    end
+   -- parent process:
+   local _, reason, status = wait(pid)
+   return status, reason -- If wait failed, status is errnum & reason is errmsg
 end
 
 
@@ -390,7 +390,10 @@ local M = {
    --  function, which should read from standard input, write to standard
    --  output, and return an exit code
    -- @param ... as for @{posix.execx}
-   -- @return values as for @{posix.sys.wait.wait}
+   -- @treturn[1] int exit status, or signal number responsible for "killed" or "stopped"
+   -- @treturn[1] string "exited", "killed" or "stopped"
+   -- @treturn[2] int errnum
+   -- @treturn[2] string error message
    spawn = argscheck('spawn(function|table, ?any...)', Pspawn),
 
    --- Add one gettimeofday() returned timeval to another.
