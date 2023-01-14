@@ -72,6 +72,10 @@
     fail to define them when _POSIX_TIMERS is set as if they should
     be.
 
+  - `posix.poll.poll` and `posix.poll.rpoll` LDocs correctly
+    describe the returned integer as being `0` for timeout or the
+    number of ready file descriptors.
+
   - `posix.unistd.getcwd` no longer leaks memory if __GNU__ was
     defined at compile time.
 
