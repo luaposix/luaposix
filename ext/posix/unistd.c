@@ -963,15 +963,13 @@ Read value of a symbolic link.
 static int
 Preadlink(lua_State *L)
 {
-	char *b;
+	char b[PATH_MAX];
 	struct stat s;
 	const char *path = luaL_checkstring(L, 1);
 	void *ud;
 	lua_Alloc lalloc;
-	ssize_t n, bufsiz;
-	int err;
+	ssize_t n;
 	checknargs(L, 1);
-	lalloc = lua_getallocf(L, &ud);
 
 	errno = 0; /* ignore outstanding unreported errors */
 
@@ -979,7 +977,6 @@ Preadlink(lua_State *L)
 	if (lstat(path, &s) < 0)
 		return pusherror(L, path);
 
-	/* diagnose non-symlinks */
 	if (!S_ISLNK(s.st_mode))
 	{
 		lua_pushnil(L);
@@ -988,30 +985,12 @@ Preadlink(lua_State *L)
 		return 3;
 	}
 
-	/* allocate a buffer for linkname, with no trailing \0 */
-	bufsiz = s.st_size > 0 ? s.st_size : PATH_MAX;
-	if ((b = lalloc(ud, NULL, 0, bufsiz)) == NULL)
-		return pusherror(L, "lalloc");
-
-	n = readlink(path, b, bufsiz);
-	err = errno; /* save readlink error code, if any */
-	if (n > 0)
-		lua_pushlstring(L, b, n);
-	lalloc(ud, b, bufsiz, 0);
-
-	/* report new errors from this function */
+	n = readlink(path, b, PATH_MAX);
 	if (n < 0)
-	{
-		errno = err; /* restore readlink error code */
+		/* report new errors from this function */
 		return pusherror(L, "readlink");
-	}
-	else if (n < s.st_size)
-	{
-		lua_pushnil(L);
-		lua_pushfstring(L, "%s: readlink wrote only %d of %d bytes", path, n, s.st_size);
-		return 2;
-	}
 
+	lua_pushlstring(L, b, n);
 	return 1;
 }
 

@@ -79,6 +79,9 @@
   - `posix.unistd.getcwd` no longer leaks memory if __GNU__ was
     defined at compile time.
 
+  - `posix.unistd.readlink` works reliably inside a /proc
+    filesystem.
+
   - Most of the spec examples run correctly on FreeBSD now!
 
 ### New Features

@@ -333,6 +333,37 @@ specify posix.unistd:
       expect(type(pathconf(".", M._PC_VDISABLE))).to_be "number"
 
 
+- describe readlink:
+  - before:
+      link, readlink = M.link, M.readlink
+
+      dir = posix.mkdtemp(template)
+      touch(dir .. "/file")
+      link(dir .. "/file", dir .. "/soft", true)
+
+  - after:
+      rmtmp(dir)
+
+
+  - context with bad arguments:
+      badargs.diagnose(readlink, "(string)")
+
+  - it diagnoses non-symlink path: |
+      EINVAL = require "posix.errno".EINVAL
+      expect({readlink(".")}).to_equal {nil, ".: not a symbolic link", EINVAL}
+
+  - it returns the destination path of a symlink:
+      expect(readlink(dir .. "/soft")).to_be(dir .. "/file")
+  - it works on Linux /proc links:
+      proclink = "/proc/self/fd/0"
+      lstat = require "posix.sys.stat".lstat
+      S_ISLNK = require "posix.sys.stat".S_ISLNK
+      st_mode = (lstat(proclink) or {}).st_mode
+      if st_mode and S_ISLNK(st_mode) then
+         expect(readlink(proclink)).not_to_be(nil)
+      end
+
+
 - describe sysconf:
   - before:
       sysconf = M.sysconf
