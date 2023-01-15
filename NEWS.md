@@ -23,6 +23,11 @@
 
 ### Bugs Fixed
 
+  - `posix.getpeername` and `posix.getsockname` now return a
+    correctly filled `sockaddr` table. In case of an AF_UNIX
+    socket, the returned `path` is now cropped to the correct
+    length.
+
   - `luke` no longer crashes in `std.normalize` require loops
     occasionally in Lua 5.4.
 
