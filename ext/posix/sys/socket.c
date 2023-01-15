@@ -103,7 +103,11 @@ pushsockaddrinfo(lua_State *L, int family, struct sockaddr *sa)
 		case AF_UNIX:
 		{
 			struct sockaddr_un *sau = (struct sockaddr_un *)sa;
-			pushlstringfield("path", sau->sun_path, sizeof (sau->sun_path));
+			size_t path_len = sizeof sau->sun_path;
+			char *end = memchr(sau->sun_path, 0, path_len);
+			if (end)
+				path_len = end - sau->sun_path;
+			pushlstringfield("path", sau->sun_path, path_len);
 			break;
 		}
 #if HAVE_LINUX_NETLINK_H
@@ -913,7 +917,7 @@ static int Pgetsockname(lua_State *L)
 {
 	int fd = checkint(L, 1);
 	struct sockaddr_storage sa;
-	socklen_t salen;
+	socklen_t salen = sizeof sa;
 	checknargs (L, 1);
 	if (getsockname(fd, (struct sockaddr *)&sa, &salen) != 0)
 		return pusherror(L, "getsockname");
@@ -936,7 +940,7 @@ static int Pgetpeername(lua_State *L)
 {
 	int fd = checkint(L, 1);
 	struct sockaddr_storage sa;
-	socklen_t salen;
+	socklen_t salen = sizeof sa;
 	checknargs (L, 1);
 	if (getpeername(fd, (struct sockaddr *)&sa, &salen) != 0)
 		return pusherror(L, "getpeername");
