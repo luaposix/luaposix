@@ -319,7 +319,7 @@ specify posix:
 
   - describe write:
     - before:
-        PEOOB, read, write = M.PEOOB, M.read, M.write
+        EINVAL, read, write = M.EINVAL, M.read, M.write
         data = "0123456789"
         pout, pin = M.pipe()
 
@@ -331,21 +331,24 @@ specify posix:
         badargs.diagnose(M.write, "(int, string, ?int, ?int)")
 
     - context out of bounds:
-        - 'it diagnoses argument #3 too small': 
+        - 'it diagnoses argument #3 too small': |
             expect({write(pin, data, -1)}).to_equal {
-              nil, "nbytes argument '-1' out of bounds for 10-byte buffer", PEOOB,
+              nil, "write: invalid attempt to access offset -1 in a buffer of length 10", EINVAL,
             }
-        - 'it diagnoses argument #3 too large': 
+        - 'it diagnoses argument #3 too large': |
             expect({write(pin, data, 99)}).to_equal {
-              nil, "nbytes argument '99' out of bounds for 10-byte buffer", PEOOB,
+              nil, "write: invalid attempt to access offset 99 in a buffer of length 10", EINVAL,
             }
-        - 'it diagnoses argument #4 too small': 
+        - 'it diagnoses argument #4 too small': |
             expect({write(pin, data, nil, -1)}).to_equal {
-              nil, "offset argument '-1' out of bounds for 10-byte buffer", PEOOB,
+              nil, "write: invalid attempt to access offset -1 in a buffer of length 10", EINVAL,
             }
-        - 'it diagnoses argument #4 too large': 
+        - 'it diagnoses argument #4 too large': |
             expect({write(pin, data, nil, 99)}).to_equal {
-              nil, "offset argument '99' out of bounds for 10-byte buffer", PEOOB,
+              nil, "write: invalid attempt to access offset 99 in a buffer of length 10", EINVAL,
+            }
+            expect({write(pin, data, 6, 6)}).to_equal {
+              nil, "write: invalid attempt to access offset 12 in a buffer of length 10", EINVAL,
             }
 
     - it returns number of bytes written:

@@ -1202,9 +1202,9 @@ Write bytes to a file.
 If *nbytes* is `nil` or omitted, write all bytes from *offset*
 through to the end of *buf*.  If *offset* is `nil` or omitted,
 start writing bytes from the beginning of *buf*.
-Bounds checks are enforced, returning the non-POSIX error code
-`posix.errno.PEOOB` before attempting to write any bytes, if the
-requested parameters would access bytes outside *buf*.
+Bounds checks are enforced, returning `posix.errno.EINVAL`
+before attempting to write any bytes, if the requested
+parameters would access bytes outside *buf*.
 @function write
 @int fd the file descriptor to act on
 @string buf containing bytes to write
@@ -1221,34 +1221,32 @@ Pwrite(lua_State *L)
 {
 	const int fd = checkint(L, 1);
 	const char *buf = luaL_checkstring(L, 2);
-	const int buf_len = lua_objlen(L, 2);
-	int nbytes = optint(L, 3, buf_len);
+	const int buflen = lua_objlen(L, 2);
+	int nbytes = optint(L, 3, buflen);
 	const int offset = optint(L, 4, 0);
+	int invalid_offset = offset;
 
 	checknargs(L, 4);
 
-	if (offset < 0 || offset > buf_len)
-	{
-		errno = PEOOB;
-		lua_pushnil(L);
-		lua_pushfstring(L, "offset argument '%d' out of bounds for %d-byte buffer", offset, buf_len);
-		lua_pushinteger(L, errno);
-		return 3;
-	}
-
+	/* `write(fd, buf, nil, #buf - 3)` -> write the last 3 bytes in buf */
 	if (offset && lua_type(L, 3) == LUA_TNIL)
-		nbytes = buf_len - offset;
+		nbytes = buflen - offset;
 
-	if (offset + nbytes < 0 || offset + nbytes > buf_len)
-	{
-		errno = PEOOB;
-		lua_pushnil(L);
-		lua_pushfstring(L, "nbytes argument '%d' out of bounds for %d-byte buffer", nbytes, buf_len);
-		lua_pushinteger(L, errno);
-		return 3;
-	}
+	/* calling write with nbytes `0` can cause undefined behaviour */
+	if (nbytes == 0)
+		return pushintresult(0);
 
-	return pushresult(L, write(fd, buf + offset, nbytes), NULL);
+	if (offset >= 0 && nbytes > 0 && offset + nbytes <= buflen)
+		return pushresult(L, write(fd, buf + offset, nbytes), NULL);
+
+	if (offset + nbytes < 0 || offset + nbytes > buflen)
+		invalid_offset += nbytes;
+
+	errno = EINVAL;
+	lua_pushnil(L);
+	lua_pushfstring(L, "write: invalid attempt to access offset %d in a buffer of length %d", invalid_offset, buflen);
+	lua_pushinteger(L, errno);
+	return 3;
 }
 
 
