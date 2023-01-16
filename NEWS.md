@@ -21,6 +21,13 @@
     of non-zero status by clients is less messy and somewhat
     compatible with the happy path of using previous releases.
 
+  - Argument type errors for `posix.sys.msg.msgctl`,
+    `posix.sys.resource.setrlimit`, `posix.sys.socket.bind`,
+    `posix.sys.socket.connect`, `posix.sys.socket.getaddrinfo`,
+    `posix.sys.socket.sendto` and `posix.time.nanosleep` all
+    use "integer" in full rather than "int".
+
+
 ### Bugs Fixed
 
   - `posix.getpeername` and `posix.getsockname` now return a
@@ -34,6 +41,9 @@
   - Don't leak `err` into global scope from `posix.compat.open`
 
   - Correct LDoc comments for `sys.resource.setrlimit`.
+
+  - Both `sys.resource.getrlimit` and `sys.resource.setrlimit`
+    properly roundtrip `rlim_t` values.
 
   - Where an integer argument is expected, for consistency with
     Lua 5.2 and older, always allow 0.0 to be accepted as if 0

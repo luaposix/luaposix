@@ -28,7 +28,7 @@ specify posix.deprecated:
       examples {
          ["it diagnoses wrong family types"] = function()
             expect(connect(42, {family=false})).
-               to_raise.any_of(typeerrors(2, "int", "family", "boolean"))
+               to_raise.any_of(typeerrors(2, "integer", "family", "boolean"))
             expect(connect(42, {family=-1})).to_raise.any_of {
                "bad argument #2 to '?' (unsupported family type -1)",
                "bad argument #2 to 'connect' (unsupported family type -1)",
@@ -38,7 +38,7 @@ specify posix.deprecated:
       examples {
          ["it diagnoses wrong AF_INET field types"] = function()
             expect(connect(42, {family=AF_INET, port=false})).
-               to_raise.any_of(typeerrors(2, "int", "port", "boolean"))
+               to_raise.any_of(typeerrors(2, "integer", "port", "boolean"))
             expect(connect(42, {family=AF_INET, port=9999, addr=false})).
                to_raise.any_of(typeerrors(2, "string", "addr", "boolean"))
          end
@@ -53,7 +53,7 @@ specify posix.deprecated:
       examples {
          ["it diagnoses wrong AF_INET6 field types"] = function()
             expect(connect(42, {family = AF_INET6, port = false})).
-               to_raise.any_of(typeerrors(2, "int", "port", "boolean"))
+               to_raise.any_of(typeerrors(2, "integer", "port", "boolean"))
             expect(connect(42, {family = AF_INET6, port = 9999, addr = false})).
                to_raise.any_of(typeerrors(2, "string", "addr", "boolean"))
          end
@@ -81,9 +81,9 @@ specify posix.deprecated:
          examples {
             ["it diagnoses wrong AF_NETLINK field types"] = function()
                  expect(connect(42, {family = AF_NETLINK, pid = false})).
-                    to_raise.any_of(typeerrors(2, "int", "pid", "boolean"))
+                    to_raise.any_of(typeerrors(2, "integer", "pid", "boolean"))
                  expect(connect(42, {family = AF_NETLINK, pid = 9999, groups = false})).
-                    to_raise.any_of(typeerrors(2, "int", "groups", "boolean"))
+                    to_raise.any_of(typeerrors(2, "integer", "groups", "boolean"))
             end
          }
          examples {
@@ -112,7 +112,7 @@ specify posix.deprecated:
       examples {
          ["it diagnoses wrong family types"] = function()
             expect(bind(42, {family=false})).
-               to_raise.any_of(typeerrors(2, "int", "family", "boolean"))
+               to_raise.any_of(typeerrors(2, "integer", "family", "boolean"))
             expect(bind(42, {family=-1})).to_raise.any_of {
                "bad argument #2 to '?' (unsupported family type -1)",
                "bad argument #2 to 'bind' (unsupported family type -1)",
@@ -122,7 +122,7 @@ specify posix.deprecated:
       examples {
          ["it diagnoses wrong AF_INET field types"] = function()
             expect(bind(42, {family=AF_INET, port=false})).
-               to_raise.any_of(typeerrors(2, "int", "port", "boolean"))
+               to_raise.any_of(typeerrors(2, "integer", "port", "boolean"))
             expect(bind(42, {family=AF_INET, port=9999, addr=false})).
                to_raise.any_of(typeerrors(2, "string", "addr", "boolean"))
          end
@@ -137,7 +137,7 @@ specify posix.deprecated:
       examples {
          ["it diagnoses wrong AF_INET6 field types"] = function()
             expect(bind(42, {family = AF_INET6, port = false})).
-               to_raise.any_of(typeerrors(2, "int", "port", "boolean"))
+               to_raise.any_of(typeerrors(2, "integer", "port", "boolean"))
             expect(bind(42, {family = AF_INET6, port = 9999, addr = false})).
                to_raise.any_of(typeerrors(2, "string", "addr", "boolean"))
          end
@@ -165,9 +165,9 @@ specify posix.deprecated:
          examples {
             ["it diagnoses wrong AF_NETLINK field types"] = function()
                  expect(bind(42, {family = AF_NETLINK, pid = false})).
-                    to_raise.any_of(typeerrors(2, "int", "pid", "boolean"))
+                    to_raise.any_of(typeerrors(2, "integer", "pid", "boolean"))
                  expect(bind(42, {family = AF_NETLINK, pid = 9999, groups = false})).
-                    to_raise.any_of(typeerrors(2, "int", "groups", "boolean"))
+                    to_raise.any_of(typeerrors(2, "integer", "groups", "boolean"))
             end
          }
          examples {

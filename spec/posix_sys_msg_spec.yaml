@@ -115,14 +115,14 @@ specify posix.sys.msg:
     - 'it diagnoses argument #3 with missing fields':
         msqid.msg_qbytes = nil
         expect(msgctl(mq, IPC_SET, msqid)).
-           to_raise "int expected for field 'msg_qbytes', got no value"
+           to_raise "integer expected for field 'msg_qbytes', got no value"
         expect(msgctl(mq, IPC_SET, {msg_qbytes=1024})).
            to_raise "table expected for field 'msg_perm', got no value"
 
     - 'it diagnoses argument #3 with bad field types':
         msqid.msg_qbytes = false
         expect(msgctl(mq, IPC_SET, msqid)).
-           to_raise "int expected for field 'msg_qbytes', got boolean"
+           to_raise "integer expected for field 'msg_qbytes', got boolean"
         expect(msgctl(mq, IPC_SET, {msg_qbytes=1024, msg_perm=false})).
            to_raise "table expected for field 'msg_perm', got boolean"
 
@@ -134,12 +134,12 @@ specify posix.sys.msg:
     - 'it diagnoses argument #3 with missing subfields':
         msqid.msg_perm.mode = nil
         expect(msgctl(mq, IPC_SET, msqid)).
-           to_raise "int expected for field 'mode', got no value"
+           to_raise "integer expected for field 'mode', got no value"
 
     - 'it diagnoses argument #3 with bad subfield types':
         msqid.msg_perm.mode = false
         expect(msgctl(mq, IPC_SET, msqid)).
-           to_raise "int expected for field 'mode', got boolean"
+           to_raise "integer expected for field 'mode', got boolean"
 
     - 'it diagnoses argument #3 with bad subfield names':
         msqid.msg_perm.bogus = 1

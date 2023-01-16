@@ -265,14 +265,20 @@ checkfieldnames(lua_State *L, int index, int n, const char * const S[])
 }
 #define checkfieldnames(L,i,S) (checkfieldnames)(L,i,sizeof(S)/sizeof(*S),S)
 
-static int
-checkintfield(lua_State *L, int index, const char *k)
+static lua_Integer
+checkintegerfield(lua_State *L, int index, const char *k)
 {
-	int r;
-	checkfieldtype(L, index, k, LUA_TNUMBER, "int");
+	lua_Integer r;
+	checkfieldtype(L, index, k, LUA_TNUMBER, "integer");
 	r = lua_tointeger(L, -1);
 	lua_pop(L, 1);
 	return r;
+}
+
+static int
+checkintfield(lua_State *L, int index, const char *k)
+{
+	return (int)checkintegerfield(L, index, k);
 }
 
 static int

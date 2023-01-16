@@ -146,15 +146,15 @@ specify posix.time:
       examples {
          ["context diagnosing timespec table fields"] = {
             {
-               ["it diagnoses argument #1 tv_sec field type not int"] = function()
+               ["it diagnoses argument #1 tv_sec field type not integer"] = function()
                   expect(nanosleep {tv_sec = false}).
-                     to_raise.any_of(typeerrors(1, "int", "tv_sec", "boolean"))
+                     to_raise.any_of(typeerrors(1, "integer", "tv_sec", "boolean"))
                end
             },
             {
-               ["it diagnoses argument #1 tv_nsec field type not int"] = function()
+               ["it diagnoses argument #1 tv_nsec field type not integer"] = function()
                   expect(nanosleep {tv_sec = -1, tv_nsec = false}).
-                     to_raise.any_of(typeerrors(1, "int", "tv_nsec", "boolean"))
+                     to_raise.any_of(typeerrors(1, "integer", "tv_nsec", "boolean"))
                end
             },
             {
