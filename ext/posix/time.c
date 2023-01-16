@@ -192,7 +192,7 @@ static int
 Pgmtime(lua_State *L)
 {
 	struct tm t;
-	time_t epoch = checkint(L, 1);
+	time_t epoch = checklong(L, 1);
 	checknargs(L, 1);
 	if (gmtime_r(&epoch, &t) == NULL)
 		return pusherror(L, "gmtime");
@@ -215,7 +215,7 @@ static int
 Plocaltime(lua_State *L)
 {
 	struct tm t;
-	time_t epoch = checkint(L, 1);
+	time_t epoch = checklong(L, 1);
 	checknargs(L, 1);
 	if (localtime_r(&epoch, &t) == NULL)
 		return pusherror(L, "localtime");

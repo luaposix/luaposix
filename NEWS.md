@@ -57,6 +57,9 @@
   - `posix.stdio.fdopen` returned streams can be closed from
     Lua 5.1 without a NULL pointer dereference crash.
 
+  - `posix.time.gmtime` and `posix.time.localtime` no longer wrap
+    around with arguments of 2^31 and larger.
+
   - `posix.time.gmtime` and `posix.time.localtime` propagate any
     `tm_gmoffset` and `tm_zone` fields supported by the host's
     `struct tm`.

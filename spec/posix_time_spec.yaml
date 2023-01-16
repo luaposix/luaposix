@@ -81,6 +81,8 @@ specify posix.time:
       expect(t.tm_mon >= 0 and t.tm_mon < 12).to_be(true)
   - it returns years since 1900:
       expect(gmtime(EPOCH).tm_year < 1900).to_be(true)
+  - it does not wrap around after 2^31 seconds:
+      expect(gmtime(2147483647).tm_year).to_be(gmtime(2147483648).tm_year)
 
 
 - describe localtime:
@@ -116,6 +118,8 @@ specify posix.time:
       expect(t.tm_mon >= 0 and t.tm_mon < 12).to_be(true)
   - it returns years since 1900:
       expect(localtime(EPOCH).tm_year < 1900).to_be(true)
+  - it does not wrap around after 2^31 seconds:
+      expect(localtime(2147483647).tm_year).to_be(localtime(2147483648).tm_year)
 
 
 - describe mktime:
