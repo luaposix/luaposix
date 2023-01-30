@@ -30,20 +30,12 @@
 
 ### Bugs Fixed
 
-  - `posix.getpeername` and `posix.getsockname` now return a
-    correctly filled `sockaddr` table. In case of an AF_UNIX
-    socket, the returned `path` is now cropped to the correct
-    length.
-
   - `luke` no longer crashes in `std.normalize` require loops
     occasionally in Lua 5.4.
 
-  - Don't leak `err` into global scope from `posix.compat.open`
+  - Don't leak `err` into global scope from `compat.open`
 
   - Correct LDoc comments for `sys.resource.setrlimit`.
-
-  - Both `sys.resource.getrlimit` and `sys.resource.setrlimit`
-    properly roundtrip `rlim_t` values.
 
   - Where an integer argument is expected, for consistency with
     Lua 5.2 and older, always allow 0.0 to be accepted as if 0
@@ -59,25 +51,33 @@
     prevents access to the preloaded `require 'posix'.fcntl.fcntl`
     binding.
 
-  - `posix.unistd.write` takes an optional third argument `nbytes`
-    to conform better to the SUSv3 specification.  For backwards
-    compatibility, the entirety of `buf` is written when a third
-    argument is not passed (or is `nil`).
+  - `poll.poll` and `poll.rpoll` LDocs correctly describe the returned
+    integer as being `0` for timeout or the number of ready file
+    descriptors.
 
-  - `posix.stdio.fdopen` returned streams can be closed from
-    Lua 5.1 without a NULL pointer dereference crash.
+  - `stdio.fdopen` returned streams can be closed from Lua 5.1
+    without a NULL pointer dereference crash.
 
-  - `posix.time.gmtime` and `posix.time.localtime` no longer wrap
-    around with arguments of 2^31 and larger.
+  - Both `sys.resource.getrlimit` and `sys.resource.setrlimit`
+    properly roundtrip `rlim_t` values.
 
-  - `posix.time.gmtime` and `posix.time.localtime` propagate any
-    `tm_gmoffset` and `tm_zone` fields supported by the host's
-    `struct tm`.
+  - `sys.socket.getpeername` and `sys.socket.getsockname` now return
+    a correctly filled `sockaddr` table. In case of an AF_UNIX socket,
+    the returned `path` is now cropped to the correct length.
 
-  - `posix.time.strftime` reliably fills %z and %Z specifiers.
-    Note that if your host POSIX library provides a `strftime` that
-    assumes the local timezone, %z will always print the local UTC
-    offset, regardless of the `tm_gmoffset` field value passed in.
+  - `time` constants are `nil` valued, even on hosts which fail to
+    define them when _POSIX_TIMERS is set as if they should be.
+
+  - `time.gmtime` and `time.localtime` no longer wrap around with
+    arguments of 2^31 and larger.
+
+  - `time.gmtime` and `time.localtime` propagate any `tm_gmoffset` and
+    `tm_zone` fields supported by the host's `struct tm`.
+
+  - `time.strftime` reliably fills %z and %Z specifiers. Note that if
+    your host POSIX library provides a `strftime` that assumes the
+    local timezone, %z will always print the local UTC offset,
+    regardless of the `tm_gmoffset` field value passed in.
 
     Consider (subject to host strftime implementation!):
 
@@ -86,25 +86,42 @@
         local zulu_t = t.strftime("%c UTC+0000", t.gmtime(now)))
         local localt = t.strftime("%c %Z UTC%z", t.localtime(now)))
 
-  - `posix.time` constants are `nil` valued, even on hosts which
-    fail to define them when _POSIX_TIMERS is set as if they should
-    be.
+  - `unistd.getcwd` no longer leaks memory if __GNU__ was defined at
+    compile time.
 
-  - `posix.poll.poll` and `posix.poll.rpoll` LDocs correctly
-    describe the returned integer as being `0` for timeout or the
-    number of ready file descriptors.
+  - `unistd.readlink` works reliably inside a /proc filesystem.
 
-  - `posix.unistd.getcwd` no longer leaks memory if __GNU__ was
-    defined at compile time.
+  - `unistd.write` takes an optional third argument `nbytes` to
+    conform better to the SUSv3 specification.  For backwards
+    compatibility, the entirety of `buf` is written when a third
+    argument is not passed (or is `nil`).
 
-  - `posix.unistd.readlink` works reliably inside a /proc
-    filesystem.
+  - Many bindings use now a lua_Integer (with at least 53 bits for
+    magnitude, depending on the host Lua version) instead of a C int
+    type to pass numeric arguments, so much larger values can be
+    successfully passed to and from the following bindings:
+    `fcntl.open`, `posix.fcntl.posix_fadvise`, `fnmatch.fnmatch`,
+    `posix.grp.getgrgid`, `pwd.getpwuid`, `sched.sched_getscheduler`,
+    `sched.sched_setscheduler`, `signal.kill`, `signal.killpg`,
+    `signal.raise`, `sys.msg.msgget`, `sys.msg.msgrcv`,
+    `sys.socket.recv`, `sys.socket.recvfrom`, `sys.socket.setsockopt`,
+    `sys.stat.S_ISBLK`, `sys.stat.S_ISCHR`, `sys.stat.S_ISDIR`,
+    `sys.stat.S_ISFIFO`, `sys.stat.S_ISLNK`, `sys.stat.S_ISREG`,
+    `sys.stat.S_ISSOCK`, `sys.stat.chmod`, `sys.stat.mkdir`,
+    `sys.stat.mkfifo`, `sys.stat.umask`, `sys.wait.wait`,
+    `syslog.LOG_MASK`, `time.mktime`, `unistd._exit`, `unistd.alarm`,
+    `unistd.ftruncate`, `unistd.getegid`, `unistd.geteguid`,
+    `unistd.getgid`, `unistd.getopt`, `unistd.getpgrp`,
+    `unistd.getpid`, `unistd.getppid`, `unistd.getuid`,
+    `unistd.gethostid`, `unistd.lseek`, `unistd.pathconf`,
+    `unistd.read`, `unistd.setpid`, `unistd.sleep`, `unistd.sysconf`,
+    `unistd.truncate`, `utime.utime`.
 
   - Most of the spec examples run correctly on FreeBSD now!
 
 ### New Features
 
-  - `posix.unistd.write` takes an optional fourth argument `offset` to
+  - `unistd.write` takes an optional fourth argument `offset` to
     allow efficent writing of a substring of `buf`.  For backwards
     compatibility, the entirety of `buf` is written when the third and
     fourth arguments are not passed (or are `nil`).

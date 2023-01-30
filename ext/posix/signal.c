@@ -44,7 +44,7 @@ Send a signal to the given process.
 static int
 Pkill(lua_State *L)
 {
-	pid_t pid = checkint(L, 1);
+	pid_t pid = (pid_t)checkinteger(L, 1);
 	int sig = optint(L, 2, SIGTERM);
 	checknargs(L, 2);
 	return pushresult(L, kill(pid, sig), NULL);
@@ -65,7 +65,7 @@ Send a signal to the given process group.
 static int
 Pkillpg(lua_State *L)
 {
-	int pgrp = checkint(L, 1);
+	pid_t pgrp = (pid_t)checkinteger(L, 1);
 	int sig = optint(L, 2, SIGTERM);
 	checknargs(L, 2);
 	return pushresult(L, killpg(pgrp, sig), NULL);
@@ -88,7 +88,7 @@ Praise(lua_State *L)
 	int sig = checkint(L, 1);
 	checknargs(L, 1);
 	lua_pop(L, 1);
-	return pushintresult(raise(sig));
+	return pushintegerresult(raise(sig));
 }
 
 

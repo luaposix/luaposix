@@ -245,8 +245,8 @@ sockaddr_from_lua(lua_State *L, int index, struct sockaddr_storage *sa, socklen_
 			int port		= checkintfield(L, index, "port");
 			const char *addr	= checkstringfield(L, index, "addr");
 			/* For compatibility, the next two fields are optional */
-			uint32_t flowinfo	= optintfield(L, index, "flowinfo", 0);
-			uint32_t scope_id	= optintfield(L, index, "scope_id", 0);
+			uint32_t flowinfo	= (uint32_t)optintegerfield(L, index, "flowinfo", 0);
+			uint32_t scope_id	= (uint32_t)optintegerfield(L, index, "scope_id", 0);
 
 			checkfieldnames (L, index, Safinet6_fields);
 
@@ -536,7 +536,7 @@ static int
 Precv(lua_State *L)
 {
 	int fd = checkint(L, 1);
-	int count = checkint(L, 2), ret;
+	size_t count = (size_t)checkinteger(L, 2), ret;
 	void *ud, *buf;
 	lua_Alloc lalloc;
 
@@ -581,7 +581,7 @@ Precvfrom(lua_State *L)
 	struct sockaddr_storage sa;
 	int r;
 	int fd = checkint(L, 1);
-	int count = checkint(L, 2);
+	size_t count = (size_t)checkinteger(L, 2);
 	lua_Alloc lalloc;
 
 	checknargs(L, 2);
@@ -724,8 +724,8 @@ Psetsockopt(lua_State *L)
 				case SO_LINGER:
 					checknargs(L, 5);
 
-					linger.l_onoff = checkint(L, 4);
-					linger.l_linger = checkint(L, 5);
+					linger.l_onoff = checkinteger(L, 4);
+					linger.l_linger = checkinteger(L, 5);
 					val = &linger;
 					len = sizeof(linger);
 					break;
@@ -733,8 +733,8 @@ Psetsockopt(lua_State *L)
 				case SO_SNDTIMEO:
 					checknargs(L, 5);
 
-					tv.tv_sec = checkint(L, 4);
-					tv.tv_usec = checkint(L, 5);
+					tv.tv_sec = checkinteger(L, 4);
+					tv.tv_usec = checkinteger(L, 5);
 					val = &tv;
 					len = sizeof(tv);
 					break;
@@ -788,7 +788,7 @@ Psetsockopt(lua_State *L)
 
 	if (val == NULL)
 	{
-		vint = checkint(L, 4);
+		vint = checkinteger(L, 4);
 		val = &vint;
 		len = sizeof(vint);
 	}

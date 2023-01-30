@@ -70,7 +70,7 @@ Terminate the calling process.
 static int
 P_exit(lua_State *L)
 {
-	pid_t ret = checkint(L, 1);
+	pid_t ret = (pid_t)checkinteger(L, 1);
 	checknargs(L, 1);
 	_exit(ret);
 	return 0; /* Avoid a compiler warning (or possibly cause one
@@ -128,7 +128,7 @@ Palarm(lua_State *L)
 {
 	int seconds = checkint(L, 1);
 	checknargs(L, 1);
-	return pushintresult(alarm(seconds));
+	return pushintegerresult(alarm(seconds));
 }
 /***
 Set the working directory.
@@ -483,7 +483,7 @@ static int
 Pgetegid(lua_State *L)
 {
 	checknargs(L, 0);
-	return pushintresult(getegid ());
+	return pushintegerresult(getegid());
 }
 
 
@@ -497,7 +497,7 @@ static int
 Pgeteuid(lua_State *L)
 {
 	checknargs(L, 0);
-	return pushintresult(geteuid ());
+	return pushintegerresult(geteuid());
 }
 
 
@@ -511,7 +511,7 @@ static int
 Pgetgid(lua_State *L)
 {
 	checknargs(L, 0);
-	return pushintresult(getgid ());
+	return pushintegerresult(getgid());
 }
 
 
@@ -623,8 +623,8 @@ Pgetopt(lua_State *L)
 	checknargs(L, 4);
 	checktype(L, 1, LUA_TTABLE, "list");
 	optstring = luaL_checkstring(L, 2);
-	opterr = optint(L, 3, 0);
-	optind = optint(L, 4, 1);
+	opterr = optinteger(L, 3, 0);
+	optind = optinteger(L, 4, 1);
 
 	argc = (int)lua_objlen(L, 1) + 1;
 
@@ -657,7 +657,7 @@ static int
 Pgetpgrp(lua_State *L)
 {
 	checknargs(L, 0);
-	return pushintresult(getpgrp ());
+	return pushintegerresult(getpgrp());
 }
 
 
@@ -670,7 +670,7 @@ static int
 Pgetpid(lua_State *L)
 {
 	checknargs(L, 0);
-	return pushintresult(getpid ());
+	return pushintegerresult(getpid());
 }
 
 
@@ -684,7 +684,7 @@ static int
 Pgetppid(lua_State *L)
 {
 	checknargs(L, 0);
-	return pushintresult(getppid ());
+	return pushintegerresult(getppid());
 }
 
 
@@ -698,7 +698,7 @@ static int
 Pgetuid(lua_State *L)
 {
 	checknargs(L, 0);
-	return pushintresult(getuid ());
+	return pushintegerresult(getuid());
 }
 
 
@@ -715,7 +715,7 @@ Pgethostid(lua_State *L)
 {
 	checknargs(L, 0);
 #if HAVE_GETHOSTID
-	return pushintresult(gethostid());
+	return pushintegerresult(gethostid());
 #else
 	lua_pushnil(L);
 	lua_pushliteral(L, "unsupported by this host");
@@ -841,7 +841,7 @@ static int
 Plseek(lua_State *L)
 {
 	int fd = checkint(L, 1);
-	int offset = checkint(L, 2);
+	off_t offset = (off_t)checkinteger(L, 2);
 	int whence = checkint(L, 3);
 	checknargs(L, 3);
 	return pushresult(L, lseek(fd, offset, whence), NULL);
@@ -885,7 +885,7 @@ Ppathconf(lua_State *L)
 {
 	const char *path = luaL_checkstring(L, 1);
 	checknargs(L, 2);
-	return pushintresult(pathconf(path, checkint(L, 2)));
+	return pushintegerresult(pathconf(path, checkint(L, 2)));
 }
 
 
@@ -930,7 +930,7 @@ static int
 Pread(lua_State *L)
 {
 	int fd = checkint(L, 1);
-	int count = checkint(L, 2), ret;
+	size_t count = (size_t)checkinteger(L, 2), ret;
 	void *ud, *buf;
 	lua_Alloc lalloc;
 
@@ -1050,8 +1050,8 @@ Psetpid(lua_State *L)
 			return pushresult(L, setsid(), NULL);
 		case 'p':
 		{
-			pid_t pid  = checkint(L, 2);
-			pid_t pgid = checkint(L, 3);
+			pid_t pid  = (pid_t)checkinteger(L, 2);
+			pid_t pgid = (pid_t)checkinteger(L, 3);
 			return pushresult(L, setpgid(pid,pgid), NULL);
 		}
 		default:
@@ -1075,7 +1075,7 @@ Psleep(lua_State *L)
 {
 	unsigned int seconds = checkint(L, 1);
 	checknargs(L, 1);
-	return pushintresult(sleep(seconds));
+	return pushintegerresult(sleep(seconds));
 }
 
 
@@ -1107,7 +1107,7 @@ static int
 Psysconf(lua_State *L)
 {
 	checknargs(L, 1);
-	return pushintresult(sysconf(checkint(L, 1)));
+	return pushintegerresult(sysconf(checkint(L, 1)));
 }
 
 
@@ -1124,7 +1124,7 @@ Name of a terminal device.
 static int
 Pttyname(lua_State *L)
 {
-	int fd=optint(L, 1, 0);
+	int fd = optint(L, 1, 0);
 	char *name;
 	checknargs(L, 1);
 	name = ttyname(fd);
@@ -1172,7 +1172,7 @@ static int
 Ptcsetpgrp(lua_State *L)
 {
 	int fd = checkint(L, 1);
-	int pgid = checkint(L, 2);
+	pid_t pgid = (pid_t)checkinteger(L, 2);
 	return pushresult(L, tcsetpgrp(fd, pgid), NULL);
 }
 #endif
@@ -1222,9 +1222,9 @@ Pwrite(lua_State *L)
 	const int fd = checkint(L, 1);
 	const char *buf = luaL_checkstring(L, 2);
 	const int buflen = lua_objlen(L, 2);
-	int nbytes = optint(L, 3, buflen);
-	const int offset = optint(L, 4, 0);
-	int invalid_offset = offset;
+	ssize_t nbytes = (ssize_t)optinteger(L, 3, buflen);
+	const off_t offset = (off_t)optinteger(L, 4, 0);
+	off_t invalid_offset = offset;
 
 	checknargs(L, 4);
 
@@ -1234,7 +1234,7 @@ Pwrite(lua_State *L)
 
 	/* calling write with nbytes `0` may cause unspecified behaviour */
 	if (nbytes == 0)
-		return pushintresult(0);
+		return pushintegerresult(0);
 
 	if (offset >= 0 && nbytes > 0 && offset + nbytes <= buflen)
 		return pushresult(L, write(fd, buf + offset, nbytes), NULL);
@@ -1265,7 +1265,7 @@ static int
 Pftruncate(lua_State *L)
 {
 	int fd = checkint(L, 1);
-	off_t length = checkint(L, 2);
+	off_t length = (off_t)checkinteger(L, 2);
 	checknargs(L, 2);
 	return pushresult(L, ftruncate(fd, length), NULL);
 }
@@ -1285,7 +1285,7 @@ static int
 Ptruncate(lua_State *L)
 {
 	const char *path = luaL_checkstring(L, 1);
-	off_t length = checkint(L, 2);
+	off_t length = (off_t)checkinteger(L, 2);
 	checknargs(L, 2);
 	return pushresult(L, truncate(path, length), NULL);
 }

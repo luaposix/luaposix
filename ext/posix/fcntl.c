@@ -141,7 +141,7 @@ Popen(lua_State *L)
 	const char *path = luaL_checkstring(L, 1);
 	int oflags = checkint(L, 2);
 	checknargs(L, 3);
-	return pushresult(L, open(path, oflags, (mode_t) optint(L, 3, 511)), path);
+	return pushresult(L, open(path, oflags, (mode_t)optinteger(L, 3, 511)), path);
 }
 
 
@@ -164,10 +164,10 @@ Instruct kernel on appropriate cache behaviour for a file or file segment.
 static int
 Pposix_fadvise(lua_State *L)
 {
-	int fd     = checkint(L, 1);
-	int offset = checkint(L, 2);
-	int len    = checkint(L, 3);
-	int advice = checkint(L, 4);
+	int fd       = checkint(L, 1);
+	off_t offset = (off_t)checkinteger(L, 2);
+	off_t len    = (off_t)checkinteger(L, 3);
+	int advice   = checkint(L, 4);
 	int r;
 	checknargs(L, 4);
 	r = posix_fadvise(fd, offset, len, advice);

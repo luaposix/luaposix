@@ -139,7 +139,7 @@ Fetch password entry with given user id.
 static int
 Pgetpwuid(lua_State *L)
 {
-	uid_t uid = (uid_t) checkint(L, 1);
+	uid_t uid = (uid_t)checkinteger(L, 1);
 	struct passwd *p;
 	checknargs(L, 1);
 

@@ -86,12 +86,12 @@ tomsqid(lua_State *L, int index, struct msqid_ds *msqid)
 	luaL_checktype(L, index, LUA_TTABLE);
 
 	/* Copy fields to msqid struct */
-	msqid->msg_qbytes = checkintfield(L, index, "msg_qbytes");
+	msqid->msg_qbytes = (msglen_t)checkintegerfield(L, index, "msg_qbytes");
 
 	checkfieldtype(L, index, "msg_perm", LUA_TTABLE, "table");
 	subindex = lua_gettop(L);
-        msqid->msg_perm.uid  = checkintfield(L, subindex, "uid");
-	msqid->msg_perm.gid  = checkintfield(L, subindex, "gid");
+	msqid->msg_perm.uid  = (uid_t)checkintegerfield(L, subindex, "uid");
+	msqid->msg_perm.gid  = (gid_t)checkintegerfield(L, subindex, "gid");
 	msqid->msg_perm.mode = checkintfield(L, subindex, "mode");
 
         checkfieldnames(L, index, Smsqid_fields);
@@ -166,7 +166,7 @@ static int
 Pmsgget(lua_State *L)
 {
 	checknargs (L, 2);
-	return pushresult(L, msgget(checkint(L, 1), optint(L, 2, 0)), "msgget");
+	return pushresult(L, msgget((key_t)checkinteger(L, 1), optint(L, 2, 0)), "msgget");
 }
 
 
@@ -239,8 +239,8 @@ static int
 Pmsgrcv(lua_State *L)
 {
 	int msgid = checkint(L, 1);
-	size_t msgsz = checkint(L, 2);
-	long msgtyp = optint(L, 3, 0);
+	size_t msgsz = (size_t)checkinteger(L, 2);
+	long msgtyp = optlong(L, 3, 0);
 	int msgflg = optint(L, 4, 0);
 
 	void *ud;

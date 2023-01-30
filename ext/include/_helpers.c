@@ -152,7 +152,7 @@ checktype(lua_State *L, int narg, int t, const char *expected)
 }
 
 static lua_Integer
-checkinteger(lua_State *L, int narg, const char *expected)
+expectinteger(lua_State *L, int narg, const char *expected)
 {
 	int isconverted = 0;
 	lua_Integer d = lua_tointegerx(L, narg, &isconverted);
@@ -160,18 +160,10 @@ checkinteger(lua_State *L, int narg, const char *expected)
 		argtypeerror(L, narg, expected);
 	return d;
 }
-
-static int
-checkint(lua_State *L, int narg)
-{
-	return (int)checkinteger(L, narg, "int");
-}
-
-static long
-checklong(lua_State *L, int narg)
-{
-	return (long)checkinteger(L, narg, "int");
-}
+/* As soon as specl's badargs.diagnose can handle it... change these to "integer"! */
+#define checkinteger(L,n) (expectinteger(L,n,"int"))
+#define checkint(L,n)     ((int)expectinteger(L,n,"int"))
+#define checklong(L,n)    ((long)expectinteger(L,n,"int"))
 
 static int
 optboolean(lua_State *L, int narg, int def)
@@ -182,13 +174,17 @@ optboolean(lua_State *L, int narg, int def)
 	return (int)lua_toboolean(L, narg);
 }
 
-static int
-optint(lua_State *L, int narg, lua_Integer def)
+static lua_Integer
+expectoptinteger(lua_State *L, int narg, lua_Integer def, const char *expected)
 {
 	if (lua_isnoneornil(L, narg))
-		return (int) def;
-	return (int)checkinteger(L, narg, "int or nil");
+		return def;
+	return expectinteger(L, narg, expected);
 }
+/* As soon as specl's badargs.diagnose can handle it... change these to "integer or nil"! */
+#define optinteger(L,n,d) (expectoptinteger(L,n,d,"int or nil"))
+#define optint(L,n,d)     ((int)expectoptinteger(L,n,d,"int or nil"))
+#define optlong(L,n,d)    ((long)expectoptinteger(L,n,d,"int or nil"))
 
 static const char *
 optstring(lua_State *L, int narg, const char *def)
@@ -274,12 +270,8 @@ checkintegerfield(lua_State *L, int index, const char *k)
 	lua_pop(L, 1);
 	return r;
 }
-
-static int
-checkintfield(lua_State *L, int index, const char *k)
-{
-	return (int)checkintegerfield(L, index, k);
-}
+#define checkintfield(L,i,k)  ((int)checkintegerfield(L,i,k))
+#define checklongfield(L,i,k) ((long)checkintegerfield(L,i,k))
 
 static int
 checknumberfield(lua_State *L, int index, const char *k)
@@ -302,8 +294,8 @@ checklstringfield(lua_State *L, int index, const char *k, size_t *plen)
 }
 #define checkstringfield(L,i,s) (checklstringfield(L,i,s,NULL))
 
-static int
-optintfield(lua_State *L, int index, const char *k, int def)
+static lua_Integer
+optintegerfield(lua_State *L, int index, const char *k, int def)
 {
 	int got_type;
 	lua_getfield(L, index, k);
@@ -311,8 +303,10 @@ optintfield(lua_State *L, int index, const char *k, int def)
 	lua_pop(L, 1);
 	if (got_type == LUA_TNONE || got_type == LUA_TNIL)
 		return def;
-	return checkintfield(L, index, k);
+	return checkintegerfield(L, index, k);
 }
+#define optintfield(L,i,k,d)  ((int)optintegerfield(L,i,k,d))
+#define optlongfield(L,i,k,d) ((long)optintegerfield(L,i,k,d))
 
 static const char *
 optstringfield(lua_State *L, int index, const char *k, const char *def)
@@ -340,7 +334,7 @@ pusherror(lua_State *L, const char *info)
 
 #define pushboolresult(b)	(lua_pushboolean(L, (b)), 1)
 
-#define pushintresult(n)	(lua_pushinteger(L, (n)), 1)
+#define pushintegerresult(n)	(lua_pushinteger(L, (n)), 1)
 
 #define pushstringresult(s)	(lua_pushstring(L, (s)), 1)
 
@@ -349,7 +343,7 @@ pushresult(lua_State *L, int i, const char *info)
 {
 	if (i==-1)
 		return pusherror(L, info);
-	return pushintresult(i);
+	return pushintegerresult(i);
 }
 
 static void

@@ -27,8 +27,8 @@ static void
 totimespec(lua_State *L, int index, struct timespec *ts)
 {
 	luaL_checktype(L, index, LUA_TTABLE);
-	ts->tv_sec  = optintfield(L, index, "tv_sec", 0);
-	ts->tv_nsec = optintfield(L, index, "tv_nsec", 0);
+	ts->tv_sec  = (time_t)optintegerfield(L, index, "tv_sec", 0);
+	ts->tv_nsec = optlongfield(L, index, "tv_nsec", 0);
 
 	checkfieldnames(L, index, Stimespec_fields);
 }
@@ -240,7 +240,7 @@ Pmktime(lua_State *L)
 	totm(L, 1, &t);
 	if ((epoch = mktime(&t)) < 0)
 		return 0;
-	return pushintresult(epoch);
+	return pushintegerresult(epoch);
 }
 
 

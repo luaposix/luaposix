@@ -39,8 +39,8 @@ Putime(lua_State *L)
 	struct utimbuf times;
 	time_t currtime = time(NULL);
 	const char *path = luaL_checkstring(L, 1);
-	times.modtime = optint(L, 2, currtime);
-	times.actime  = optint(L, 3, currtime);
+	times.modtime = (time_t)optinteger(L, 2, currtime);
+	times.actime  = (time_t)optinteger(L, 3, currtime);
 	checknargs(L, 3);
 	return pushresult(L, utime(path, &times), path);
 }
