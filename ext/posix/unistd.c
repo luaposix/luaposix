@@ -1232,7 +1232,7 @@ Pwrite(lua_State *L)
 	if (offset && lua_type(L, 3) == LUA_TNIL)
 		nbytes = buflen - offset;
 
-	/* calling write with nbytes `0` can cause undefined behaviour */
+	/* calling write with nbytes `0` may cause unspecified behaviour */
 	if (nbytes == 0)
 		return pushintresult(0);
 
