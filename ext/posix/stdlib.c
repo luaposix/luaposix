@@ -93,7 +93,7 @@ Grant access to a slave pseudoterminal
 static int
 Pgrantpt(lua_State *L)
 {
-	int fd=checkint(L, 1);
+	int fd = checkint(L, 1);
 	checknargs(L, 1);
 	return pushresult(L, grantpt(fd), "grantpt");
 }
@@ -216,7 +216,7 @@ Get the name of a slave pseudo-terminal
 static int
 Pptsname(lua_State *L)
 {
-	int fd=checkint(L, 1);
+	int fd = checkint(L, 1);
 	const char* slave;
 	checknargs(L, 1);
 	slave = ptsname(fd);
@@ -297,7 +297,7 @@ Unlock a pseudoterminal master/slave pair
 static int
 Punlockpt(lua_State *L)
 {
-	int fd=checkint(L, 1);
+	int fd = checkint(L, 1);
 	checknargs(L, 1);
 	return pushresult(L, unlockpt(fd), "unlockpt");
 }

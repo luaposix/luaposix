@@ -77,7 +77,7 @@ static int
 PS_ISBLK(lua_State *L)
 {
 	checknargs(L, 1);
-	return pushintresult(S_ISBLK((mode_t) checkint(L, 1)));
+	return pushintegerresult(S_ISBLK((mode_t)checkinteger(L, 1)));
 }
 
 
@@ -91,7 +91,7 @@ static int
 PS_ISCHR(lua_State *L)
 {
 	checknargs(L, 1);
-	return pushintresult(S_ISCHR((mode_t) checkint(L, 1)));
+	return pushintegerresult(S_ISCHR((mode_t)checkinteger(L, 1)));
 }
 
 
@@ -105,7 +105,7 @@ static int
 PS_ISDIR(lua_State *L)
 {
 	checknargs(L, 1);
-	return pushintresult(S_ISDIR((mode_t) checkint(L, 1)));
+	return pushintegerresult(S_ISDIR((mode_t)checkinteger(L, 1)));
 }
 
 
@@ -119,7 +119,7 @@ static int
 PS_ISFIFO(lua_State *L)
 {
 	checknargs(L, 1);
-	return pushintresult(S_ISFIFO((mode_t) checkint(L, 1)));
+	return pushintegerresult(S_ISFIFO((mode_t)checkinteger(L, 1)));
 }
 
 
@@ -133,7 +133,7 @@ static int
 PS_ISLNK(lua_State *L)
 {
 	checknargs(L, 1);
-	return pushintresult(S_ISLNK((mode_t) checkint(L, 1)));
+	return pushintegerresult(S_ISLNK((mode_t)checkinteger(L, 1)));
 }
 
 
@@ -147,7 +147,7 @@ static int
 PS_ISREG(lua_State *L)
 {
 	checknargs(L, 1);
-	return pushintresult(S_ISREG((mode_t) checkint(L, 1)));
+	return pushintegerresult(S_ISREG((mode_t)checkinteger(L, 1)));
 }
 
 
@@ -161,7 +161,7 @@ static int
 PS_ISSOCK(lua_State *L)
 {
 	checknargs(L, 1);
-	return pushintresult(S_ISSOCK((mode_t) checkint(L, 1)));
+	return pushintegerresult(S_ISSOCK((mode_t)checkinteger(L, 1)));
 }
 
 
@@ -184,7 +184,7 @@ Pchmod(lua_State *L)
 {
 	const char *path = luaL_checkstring(L, 1);
 	checknargs(L, 2);
-	return pushresult(L, chmod(path, (mode_t) checkint(L, 2)), path);
+	return pushresult(L, chmod(path, (mode_t)checkinteger(L, 2)), path);
 }
 
 
@@ -259,7 +259,7 @@ Pmkdir(lua_State *L)
 {
 	const char *path = luaL_checkstring(L, 1);
 	checknargs(L, 2);
-	return pushresult(L, mkdir(path, (mode_t) optint(L, 2, 0777)), path);
+	return pushresult(L, mkdir(path, (mode_t)optinteger(L, 2, 0777)), path);
 }
 
 
@@ -279,7 +279,7 @@ Pmkfifo(lua_State *L)
 {
 	const char *path = luaL_checkstring(L, 1);
 	checknargs(L, 2);
-	return pushresult(L, mkfifo(path, (mode_t) optint(L, 2, 0777)), path);
+	return pushresult(L, mkfifo(path, (mode_t)optinteger(L, 2, 0777)), path);
 }
 
 
@@ -322,7 +322,7 @@ static int
 Pumask(lua_State *L)
 {
 	checknargs(L, 1);
-	return pushintresult(umask((mode_t) checkint(L, 1)));
+	return pushintegerresult(umask((mode_t)checkinteger(L, 1)));
 }
 
 

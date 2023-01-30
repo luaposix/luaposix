@@ -45,7 +45,7 @@ static int
 Psched_getscheduler(lua_State *L)
 {
 	struct sched_param sched_param  = {0};
-	pid_t pid = optint(L, 1, 0);
+	pid_t pid = (pid_t)optinteger(L, 1, 0);
 	checknargs(L, 1);
 	return pushresult(L, sched_getscheduler(pid), NULL);
 }
@@ -71,7 +71,7 @@ static int
 Psched_setscheduler(lua_State *L)
 {
 	struct sched_param sched_param = {0};
-	pid_t pid = optint(L, 1, 0);
+	pid_t pid = (pid_t)optinteger(L, 1, 0);
 	int policy = optint(L, 2, SCHED_OTHER);
 	sched_param.sched_priority =  optint (L, 3, 0);
 	checknargs(L, 3);

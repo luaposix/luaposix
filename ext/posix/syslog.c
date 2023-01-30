@@ -115,7 +115,7 @@ static int
 PLOG_MASK(lua_State *L)
 {
 	checknargs(L, 1);
-	return pushintresult(LOG_MASK(checkint(L, 1)));
+	return pushintegerresult(LOG_MASK(checkint(L, 1)));
 }
 #endif
 

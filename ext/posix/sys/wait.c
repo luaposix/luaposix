@@ -40,7 +40,7 @@ static int
 Pwait(lua_State *L)
 {
 	int status = 0;
-	pid_t pid = optint(L, 1, -1);
+	pid_t pid = (pid_t)optinteger(L, 1, -1);
 	int options = optint(L, 2, 0);
 	checknargs(L, 2);
 

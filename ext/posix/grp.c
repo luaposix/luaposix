@@ -115,7 +115,7 @@ Fetch group with given group id.
 static int
 Pgetgrgid(lua_State *L)
 {
-	gid_t gid = (gid_t) checkint(L, 1);
+	gid_t gid = (gid_t)checkinteger(L, 1);
 	struct group *g;
 	checknargs(L, 1);
 

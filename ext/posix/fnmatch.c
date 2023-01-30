@@ -43,7 +43,7 @@ Pfnmatch(lua_State *L)
 	int flags = optint(L, 3, 0);
 	int res;
 	checknargs(L, 3);
-	return pushintresult(fnmatch(pattern, string, flags));
+	return pushintegerresult(fnmatch(pattern, string, flags));
 }
 
 
