@@ -10,7 +10,12 @@ defines  = {
       aix       = {_ALL_SOURCE       = 1},
       bsd       = {_BSD_SOURCE       = 1},
       freebsd   = {__BSD_VISIBLE     = 1},
-      linux     = {_DEFAULT_SOURCE   = 1},
+      -- Some Linux distros only reveal tm.tm_gmtoff and tm.tm_zone with
+      -- _BSD_SOURCE defined.
+      linux     = {
+         _BSD_SOURCE       = 1,
+         _DEFAULT_SOURCE   = 1,
+      },
       macosx    = {_DARWIN_C_SOURCE  = 1},
       -- QNX is only POSIX 2001, but _XOPEN_SOURCE turns off other functions
       -- luaposix can bind.

@@ -6,8 +6,11 @@
 
   - `luke` now uses the same cpp defines for conftests as
     will be used for module compilation, otherwise we are
-    potestially testing and compiling with different sets
+    potentially testing and compiling with different sets
     of features.
+
+  - `tm.tm_gmtoff` and `tm.tm_zone` are populated on Linux
+    distros that require compiling with `-D_BSD_SOURCE`.
 
 
 ## Noteworthy changes in release 36.0 (2023-01-29) [stable]
