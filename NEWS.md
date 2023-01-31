@@ -2,6 +2,13 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### Bugs Fixed
+
+  - `luke` now uses the same cpp defines for conftests as
+    will be used for module compilation, otherwise we are
+    potestially testing and compiling with different sets
+    of features.
+
 
 ## Noteworthy changes in release 36.0 (2023-01-29) [stable]
 
@@ -29,7 +36,6 @@
     `posix.sys.socket.connect`, `posix.sys.socket.getaddrinfo`,
     `posix.sys.socket.sendto` and `posix.time.nanosleep` all
     use "integer" in full rather than "int".
-
 
 ### Bugs Fixed
 

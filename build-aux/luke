@@ -17,10 +17,10 @@ end,fatal=fatal,}
 end
 package.preload['luke.cli']=function()
 local _ENV=require'std.normalize'{'luke._base','luke.lukefile','luke.platforms','std.functional',}local function version()print[[
-luke (Luke) 0.2.3
+luke (Luke) 0.3
 Written by Gary V. Vaughan <gary@gnu.org>, 2014
 
-Copyright (C) 2022, Gary V. Vaughan
+Copyright (C) 2023, Gary V. Vaughan
 Luke comes with ABSOLUTELY NO WARRANTY.
 You may redistribute copies of Luke under the terms of the MIT license;
 it may be used for any purpose at absolutely no cost, without permission.
@@ -89,7 +89,7 @@ stdout:write(concat(command,' ')..'\n')end
 stderr:write(err..'\n')end
 return status,out,err
 end
-local function defines(env,deftables)return zip_with(merge({},unpack(deftables)),function(name,value)local fmt=cond({[int(value)==1]='-D%s'},{[match(value,SHELLMETACHARS)~=nil]="-D%s='%s'"},{[true]='-D%s=%s'})return format(fmt,name,value)end)end
+local function defines(...)return zip_with(merge({},unpack(except(list(...),nil))),function(name,value)local fmt=cond({[int(value)==1]='-D%s'},{[match(value,SHELLMETACHARS)~=nil]="-D%s='%s'"},{[true]='-D%s=%s'})return format(fmt,name,value)end)end
 local function incdirs(...)return map(flatten(...),function(v)return'-I'..v
 end)end
 local function libdirs(...)return map(flatten(...),function(v)return'-L'..v
@@ -102,7 +102,7 @@ abspath=abspath..'.lua'return src,(gsub(abspath,'/[^/]+%.lua$',''))end
 local function module_to_path(module,sources,objdir)return dropuntil(sources,function(source)return case(source,{['.*%.[ch]']=bind(c_source,{module,objdir}),['(.*%.[ch])%.in']=bind(c_source,{module,objdir}),['.*%.lua']=bind(lua_source,{module}),['(.*%.lua)%.in']=bind(lua_source,{module}),function(src)fatal("unsupported source type '%s'",src)end,})end)end
 return{build_c_module=function(L,env,luke,name)local rules=luke.modules[name]local c_module=c_module_path(luke.variables.objdir,name)local command={'$MAKEDIRS',dirname(c_module)}local status,err,out=spawn(env,unpack(command))if status~=0 then
 stdout:write(concat(command,' ')..'\n')stderr:write(err..'\n')exit(status)end
-return run(L,env,flatten('$CC $CFLAGS $LIBFLAG $PKGFLAGS $CPPFLAGS',defines(env,except(list(rules.defines,luke.defines),nil)),incdirs(rules.incdirs,luke.incdirs),rules.sources,'-o',c_module,'$LDFLAGS',libdirs(rules.libdirs,luke.libdirs),'$LIBS',rules.libraries,luke.libraries))end,c_modules=function(modules)return filter(keys(modules),function(name)return dropuntil(modules[name].sources,bind(match,{[2]='%.[ch]$'}))end)end,incdirs=incdirs,install_modules=function(L,env,luke,modules)return reduce(keys(modules),0,function(status,name)if status==0 then
+return run(L,env,flatten('$CC $CFLAGS $LIBFLAG $PKGFLAGS $CPPFLAGS',defines(rules.defines,luke.defines),incdirs(rules.incdirs,luke.incdirs),rules.sources,'-o',c_module,'$LDFLAGS',libdirs(rules.libdirs,luke.libdirs),'$LIBS',rules.libraries,luke.libraries))end,c_modules=function(modules)return filter(keys(modules),function(name)return dropuntil(modules[name].sources,bind(match,{[2]='%.[ch]$'}))end)end,defines=defines,incdirs=incdirs,install_modules=function(L,env,luke,modules)return reduce(keys(modules),0,function(status,name)if status==0 then
 local src,dir=module_to_path(name,modules[name].sources,luke.variables.objdir)if not exists(interpolate(env,dir))then
 status=run(L,env,{'$MAKEDIRS',dir})end
 if status==0 then
@@ -112,8 +112,8 @@ return status
 end)end,libdirs=libdirs,run_command=run,spawn=spawn,}
 end
 package.preload['luke.configure']=function()
-local _ENV=require'std.normalize'{'luke._base','luke.compile','luke.environment','std.functional','type.context-manager','type.dict',CCPROGS={'cc','gcc','clang'},}local function logspawn(L,env,...)local status,err=spawn(env,...)if status~=0 and err~=''then
-L.log(err)end
+local _ENV=require'std.normalize'{'luke._base','luke.compile','luke.environment','std.functional','type.context-manager','type.dict',CCPROGS={'cc','gcc','clang'},}local function logspawn(L,env,filename,...)local status,err=spawn(env,...)if status~=0 and err~=''then
+with(File(filename,'r'),function(h)L.log(h.filename..':')L.log(slurp(h))end)L.log(err)end
 return status
 end
 local function checking(L,...)L.verbose('checking ',concat({...},' '),'... ')end
@@ -128,13 +128,13 @@ end
 local function found_result(L,x)L.verbose(x==0 and'yes\n'or'no\n')return x~=0 and 0 or 1
 end
 local function bindirs(...)return map(flatten(...),function(v)return v..':'end)end
-local function compile_command(L,env,config,filename)local command=flatten('$CC','-c','$CFLAGS',incdirs(config.incdir),'$CPPFLAGS',filename)L.log(interpolate(env,concat(command,' ')))return unpack(command)end
-local function link_command(L,env,config,a_out,source,lib)local command=flatten('$CC','$CFLAGS',incdirs(config.incdir),'$CPPFLAGS','-o',a_out,source,libdirs(config.libdir),'$LDFLAGS',lib,'$libs',CONFIGENV.libs)L.log(interpolate(env,concat(command,' ')))return unpack(command)end
+local function compile_command(L,env,config,filename)local command=flatten('$CC','-c','$CFLAGS',defines(L.luke.defines),incdirs(config.incdir),'$CPPFLAGS',filename)L.log(interpolate(env,concat(command,' ')))return unpack(command)end
+local function link_command(L,env,config,a_out,source,lib)local command=flatten('$CC','$CFLAGS',defines(L.luke.defines),incdirs(config.incdir),'$CPPFLAGS','-o',a_out,source,libdirs(config.libdir),'$LDFLAGS',lib,'$libs',CONFIGENV.libs)L.log(interpolate(env,concat(command,' ')))return unpack(command)end
 local function check_executable_in_path(L,env,config,prog)local PATH=concat(bindirs(config.bindir))..getenv('PATH')local found=dropuntil(gmatch(PATH,'[^:]+'),function(path)local progpath=path..'/'..prog
 return with(File(progpath,'r'),function(h)return h and isfile(h.context)and progpath or nil
 end)end)L.log(found and'found '..found or prog..' not found')return found~=nil
 end
-local function check_header_compile(L,env,config,header,extra_hdrs)return with(CTest(),function(conftest)conftest:write(format('%s\n#include "%s"\n',extra_hdrs,header))return logspawn(L,env,compile_command(L,env,config,conftest.filename))end)end
+local function check_header_compile(L,env,config,header,extra_hdrs)return with(CTest(),function(conftest)conftest:write(format('%s\n#include "%s"\n',extra_hdrs,header))conftest:flush()return logspawn(L,env,conftest.filename,compile_command(L,env,config,conftest.filename))end)end
 local function check_struct_member_compile(L,env,config,structname,member,extra_hdrs)return with(CTest(),function(conftest)conftest:write(format([[
 %s
 int main () {
@@ -143,7 +143,7 @@ if (sizeof aggr.%s)
     return 0;
 return 0;
 }
-]],extra_hdrs,structname,member))return logspawn(L,env,compile_command(L,env,config,conftest.filename))end)end
+]],extra_hdrs,structname,member))conftest:flush()return logspawn(L,env,conftest.filename,compile_command(L,env,config,conftest.filename))end)end
 local function try_link(L,env,config,lib,symbol)return with(CTest(),TmpFile(),function(conftest,a_out)conftest:write(format([[
 /* Override any GCC internal prototype to avoid an error.
  Use char because int might match the return type of a GCC
@@ -152,7 +152,7 @@ char %s ();
 int main () {
 return %s ();
 }
-]],symbol,symbol))return logspawn(L,env,link_command(L,env,config,a_out.filename,conftest.filename,lib))end)end
+]],symbol,symbol))conftest:flush()return logspawn(L,env,conftest.filename,link_command(L,env,config,a_out.filename,conftest.filename,lib))end)end
 local function try_compile(L,env,config,headers)return with(CTest(),TmpFile(),function(conftest,a_out)conftest:write(format([[
 %s
 #if !defined %s || %s == -1
@@ -163,7 +163,7 @@ main()
 {
 return 0;
 }
-]],headers,config.ifdef,config.ifdef))return logspawn(L,env,link_command(L,env,config,a_out.filename,conftest.filename))end)end
+]],headers,config.ifdef,config.ifdef))conftest:flush()return logspawn(L,env,conftest.filename,link_command(L,env,config,a_out.filename,conftest.filename))end)end
 local function check_func_decl(L,env,config,fname,extra_hdrs)return with(CTest(),function(conftest)conftest:write(format([[
 %s
 int
@@ -174,10 +174,10 @@ main()
 #endif
 return 0;
 }
-]],extra_hdrs,fname,fname))return logspawn(L,env,compile_command(L,env,config,conftest.filename))end)end
+]],extra_hdrs,fname,fname))conftest:flush()return logspawn(L,env,conftest.filename,compile_command(L,env,config,conftest.filename))end)end
 local function check_func_link(L,env,config,fname)return with(CTest(),TmpFile(),function(conftest,a_out)conftest:write(format([[
 /* Define to an innocous variant, in case <limits.h> declares it.
- For example, HP-UX 11i <limits,h> declares gettimeofday.   */
+ For example, HP-UX 11i <limits.h> declares gettimeofday.   */
 #define %s innocuous_%s
 
 /* System header to define __stub macros and hopefully few prototypes,
@@ -208,7 +208,7 @@ choke me
 int main () {
 return %s ();
 }
-]],fname,fname,fname,fname,fname,fname,fname))return logspawn(L,env,link_command(L,env,config,a_out.filename,conftest.filename))end)end
+]],fname,fname,fname,fname,fname,fname,fname))conftest:flush()return logspawn(L,env,conftest.filename,link_command(L,env,config,a_out.filename,conftest.filename))end)end
 local function add_external_deps(env,config,prefix)if prefix~=nil then
 for k,v in next,{bindir='$%s_BINDIR',incdir='$%s_INCDIR',libdir='$%s_LIBDIR'}do
 local envvar=interpolate(env,format(v,prefix))if envvar~=''then
@@ -240,7 +240,7 @@ add_external_deps(env,config,prefix)return apply(self[fname],list(L,env,config))
 end)or fatal("unable to configure with keys '%s'",concat(keys(config),"', '"))end,function(type)fatal("unsupported configure type '%s'",type)end,})end,})return{config_compiler=function(L,env)local CC=env.CC
 if CC==nil then
 CC=configure(L,env,{checkprog='C compiler',progs=CCPROGS})env=makeenv(env,{CC=CC})end
-checking(L,interpolate(env,'whether $CC works'))local cm=CTest()local works,err=with(cm,function(conftest)conftest:write('typedef int x;\n')return spawn(env,'$compile',conftest.filename)end)if works~=0 then
+checking(L,interpolate(env,'whether $CC works'))local cm=CTest()local works,err=with(cm,function(conftest)conftest:write('typedef int x;\n')conftest:flush()return spawn(env,'$compile',conftest.filename)end)if works~=0 then
 L.verbose'no\n'L.log(interpolate(env,'$compile '..cm.filename))if err and err~=''then
 L.log(err)end
 fatal('could not find a working C compiler')end
@@ -293,14 +293,14 @@ package.preload['luke.lukefile']=function()
 local _ENV=require'std.normalize'{'luke._base','luke.configure','luke.environment','luke.platforms','std.functional','type.context-manager',}local function has_anykey(t,keylist)return any(map(keylist,function(k)return t[k]~=nil
 end))end
 local function isconfig(x)return istable(x)and has_anykey(x,configure)end
-local function collect_configs(luke,modulename,configs)configs=configs or{}for k,v in next,luke do
+local function collect_configs(luke,modulename,configs,sectionname)configs=configs or{}for k,v in next,luke do
 if isconfig(v)then
-append(configs,{t=luke,k=k,module=modulename})elseif istable(v)then
+append(configs,{t=luke,k=k,module=modulename,section=sectionname})elseif istable(v)then
 if k=='modules'or k=='external_dependencies'then
 for name,rules in next,v do
-collect_configs(rules,name,configs)end
+collect_configs(rules,name,configs,k)end
 else
-collect_configs(v,modulename,configs)end
+collect_configs(v,modulename,configs,sectionname)end
 end
 end
 return configs
@@ -348,7 +348,7 @@ local ok,err=pcall(chunk)if not ok then
 return nil,"Error running file: "..err
 end
 r=filter_platforms(r)r.external_dependencies=normalize_configs(r.external_dependencies)r.ldocs=normalize_rules(r.ldocs)r.modules=mapvalues(r.modules,normalize_rules)return r
-end,collect_variables=function(luke)return collect_variables(luke,{})end,run_configs=function(L,env,luke)local r=deepcopy(luke)local all_configs=collect_configs(r)sort(all_configs,config_cmp)map(all_configs,function(config)config.t[config.k]=configure(L,env,config.t[config.k],config.module)end)return unwrap_external_dependencies(r)end,run_templates=function(L,env,luke)local r=copy(luke)local rewrite=bind(rewrite_template_files,{L,env})r.modules=mapvalues(r.modules,function(rules)rules.sources=map(rules.sources,rewrite)end)if r.ldocs then
+end,collect_variables=function(luke)return collect_variables(luke,{})end,run_configs=function(L,env,luke)local r=deepcopy(luke)local all_configs=collect_configs(r)sort(all_configs,config_cmp)map(all_configs,function(config)local prefix=case(config.section,{external_dependencies=function()return config.module end,})config.t[config.k]=configure(L,env,config.t[config.k],prefix)end)return unwrap_external_dependencies(r)end,run_templates=function(L,env,luke)local r=copy(luke)local rewrite=bind(rewrite_template_files,{L,env})r.modules=mapvalues(r.modules,function(rules)rules.sources=map(rules.sources,rewrite)end)if r.ldocs then
 r.ldocs.sources=map(r.ldocs.sources,rewrite)end
 return r
 end,}
