@@ -52,7 +52,7 @@ as long as they are supported by the underlying system.
 @int iflag input flags; bitwise OR of zero or more of `IGNBRK`, `BRKINT`,
   `IGNPAR`, `PARMRK`, `INPCK`, `ISTRIP`, `INLCR`, `IGNCR`, `ICRNL`,
   `IXON`, `IXOFF`, `IXANY`, `IMAXBEL` and `IUTF8`
-@int lflags local flags; bitwise OR of zero or more of `ISIG`, `ICANON`,
+@int lflag local flags; bitwise OR of zero or more of `ISIG`, `ICANON`,
   `ECHO`, `ECHOE`, `ECHOK', 'ECHONL`, `NOFLSH`, `IEXTEN` and `TOSTOP`
 @int oflag output flags; bitwise OR of zero or more of `OPOST`, `ONLCR`,
   `OXTABS`, `ONOEOT`, `OCRNL`, `ONOCR`, `ONLRET`, `OFILL`, `NLDLY`,
