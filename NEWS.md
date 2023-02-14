@@ -2,6 +2,21 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### Incompatible Changes
+
+  - Using latest typecheck and specl rocks requires that
+    our argument errors list all typenames in full
+    ("integer" not "int") and unions in order ("nil or
+    string" not "string or nil".
+
+    All luaposix APIs now report argument type errors
+    accordingly.
+
+### Bugs Fixed
+
+  - Fix a typo in the `lflag` argument name in the termios
+    table LDocs.
+
 
 ## Noteworthy changes in release 36.1 (2023-01-31) [stable]
 
