@@ -457,6 +457,7 @@ do
    --  otherwise `nil` if no such submodule is available.
    -- @usage
    -- local version = require 'posix'.version
+   local systable = {}
    for i = 1, #names do
       local name = names[i]
       local t = require('posix.' .. name)
@@ -470,8 +471,14 @@ do
             end,
          })
       end
-      rawset(M, name, t)
+      local sysname = match(name, '^sys%.(.*)$')
+      if sysname then
+         rawset(systable, sysname, t)
+      else
+         rawset(M, name, t)
+      end
    end
+   rawset(M, 'sys', systable)
    rawset(M, 'version', require('posix.version'))
 end
 

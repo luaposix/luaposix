@@ -17,6 +17,21 @@
   - Fix a typo in the `lflag` argument name in the termios
     table LDocs.
 
+  - `posix.sys.*` submodules are correctly preloaded into
+    the module table returned by `require 'posix'` so that
+    this undocumented, deprecated and slow way to access
+    the functions therein continues to work for now:
+
+        local posix = require 'posix'
+        local stat  = posix.sys.stat.stat
+
+    For new code, consider this fast and documented
+    alternative, that does not load every available luaposix
+    API from disk (especially if your project does not use
+    APIs from every luaposix module):
+
+        local stat  = require 'posix.sys.stat'.stat
+
 
 ## Noteworthy changes in release 36.1 (2023-01-31) [stable]
 
