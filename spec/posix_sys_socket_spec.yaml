@@ -32,7 +32,7 @@ specify posix.sys.socket:
       examples {
          ["it diagnoses unspecified host and service"] = function()
             expect(getaddrinfo()).to_raise.
-               any_of(typeerrors(2, "string or int"))
+               any_of(typeerrors(2, "integer or string"))
          end
       }
       examples {

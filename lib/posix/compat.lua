@@ -268,7 +268,7 @@ return {
    -- @treturn string previous umask
    -- @see umask(2)
    -- @see posix.sys.stat.umask
-   umask = argscheck('umask(?string)', function(modestr)
+   umask = argscheck('umask([?string])', function(modestr)
       modestr = modestr or ''
       local mode = umask(0)
       umask(mode)

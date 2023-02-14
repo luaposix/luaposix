@@ -34,6 +34,11 @@ specify posix.unistd:
       expect(ten>0).to_be(true)
 
 
+- describe chown:
+  - context with bad arguments:
+      badargs.diagnose(M.chown, "(string, ?int|string, ?int|string)")
+
+
 - describe exec:
   - context with bad arguments:
       badargs.diagnose(M.exec, "(string, table)")
@@ -423,4 +428,34 @@ specify posix.unistd:
       expect(ftruncate(fname, len)).not_to_be(nil)
       expect(flen(fname)).to_be(len)
       os.remove(fname)
+
+
+- describe ttyname:
+  - before:
+      ttyname, typeerrors = init(posix, "ttyname")
+      r = pack(ttyname(2))
+
+  - context with bad arguments:
+    - 'it diagnoses argument #1 type not int or nil':
+        expect(ttyname(false)).to_raise.any_of(typeerrors(1, "integer or nil", "boolean"))
+    - 'it diagnoses argument #1 not a tty descriptor':
+        expect(ttyname(-1)).to_be(nil)
+    - it diagnoses too many arguments:
+        expect(ttyname(1, false)).to_raise.any_of(typeerrors(2))
+
+  - it returns nil and an error string:
+      if r.n ~= 1 then
+         expect(r[1]).to_be(nil)
+         expect(type(r[2])).to_be "string"
+      end
+  - it returns a string:
+      if r.n == 1 then
+         expect(type(r[1])).to_be "string"
+      end
+  - it takes a file descriptor argument:
+      if r.n == 1 then
+         expect(r[1]).to_contain.any_of {"console", "pts", "tty"}
+      end
+  - it defaults the first argument to 0:
+      expect(ttyname()).to_be(ttyname(0))
 

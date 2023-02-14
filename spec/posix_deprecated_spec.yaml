@@ -345,7 +345,7 @@ specify posix.deprecated:
       groot = getgrgid(0).gr_name
 
   - context with bad arguments:
-      badargs.diagnose(M.getgroup, "getgroup(?int|string)")
+      badargs.diagnose(M.getgroup, "getgroup([?int|string])")
 
   - it returns a table for an existing group:
       expect(type(getgroup(groot))).to_be "table"
@@ -372,7 +372,7 @@ specify posix.deprecated:
     - before:
         getpasswd, typeerrors = init(posix, "getpasswd")
 
-    - 'it diagnoses argument #1 type not int, string or nil':
+    - 'it diagnoses argument #1 type not integer, nil or string':
         expect(getpasswd(false)).
            to_raise.any_of(typeerrors(1, "?int|string", "boolean"))
 
@@ -414,7 +414,7 @@ specify posix.deprecated:
   # argument was a string; since we can't express that with
   # `badargs.diagnose` do it all manually again...
   - context with bad arguments:
-    - 'it diagnoses argument #1 type not table, string or nil':
+    - 'it diagnoses argument #1 type not nil, string or table':
         expect(getpid(false)).to_raise.
            any_of(typeerrors(1, "?string|table", "boolean"))
     - 'it diagnoses argument #1 string invalid': |
@@ -637,7 +637,7 @@ specify posix.deprecated:
 
   - context with bad arguments: |
       if openlog then
-         badargs.diagnose(openlog, "openlog(string, ?string, ?int)")
+         badargs.diagnose(openlog, "openlog(string, ?string, [?int])")
 
          examples {
             ["it diagnoses invalid options"] = function()

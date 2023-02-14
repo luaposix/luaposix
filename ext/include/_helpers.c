@@ -161,9 +161,9 @@ expectinteger(lua_State *L, int narg, const char *expected)
 	return d;
 }
 /* As soon as specl's badargs.diagnose can handle it... change these to "integer"! */
-#define checkinteger(L,n) (expectinteger(L,n,"int"))
-#define checkint(L,n)     ((int)expectinteger(L,n,"int"))
-#define checklong(L,n)    ((long)expectinteger(L,n,"int"))
+#define checkinteger(L,n) (expectinteger(L,n,"integer"))
+#define checkint(L,n)     ((int)expectinteger(L,n,"integer"))
+#define checklong(L,n)    ((long)expectinteger(L,n,"integer"))
 
 static int
 optboolean(lua_State *L, int narg, int def)
@@ -182,9 +182,9 @@ expectoptinteger(lua_State *L, int narg, lua_Integer def, const char *expected)
 	return expectinteger(L, narg, expected);
 }
 /* As soon as specl's badargs.diagnose can handle it... change these to "integer or nil"! */
-#define optinteger(L,n,d) (expectoptinteger(L,n,d,"int or nil"))
-#define optint(L,n,d)     ((int)expectoptinteger(L,n,d,"int or nil"))
-#define optlong(L,n,d)    ((long)expectoptinteger(L,n,d,"int or nil"))
+#define optinteger(L,n,d) (expectoptinteger(L,n,d,"integer or nil"))
+#define optint(L,n,d)     ((int)expectoptinteger(L,n,d,"integer or nil"))
+#define optlong(L,n,d)    ((long)expectoptinteger(L,n,d,"integer or nil"))
 
 static const char *
 optstring(lua_State *L, int narg, const char *def)
@@ -194,7 +194,7 @@ optstring(lua_State *L, int narg, const char *def)
 		return def;
 	s = lua_tolstring(L, narg, NULL);
 	if (!s)
-		argtypeerror(L, narg, "string or nil");
+		argtypeerror(L, narg, "nil or string");
 	return s;
 }
 

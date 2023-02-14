@@ -117,8 +117,8 @@ local _ENV = require 'posix._strict' {
 
 
 -- FIXME: specl-14.x breaks function environments here :(
-local bor, exec, getegid, getgrgid, getgrnam, getrlimit, gmtime, localtime, lower, mktime, nanosleep, strftime, strptime, time, uname =
-   bor, exec, getegid, getgrgid, getgrnam, getrlimit, gmtime, localtime, lower, mktime, nanosleep, strftime, strptime, time, uname
+local bor, exec, getegid, getgrgid, getgrnam, getrlimit, gmtime, gsub, localtime, lower, mktime, nanosleep, strftime, strptime, sub, time, uname =
+   bor, exec, getegid, getgrgid, getgrnam, getrlimit, gmtime, gsub, localtime, lower, mktime, nanosleep, strftime, strptime, sub, time, uname
 
 
 local OPENLOG_MAP = {
@@ -207,7 +207,7 @@ end
 local function optstring(name, i, actual, def, level)
    level = level or 1
    if actual ~= nil and type(actual) ~= 'string' then
-      argtypeerror(name, i, 'string or nil', actual, level + 1)
+      argtypeerror(name, i, 'nil or string', actual, level + 1)
    end
    return actual or def
 end
@@ -231,7 +231,7 @@ local function checkselection(fname, argi, fields, level)
    if type1 == 'table' and #fields > 1 then
       toomanyargerror(fname, argi, #fields + argi - 1, level + 1)
    elseif field1 ~= nil and type1 ~= 'table' and type1 ~= 'string' then
-      argtypeerror(fname, argi, 'string, table or nil', field1, level + 1)
+      argtypeerror(fname, argi, 'nil, string or table', field1, level + 1)
    end
    for i = 2, #fields do
       checkstring(fname, i + argi -1, fields[i], level + 1)
@@ -275,7 +275,7 @@ if clock_getres then
       return map[name] or CLOCK_REALTIME
    end
 
-   Pclock_getres = argscheck('clock_getres(?string)', function(name)
+   Pclock_getres = argscheck('clock_getres([?string])', function(name)
       local ts = require 'posix.time'.clock_getres(get_clk_id_const(name))
       return ts.tv_sec, ts.tv_nsec
    end)
@@ -285,7 +285,7 @@ end
 local Pclock_gettime
 if clock_gettime then
    -- When supported by underlying system
-   Pclock_gettime = argscheck('clock_gettime(?string)', function(name)
+   Pclock_gettime = argscheck('clock_gettime([?string])', function(name)
       local ts = require 'posix.time'.clock_gettime(get_clk_id_const(name))
       return ts.tv_sec, ts.tv_nsec
    end)
@@ -315,7 +315,7 @@ if _debug.argcheck then
             toomanyargerror('exec', 2, n + 1)
          end
       else
-         argtypeerror('exec', 2, 'string, table or nil', argt)
+         argtypeerror('exec', 2, 'nil, string or table', argt)
       end
       return exec(path, argt)
    end
@@ -345,7 +345,7 @@ if _debug.argcheck then
             toomanyargerror('execp', 2, n + 1)
          end
       else
-         argtypeerror('execp', 2, 'string, table or nil', argt)
+         argtypeerror('execp', 2, 'nil, string or table', argt)
       end
       return execp(path, argt)
    end
@@ -700,7 +700,7 @@ return {
    -- @treturn group group information
    -- @usage
    --    print(posix.getgroup(posix.getgid()).name)
-   getgroup = argscheck('getgroup(?int|string)', function(grp)
+   getgroup = argscheck('getgroup([?int|string])', function(grp)
       grp = grp or getegid()
 
       local g
@@ -723,7 +723,7 @@ return {
    -- @return ... values, or a table of all fields if *user* is `nil`
    -- @usage for a,b in pairs(posix.getpasswd 'root') do print(a, b) end
    -- @usage print(posix.getpasswd('root', 'shell'))
-   getpasswd = argscheck('getpasswd(?int|string, ?string...)', Pgetpasswd),
+   getpasswd = argscheck('getpasswd(?int|string, [?string...])', Pgetpasswd),
 
    --- Get process identifiers.
    -- @function getpid
@@ -770,7 +770,7 @@ return {
    -- @function gmtime
    -- @int[opt=now] t seconds since epoch
    -- @treturn table broken-down time
-   gmtime = argscheck('gmtime(?int)', function(epoch)
+   gmtime = argscheck('gmtime([?int])', function(epoch)
       return LegacyTm(gmtime(epoch or time()))
    end),
 
@@ -804,7 +804,7 @@ return {
    -- @function localtime
    -- @int[opt=now] t seconds since epoch
    -- @treturn table broken-down time
-   localtime = argscheck('localtime(?int)', function(epoch)
+   localtime = argscheck('localtime([?int])', function(epoch)
       return LegacyTm(localtime(epoch or time()))
    end),
 
@@ -814,7 +814,7 @@ return {
    -- @treturn in seconds since epoch
    -- @see mktime(3)
    -- @see localtime
-   mktime = argscheck('mktime(?table)', function(legacytm)
+   mktime = argscheck('mktime([?table])', function(legacytm)
       local posixtm = legacytm and PosixTm(legacytm) or localtime(time())
       return mktime(posixtm)
    end),
@@ -849,7 +849,7 @@ return {
    --    `LOG_NEWS`, `LOG_SECURITY`, `LOG_USER`, `LOG_UUCP` or `LOG_LOCAL0`
    --    through `LOG_LOCAL7`
    -- @see syslog(3)
-   openlog = argscheck('openlog(string, ?string, ?int)',
+   openlog = argscheck('openlog(string, ?string, [?int])',
       function(ident, optstr, facility)
          local option = 0
          if optstr then
@@ -888,7 +888,7 @@ return {
    -- @return[2] nil
    -- @treturn[2] string error message
    -- @treturn[2] int errnum
-   setrlimit = argscheck('setrlimit(string, ?int, ?int)', function(rcstr, cur, max)
+   setrlimit = argscheck('setrlimit(string, [?int], [?int])', function(rcstr, cur, max)
       local rc = RLIMIT_MAP[lower(rcstr)]
       if rc == nil then
          argerror('setrlimit', 1, "invalid option '" .. rcstr .. "'")
@@ -936,7 +936,7 @@ return {
    -- @tparam[opt] PosixTm tm broken-down local time
    -- @treturn string *format* with place-holders plugged with *tm* values
    -- @see strftime(3)
-   strftime = argscheck('strftime(string, ?table)', function(fmt, legacytm)
+   strftime = argscheck('strftime(string, [?table])', function(fmt, legacytm)
       local posixtm = legacytm and PosixTm(legacytm) or localtime(time())
       return strftime(fmt, posixtm)
    end),
@@ -994,7 +994,7 @@ return {
    -- @treturn[1] string filled *format* string, if successful
    -- @return[2] nil
    -- @treturn[2] string error message
-   uname = argscheck('uname(?string)', function(spec)
+   uname = argscheck('uname([?string])', function(spec)
       local u = uname()
       return gsub(optstring('uname', 1, spec, '%s %n %r %v %m'), '%%(.)', function(s)
          if s == '%' then

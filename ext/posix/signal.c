@@ -222,7 +222,7 @@ Psignal (lua_State *L)
 			}
 			break;
 		default:
-			argtypeerror(L, 2, "function, string or nil");
+			argtypeerror(L, 2, "function, nil or string");
 			break;
 	}
 

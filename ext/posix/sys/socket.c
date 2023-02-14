@@ -356,14 +356,14 @@ Pgetaddrinfo(lua_State *L)
 		case LUA_TNONE:
 		case LUA_TNIL:
 			if (host == NULL)
-				argtypeerror(L, 2, "string or int");
+				argtypeerror(L, 2, "integer or string");
 			break;
 		case LUA_TNUMBER:
 		case LUA_TSTRING:
 			service = lua_tostring(L, 2);
 			break;
 		default:
-			argtypeerror(L, 2, "string, int or nil");
+			argtypeerror(L, 2, "integer, nil or string");
 			break;
 	}
 
@@ -380,7 +380,7 @@ Pgetaddrinfo(lua_State *L)
 			hints.ai_flags    = optintfield(L, 3, "flags", 0);
 			break;
 		default:
-			argtypeerror(L, 3, "table or nil");
+			argtypeerror(L, 3, "nil or table");
 			break;
 	}
 

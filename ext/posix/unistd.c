@@ -42,7 +42,7 @@ mygetuid(lua_State *L, int i)
 		return (p == NULL) ? (uid_t) -1 : p->pw_uid;
 	}
 	else
-		return argtypeerror(L, i, "int, string or nil");
+		return argtypeerror(L, i, "integer, nil or string");
 }
 
 static gid_t
@@ -58,7 +58,7 @@ mygetgid(lua_State *L, int i)
 		return (g == NULL) ? (uid_t) -1 : g->gr_gid;
 	}
 	else
-		return argtypeerror(L, i, "int, string or nil");
+		return argtypeerror(L, i, "integer, nil or string");
 }
 
 /***

@@ -68,8 +68,8 @@ local _ENV = require 'posix._strict' {
 
 
 -- FIXME: specl-14.x breaks function environments here :(
-local GLOB_MARK, STDIN_FILENO, STDOUT_FILENO, _exit, close, errno, execp, exit, fork, glob, pipe, wait =
-   GLOB_MARK, STDIN_FILENO, STDOUT_FILENO, _exit, close, errno, execp, exit, fork, glob, pipe, wait
+local GLOB_MARK, STDIN_FILENO, STDOUT_FILENO, _exit, close, errno, execp, exit, fork, glob, insert, pipe, remove, wait =
+   GLOB_MARK, STDIN_FILENO, STDOUT_FILENO, _exit, close, errno, execp, exit, fork, glob, insert, pipe, remove, wait
 
 
 local function Peuidaccess(file, mode)
@@ -334,7 +334,7 @@ local M = {
    -- @param ... positional arguments to the function
    -- @treturn nil on error (normally does not return)
    -- @treturn string error message
-   execx = argscheck('execx(function|table, ?any...)', Pexecx),
+   execx = argscheck('execx(function|table, [any...])', Pexecx),
 
    --- Find all files in this directory matching a shell pattern.
    -- The flag MARK appends a trailing slash to matches that are directories.
@@ -347,7 +347,7 @@ local M = {
    -- @return[2] nil
    -- @treturn[2] one of `GLOB_BORTED`, `GLOB_NOMATCH` or `GLOB_NOSPACE`
    -- @see posix.glob.glob
-   glob = argscheck('glob(?string|table)', Pglob),
+   glob = argscheck('glob([?string|table])', Pglob),
 
    --- Open a pseudo-terminal.
    -- Based on the glibc function of the same name.
@@ -372,7 +372,7 @@ local M = {
    -- @treturn pfd pipeline object
    -- @see posix.execx
    -- @see posix.spawn
-   popen = argscheck('popen(function|table, string, ?function)', Ppopen),
+   popen = argscheck('popen(function|table, string, [?function])', Ppopen),
 
    --- Perform a series of commands and Lua functions as a pipeline.
    -- @function popen_pipeline
@@ -381,7 +381,7 @@ local M = {
    -- @func[opt] pipe_fn function returning a paired read and
    --  write file descriptor (*default* @{posix.unistd.pipe})
    -- @treturn pfd pipeline object
-   popen_pipeline = argscheck('popen_pipeline(function|table, string, ?function)',
+   popen_pipeline = argscheck('popen_pipeline(function|table, string, [?function])',
       Ppopen_pipeline),
 
    --- Run a command or function in a sub-process using @{posix.execx}.
@@ -394,7 +394,7 @@ local M = {
    -- @treturn[1] string "exited", "killed" or "stopped"
    -- @treturn[2] int errnum
    -- @treturn[2] string error message
-   spawn = argscheck('spawn(function|table, ?any...)', Pspawn),
+   spawn = argscheck('spawn(function|table, [?any...])', Pspawn),
 
    --- Add one gettimeofday() returned timeval to another.
    -- @function timeradd
