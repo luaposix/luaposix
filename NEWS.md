@@ -32,6 +32,10 @@
 
         local stat  = require 'posix.sys.stat'.stat
 
+  - Removed `IUTF8` from the documented list of supported `iflag`
+    values in `posix.termios` because it was previously
+    unimplemented. Implemented non-portable support as an XSI
+    extension, as it isn't a part of the POSIX standard.
 
 ## Noteworthy changes in release 36.1 (2023-01-31) [stable]
 

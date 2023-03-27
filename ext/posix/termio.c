@@ -51,7 +51,7 @@ as long as they are supported by the underlying system.
   `PARODD`, `HUPCL`, `CLOCAL` and `CRTSCTS`
 @int iflag input flags; bitwise OR of zero or more of `IGNBRK`, `BRKINT`,
   `IGNPAR`, `PARMRK`, `INPCK`, `ISTRIP`, `INLCR`, `IGNCR`, `ICRNL`,
-  `IXON`, `IXOFF`, `IXANY`, `IMAXBEL` and `IUTF8`
+  `IXON`, `IXOFF`, `IXANY`, and `IMAXBEL`
 @int lflag local flags; bitwise OR of zero or more of `ISIG`, `ICANON`,
   `ECHO`, `ECHOE`, `ECHOK', 'ECHONL`, `NOFLSH`, `IEXTEN` and `TOSTOP`
 @int oflag output flags; bitwise OR of zero or more of `OPOST`, `ONLCR`,
@@ -586,6 +586,9 @@ luaopen_posix_termio(lua_State *L)
 #endif
 #ifdef FLUSHO
 	LPOSIX_CONST( FLUSHO		);
+#endif
+#ifdef IUTF8
+	LPOSIX_CONST( IUTF8		);
 #endif
 #ifdef PENDIN
 	LPOSIX_CONST( PENDIN		);
