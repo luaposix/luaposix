@@ -2,6 +2,9 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+
+## Noteworthy changes in release 36.2 (2023-06-16) [stable]
+
 ### Incompatible Changes
 
   - Using latest typecheck and specl rocks requires that
