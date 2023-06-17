@@ -14,6 +14,10 @@
 
 ### Bugs Fixed
 
+  - `posix.unistd.read` and `posix.sys.socket.recv` no longer
+    hide the underlying real error by casting a ssize_t result
+    into an unsigned site_t local.
+
   - Fix a typo in the `lflag` argument name in the termios
     table LDocs.
 

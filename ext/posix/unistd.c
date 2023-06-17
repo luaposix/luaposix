@@ -930,7 +930,8 @@ static int
 Pread(lua_State *L)
 {
 	int fd = checkint(L, 1);
-	size_t count = (size_t)checkinteger(L, 2), ret;
+	size_t count = (size_t)checkinteger(L, 2);
+	ssize_t ret;
 	void *ud, *buf;
 	lua_Alloc lalloc;
 
