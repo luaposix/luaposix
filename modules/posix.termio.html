@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 36.1 Reference</title>
+    <title>luaposix 36.2.1 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,8 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 36.1</h1>
+<h1>luaposix 36.2.1</h1>
+
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -174,7 +175,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -220,7 +221,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -266,7 +267,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -313,7 +314,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -328,7 +329,7 @@
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"><span class="keyword">local</span> termios, errmsg = tcgetattr (fd)</pre>
+        <pre class="example"><span class="keyword">local</span> termios, errmsg = <span class="function-name">tcgetattr</span> (fd)</pre>
     </ul>
 
 </dd>
@@ -363,7 +364,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -415,7 +416,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -431,7 +432,7 @@
     <h3>Usage:</h3>
     <ul>
         <pre class="example"><span class="keyword">local</span> termio = <span class="global">require</span> <span class="string">"posix.termio"</span>
-ok, errmsg = tcsetattr (fd, <span class="number">0</span>, { cc = { [termio.VTIME] = <span class="number">0</span>, [termio.VMIN] = <span class="number">1</span> })</pre>
+ok, errmsg = <span class="function-name">tcsetattr</span> (fd, <span class="number">0</span>, { cc = { [termio.VTIME] = <span class="number">0</span>, [termio.VMIN] = <span class="number">1</span> })</pre>
     </ul>
 
 </dd>
@@ -532,9 +533,9 @@ as long as they are supported by the underlying system.
             <span class="types"><span class="type">int</span></span>
          input flags; bitwise OR of zero or more of <code>IGNBRK</code>, <code>BRKINT</code>,
   <code>IGNPAR</code>, <code>PARMRK</code>, <code>INPCK</code>, <code>ISTRIP</code>, <code>INLCR</code>, <code>IGNCR</code>, <code>ICRNL</code>,
-  <code>IXON</code>, <code>IXOFF</code>, <code>IXANY</code>, <code>IMAXBEL</code> and <code>IUTF8</code>
+  <code>IXON</code>, <code>IXOFF</code>, <code>IXANY</code>, and <code>IMAXBEL</code>
         </li>
-        <li><span class="parameter">lflags</span>
+        <li><span class="parameter">lflag</span>
             <span class="types"><span class="type">int</span></span>
          local flags; bitwise OR of zero or more of <code>ISIG</code>, <code>ICANON</code>,
   <code>ECHO</code>, <code>ECHOE</code>, <code>ECHOK', 'ECHONL</code>, <code>NOFLSH</code>, <code>IEXTEN</code> and <code>TOSTOP</code>
@@ -568,8 +569,8 @@ as long as they are supported by the underlying system.
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2023-01-31 15:49:12 </i>
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2023-06-16 20:19:12 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

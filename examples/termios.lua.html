@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 36.1 Reference</title>
+    <title>luaposix 36.2.1 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,8 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 36.1</h1>
+<h1>luaposix 36.2.1</h1>
+
 
 <ul>
   <li><a href="../index.html">Index</a></li>
@@ -105,13 +106,13 @@
 <span class="keyword">local</span> dev = arg[<span class="number">1</span>] <span class="keyword">or</span> <span class="string">'/dev/ttyUSB0'</span>
 
 <span class="comment">-- Open serial port and do settings
-</span><span class="keyword">local</span> fds, err = F.open(dev, F.O_RDWR + F.O_NONBLOCK)
+</span><span class="keyword">local</span> fds, err = F.<span class="function-name">open</span>(dev, F.O_RDWR + F.O_NONBLOCK)
 <span class="keyword">if</span> <span class="keyword">not</span> fds <span class="keyword">then</span>
    <span class="global">print</span>(<span class="string">'Could not open serial port '</span> .. dev .. <span class="string">':'</span>, err)
-   <span class="global">os</span>.exit(<span class="number">1</span>)
+   <span class="global">os</span>.<span class="function-name">exit</span>(<span class="number">1</span>)
 <span class="keyword">end</span>
 
-M.tcsetattr(fds, <span class="number">0</span>, {
+M.<span class="function-name">tcsetattr</span>(fds, <span class="number">0</span>, {
    cflag = M.B115200 + M.CS8 + M.CLOCAL + M.CREAD,
    iflag = M.IGNPAR,
    oflag = M.OPOST,
@@ -122,8 +123,8 @@ M.tcsetattr(fds, <span class="number">0</span>, {
 })
 
 <span class="comment">-- Set stdin to non canonical mode. Save current settings
-</span><span class="keyword">local</span> save = M.tcgetattr(<span class="number">0</span>)
-M.tcsetattr(<span class="number">0</span>, <span class="number">0</span>, {
+</span><span class="keyword">local</span> save = M.<span class="function-name">tcgetattr</span>(<span class="number">0</span>)
+M.<span class="function-name">tcsetattr</span>(<span class="number">0</span>, <span class="number">0</span>, {
    cc = {
       [M.VTIME] = <span class="number">0</span>,
       [M.VMIN] = <span class="number">1</span>
@@ -136,40 +137,40 @@ M.tcsetattr(<span class="number">0</span>, <span class="number">0</span>, {
    [fds] = {events={IN =<span class="keyword">true</span>}},
 }
 
-U.write(<span class="number">1</span>, <span class="string">'Starting terminal, hit ^C to exit\r\n'</span>)
+U.<span class="function-name">write</span>(<span class="number">1</span>, <span class="string">'Starting terminal, hit ^C to exit\r\n'</span>)
 
-<span class="keyword">local</span> <span class="keyword">function</span> exit(msg)
-   M.tcsetattr(<span class="number">0</span>, <span class="number">0</span>, save)
+<span class="keyword">local</span> <span class="keyword">function</span> <span class="function-name">exit</span>(msg)
+   M.<span class="function-name">tcsetattr</span>(<span class="number">0</span>, <span class="number">0</span>, save)
    <span class="global">print</span> <span class="string">'\n'</span>
    <span class="global">print</span>(msg)
-   <span class="global">os</span>.exit(<span class="number">0</span>)
+   <span class="global">os</span>.<span class="function-name">exit</span>(<span class="number">0</span>)
 <span class="keyword">end</span>
 
 <span class="keyword">while</span> <span class="keyword">true</span> <span class="keyword">do</span>
-   <span class="keyword">local</span> r = <span class="global">require</span> <span class="string">'posix.poll'</span>.poll(set, -<span class="number">1</span>)
+   <span class="keyword">local</span> r = <span class="global">require</span> <span class="string">'posix.poll'</span>.<span class="function-name">poll</span>(set, -<span class="number">1</span>)
    <span class="keyword">for</span> fd, d <span class="keyword">in</span> <span class="global">pairs</span>(set) <span class="keyword">do</span>
       <span class="keyword">if</span> d.revents <span class="keyword">and</span> d.revents.IN <span class="keyword">then</span>
          <span class="keyword">if</span> fd == <span class="number">0</span> <span class="keyword">then</span>
-            <span class="keyword">local</span> d, err = U.read(<span class="number">0</span>, <span class="number">1024</span>)
+            <span class="keyword">local</span> d, err = U.<span class="function-name">read</span>(<span class="number">0</span>, <span class="number">1024</span>)
             <span class="keyword">if</span> <span class="keyword">not</span> d <span class="keyword">then</span>
-               exit(err)
+               <span class="function-name">exit</span>(err)
             <span class="keyword">end</span>
-            <span class="keyword">if</span> d == <span class="global">string</span>.char(<span class="number">3</span>) <span class="keyword">then</span>
-               exit(<span class="string">'Bye'</span>)
+            <span class="keyword">if</span> d == <span class="global">string</span>.<span class="function-name">char</span>(<span class="number">3</span>) <span class="keyword">then</span>
+               <span class="function-name">exit</span>(<span class="string">'Bye'</span>)
             <span class="keyword">end</span>
-            <span class="keyword">local</span> ok, err = U.write(fds, d)
+            <span class="keyword">local</span> ok, err = U.<span class="function-name">write</span>(fds, d)
             <span class="keyword">if</span> <span class="keyword">not</span> ok <span class="keyword">then</span>
-               exit(err)
+               <span class="function-name">exit</span>(err)
             <span class="keyword">end</span>
          <span class="keyword">end</span>
          <span class="keyword">if</span> fd == fds <span class="keyword">then</span>
-            <span class="keyword">local</span> d, err = U.read(fds, <span class="number">1024</span>)
+            <span class="keyword">local</span> d, err = U.<span class="function-name">read</span>(fds, <span class="number">1024</span>)
             <span class="keyword">if</span> <span class="keyword">not</span> d <span class="keyword">then</span>
-               exit(err)
+               <span class="function-name">exit</span>(err)
             <span class="keyword">end</span>
-            <span class="keyword">local</span> ok, err = U.write(<span class="number">1</span>, d)
+            <span class="keyword">local</span> ok, err = U.<span class="function-name">write</span>(<span class="number">1</span>, d)
             <span class="keyword">if</span> <span class="keyword">not</span> ok <span class="keyword">then</span>
-               exit(err)
+               <span class="function-name">exit</span>(err)
             <span class="keyword">end</span>
          <span class="keyword">end</span>
       <span class="keyword">end</span>
@@ -180,8 +181,8 @@ U.write(<span class="number">1</span>, <span class="string">'Starting terminal, 
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2023-01-31 15:49:12 </i>
+<i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
+<i style="float:right;">Last updated 2023-06-16 20:19:12 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
