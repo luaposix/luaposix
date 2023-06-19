@@ -2,6 +2,11 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### Bugs Fixed
+
+  - `posix.sys.socket.recvfrom` no longer casts a ssize_t result
+    into an int.
+
 
 ## Noteworthy changes in release 36.2.1 (2023-06-16) [stable]
 
@@ -19,7 +24,7 @@
 
   - `posix.unistd.read` and `posix.sys.socket.recv` no longer
     hide the underlying real error by casting a ssize_t result
-    into an unsigned site_t local.
+    into an unsigned size_t local.
 
   - Fix a typo in the `lflag` argument name in the termios
     table LDocs.
@@ -43,6 +48,7 @@
     values in `posix.termios` because it was previously
     unimplemented. Implemented non-portable support as an XSI
     extension, as it isn't a part of the POSIX standard.
+
 
 ## Noteworthy changes in release 36.1 (2023-01-31) [stable]
 

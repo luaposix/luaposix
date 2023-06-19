@@ -577,13 +577,13 @@ Receive a message from a socket.
 static int
 Precvfrom(lua_State *L)
 {
-	void *ud, *buf;
-	socklen_t salen;
-	struct sockaddr_storage sa;
-	int r;
 	int fd = checkint(L, 1);
 	size_t count = (size_t)checkinteger(L, 2);
+	ssize_t ret;
+	void *ud, *buf;
 	lua_Alloc lalloc;
+	socklen_t salen;
+	struct sockaddr_storage sa;
 
 	checknargs(L, 2);
 	lalloc = lua_getallocf(L, &ud);
@@ -594,14 +594,14 @@ Precvfrom(lua_State *L)
 		return pusherror(L, "lalloc");
 
 	salen = sizeof(sa);
-	r = recvfrom(fd, buf, count, 0, (struct sockaddr *)&sa, &salen);
-	if (r < 0)
+	ret = recvfrom(fd, buf, count, 0, (struct sockaddr *)&sa, &salen);
+	if (ret < 0)
 	{
 		lalloc(ud, buf, count, 0);
 		return pusherror(L, NULL);
 	}
 
-	lua_pushlstring(L, buf, r);
+	lua_pushlstring(L, buf, ret);
 	lalloc(ud, buf, count, 0);
 	return 1 + pushsockaddrinfo(L, sa.ss_family, (struct sockaddr *)&sa);
 }
