@@ -89,11 +89,9 @@ void lua_pushunsigned (lua_State *L, lua_Unsigned n);
 lua_Unsigned luaL_checkunsigned (lua_State *L, int i);
 lua_Unsigned lua_tounsignedx (lua_State *L, int i, int *isnum);
 lua_Unsigned luaL_optunsigned (lua_State *L, int i, lua_Unsigned def);
-lua_Integer lua_tointegerx (lua_State *L, int i, int *isnum);
 void lua_len (lua_State *L, int i);
 int luaL_len (lua_State *L, int i);
 const char *luaL_tolstring (lua_State *L, int idx, size_t *len);
-void luaL_requiref (lua_State *L, char const* modname, lua_CFunction openf, int glb);
 
 #define luaL_buffinit luaL_buffinit_52
 void luaL_buffinit (lua_State *L, luaL_Buffer_52 *B);
@@ -146,23 +144,31 @@ void luaL_pushresult (luaL_Buffer_52 *B);
 #define lua_pushglobaltable(L) \
   lua_pushvalue(L, LUA_GLOBALSINDEX)
 
+void luaL_checkversion (lua_State *L);
+
+#if !defined(COMPAT52_IS_LUAJIT)
+
 #define luaL_newlib(L, l) \
   (lua_newtable((L)),luaL_setfuncs((L), (l), 0))
 
-void luaL_checkversion (lua_State *L);
+lua_Integer lua_tointegerx (lua_State *L, int i, int *isnum);
+void luaL_requiref (lua_State *L, char const* modname, lua_CFunction openf, int glb);
+
+void lua_copy (lua_State *L, int from, int to);
+void *luaL_testudata (lua_State *L, int i, const char *tname);
+lua_Number lua_tonumberx (lua_State *L, int i, int *isnum);
+void luaL_setfuncs (lua_State *L, const luaL_Reg *l, int nup);
+void luaL_setmetatable (lua_State *L, const char *tname);
+void luaL_traceback (lua_State *L, lua_State *L1, const char *msg, int level);
+int luaL_fileresult (lua_State *L, int stat, const char *fname);
+
+#endif
 
 #endif /* Lua 5.0 *or* 5.1 */
 
 int lua_absindex (lua_State *L, int i);
-void lua_copy (lua_State *L, int from, int to);
 void lua_rawgetp (lua_State *L, int i, const void *p);
 void lua_rawsetp (lua_State *L, int i, const void *p);
-void *luaL_testudata (lua_State *L, int i, const char *tname);
-lua_Number lua_tonumberx (lua_State *L, int i, int *isnum);
 void lua_getuservalue (lua_State *L, int i);
 void lua_setuservalue (lua_State *L, int i);
-void luaL_setfuncs (lua_State *L, const luaL_Reg *l, int nup);
-void luaL_setmetatable (lua_State *L, const char *tname);
 int luaL_getsubtable (lua_State *L, int i, const char *name);
-void luaL_traceback (lua_State *L, lua_State *L1, const char *msg, int level);
-int luaL_fileresult (lua_State *L, int stat, const char *fname);

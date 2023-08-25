@@ -13,15 +13,6 @@ int lua_absindex (lua_State *L, int i) {
   return i;
 }
 
-
-void lua_copy (lua_State *L, int from, int to) {
-  int abs_to = lua_absindex(L, to);
-  luaL_checkstack(L, 1, "not enough stack slots");
-  lua_pushvalue(L, from);
-  lua_replace(L, abs_to);
-}
-
-
 void lua_rawgetp (lua_State *L, int i, const void *p) {
   int abs_i = lua_absindex(L, i);
   lua_pushlightuserdata(L, (void*)p);
@@ -36,6 +27,14 @@ void lua_rawsetp (lua_State *L, int i, const void *p) {
   lua_rawset(L, abs_i);
 }
 
+#if !defined(COMPAT52_IS_LUAJIT)
+
+void lua_copy (lua_State *L, int from, int to) {
+  int abs_to = lua_absindex(L, to);
+  luaL_checkstack(L, 1, "not enough stack slots");
+  lua_pushvalue(L, from);
+  lua_replace(L, abs_to);
+}
 
 void *luaL_testudata (lua_State *L, int i, const char *tname) {
   void *p = lua_touserdata(L, i);
@@ -62,6 +61,7 @@ lua_Number lua_tonumberx (lua_State *L, int i, int *isnum) {
   return n;
 }
 
+#endif
 
 #define PACKAGE_KEY "_COMPAT52_PACKAGE"
 
@@ -116,6 +116,7 @@ void lua_setuservalue (lua_State *L, int i) {
 /*
 ** Adapted from Lua 5.2.0
 */
+#if !defined(COMPAT52_IS_LUAJIT)
 void luaL_setfuncs (lua_State *L, const luaL_Reg *l, int nup) {
   luaL_checkstack(L, nup+1, "too many upvalues");
   for (; l->name != NULL; l++) {  /* fill the table with given functions */
@@ -135,6 +136,7 @@ void luaL_setmetatable (lua_State *L, const char *tname) {
   luaL_getmetatable(L, tname);
   lua_setmetatable(L, -2);
 }
+#endif
 
 
 int luaL_getsubtable (lua_State *L, int i, const char *name) {
@@ -510,7 +512,7 @@ lua_Unsigned luaL_optunsigned (lua_State *L, int i, lua_Unsigned def) {
   return luaL_opt(L, luaL_checkunsigned, i, def);
 }
 
-
+#if !defined(COMPAT52_IS_LUAJIT)
 lua_Integer lua_tointegerx (lua_State *L, int i, int *isnum) {
   lua_Integer n = lua_tointeger(L, i);
   if (isnum != NULL) {
@@ -518,6 +520,7 @@ lua_Integer lua_tointegerx (lua_State *L, int i, int *isnum) {
   }
   return n;
 }
+#endif
 
 
 void lua_len (lua_State *L, int i) {
@@ -577,6 +580,7 @@ const char *luaL_tolstring (lua_State *L, int idx, size_t *len) {
 }
 
 
+#if !defined(COMPAT52_IS_LUAJIT)
 void luaL_requiref (lua_State *L, char const* modname,
                     lua_CFunction openf, int glb) {
   luaL_checkstack(L, 3, "not enough stack slots");
@@ -594,6 +598,7 @@ void luaL_requiref (lua_State *L, char const* modname,
     lua_setglobal(L, modname);
   }
 }
+#endif
 
 
 void luaL_buffinit (lua_State *L, luaL_Buffer_52 *B) {

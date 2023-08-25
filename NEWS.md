@@ -7,6 +7,9 @@
   - `posix.sys.socket.recvfrom` no longer casts a ssize_t result
     into an int.
 
+  - Using conditional compilation for functions that have been
+    implemented when compiling with luajit.
+
 
 ## Noteworthy changes in release 36.2.1 (2023-06-16) [stable]
 
