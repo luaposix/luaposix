@@ -104,9 +104,10 @@ Fetch group with given group id.
 @function getgrgid
 @int gid group id
 @treturn[1] PosixGroup group record for *gid*, if successful
-@return[2] nil
-@treturn[2] string error message
-@treturn[2] int errnum
+@return[2] nil, if the group does not exist
+@return[3] nil
+@treturn[3] string error message
+@treturn[3] int errnum
 @see getgrgid(3)
 @usage
   local grp = require "posix.grp"
@@ -132,9 +133,10 @@ Fetch named group.
 @function getgrnam
 @string name group name
 @treturn[1] PosixGroup group record for *name*, if successful
-@return[2] nil
-@treturn[2] string error message
-@treturn[2] int errnum
+@return[2] nil, if the group does not exist
+@return[3] nil
+@treturn[3] string error message
+@treturn[3] int errnum
 @see getgrnam(3)
 @usage
   local grp = require "posix.grp"

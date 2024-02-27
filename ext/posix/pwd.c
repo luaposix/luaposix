@@ -100,9 +100,10 @@ Fetch named user.
 @function getpwnam
 @string name user name
 @treturn[1] PosixPasswd passwd record for *name*, if successful
-@return[2] nil
-@treturn[2] string error message
-@treturn[2] int errnum
+@return[2] nil, if the user does not exist
+@return[3] nil
+@treturn[3] string error message
+@treturn[3] int errnum
 @see getpwnam(3)
 @usage
   local pwd = require "posix.pwd"
@@ -128,9 +129,10 @@ Fetch password entry with given user id.
 @function getpwuid
 @int uid user id
 @treturn[1] PosixPasswd passwd record for *uid*, if successful
-@return[2] nil
-@treturn[2] string error message
-@treturn[2] int errnum
+@return[2] nil, if the user does not exist
+@return[3] nil
+@treturn[3] string error message
+@treturn[3] int errnum
 @see getpwuid(3)
 @usage
   local pwd = require "posix.pwd"
