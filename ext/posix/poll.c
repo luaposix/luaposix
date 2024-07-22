@@ -253,9 +253,11 @@ Based on [a lua-l list post](http://lua-users.org/lists/lua-l/2007-11/msg00346.h
 @treturn[2] int errnum
 @see poll
 @usage
-fh = io.open "one"
+local stdio = require "posix.stdio"
+
+local fh = io.open "one"
 while true do
-  r = rpoll (fh, 500)
+  local r = rpoll (stdio.fileno(fh), 500)
   if r == 0 then
     print 'timeout'
   elseif r == 1 then

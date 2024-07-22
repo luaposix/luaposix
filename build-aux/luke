@@ -614,7 +614,7 @@ end,next=next,open=io.open,pack=pack,pcall=pcall,pop=function(seq)local n,r=seq.
 seq.n=seq.n-1
 end
 return r
-end,popen=io.popen,print=print,rawget=rawget,rawset=rawset,rep=string.rep,rm=os.remove,select=select,setmetatable=setmetatable,sort=sort,stderr=io.stderr,stdout=io.stdout,str=str,sub=string.sub,tmpname=os.tmpname,tonumber=tonumber,type=type,unpack=function(seq,i,j)return unpack(seq,int(i)or 1,int(j)or int(seq.n)or len(seq))end,write=io.write,},{__call=function(self,env,level)local userenv,level=copy(self),level or 1
+end,popen=io.popen,print=print,rawget=rawget,rawset=rawset,rep=string.rep,rm=function()end,select=select,setmetatable=setmetatable,sort=sort,stderr=io.stderr,stdout=io.stdout,str=str,sub=string.sub,tmpname=os.tmpname,tonumber=tonumber,type=type,unpack=function(seq,i,j)return unpack(seq,int(i)or 1,int(j)or int(seq.n)or len(seq))end,write=io.write,},{__call=function(self,env,level)local userenv,level=copy(self),level or 1
 for name,value in next,env do
 if int(name)and type(value)=='string'then
 for k,v in next,(require(value))do
