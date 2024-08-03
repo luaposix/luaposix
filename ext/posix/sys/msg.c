@@ -86,7 +86,7 @@ tomsqid(lua_State *L, int index, struct msqid_ds *msqid)
 	luaL_checktype(L, index, LUA_TTABLE);
 
 	/* Copy fields to msqid struct */
-	msqid->msg_qbytes = (msglen_t)checkintegerfield(L, index, "msg_qbytes");
+	msqid->msg_qbytes = (unsigned long)checkintegerfield(L, index, "msg_qbytes");
 
 	checkfieldtype(L, index, "msg_perm", LUA_TTABLE, "table");
 	subindex = lua_gettop(L);
