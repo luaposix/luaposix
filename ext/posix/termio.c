@@ -18,6 +18,10 @@
 */
 
 #include <termios.h>
+#include <sys/ioctl.h>
+#include <errno.h>
+#include "lua.h"
+#include "lauxlib.h"
 
 #include "_helpers.c"
 
@@ -238,6 +242,106 @@ Ptcsetattr(lua_State *L)
 	return pushresult(L, tcsetattr(fd, act, &t), NULL);
 }
 
+/***
+Get terminal window size.
+@function tcgetwinsize
+@int fd terminal descriptor to act on
+@treturn[1] table a table with integer fields:
+  * `row`
+  * `col`
+  * `xpixel`
+  * `ypixel`
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see TIOCGWINSZ(4)
+@usage
+  local termio = require "posix.termio"
+  local ws, errmsg, errnum = termio.tcgetwinsize(fd)
+  if ws then
+    print("rows=", ws.row, "cols=", ws.col, "xpixel=", ws.xpixel, "ypixel=", ws.ypixel)
+  else
+    print("Error: ", errmsg, errnum)
+  end
+*/
+static int
+Ptcgetwinsize(lua_State *L)
+{
+	int fd = checkint(L, 1);
+	struct winsize ws;
+
+	checknargs(L, 1);
+
+	if (ioctl(fd, TIOCGWINSZ, &ws) == -1)
+		return pusherror(L, NULL);
+
+	lua_newtable(L);
+	lua_pushinteger(L, ws.ws_row);
+	lua_setfield(L, -2, "row");
+	lua_pushinteger(L, ws.ws_col);
+	lua_setfield(L, -2, "col");
+	lua_pushinteger(L, ws.ws_xpixel);
+	lua_setfield(L, -2, "xpixel");
+	lua_pushinteger(L, ws.ws_ypixel);
+	lua_setfield(L, -2, "ypixel");
+
+	return 1;
+}
+
+
+/***
+Set terminal window size.
+@function tcsetwinsize
+@int fd terminal descriptor to act on
+@tparam table winsize a table with integer fields:
+  * `row`
+  * `col`
+  * `xpixel`
+  * `ypixel`
+@treturn[1] int `0`, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see TIOCSWINSZ(4)
+@usage
+  local termio = require "posix.termio"
+  local ok, errmsg, errnum = termio.tcsetwinsize(fd, {
+    row    = 24,
+    col    = 80,
+    xpixel = 0,
+    ypixel = 0
+  })
+  if not ok then
+    print("Error: ", errmsg, errnum)
+  end
+*/
+static int
+Ptcsetwinsize(lua_State *L)
+{
+	int fd = checkint(L, 1);
+	struct winsize ws;
+
+	checknargs(L, 2);
+	luaL_checktype(L, 2, LUA_TTABLE);
+
+	lua_getfield(L, 2, "row");
+	ws.ws_row = optint(L, -1, 0);
+	lua_pop(L, 1);
+
+	lua_getfield(L, 2, "col");
+	ws.ws_col = optint(L, -1, 0);
+	lua_pop(L, 1);
+
+	lua_getfield(L, 2, "xpixel");
+	ws.ws_xpixel = optint(L, -1, 0);
+	lua_pop(L, 1);
+
+	lua_getfield(L, 2, "ypixel");
+	ws.ws_ypixel = optint(L, -1, 0);
+	lua_pop(L, 1);
+
+	return pushresult(L, ioctl(fd, TIOCSWINSZ, &ws), NULL);
+}
 
 static const luaL_Reg posix_termio_fns[] =
 {
@@ -247,6 +351,8 @@ static const luaL_Reg posix_termio_fns[] =
 	LPOSIX_FUNC( Ptcgetattr		),
 	LPOSIX_FUNC( Ptcsendbreak	),
 	LPOSIX_FUNC( Ptcsetattr		),
+	LPOSIX_FUNC( Ptcgetwinsize	 ),
+	LPOSIX_FUNC( Ptcsetwinsize	 ),
 	{NULL, NULL}
 };
 
