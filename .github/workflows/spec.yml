@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        lua-version: ["5.4", "5.3", "5.2", "5.1", "luajit-openresty"]
+        lua-version: ["5.4", "5.3", "5.2", "5.1", "luajit"]
         strict: ["std.strict", ""]
 
     runs-on: ubuntu-latest
@@ -19,11 +19,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: leafo/gh-actions-lua@v10
+      - uses: luarocks/gh-actions-lua@v10
         with:
           luaVersion: ${{ matrix.lua-version }}
 
-      - uses: leafo/gh-actions-luarocks@v4
+      - uses: luarocks/gh-actions-luarocks@v5
 
       - name: install
         run: |
