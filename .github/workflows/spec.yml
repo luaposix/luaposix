@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        lua-version: ["5.4", "5.3", "5.2", "5.1", "luajit"]
+        lua-version: ["5.4", "5.3", "5.2", "5.1", "luajit-openresty"]
         strict: ["std.strict", ""]
 
     runs-on: ubuntu-latest
