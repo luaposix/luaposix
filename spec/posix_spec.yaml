@@ -934,6 +934,13 @@ specify posix:
     - context with bad arguments:
         badargs.diagnose(M.tcflow, "(int, int)")
 
+  - describe tcgetwinsize:
+    - context with bad arguments:
+        badargs.diagnose(M.tcgetwinsize, "(int)")
+
+  - describe tcsetwinsize:
+    - context with bad arguments:
+        badargs.diagnose(M.tcsetwinsize, "(int, table)")
 
 
 - specify user management:

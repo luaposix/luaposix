@@ -12,6 +12,11 @@
   - Using conditional compilation for functions that have been
     implemented when compiling with luajit.
 
+### New Features
+
+  - Adds `tcgetwinsize` and `tcsetwinsize` functions to `posix.termio`
+    enabling to get and set winsize.
+
 
 ## Noteworthy changes in release 36.2.1 (2023-06-16) [stable]
 
