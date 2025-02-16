@@ -2,6 +2,9 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+
+## Noteworthy changes in release 36.3 (2025-02-16) [stable]
+
 ### Bugs Fixed
 
   - `posix.sys.socket.recvfrom` no longer casts a ssize_t result
