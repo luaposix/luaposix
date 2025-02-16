@@ -105,7 +105,14 @@ modules  = {
    ['posix.sys.utsname']   = 'ext/posix/sys/utsname.c',
    ['posix.sys.wait']      = 'ext/posix/sys/wait.c',
    ['posix.syslog']        = 'ext/posix/syslog.c',
-   ['posix.termio']        = 'ext/posix/termio.c',
+   ['posix.termio']        = {
+      defines   = {
+         HAVE_TERMIOS_H    = {checkheader='termios.h'},
+         HAVE_WS_XPIXEL    = {checkmember='struct winsize.ws_xpixel', include='termios.h'},
+         HAVE_WS_YPIXEL    = {checkmember='struct winsize.ws_ypixel', include='termios.h'},
+      },
+      sources   = 'ext/posix/termio.c',
+   },
    ['posix.time']          = {
       defines   = {
          HAVE_TM_GMTOFF    = {checkmember='struct tm.tm_gmtoff', include='time.h'},
