@@ -18,10 +18,15 @@
 */
 
 #include <termios.h>
+#include <sys/ioctl.h>
+#include <errno.h>
+#include "lua.h"
+#include "lauxlib.h"
 
 #include "_helpers.c"
 
 
+#if HAVE_TERMIOS_H
 /***
 Control characters.
 The field names below are not strings, but index constants each
@@ -63,6 +68,54 @@ as long as they are supported by the underlying system.
   `B4800`, `B9600`, `B19200`, `B38400`, `B57600`, `B115200`,
 @int ospeed the output baud rate (see ispeed for possible values)
 */
+
+/***
+Winsize record.
+Any fields not available in the underlying system will be `nil` valued.
+@table PosixWinsize
+@int ws_row rows, in characters
+@int ws_col columns, in characters
+@int ws_xpixel width, in pixels
+@int ws_ypixel height, in pixels
+*/
+static int
+pushwinsize(lua_State *L, struct winsize *ws)
+{
+    if(!ws)
+        return lua_pushnil(L), 1;
+
+    lua_createtable(L, 0, 2);
+    setintegerfield(ws, ws_row);
+    setintegerfield(ws, ws_col);
+#if HAVE_WS_XPIXEL && HAVE_WS_YPIXEL
+    setintegerfield(ws, ws_xpixel);
+    setintegerfield(ws, ws_ypixel);
+#endif
+
+    settypemetatable("PosixWinsize");
+    return 1;
+}
+
+static const char *Swinsize_fields[] = {
+    "ws_row", "ws_col", "ws_xpixel", "ws_ypixel"
+};
+
+static void
+towinsize(lua_State *L, int index, struct winsize *ws)
+{
+    static const struct winsize nullws;
+    *ws = nullws;
+
+    luaL_checktype(L, index, LUA_TTABLE);
+    ws->ws_row    = optintfield(L, index, "ws_row", 0);
+    ws->ws_col    = optintfield(L, index, "ws_col", 0);
+#if HAVE_WS_XPIXEL && HAVE_WS_YPIXEL
+    ws->ws_xpixel = optintfield(L, index, "ws_xpixel", 0);
+    ws->ws_ypixel = optintfield(L, index, "ws_ypixel", 0);
+#endif
+
+    checkfieldnames(L, index, Swinsize_fields);
+}
 
 
 /***
@@ -239,14 +292,90 @@ Ptcsetattr(lua_State *L)
 }
 
 
+#  ifdef TIOCGWINSZ
+/***
+Get terminal window size.
+@function tcgetwinsize
+@int fd terminal descriptor to act on
+@treturn[1] PosixWinsize winsize current winsize for *fd*, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see tcgetwinsize(3)
+@usage
+  local termio = require "posix.termio"
+  local ws, errmsg, errnum = termio.tcgetwinsize(fd)
+  if ws then
+    print("rows=", ws.row, "cols=", ws.col, "xpixel=", ws.xpixel, "ypixel=", ws.ypixel)
+  else
+    print("Error: ", errmsg, errnum)
+  end
+*/
+static int
+Ptcgetwinsize(lua_State *L)
+{
+	int fd = checkint(L, 1);
+	struct winsize ws;
+
+	checknargs(L, 1);
+
+	if (ioctl(fd, TIOCGWINSZ, &ws) == -1)
+		return pusherror(L, NULL);
+
+    return pushwinsize(L, &ws);
+}
+#  endif
+
+
+#  ifdef TIOCSWINSZ
+/***
+Set terminal window size.
+@function tcsetwinsize
+@int fd terminal descriptor to act on
+@tparam PosixWinsize winsize to apply to *fd*
+@treturn[1] int `0`, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see tcsetwinsize(3)
+@usage
+  local termio = require "posix.termio"
+  local ok, errmsg, errnum = termio.tcsetwinsize(fd, {row=24, col=80})
+  if not ok then
+    print("Error: ", errmsg, errnum)
+  end
+*/
+static int
+Ptcsetwinsize(lua_State *L)
+{
+	int fd = checkint(L, 1);
+	struct winsize ws;
+
+	towinsize(L, 2, &ws);
+	checknargs(L, 2);
+
+	return pushresult(L, ioctl(fd, TIOCSWINSZ, &ws), NULL);
+}
+#  endif
+#endif /*!HAVE_TERMIOS_H*/
+
+
 static const luaL_Reg posix_termio_fns[] =
 {
+#if HAVE_TERMIOS_H
 	LPOSIX_FUNC( Ptcdrain		),
 	LPOSIX_FUNC( Ptcflow		),
 	LPOSIX_FUNC( Ptcflush		),
 	LPOSIX_FUNC( Ptcgetattr		),
 	LPOSIX_FUNC( Ptcsendbreak	),
 	LPOSIX_FUNC( Ptcsetattr		),
+#  ifdef TIOCGWINSZ
+	LPOSIX_FUNC( Ptcgetwinsize	 ),
+#  endif
+#  ifdef TIOCSWINSZ
+	LPOSIX_FUNC( Ptcsetwinsize	 ),
+#  endif
+#endif /*!HAVE_TERMIOS_H*/
 	{NULL, NULL}
 };
 
@@ -258,6 +387,7 @@ luaopen_posix_termio(lua_State *L)
 	lua_pushstring(L, LPOSIX_VERSION_STRING("termio"));
 	lua_setfield(L, -2, "version");
 
+#if HAVE_TERMIOS_H
 	/* tcsetattr */
 	LPOSIX_CONST( TCSANOW		);
 	LPOSIX_CONST( TCSADRAIN		);
@@ -275,348 +405,349 @@ luaopen_posix_termio(lua_State *L)
 	LPOSIX_CONST( TCION		);
 
 	/* cflag */
-#ifdef B0
+#  ifdef B0
 	LPOSIX_CONST( B0		);
-#endif
-#ifdef B50
+#  endif
+#  ifdef B50
 	LPOSIX_CONST( B50		);
-#endif
-#ifdef B75
+#  endif
+#  ifdef B75
 	LPOSIX_CONST( B75		);
-#endif
-#ifdef B110
+#  endif
+#  ifdef B110
 	LPOSIX_CONST( B110		);
-#endif
-#ifdef B134
+#  endif
+#  ifdef B134
 	LPOSIX_CONST( B134		);
-#endif
-#ifdef B150
+#  endif
+#  ifdef B150
 	LPOSIX_CONST( B150		);
-#endif
-#ifdef B200
+#  endif
+#  ifdef B200
 	LPOSIX_CONST( B200		);
-#endif
-#ifdef B300
+#  endif
+#  ifdef B300
 	LPOSIX_CONST( B300		);
-#endif
-#ifdef B600
+#  endif
+#  ifdef B600
 	LPOSIX_CONST( B600		);
-#endif
-#ifdef B1200
+#  endif
+#  ifdef B1200
 	LPOSIX_CONST( B1200		);
-#endif
-#ifdef B1800
+#  endif
+#  ifdef B1800
 	LPOSIX_CONST( B1800		);
-#endif
-#ifdef B2400
+#  endif
+#  ifdef B2400
 	LPOSIX_CONST( B2400		);
-#endif
-#ifdef B4800
+#  endif
+#  ifdef B4800
 	LPOSIX_CONST( B4800		);
-#endif
-#ifdef B9600
+#  endif
+#  ifdef B9600
 	LPOSIX_CONST( B9600		);
-#endif
-#ifdef B19200
+#  endif
+#  ifdef B19200
 	LPOSIX_CONST( B19200		);
-#endif
-#ifdef B38400
+#  endif
+#  ifdef B38400
 	LPOSIX_CONST( B38400		);
-#endif
-#ifdef B57600
+#  endif
+#  ifdef B57600
 	LPOSIX_CONST( B57600		);
-#endif
-#ifdef B115200
+#  endif
+#  ifdef B115200
 	LPOSIX_CONST( B115200		);
-#endif
-#ifdef CSIZE
+#  endif
+#  ifdef CSIZE
 	LPOSIX_CONST( CSIZE		);
-#endif
-#ifdef BS5
+#  endif
+#  ifdef BS5
 	LPOSIX_CONST( CS5		);
-#endif
-#ifdef CS6
+#  endif
+#  ifdef CS6
 	LPOSIX_CONST( CS6		);
-#endif
-#ifdef CS7
+#  endif
+#  ifdef CS7
 	LPOSIX_CONST( CS7		);
-#endif
-#ifdef CS8
+#  endif
+#  ifdef CS8
 	LPOSIX_CONST( CS8		);
-#endif
-#ifdef CSTOPB
+#  endif
+#  ifdef CSTOPB
 	LPOSIX_CONST( CSTOPB		);
-#endif
-#ifdef CREAD
+#  endif
+#  ifdef CREAD
 	LPOSIX_CONST( CREAD		);
-#endif
-#ifdef PARENB
+#  endif
+#  ifdef PARENB
 	LPOSIX_CONST( PARENB		);
-#endif
-#ifdef PARODD
+#  endif
+#  ifdef PARODD
 	LPOSIX_CONST( PARODD		);
-#endif
-#ifdef HUPCL
+#  endif
+#  ifdef HUPCL
 	LPOSIX_CONST( HUPCL		);
-#endif
-#ifdef CLOCAL
+#  endif
+#  ifdef CLOCAL
 	LPOSIX_CONST( CLOCAL		);
-#endif
-#ifdef CRTSCTS
+#  endif
+#  ifdef CRTSCTS
 	LPOSIX_CONST( CRTSCTS		);
-#endif
+#  endif
 
 	/* lflag */
-#ifdef ISIG
+#  ifdef ISIG
 	LPOSIX_CONST( ISIG		);
-#endif
-#ifdef ICANON
+#  endif
+#  ifdef ICANON
 	LPOSIX_CONST( ICANON		);
-#endif
-#ifdef ECHO
+#  endif
+#  ifdef ECHO
 	LPOSIX_CONST( ECHO		);
-#endif
-#ifdef ECHOE
+#  endif
+#  ifdef ECHOE
 	LPOSIX_CONST( ECHOE		);
-#endif
-#ifdef ECHOK
+#  endif
+#  ifdef ECHOK
 	LPOSIX_CONST( ECHOK		);
-#endif
-#ifdef ECHONL
+#  endif
+#  ifdef ECHONL
 	LPOSIX_CONST( ECHONL		);
-#endif
-#ifdef NOFLSH
+#  endif
+#  ifdef NOFLSH
 	LPOSIX_CONST( NOFLSH		);
-#endif
-#ifdef IEXTEN
+#  endif
+#  ifdef IEXTEN
 	LPOSIX_CONST( IEXTEN		);
-#endif
-#ifdef TOSTOP
+#  endif
+#  ifdef TOSTOP
 	LPOSIX_CONST( TOSTOP		);
-#endif
+#  endif
 
 	/* iflag */
-#ifdef INPCK
+#  ifdef INPCK
 	LPOSIX_CONST( INPCK		);
-#endif
-#ifdef IGNPAR
+#  endif
+#  ifdef IGNPAR
 	LPOSIX_CONST( IGNPAR		);
-#endif
-#ifdef PARMRK
+#  endif
+#  ifdef PARMRK
 	LPOSIX_CONST( PARMRK		);
-#endif
-#ifdef ISTRIP
+#  endif
+#  ifdef ISTRIP
 	LPOSIX_CONST( ISTRIP		);
-#endif
-#ifdef IXON
+#  endif
+#  ifdef IXON
 	LPOSIX_CONST( IXON		);
-#endif
-#ifdef IXOFF
+#  endif
+#  ifdef IXOFF
 	LPOSIX_CONST( IXOFF		);
-#endif
-#ifdef IXANY
+#  endif
+#  ifdef IXANY
 	LPOSIX_CONST( IXANY		);
-#endif
-#ifdef IGNBRK
+#  endif
+#  ifdef IGNBRK
 	LPOSIX_CONST( IGNBRK		);
-#endif
-#ifdef BRKINT
+#  endif
+#  ifdef BRKINT
 	LPOSIX_CONST( BRKINT		);
-#endif
-#ifdef INLCR
+#  endif
+#  ifdef INLCR
 	LPOSIX_CONST( INLCR		);
-#endif
-#ifdef IGNCR
+#  endif
+#  ifdef IGNCR
 	LPOSIX_CONST( IGNCR		);
-#endif
-#ifdef ICRNL
+#  endif
+#  ifdef ICRNL
 	LPOSIX_CONST( ICRNL		);
-#endif
-#ifdef IMAXBEL
+#  endif
+#  ifdef IMAXBEL
 	LPOSIX_CONST( IMAXBEL		);
-#endif
+#  endif
 
 	/* oflag */
-#ifdef OPOST
+#  ifdef OPOST
 	LPOSIX_CONST( OPOST		);
-#endif
-#ifdef ONLCR
+#  endif
+#  ifdef ONLCR
 	LPOSIX_CONST( ONLCR		);
-#endif
-#ifdef OCRNL
+#  endif
+#  ifdef OCRNL
 	LPOSIX_CONST( OCRNL		);
-#endif
-#ifdef ONLRET
+#  endif
+#  ifdef ONLRET
 	LPOSIX_CONST( ONLRET		);
-#endif
-#ifdef OFILL
+#  endif
+#  ifdef OFILL
 	LPOSIX_CONST( OFILL		);
-#endif
-#ifdef OFDEL
+#  endif
+#  ifdef OFDEL
 	LPOSIX_CONST( OFDEL		);
-#endif
-#ifdef NLDLY
+#  endif
+#  ifdef NLDLY
 	LPOSIX_CONST( NLDLY		);
-#endif
-#ifdef NL0
+#  endif
+#  ifdef NL0
 	LPOSIX_CONST( NL0		);
-#endif
-#ifdef NL1
+#  endif
+#  ifdef NL1
 	LPOSIX_CONST( NL1		);
-#endif
-#ifdef CRDLY
+#  endif
+#  ifdef CRDLY
 	LPOSIX_CONST( CRDLY		);
-#endif
-#ifdef CR0
+#  endif
+#  ifdef CR0
 	LPOSIX_CONST( CR0		);
-#endif
-#ifdef CR1
+#  endif
+#  ifdef CR1
 	LPOSIX_CONST( CR1		);
-#endif
-#ifdef CR2
+#  endif
+#  ifdef CR2
 	LPOSIX_CONST( CR2		);
-#endif
-#ifdef CR3
+#  endif
+#  ifdef CR3
 	LPOSIX_CONST( CR3		);
-#endif
-#ifdef TABDLY
+#  endif
+#  ifdef TABDLY
 	LPOSIX_CONST( TABDLY		);
-#endif
-#ifdef TAB0
+#  endif
+#  ifdef TAB0
 	LPOSIX_CONST( TAB0		);
-#endif
-#ifdef TAB1
+#  endif
+#  ifdef TAB1
 	LPOSIX_CONST( TAB1		);
-#endif
-#ifdef TAB2
+#  endif
+#  ifdef TAB2
 	LPOSIX_CONST( TAB2		);
-#endif
-#ifdef TAB3
+#  endif
+#  ifdef TAB3
 	LPOSIX_CONST( TAB3		);
-#endif
-#ifdef BSDLY
+#  endif
+#  ifdef BSDLY
 	LPOSIX_CONST( BSDLY		);
-#endif
-#ifdef BS0
+#  endif
+#  ifdef BS0
 	LPOSIX_CONST( BS0		);
-#endif
-#ifdef BS1
+#  endif
+#  ifdef BS1
 	LPOSIX_CONST( BS1		);
-#endif
-#ifdef VTDLY
+#  endif
+#  ifdef VTDLY
 	LPOSIX_CONST( VTDLY		);
-#endif
-#ifdef VT0
+#  endif
+#  ifdef VT0
 	LPOSIX_CONST( VT0		);
-#endif
-#ifdef VT1
+#  endif
+#  ifdef VT1
 	LPOSIX_CONST( VT1		);
-#endif
-#ifdef FFDLY
+#  endif
+#  ifdef FFDLY
 	LPOSIX_CONST( FFDLY		);
-#endif
-#ifdef FF0
+#  endif
+#  ifdef FF0
 	LPOSIX_CONST( FF0		);
-#endif
-#ifdef FF1
+#  endif
+#  ifdef FF1
 	LPOSIX_CONST( FF1		);
-#endif
+#  endif
 
 	/* cc */
-#ifdef VINTR
+#  ifdef VINTR
 	LPOSIX_CONST( VINTR		);
-#endif
-#ifdef VQUIT
+#  endif
+#  ifdef VQUIT
 	LPOSIX_CONST( VQUIT		);
-#endif
-#ifdef VERASE
+#  endif
+#  ifdef VERASE
 	LPOSIX_CONST( VERASE		);
-#endif
-#ifdef VKILL
+#  endif
+#  ifdef VKILL
 	LPOSIX_CONST( VKILL		);
-#endif
-#ifdef VEOF
+#  endif
+#  ifdef VEOF
 	LPOSIX_CONST( VEOF		);
-#endif
-#ifdef VEOL
+#  endif
+#  ifdef VEOL
 	LPOSIX_CONST( VEOL		);
-#endif
-#ifdef VEOL2
+#  endif
+#  ifdef VEOL2
 	LPOSIX_CONST( VEOL2		);
-#endif
-#ifdef VMIN
+#  endif
+#  ifdef VMIN
 	LPOSIX_CONST( VMIN		);
-#endif
-#ifdef VTIME
+#  endif
+#  ifdef VTIME
 	LPOSIX_CONST( VTIME		);
-#endif
-#ifdef VSTART
+#  endif
+#  ifdef VSTART
 	LPOSIX_CONST( VSTART		);
-#endif
-#ifdef VSTOP
+#  endif
+#  ifdef VSTOP
 	LPOSIX_CONST( VSTOP		);
-#endif
-#ifdef VSUSP
+#  endif
+#  ifdef VSUSP
 	LPOSIX_CONST( VSUSP		);
-#endif
+#  endif
 
 	/* XSI extensions - don't use these if you care about portability
 	 * to strict POSIX conforming machines, such as Mac OS X.
 	 */
-#ifdef CBAUD
+#  ifdef CBAUD
 	LPOSIX_CONST( CBAUD		);
-#endif
-#ifdef EXTA
+#  endif
+#  ifdef EXTA
 	LPOSIX_CONST( EXTA		);
-#endif
-#ifdef EXTB
+#  endif
+#  ifdef EXTB
 	LPOSIX_CONST( EXTB		);
-#endif
-#ifdef DEFECHO
+#  endif
+#  ifdef DEFECHO
 	LPOSIX_CONST( DEFECHO		);
-#endif
-#ifdef ECHOCTL
+#  endif
+#  ifdef ECHOCTL
 	LPOSIX_CONST( ECHOCTL		);
-#endif
-#ifdef ECHOPRT
+#  endif
+#  ifdef ECHOPRT
 	LPOSIX_CONST( ECHOPRT		);
-#endif
-#ifdef ECHOKE
+#  endif
+#  ifdef ECHOKE
 	LPOSIX_CONST( ECHOKE		);
-#endif
-#ifdef FLUSHO
+#  endif
+#  ifdef FLUSHO
 	LPOSIX_CONST( FLUSHO		);
-#endif
-#ifdef IUTF8
+#  endif
+#  ifdef IUTF8
 	LPOSIX_CONST( IUTF8		);
-#endif
-#ifdef PENDIN
+#  endif
+#  ifdef PENDIN
 	LPOSIX_CONST( PENDIN		);
-#endif
-#ifdef LOBLK
+#  endif
+#  ifdef LOBLK
 	LPOSIX_CONST( LOBLK		);
-#endif
-#ifdef SWTCH
+#  endif
+#  ifdef SWTCH
 	LPOSIX_CONST( SWTCH		);
-#endif
-#ifdef VDISCARD
+#  endif
+#  ifdef VDISCARD
 	LPOSIX_CONST( VDISCARD		);
-#endif
-#ifdef VDSUSP
+#  endif
+#  ifdef VDSUSP
 	LPOSIX_CONST( VDSUSP		);
-#endif
-#ifdef VLNEXT
+#  endif
+#  ifdef VLNEXT
 	LPOSIX_CONST( VLNEXT		);
-#endif
-#ifdef VREPRINT
+#  endif
+#  ifdef VREPRINT
 	LPOSIX_CONST( VREPRINT		);
-#endif
-#ifdef VSTATUS
+#  endif
+#  ifdef VSTATUS
 	LPOSIX_CONST( VSTATUS		);
-#endif
-#ifdef VWERASE
+#  endif
+#  ifdef VWERASE
 	LPOSIX_CONST( VWERASE		);
-#endif
+#  endif
+#endif /*!HAVE_TERMIOS_H*/
 
 	return 1;
 }
