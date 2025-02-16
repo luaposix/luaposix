@@ -1,8 +1,5 @@
 # luaposix NEWS - User visible changes
 
-## Noteworthy changes in release ?.? (????-??-??) [?]
-
-
 ## Noteworthy changes in release 36.3 (2025-02-16) [stable]
 
 ### Bugs Fixed
