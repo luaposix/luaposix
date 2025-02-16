@@ -1,6 +1,6 @@
 --[[
  POSIX library for Lua 5.1, 5.2 & 5.3.
- Copyright (C) 2022-2023 Gary V. Vaughan
+ Copyright (C) 2022-2025 Gary V. Vaughan
 ]]
 --[[--
  Private argument checking helpers.
