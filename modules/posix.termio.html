@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 36.2.1 Reference</title>
+    <title>luaposix 36.3 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 36.2.1</h1>
+<h1>luaposix 36.3</h1>
 
 
 <ul>
@@ -121,6 +121,10 @@
 	<td class="summary">Get termios state.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#tcgetwinsize">tcgetwinsize (fd)</a></td>
+	<td class="summary">Get terminal window size.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#tcsendbreak">tcsendbreak (fd, duration)</a></td>
 	<td class="summary">Send a stream of zero valued bits.</td>
 	</tr>
@@ -128,9 +132,17 @@
 	<td class="name" nowrap><a href="#tcsetattr">tcsetattr (fd, actions, a)</a></td>
 	<td class="summary">Set termios state.</td>
 	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tcsetwinsize">tcsetwinsize (fd, winsize)</a></td>
+	<td class="summary">Set terminal window size.</td>
+	</tr>
 </table>
 <h2><a href="#Tables">Tables</a></h2>
 <table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#PosixWinsize">PosixWinsize</a></td>
+	<td class="summary">Winsize record.</td>
+	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#ccs">ccs</a></td>
 	<td class="summary">Control characters.</td>
@@ -334,6 +346,58 @@
 
 </dd>
     <dt>
+    <a name = "tcgetwinsize"></a>
+    <strong>tcgetwinsize (fd)</strong>
+    </dt>
+    <dd>
+    Get terminal window size.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         terminal descriptor to act on
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/posix.termio.html#PosixWinsize">PosixWinsize</a></span>
+        winsize current winsize for <em>fd</em>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/tcgetwinsize.html">tcgetwinsize(3)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> termio = <span class="global">require</span> <span class="string">"posix.termio"</span>
+<span class="keyword">local</span> ws, errmsg, errnum = termio.<span class="function-name">tcgetwinsize</span>(fd)
+<span class="keyword">if</span> ws <span class="keyword">then</span>
+  <span class="global">print</span>(<span class="string">"rows="</span>, ws.row, <span class="string">"cols="</span>, ws.col, <span class="string">"xpixel="</span>, ws.xpixel, <span class="string">"ypixel="</span>, ws.ypixel)
+<span class="keyword">else</span>
+  <span class="global">print</span>(<span class="string">"Error: "</span>, errmsg, errnum)
+<span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
     <a name = "tcsendbreak"></a>
     <strong>tcsendbreak (fd, duration)</strong>
     </dt>
@@ -436,10 +500,98 @@ ok, errmsg = <span class="function-name">tcsetattr</span> (fd, <span class="numb
     </ul>
 
 </dd>
+    <dt>
+    <a name = "tcsetwinsize"></a>
+    <strong>tcsetwinsize (fd, winsize)</strong>
+    </dt>
+    <dd>
+    Set terminal window size.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         terminal descriptor to act on
+        </li>
+        <li><span class="parameter">winsize</span>
+            <span class="types"><a class="type" href="../modules/posix.termio.html#PosixWinsize">PosixWinsize</a></span>
+         to apply to <em>fd</em>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/tcsetwinsize.html">tcsetwinsize(3)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> termio = <span class="global">require</span> <span class="string">"posix.termio"</span>
+<span class="keyword">local</span> ok, errmsg, errnum = termio.<span class="function-name">tcsetwinsize</span>(fd, {row=<span class="number">24</span>, col=<span class="number">80</span>})
+<span class="keyword">if</span> <span class="keyword">not</span> ok <span class="keyword">then</span>
+  <span class="global">print</span>(<span class="string">"Error: "</span>, errmsg, errnum)
+<span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
 </dl>
     <h2 class="section-header "><a name="Tables"></a>Tables</h2>
 
     <dl class="function">
+    <dt>
+    <a name = "PosixWinsize"></a>
+    <strong>PosixWinsize</strong>
+    </dt>
+    <dd>
+    Winsize record.
+Any fields not available in the underlying system will be <code>nil</code> valued.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">ws_row</span>
+            <span class="types"><span class="type">int</span></span>
+         rows, in characters
+        </li>
+        <li><span class="parameter">ws_col</span>
+            <span class="types"><span class="type">int</span></span>
+         columns, in characters
+        </li>
+        <li><span class="parameter">ws_xpixel</span>
+            <span class="types"><span class="type">int</span></span>
+         width, in pixels
+        </li>
+        <li><span class="parameter">ws_ypixel</span>
+            <span class="types"><span class="type">int</span></span>
+         height, in pixels
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
     <dt>
     <a name = "ccs"></a>
     <strong>ccs</strong>
@@ -570,7 +722,7 @@ as long as they are supported by the underlying system.
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/LDoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2023-06-16 20:19:12 </i>
+<i style="float:right;">Last updated 2025-02-16 13:16:41 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
