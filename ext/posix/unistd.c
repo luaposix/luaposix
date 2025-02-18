@@ -286,12 +286,12 @@ Pdup2(lua_State *L)
 
 
 static int
-runexec(lua_State *L, int use_shell)
+runexec(lua_State *L, int use_shell, int with_env)
 {
-	char **argv;
+	char **argv, **envp;
 	const char *path = luaL_checkstring(L, 1);
 	int i, n;
-	checknargs(L, 2);
+	checknargs(L, with_env ? 3 : 2);
 
 	if (lua_type(L, 2) != LUA_TTABLE)
 		argtypeerror(L, 2, "table");
@@ -317,7 +317,48 @@ runexec(lua_State *L, int use_shell)
 	}
 	argv[n+1] = NULL;
 
-	(use_shell ? execvp : execv) (path, argv);
+	if (with_env) {
+		/* Now parse envp */
+		if (lua_type(L, 3) != LUA_TTABLE)
+			argtypeerror(L, 3, "table");
+
+		/* Traverse once to get the number of entries in envp */
+		n = 0;
+		lua_pushnil(L);
+		while (lua_next(L, 3) != 0) {
+			n++;
+			lua_pop(L, 1);
+		}
+
+		envp = lua_newuserdata(L, (n + 1) * sizeof(char *));
+
+		/* Now traverse again, adding entries to the C array */
+		i = 0;
+		lua_pushnil(L);
+		while (lua_next(L, 3) != 0) {
+			char *key, *val;
+			size_t keylen, vallen;
+
+			/* To avoid problems with modifying keys during traversal, make a copy of key */
+			lua_pushvalue(L, -2);
+
+			key = lua_tolstring(L, -1, &keylen);
+			val = lua_tolstring(L, -2, &vallen);
+
+			envp[i++] = lua_pushfstring(L, "%s=%s", key, val);
+
+			/* lua_next needs key on top but popping envp[i] would risk it being deallocated */
+			lua_insert(L, -4);
+
+			lua_pop(L, 2);
+		}
+		envp[n+1] = NULL;
+	}
+
+	if (with_env)
+		execve(path, argv, envp);
+	else
+		(use_shell ? execvp : execv) (path, argv);
 	return pusherror(L, path);
 }
 
@@ -336,9 +377,33 @@ Execute a program at exactly *path*.
 static int
 Pexec(lua_State *L)
 {
-	return runexec(L, 0);
+	return runexec(L, 0, 0);
 }
 
+/***
+Execute a program at exactly *path* with a specified environment.
+@function exece
+@string path
+@tparam table argt arguments (table can include index 0)
+@tparam table envp environment
+@return nil
+@treturn string error message
+@treturn int errnum
+@see execve(2)
+@usage
+  local stdlib = require 'posix.stdlib'
+  local unistd = require 'posix.unistd'
+
+  local env = stdlib.getenv()
+  env.FOO = "bar"
+
+  unistd.exece ("/bin/sh", {"-c", "echo $FOO"}, env)
+*/
+static int
+Pexece(lua_State *L)
+{
+	return runexec(L, 0, 1);
+}
 
 /***
 Execute a program found using command PATH search, like the shell.
@@ -353,7 +418,7 @@ Execute a program found using command PATH search, like the shell.
 static int
 Pexecp(lua_State *L)
 {
-	return runexec(L, 1);
+	return runexec(L, 1, 0);
 }
 
 
@@ -1305,6 +1370,7 @@ static const luaL_Reg posix_unistd_fns[] =
 	LPOSIX_FUNC( Pdup		),
 	LPOSIX_FUNC( Pdup2		),
 	LPOSIX_FUNC( Pexec		),
+	LPOSIX_FUNC( Pexece		),
 	LPOSIX_FUNC( Pexecp		),
 #if HAVE_FDATASYNC
 	LPOSIX_FUNC( Pfdatasync		),
