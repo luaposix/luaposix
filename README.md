@@ -18,7 +18,7 @@ but now that has its own [lcurses][] repository again, where it is being
 maintained separately.
 
 luaposix is released under the [MIT license][mit] (the same license as
-Lua itsef).  There is no warranty.
+Lua itself).  There is no warranty.
 
 [github]: https://github.com/luaposix/luaposix "luaposix repository"
 [lcurses]: https://github.com/lcurses/lcurses "lcurses repository"
