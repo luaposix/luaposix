@@ -1042,10 +1042,18 @@ Psetpid(lua_State *L)
 		case 'U':
 			return pushresult(L, seteuid(mygetuid(L, 2)), NULL);
 		case 'u':
+#if HAVE_SETGROUPS
+			if (setgroups(0, NULL) == -1)
+				return pusherror(L, "setgroups");
+#endif
 			return pushresult(L, setuid(mygetuid(L, 2)), NULL);
 		case 'G':
 			return pushresult(L, setegid(mygetgid(L, 2)), NULL);
 		case 'g':
+#if HAVE_SETGROUPS
+			if (setgroups(0, NULL) == -1)
+				return pusherror(L, "setgroups");
+#endif
 			return pushresult(L, setgid(mygetgid(L, 2)), NULL);
 		case 's':
 			return pushresult(L, setsid(), NULL);
