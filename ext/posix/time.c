@@ -351,6 +351,20 @@ Ptime(lua_State *L)
 }
 
 
+/***
+Set timezone information
+@function tzset
+@see tzset(3)
+*/
+static int
+Ptzset(lua_State *L)
+{
+	checknargs(L, 0);
+	tzset();
+	return 0;
+}
+
+
 static const luaL_Reg posix_time_fns[] =
 {
 #if defined _POSIX_TIMERS && _POSIX_TIMERS != -1
@@ -364,6 +378,7 @@ static const luaL_Reg posix_time_fns[] =
 	LPOSIX_FUNC( Pstrftime		),
 	LPOSIX_FUNC( Pstrptime		),
 	LPOSIX_FUNC( Ptime		),
+	LPOSIX_FUNC( Ptzset		),
 	{NULL, NULL}
 };
 
