@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: luarocks/gh-actions-lua@v13
+      - uses: luarocks/gh-actions-lua@v11
         with:
           luaVersion: ${{ matrix.lua-version }}
 
