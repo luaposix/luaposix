@@ -17,9 +17,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
 
-      - uses: luarocks/gh-actions-lua@v11
+      - uses: luarocks/gh-actions-lua@v13
         with:
           luaVersion: ${{ matrix.lua-version }}
 
