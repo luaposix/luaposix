@@ -115,6 +115,10 @@ modules  = {
    },
    ['posix.time']          = {
       defines   = {
+         -- Check the function directly rather than _POSIX_TIMERS, because
+         -- OpenBSD has clock_getres and clock_gettime but defines
+         -- _POSIX_TIMERS to -1.
+         HAVE_CLOCK_GETTIME   = {checkfunc='clock_gettime'},
          HAVE_TM_GMTOFF    = {checkmember='struct tm.tm_gmtoff', include='time.h'},
          HAVE_TM_ZONE      = {checkmember='struct tm.tm_zone', include='time.h'},
       },
