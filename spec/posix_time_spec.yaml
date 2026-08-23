@@ -244,3 +244,8 @@ specify posix.time:
   - it returns epoch seconds:
       expect(type(time())).to_be "number"
       expect(time() > 0).to_be(true)
+
+
+- describe tzset:
+  - context with bad arguments:
+      badargs.diagnose(M.tzset, "()")
