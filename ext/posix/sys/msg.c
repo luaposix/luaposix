@@ -33,6 +33,9 @@
 #include <sys/msg.h>
 #include <sys/types.h>
 
+#ifndef msglen_t
+  #define msglen_t unsgined long
+#endif
 
 /***
 Message queue record.
