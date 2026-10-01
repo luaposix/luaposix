@@ -633,15 +633,18 @@ Pgetopt(lua_State *L)
 
 	argv = lua_newuserdata(L, (argc + 1) * sizeof(char *));
 	argv[argc] = NULL;
+
+	lua_createtable(L, argc, 0);
 	for (i = 0; i < argc; i++)
 	{
 		lua_pushinteger(L, i);
 		lua_gettable(L, 1);
 		argv[i] = (char *)luaL_checkstring(L, -1);
+		lua_rawseti(L, -2, i + 1);
 	}
 
 	/* Push remaining upvalues, and make and push closure. */
-	lua_pushcclosure(L, iter_getopt, 3 + argc);
+	lua_pushcclosure(L, iter_getopt, 4);
 
 	return 1;
 }
