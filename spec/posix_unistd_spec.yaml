@@ -148,6 +148,39 @@ specify posix.unistd:
       expect(math.floor(gethostid())).to_be(gethostid())
 
 
+- describe getopt:
+  - before:
+      getopt = M.getopt
+
+      function parse(args, optstring)
+         local out = {}
+         for c, optarg in getopt(args, optstring) do
+            out[#out + 1] = c .. "=" .. tostring(optarg)
+         end
+         return table.concat(out, " ")
+      end
+
+  - it returns each option and its value:
+      expect(parse({[0] = "prog", "-a", "-b", "val", "rest"}, "ab:")).
+         to_be "a=nil b=val"
+  - it takes more arguments than fit on the Lua stack: |
+      args = {[0] = "prog", "-a", "-b", "val"}
+      for i = 1, 300 do args[#args + 1] = "operand" .. i end
+      expect(parse(args, "ab:")).to_be "a=nil b=val"
+  - it keeps the argument strings alive for the whole loop: |
+      args = {[0] = "prog", "-a", "-b", "val"}
+      for i = 1, 300 do args[#args + 1] = "operand" .. i end
+      out = {}
+      for c, optarg in getopt(args, "ab:") do
+         -- drop every reference the caller holds, then collect
+         for i = #args, 0, -1 do args[i] = nil end
+         collectgarbage()
+         collectgarbage()
+         out[#out + 1] = c .. "=" .. tostring(optarg)
+      end
+      expect(table.concat(out, " ")).to_be "a=nil b=val"
+
+
 - describe getuid:
   - before:
       getuid = M.getuid
