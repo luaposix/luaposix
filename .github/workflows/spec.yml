@@ -31,7 +31,8 @@ jobs:
           luarocks install ansicolors
           luarocks install ldoc
           luarocks install luacov
-          luarocks install specl
+          # Issue 404: Specfiles need updating to support 14.1.9+.
+          luarocks install specl 14.1.8
           luarocks install std._debug
           luarocks install typecheck
           test -n "${{ matrix.strict }}" && luarocks install std.strict || true
