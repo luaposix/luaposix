@@ -1,5 +1,5 @@
 --[[
- POSIX library for Lua 5.1, 5.2, 5.3 & 5.4.
+ POSIX library for Lua 5.1, 5.2, 5.3, 5.4, & 5.5.
  Copyright (C) 2013-2025 Gary V. Vaughan
  Copyright (C) 2010-2013 Reuben Thomas <rrt@sc3d.org>
  Copyright (C) 2008-2010 Natanael Copa <natanael.copa@gmail.com>

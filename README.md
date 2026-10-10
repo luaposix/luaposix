@@ -7,8 +7,8 @@ By the [luaposix project][github]
 [![workflow status](https://github.com/luaposix/luaposix/actions/workflows/spec.yml/badge.svg?branch=master)](https://github.com/luaposix/luaposix/actions)
 [![codecov.io](https://codecov.io/github/luaposix/luaposix/coverage.svg?branch=master)](https://codecov.io/github/luaposix/luaposix?branch=master)
 
-This is a POSIX binding for [LuaJIT][], [Lua][] 5.1, 5.2, 5.3 and 5.4; like
-most libraries it simply binds to C APIs on the underlying system, so it
+This is a POSIX binding for [LuaJIT][], [Lua][] 5.1, 5.2, 5.3, 5.4, and 5.5.
+Like most libraries it simply binds to C APIs on the underlying system, so it
 won't work on non-POSIX systems. However, it does try to detect the
 level of POSIX conformance of the underlying system and bind only
 available APIs.
