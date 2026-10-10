@@ -27,6 +27,7 @@ jobs:
 
       - name: install
         run: |
+          set -x
           sudo apt-get install -y libyaml-dev
           luarocks install ansicolors
           luarocks install --server=https://luarocks.org/manifests/gvvaughan ldoc
