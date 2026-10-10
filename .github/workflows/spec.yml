@@ -29,7 +29,7 @@ jobs:
         run: |
           sudo apt-get install -y libyaml-dev
           luarocks install ansicolors
-          luarocks install ldoc
+          luarocks install --server=https://luarocks.org/manifests/gvvaughan ldoc
           luarocks install luacov
           # Issue 404: Specfiles need updating to support 14.1.9+.
           luarocks install specl 14.1.8
