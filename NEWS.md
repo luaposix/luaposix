@@ -2,6 +2,11 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### New Features
+
+  - Support for XSI extensions `WIFCONTINUED` and `WCONTINUED` in
+    `posix.sys.wait`.
+
 
 ## Noteworthy changes in release 37.0 (2026-10-11) [stable]
 

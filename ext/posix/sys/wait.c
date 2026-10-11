@@ -1,6 +1,6 @@
 /*
  * POSIX library for Lua 5.1, 5.2, 5.3, 5.4, & 5.5.
- * Copyright (C) 2013-2025 Gary V. Vaughan
+ * Copyright (C) 2013-2026 Gary V. Vaughan
  * Copyright (C) 2010-2013 Reuben Thomas <rrt@sc3d.org>
  * Copyright (C) 2008-2010 Natanael Copa <natanael.copa@gmail.com>
  * Clean up and bug fixes by Leo Razoumov <slonik.az@gmail.com> 2006-10-11
@@ -24,7 +24,7 @@
 Wait for child process to terminate.
 @function wait
 @int[opt=-1] pid child process id to wait for, or -1 for any child process
-@int[opt] options bitwise OR of `WCONTINUED`, `WNOHANG`, `WUNTRACED`
+@int[opt] options bitwise OR of `WCONTINUED` (only where XSI extensions are available) and `WNOHANG`, `WUNTRACED`
 @treturn[1] int pid of running child, if not exited yet and called with `WNOHANG`
 @treturn[1] string "running"
 @treturn[2] int pid of terminated child, if successful
@@ -71,7 +71,7 @@ Pwait(lua_State *L)
 		lua_pushinteger(L, WSTOPSIG(status));
 		return 3;
 	}
-	/* Portability note: W*CONTINUED is an XSI extension. */
+	/* Portability note: WIFCONTINUED is an XSI extension. */
 #if defined(WIFCONTINUED)
 	else if (WIFCONTINUED(status)) {
 		lua_pushliteral(L,"continued");
@@ -100,7 +100,7 @@ Any constants not available in the underlying system will be `nil` valued.
 @table posix.sys.wait
 @int WNOHANG do not hang if no status is available; return immediately.
 @int WUNTRACED report status of stopped child process
-@int WCONTINUED report status of continued child process
+@int WCONTINUED report status of continued child process, only available on hosts that support XSI extensions.
 @usage
   -- Print wait constants supported on this host.
   for name, value in pairs (require "posix.sys.wait") do
@@ -120,7 +120,7 @@ luaopen_posix_sys_wait(lua_State *L)
 
 	LPOSIX_CONST( WNOHANG		);
 	LPOSIX_CONST( WUNTRACED		);
-	/* Portability note: W*CONTINUED is an XSI extension. */
+	/* Portability note: WCONTINUED is an XSI extension. */
 #if defined(WCONTINUED)
 	LPOSIX_CONST( WCONTINUED	);
 #endif
