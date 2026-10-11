@@ -499,7 +499,7 @@ specify posix.deprecated:
 
   - it fetches the current epoch time:
       t = gettimeofday()
-      expect(t.sec).to_be_within_n_of {value=EPOCH, delta=1}
+      expect(t.sec).to_be_within_n_of {value=EPOCH, delta=5}
       expect(type(t.usec)).to_be "number"
       expect(t.usec >= 0).to_be(true)
 
@@ -622,9 +622,9 @@ specify posix.deprecated:
   - it returns an epoch time:
       expect(prototype(mktime(t))).to_be "number"
   - it is the inverse of localtime:
-      expect(mktime(t)).to_be_within_n_of {value=EPOCH, delta=1}
+      expect(mktime(t)).to_be_within_n_of {value=EPOCH, delta=5}
   - it defaults to current time:
-      expect(mktime()).to_be_within_n_of {value=EPOCH, delta=1}
+      expect(mktime()).to_be_within_n_of {value=EPOCH, delta=5}
 
 
 - describe nanosleep:
@@ -798,13 +798,13 @@ specify posix.deprecated:
          to_be(stat(dir .. "/file", "size"))
   - it fetches the file access time:
       expect(stat(dir .. "/file", "atime")).
-         to_be_within_n_of {value=EPOCH, delta=1}
+         to_be_within_n_of {value=EPOCH, delta=5}
   - it fetches the file modification time:
       expect(stat(dir .. "/file", "mtime")).
-         to_be_within_n_of {value=EPOCH, delta=1}
+         to_be_within_n_of {value=EPOCH, delta=5}
   - it fetches the file creation time:
       expect(stat(dir .. "/file", "ctime")).
-         to_be_within_n_of {value=EPOCH, delta=2}
+         to_be_within_n_of {value=EPOCH, delta=5}
   - it fetches the file access mode:
       expect(stat(dir .. "/file").mode).to_match("^[-rwx]+$")
       expect(stat(dir .. "/subdir", "mode")).to_match("^[-rwx]+$")

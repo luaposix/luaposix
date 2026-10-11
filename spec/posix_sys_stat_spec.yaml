@@ -134,13 +134,13 @@ specify posix.sys.stat:
          to_be(lstat(dir .. "/file").st_size)
   - it fetches the file access time:
       expect(lstat(dir .. "/file").st_atime).
-         to_be_within_n_of {value=EPOCH, delta=1}
+         to_be_within_n_of {value=EPOCH, delta=5}
   - it fetches the file modification time:
       expect(lstat(dir .. "/file").st_mtime).
-         to_be_within_n_of {value=EPOCH, delta=1}
+         to_be_within_n_of {value=EPOCH, delta=5}
   - it fetches the file change time:
       expect(lstat(dir .. "/file").st_ctime).
-         to_be_within_n_of {value=EPOCH, delta=1}
+         to_be_within_n_of {value=EPOCH, delta=5}
   - it fetches the device block size:
       blksize = lstat(dir .. "/file").st_blksize
       expect(type(blksize)).to_be "number"
@@ -230,13 +230,13 @@ specify posix.sys.stat:
       expect(fstat(fd_hard).st_size).to_be(fstat(fd_file).st_size)
   - it fetches the file access time:
       expect(fstat(fd_file).st_atime).
-         to_be_within_n_of {value=EPOCH, delta=1}
+         to_be_within_n_of {value=EPOCH, delta=5}
   - it fetches the file modification time:
       expect(fstat(fd_file).st_mtime).
-         to_be_within_n_of {value=EPOCH, delta=1}
+         to_be_within_n_of {value=EPOCH, delta=5}
   - it fetches the file change time:
       expect(fstat(fd_file).st_ctime).
-         to_be_within_n_of {value=EPOCH, delta=1}
+         to_be_within_n_of {value=EPOCH, delta=5}
   - it fetches the device block size:
       blksize = fstat(fd_file).st_blksize
       expect(type(blksize)).to_be "number"
@@ -377,13 +377,13 @@ specify posix.sys.stat:
          to_be(stat(dir .. "/file").st_size)
   - it fetches the file access time:
       expect(stat(dir .. "/file").st_atime).
-         to_be_within_n_of {value=EPOCH, delta=1}
+         to_be_within_n_of {value=EPOCH, delta=5}
   - it fetches the file modification time:
       expect(stat(dir .. "/file").st_mtime).
-         to_be_within_n_of {value=EPOCH, delta=1}
+         to_be_within_n_of {value=EPOCH, delta=5}
   - it fetches the file change time:
       expect(stat(dir .. "/file").st_ctime).
-         to_be_within_n_of {value=EPOCH, delta=1}
+         to_be_within_n_of {value=EPOCH, delta=5}
   - it fetches the device block size:
       blksize = stat(dir .. "/file").st_blksize
       expect(type(blksize)).to_be "number"

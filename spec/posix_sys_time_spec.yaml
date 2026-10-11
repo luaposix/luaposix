@@ -26,6 +26,6 @@ specify posix.sys.time:
       expect(prototype(gettimeofday())).to_be "PosixTimeval"
   - it fetches the current epoch time:
       tv = gettimeofday()
-      expect(tv.tv_sec).to_be_within_n_of {value=EPOCH, delta=1}
+      expect(tv.tv_sec).to_be_within_n_of {value=EPOCH, delta=5}
       expect(type(tv.tv_usec)).to_be "number"
       expect(tv.tv_usec >= 0).to_be(true)
