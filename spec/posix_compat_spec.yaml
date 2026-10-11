@@ -161,7 +161,7 @@ specify posix.compat:
 - describe setlogmask:
   - context with bad arguments:
       if M.setlogmask then
-         badargs.diagnose("setlogmask(?int*)", M.setlogmask)
+         badargs.diagnose("setlogmask(?int...)", M.setlogmask)
       end
 
 

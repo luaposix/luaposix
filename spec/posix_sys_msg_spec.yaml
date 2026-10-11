@@ -68,8 +68,8 @@ specify posix.sys.msg:
       objtype = function(x) return(getmetatable(x) or {})._type end
 
   - context with bad arguments:
-      # Not really 'any*' for arg3, but that's all we can do without knowing arg2!
-      badargs.diagnose(' (int, int, any*)', msgctl)
+      # Not really '[any...]' for arg3, but that's all we can do without knowing arg2!
+      badargs.diagnose(' (int, int, [any...])', msgctl)
 
   - context with IPC_STAT:
     - it diagnoses too many arguments:

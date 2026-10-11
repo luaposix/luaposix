@@ -58,7 +58,7 @@ specify posix:
       end
 
   - context with bad arguments:
-      badargs.diagnose("execx(function|table, ?any*)", M.execx)
+      badargs.diagnose("execx(function|table, [any...])", M.execx)
 
   - it executes a command returning normal exit status:
       expect(f{"true"}).to_be(0)
@@ -88,7 +88,7 @@ specify posix:
   - before: f = M.spawn
 
   - context with bad arguments:
-      badargs.diagnose("spawn(function|table, ?any*)", f)
+      badargs.diagnose("spawn(function|table, [?any...])", f)
 
   - it spawns a command and can detect success:
       expect(f({"true"})).to_be(0)

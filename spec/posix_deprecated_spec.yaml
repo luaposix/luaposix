@@ -307,7 +307,7 @@ specify posix.deprecated:
 - describe fadvise:
   - context with bad arguments:
       if M.fadvise then
-         badargs.diagnose("fadvise(FILE*, int, int, int)", M.fadvise)
+         badargs.diagnose("fadvise(file, int, int, int)", M.fadvise)
       end
 
 
