@@ -160,20 +160,25 @@ specify posix.unistd:
          return table.concat(out, " ")
       end
 
+      -- build the strings at runtime, so that no constant in this chunk
+      -- keeps them reachable once the caller's references are dropped
+      function many_args()
+         local args = {[0] = "prog", ("-%s"):format "a", ("-%s"):format "b", ("v%sl"):format "a"}
+         for i = 1, 300 do args[#args + 1] = "operand" .. i end
+         return args
+      end
+
   - it returns each option and its value:
       expect(parse({[0] = "prog", "-a", "-b", "val", "rest"}, "ab:")).
          to_be "a=nil b=val"
-  - it takes more arguments than fit on the Lua stack: |
-      args = {[0] = "prog", "-a", "-b", "val"}
-      for i = 1, 300 do args[#args + 1] = "operand" .. i end
-      expect(parse(args, "ab:")).to_be "a=nil b=val"
+  - it takes more arguments than fit on the Lua stack:
+      expect(parse(many_args(), "ab:")).to_be "a=nil b=val"
   - it keeps the argument strings alive for the whole loop: |
-      args = {[0] = "prog", "-a", "-b", "val"}
-      for i = 1, 300 do args[#args + 1] = "operand" .. i end
+      args = many_args()
       out = {}
       for c, optarg in getopt(args, "ab:") do
          -- drop every reference the caller holds, then collect
-         for i = #args, 0, -1 do args[i] = nil end
+         for k in pairs(args) do args[k] = nil end
          collectgarbage()
          collectgarbage()
          out[#out + 1] = c .. "=" .. tostring(optarg)
