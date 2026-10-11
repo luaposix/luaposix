@@ -1,10 +1,13 @@
 local unpack = table.unpack or unpack
 
+-- Allow user override of LUA binary used by hell.spawn, falling
+-- back to environment PATH search for 'lua' if nothing else works.
+local LUA = os.getenv 'LUA' or 'lua'
 
 do
    local std = require 'specl.std'
    local spawn = require 'specl.shell'.spawn
-   local objdir = spawn('./build-aux/luke --value=objdir').output
+   local objdir = spawn(LUA .. ' ./build-aux/luke --value=objdir').output
 
    package.path = std.package.normalize (
       './lib/?.lua',
@@ -26,11 +29,6 @@ hell = require 'specl.shell'
 posix = require 'posix'
 
 local gsub = string.gsub
-
-
--- Allow user override of LUA binary used by hell.spawn, falling
--- back to environment PATH search for 'lua' if nothing else works.
-local LUA = os.getenv 'LUA' or 'lua'
 
 
 -- Easily check for std.object.type compatibility.
