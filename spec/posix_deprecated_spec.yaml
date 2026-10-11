@@ -197,14 +197,17 @@ specify posix.deprecated:
       if clock_getres then
          local time = require 'posix.time'
 
-         expect(clock_getres()).
-            to_be(time.clock_getres(time.CLOCK_REALTIME).tv_sec)
-         expect(clock_getres 'monotonic').
-            to_be(time.clock_getres(time.CLOCK_MONOTONIC).tv_sec)
+         local function res(clk)
+            local ts = time.clock_getres(clk)
+            return {ts.tv_sec, ts.tv_nsec}
+         end
+
+         expect(clock_getres()).to_equal(res(time.CLOCK_REALTIME))
+         expect(clock_getres 'monotonic').to_equal(res(time.CLOCK_MONOTONIC))
          expect(clock_getres 'process_cputime_id').
-            to_be(time.clock_getres(time.CLOCK_PROCESS_CPUTIME_ID).tv_sec)
+            to_equal(res(time.CLOCK_PROCESS_CPUTIME_ID))
          expect(clock_getres 'thread_cputime_id').
-            to_be(time.clock_getres(time.CLOCK_THREAD_CPUTIME_ID).tv_sec)
+            to_equal(res(time.CLOCK_THREAD_CPUTIME_ID))
       end
 
 
@@ -221,13 +224,14 @@ specify posix.deprecated:
       if clock_gettime then
          local time = require 'posix.time'
 
-         expect(clock_gettime()).
+         -- Nanoseconds differ between calls, so compare only the seconds.
+         expect((clock_gettime())).
             to_be(time.clock_gettime(time.CLOCK_REALTIME).tv_sec)
-         expect(clock_gettime 'monotonic').
+         expect((clock_gettime 'monotonic')).
             to_be(time.clock_gettime(time.CLOCK_MONOTONIC).tv_sec)
-         expect(clock_gettime 'process_cputime_id').
+         expect((clock_gettime 'process_cputime_id')).
             to_be(time.clock_gettime(time.CLOCK_PROCESS_CPUTIME_ID).tv_sec)
-         expect(clock_gettime 'thread_cputime_id').
+         expect((clock_gettime 'thread_cputime_id')).
             to_be(time.clock_gettime(time.CLOCK_THREAD_CPUTIME_ID).tv_sec)
       end
 
@@ -1110,4 +1114,4 @@ specify posix.deprecated:
   - it substitutes %r:
       expect(uname "%r").to_be(cmd_output "uname -r")
   - it outputs everything with no arguments:
-      expect(uname():gsub("%s+"," "):gsub("%s$","")).to_be(cmd_output("uname -s -n -r -v -m"):gsub("%s+"," "):gsub("%s$",""))
+      expect((uname():gsub("%s+"," "):gsub("%s$",""))).to_be((cmd_output("uname -s -n -r -v -m"):gsub("%s+"," "):gsub("%s$","")))

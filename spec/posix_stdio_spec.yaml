@@ -86,7 +86,7 @@ specify posix.stdio:
         expect(fd).not_to_be(nil)
         require 'posix.unistd'.write(fd, "rename me")
         rename(path, newpath)
-        expect(io.open(path, "r")).to_be(nil)
+        expect((io.open(path, "r"))).to_be(nil)
         fh = io.open(newpath, "r")
         expect(fh).not_to_be(nil)
         expect(fh:read()).to_be "rename me"

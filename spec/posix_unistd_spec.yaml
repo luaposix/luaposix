@@ -439,7 +439,7 @@ specify posix.unistd:
     - 'it diagnoses argument #1 type not int or nil':
         expect(ttyname(false)).to_raise.any_of(typeerrors(1, "integer or nil", "boolean"))
     - 'it diagnoses argument #1 not a tty descriptor':
-        expect(ttyname(-1)).to_be(nil)
+        expect((ttyname(-1))).to_be(nil)
     - it diagnoses too many arguments:
         expect(ttyname(1, false)).to_raise.any_of(typeerrors(2))
 
@@ -457,5 +457,5 @@ specify posix.unistd:
          expect(r[1]).to_contain.any_of {"console", "pts", "tty"}
       end
   - it defaults the first argument to 0:
-      expect(ttyname()).to_be(ttyname(0))
+      expect(ttyname()).to_equal(ttyname(0))
 

@@ -91,9 +91,9 @@ specify posix:
       badargs.diagnose("spawn(function|table, [?any...])", f)
 
   - it spawns a command and can detect success:
-      expect(f({"true"})).to_be(0)
+      expect(f({"true"})).to_equal{0, "exited"}
   - it can detect failure:
-      expect(f({"false"})).to_be(1)
+      expect(f({"false"})).to_equal{1, "exited"}
   - it can pass a table of arguments:
       expect(luaproc([[
          os.exit(require "posix".spawn {"echo", "foo"})
