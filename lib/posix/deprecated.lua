@@ -355,7 +355,7 @@ end
 local Pfadvise
 if posix_fadvise then
    -- When supported by underlying system
-   Pfadvise = argscheck('fadvise(FILE*, int, int, int)', function(fh, ...)
+   Pfadvise = argscheck('fadvise(file, int, int, int)', function(fh, ...)
       return posix_fadvise(fileno(fh), ...)
    end)
 end
