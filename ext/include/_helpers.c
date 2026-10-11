@@ -323,12 +323,14 @@ optstringfield(lua_State *L, int index, const char *k, const char *def)
 static int
 pusherror(lua_State *L, const char *info)
 {
+	/* Save errno before the Lua API calls below can allocate and clobber it. */
+	int err = errno;
 	lua_pushnil(L);
 	if (info==NULL)
-		lua_pushstring(L, strerror(errno));
+		lua_pushstring(L, strerror(err));
 	else
-		lua_pushfstring(L, "%s: %s", info, strerror(errno));
-	lua_pushinteger(L, errno);
+		lua_pushfstring(L, "%s: %s", info, strerror(err));
+	lua_pushinteger(L, err);
 	return 3;
 }
 

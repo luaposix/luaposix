@@ -32,7 +32,6 @@ local _ENV = require 'posix._strict' {
    bor = require 'posix._base'.bor,
    close = require 'posix.unistd'.close,
    dup2 = require 'posix.unistd'.dup2,
-   errno = require 'posix.errno'.errno,
    error = error,
    execp = require 'posix.unistd'.execp,
    exit = os.exit,
@@ -68,8 +67,8 @@ local _ENV = require 'posix._strict' {
 
 
 -- FIXME: specl-14.x breaks function environments here :(
-local GLOB_MARK, STDIN_FILENO, STDOUT_FILENO, _exit, close, errno, execp, exit, fork, glob, insert, pipe, remove, wait =
-   GLOB_MARK, STDIN_FILENO, STDOUT_FILENO, _exit, close, errno, execp, exit, fork, glob, insert, pipe, remove, wait
+local GLOB_MARK, STDIN_FILENO, STDOUT_FILENO, _exit, close, execp, exit, fork, glob, insert, pipe, remove, wait =
+   GLOB_MARK, STDIN_FILENO, STDOUT_FILENO, _exit, close, execp, exit, fork, glob, insert, pipe, remove, wait
 
 
 local function Peuidaccess(file, mode)
@@ -117,9 +116,8 @@ end
 local function Pexecx(task, ...)
    if type(task) == 'table' then
       local path = remove(task, 1)
-      execp(path, task)
-      -- Only get here if there's an error; kill the fork
-      local _, n = errno()
+      -- Only returns if there's an error; kill the fork
+      local _, _, n = execp(path, task)
       _exit(n)
    else
       -- Function call must flush open file descriptors et.al. with `os.exit()`
