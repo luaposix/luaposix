@@ -28,7 +28,7 @@ specify posix.fcntl:
       rmtmp(dir)
 
   - context with bad arguments:
-      badargs.diagnose(open, "(string, int, ?int)")
+      badargs.diagnose("(string, int, ?int)", open)
 
   - it opens an existing file:
       fd, err = open(dir .. "/file", O_RDONLY)
@@ -51,5 +51,5 @@ specify posix.fcntl:
 
   - context with bad arguments:
       if posix_fadvise then
-         badargs.diagnose(posix_fadvise, "(int, int, int, int)")
+         badargs.diagnose("(int, int, int, int)", posix_fadvise)
       end

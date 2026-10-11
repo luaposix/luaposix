@@ -22,7 +22,7 @@ specify posix.time:
 
   - context with bad arguments:
       if clock_getres then
-         badargs.diagnose(clock_getres, "(int)")
+         badargs.diagnose("(int)", clock_getres)
       end
 
   - it returns a PosixTimespec:
@@ -37,7 +37,7 @@ specify posix.time:
 
   - context with bad arguments:
       if clock_gettime then
-         badargs.diagnose(clock_gettime, "(int)")
+         badargs.diagnose("(int)", clock_gettime)
       end
 
   - it returns a PosixTimespec:
@@ -51,7 +51,7 @@ specify posix.time:
       gmtime = M.gmtime
 
   - context with bad arguments:
-      badargs.diagnose(gmtime, "(int)")
+      badargs.diagnose("(int)", gmtime)
 
   - it returns a PosixTm:
       expect(prototype(gmtime(EPOCH))).to_be "PosixTm"
@@ -90,7 +90,7 @@ specify posix.time:
       localtime = M.localtime
 
   - context with bad arguments:
-      badargs.diagnose(localtime, "(int)")
+      badargs.diagnose("(int)", localtime)
 
   - it returns a PosixTm:
       expect(prototype(localtime(EPOCH))).to_be "PosixTm"
@@ -128,7 +128,7 @@ specify posix.time:
       t = M.localtime(EPOCH)
 
   - context with bad arguments:
-      badargs.diagnose(mktime, "(table)")
+      badargs.diagnose("(table)", mktime)
 
   - it returns an epoch time:
       expect(prototype(mktime(t))).to_be "number"
@@ -141,7 +141,7 @@ specify posix.time:
       nanosleep, typeerrors = init(M, "nanosleep")
 
   - context with bad arguments: |
-      badargs.diagnose(nanosleep, "(table)")
+      badargs.diagnose("(table)", nanosleep)
 
       examples {
          ["context diagnosing timespec table fields"] = {
@@ -181,7 +181,7 @@ specify posix.time:
       }
 
   - context with bad arguments:
-      badargs.diagnose(strftime, "(string, table)")
+      badargs.diagnose("(string, table)", strftime)
 
   - context with place-holders:
     - it plugs tm_wday:
@@ -209,7 +209,7 @@ specify posix.time:
       strptime = M.strptime
 
   - context with bad arguments:
-      badargs.diagnose(strptime, "(string, string)")
+      badargs.diagnose("(string, string)", strptime)
 
   - context with place-holders:
     - before:
@@ -239,7 +239,7 @@ specify posix.time:
       time = M.time
 
   - context with bad arguments:
-      badargs.diagnose(time, "()")
+      badargs.diagnose("()", time)
 
   - it returns epoch seconds:
       expect(type(time())).to_be "number"

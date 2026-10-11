@@ -36,7 +36,7 @@ specify posix.sys.msg:
 
 - describe msgget:
   - context with bad arguments:
-      badargs.diagnose(msgget, ' (int, ?int)')
+      badargs.diagnose(' (int, ?int)', msgget)
 
   - it creates a queue:
       expect(mq).not_to_be(nil)
@@ -45,7 +45,7 @@ specify posix.sys.msg:
 
 - describe msgsnd:
   - context with bad arguments:
-      badargs.diagnose(msgsnd, ' (int, int, string, ?int)')
+      badargs.diagnose(' (int, int, string, ?int)', msgsnd)
 
   - it sends a message:
       ok, err = msgsnd(mq, mtype, mdata)
@@ -54,7 +54,7 @@ specify posix.sys.msg:
 
 - describe msgrcv:
   - context with bad arguments:
-      badargs.diagnose(msgrcv, ' (int, int, ?int, ?int)')
+      badargs.diagnose(' (int, int, ?int, ?int)', msgrcv)
 
   - it receives a message:
       expect({msgrcv(mq, 128)}).to_equal {mtype, mdata, nil}
@@ -69,7 +69,7 @@ specify posix.sys.msg:
 
   - context with bad arguments:
       # Not really 'any*' for arg3, but that's all we can do without knowing arg2!
-      badargs.diagnose(msgctl, ' (int, int, any*)')
+      badargs.diagnose(' (int, int, any*)', msgctl)
 
   - context with IPC_STAT:
     - it diagnoses too many arguments:

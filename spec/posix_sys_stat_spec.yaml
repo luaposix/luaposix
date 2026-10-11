@@ -38,7 +38,7 @@ specify posix.sys.stat:
       chmod(dir .. "/file", bor(M.S_IRWXU, M.S_IRGRP, M.S_IXGRP))
 
   - context with bad arguments: |
-      badargs.diagnose(chmod, "(string, int)")
+      badargs.diagnose("(string, int)", chmod)
 
       examples {
          ["it diagnoses non-existent files"] = function()
@@ -60,7 +60,7 @@ specify posix.sys.stat:
       lstat = M.lstat
 
   - context with bad arguments:
-      badargs.diagnose(lstat, "(string)")
+      badargs.diagnose("(string)", lstat)
 
   - it returns a PosixStat:
       expect(prototype(lstat(dir .. "/file"))).to_be "PosixStat"
@@ -168,7 +168,7 @@ specify posix.sys.stat:
       fstat = M.fstat
 
   - context with bad arguments:
-      badargs.diagnose(fstat, "(int)")
+      badargs.diagnose("(int)", fstat)
 
   - it returns a PosixStat:
       expect(prototype(fstat(fd_file))).to_be "PosixStat"
@@ -258,7 +258,7 @@ specify posix.sys.stat:
       rmtmp(dir)
 
   - context with bad arguments:
-      badargs.diagnose(mkdir, "(string, ?int)")
+      badargs.diagnose("(string, ?int)", mkdir)
 
   - it creates the named directory:
       expect(Emsg(mkdir(dir .. "/subdir"))).not_to_contain "exists"
@@ -281,7 +281,7 @@ specify posix.sys.stat:
       rmtmp(dir)
 
   - context with bad arguments:
-      badargs.diagnose(mkfifo, "(string, ?int)")
+      badargs.diagnose("(string, ?int)", mkfifo)
 
   - it creates the named fifo:
       expect(Emsg(mkfifo(dir .. "/fifo"))).not_to_contain "exists"
@@ -302,7 +302,7 @@ specify posix.sys.stat:
       stat = M.stat
 
   - context with bad arguments:
-      badargs.diagnose(stat, "(string)")
+      badargs.diagnose("(string)", stat)
 
   - it returns a PosixStat:
       expect(prototype(stat(dir .. "/file"))).to_be "PosixStat"
@@ -405,7 +405,7 @@ specify posix.sys.stat:
       umask(origmask)
 
   - context with bad arguments:
-      badargs.diagnose(umask, "(int)")
+      badargs.diagnose("(int)", umask)
 
   - it returns current umask:
       expect(umask(0)).to_be(newmask)

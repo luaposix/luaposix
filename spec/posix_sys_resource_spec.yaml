@@ -17,7 +17,7 @@ specify posix.sys.resource:
       getrlimit = M.getrlimit
 
   - context with bad arguments:
-      badargs.diagnose(getrlimit, "(int)")
+      badargs.diagnose("(int)", getrlimit)
 
   - it returns a PosixRlimit:
       expect(prototype(getrlimit(M.RLIMIT_AS))).to_be "PosixRlimit"
@@ -37,7 +37,7 @@ specify posix.sys.resource:
       getrlimit = M.getrlimit
 
   - context with bad arguments: |
-      badargs.diagnose(setrlimit, "(int, table)")
+      badargs.diagnose("(int, table)", setrlimit)
 
       examples {
          ["context diagnosing rlimit table fields"] = {

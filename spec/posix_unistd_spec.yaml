@@ -36,12 +36,12 @@ specify posix.unistd:
 
 - describe chown:
   - context with bad arguments:
-      badargs.diagnose(M.chown, "(string, ?int|string, ?int|string)")
+      badargs.diagnose("(string, ?int|string, ?int|string)", M.chown)
 
 
 - describe exec:
   - context with bad arguments:
-      badargs.diagnose(M.exec, "(string, table)")
+      badargs.diagnose("(string, table)", M.exec)
 
 
 - describe execp:
@@ -59,7 +59,7 @@ specify posix.unistd:
       end
 
   - context with bad arguments:
-      badargs.diagnose(execp, "(string, table)")
+      badargs.diagnose("(string, table)", execp)
 
   - it overwrites the running process with a shell invocation:
       process = M.fork()
@@ -91,7 +91,7 @@ specify posix.unistd:
       end
 
   - context with bad arguments:
-      badargs.diagnose(ftruncate, "(int, int)")
+      badargs.diagnose("(int, int)", ftruncate)
 
   - it truncates an open file descriptor:
       fname = os.tmpname()
@@ -109,7 +109,7 @@ specify posix.unistd:
       getegid = M.getegid
 
   - context with bad arguments:
-      badargs.diagnose(getegid, "()")
+      badargs.diagnose("()", getegid)
 
   - it returns the effective group id:
       expect(getegid()).to_be(ids.pw_gid)
@@ -120,7 +120,7 @@ specify posix.unistd:
       geteuid = M.geteuid
 
   - context with bad arguments:
-      badargs.diagnose(geteuid, "()")
+      badargs.diagnose("()", geteuid)
 
   - it returns the effective user id:
       expect(geteuid()).to_be(ids.pw_uid)
@@ -131,7 +131,7 @@ specify posix.unistd:
       getgid = M.getgid
 
   - context with bad arguments:
-      badargs.diagnose(getgid, "()")
+      badargs.diagnose("()", getgid)
 
   - it returns the group id:
       expect(getgid()).to_be(ids.pw_gid)
@@ -142,7 +142,7 @@ specify posix.unistd:
       gethostid = M.gethostid
 
   - context with bad arguments:
-      badargs.diagnose(gethostid, "()")
+      badargs.diagnose("()", gethostid)
 
   - it returns an integer:
       expect(math.floor(gethostid())).to_be(gethostid())
@@ -153,7 +153,7 @@ specify posix.unistd:
       getuid = M.getuid
 
   - context with bad arguments:
-      badargs.diagnose(getuid, "()")
+      badargs.diagnose("()", getuid)
 
   - it returns the user id:
       expect(getuid()).to_be(ids.pw_uid)
@@ -164,7 +164,7 @@ specify posix.unistd:
       getpgrp = M.getpgrp
 
   - context with bad arguments:
-      badargs.diagnose(getpgrp, "()")
+      badargs.diagnose("()", getpgrp)
 
   - it returns a positive integer:
       expect(math.floor(getpgrp())).to_be(getpgrp())
@@ -176,7 +176,7 @@ specify posix.unistd:
       getpid = M.getpid
 
   - context with bad arguments:
-      badargs.diagnose(getpid, "()")
+      badargs.diagnose("()", getpid)
 
   - it returns the a positive integer:
       expect(math.floor(getpid())).to_be(getpid())
@@ -188,7 +188,7 @@ specify posix.unistd:
       getppid = M.getppid
 
   - context with bad arguments:
-      badargs.diagnose(getppid, "()")
+      badargs.diagnose("()", getppid)
 
   - it returns a positive integer:
       expect(math.floor(getppid())).to_be(getppid())
@@ -199,7 +199,7 @@ specify posix.unistd:
 
 - describe lchown:
   - context with bad arguments:
-      badargs.diagnose(M.lchown, "(string, ?int|string, ?int|string)")
+      badargs.diagnose("(string, ?int|string, ?int|string)", M.lchown)
 
 
 - describe link:
@@ -217,7 +217,7 @@ specify posix.unistd:
       rmtmp(dir)
 
   - context with bad arguments:
-      badargs.diagnose(link, "(string, string, ?boolean)")
+      badargs.diagnose("(string, string, ?boolean)", link)
 
   - it creates hard link without optional param:
       st_before = lstat(dir .. "/file")
@@ -267,7 +267,7 @@ specify posix.unistd:
       rmtmp(dir)
 
   - context with bad arguments:
-      badargs.diagnose(linkat, "(int, string, int, string, int)")
+      badargs.diagnose("(int, string, int, string, int)", linkat)
 
   - it creates hard link using AT_FDCWD:
       st_before = lstat(dir .. "/file")
@@ -316,7 +316,7 @@ specify posix.unistd:
       pathconf = M.pathconf
 
   - context with bad arguments:
-      badargs.diagnose(pathconf, "(string, int)")
+      badargs.diagnose("(string, int)", pathconf)
 
   - it returns whether chown can be used on the given file:
       expect(type(pathconf(".", M._PC_CHOWN_RESTRICTED))).to_be "number"
@@ -351,7 +351,7 @@ specify posix.unistd:
 
 
   - context with bad arguments:
-      badargs.diagnose(readlink, "(string)")
+      badargs.diagnose("(string)", readlink)
 
   - it diagnoses non-symlink path: |
       EINVAL = require "posix.errno".EINVAL
@@ -374,7 +374,7 @@ specify posix.unistd:
       sysconf = M.sysconf
 
   - context with bad arguments:
-      badargs.diagnose(sysconf, "(int)")
+      badargs.diagnose("(int)", sysconf)
 
   - it fetches the maximum number of exec arguments:
       expect(type(sysconf(M._SC_ARG_MAX))).to_be "number"
@@ -419,7 +419,7 @@ specify posix.unistd:
       end
 
   - context with bad arguments:
-      badargs.diagnose(truncate, "(string, int)")
+      badargs.diagnose("(string, int)", truncate)
 
   - it truncates a named file:
       fname = os.tmpname()

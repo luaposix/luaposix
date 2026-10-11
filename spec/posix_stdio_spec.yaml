@@ -18,7 +18,7 @@ specify posix.stdio:
         fd = fdopen(require 'posix.unistd'.STDOUT_FILENO, "w")
 
     - context with bad arguments:
-        badargs.diagnose(fdopen, "(int,string)")
+        badargs.diagnose("(int,string)", fdopen)
 
     - it duplicates a stream:
         expect(type(fd)).to_be "userdata"
@@ -79,7 +79,7 @@ specify posix.stdio:
         os.remove(path)
 
     - context with bad arguments:
-        badargs.diagnose(rename, "(string,string)")
+        badargs.diagnose("(string,string)", rename)
 
     - it renames an existing file:
         newpath = path .. ".renamed"

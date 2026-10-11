@@ -14,12 +14,12 @@ specify posix.sys.socket:
 
 - describe socket:
   - context with bad arguments:
-      badargs.diagnose(M.socket, "(int, int, int)")
+      badargs.diagnose("(int, int, int)", M.socket)
 
 
 - describe socketpair:
   - context with bad arguments:
-      badargs.diagnose(M.socketpair, "(int, int, int)")
+      badargs.diagnose("(int, int, int)", M.socketpair)
 
 
 - describe getaddrinfo:
@@ -27,7 +27,7 @@ specify posix.sys.socket:
       getaddrinfo, typeerrors = init(M, "getaddrinfo")
 
   - context with bad arguments: |
-      badargs.diagnose(getaddrinfo, "(?string, ?string|int, ?table)")
+      badargs.diagnose("(?string, ?string|int, ?table)", getaddrinfo)
 
       examples {
          ["it diagnoses unspecified host and service"] = function()
@@ -68,7 +68,7 @@ specify posix.sys.socket:
       connect, typeerrors = init(M, "connect")
 
   - context with bad arguments: |
-      badargs.diagnose(connect, "(int, table)")
+      badargs.diagnose("(int, table)", connect)
 
       examples {
          ["it diagnoses wrong family types"] = function()
@@ -145,7 +145,7 @@ specify posix.sys.socket:
       bind, typeerrors = init(M, "bind")
 
   - context with bad arguments: |
-      badargs.diagnose(bind, "(int, table)")
+      badargs.diagnose("(int, table)", bind)
 
       examples {
          ["it diagnoses wrong family types"] = function()
@@ -219,27 +219,27 @@ specify posix.sys.socket:
 
 - describe listen:
   - context with bad arguments:
-      badargs.diagnose(M.listen, "(int, int)")
+      badargs.diagnose("(int, int)", M.listen)
 
 
 - describe accept:
   - context with bad arguments:
-      badargs.diagnose(M.accept, "(int)")
+      badargs.diagnose("(int)", M.accept)
 
 
 - describe recv:
   - context with bad arguments:
-      badargs.diagnose(M.recv, "(int, int)")
+      badargs.diagnose("(int, int)", M.recv)
 
 
 - describe recvfrom:
   - context with bad arguments:
-      badargs.diagnose(M.recvfrom, "(int, int)")
+      badargs.diagnose("(int, int)", M.recvfrom)
 
 
 - describe send:
   - context with bad arguments:
-      badargs.diagnose(M.send, "(int, string)")
+      badargs.diagnose("(int, string)", M.send)
 
 
 - describe sendto:
@@ -247,7 +247,7 @@ specify posix.sys.socket:
       sendto, typeerrors = init(M, "sendto")
 
   - context with bad arguments: |
-      badargs.diagnose(sendto, "(int, string, table)")
+      badargs.diagnose("(int, string, table)", sendto)
 
       examples {
          ["it diagnoses wrong family types"] = function()
@@ -321,17 +321,17 @@ specify posix.sys.socket:
 
 - describe shutdown:
   - context with bad arguments:
-      badargs.diagnose(M.shutdown, "(int, int)")
+      badargs.diagnose("(int, int)", M.shutdown)
 
 
 - describe getsockname:
   - context with bad arguments:
-      badargs.diagnose(M.getsockname, "(int)")
+      badargs.diagnose("(int)", M.getsockname)
 
 
 - describe getpeername:
   - context with bad arguments:
-      badargs.diagnose(M.getpeername, "(int)")
+      badargs.diagnose("(int)", M.getpeername)
 
 
 - describe setsockopt:

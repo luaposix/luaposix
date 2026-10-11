@@ -22,7 +22,7 @@ specify posix.grp:
       endgrent = M.endgrent
 
   - context with bad arguments:
-      badargs.diagnose(endgrent, "()")
+      badargs.diagnose("()", endgrent)
 
   - it returns 'nil':
       expect(endgrent()).to_be(nil)
@@ -38,7 +38,7 @@ specify posix.grp:
       getgrent = M.getgrent
 
   - context with bad arguments:
-      badargs.diagnose(getgrent, "()")
+      badargs.diagnose("()", getgrent)
 
   - it returns a PosixGroup for an existing group:
       expect(prototype(getgrent())).to_be "PosixGroup"
@@ -61,7 +61,7 @@ specify posix.grp:
       groot = getgrgid(0).gr_name
 
   - context with bad arguments:
-      badargs.diagnose(getgrgid, "(int)")
+      badargs.diagnose("(int)", getgrgid)
 
   - it returns a PosixGroup for an existing group:
       expect(prototype(getgrgid(0))).to_be "PosixGroup"
@@ -76,7 +76,7 @@ specify posix.grp:
       groot = getgrgid(0).gr_name
 
   - context with bad arguments:
-      badargs.diagnose(getgrnam, "(string)")
+      badargs.diagnose("(string)", getgrnam)
 
   - it returns 'nil' for a non-existent group:
       expect(getgrnam "veryunlikelygroupname").to_be(nil)
@@ -93,7 +93,7 @@ specify posix.grp:
       setgrent = M.setgrent
 
   - context with bad arguments:
-      badargs.diagnose(setgrent, "()")
+      badargs.diagnose("()", setgrent)
 
   - it returns 'nil':
       expect(setgrent()).to_be(nil)

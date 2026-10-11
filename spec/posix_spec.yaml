@@ -22,27 +22,27 @@ specify posix:
 - describe euidaccess:
   - before: f = M.euidaccess
   - context with bad arguments:
-      badargs.diagnose(f, "euidaccess(string, string)")
+      badargs.diagnose("euidaccess(string, string)", f)
 
 
 - describe errno:
   - context with bad arguments:
-      badargs.diagnose(M.errno, "(?int)")
+      badargs.diagnose("(?int)", M.errno)
 
 
 - describe set_errno:
   - context with bad arguments:
-      badargs.diagnose(M.set_errno, "(int)")
+      badargs.diagnose("(int)", M.set_errno)
 
 
 - describe getopt:
   - context with bad arguments:
-      badargs.diagnose(M.getopt, "(list, string, ?int, ?int)")
+      badargs.diagnose("(list, string, ?int, ?int)", M.getopt)
 
 
 - describe openpty:
   - context with bad arguments:
-      badargs.diagnose(M.openpty, "openpty()")
+      badargs.diagnose("openpty()", M.openpty)
 
 
 - describe execx:
@@ -58,7 +58,7 @@ specify posix:
       end
 
   - context with bad arguments:
-      badargs.diagnose(M.execx, "execx(function|table, ?any*)")
+      badargs.diagnose("execx(function|table, ?any*)", M.execx)
 
   - it executes a command returning normal exit status:
       expect(f{"true"}).to_be(0)
@@ -88,7 +88,7 @@ specify posix:
   - before: f = M.spawn
 
   - context with bad arguments:
-      badargs.diagnose(f, "spawn(function|table, ?any*)")
+      badargs.diagnose("spawn(function|table, ?any*)", f)
 
   - it spawns a command and can detect success:
       expect(f({"true"})).to_be(0)
@@ -108,7 +108,7 @@ specify posix:
       popen, pclose = M.popen, M.pclose
       read, write, BUFSIZE = M.read, M.write, M.BUFSIZ
   - context with bad arguments:
-      badargs.diagnose(popen, "popen(function|table, string, ?function)")
+      badargs.diagnose("popen(function|table, string, ?function)", popen)
 
   - it spawns a command and reads its output:
       p = popen({"echo", "foo"}, "r")
@@ -132,7 +132,7 @@ specify posix:
       popen_pipeline, pclose = M.popen_pipeline, M.pclose
       read, write, BUFSIZE = M.read, M.write, M.BUFSIZ
   - context with bad arguments:
-      badargs.diagnose(popen_pipeline, "popen_pipeline(function|table, string, ?function)")
+      badargs.diagnose("popen_pipeline(function|table, string, ?function)", popen_pipeline)
 
   - it spawns a pipeline and reads its output:
       p = popen_pipeline({{"echo", "foo", "bar", "baz"}, {"wc"}, {"wc", "-l"}}, "r")
@@ -159,7 +159,7 @@ specify posix:
       f = M.timeradd
 
   - context with bad arguments:
-      badargs.diagnose(f, "timeradd(table, table)")
+      badargs.diagnose("timeradd(table, table)", f)
 
   - context with systime.gettimeofday timervals:
     - it adds both fields of a timerval:
@@ -201,7 +201,7 @@ specify posix:
       f = M.timercmp
 
   - context with bad arguments:
-      badargs.diagnose(f, "timercmp(table, table)")
+      badargs.diagnose("timercmp(table, table)", f)
 
   - context with systime.gettimeofday timervals:
     - it returns 0 if timers are equal:
@@ -229,7 +229,7 @@ specify posix:
       f = M.timersub
 
   - context with bad arguments:
-      badargs.diagnose(f, "timersub(table, table)")
+      badargs.diagnose("timersub(table, table)", f)
 
   - context with systime.gettimeofday timervals:
     - it subtracts both fields of a timerval:
@@ -263,32 +263,32 @@ specify posix:
 - specify file descriptors:
   - describe fileno:
     - context with bad arguments:
-        badargs.diagnose(M.fileno, "(file)")
+        badargs.diagnose("(file)", M.fileno)
 
 
   - describe rpoll:
     - context with bad arguments:
-        badargs.diagnose(M.rpoll, "(int, int)")
+        badargs.diagnose("(int, int)", M.rpoll)
 
 
   - describe poll:
     - context with bad arguments:
-        badargs.diagnose(M.poll, "(table, ?int)")
+        badargs.diagnose("(table, ?int)", M.poll)
 
 
   - describe close:
     - context with bad arguments:
-        badargs.diagnose(M.close, "(int)")
+        badargs.diagnose("(int)", M.close)
 
 
   - describe dup:
     - context with bad arguments:
-        badargs.diagnose(M.dup, "(int)")
+        badargs.diagnose("(int)", M.dup)
 
 
   - describe dup2:
     - context with bad arguments:
-        badargs.diagnose(M.dup2, "(int, int)")
+        badargs.diagnose("(int, int)", M.dup2)
 
 
   - describe pipe:
@@ -302,7 +302,7 @@ specify posix:
         M.close(pout)
 
     - context with bad arguments:
-        badargs.diagnose(pipe, "()")
+        badargs.diagnose("()", pipe)
 
     - it creates a pipe:
         expect(pout > 0).to_be(true)
@@ -314,7 +314,7 @@ specify posix:
 
   - describe read:
     - context with bad arguments:
-        badargs.diagnose(M.read, "(int, int)")
+        badargs.diagnose("(int, int)", M.read)
 
 
   - describe write:
@@ -328,7 +328,7 @@ specify posix:
         M.close(pout)
 
     - context with bad arguments:
-        badargs.diagnose(M.write, "(int, string, ?int, ?int)")
+        badargs.diagnose("(int, string, ?int, ?int)", M.write)
 
     - context out of bounds:
         - 'it diagnoses argument #3 too small': |
@@ -495,7 +495,7 @@ specify posix:
            M.SEEK_SET, M.SEEK_CUR, M.SEEK_END
 
     - context with bad arguments:
-        badargs.diagnose(lseek, "(int, int, int)")
+        badargs.diagnose("(int, int, int)", lseek)
 
     - it changes the current position of a file descriptor:
         _, path = M.mkstemp(template)
@@ -532,18 +532,18 @@ specify posix:
 
   - describe sync:
     - context with bad arguments:
-        badargs.diagnose(M.sync, "()")
+        badargs.diagnose("()", M.sync)
 
 
   - describe fsync:
     - context with bad arguments:
-        badargs.diagnose(M.fsync, "(int)")
+        badargs.diagnose("(int)", M.fsync)
 
 
   - describe fdatasync:
     - context with bad arguments:
         if M.fdatasync then
-          badargs.diagnose(M.fdatasync, "(int)")
+          badargs.diagnose("(int)", M.fdatasync)
         end
 
 
@@ -552,7 +552,7 @@ specify posix:
         basename = M.basename
 
     - context with bad arguments:
-        badargs.diagnose(basename, "(string)")
+        badargs.diagnose("(string)", basename)
 
     - it returns a path without leading directories:
         expect(basename "/foo/bar").to_be "bar"
@@ -563,7 +563,7 @@ specify posix:
         dirname = M.dirname
 
     - context with bad arguments:
-        badargs.diagnose(dirname, "(string)")
+        badargs.diagnose("(string)", dirname)
 
     - it return a path without final element:
         expect(dirname "/foo/bar").to_be "/foo"
@@ -571,7 +571,7 @@ specify posix:
 
   - describe dir:
     - context with bad arguments:
-        badargs.diagnose(M.dir, "(?string)")
+        badargs.diagnose("(?string)", M.dir)
 
 
   - describe glob:
@@ -580,7 +580,7 @@ specify posix:
         mkdir = M.mkdir
 
     - context with bad arguments:
-        badargs.diagnose(glob, "glob([?string|table])")
+        badargs.diagnose("glob([?string|table])", glob)
 
     - it matches files in the given directory:
         dir = mkdtemp(template)
@@ -627,7 +627,7 @@ specify posix:
         files = M.files
 
     - context with bad arguments:
-        badargs.diagnose(files, "(?string)")
+        badargs.diagnose("(?string)", files)
 
     - it returns a table of files in the given directory:
         t = {}
@@ -640,7 +640,7 @@ specify posix:
 
   - describe getcwd:
     - context with bad arguments:
-        badargs.diagnose(M.getcwd, "()")
+        badargs.diagnose("()", M.getcwd)
 
 
   - describe chdir:
@@ -653,7 +653,7 @@ specify posix:
         pcall(rmdir, "x")
 
     - context with bad arguments:
-        badargs.diagnose(chdir, "(string)")
+        badargs.diagnose("(string)", chdir)
 
     - it changes to a relative directory:
         thisdir = M.basename(getcwd())
@@ -679,7 +679,7 @@ specify posix:
         mkdir, rmdir = M.mkdir, M.rmdir
 
     - context with bad arguments:
-        badargs.diagnose(rmdir, "(string)")
+        badargs.diagnose("(string)", rmdir)
 
     - it removes the named directory:
         mkdir "x"
@@ -690,7 +690,7 @@ specify posix:
 
   - describe unlink:
     - context with bad arguments:
-        badargs.diagnose(M.unlink, "(string)")
+        badargs.diagnose("(string)", M.unlink)
 
 
   - describe link:
@@ -701,7 +701,7 @@ specify posix:
         os.remove "xxx"
 
     - context with bad arguments:
-        badargs.diagnose(link, "(string, string, ?boolean)")
+        badargs.diagnose("(string, string, ?boolean)", link)
 
     - it creates hard links:
         expect(Emsg(link("xxx", "xxx-hard"))).to_be ""
@@ -717,7 +717,7 @@ specify posix:
         readlink = M.readlink
 
     - context with bad arguments:
-        badargs.diagnose(readlink, "(string)")
+        badargs.diagnose("(string)", readlink)
 
     - it diagnoses missing file: |
         _, err, code = readlink "does not exist!"
@@ -741,7 +741,7 @@ specify posix:
         os.remove "xxx"
 
     - context with bad arguments:
-        badargs.diagnose(M.access, "(string, ?string)")
+        badargs.diagnose("(string, ?string)", M.access)
 
     - it checks whether a file is visible to the real user:
         expect(Emsg(access("xxx", "f"))).to_be ""
@@ -764,7 +764,7 @@ specify posix:
         os.remove "xxx"
 
     - context with bad arguments:
-        badargs.diagnose(M.utime, "(string, ?int, ?int)")
+        badargs.diagnose("(string, ?int, ?int)", M.utime)
 
     - it sets the last file modification time:
         mtime = stat("/etc", "mtime")
@@ -784,7 +784,7 @@ specify posix:
         nice = M.nice
 
     - context with bad arguments:
-        badargs.diagnose(nice, "(int)")
+        badargs.diagnose("(int)", nice)
 
     - it adjusts the process priority:
         old = nice(1)
@@ -804,7 +804,7 @@ specify posix:
         P_CHILD = 0
 
     - context with bad arguments:
-        badargs.diagnose(fork, "()")
+        badargs.diagnose("()", fork)
 
     - it copies itself to a new child process: |
         r, w = pipe()
@@ -833,12 +833,12 @@ specify posix:
 
   - describe _exit:
     - context with bad arguments:
-        badargs.diagnose(M. _exit, "(int)")
+        badargs.diagnose("(int)", M._exit)
 
 
   - describe wait:
     - context with bad arguments:
-        badargs.diagnose(M.wait, "(?int, ?int)")
+        badargs.diagnose("(?int, ?int)", M.wait)
 
 
   - describe setpid:
@@ -872,20 +872,20 @@ specify posix:
 
   - describe sleep:
     - context with bad arguments:
-        badargs.diagnose(M.sleep, "(int)")
+        badargs.diagnose("(int)", M.sleep)
 
 
   - describe sched_setscheduler:
     - context with bad arguments:
         if M.sched_setscheduler then
-           badargs.diagnose(M.sched_setscheduler, "(?int, ?int, ?int)")
+           badargs.diagnose("(?int, ?int, ?int)", M.sched_setscheduler)
         end
 
 
   - describe sched_getscheduler:
     - context with bad arguments:
         if M.sched_getscheduler then
-           badargs.diagnose(M.sched_getscheduler, "(?int)")
+           badargs.diagnose("(?int)", M.sched_getscheduler)
         end
 
 
@@ -894,7 +894,7 @@ specify posix:
         ctermid = M.ctermid
 
     - context with bad arguments:
-        badargs.diagnose(M.ctermid, "()")
+        badargs.diagnose("()", M.ctermid)
 
     - it returns the pathname of the controlling terminal:
         expect(ctermid()).to_match.any_of {"/.*pts.*", "/.*tty.*"}
@@ -902,63 +902,63 @@ specify posix:
 
   - describe isatty:
     - context with bad arguments:
-        badargs.diagnose(M.isatty, "(int)")
+        badargs.diagnose("(int)", M.isatty)
 
 
   - describe tcsetattr:
     - context with bad arguments:
-        badargs.diagnose(M.tcsetattr, "(int, int, table)")
+        badargs.diagnose("(int, int, table)", M.tcsetattr)
 
 
   - describe tcgetattr:
     - context with bad arguments:
-        badargs.diagnose(M.tcgetattr, "(int)")
+        badargs.diagnose("(int)", M.tcgetattr)
 
 
   - describe tcsendbreak:
     - context with bad arguments:
-        badargs.diagnose(M.tcsendbreak, "(int, int)")
+        badargs.diagnose("(int, int)", M.tcsendbreak)
 
 
   - describe tcdrain:
     - context with bad arguments:
-        badargs.diagnose(M.tcdrain, "(int)")
+        badargs.diagnose("(int)", M.tcdrain)
 
 
   - describe tcflush:
     - context with bad arguments:
-        badargs.diagnose(M.tcflush, "(int, int)")
+        badargs.diagnose("(int, int)", M.tcflush)
 
 
   - describe tcflow:
     - context with bad arguments:
-        badargs.diagnose(M.tcflow, "(int, int)")
+        badargs.diagnose("(int, int)", M.tcflow)
 
 
   - describe tcgetwinsize:
     - context with bad arguments:
         if M.tcgetwinsize then
-          badargs.diagnose(M.tcgetwinsize, "(int)")
+          badargs.diagnose("(int)", M.tcgetwinsize)
         end
 
 
   - describe tcsetwinsize:
     - context with bad arguments:
         if M.tcsetwinsize then
-          badargs.diagnose(M.tcsetwinsize, "(int, table)")
+          badargs.diagnose("(int, table)", M.tcsetwinsize)
         end
 
 
 - specify user management:
   - describe getlogin:
     - context with bad arguments:
-        badargs.diagnose(M.getlogin, "()")
+        badargs.diagnose("()", M.getlogin)
 
 
   - describe getgroups:
     - context with bad arguments:
         if M.getgroups then
-           badargs.diagnose(M.getgroups, "()")
+           badargs.diagnose("()", M.getgroups)
         end
 
 
@@ -969,7 +969,7 @@ specify posix:
 
     - context with bad arguments:
         if M.crypt then
-           badargs.diagnose(M.crypt, "(string, string)")
+           badargs.diagnose("(string, string)", M.crypt)
         end
 
     - it can perform repeatable one-way hashing:

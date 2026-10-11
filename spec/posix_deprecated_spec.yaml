@@ -23,7 +23,7 @@ specify posix.deprecated:
       connect, typeerrors = init(M, "connect")
 
   - context with bad arguments: |
-      badargs.diagnose(connect, "connect(int, table)")
+      badargs.diagnose("connect(int, table)", connect)
 
       examples {
          ["it diagnoses wrong family types"] = function()
@@ -107,7 +107,7 @@ specify posix.deprecated:
       bind, typeerrors = init(M, "bind")
 
   - context with bad arguments: |
-      badargs.diagnose(bind, "bind(int, table)")
+      badargs.diagnose("bind(int, table)", bind)
 
       examples {
          ["it diagnoses wrong family types"] = function()
@@ -190,7 +190,7 @@ specify posix.deprecated:
 
   - context with bad arguments:
       if clock_getres then
-         badargs.diagnose(clock_getres, "clock_getres(?string)")
+         badargs.diagnose("clock_getres(?string)", clock_getres)
       end
 
   - it takes deprecated string arguments:
@@ -214,7 +214,7 @@ specify posix.deprecated:
 
   - context with bad arguments:
       if clock_gettime then
-         badargs.diagnose(clock_gettime, "clock_gettime(?string)")
+         badargs.diagnose("clock_gettime(?string)", clock_gettime)
       end
 
   - it takes deprecated string arguments:
@@ -307,7 +307,7 @@ specify posix.deprecated:
 - describe fadvise:
   - context with bad arguments:
       if M.fadvise then
-         badargs.diagnose(M.fadvise, "fadvise(FILE*, int, int, int)")
+         badargs.diagnose("fadvise(FILE*, int, int, int)", M.fadvise)
       end
 
 
@@ -317,7 +317,7 @@ specify posix.deprecated:
          M.fnmatch, M.FNM_PATHNAME, M.FNM_PERIOD
 
   - context with bad arguments:
-      badargs.diagnose(fnmatch, "fnmatch(string, string, ?int)")
+      badargs.diagnose("fnmatch(string, string, ?int)", fnmatch)
 
   - it matches a file path against itself:
       expect(fnmatch("test", "test")).to_be(true)
@@ -345,7 +345,7 @@ specify posix.deprecated:
       groot = getgrgid(0).gr_name
 
   - context with bad arguments:
-      badargs.diagnose(M.getgroup, "getgroup([?int|string])")
+      badargs.diagnose("getgroup([?int|string])", M.getgroup)
 
   - it returns a table for an existing group:
       expect(type(getgroup(groot))).to_be "table"
@@ -475,7 +475,7 @@ specify posix.deprecated:
          end
       }
 
-      badargs.diagnose(getrlimit, "getrlimit(string)")
+      badargs.diagnose("getrlimit(string)", getrlimit)
 
   - it fetches resource limits for a process:
       for _, rc in pairs {"core", "cpu", "data", "fsize", "nofile", "stack", "as"}
@@ -491,7 +491,7 @@ specify posix.deprecated:
       gettimeofday = M.gettimeofday
 
   - context with bad arguments:
-      badargs.diagnose(gettimeofday, "gettimeofday()")
+      badargs.diagnose("gettimeofday()", gettimeofday)
 
   - it fetches the current epoch time:
       t = gettimeofday()
@@ -505,7 +505,7 @@ specify posix.deprecated:
       gmtime = M.gmtime
 
   - context with bad arguments:
-      badargs.diagnose(gmtime, "gmtime(?int)")
+      badargs.diagnose("gmtime(?int)", gmtime)
 
   - it returns a table:
       expect(prototype(gmtime(EPOCH))).to_be "table"
@@ -541,7 +541,7 @@ specify posix.deprecated:
 
 - describe hostid:
   - context with bad arguments:
-      badargs.diagnose(M.hostid, "()")
+      badargs.diagnose("()", M.hostid)
 
 
 - describe isgraph:
@@ -549,7 +549,7 @@ specify posix.deprecated:
       isgraph = M.isgraph
 
   - context with bad arguments:
-      badargs.diagnose(isgraph, "isgraph(string)")
+      badargs.diagnose("isgraph(string)", isgraph)
 
   - it returns true for successful tests:
       expect(isgraph 'a').to_be(true)
@@ -562,7 +562,7 @@ specify posix.deprecated:
       isprint = M.isprint
 
   - context with bad arguments:
-      badargs.diagnose(isprint, "isprint(string)")
+      badargs.diagnose("isprint(string)", isprint)
 
   - it returns true for successful tests:
       expect(isprint 'a').to_be(true)
@@ -575,7 +575,7 @@ specify posix.deprecated:
       localtime = M.localtime
 
   - context with bad arguments:
-      badargs.diagnose(localtime, "localtime(?int)")
+      badargs.diagnose("localtime(?int)", localtime)
 
   - it returns a table:
       expect(prototype(localtime(EPOCH))).to_be "table"
@@ -613,7 +613,7 @@ specify posix.deprecated:
       t = localtime(EPOCH)
 
   - context with bad arguments:
-      badargs.diagnose(mktime, "mktime(?table)")
+      badargs.diagnose("mktime(?table)", mktime)
 
   - it returns an epoch time:
       expect(prototype(mktime(t))).to_be "number"
@@ -625,7 +625,7 @@ specify posix.deprecated:
 
 - describe nanosleep:
   - context with bad arguments:
-      badargs.diagnose(M.nanosleep, "nanosleep(int, int)")
+      badargs.diagnose("nanosleep(int, int)", M.nanosleep)
 
   - it returns an integer:
       expect(M.nanosleep(0, 10)).to_be(0)
@@ -637,7 +637,7 @@ specify posix.deprecated:
 
   - context with bad arguments: |
       if openlog then
-         badargs.diagnose(openlog, "openlog(string, ?string, [?int])")
+         badargs.diagnose("openlog(string, ?string, [?int])", openlog)
 
          examples {
             ["it diagnoses invalid options"] = function()
@@ -733,7 +733,7 @@ specify posix.deprecated:
          end
       }
 
-      badargs.diagnose(setrlimit, "setrlimit(string, ?int, ?int)")
+      badargs.diagnose("setrlimit(string, ?int, ?int)", setrlimit)
 
 
 - describe stat:
@@ -906,7 +906,7 @@ specify posix.deprecated:
       }
 
   - context with bad arguments:
-      badargs.diagnose(strftime, "strftime(string, ?table)")
+      badargs.diagnose("strftime(string, ?table)", strftime)
 
   - context with place-holders:
     - it plugs weekday:
@@ -938,7 +938,7 @@ specify posix.deprecated:
       strptime = M.strptime
 
   - context with bad arguments:
-      badargs.diagnose(strptime, "strptime(string, string)")
+      badargs.diagnose("strptime(string, string)", strptime)
 
   - context with place-holders:
     - before:
@@ -1094,7 +1094,7 @@ specify posix.deprecated:
       uname = M.uname
 
   - context with bad arguments: |
-      badargs.diagnose(uname, "uname(?string)")
+      badargs.diagnose("uname(?string)", uname)
 
       examples {
          ['it diagnoses bad specifier format options'] = function()

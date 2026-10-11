@@ -14,19 +14,19 @@ specify posix.signal:
 
 - describe kill:
   - context with bad arguments:
-      badargs.diagnose(M.kill, "(int, ?int)")
+      badargs.diagnose("(int, ?int)", M.kill)
 
 
 - describe killpg:
   - context with bad arguments:
-      badargs.diagnose(M.killpg, "(int, ?int)")
+      badargs.diagnose("(int, ?int)", M.killpg)
 
 
 - describe raise:
   - context with bad arguments:
-      badargs.diagnose(M.raise, "(int)")
+      badargs.diagnose("(int)", M.raise)
 
 
 - describe signal:
   - context with bad arguments:
-      badargs.diagnose(M.signal, "(int, ?function|string, ?int)")
+      badargs.diagnose("(int, ?function|string, ?int)", M.signal)

@@ -22,7 +22,7 @@ specify posix.sys.times:
   # argument was a string; since we can't express that with
   # `badargs.diagnose` do it all manually again...
   - context with bad arguments:
-      badargs.diagnose(times, "()")
+      badargs.diagnose("()", times)
 
   - it returns a PosixTms:
       expect(prototype(times())).to_be "PosixTms"

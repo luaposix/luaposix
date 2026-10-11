@@ -28,7 +28,7 @@ specify posix.compat:
          end
       }
 
-      badargs.diagnose(chmod, "chmod(string, string)")
+      badargs.diagnose("chmod(string, string)", chmod)
 
   - it sets file mode with longhand mode string:
       mode = "rw---xr--"
@@ -56,7 +56,7 @@ specify posix.compat:
       creat = M.creat
 
   - context with bad arguments: |
-      badargs.diagnose(creat, "creat(string, string)")
+      badargs.diagnose("creat(string, string)", creat)
 
       examples {
          ["it diagnoses argument #2 invalid mode"] = function()
@@ -79,7 +79,7 @@ specify posix.compat:
       rmtmp(dir)
 
   - context with bad arguments:
-      badargs.diagnose(mkdir, "mkdir(string)")
+      badargs.diagnose("mkdir(string)", mkdir)
 
   - it creates the named directory:
       expect(Emsg(mkdir(dir .. "/subdir"))).not_to_contain "exists"
@@ -97,7 +97,7 @@ specify posix.compat:
       rmtmp(dir)
 
   - context with bad arguments:
-      badargs.diagnose(mkfifo, "mkfifo(string)")
+      badargs.diagnose("mkfifo(string)", mkfifo)
 
   - it creates the named fifo:
       expect(Emsg(mkfifo(dir .. "/fifo"))).not_to_contain "exists"
@@ -112,7 +112,7 @@ specify posix.compat:
       EEXIST, IPC_CREAT, IPC_EXCL = M.EEXIST, M.IPC_CREAT, M.IPC_EXCL
 
   - context with bad arguments:
-      badargs.diagnose(msgget, "msgget(int, ?int, ?string)")
+      badargs.diagnose("msgget(int, ?int, ?string)", msgget)
 
   - it creates a queue:
       if msgget then
@@ -161,7 +161,7 @@ specify posix.compat:
 - describe setlogmask:
   - context with bad arguments:
       if M.setlogmask then
-         badargs.diagnose(M.setlogmask, "setlogmask(?int*)")
+         badargs.diagnose("setlogmask(?int*)", M.setlogmask)
       end
 
 
@@ -187,7 +187,7 @@ specify posix.compat:
          end
       }
 
-      badargs.diagnose(umask, "umask(?string)")
+      badargs.diagnose("umask(?string)", umask)
 
   - it returns current umask:
       expect(umask()).to_be "rwxr-x---"

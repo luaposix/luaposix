@@ -15,7 +15,7 @@ specify posix.ctype:
       isgraph = M.isgraph
 
   - context with bad arguments:
-      badargs.diagnose(isgraph, "(string)")
+      badargs.diagnose("(string)", isgraph)
 
   - it returns non-zero for successful tests:
       expect(type(isgraph 'a')).to_be "number"
@@ -29,7 +29,7 @@ specify posix.ctype:
       isprint = M.isprint
 
   - context with bad arguments:
-      badargs.diagnose(isprint, "(string)")
+      badargs.diagnose("(string)", isprint)
 
   - it returns non-zero for successful tests:
       expect(type(isprint 'a')).to_be "number"

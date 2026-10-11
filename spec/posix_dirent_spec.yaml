@@ -16,7 +16,7 @@ specify posix.dirent:
       dir = M.dir
 
   - context with bad arguments: |
-      badargs.diagnose(dir, "(?string)")
+      badargs.diagnose("(?string)", dir)
 
       examples {
          ["it diagnoses argument #1 not a valid file"] = function()
@@ -48,7 +48,7 @@ specify posix.dirent:
       rmtmp(dir)
 
   - context with bad arguments: |
-      badargs.diagnose(files, "(?string)")
+      badargs.diagnose("(?string)", files)
 
       examples {
          ["it diagnoses argument #1 not a valid file"] = function()

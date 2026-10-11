@@ -15,33 +15,33 @@ specify posix.syslog:
 - describe LOG_MASK:
   - context with bad arguments:
       if M.LOG_MASK then
-         badargs.diagnose(M.LOG_MASK, "(int)")
+         badargs.diagnose("(int)", M.LOG_MASK)
       end
 
 
 - describe closelog:
   - context with bad arguments:
       if M.closelog then
-         badargs.diagnose(M.closelog, "()")
+         badargs.diagnose("()", M.closelog)
       end
 
 
 - describe openlog:
   - context with bad arguments: |
       if M.openlog then
-         badargs.diagnose(M.openlog, "(string, ?int, ?int)")
+         badargs.diagnose("(string, ?int, ?int)", M.openlog)
       end
 
 
 - describe setlogmask:
   - context with bad arguments:
       if M.setlogmask then
-         badargs.diagnose(M.setlogmask, "(?int)")
+         badargs.diagnose("(?int)", M.setlogmask)
       end
 
 
 - describe syslog:
   - context with bad arguments:
       if M.syslog then
-         badargs.diagnose(M.syslog, "(int, string)")
+         badargs.diagnose("(int, string)", M.syslog)
       end

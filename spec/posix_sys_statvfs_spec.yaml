@@ -18,7 +18,7 @@ specify posix.sys.statvfs:
 
   - context with bad arguments:
       if statvfs then
-         badargs.diagnose(statvfs, "(string)")
+         badargs.diagnose("(string)", statvfs)
       end
 
   - it returns a PosixStatvfs:

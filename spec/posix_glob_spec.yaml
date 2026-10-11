@@ -31,7 +31,7 @@ specify posix.glob:
 
 
   - context with bad arguments:
-      badargs.diagnose(glob, "(?string, int)")
+      badargs.diagnose("(?string, int)", glob)
 
   - it returns nil and GLOB_NOMATCH if there are no matches:
       dir = mkdtemp(template)

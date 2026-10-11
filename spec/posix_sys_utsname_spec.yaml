@@ -19,7 +19,7 @@ specify posix.sys.utsname:
       u = uname()
 
   - context with bad arguments:
-      badargs.diagnose(uname, "()")
+      badargs.diagnose("()", uname)
 
   - it returns a PosixUtsname:
       expect(prototype(u)).to_be "PosixUtsname"

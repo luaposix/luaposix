@@ -16,7 +16,7 @@ specify posix.fnmatch:
          M.fnmatch, M.FNM_PATHNAME, M.FNM_PERIOD, M.FNM_NOMATCH
 
   - context with bad arguments:
-      badargs.diagnose(fnmatch, "(string, string, ?int)")
+      badargs.diagnose("(string, string, ?int)", fnmatch)
 
   - it matches a file path against itself:
       expect(fnmatch("test", "test")).to_be(0)
