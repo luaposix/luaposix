@@ -996,7 +996,8 @@ return {
    -- @treturn[2] string error message
    uname = argscheck('uname([?string])', function(spec)
       local u = uname()
-      return gsub(optstring('uname', 1, spec, '%s %n %r %v %m'), '%%(.)', function(s)
+      -- Parenthesized to return only the string, not gsub's count too.
+      return (gsub(optstring('uname', 1, spec, '%s %n %r %v %m'), '%%(.)', function(s)
          if s == '%' then
             return '%'
          elseif s == 'm' then
@@ -1012,7 +1013,7 @@ return {
          else
             badoption('uname', 1, 'format', s)
          end
-      end)
+      end))
    end),
 }
 
