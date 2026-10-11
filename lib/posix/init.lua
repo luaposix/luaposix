@@ -66,11 +66,6 @@ local _ENV = require 'posix._strict' {
 }
 
 
--- FIXME: specl-14.x breaks function environments here :(
-local GLOB_MARK, STDIN_FILENO, STDOUT_FILENO, _exit, close, execp, exit, fork, glob, insert, pipe, remove, wait =
-   GLOB_MARK, STDIN_FILENO, STDOUT_FILENO, _exit, close, execp, exit, fork, glob, insert, pipe, remove, wait
-
-
 local function Peuidaccess(file, mode)
    local euid, egid = geteuid(), getegid()
 

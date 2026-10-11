@@ -115,12 +115,6 @@ local _ENV = require 'posix._strict' {
 }
 
 
-
--- FIXME: specl-14.x breaks function environments here :(
-local bor, exec, getegid, getgrgid, getgrnam, getrlimit, gmtime, gsub, localtime, lower, mktime, nanosleep, strftime, strptime, sub, time, uname =
-   bor, exec, getegid, getgrgid, getgrnam, getrlimit, gmtime, gsub, localtime, lower, mktime, nanosleep, strftime, strptime, sub, time, uname
-
-
 local OPENLOG_MAP = {
    [' '] = 0,
    c = LOG_CONS,
