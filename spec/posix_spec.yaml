@@ -869,6 +869,37 @@ specify posix:
           expect(setpid("p", 0, 0, false)).to_raise.any_of(typeerrors(4))
           expect(setpid("u", 0, false)).to_raise.any_of(typeerrors(3))
 
+    # Unprivileged processes cannot drop supplementary groups, so make
+    # sure setpid doesn't try to before setting an unchanged uid or gid.
+    - it sets the current user id without privilege:
+        if M.geteuid() ~= 0 then
+           expect(setpid("u", M.getuid())).to_be(0)
+        end
+    - it sets the current group id without privilege:
+        if M.geteuid() ~= 0 then
+           expect(setpid("g", M.getgid())).to_be(0)
+        end
+    - it drops supplementary groups when privileged:
+        if M.geteuid() == 0 and M.getgroups then
+           local fork, _exit = M.fork, M._exit
+           local wait = require 'posix.sys.wait'.wait
+
+           -- Fork, so that the rest of the specs keep their privileges.
+           local pid = fork()
+           if pid == 0 then
+              setpid("g", M.getgid())
+              local egid = M.getegid()
+              for _, gid in ipairs(M.getgroups()) do
+                 -- BSD getgroups includes the effective gid.
+                 if gid ~= egid then
+                    _exit(1)
+                 end
+              end
+              _exit(0)
+           end
+           expect(({wait(pid)})[3]).to_be(0)
+        end
+
 
   - describe sleep:
     - context with bad arguments:

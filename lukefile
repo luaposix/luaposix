@@ -139,6 +139,7 @@ modules  = {
          HAVE_DECL_FDATASYNC  = {checkdecl='fdatasync', include='unistd.h'},
          HAVE_FDATASYNC       = {checkfunc='fdatasync'},
          HAVE_GETHOSTID       = {checkfunc='gethostid'},
+         HAVE_SETGROUPS       = {checkfunc='setgroups'},
       },
       libraries = {
          {checksymbol='crypt', library='crypt'},
