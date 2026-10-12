@@ -11,6 +11,10 @@
 ]]
 
 local HAVE_DEBUG, _debug = pcall(require, 'std._debug')
+if not HAVE_DEBUG then
+   -- Without std._debug, check arguments only when typecheck does.
+   _debug = {argcheck = pcall(require, 'typecheck')}
+end
 
 local argerror = require 'posix._base'.argerror
 
@@ -57,7 +61,6 @@ local _ENV = require 'posix._strict' {
    _SC_STREAM_MAX = require 'posix.unistd'._SC_STREAM_MAX,
    _SC_TZNAME_MAX = require 'posix.unistd'._SC_TZNAME_MAX,
    _SC_VERSION = require 'posix.unistd'._SC_VERSION,
-   _debug = HAVE_DEBUG and _debug or {},
    argscheck = require 'posix._base'.argscheck,
    bind = require 'posix.sys.socket'.bind,
    bor = require 'posix._base'.bor,
