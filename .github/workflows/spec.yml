@@ -12,6 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         lua-version: ["5.5", "5.4", "5.3", "5.2", "5.1", "luajit"]
+        debug: ["std._debug", ""]
         strict: ["std.strict", ""]
 
     runs-on: ubuntu-latest
@@ -33,21 +34,32 @@ jobs:
       - name: install
         run: |
           sudo apt-get install -y libyaml-dev
-          luarocks install ansicolors
           luarocks install --server=https://luarocks.org/manifests/gvvaughan ldoc
-          luarocks install luacov
-          luarocks install specl
-          luarocks install std._debug
-          luarocks install typecheck
+          luarocks test --prepare
+          test -n "${{ matrix.debug }}" && luarocks install std._debug || true
           test -n "${{ matrix.strict }}" && luarocks install std.strict || true
 
       - name: build
         run: |
           luarocks make --force
 
+      - name: check optional modules
+        run: |
+          # Fail if a dependency installed a module this matrix cell omits.
+          lua -e "
+            for name, want in pairs {
+               ['std._debug'] = '${{ matrix.debug }}' ~= '',
+               ['std.strict.init'] = '${{ matrix.strict }}' ~= '',
+            } do
+               local have = pcall(require, name)
+               print(name, have and 'installed' or 'not installed')
+               assert(have == want, name .. ' installation does not match matrix')
+            end
+          "
+
       - name: test
         run: |
-          specl -vfreport --coverage spec/*_spec.yaml
+          luarocks test
 
       - uses: codecov/codecov-action@v5
         with:

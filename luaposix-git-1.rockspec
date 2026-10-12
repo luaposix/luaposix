@@ -1,5 +1,6 @@
 local _MODREV, _SPECREV = 'git', '-1'
 
+rockspec_format = '3.0'
 package = 'luaposix'
 version = _MODREV .. _SPECREV
 
@@ -51,6 +52,19 @@ build = {
       .. ' INST_LIBDIR="$(LIBDIR)"'
       .. ' INST_LUADIR="$(LUADIR)"'
       ,
+}
+
+-- The bad argument specs expect typecheck's runtime argument checks.
+test_dependencies = {
+   'ansicolors',
+   'luacov',
+   'specl >= 15',
+   'typecheck >= 3.1',
+}
+
+test = {
+   type = 'command',
+   command = 'specl -vfreport --coverage spec/*_spec.yaml',
 }
 
 if _MODREV == 'git' then
