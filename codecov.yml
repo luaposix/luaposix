@@ -1,0 +1,11 @@
+# Report coverage changes on commits and pull requests, without failing
+# them: spec coverage is measured in-process only, so code exercised by
+# spawned Lua subprocesses never counts towards these numbers.
+coverage:
+  status:
+    project:
+      default:
+        informational: true
+    patch:
+      default:
+        informational: true

@@ -16,6 +16,11 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    # id-token lets codecov-action authenticate uploads with OIDC.
+    permissions:
+      contents: read
+      id-token: write
+
     steps:
       - uses: actions/checkout@v7
 
@@ -43,4 +48,12 @@ jobs:
       - name: test
         run: |
           specl -vfreport --coverage spec/*_spec.yaml
-          bash <(curl -s https://codecov.io/bash) -f luacov.report.out
+
+      - uses: codecov/codecov-action@v5
+        with:
+          # Pull requests from forks get no OIDC token, but Codecov accepts
+          # tokenless uploads from forks of public repositories.
+          use_oidc: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork) }}
+          files: luacov.report.out
+          flags: lua-${{ matrix.lua-version }}
+          fail_ci_if_error: true
