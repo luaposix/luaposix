@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: luarocks/gh-actions-lua@v12
+      - uses: luarocks/gh-actions-lua@v14
         with:
           luaVersion: ${{ matrix.lua-version }}
 
@@ -61,7 +61,7 @@ jobs:
         run: |
           luarocks test
 
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v7
         with:
           # Pull requests from forks get no OIDC token, but Codecov accepts
           # tokenless uploads from forks of public repositories.
