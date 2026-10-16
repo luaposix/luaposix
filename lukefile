@@ -134,7 +134,7 @@ modules  = {
       },
       sources   = 'ext/posix/time.c',
    }},
-   {['posix.unistd']        = {
+   {['posix.unistd']       = {
       defines   = {
          {HAVE_CRYPT           = {checkfunc='crypt'}},
          {HAVE_CRYPT_H         = {checkheader='crypt.h'}},
@@ -154,7 +154,8 @@ modules  = {
 
 -- `luke release version=X.Y` adds the release to NEWS.md, writes the
 -- release rockspec, points the README badges at the release branch,
--- commits the LDocs, and publishes them to gh-pages.
+-- commits the LDocs, and publishes them to gh-pages, without the
+-- sources of the examples.
 release  = {
    news         = 'NEWS.md',
    rockspec     = 'luaposix-dev-1.rockspec',
@@ -165,6 +166,7 @@ release  = {
       }},
    },
    ['gh-pages'] = {
-      {['.'] = 'doc/'},
+      {['.']    = 'doc/'},
+      command   = 'rm -f examples/*.lua',
    },
 }

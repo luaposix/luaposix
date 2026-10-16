@@ -739,10 +739,10 @@ local function rockspec_name(rockspec,version)return(gsub(rockspec,DEVROCKSPEC,'
 local function set_modrev(text,version)return(gsub(text,MODREV,'%1'..version..'%2',1))end
 local function copy_command(source,worktree,path,optional)local dest=worktree..'/'..path
 local from,to=shellword(source),shellword(dest)local copy=format("git -C %s rm -r --quiet --ignore-unmatch -- %s ':(exclude)*.in'"..' && if test -d %s; then $MAKEDIRS %s && cp -R %s/. %s; else $MAKEDIRS %s && cp %s %s; fi',shellword(worktree),shellword(path),from,to,from,to,shellword(dirname(dest)),from,to)return choose(optional,format('if test -e %s; then %s; fi',from,copy),copy)end
-local function publish_steps(L,env,substitute,worktree,copies)return map(copies,function(pair)local path,copy=destructure(pair)local source,optional=copy.source,copy.optional
+local function publish_steps(L,env,substitute,worktree,copies)return flatten(map(copies,function(pair)local path,copy=destructure(pair)local source,optional=copy.source,copy.optional
 local dest=worktree..'/'..path
 local template=match(source,'%.in$')~=nil
-return except(list(choose(optional or not template,function()return bind(run,{L,env,copy_command(source,worktree,path,optional)})end),choose(template,function()return bind(edit,{L,choose(optional,dest,source),bind(expand,{substitute}),(gsub(dest,'%.in$',''))})end)),nil)end)end
+return except(list(choose(optional or not template,function()return bind(run,{L,env,copy_command(source,worktree,path,optional)})end),choose(template,function()return bind(edit,{L,choose(optional,dest,source),bind(expand,{substitute}),(gsub(dest,'%.in$',''))})end)),nil)end),copies.command and bind(run,{L,env,'cd',worktree,'&&',copies.command}))end
 local function preconditions(env,release,version,main,substitute)local branch,tag='release-v'..version,'v'..version
 local name=choose(main~=nil,main,'a branch')local checkout=format('git checkout --force %s',name)local checks={{'the working tree is clean',function()return git(env,'status --porcelain')==''end,checkout},{format('%s is checked out',name),function()return main~=nil and git(env,'symbolic-ref --short HEAD')==main
 end,checkout},{'origin can be fetched',function()return git(env,'fetch --quiet origin')~=nil
@@ -870,14 +870,18 @@ local function filled(path)return(gsub(path,'%.in$',''))end
 local scripts=mkscripts(function(source)return filled(basename(source))end)local files=mkscripts(filled)local function fills_too(dest,source)return match(dest,'%.in$')~=nil and match(source,'%.in$')~=nil
 end
 local copy_pair=pair_of(function(x,path)return{optional=false,source=pathname(x,path)}end,pathname)local function copy_entry(x,path)return case(type(x),{['string']=function()local source=pathname(x,path)return{[source]={optional=true,source=source}}end,['table']=function()return copy_pair(x,path)end,function(kind)bad(path,'string or table expected, got %s',kind)end,})end
-local function copies(x,path)local r=ordered_map(copy_entry)(mkcheck'table'(x,path),path)local written=reduce(ordered_keys(r),{},function(written,dest)written[dest]=true
+local function copies(x,path)if mkcheck'table'(x,path)==nil then
+return nil
+end
+local entries=copy(x)entries.command=nil
+local r=ordered_map(copy_entry)(entries,path)r.command=mkcheck'string'(x.command,index(path,'command'))local written=reduce(ordered_keys(r),{},function(written,dest)written[dest]=true
 end)map(r or{},function(pair)local dest,copy=destructure(pair)choose(fills_too(dest,copy.source),function()claim(written,filled(dest),true,path)end)end)return r
 end
 return{ORDERED=ORDERED,copies=copies,defines=defines,dependencies=dependencies,fields=fields,files=files,keypaths=keypaths,list_of=list_of,luke_format=luke_format,map_of=map_of,mkcheck=mkcheck,ordered_map=ordered_map,pair_of=pair_of,pathname=pathname,rules=rules,scripts=scripts,}
 end
 package.preload['luke.version']=function()
-return{VERSION='0.5',versiontext=[[
-luke (Luke) 0.5
+return{VERSION='gvv/118aafd',versiontext=[[
+luke (Luke) gvv/118aafd
 Written by Gary V. Vaughan <gary@gnu.org>, 2014
 
 Copyright (C) 2026, Gary V. Vaughan
