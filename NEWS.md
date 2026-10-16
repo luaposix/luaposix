@@ -7,6 +7,24 @@
   - Support for XSI extensions `WIFCONTINUED` and `WCONTINUED` in
     `posix.sys.wait`.
 
+### Incompatible Changes
+
+  - Without `std._debug` installed, `posix.deprecated` functions now
+    check their arguments whenever `typecheck` is installed, rather
+    than never, so a bad argument raises an error instead of
+    misbehaving.  Install `std._debug` and set `_DEBUG = false` to turn
+    the checks off again.
+
+### Bugs Fixed
+
+  - `posix.unistd.getopt` accepts any number of arguments.  Previously,
+    an argument list longer than about 20 entries could overflow the
+    Lua stack and corrupt memory, and more than 252 failed outright.
+
+  - Installing a release rockspec no longer rebuilds the LDocs that the
+    release already includes, so an installed ldoc that fails, as
+    luarocks.org's does with Lua 5.5, no longer breaks the install.
+
 
 ## Noteworthy changes in release 37.0 (2026-10-11) [stable]
 
