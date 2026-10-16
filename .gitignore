@@ -11,6 +11,6 @@
 /build-aux/config.ld
 /lib/posix/version.lua
 /luaposix-*.rockspec
-!/luaposix-git-*.rockspec
+!/luaposix-dev-*.rockspec
 /luaposix-*.tar.gz
 /TAGS

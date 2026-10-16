@@ -41,7 +41,7 @@ To install current git master (for testing, before submitting a bug
 report for example):
 
 ```bash
-    luarocks install http://raw.github.com/luaposix/luaposix/master/luaposix-git-1.rockspec
+    luarocks install https://raw.githubusercontent.com/luaposix/luaposix/master/luaposix-dev-1.rockspec
 ```
 
 The best way to install without [LuaRocks][], is to call the bundled

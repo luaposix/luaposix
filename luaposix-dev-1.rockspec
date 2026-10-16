@@ -1,4 +1,4 @@
-local _MODREV, _SPECREV = 'git', '-1'
+local _MODREV, _SPECREV = 'dev', '-1'
 
 rockspec_format = '3.0'
 package = 'luaposix'
@@ -10,7 +10,7 @@ description = {
       A library binding various POSIX APIs. POSIX is the IEEE Portable
       Operating System Interface standard. luaposix is based on lposix.
    ]],
-   homepage = 'http://github.com/luaposix/luaposix/',
+   homepage = 'https://github.com/luaposix/luaposix/',
    license = 'MIT/X11',
 }
 
@@ -27,7 +27,7 @@ do
 end
 
 source = {
-   url = 'http://github.com/luaposix/luaposix/archive/v' .. _MODREV .. '.zip',
+   url = 'https://github.com/luaposix/luaposix/archive/v' .. _MODREV .. '.zip',
    dir = 'luaposix-' .. _MODREV,  
 }
 
@@ -67,10 +67,10 @@ test = {
    command = 'specl -vfreport --coverage spec/*_spec.yaml',
 }
 
-if _MODREV == 'git' then
+if _MODREV == 'dev' then
    dependencies[#dependencies + 1] = 'ldoc'
 
    source = {
-      url = 'git://github.com/luaposix/luaposix.git',
+      url = 'git+https://github.com/luaposix/luaposix.git',
    }
 end

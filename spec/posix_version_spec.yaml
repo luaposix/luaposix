@@ -17,4 +17,4 @@ specify posix.version:
 - it describes this module:
     expect(M).to_match '^posix '
 - it ends with the release number:
-    expect(M).to_match.any_of {' %d[%.%d]*$', ' git$'}
+    expect(M).to_match.any_of {' %d[%.%d]*$', ' dev$'}
