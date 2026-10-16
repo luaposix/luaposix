@@ -68,9 +68,13 @@ test = {
 }
 
 if _MODREV == 'dev' then
-   dependencies[#dependencies + 1] = 'ldoc'
+   -- luarocks.org's ldoc fails on Lua 5.5; gvvaughan's works.
+   build_dependencies = {'gvvaughan/ldoc'}
 
    source = {
       url = 'git+https://github.com/luaposix/luaposix.git',
    }
+else
+   -- A release commits its LDocs, so don't build them again.
+   build.build_command = build.build_command .. ' LDOC=true'
 end

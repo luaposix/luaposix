@@ -35,7 +35,11 @@ jobs:
         run: |
           sudo apt-get update -q -q --yes
           sudo apt-get install -y libyaml-dev
+          # LuaRocks 3.13.0 crashes writing the namespace of a namespaced
+          # dependency on Lua 5.1 (luarocks/luarocks#1831), so install
+          # gvvaughan/ldoc by hand, before anything else needs an ldoc.
           luarocks install --server=https://luarocks.org/manifests/gvvaughan ldoc
+          printf gvvaughan > "$(luarocks show --rock-dir ldoc)/rock_namespace"
           luarocks test --prepare
           test -n "${{ matrix.debug }}" && luarocks install std._debug || true
           test -n "${{ matrix.strict }}" && luarocks install std.strict || true
