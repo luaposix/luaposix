@@ -33,6 +33,7 @@ jobs:
 
       - name: install
         run: |
+          sudo apt-get update -q -q --yes
           sudo apt-get install -y libyaml-dev
           luarocks install --server=https://luarocks.org/manifests/gvvaughan ldoc
           luarocks test --prepare
