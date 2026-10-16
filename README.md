@@ -62,8 +62,8 @@ Note that there are full logs of complete builds for every commit in
 [Github Actions][actions], which you can compare with your progress if you
 get stuck.
 
-[luarocks]: http://www.luarocks.org "Lua package manager"
-[releases]: http://github.com/luaposix/luaposix/releases
+[luarocks]: https://luarocks.org "Lua package manager"
+[releases]: https://github.com/luaposix/luaposix/releases
 [actions]: https://github.com/luaposix/luaposix/actions
 
 
@@ -79,7 +79,7 @@ API declarations, which you can require individually:
 
 The authoritative online POSIX reference is published at [SUSv3][].
 
-[susv3]: http://www.opengroup.org/onlinepubs/007904875/toc.htm
+[susv3]: https://pubs.opengroup.org/onlinepubs/007904875/toc.htm
 
 
 Documentation
@@ -89,7 +89,7 @@ The latest release of this library is [documented in LDoc][github.io].
 Pre-built HTML files are included in the release, and contain links to
 the appropriate [SUSv3][] manual pages.
 
-[github.io]: http://luaposix.github.io/luaposix
+[github.io]: https://luaposix.github.io/luaposix
 
 
 Example code
@@ -100,7 +100,7 @@ examples in the generated documentation and BDD `specs/*_spec.yaml`.
 
 For a complete application, see the [GNU Zile][].
 
-[GNU Zile]: http://git.savannah.gnu.org/cgit/zile.git/log/?h=lua "A cut-down Emacs clone"
+[GNU Zile]: https://git.savannah.gnu.org/cgit/zile.git/log/?h=lua "A cut-down Emacs clone"
 
 
 Bugs reports and code contributions
@@ -146,4 +146,4 @@ points when proposing changes:
    POSIX APIs in the simplest way possible. If necessary, more
    convenient wrappers can be added in Lua (posix.lua).
 
-[issues]: http://github.com/luaposix/luaposix/issues
+[issues]: https://github.com/luaposix/luaposix/issues
