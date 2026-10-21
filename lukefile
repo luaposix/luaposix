@@ -121,20 +121,20 @@ modules  = {
          -- OpenBSD has clock_getres and clock_gettime but defines
          -- _POSIX_TIMERS to -1.
          {HAVE_CLOCK_GETTIME   = {checkfunc='clock_gettime'}},
-         {HAVE_TM_GMTOFF    = {checkmember='struct tm.tm_gmtoff', include='time.h'}},
-         {HAVE_TM_ZONE      = {checkmember='struct tm.tm_zone', include='time.h'}},
+         {HAVE_TM_GMTOFF       = {checkmember='struct tm.tm_gmtoff', include='time.h'}},
+         {HAVE_TM_ZONE         = {checkmember='struct tm.tm_zone', include='time.h'}},
       },
       libraries = {
          {
-            ifdef          = '_POSIX_TIMERS',
-            include        = 'unistd.h',
-            checksymbol    = 'clock_gettime',
-            library        = 'rt',
+            ifdef           = '_POSIX_TIMERS',
+            include         = 'unistd.h',
+            checksymbol     = 'clock_gettime',
+            library         = 'rt',
          },
       },
       sources   = 'ext/posix/time.c',
    }},
-   {['posix.unistd']       = {
+   {['posix.unistd']        = {
       defines   = {
          {HAVE_CRYPT           = {checkfunc='crypt'}},
          {HAVE_CRYPT_H         = {checkheader='crypt.h'}},
@@ -152,6 +152,12 @@ modules  = {
    {['posix.version']       = 'lib/posix/version.lua.in'},
 }
 
+
+-- Luke builds luaposix before committing it, without LuaRocks to say
+-- where lua.h is, so pass it yourself.  With Homebrew, for example:
+--
+--    build-aux/luke release version=X.Y \
+--       LUA_INCDIR=/opt/homebrew/include/lua5.5
 release  = {
    news               = 'NEWS.md',
    rockspec           = 'luaposix-dev-1.rockspec',
