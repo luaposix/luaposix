@@ -28,8 +28,10 @@ specify posix:
 
 - describe euidaccess:
   - before: f = M.euidaccess
-  - context with bad arguments:
-      badargs.diagnose("euidaccess(string, string)", f)
+  - context with bad arguments: |
+      if have_typecheck then
+         badargs.diagnose("euidaccess(string, string)", f)
+      end
 
 
 - describe errno:
@@ -48,8 +50,10 @@ specify posix:
 
 
 - describe openpty:
-  - context with bad arguments:
-      badargs.diagnose("openpty()", M.openpty)
+  - context with bad arguments: |
+      if have_typecheck then
+         badargs.diagnose("openpty()", M.openpty)
+      end
 
 
 - describe execx:
@@ -64,8 +68,10 @@ specify posix:
          return ({wait()})[3]
       end
 
-  - context with bad arguments:
-      badargs.diagnose("execx(function|table, [any...])", M.execx)
+  - context with bad arguments: |
+      if have_typecheck then
+         badargs.diagnose("execx(function|table, [any...])", M.execx)
+      end
 
   - it executes a command returning normal exit status:
       expect(f{"true"}).to_be(0)
@@ -94,8 +100,10 @@ specify posix:
 - describe spawn:
   - before: f = M.spawn
 
-  - context with bad arguments:
-      badargs.diagnose("spawn(function|table, [?any...])", f)
+  - context with bad arguments: |
+      if have_typecheck then
+         badargs.diagnose("spawn(function|table, [?any...])", f)
+      end
 
   - it spawns a command and can detect success:
       expect(f({"true"})).to_equal{0, "exited"}
@@ -114,8 +122,10 @@ specify posix:
   - before:
       popen, pclose = M.popen, M.pclose
       read, write, BUFSIZE = M.read, M.write, M.BUFSIZ
-  - context with bad arguments:
-      badargs.diagnose("popen(function|table, string, ?function)", popen)
+  - context with bad arguments: |
+      if have_typecheck then
+         badargs.diagnose("popen(function|table, string, ?function)", popen)
+      end
 
   - it spawns a command and reads its output:
       p = popen({"echo", "foo"}, "r")
@@ -138,8 +148,10 @@ specify posix:
   - before:
       popen_pipeline, pclose = M.popen_pipeline, M.pclose
       read, write, BUFSIZE = M.read, M.write, M.BUFSIZ
-  - context with bad arguments:
-      badargs.diagnose("popen_pipeline(function|table, string, ?function)", popen_pipeline)
+  - context with bad arguments: |
+      if have_typecheck then
+         badargs.diagnose("popen_pipeline(function|table, string, ?function)", popen_pipeline)
+      end
 
   - it spawns a pipeline and reads its output:
       p = popen_pipeline({{"echo", "foo", "bar", "baz"}, {"wc"}, {"wc", "-l"}}, "r")
@@ -165,8 +177,10 @@ specify posix:
 
       f = M.timeradd
 
-  - context with bad arguments:
-      badargs.diagnose("timeradd(table, table)", f)
+  - context with bad arguments: |
+      if have_typecheck then
+         badargs.diagnose("timeradd(table, table)", f)
+      end
 
   - context with systime.gettimeofday timervals:
     - it adds both fields of a timerval:
@@ -207,8 +221,10 @@ specify posix:
       tv2 = {tv_sec=1, tv_usec=876543}
       f = M.timercmp
 
-  - context with bad arguments:
-      badargs.diagnose("timercmp(table, table)", f)
+  - context with bad arguments: |
+      if have_typecheck then
+         badargs.diagnose("timercmp(table, table)", f)
+      end
 
   - context with systime.gettimeofday timervals:
     - it returns 0 if timers are equal:
@@ -235,8 +251,10 @@ specify posix:
       tv2 = {tv_sec=1, tv_usec=123456}
       f = M.timersub
 
-  - context with bad arguments:
-      badargs.diagnose("timersub(table, table)", f)
+  - context with bad arguments: |
+      if have_typecheck then
+         badargs.diagnose("timersub(table, table)", f)
+      end
 
   - context with systime.gettimeofday timervals:
     - it subtracts both fields of a timerval:
@@ -586,8 +604,10 @@ specify posix:
         chdir, glob, mkdtemp = M.chdir, M.glob, M.mkdtemp
         mkdir = M.mkdir
 
-    - context with bad arguments:
-        badargs.diagnose("glob([?string|table])", glob)
+    - context with bad arguments: |
+        if have_typecheck then
+           badargs.diagnose("glob([?string|table])", glob)
+        end
 
     - it matches files in the given directory:
         dir = mkdtemp(template)

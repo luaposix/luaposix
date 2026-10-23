@@ -54,12 +54,10 @@ build = {
       ,
 }
 
--- The bad argument specs expect typecheck's runtime argument checks.
 test_dependencies = {
    'ansicolors',
    'luacov',
    'specl >= 16.1',
-   'typecheck >= 3.1',
 }
 
 test = {

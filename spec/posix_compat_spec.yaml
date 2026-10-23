@@ -19,16 +19,18 @@ specify posix.compat:
       os.remove "xxx"
 
   - context with bad arguments: |
-      examples {
-         ["it diagnoses argument #2 invalid mode"] = function()
-            expect(chmod(".", "g+vv")).to_raise.any_of {
-               "bad argument #2 to '?' (bad mode)",
-               "bad argument #2 to 'chmod' (bad mode)",
-            }
-         end
-      }
+      if have_typecheck then
+         examples {
+            ["it diagnoses argument #2 invalid mode"] = function()
+               expect(chmod(".", "g+vv")).to_raise.any_of {
+                  "bad argument #2 to '?' (bad mode)",
+                  "bad argument #2 to 'chmod' (bad mode)",
+               }
+            end
+         }
 
-      badargs.diagnose("chmod(string, string)", chmod)
+         badargs.diagnose("chmod(string, string)", chmod)
+      end
 
   - it sets file mode with longhand mode string:
       mode = "rw---xr--"
@@ -56,16 +58,18 @@ specify posix.compat:
       creat = M.creat
 
   - context with bad arguments: |
-      badargs.diagnose("creat(string, string)", creat)
+      if have_typecheck then
+         badargs.diagnose("creat(string, string)", creat)
 
-      examples {
-         ["it diagnoses argument #2 invalid mode"] = function()
-            expect(creat("not/existing", "g+vv")).to_raise.any_of {
-               "bad argument #2 to '?' (bad mode)",
-               "bad argument #2 to 'creat' (bad mode)",
-            }
-         end
-      }
+         examples {
+            ["it diagnoses argument #2 invalid mode"] = function()
+               expect(creat("not/existing", "g+vv")).to_raise.any_of {
+                  "bad argument #2 to '?' (bad mode)",
+                  "bad argument #2 to 'creat' (bad mode)",
+               }
+            end
+         }
+      end
 
 
 - describe mkdir:
@@ -78,8 +82,10 @@ specify posix.compat:
       chdir(cwd)
       rmtmp(dir)
 
-  - context with bad arguments:
-      badargs.diagnose("mkdir(string)", mkdir)
+  - context with bad arguments: |
+      if have_typecheck then
+         badargs.diagnose("mkdir(string)", mkdir)
+      end
 
   - it creates the named directory:
       expect(Emsg(mkdir(dir .. "/subdir"))).not_to_contain "exists"
@@ -96,8 +102,10 @@ specify posix.compat:
   - after:
       rmtmp(dir)
 
-  - context with bad arguments:
-      badargs.diagnose("mkfifo(string)", mkfifo)
+  - context with bad arguments: |
+      if have_typecheck then
+         badargs.diagnose("mkfifo(string)", mkfifo)
+      end
 
   - it creates the named fifo:
       expect(Emsg(mkfifo(dir .. "/fifo"))).not_to_contain "exists"
@@ -111,8 +119,10 @@ specify posix.compat:
       msgget = M.msgget
       EEXIST, IPC_CREAT, IPC_EXCL = M.EEXIST, M.IPC_CREAT, M.IPC_EXCL
 
-  - context with bad arguments:
-      badargs.diagnose("msgget(int, ?int, ?string)", msgget)
+  - context with bad arguments: |
+      if have_typecheck then
+         badargs.diagnose("msgget(int, ?int, ?string)", msgget)
+      end
 
   - it creates a queue:
       if msgget then
@@ -134,34 +144,48 @@ specify posix.compat:
       O_CREAT = M.O_CREAT
       open, typeerrors = init(posix, "open")
 
-  - 'it diagnoses missing argument #1':
-      expect(open()).to_raise.any_of(typeerrors(1, "string"))
-  - 'it diagnoses argument #1 type not string':
-      expect(open(false)).to_raise.any_of(typeerrors(1, "string", "boolean"))
-  - 'it diagnoses missing argument #2':
-      expect(open("not/existing")).to_raise.any_of(typeerrors(2, "int"))
-  - 'it diagnoses argument #2 type not int':
-      expect(open("not/existing", false)).
-        to_raise.any_of(typeerrors(2, "int", "boolean"))
+  - 'it diagnoses missing argument #1': |
+      if have_typecheck then
+         expect(open()).to_raise.any_of(typeerrors(1, "string"))
+      end
+  - 'it diagnoses argument #1 type not string': |
+      if have_typecheck then
+         expect(open(false)).to_raise.any_of(typeerrors(1, "string", "boolean"))
+      end
+  - 'it diagnoses missing argument #2': |
+      if have_typecheck then
+         expect(open("not/existing")).to_raise.any_of(typeerrors(2, "int"))
+      end
+  - 'it diagnoses argument #2 type not int': |
+      if have_typecheck then
+         expect(open("not/existing", false)).
+           to_raise.any_of(typeerrors(2, "int", "boolean"))
+      end
   - 'it diagnoses missing argument #3':
       expect(open("not/existing", O_CREAT)).
         to_raise.any_of(typeerrors(3, "string"))
-  - 'it diagnoses argument #3 type not string':
-      expect(open("not/existing", O_CREAT, false)).
-        to_raise.any_of(typeerrors(3, "string", "boolean"))
+  - 'it diagnoses argument #3 type not string': |
+      if have_typecheck then
+         expect(open("not/existing", O_CREAT, false)).
+           to_raise.any_of(typeerrors(3, "string", "boolean"))
+      end
   - 'it diagnoses argument #3 invalid mode': |
       expect(open("not/existing", O_CREAT, "g+vv")).to_raise.any_of {
           "bad argument #3 to '?' (bad mode)",
           "bad argument #3 to 'open' (bad mode)",
       }
-  - 'it diagnoses too many arguments':
-      expect(open("not/existing", -1, "o-s", false)).to_raise.any_of(typeerrors(4))
+  - 'it diagnoses too many arguments': |
+      if have_typecheck then
+         expect(open("not/existing", -1, "o-s", false)).to_raise.any_of(typeerrors(4))
+      end
 
 
 - describe setlogmask:
-  - context with bad arguments:
-      if M.setlogmask then
-         badargs.diagnose("setlogmask(?int...)", M.setlogmask)
+  - context with bad arguments: |
+      if have_typecheck then
+         if M.setlogmask then
+            badargs.diagnose("setlogmask(?int...)", M.setlogmask)
+         end
       end
 
 
@@ -178,16 +202,18 @@ specify posix.compat:
       umask(saved)
 
   - context with bad arguments: |
-      examples {
-         ["it diagnoses argument #1 invalid mode"] = function()
-            expect(umask("g+vv")).to_raise.any_of {
-               "bad argument #1 to '?' (bad mode)",
-               "bad argument #1 to 'umask' (bad mode)",
-            }
-         end
-      }
+      if have_typecheck then
+         examples {
+            ["it diagnoses argument #1 invalid mode"] = function()
+               expect(umask("g+vv")).to_raise.any_of {
+                  "bad argument #1 to '?' (bad mode)",
+                  "bad argument #1 to 'umask' (bad mode)",
+               }
+            end
+         }
 
-      badargs.diagnose("umask(?string)", umask)
+         badargs.diagnose("umask(?string)", umask)
+      end
 
   - it returns current umask:
       expect(umask()).to_be "rwxr-x---"

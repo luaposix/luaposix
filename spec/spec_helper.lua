@@ -25,6 +25,10 @@ local bit = require 'posix._base'
 band, bnot, bor = bit.band, bit.bnot, bit.bor
 
 badargs = require 'specl.badargs'
+
+-- luaposix checks the arguments of its Lua functions only when typecheck
+-- loads, so skip their bad argument examples without it.
+have_typecheck = pcall(require, 'typecheck')
 hell = require 'specl.shell'
 posix = require 'posix'
 
