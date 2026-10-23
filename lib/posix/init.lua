@@ -430,10 +430,49 @@ do
       end
    end
 
-   -- Inject deprecated APIs (overwriting submodules) for backwards compatibility.
-   for k, v in next, (require 'posix.deprecated') do
-      rawset(M, k, v)
+   -- The undocumented posix.deprecated APIs had different signatures from
+   -- the submodule functions with the same names, so raise an error
+   -- rather than fall through to those.
+   local removed = {
+      bind = 'posix.sys.socket.bind',
+      clock_getres = 'posix.time.clock_getres',
+      clock_gettime = 'posix.time.clock_gettime',
+      connect = 'posix.sys.socket.connect',
+      exec = 'posix.unistd.exec',
+      execp = 'posix.unistd.execp',
+      fadvise = 'posix.fcntl.posix_fadvise',
+      fnmatch = 'posix.fnmatch.fnmatch',
+      getgroup = 'posix.grp.getgrgid or posix.grp.getgrnam',
+      getpasswd = 'posix.pwd.getpwuid or posix.pwd.getpwnam',
+      getpid = 'posix.unistd.getpid',
+      getrlimit = 'posix.sys.resource.getrlimit',
+      gettimeofday = 'posix.sys.time.gettimeofday',
+      gmtime = 'posix.time.gmtime',
+      hostid = 'posix.unistd.gethostid',
+      isgraph = 'posix.ctype.isgraph',
+      isprint = 'posix.ctype.isprint',
+      localtime = 'posix.time.localtime',
+      mktime = 'posix.time.mktime',
+      nanosleep = 'posix.time.nanosleep',
+      openlog = 'posix.syslog.openlog',
+      pathconf = 'posix.unistd.pathconf',
+      setrlimit = 'posix.sys.resource.setrlimit',
+      stat = 'posix.sys.stat.lstat',
+      statvfs = 'posix.sys.statvfs.statvfs',
+      strftime = 'posix.time.strftime',
+      strptime = 'posix.time.strptime',
+      sysconf = 'posix.unistd.sysconf',
+      times = 'posix.sys.times.times',
+      uname = 'posix.sys.utsname.uname',
+   }
+   for k, v in next, removed do
+      rawset(M, k, function()
+         error('posix.' .. k .. ' was removed after luaposix 37.0: use ' ..
+            v .. ' instead, or luaposix 37.0 for the old behaviour', 2)
+      end)
    end
+
+   -- Inject compatibility APIs (overwriting submodules).
    for k, v in next, (require 'posix.compat') do
       rawset(M, k, v)
    end

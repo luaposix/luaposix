@@ -9,11 +9,48 @@
 
 ### Incompatible Changes
 
-  - Without `std._debug` installed, `posix.deprecated` functions now
-    check their arguments whenever `typecheck` is installed, rather
-    than never, so a bad argument raises an error instead of
-    misbehaving.  Install `std._debug` and set `_DEBUG = false` to turn
-    the checks off again.
+  - The undocumented `posix.deprecated` module is gone, along with the
+    legacy APIs it added to the `posix` module in place of the
+    submodule functions of the same names, which were kept for
+    compatibility with luaposix 32 and earlier.  Calling one of them
+    from the `posix` module raises an error naming its replacement:
+
+    | Removed        | Use instead                                  |
+    |----------------|----------------------------------------------|
+    | `bind`         | `posix.sys.socket.bind`                      |
+    | `clock_getres` | `posix.time.clock_getres`                    |
+    | `clock_gettime`| `posix.time.clock_gettime`                   |
+    | `connect`      | `posix.sys.socket.connect`                   |
+    | `exec`         | `posix.unistd.exec`                          |
+    | `execp`        | `posix.unistd.execp`                         |
+    | `fadvise`      | `posix.fcntl.posix_fadvise`                  |
+    | `fnmatch`      | `posix.fnmatch.fnmatch`                      |
+    | `getgroup`     | `posix.grp.getgrgid` or `posix.grp.getgrnam` |
+    | `getpasswd`    | `posix.pwd.getpwuid` or `posix.pwd.getpwnam` |
+    | `getpid`       | `posix.unistd.getpid`                        |
+    | `getrlimit`    | `posix.sys.resource.getrlimit`               |
+    | `gettimeofday` | `posix.sys.time.gettimeofday`                |
+    | `gmtime`       | `posix.time.gmtime`                          |
+    | `hostid`       | `posix.unistd.gethostid`                     |
+    | `isgraph`      | `posix.ctype.isgraph`                        |
+    | `isprint`      | `posix.ctype.isprint`                        |
+    | `localtime`    | `posix.time.localtime`                       |
+    | `mktime`       | `posix.time.mktime`                          |
+    | `nanosleep`    | `posix.time.nanosleep`                       |
+    | `openlog`      | `posix.syslog.openlog`                       |
+    | `pathconf`     | `posix.unistd.pathconf`                      |
+    | `setrlimit`    | `posix.sys.resource.setrlimit`               |
+    | `stat`         | `posix.sys.stat.lstat`                       |
+    | `statvfs`      | `posix.sys.statvfs.statvfs`                  |
+    | `strftime`     | `posix.time.strftime`                        |
+    | `strptime`     | `posix.time.strptime`                        |
+    | `sysconf`      | `posix.unistd.sysconf`                       |
+    | `times`        | `posix.sys.times.times`                      |
+    | `uname`        | `posix.sys.utsname.uname`                    |
+
+    The replacements take and return the POSIX structures, rather than
+    selecting fields by name; luaposix 37.0 is the last release with
+    the old APIs.
 
 ### Bugs Fixed
 

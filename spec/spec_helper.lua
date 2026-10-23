@@ -97,6 +97,29 @@ end
 local st = require 'posix.sys.stat'
 local stat, S_ISDIR = st.lstat, st.S_ISDIR
 
+
+-- One field of what lstat says about a file, with `mode` as a string
+-- such as 'rwxr-x---' and `type` as a name such as 'directory'.
+local pushmode = require 'posix._base'.pushmode
+local filetypes = {
+   S_ISREG = 'regular', S_ISLNK = 'link', S_ISDIR = 'directory',
+   S_ISCHR = 'character device', S_ISBLK = 'block device',
+   S_ISFIFO = 'fifo', S_ISSOCK = 'socket',
+}
+function filestat(path, field)
+   local info = stat(path)
+   if field == 'mode' then
+      return pushmode(info.st_mode)
+   elseif field == 'type' then
+      for test, name in pairs(filetypes) do
+         if st[test](info.st_mode) ~= 0 then
+            return name
+         end
+      end
+   end
+   return info['st_' .. field]
+end
+
 -- Recursively remove a temporary directory.
 function rmtmp(dir)
    for f in posix.files(dir) do

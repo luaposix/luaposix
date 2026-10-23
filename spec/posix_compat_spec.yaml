@@ -12,7 +12,7 @@ specify posix.compat:
 
 - describe chmod:
   - before:
-      chmod, stat = M.chmod, M.stat
+      chmod, stat = M.chmod, filestat
       touch "xxx"
       chmod("xxx", "rwxr-x---")
   - after:
@@ -101,7 +101,7 @@ specify posix.compat:
 
   - it creates the named fifo:
       expect(Emsg(mkfifo(dir .. "/fifo"))).not_to_contain "exists"
-      expect(M.stat(dir .. "/fifo").type).to_be "fifo"
+      expect(filestat(dir .. "/fifo", "type")).to_be "fifo"
   - it diagnoses already existing fifo:
       expect(Emsg(mkfifo(dir))).to_contain "exists"
 
@@ -167,7 +167,7 @@ specify posix.compat:
 
 - describe umask:
   - before:
-      stat, umask = M.stat, M.umask
+      stat, umask = filestat, M.umask
       saved = umask()
       umask "rwxr-x---"
 

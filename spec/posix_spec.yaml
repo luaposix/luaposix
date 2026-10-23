@@ -19,6 +19,13 @@ specify posix:
       expect(show_apis {added_to=global_table, by=this_module}).
          to_equal {}
 
+- context with APIs removed after 37.0:
+  - it raises an error naming the replacement: |
+      expect(M.stat('.', 'type')).
+         to_raise "posix.stat was removed after luaposix 37.0: use posix.sys.stat.lstat instead"
+  - it leaves the submodule function alone:
+      expect(require 'posix.sys.stat'.lstat('.').st_mode).not_to_be(nil)
+
 - describe euidaccess:
   - before: f = M.euidaccess
   - context with bad arguments:
@@ -424,7 +431,7 @@ specify posix:
           SUCCESS = 0
           fd, path = mkstemp "tmpXXXXXX"
           close(fd)
-          parent_pid = M.getpid "pid"
+          parent_pid = require 'posix.unistd'.getpid()
 
           query_lock = {
              l_type = F_RDLCK, l_whence = SEEK_SET, l_start = 0, l_len = 0,
@@ -695,7 +702,7 @@ specify posix:
 
   - describe link:
     - before:
-        link, stat = M.link, M.stat
+        link, stat = M.link, filestat
         touch "xxx"
     - after:
         os.remove "xxx"
@@ -758,7 +765,7 @@ specify posix:
 
   - describe utime:
     - before:
-        stat, utime = M.stat, M.utime
+        stat, utime = filestat, M.utime
         touch "xxx"
     - after:
         os.remove "xxx"
@@ -797,8 +804,8 @@ specify posix:
     # NOTE: Calling expect in a child process does not report results
     #       back to parent, so we send test data over a pipe.
     - before:
-        nice, execp, fork, getpid, getppid, wait =
-           M.nice, M.execp, M.fork, M.getpid, M.getppid, M.wait
+        nice, fork, getpid, getppid, wait =
+           M.nice, M.fork, require 'posix.unistd'.getpid, M.getppid, M.wait
         _exit, close, pipe, read, write =
            M._exit, M.close, M.pipe, M.read, M.write
         P_CHILD = 0
@@ -813,7 +820,7 @@ specify posix:
            close(r) -- close unused read end
            -- write parent pid and child pid to shared pipe.
            write(w, tostring(getppid()).."\n")
-           write(w, tostring(getpid "pid").."\n")
+           write(w, tostring(getpid()).."\n")
            close(w)
            _exit(status)
         else
@@ -826,7 +833,7 @@ specify posix:
            buf = M.read(r, 1024)
            cppid, cpid = string.match(buf, "(%d+)\n(%d+)\n")
            close(r)
-           expect(cppid).to_be(tostring(getpid "pid"))
+           expect(cppid).to_be(tostring(getpid()))
            expect(cpid).to_be(tostring(process))
         end
 

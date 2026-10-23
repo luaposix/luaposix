@@ -45,7 +45,6 @@ modules  = {
    {['posix._bitwise']      = 'lib/posix/_bitwise.lua'},
    {['posix._strict']       = 'lib/posix/_strict.lua'},
    {['posix.compat']        = 'lib/posix/compat.lua'},
-   {['posix.deprecated']    = 'lib/posix/deprecated.lua'},
    {['posix.sys']           = 'lib/posix/sys.lua'},
    {['posix.util']          = 'lib/posix/util.lua'},
 
