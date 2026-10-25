@@ -7,6 +7,12 @@
   - Support for XSI extensions `WIFCONTINUED` and `WCONTINUED` in
     `posix.sys.wait`.
 
+### Bugs Fixed
+
+  - The `msqid` argument of `posix.sys.msg.msgctl`, the values to set
+    with `IPC_SET`, is in the LDoc reference, where its documentation had
+    been left out.
+
 ### Incompatible Changes
 
   - luaposix is built from the `build` table of its rockspec, by the

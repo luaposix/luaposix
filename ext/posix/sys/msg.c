@@ -104,7 +104,7 @@ tomsqid(lua_State *L, int index, struct msqid_ds *msqid)
 @function msgctl
 @int id message queue identifier returned by @{msgget}
 @int cmd one of `IPC_STAT`, `IPC_SET` or `IPC_RMID`
-@PosixMsqid[opt=nil] values to set with `IPC_SET`
+@tparam[opt=nil] PosixMsqid msqid values to set with `IPC_SET`
 @treturn[1] PosixMsqid table for *id*, with `IPC_STAT`, if successful
 @treturn[2] non-nil, with `IPC_SET` or `IPC_RMID`, if successful
 @treturn[3] nil otherwise
