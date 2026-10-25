@@ -57,8 +57,9 @@ jobs:
 
       - name: build
         run: |
-          # Install into specl's tree, off the examples' search path, so
-          # they still test the luaposix in this tree.
+          # Install into specl's tree, off the examples' Lua search path, so
+          # they still test the Lua modules in this tree, with the C modules
+          # of this rock.
           luarocks make --force
 
       - name: docs
@@ -71,7 +72,7 @@ jobs:
         run: |
           V=$(lua -e 'print((_VERSION:gsub("^Lua ", "")))')
           echo "LUA_PATH=$DEPS/share/lua/$V/?.lua;$DEPS/share/lua/$V/?/init.lua" >> "$GITHUB_ENV"
-          echo "LUA_CPATH=$DEPS/lib/lua/$V/?.so" >> "$GITHUB_ENV"
+          echo "LUA_CPATH=$DEPS/lib/lua/$V/?.so;$GITHUB_WORKSPACE/.luarocks/lib/lua/$V/?.so" >> "$GITHUB_ENV"
 
       - name: check optional modules
         run: |
