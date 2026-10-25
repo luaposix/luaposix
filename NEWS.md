@@ -18,8 +18,8 @@
   - luaposix is built from the `build` table of its rockspec, by the
     `luarocks-build-luke` LuaRocks build backend, which LuaRocks
     installs for the build, so there is no `build-aux/luke` build to
-    run, and no build without LuaRocks.  Building LDocs, which a release
-    commits, no longer needs a build dependency of its own.
+    run, and no build without LuaRocks.  The rock does not build LDocs,
+    which `luke release` builds and commits.
 
   - The undocumented `posix.deprecated` module is gone, along with the
     legacy APIs it added to the `posix` module in place of the
