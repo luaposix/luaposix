@@ -12,6 +12,11 @@
 
 ### Bugs Fixed
 
+  - The LDoc reference of `posix.grp.getgrgid`, `posix.grp.getgrnam`,
+    `posix.pwd.getpwnam` and `posix.pwd.getpwuid` says that they return
+    just `nil`, not an error message, when the group or user does not
+    exist.
+
   - The `msqid` argument of `posix.sys.msg.msgctl`, the values to set
     with `IPC_SET`, is in the LDoc reference, where its documentation had
     been left out.
