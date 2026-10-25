@@ -247,5 +247,25 @@ specify posix.time:
 
 
 - describe tzset:
+  - before: |
+      tzset = M.tzset
+      stdlib = require 'posix.stdlib'
+      TZ = os.getenv "TZ"
+
+  - after: |
+      stdlib.setenv("TZ", TZ)
+      tzset()
+
   - context with bad arguments:
-      badargs.diagnose(M.tzset, "()")
+      badargs.diagnose("()", tzset)
+
+  - it applies a change of the TZ environment variable: |
+      stdlib.setenv("TZ", "UTC0")
+      tzset()
+      t = M.localtime(0)
+      expect({t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour}).to_equal {70, 0, 1, 0}
+
+      stdlib.setenv("TZ", "EST5")
+      tzset()
+      t = M.localtime(0)
+      expect({t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour}).to_equal {69, 11, 31, 19}

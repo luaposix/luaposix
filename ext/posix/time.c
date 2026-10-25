@@ -352,9 +352,18 @@ Ptime(lua_State *L)
 
 
 /***
-Set timezone information
+Apply the `TZ` environment variable to the timezone information used by
+functions such as @{localtime}, @{mktime} and @{strftime}.
+
+Some C libraries, such as the GNU one, do not notice a change of `TZ`
+made with @{posix.stdlib.setenv} until `tzset` is called.
 @function tzset
 @see tzset(3)
+@usage
+  local stdlib = require "posix.stdlib"
+  local time = require "posix.time"
+  stdlib.setenv("TZ", "UTC0")
+  time.tzset()
 */
 static int
 Ptzset(lua_State *L)

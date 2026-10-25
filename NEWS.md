@@ -4,6 +4,9 @@
 
 ### New Features
 
+  - New `posix.time.tzset`, to apply a change of the `TZ` environment
+    variable, as in `tzset(3)`.
+
   - New `posix.unistd.exece`, to execute a program with a specified
     environment, as in `execve(2)`.
 
