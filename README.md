@@ -44,13 +44,17 @@ report for example):
     luarocks install https://raw.githubusercontent.com/luaposix/luaposix/master/luaposix-dev-1.rockspec
 ```
 
-The best way to install without [LuaRocks][], is to call the bundled
-`build-aux/luke` command, as shown in the `build` section of the
-included rockspec file, from a freshly cloned working copy.
+To install into a tree of your own from a clone of the [repository][luaposix],
+and run the specs:
 
-Note that you'll be responsible for providing dependencies if you choose
-not to let [LuaRocks][] handle them for you, though you can find a list
-of minimal dependencies in the rockspec file.
+```sh
+cd luaposix
+luarocks --tree LUAPOSIX-INSTALL-TREE make luaposix-dev-1.rockspec
+luarocks --tree LUAPOSIX-INSTALL-TREE test
+```
+
+[LuaRocks][] builds luapoisx with [luarocks-build-luke], which it installs for
+the build.
 
 If you are repackaging or redistributing [luaposix][github], it is better
 to start from a [release tarball][releases], because the [master][github]
@@ -62,9 +66,11 @@ Note that there are full logs of complete builds for every commit in
 [Github Actions][actions], which you can compare with your progress if you
 get stuck.
 
-[luarocks]: https://luarocks.org "Lua package manager"
-[releases]: https://github.com/luaposix/luaposix/releases
 [actions]: https://github.com/luaposix/luaposix/actions
+[luaposix]: https://github.com/luaposix/luaposix
+[luarocks]: https://luarocks.org "Lua package manager"
+[luarocks-build-luke]: https://luarocks.org/modules/gvvaughan/luarocks-build-luke
+[releases]: https://github.com/luaposix/luaposix/releases
 
 
 Use

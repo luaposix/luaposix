@@ -14,6 +14,11 @@ description = {
    license = 'MIT/X11',
 }
 
+source = {
+   url = 'https://github.com/luaposix/luaposix/archive/v' .. _MODREV .. '.zip',
+   dir = 'luaposix-' .. _MODREV,  
+}
+
 dependencies = {
    'lua >= 5.1, < 5.6',
 }
@@ -26,32 +31,161 @@ do
    end
 end
 
-source = {
-   url = 'https://github.com/luaposix/luaposix/archive/v' .. _MODREV .. '.zip',
-   dir = 'luaposix-' .. _MODREV,  
+build_dependencies = {
+   'luarocks-build-luke >= 0.2',
 }
 
 build = {
-   type = 'command',
-   build_command = '$(LUA) build-aux/luke'
-      .. ' package="' .. package .. '"'
-      .. ' version="' .. _MODREV .. '"'
-      .. ' PREFIX="$(PREFIX)"'
-      .. ' LUA="$(LUA)"'
-      .. ' LUA_INCDIR="$(LUA_INCDIR)"'
-      .. ' CC="$(CC)"'
-      .. ' LD="$(LD)"'
-      .. ' CFLAGS="$(CFLAGS)"'
-      .. ' LIBFLAG="$(LIBFLAG)"'
-      .. ' LIB_EXTENSION="$(LIB_EXTENSION)"'
-      .. ' OBJ_EXTENSION="$(OBJ_EXTENSION)"'
-      .. ' INST_LIBDIR="$(LIBDIR)"'
-      .. ' INST_LUADIR="$(LUADIR)"'
-      ,
-   install_command = '$(LUA) build-aux/luke install --quiet'
-      .. ' INST_LIBDIR="$(LIBDIR)"'
-      .. ' INST_LUADIR="$(LUADIR)"'
-      ,
+   type = 'luke',
+
+   defines  = {
+      {PACKAGE = '"$package"'},
+      {VERSION = '"$version"'},
+      'NDEBUG',
+      '_FORTIFY_SOURCE=2',
+      platforms    = {
+         aix       = {'_ALL_SOURCE'},
+         bsd       = {'_BSD_SOURCE'},
+         freebsd   = {'__BSD_VISIBLE'},
+         -- Some Linux distros only reveal tm.tm_gmtoff and tm.tm_zone with
+         -- _BSD_SOURCE defined.
+         linux     = {
+            '_BSD_SOURCE',
+            '_DEFAULT_SOURCE',
+         },
+         macosx    = {'_DARWIN_C_SOURCE'},
+         -- QNX is only POSIX 2001, but _XOPEN_SOURCE turns off other functions
+         -- luaposix can bind.
+         qnx       = {'_POSIX_C_SOURCE=200112L'},
+         unix      = {
+            '_POSIX_C_SOURCE=200809L',
+            '_XOPEN_SOURCE=700',
+         },
+         -- Otherwise, enable POSIX 2008.   Please send the output of `uname -s` if
+         -- your host is not compliant.
+         '_POSIX_C_SOURCE=200809L',
+      },
+   },
+
+   incdirs  = {
+      'ext/include',
+      '$LUA_INCDIR',
+   },
+
+   modules  = {
+      {['posix']               = 'lib/posix/init.lua'},
+      {['posix._base']         = 'lib/posix/_base.lua'},
+      {['posix._bitwise']      = 'lib/posix/_bitwise.lua'},
+      {['posix._strict']       = 'lib/posix/_strict.lua'},
+      {['posix.compat']        = 'lib/posix/compat.lua'},
+      {['posix.sys']           = 'lib/posix/sys.lua'},
+      {['posix.util']          = 'lib/posix/util.lua'},
+
+      {['posix.ctype']         = 'ext/posix/ctype.c'},
+      {['posix.dirent']        = 'ext/posix/dirent.c'},
+      {['posix.errno']         = 'ext/posix/errno.c'},
+      {['posix.fcntl']         = {
+         defines  = {
+            {HAVE_POSIX_FADVISE   = {checkfunc='posix_fadvise'}},
+         },
+         sources   = 'ext/posix/fcntl.c',
+      }},
+      {['posix.fnmatch']       = 'ext/posix/fnmatch.c'},
+      {['posix.glob']          = 'ext/posix/glob.c'},
+      {['posix.grp']           = 'ext/posix/grp.c'},
+      {['posix.libgen']        = 'ext/posix/libgen.c'},
+      {['posix.poll']          = 'ext/posix/poll.c'},
+      {['posix.pwd']           = 'ext/posix/pwd.c'},
+      {['posix.sched']         = {
+         defines   = {
+            {HAVE_SCHED_H            = {checkheader='sched.h'}},
+            {HAVE_SCHED_GETSCHEDULER = {checkfunc='sched_getscheduler'}},
+            {HAVE_SCHED_SETSCHEDULER = {checkfunc='sched_setscheduler'}},
+         },
+         sources   = 'ext/posix/sched.c',
+      }},
+      {['posix.signal']        = 'ext/posix/signal.c'},
+      {['posix.stdio']         = 'ext/posix/stdio.c'},
+      {['posix.stdlib']        = 'ext/posix/stdlib.c'},
+      {['posix.sys.msg']       = {
+         defines   = {
+            {HAVE_SYS_MSG_H    = {checkheader='sys/msg.h'}},
+            {HAVE_MSGRCV       = {checkfunc='msgrcv'}},
+            {HAVE_MSGSND       = {checkfunc='msgsnd'}},
+         },
+         sources   = 'ext/posix/sys/msg.c',
+      }},
+      {['posix.sys.resource']  = 'ext/posix/sys/resource.c'},
+      {['posix.sys.socket']    = {
+         defines   = {
+            {HAVE_NET_IF_H           = {checkheader='net/if.h', include='sys/socket.h'}},
+            {HAVE_LINUX_NETLINK_H    = {checkheader='linux/netlink.h', include='sys/socket.h'}},
+            {HAVE_LINUX_IF_PACKET_H  = {checkheader='linux/if_packet.h', include='sys/socket.h'}},
+         },
+         libraries = {
+            {checksymbol='socket', library='socket'},
+         },
+         sources   = 'ext/posix/sys/socket.c',
+      }},
+      {['posix.sys.stat']      = 'ext/posix/sys/stat.c'},
+      {['posix.sys.statvfs']   = {
+         defines   = {
+            {HAVE_STATVFS      = {checkfunc='statvfs'}},
+         },
+         sources   = 'ext/posix/sys/statvfs.c',
+      }},
+      {['posix.sys.time']      = 'ext/posix/sys/time.c'},
+      {['posix.sys.times']     = 'ext/posix/sys/times.c'},
+      {['posix.sys.utsname']   = 'ext/posix/sys/utsname.c'},
+      {['posix.sys.wait']      = 'ext/posix/sys/wait.c'},
+      {['posix.syslog']        = 'ext/posix/syslog.c'},
+      {['posix.termio']        = {
+         defines   = {
+            {HAVE_TERMIOS_H    = {checkheader='termios.h'}},
+            {HAVE_WS_XPIXEL    = {checkmember='struct winsize.ws_xpixel', include='termios.h'}},
+            {HAVE_WS_YPIXEL    = {checkmember='struct winsize.ws_ypixel', include='termios.h'}},
+         },
+         sources   = 'ext/posix/termio.c',
+      }},
+      {['posix.time']          = {
+         defines   = {
+            -- Check the function directly rather than _POSIX_TIMERS, because
+            -- OpenBSD has clock_getres and clock_gettime but defines
+            -- _POSIX_TIMERS to -1.
+            {HAVE_CLOCK_GETTIME   = {checkfunc='clock_gettime'}},
+            {HAVE_TM_GMTOFF       = {checkmember='struct tm.tm_gmtoff', include='time.h'}},
+            {HAVE_TM_ZONE         = {checkmember='struct tm.tm_zone', include='time.h'}},
+         },
+         libraries = {
+            {
+               ifdef           = '_POSIX_TIMERS',
+               include         = 'unistd.h',
+               checksymbol     = 'clock_gettime',
+               library         = 'rt',
+            },
+         },
+         sources   = 'ext/posix/time.c',
+      }},
+      {['posix.unistd']        = {
+         defines   = {
+            {HAVE_CRYPT           = {checkfunc='crypt'}},
+            {HAVE_CRYPT_H         = {checkheader='crypt.h'}},
+            {HAVE_DECL_FDATASYNC  = {checkdecl='fdatasync', include='unistd.h'}},
+            {HAVE_FDATASYNC       = {checkfunc='fdatasync'}},
+            {HAVE_GETHOSTID       = {checkfunc='gethostid'}},
+            {HAVE_SETGROUPS       = {checkfunc='setgroups'}},
+         },
+         libraries = {
+            {checksymbol='crypt', library='crypt'},
+         },
+         sources   = 'ext/posix/unistd.c',
+      }},
+      {['posix.utime']         = 'ext/posix/utime.c'},
+      {['posix.version']       = 'lib/posix/version.lua.in'},
+   },
+
+   -- A release commits its LDocs to install.
+   copy_directories = {'doc'},
 }
 
 test_dependencies = {
@@ -67,12 +201,11 @@ test = {
 
 if _MODREV == 'dev' then
    -- luarocks.org's ldoc fails on Lua 5.5; gvvaughan's works.
-   build_dependencies = {'gvvaughan/ldoc'}
+   build_dependencies[#build_dependencies + 1] = 'gvvaughan/ldoc'
+
+   build.copy_directories = nil
 
    source = {
       url = 'git+https://github.com/luaposix/luaposix.git',
    }
-else
-   -- A release commits its LDocs, so don't build them again.
-   build.build_command = build.build_command .. ' LDOC=true'
 end
