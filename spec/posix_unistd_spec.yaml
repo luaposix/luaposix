@@ -44,6 +44,54 @@ specify posix.unistd:
       badargs.diagnose("(string, table)", M.exec)
 
 
+- describe exece:
+  - before: |
+      exece = M.exece
+
+      P_CHILD = 0
+
+      -- run sh in a child with ENV, and return what it wrote to stdout
+      function sh(script, env)
+         local rd, wr = M.pipe()
+         local process = M.fork()
+         if process == P_CHILD then
+            M.close(rd)
+            M.dup2(wr, 1)
+            exece("/bin/sh", {"-c", script}, env)
+            expect("not reached").to_be(true)
+         end
+         M.close(wr)
+         local out = M.read(rd, 1024)
+         M.close(rd)
+         require 'posix.sys.wait'.wait(process)
+         return out
+      end
+
+  - context with bad arguments:
+      badargs.diagnose("(string, table, table)", exece)
+
+  - it diagnoses bad environment entries:
+      expect(exece("/bin/true", {}, {FOO=true})).to_raise "expected string keys"
+      expect(exece("/bin/true", {}, {"FOO"})).to_raise "expected string keys"
+
+  - it runs a program with the given environment:
+      expect(sh("echo $FOO", {FOO="bar"})).to_be "bar\n"
+
+  - it accepts number values:
+      expect(sh("echo $FOO", {FOO=42})).to_be "42\n"
+
+  - it replaces the environment of the new process: |
+      expect(sh("echo ${HOME-unset}", {FOO="bar"})).to_be "unset\n"
+
+  - it accepts an empty environment:
+      expect(sh("echo ${FOO-unset}", {})).to_be "unset\n"
+
+  - it accepts a large environment: |
+      local env = {}
+      for i = 1, 500 do env["VAR" .. i] = tostring(i) end
+      expect(sh("echo $VAR1 $VAR500", env)).to_be "1 500\n"
+
+
 - describe execp:
   - before: |
       execp = M.execp

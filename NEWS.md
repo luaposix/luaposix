@@ -4,6 +4,9 @@
 
 ### New Features
 
+  - New `posix.unistd.exece`, to execute a program with a specified
+    environment, as in `execve(2)`.
+
   - Support for XSI extensions `WIFCONTINUED` and `WCONTINUED` in
     `posix.sys.wait`.
 

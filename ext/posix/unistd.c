@@ -288,13 +288,15 @@ Pdup2(lua_State *L)
 static int
 runexec(lua_State *L, int use_shell, int with_env)
 {
-	char **argv, **envp;
+	char **argv, **envp = NULL;
 	const char *path = luaL_checkstring(L, 1);
 	int i, n;
 	checknargs(L, with_env ? 3 : 2);
 
 	if (lua_type(L, 2) != LUA_TTABLE)
 		argtypeerror(L, 2, "table");
+	if (with_env && lua_type(L, 3) != LUA_TTABLE)
+		argtypeerror(L, 3, "table");
 
 	n = lua_objlen(L, 2);
 	argv = lua_newuserdata(L, (n + 2) * sizeof(char*));
@@ -319,9 +321,6 @@ runexec(lua_State *L, int use_shell, int with_env)
 
 	if (with_env) {
 		/* Now parse envp */
-		if (lua_type(L, 3) != LUA_TTABLE)
-			argtypeerror(L, 3, "table");
-
 		/* Traverse once to get the number of entries in envp */
 		n = 0;
 		lua_pushnil(L);
@@ -330,29 +329,28 @@ runexec(lua_State *L, int use_shell, int with_env)
 			lua_pop(L, 1);
 		}
 
+		/* Each "NAME=value" string stays on the stack until exec. */
+		luaL_checkstack(L, n + 4, "too many environment entries");
 		envp = lua_newuserdata(L, (n + 1) * sizeof(char *));
 
 		/* Now traverse again, adding entries to the C array */
 		i = 0;
 		lua_pushnil(L);
 		while (lua_next(L, 3) != 0) {
-			char *key, *val;
-			size_t keylen, vallen;
+			int valtype = lua_type(L, -1);
 
-			/* To avoid problems with modifying keys during traversal, make a copy of key */
-			lua_pushvalue(L, -2);
+			if (lua_type(L, -2) != LUA_TSTRING ||
+			    (valtype != LUA_TSTRING && valtype != LUA_TNUMBER))
+				return luaL_argerror(L, 3,
+					"expected string keys and string or number values");
 
-			key = lua_tolstring(L, -1, &keylen);
-			val = lua_tolstring(L, -2, &vallen);
-
-			envp[i++] = lua_pushfstring(L, "%s=%s", key, val);
-
-			/* lua_next needs key on top but popping envp[i] would risk it being deallocated */
-			lua_insert(L, -4);
-
-			lua_pop(L, 2);
+			/* Leave the key on top for lua_next, the new entry below it. */
+			envp[i++] = (char *) lua_pushfstring(L, "%s=%s",
+				lua_tostring(L, -2), lua_tostring(L, -1));
+			lua_insert(L, -3);
+			lua_pop(L, 1);
 		}
-		envp[n+1] = NULL;
+		envp[n] = NULL;
 	}
 
 	if (with_env)
@@ -382,10 +380,14 @@ Pexec(lua_State *L)
 
 /***
 Execute a program at exactly *path* with a specified environment.
+
+Unlike @{execp}, *path* is not searched for in the command PATH, and
+*envp* replaces the environment of the new process, rather than being
+merged into it.
 @function exece
 @string path
 @tparam table argt arguments (table can include index 0)
-@tparam table envp environment
+@tparam table envp environment, as a table of `NAME = value` strings
 @return nil
 @treturn string error message
 @treturn int errnum
