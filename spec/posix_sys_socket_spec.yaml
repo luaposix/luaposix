@@ -369,27 +369,6 @@ specify posix.sys.socket:
         expect(setsockopt(1, M.SOL_SOCKET, M.SO_LINGER, 4, 5, false)).
            to_raise.any_of(typeerrors(6))
 
-  - it communicates with IPV4 and IPV6 over loopback: |
-      fd = M.socket(M.AF_INET6, M.SOCK_DGRAM, 0)
-      expect(type(fd)).to_be "number"
-      expect(fd >= 0).to_be(true)
-
-      expect(setsockopt(fd, M.SOL_SOCKET, M.SO_RCVTIMEO, 1, 0)).to_be(0)
-
-      expect(M.bind(fd, {family=M.AF_INET6, addr="::", port=9999})).
-         to_be(0)
-
-      pending "not portable"
-      sockt = {family=M.AF_INET, addr="127.0.0.1", port=59999}
-      expect({M.sendto(fd, "Test ipv4", sockt)}).to_equal.any_of {
-         {9},
-         {nil, "sendto: Invalid argument", 22},
-      }
-
-      pending "issue #92"
-      data, so = M.recvfrom(fd, 1024)
-      expect(data).to_be "Test ipv4"
-
 
 - describe getsockopt:
   - before:
@@ -425,3 +404,38 @@ specify posix.sys.socket:
   - it returns a number for SO_ERROR:
       expect(type(getsockopt(testsock, M.SOL_SOCKET, M.SO_ERROR))).
          to_be("number")
+
+
+- describe UDP over loopback:
+  - before: |
+      unistd = require 'posix.unistd'
+
+      -- Send a datagram between two sockets of family on addr, to an
+      -- ephemeral port, and return what was sent and received, or nil
+      -- if the host has no such loopback address.
+      function exchange(family, addr)
+         local rx = M.socket(family, M.SOCK_DGRAM, 0)
+         local tx = M.socket(family, M.SOCK_DGRAM, 0)
+         local sent, data
+         if rx and tx and M.bind(rx, {family=family, addr=addr, port=0}) == 0 then
+            M.setsockopt(rx, M.SOL_SOCKET, M.SO_RCVTIMEO, 1, 0)
+            local port = M.getsockname(rx).port
+            sent = M.sendto(tx, "Test " .. addr, {family=family, addr=addr, port=port})
+            data = M.recvfrom(rx, 1024)
+         end
+         if rx then unistd.close(rx) end
+         if tx then unistd.close(tx) end
+         return sent, data
+      end
+
+  - it communicates over IPV4:
+      sent, data = exchange(M.AF_INET, "127.0.0.1")
+      expect(sent).to_be(#"Test 127.0.0.1")
+      expect(data).to_be "Test 127.0.0.1"
+
+  - it communicates over IPV6:
+      sent, data = exchange(M.AF_INET6, "::1")
+      if sent then
+         expect(sent).to_be(#"Test ::1")
+         expect(data).to_be "Test ::1"
+      end

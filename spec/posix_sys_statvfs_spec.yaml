@@ -36,10 +36,7 @@ specify posix.sys.statvfs:
             expect(sv[field] >= 0).to_be(true)
          end
       end
-  - it returns a non-negative value from fsid: |
-      -- Merge this back into the previous example when #102 is fixed
+  - it fetches the file system id:
       if statvfs then
-         sv = statvfs "/"
-         pending "issue #102"
-         expect(sv[field] >= 0).to_be(true)
+         expect(type(statvfs("/").f_fsid)).to_be "number"
       end
