@@ -1,4 +1,4 @@
-local _MODREV, _SPECREV = 'dev', '-1'
+local _MODREV, _SPECREV = '38', '-1'
 
 rockspec_format = '3.0'
 package = 'luaposix'
