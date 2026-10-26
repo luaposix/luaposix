@@ -2,6 +2,9 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+
+## Noteworthy changes in release 38 (2026-10-25) [stable]
+
 ### New Features
 
   - New `posix.time.tzset`, to apply a change of the `TZ` environment
