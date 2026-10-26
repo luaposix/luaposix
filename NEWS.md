@@ -22,6 +22,11 @@
 
 ### Bugs Fixed
 
+  - Integer fields of tables passed to functions, such as `tv_sec` and
+    `tv_nsec` of `posix.time.nanosleep`, truncate a float towards zero,
+    as they always have in Lua 5.1, 5.2 and LuaJIT, rather than becoming 0
+    in Lua 5.3 and later.
+
   - The `opterr` argument of `posix.unistd.getopt` is documented as what
     it is, a flag that makes `getopt` print diagnostics to `stderr`, not
     the index of an option with an error, and its usage example runs.

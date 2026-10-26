@@ -267,6 +267,16 @@ checkintegerfield(lua_State *L, int index, const char *k)
 	lua_Integer r;
 	checkfieldtype(L, index, k, LUA_TNUMBER, "integer");
 	r = lua_tointeger(L, -1);
+#if LUA_VERSION_NUM >= 503
+	/* Lua 5.3 and later convert a float with a fraction to 0, where
+	   earlier versions truncate it towards zero, so do that. */
+	if (!lua_isinteger(L, -1))
+	{
+		lua_Number n = lua_tonumber(L, -1);
+		if (n >= (lua_Number)LUA_MININTEGER && n < -(lua_Number)LUA_MININTEGER)
+			r = (lua_Integer)n;
+	}
+#endif
 	lua_pop(L, 1);
 	return r;
 }

@@ -169,6 +169,17 @@ specify posix.time:
   - it returns an integer:
      expect(nanosleep {tv_sec = 0, tv_nsec = 10}).to_be(0)
 
+  - it truncates float fields towards zero: |
+      local clock_gettime, CLOCK_MONOTONIC = M.clock_gettime, M.CLOCK_MONOTONIC
+      local function now()
+         local t = clock_gettime(CLOCK_MONOTONIC)
+         return t.tv_sec + t.tv_nsec / 1e9
+      end
+      local start = now()
+      expect(nanosleep {tv_sec = 0.9, tv_nsec = 200000000.5}).to_be(0)
+      expect(now() - start >= 0.19).to_be(true)
+      expect(now() - start < 0.9).to_be(true)
+
 
 - describe strftime:
   - before:
