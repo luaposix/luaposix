@@ -19,6 +19,27 @@ specify posix:
       expect(show_apis {added_to=global_table, by=this_module}).
          to_equal {}
 
+- context with strict variable declarations:
+  - it applies them when std.strict is installed, with or without std._debug: |
+      expect(luaproc [[
+         require 'posix'
+         io.write(tostring(package.loaded['std.strict.init'] ~= nil))
+      ]]).to_output(tostring(have_strict))
+      expect(luaproc [[
+         for _, name in ipairs {'std._debug', 'std._debug.init'} do
+            package.preload[name] = function() error('not installed', 0) end
+         end
+         require 'posix'
+         io.write(tostring(package.loaded['std.strict.init'] ~= nil))
+      ]]).to_output(tostring(have_strict))
+  - it does not apply them when std._debug turns them off: |
+      expect(luaproc [[
+         local ok, _debug = pcall(require, 'std._debug')
+         if ok then _debug(false) end
+         require 'posix'
+         io.write(tostring(package.loaded['std.strict.init'] ~= nil))
+      ]]).to_output 'false'
+
 - context with APIs removed after 37.0:
   - it raises an error naming the replacement: |
       expect(M.stat('.', 'type')).

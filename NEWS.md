@@ -2,6 +2,17 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### Bugs Fixed
+
+  - luaposix applies strict variable declarations to its own modules
+    whenever std.strict is installed, as std.normalize does, and no
+    longer only when std._debug is installed too.  Setting the `strict`
+    hint of std._debug to false still turns them off.
+
+  - luaposix reads the hints of `std._debug`, not of a second copy of it
+    that it loaded as `std._debug.init`, so that `require 'std._debug'
+    (false)` reaches it, as it does the other libraries.
+
 
 ## Noteworthy changes in release 38 (2026-10-25) [stable]
 

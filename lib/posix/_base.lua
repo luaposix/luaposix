@@ -24,7 +24,7 @@ if not HAVE_BITWISE_OPS then
 end
 
 
-local _ENV = require 'posix._strict' {
+local _ENV = require 'posix._normalize'.strictness() {
    S_IRUSR = require 'posix.sys.stat'.S_IRUSR,
    S_IWUSR = require 'posix.sys.stat'.S_IWUSR,
    S_IXUSR = require 'posix.sys.stat'.S_IXUSR,

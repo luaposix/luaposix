@@ -25,6 +25,7 @@ badargs = require 'specl.badargs'
 -- luaposix checks the arguments of its Lua functions only when typecheck
 -- loads, so skip their bad argument examples without it.
 have_typecheck = pcall(require, 'typecheck')
+have_strict = pcall(require, 'std.strict.init')
 hell = require 'specl.shell'
 posix = require 'posix'
 

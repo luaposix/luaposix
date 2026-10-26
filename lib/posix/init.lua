@@ -19,7 +19,7 @@
 
 
 
-local _ENV = require 'posix._strict' {
+local _ENV = require 'posix._normalize'.strictness() {
    GLOB_MARK = require 'posix.glob'.GLOB_MARK,
    O_NOCTTY = require 'posix.fcntl'.O_NOCTTY,
    O_RDWR = require 'posix.fcntl'.O_RDWR,
