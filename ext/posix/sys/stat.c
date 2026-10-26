@@ -177,7 +177,7 @@ Change the mode of the path.
 @see chmod(2)
 @usage
   local sys_stat = require "posix.sys.stat"
-  sys_stat.chmod ('bin/dof', bit.bor (sys_stat.S_IRWXU, sys_stat.S_IRGRP))
+  sys_stat.chmod ('bin/dof', sys_stat.S_IRWXU + sys_stat.S_IRGRP)
 */
 static int
 Pchmod(lua_State *L)

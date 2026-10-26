@@ -15,6 +15,11 @@
 
 ### Bugs Fixed
 
+  - The usage examples of `posix.fcntl.fcntl`, `posix.fcntl.open` and
+    `posix.sys.stat.chmod` run: they named the wrong module for
+    `fcntl`, `F_GETFL`, `S_IRWXU` and `S_IRGRP`, and called `bit.bor`
+    without saying where it comes from.
+
   - The LDoc reference of `posix.grp.getgrgid`, `posix.grp.getgrnam`,
     `posix.pwd.getpwnam` and `posix.pwd.getpwuid` says that they return
     just `nil`, not an error message, when the group or user does not
