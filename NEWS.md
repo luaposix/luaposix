@@ -15,6 +15,10 @@
 
 ### Bugs Fixed
 
+  - The `opterr` argument of `posix.unistd.getopt` is documented as what
+    it is, a flag that makes `getopt` print diagnostics to `stderr`, not
+    the index of an option with an error, and its usage example runs.
+
   - The usage examples of `posix.fcntl.fcntl`, `posix.fcntl.open` and
     `posix.sys.stat.chmod` run: they named the wrong module for
     `fcntl`, `F_GETFL`, `S_IRWXU` and `S_IRGRP`, and called `bit.bor`

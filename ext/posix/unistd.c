@@ -669,15 +669,16 @@ Parse command-line options.
 @function getopt
 @param arg command line arguments
 @string opts short option specifier
-@int[opt=0] opterr index of the option with an error
+@int[opt=0] opterr non-zero to print a diagnostic to stderr for an
+  unrecognized option, or an option that lacks its argument
 @int[opt=1] optind index of the next unprocessed option
 @treturn option iterator, returning 3 values
 @see getopt(3)
 @see getopt.lua
 @usage
-local getopt = require "posix.getopt".getopt
-for opt, opterr, i in getopt (arg, "ho:v", opterr, i) do
-  process (arg, opterr, i)
+local getopt = require "posix.unistd".getopt
+for opt, optarg, optind in getopt (arg, "ho:v") do
+  process (arg, opt, optarg, optind)
 end
 */
 static int
