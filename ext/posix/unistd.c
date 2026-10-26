@@ -658,7 +658,14 @@ iter_getopt(lua_State *L)
 
 	c = (char) r;
 	lua_pushlstring(L, &c, 1);
-	lua_pushstring(L, optarg);
+	if (r == '?' || r == ':')
+	{
+		/* optarg is NULL on error, so say which option was at fault. */
+		char o = (char) optopt;
+		lua_pushlstring(L, &o, 1);
+	}
+	else
+		lua_pushstring(L, optarg);
 	lua_pushinteger(L, optind);
 	return 3;
 }
@@ -672,7 +679,11 @@ Parse command-line options.
 @int[opt=0] opterr non-zero to print a diagnostic to stderr for an
   unrecognized option, or an option that lacks its argument
 @int[opt=1] optind index of the next unprocessed option
-@treturn option iterator, returning 3 values
+@treturn option iterator, returning 3 values: the option character, its
+  argument (or `nil`), and the index of the next unprocessed argument.  If
+  the option is not in *opts*, or lacks its argument, the first value is `?`
+  (or `:` for a missing argument, if *opts* starts with `:`), and the
+  second is the option character at fault.
 @see getopt(3)
 @see getopt.lua
 @usage

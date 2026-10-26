@@ -7,6 +7,10 @@
   - New `posix.time.tzset`, to apply a change of the `TZ` environment
     variable, as in `tzset(3)`.
 
+  - `posix.unistd.getopt` returns the option character at fault, in
+    place of the always `nil` argument, when it returns `?` or `:` for an
+    unrecognized option or a missing argument.
+
   - New `posix.unistd.exece`, to execute a program with a specified
     environment, as in `execve(2)`.
 

@@ -219,6 +219,15 @@ specify posix.unistd:
   - it returns each option and its value:
       expect(parse({[0] = "prog", "-a", "-b", "val", "rest"}, "ab:")).
          to_be "a=nil b=val"
+  - it returns ? and the option for an unrecognized option:
+      expect(parse({[0] = "prog", "-a", "-x", "-b", "val"}, "ab:")).
+         to_be "a=nil ?=x b=val"
+  - it returns ? and the option for a missing argument:
+      expect(parse({[0] = "prog", "-a", "-b"}, "ab:")).
+         to_be "a=nil ?=b"
+  - it returns a colon and the option for a missing argument, after a leading colon:
+      expect(parse({[0] = "prog", "-a", "-b"}, ":ab:")).
+         to_be "a=nil :=b"
   - it takes more arguments than fit on the Lua stack:
       expect(parse(many_args(), "ab:")).to_be "a=nil b=val"
   - it keeps the argument strings alive for the whole loop: |
