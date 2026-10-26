@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 37.0 Reference</title>
+    <title>luaposix 38 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 37.0</h1>
+<h1>luaposix 38</h1>
 
 
 <ul>
@@ -386,7 +386,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          existing file path to act on
         </li>
         <li><span class="parameter">mode</span>
@@ -406,7 +406,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -422,7 +422,7 @@
     <h3>Usage:</h3>
     <ul>
         <pre class="example"><span class="keyword">local</span> sys_stat = <span class="global">require</span> <span class="string">"posix.sys.stat"</span>
-sys_stat.<span class="function-name">chmod</span> (<span class="string">'bin/dof'</span>, bit.<span class="function-name">bor</span> (sys_stat.S_IRWXU, sys_stat.S_IRGRP))</pre>
+sys_stat.<span class="function-name">chmod</span> (<span class="string">'bin/dof'</span>, sys_stat.S_IRWXU + sys_stat.S_IRGRP)</pre>
     </ul>
 
 </dd>
@@ -453,7 +453,7 @@ sys_stat.<span class="function-name">chmod</span> (<span class="string">'bin/dof
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -488,7 +488,7 @@ If file is a symbolic link, return information about the link itself.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          file to act on
         </li>
     </ul>
@@ -504,7 +504,7 @@ If file is a symbolic link, return information about the link itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -536,7 +536,7 @@ If file is a symbolic link, return information about the link itself.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          location in file system to create directory
         </li>
         <li><span class="parameter">mode</span>
@@ -557,7 +557,7 @@ If file is a symbolic link, return information about the link itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -583,7 +583,7 @@ If file is a symbolic link, return information about the link itself.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          location in file system to create fifo
         </li>
         <li><span class="parameter">mode</span>
@@ -604,7 +604,7 @@ If file is a symbolic link, return information about the link itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -631,7 +631,7 @@ If file is a symbolic link, return information about the file the link points to
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          file to act on
         </li>
     </ul>
@@ -647,7 +647,7 @@ If file is a symbolic link, return information about the file the link points to
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -899,7 +899,7 @@ Any constants not available in the underlying system will be <code>nil</code> va
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/ldoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2026-10-10 20:09:02 </i>
+<i style="float:right;">Last updated 2026-10-25 17:37:55 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

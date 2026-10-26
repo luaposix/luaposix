@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 37.0 Reference</title>
+    <title>luaposix 38 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 37.0</h1>
+<h1>luaposix 38</h1>
 
 
 <ul>
@@ -144,6 +144,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#exec">exec (path, argt)</a></td>
 	<td class="summary">Execute a program at exactly <em>path</em>.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#exece">exece (path, argt, envp)</a></td>
+	<td class="summary">Execute a program at exactly <em>path</em> with a specified environment.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#execp">execp (path, argt)</a></td>
@@ -345,11 +349,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          file to act on
         </li>
         <li><span class="parameter">mode</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          can contain 'r','w','x' and 'f'
          (<em>default</em> "f")
         </li>
@@ -366,7 +370,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -432,7 +436,7 @@ seconds = unistd.<span class="function-name">alarm</span>(<span class="number">1
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          file to act on
         </li>
     </ul>
@@ -448,7 +452,7 @@ seconds = unistd.<span class="function-name">alarm</span>(<span class="number">1
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -479,15 +483,15 @@ status, errstr, errno = unistd.<span class="function-name">chdir</span> (<span c
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          existing file path
         </li>
         <li><span class="parameter">uid</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a> or <span class="type">int</span></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a> or <span class="type">int</span></span>
          new owner user id
         </li>
         <li><span class="parameter">gid</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a> or <span class="type">int</span></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a> or <span class="type">int</span></span>
          new owner group id
         </li>
     </ul>
@@ -503,7 +507,7 @@ status, errstr, errno = unistd.<span class="function-name">chdir</span> (<span c
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error messoge</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -551,7 +555,7 @@ status, errstr, errno = unistd.<span class="function-name">chdir</span> (<span c
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -584,11 +588,11 @@ Not recommended for general encryption purposes.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">trypass</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          string to hash
         </li>
         <li><span class="parameter">salt</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          two-character string from [a-zA-Z0-9./]
         </li>
     </ul>
@@ -644,7 +648,7 @@ Not recommended for general encryption purposes.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -699,7 +703,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -725,13 +729,13 @@ reallocated to <em>fd</em>.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
 
 
 
         </li>
         <li><span class="parameter">argt</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.7">table</a></span>
          arguments (table can include index 0)
         </li>
     </ul>
@@ -741,7 +745,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -761,6 +765,66 @@ reallocated to <em>fd</em>.
 
 </dd>
     <dt>
+    <a name = "exece"></a>
+    <strong>exece (path, argt, envp)</strong>
+    </dt>
+    <dd>
+    Execute a program at exactly <em>path</em> with a specified environment. </p>
+
+<p>Unlike <a href="../modules/posix.unistd.html#execp">execp</a>, <em>path</em> is not searched for in the command PATH, and
+envp* replaces the environment of the new process, rather than being
+merged into it.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
+
+
+
+        </li>
+        <li><span class="parameter">argt</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.7">table</a></span>
+         arguments (table can include index 0)
+        </li>
+        <li><span class="parameter">envp</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.7">table</a></span>
+         environment, as a table of <code>NAME = value</code> strings
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/execve.html">execve(2)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> stdlib = <span class="global">require</span> <span class="string">'posix.stdlib'</span>
+<span class="keyword">local</span> unistd = <span class="global">require</span> <span class="string">'posix.unistd'</span>
+
+<span class="keyword">local</span> env = stdlib.<span class="function-name">getenv</span>()
+env.FOO = <span class="string">"bar"</span>
+
+unistd.<span class="function-name">exece</span> (<span class="string">"/bin/sh"</span>, {<span class="string">"-c"</span>, <span class="string">"echo $FOO"</span>}, env)</pre>
+    </ul>
+
+</dd>
+    <dt>
     <a name = "execp"></a>
     <strong>execp (path, argt)</strong>
     </dt>
@@ -771,13 +835,13 @@ reallocated to <em>fd</em>.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
 
 
 
         </li>
         <li><span class="parameter">argt</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.7">table</a></span>
          arguments (table can include index 0)
         </li>
     </ul>
@@ -787,7 +851,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -831,7 +895,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -872,7 +936,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -932,7 +996,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -979,7 +1043,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1006,7 +1070,7 @@ reallocated to <em>fd</em>.
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         path of current working directory, if successful
     </ol>
      <h3>Or</h3>
@@ -1014,7 +1078,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1113,7 +1177,7 @@ reallocated to <em>fd</em>.
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.6">table</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.7">table</a></span>
         group id, if successful
     </ol>
      <h3>Or</h3>
@@ -1121,7 +1185,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1156,7 +1220,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
     </ol>
 
@@ -1182,12 +1246,13 @@ reallocated to <em>fd</em>.
          command line arguments
         </li>
         <li><span class="parameter">opts</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          short option specifier
         </li>
         <li><span class="parameter">opterr</span>
             <span class="types"><span class="type">int</span></span>
-         index of the option with an error
+         non-zero to print a diagnostic to stderr for an
+  unrecognized option, or an option that lacks its argument
          (<em>default</em> 0)
         </li>
         <li><span class="parameter">optind</span>
@@ -1201,7 +1266,11 @@ reallocated to <em>fd</em>.
     <ol>
 
            <span class="types"><span class="type">option</span></span>
-        iterator, returning 3 values
+         iterator, returning 3 values: the option character, its
+  argument (or <code>nil</code>), and the index of the next unprocessed argument.  If
+  the option is not in <em>opts</em>, or lacks its argument, the first value is <code>?</code>
+  (or <code>:</code> for a missing argument, if <em>opts</em> starts with <code>:</code>), and the
+  second is the option character at fault.
     </ol>
 
 
@@ -1213,9 +1282,9 @@ reallocated to <em>fd</em>.
 
     <h3>Usage:</h3>
     <ul>
-        <pre class="example"><span class="keyword">local</span> getopt = <span class="global">require</span> <span class="string">"posix.getopt"</span>.getopt
-<span class="keyword">for</span> opt, opterr, i <span class="keyword">in</span> <span class="function-name">getopt</span> (arg, <span class="string">"ho:v"</span>, opterr, i) <span class="keyword">do</span>
-  <span class="function-name">process</span> (arg, opterr, i)
+        <pre class="example"><span class="keyword">local</span> getopt = <span class="global">require</span> <span class="string">"posix.unistd"</span>.getopt
+<span class="keyword">for</span> opt, optarg, optind <span class="keyword">in</span> <span class="function-name">getopt</span> (arg, <span class="string">"ho:v"</span>) <span class="keyword">do</span>
+  <span class="function-name">process</span> (arg, opt, optarg, optind)
 <span class="keyword">end</span></pre>
     </ul>
 
@@ -1339,7 +1408,7 @@ reallocated to <em>fd</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1367,15 +1436,15 @@ symlink itself.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          existing file path
         </li>
         <li><span class="parameter">uid</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a> or <span class="type">int</span></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a> or <span class="type">int</span></span>
          new owner user id
         </li>
         <li><span class="parameter">gid</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a> or <span class="type">int</span></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a> or <span class="type">int</span></span>
          new owner group id
         </li>
     </ul>
@@ -1391,7 +1460,7 @@ symlink itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error messoge</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1423,11 +1492,11 @@ symlink itself.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">target</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          name
         </li>
         <li><span class="parameter">link</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          name
         </li>
         <li><span class="parameter">soft</span>
@@ -1448,7 +1517,7 @@ symlink itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1479,7 +1548,7 @@ symlink itself.
          fd
         </li>
         <li><span class="parameter">target</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          name
         </li>
         <li><span class="parameter">linkdir</span>
@@ -1487,7 +1556,7 @@ symlink itself.
          fd
         </li>
         <li><span class="parameter">link</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          name
         </li>
         <li><span class="parameter">flags</span>
@@ -1509,7 +1578,7 @@ symlink itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1559,7 +1628,7 @@ symlink itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1626,7 +1695,7 @@ symlink itself.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          optional
         </li>
         <li><span class="parameter">key</span>
@@ -1680,7 +1749,7 @@ symlink itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1719,7 +1788,7 @@ symlink itself.
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         string from <em>fd</em> with at most <em>count</em> bytes, if successful
     </ol>
      <h3>Or</h3>
@@ -1727,7 +1796,7 @@ symlink itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1753,7 +1822,7 @@ symlink itself.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          file to act on
         </li>
     </ul>
@@ -1761,7 +1830,7 @@ symlink itself.
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         link target, if successful
     </ol>
      <h3>Or</h3>
@@ -1769,7 +1838,7 @@ symlink itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1795,7 +1864,7 @@ symlink itself.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          file to act on
         </li>
     </ul>
@@ -1811,7 +1880,7 @@ symlink itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1837,7 +1906,7 @@ symlink itself.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">what</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          one of 'u', 'U', 'g', 'G', 's', 'p' (upper-case means "effective")
         </li>
         <li><span class="parameter">id</span>
@@ -1862,7 +1931,7 @@ symlink itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -1999,7 +2068,7 @@ symlink itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -2045,7 +2114,7 @@ symlink itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -2071,7 +2140,7 @@ symlink itself.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          file to act on
         </li>
         <li><span class="parameter">length</span>
@@ -2091,7 +2160,7 @@ symlink itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -2126,7 +2195,7 @@ symlink itself.
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         name, if successful
     </ol>
      <h3>Or</h3>
@@ -2134,7 +2203,7 @@ symlink itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -2160,7 +2229,7 @@ symlink itself.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
 
 
 
@@ -2178,7 +2247,7 @@ symlink itself.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -2214,7 +2283,7 @@ parameters would access bytes outside <em>buf</em>.
          the file descriptor to act on
         </li>
         <li><span class="parameter">buf</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          containing bytes to write
         </li>
         <li><span class="parameter">nbytes</span>
@@ -2240,7 +2309,7 @@ parameters would access bytes outside <em>buf</em>.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -2393,7 +2462,7 @@ Any constants not available in the underlying system will be <code>nil</code> va
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/ldoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2026-10-10 20:09:02 </i>
+<i style="float:right;">Last updated 2026-10-25 17:37:55 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

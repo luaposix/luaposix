@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 37.0 Reference</title>
+    <title>luaposix 38 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 37.0</h1>
+<h1>luaposix 38</h1>
 
 
 <ul>
@@ -143,6 +143,11 @@
 	<td class="name" nowrap><a href="#time">time ()</a></td>
 	<td class="summary">Get current time.</td>
 	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tzset">tzset ()</a></td>
+	<td class="summary">Apply the <code>TZ</code> environment variable to the timezone information used by
+functions such as <a href="../modules/posix.time.html#localtime">localtime</a>, <a href="../modules/posix.time.html#mktime">mktime</a> and <a href="../modules/posix.time.html#strftime">strftime</a>.</td>
+	</tr>
 </table>
 <h2><a href="#Tables">Tables</a></h2>
 <table class="function_list">
@@ -198,7 +203,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -241,7 +246,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -283,7 +288,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -325,7 +330,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -400,7 +405,7 @@
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -433,7 +438,7 @@ offset, regardless of the <code>tm_gmoffset</code> field value passed in.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">format</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          specifier with <code>%</code> place-holders
         </li>
         <li><span class="parameter">tm</span>
@@ -445,7 +450,7 @@ offset, regardless of the <code>tm_gmoffset</code> field value passed in.
     <h3>Returns:</h3>
     <ol>
 
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         <em>format</em> with place-holders plugged with <em>tm</em> values
     </ol>
 
@@ -468,13 +473,13 @@ offset, regardless of the <code>tm_gmoffset</code> field value passed in.
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">s</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
 
 
 
         </li>
         <li><span class="parameter">format</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
          same as for <code>strftime</code>
         </li>
     </ul>
@@ -526,7 +531,7 @@ offset, regardless of the <code>tm_gmoffset</code> field value passed in.
         <li>
         nil</li>
         <li>
-           <span class="types"><a class="type" href="https://www.lua.org/manual/5.4/manual.html#6.4">string</a></span>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
         error message</li>
         <li>
            <span class="types"><span class="type">int</span></span>
@@ -539,6 +544,35 @@ offset, regardless of the <code>tm_gmoffset</code> field value passed in.
          <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/time.html">time(2)</a>
     </ul>
 
+
+</dd>
+    <dt>
+    <a name = "tzset"></a>
+    <strong>tzset ()</strong>
+    </dt>
+    <dd>
+    Apply the <code>TZ</code> environment variable to the timezone information used by
+functions such as <a href="../modules/posix.time.html#localtime">localtime</a>, <a href="../modules/posix.time.html#mktime">mktime</a> and <a href="../modules/posix.time.html#strftime">strftime</a>. </p>
+
+<p>Some C libraries, such as the GNU one, do not notice a change of <code>TZ</code>
+made with <a href="../modules/posix.stdlib.html#setenv">posix.stdlib.setenv</a> until <code>tzset</code> is called.
+
+
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/tzset.html">tzset(3)</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> stdlib = <span class="global">require</span> <span class="string">"posix.stdlib"</span>
+<span class="keyword">local</span> time = <span class="global">require</span> <span class="string">"posix.time"</span>
+stdlib.<span class="function-name">setenv</span>(<span class="string">"TZ"</span>, <span class="string">"UTC0"</span>)
+time.<span class="function-name">tzset</span>()</pre>
+    </ul>
 
 </dd>
 </dl>
@@ -681,7 +715,7 @@ Any constants not available in the underlying system will be <code>nil</code> va
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/ldoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2026-10-10 20:09:02 </i>
+<i style="float:right;">Last updated 2026-10-25 17:37:55 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
