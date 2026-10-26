@@ -7,6 +7,9 @@
   - New `posix.time.tzset`, to apply a change of the `TZ` environment
     variable, as in `tzset(3)`.
 
+  - The `flags` argument of `posix.glob.glob` is optional, and defaults
+    to 0, as does the pattern to `*`.
+
   - `posix.unistd.getopt` returns the option character at fault, in
     place of the always `nil` argument, when it returns `?` or `:` for an
     unrecognized option or a missing argument.

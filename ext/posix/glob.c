@@ -27,8 +27,8 @@
 Find all files in this directory matching a shell pattern.
 @function glob
 @string[opt="*"] pat shell glob pattern
-@param flags bitwise inclusive OR of zero or more of `GLOB_ERR`, `GLOB_MARK`
- and `GLOB_NOCHECK`
+@int[opt=0] flags bitwise inclusive OR of zero or more of `GLOB_ERR`,
+ `GLOB_MARK` and `GLOB_NOCHECK`
 @treturn[1] table matching filenames, if successful
 @treturn[2] nil
 @treturn[2] one of `GLOB_ABORTED`, `GLOB_NOMATCH` or `GLOB_NOSPACE`
@@ -39,7 +39,7 @@ static int
 Pglob(lua_State *L)
 {
 	const char *pattern = optstring(L, 1, "*");
-	int flags = checkint(L, 2);
+	int flags = optint(L, 2, 0);
 	int globret = 0;
 	glob_t globres;
 

@@ -31,7 +31,7 @@ specify posix.glob:
 
 
   - context with bad arguments:
-      badargs.diagnose("(?string, int)", glob)
+      badargs.diagnose("(?string, ?int)", glob)
 
   - it returns nil and GLOB_NOMATCH if there are no matches:
       dir = mkdtemp(template)
@@ -39,6 +39,23 @@ specify posix.glob:
       globlist, err = glob("foo", 0)
       expect(err).to_be(M.GLOB_NOMATCH)
       expect(type(globlist)).to_be "nil"
+      rmtmp(dir)
+
+  - it defaults the flags to 0:
+      dir = mkdtemp(template)
+      chdir(dir)
+      touch("match")
+      expect(glob("match")).to_equal {"match"}
+      globlist, err = glob("nomatch")
+      expect(globlist).to_be(nil)
+      expect(err).to_be(M.GLOB_NOMATCH)
+      rmtmp(dir)
+
+  - it defaults the pattern to everything, with the flags given:
+      dir = mkdtemp(template)
+      chdir(dir)
+      touch("match")
+      expect(glob(nil, 0)).to_equal {"match"}
       rmtmp(dir)
 
   - it returns a table of matches:
