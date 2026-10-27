@@ -25,7 +25,7 @@ specify posix.stdlib:
       badargs.diagnose("(?string)", getenv)
 
   - it fetches a table of process environment variables: |
-      volatile = { _=true, CWD=true, LUA_PATH=true, PWD=true, SHLVL=true, }
+      volatile = { _=true, CWD=true, LUA_PATH=true, OLDPWD=true, PWD=true, SHLVL=true, }
       ESC = string.char(27)
       for k,v in pairs(getenv()) do
          if not volatile[k] then
