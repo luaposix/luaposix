@@ -8,7 +8,7 @@
 luke_format = 0
 
 package  = 'luaposix'
-version  = '$USER'
+version  = '$USER/$gitref'
 
 ldocs    = 'build-aux/config.ld.in'
 
