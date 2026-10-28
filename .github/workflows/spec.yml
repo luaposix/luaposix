@@ -23,12 +23,6 @@ jobs:
       contents: read
       id-token: write
 
-    # Specl's own dependencies include std._debug and typecheck, so
-    # luaposix's dependencies go into a tree of their own, the only one
-    # the examples search.
-    env:
-      DEPS: ${{ github.workspace }}/deps
-
     steps:
       - uses: actions/checkout@v7
 
@@ -47,19 +41,14 @@ jobs:
           # gvvaughan/ldoc by hand, before anything else needs an ldoc.
           luarocks install --server=https://luarocks.org/manifests/gvvaughan ldoc
           printf gvvaughan > "$(luarocks show --rock-dir ldoc)/rock_namespace"
-          # Until luke is released, install it from its development rockspec.
-          luarocks install https://raw.githubusercontent.com/gvvaughan/luke/master/luke-dev-1.rockspec
-          luarocks test --prepare
-          luarocks --tree="$DEPS" make --only-deps
-          test -n "${{ matrix.debug }}" && luarocks --tree="$DEPS" install std._debug || true
-          test -n "${{ matrix.strict }}" && luarocks --tree="$DEPS" install std.strict || true
-          test -n "${{ matrix.typecheck }}" && luarocks --tree="$DEPS" install typecheck || true
+          luarocks install luke
+          luarocks make --only-deps
+          test -n "${{ matrix.debug }}" && luarocks install std._debug || true
+          test -n "${{ matrix.strict }}" && luarocks install std.strict || true
+          test -n "${{ matrix.typecheck }}" && luarocks install typecheck || true
 
       - name: build
         run: |
-          # Install into specl's tree, off the examples' Lua search path, so
-          # they still test the Lua modules in this tree, with the C modules
-          # of this rock.
           luarocks make --force
 
       - name: docs
@@ -68,15 +57,10 @@ jobs:
           # in the doc comments now.  LDOC makes a missing ldoc an error.
           luke LDOC="ldoc --fatalwarnings"
 
-      - name: paths
-        run: |
-          V=$(lua -e 'print((_VERSION:gsub("^Lua ", "")))')
-          echo "LUA_PATH=$DEPS/share/lua/$V/?.lua;$DEPS/share/lua/$V/?/init.lua" >> "$GITHUB_ENV"
-          echo "LUA_CPATH=$DEPS/lib/lua/$V/?.so;$GITHUB_WORKSPACE/.luarocks/lib/lua/$V/?.so" >> "$GITHUB_ENV"
-
       - name: check optional modules
         run: |
           # Fail if a dependency installed a module this matrix cell omits.
+          eval "$(luarocks path)"
           lua -e "
             for name, want in pairs {
                ['std._debug'] = '${{ matrix.debug }}' ~= '',
