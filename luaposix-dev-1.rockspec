@@ -68,7 +68,6 @@ build = {
    modules  = {
       {['posix']               = 'lib/posix/init.lua'},
       {['posix._base']         = 'lib/posix/_base.lua'},
-      {['posix._normalize']    = 'lib/posix/_normalize.lua'},
       {['posix.compat']        = 'lib/posix/compat.lua'},
       {['posix.sys']           = 'lib/posix/sys.lua'},
       {['posix.util']          = 'lib/posix/util.lua'},

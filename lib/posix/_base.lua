@@ -16,7 +16,7 @@ local HAVE_TYPECHECK, typecheck = pcall(require, 'typecheck')
 local bitwise = require 'std.normalize'.bit32
 
 
-local _ENV = require 'posix._normalize'.strictness() {
+local _ENV = require 'std.normalize' {
    S_IRUSR = require 'posix.sys.stat'.S_IRUSR,
    S_IWUSR = require 'posix.sys.stat'.S_IWUSR,
    S_IXUSR = require 'posix.sys.stat'.S_IXUSR,
