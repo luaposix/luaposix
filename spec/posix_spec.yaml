@@ -33,12 +33,14 @@ specify posix:
          io.write(tostring(package.loaded['std.strict.init'] ~= nil))
       ]]).to_output(tostring(have_strict))
   - it does not apply them when std._debug turns them off: |
+      -- Without std._debug there is nothing to turn them off.
+      have_debug = pcall(require, 'std._debug')
       expect(luaproc [[
          local ok, _debug = pcall(require, 'std._debug')
          if ok then _debug(false) end
          require 'posix'
          io.write(tostring(package.loaded['std.strict.init'] ~= nil))
-      ]]).to_output 'false'
+      ]]).to_output(have_debug and 'false' or tostring(have_strict))
 
 - context with APIs removed after 37.0:
   - it raises an error naming the replacement: |
