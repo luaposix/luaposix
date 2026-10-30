@@ -2,6 +2,14 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+### Incompatible changes
+
+  - luaposix needs std.normalize 5.1 or later, for the same `bit32`
+    functions in every Lua, and no longer installs the `bit32` rock in
+    Lua 5.1, or has a file of its own for the operators of Lua 5.3 and
+    later, or uses the `bit` of LuaJIT.  It no longer needs a `bit32` that
+    the host has built in, so works in a sandbox that hides it.
+
 ### Bugs Fixed
 
   - luaposix applies strict variable declarations to its own modules

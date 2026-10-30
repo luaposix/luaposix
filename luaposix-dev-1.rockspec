@@ -21,15 +21,8 @@ source = {
 
 dependencies = {
    'lua >= 5.1, < 5.6',
+   'std.normalize >= 5.1',
 }
-
-do
-   -- We only want to install a bit32 module for Lua 5.1.
-   local _ENV={package=nil, dependencies=dependencies}
-   if package then
-      dependencies[#dependencies + 1] = 'bit32'
-   end
-end
 
 build_dependencies = {
    'luarocks-build-luke >= 0.3.2',
@@ -75,7 +68,6 @@ build = {
    modules  = {
       {['posix']               = 'lib/posix/init.lua'},
       {['posix._base']         = 'lib/posix/_base.lua'},
-      {['posix._bitwise']      = 'lib/posix/_bitwise.lua'},
       {['posix._normalize']    = 'lib/posix/_normalize.lua'},
       {['posix.compat']        = 'lib/posix/compat.lua'},
       {['posix.sys']           = 'lib/posix/sys.lua'},
