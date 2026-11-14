@@ -1,7 +1,5 @@
 # luaposix NEWS - User visible changes
 
-## Noteworthy changes in release ?.? (????-??-??) [?]
-
 
 ## Noteworthy changes in release 39 (2026-11-14) [stable]
 
