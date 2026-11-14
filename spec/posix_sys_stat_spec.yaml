@@ -18,6 +18,15 @@ specify posix.sys.stat:
     EPOCH = require 'posix.time'.time()
     RWXALL = bor(M.S_IRWXU, M.S_IRWXG, M.S_IRWXO)
 
+    -- Every nanoseconds field is a whole number from 0 to 999999999.
+    function check_nsec(st)
+       for _, field in pairs {"st_atime_nsec", "st_mtime_nsec", "st_ctime_nsec"} do
+          local ns = st[field]
+          expect(type(ns)).to_be "number"
+          expect(ns >= 0 and ns <= 999999999).to_be(true)
+       end
+    end
+
     dir = posix.mkdtemp(template)
     posix.chown(dir, posix.geteuid(), posix.getegid())
     posix.mkdir(dir .. "/subdir")
@@ -141,6 +150,8 @@ specify posix.sys.stat:
   - it fetches the file change time:
       expect(lstat(dir .. "/file").st_ctime).
          to_be_within_n_of {value=EPOCH, delta=5}
+  - it fetches the time nanoseconds, from 0 to 999999999:
+      check_nsec(lstat(dir .. "/file"))
   - it fetches the device block size:
       blksize = lstat(dir .. "/file").st_blksize
       expect(type(blksize)).to_be "number"
@@ -237,6 +248,8 @@ specify posix.sys.stat:
   - it fetches the file change time:
       expect(fstat(fd_file).st_ctime).
          to_be_within_n_of {value=EPOCH, delta=5}
+  - it fetches the time nanoseconds, from 0 to 999999999:
+      check_nsec(fstat(fd_file))
   - it fetches the device block size:
       blksize = fstat(fd_file).st_blksize
       expect(type(blksize)).to_be "number"
@@ -384,6 +397,8 @@ specify posix.sys.stat:
   - it fetches the file change time:
       expect(stat(dir .. "/file").st_ctime).
          to_be_within_n_of {value=EPOCH, delta=5}
+  - it fetches the time nanoseconds, from 0 to 999999999:
+      check_nsec(stat(dir .. "/file"))
   - it fetches the device block size:
       blksize = stat(dir .. "/file").st_blksize
       expect(type(blksize)).to_be "number"
@@ -455,6 +470,19 @@ specify posix.sys.stat:
          expect(st.st_mtime).to_be(1000000000)
          expect(st.st_atime).to_be(1200000000)
       end
+  - it sets the nanoseconds where the file system keeps them:
+      if futimens then
+         futimens(fd, {tv_sec = 1100000000, tv_nsec = 123456789},
+                      {tv_sec = 1200000000, tv_nsec = 987654321})
+         st = lstat(file)
+         expect(st.st_mtime).to_be(1100000000)
+         expect(st.st_atime).to_be(1200000000)
+         -- A file system, or a host, that has no subsecond times gives 0.
+         if st.st_mtime_nsec ~= 0 then
+            expect(st.st_mtime_nsec).to_be_within_n_of {value=123456789, delta=20000000}
+            expect(st.st_atime_nsec).to_be_within_n_of {value=987654321, delta=20000000}
+         end
+      end
   - it diagnoses an invalid file descriptor:
       if futimens then
          expect(Emsg(futimens(-1))).to_contain "futimens"
@@ -521,6 +549,16 @@ specify posix.sys.stat:
                    fc.AT_SYMLINK_NOFOLLOW)
          expect(lstat(dir .. "/soft").st_mtime).to_be(1100000000)
          expect(lstat(dir .. "/subdir").st_mtime).to_be(1000000000)
+      end
+  - it sets the nanoseconds where the file system keeps them:
+      if utimensat then
+         utimensat(fc.AT_FDCWD, file, {tv_sec = 1100000000, tv_nsec = 123456789},
+                                      {tv_sec = 1200000000, tv_nsec = 987654321})
+         st = lstat(file)
+         if st.st_mtime_nsec ~= 0 then
+            expect(st.st_mtime_nsec).to_be_within_n_of {value=123456789, delta=20000000}
+            expect(st.st_atime_nsec).to_be_within_n_of {value=987654321, delta=20000000}
+         end
       end
   - it diagnoses a path that does not exist:
       if utimensat then

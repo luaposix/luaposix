@@ -20,6 +20,19 @@
 #include "_helpers.c"
 
 
+/* The nanoseconds past the whole seconds of the time T (a, m or c) of a
+   struct stat, from the member that the system has, or 0 if it has none. */
+#if HAVE_STAT_ST_MTIM
+#  define LPOSIX_STAT_NSEC(st, t)	((st)->st_##t##tim.tv_nsec)
+#elif HAVE_STAT_ST_MTIMESPEC
+#  define LPOSIX_STAT_NSEC(st, t)	((st)->st_##t##timespec.tv_nsec)
+#elif HAVE_STAT_ST_MTIME_N
+#  define LPOSIX_STAT_NSEC(st, t)	((st)->st_##t##time_n)
+#else
+#  define LPOSIX_STAT_NSEC(st, t)	0
+#endif
+
+
 /***
 File state record.
 @table PosixStat
@@ -34,6 +47,9 @@ File state record.
 @int st_atime time of last access
 @int st_mtime time of last data modification
 @int st_ctime time of last state change
+@int st_atime_nsec nanoseconds past *st_atime*, or `0` if not recorded
+@int st_mtime_nsec nanoseconds past *st_mtime*, or `0` if not recorded
+@int st_ctime_nsec nanoseconds past *st_ctime*, or `0` if not recorded
 @int st_blksize preferred block size
 @int st_blocks number of blocks allocated
 */
@@ -43,7 +59,7 @@ pushstat(lua_State *L, struct stat *st)
 	if (!st)
 		return lua_pushnil(L), 1;
 
-	lua_createtable(L, 0, 13);
+	lua_createtable(L, 0, 16);
 
 	setintegerfield(st, st_dev);
 	setintegerfield(st, st_ino);
@@ -61,6 +77,9 @@ pushstat(lua_State *L, struct stat *st)
         pushintegerfield("st_atime", st->st_atime);
         pushintegerfield("st_mtime", st->st_mtime);
         pushintegerfield("st_ctime", st->st_ctime);
+	pushintegerfield("st_atime_nsec", LPOSIX_STAT_NSEC(st, a));
+	pushintegerfield("st_mtime_nsec", LPOSIX_STAT_NSEC(st, m));
+	pushintegerfield("st_ctime_nsec", LPOSIX_STAT_NSEC(st, c));
 
 	settypemetatable("PosixStat");
 	return 1;

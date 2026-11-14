@@ -30,6 +30,13 @@
     now or leave it alone.  Like any API that the host lacks, they are
     `nil` where it has no support.
 
+  - `posix.sys.stat.stat`, `lstat` and `fstat` return `st_atime_nsec`,
+    `st_mtime_nsec` and `st_ctime_nsec`: the nanoseconds past the whole
+    seconds of `st_atime`, `st_mtime` and `st_ctime`, from 0 to
+    999999999.  They are always there, and 0 where the host or the file
+    system does not record subsecond times, so that comparing the pair
+    of seconds and nanoseconds works everywhere.
+
 
 ## Noteworthy changes in release 38 (2026-10-25) [stable]
 

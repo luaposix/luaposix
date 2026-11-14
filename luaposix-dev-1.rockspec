@@ -122,6 +122,12 @@ build = {
          defines   = {
             {HAVE_FUTIMENS     = {checkfunc='futimens'}},
             {HAVE_UTIMENSAT    = {checkfunc='utimensat'}},
+            -- Nanosecond times: POSIX.1-2008 st_mtim, then older BSD and
+            -- macOS st_mtimespec, then AIX st_mtime_n.  A host that has the
+            -- modification time member has the access and change ones too.
+            {HAVE_STAT_ST_MTIM = {checkmember='struct stat.st_mtim.tv_nsec', include='sys/stat.h'}},
+            {HAVE_STAT_ST_MTIMESPEC = {checkmember='struct stat.st_mtimespec.tv_nsec', include='sys/stat.h'}},
+            {HAVE_STAT_ST_MTIME_N = {checkmember='struct stat.st_mtime_n', include='sys/stat.h'}},
          },
          sources   = 'ext/posix/sys/stat.c',
       }},
