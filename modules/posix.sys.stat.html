@@ -3,7 +3,7 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <head>
-    <title>luaposix 38 Reference</title>
+    <title>luaposix 39 Reference</title>
     <link rel="stylesheet" href="../ldoc.css" type="text/css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
 
 <div id="navigation">
 <br/>
-<h1>luaposix 38</h1>
+<h1>luaposix 39</h1>
 
 
 <ul>
@@ -144,6 +144,10 @@
 	<td class="summary">Information about a file descriptor.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#futimens">futimens (fd[, mtime=now[, atime=now]])</a></td>
+	<td class="summary">Change the access and modification times of an open file.</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#lstat">lstat (path)</a></td>
 	<td class="summary">Information about an existing file path.</td>
 	</tr>
@@ -162,6 +166,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#umask">umask (mode)</a></td>
 	<td class="summary">Set file mode creation mask.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#utimensat">utimensat (dirfd, path[, mtime=now[, atime=now[, flags=0]]])</a></td>
+	<td class="summary">Change the access and modification times of a file path.</td>
 	</tr>
 </table>
 <h2><a href="#Tables">Tables</a></h2>
@@ -477,6 +485,72 @@ sys_stat.<span class="function-name">chmod</span> (<span class="string">'bin/dof
 
 </dd>
     <dt>
+    <a name = "futimens"></a>
+    <strong>futimens (fd[, mtime=now[, atime=now]])</strong>
+    </dt>
+    <dd>
+    Change the access and modification times of an open file.
+Either time can be a <a href="../modules/posix.time.html#PosixTimespec">posix.time.PosixTimespec</a>, to set it to that time
+with nanosecond precision, where the file system keeps it.  A time that is
+nil or not given is set to the current time, and a time whose <code>tv_nsec</code> is
+<code>UTIME_NOW</code> or <code>UTIME_OMIT</code> is set to the current time, or left alone.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fd</span>
+            <span class="types"><span class="type">int</span></span>
+         open file descriptor to act on
+        </li>
+        <li><span class="parameter">mtime</span>
+            <span class="types"><span class="type">PosixTimespec</span></span>
+         modification time
+         (<em>default</em> now)
+        </li>
+        <li><span class="parameter">atime</span>
+            <span class="types"><span class="type">PosixTimespec</span></span>
+         access time
+         (<em>default</em> now)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/futimens.html">futimens(2)</a></li>
+         <li><a href="../modules/posix.sys.stat.html#utimensat">utimensat</a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> fcntl = <span class="global">require</span> <span class="string">"posix.fcntl"</span>
+<span class="keyword">local</span> sys_stat = <span class="global">require</span> <span class="string">"posix.sys.stat"</span>
+<span class="keyword">local</span> fd = <span class="global">assert</span>(fcntl.<span class="function-name">open</span>(<span class="string">"/etc/hostname"</span>, fcntl.O_RDONLY))
+<span class="comment">-- Set the modification time to 2001-09-09, leaving the access time alone.
+</span><span class="global">assert</span>(sys_stat.<span class="function-name">futimens</span>(fd, {tv_sec = <span class="number">1000000000</span>, tv_nsec = <span class="number">500</span>},
+                         {tv_nsec = sys_stat.UTIME_OMIT}))</pre>
+    </ul>
+
+</dd>
+    <dt>
     <a name = "lstat"></a>
     <strong>lstat (path)</strong>
     </dt>
@@ -700,6 +774,77 @@ If file is a symbolic link, return information about the file the link points to
 
 
 </dd>
+    <dt>
+    <a name = "utimensat"></a>
+    <strong>utimensat (dirfd, path[, mtime=now[, atime=now[, flags=0]]])</strong>
+    </dt>
+    <dd>
+    Change the access and modification times of a file path.
+This is <a href="../modules/posix.sys.stat.html#futimens">futimens</a> for a path that is relative to the directory
+dirfd*, or to the current directory with <code>posix.fcntl.AT_FDCWD</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dirfd</span>
+            <span class="types"><span class="type">int</span></span>
+         open directory file descriptor, or <code>posix.fcntl.AT_FDCWD</code>
+        </li>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
+         file to act on
+        </li>
+        <li><span class="parameter">mtime</span>
+            <span class="types"><span class="type">PosixTimespec</span></span>
+         modification time
+         (<em>default</em> now)
+        </li>
+        <li><span class="parameter">atime</span>
+            <span class="types"><span class="type">PosixTimespec</span></span>
+         access time
+         (<em>default</em> now)
+        </li>
+        <li><span class="parameter">flags</span>
+            <span class="types"><span class="type">int</span></span>
+         <code>posix.fcntl.AT_SYMLINK_NOFOLLOW</code> to act on a symbolic
+  link itself, and not the file it points to
+         (<em>default</em> 0)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">int</span></span>
+        <code>0</code>, if successful
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+        nil</li>
+        <li>
+           <span class="types"><a class="type" href="https://www.lua.org/manual/5.5/manual.html#6.5">string</a></span>
+        error message</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        errnum</li>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <li><a href="http://pubs.opengroup.org/onlinepubs/9699919799/functions/utimensat.html">utimensat(2)</a></li>
+         <li><a href="../modules/posix.sys.stat.html#futimens">futimens</a></li>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> fcntl = <span class="global">require</span> <span class="string">"posix.fcntl"</span>
+<span class="keyword">local</span> sys_stat = <span class="global">require</span> <span class="string">"posix.sys.stat"</span>
+<span class="global">assert</span>(sys_stat.<span class="function-name">utimensat</span>(fcntl.AT_FDCWD, <span class="string">"/tmp/file"</span>, {tv_sec = <span class="number">1000000000</span>}))</pre>
+    </ul>
+
+</dd>
 </dl>
     <h2 class="section-header "><a name="Tables"></a>Tables</h2>
 
@@ -757,6 +902,18 @@ If file is a symbolic link, return information about the file the link points to
         <li><span class="parameter">st_ctime</span>
             <span class="types"><span class="type">int</span></span>
          time of last state change
+        </li>
+        <li><span class="parameter">st_atime_nsec</span>
+            <span class="types"><span class="type">int</span></span>
+         nanoseconds past *st_atime*, or <code>0</code> if not recorded
+        </li>
+        <li><span class="parameter">st_mtime_nsec</span>
+            <span class="types"><span class="type">int</span></span>
+         nanoseconds past *st_mtime*, or <code>0</code> if not recorded
+        </li>
+        <li><span class="parameter">st_ctime_nsec</span>
+            <span class="types"><span class="type">int</span></span>
+         nanoseconds past *st_ctime*, or <code>0</code> if not recorded
         </li>
         <li><span class="parameter">st_blksize</span>
             <span class="types"><span class="type">int</span></span>
@@ -876,6 +1033,14 @@ Any constants not available in the underlying system will be <code>nil</code> va
             <span class="types"><span class="type">int</span></span>
          set user id on execution
         </li>
+        <li><span class="parameter">UTIME_NOW</span>
+            <span class="types"><span class="type">int</span></span>
+         <code>tv_nsec</code> value to set a time to the current time
+        </li>
+        <li><span class="parameter">UTIME_OMIT</span>
+            <span class="types"><span class="type">int</span></span>
+         <code>tv_nsec</code> value to leave a time unchanged
+        </li>
     </ul>
 
 
@@ -899,7 +1064,7 @@ Any constants not available in the underlying system will be <code>nil</code> va
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/lunarmodules/ldoc">LDoc 1.5.0</a></i>
-<i style="float:right;">Last updated 2026-10-25 17:37:55 </i>
+<i style="float:right;">Last updated 2026-11-14 15:14:06 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
