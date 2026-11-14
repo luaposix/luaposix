@@ -22,7 +22,7 @@
 /* cannot use unistd.h for _POSIX_PRIORITY_SCHEDULING, because on Linux
    glibc it is defined even though the APIs are not implemented :-(     */
 
-#ifdef HAVE_SCHED_H
+#if HAVE_SCHED_H
 #include <sched.h>
 #endif
 

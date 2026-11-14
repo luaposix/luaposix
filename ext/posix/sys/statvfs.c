@@ -19,7 +19,7 @@
 @module posix.sys.statvfs
 */
 
-#if defined HAVE_STATVFS
+#if HAVE_STATVFS
 
 #include <sys/statvfs.h>
 

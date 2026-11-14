@@ -32,7 +32,7 @@
 #include <linux/if_packet.h>
 #endif
 #include <sys/socket.h>		/* Needs to be before net/if.h on OpenBSD 5.6 */
-#ifdef HAVE_NET_IF_H
+#if HAVE_NET_IF_H
 #include <net/if.h>
 #endif
 #include <netdb.h>

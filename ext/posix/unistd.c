@@ -202,7 +202,7 @@ Pclose(lua_State *L)
 }
 
 
-#if defined HAVE_CRYPT
+#if HAVE_CRYPT
 /***
 Encrypt a password.
 Not recommended for general encryption purposes.
@@ -1389,7 +1389,7 @@ static const luaL_Reg posix_unistd_fns[] =
 	LPOSIX_FUNC( Pchdir		),
 	LPOSIX_FUNC( Pchown		),
 	LPOSIX_FUNC( Pclose		),
-#if defined HAVE_CRYPT
+#if HAVE_CRYPT
 	LPOSIX_FUNC( Pcrypt		),
 #endif
 	LPOSIX_FUNC( Pdup		),

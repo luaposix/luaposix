@@ -21,6 +21,12 @@
     that it loaded as `std._debug.init`, so that `require 'std._debug'
     (false)` reaches it, as it does the other libraries.
 
+  - On a host that lacks `statvfs`, `clock_gettime`, `crypt` or
+    `sched.h`, luaposix failed to build, rather than leaving the
+    functions that need them `nil`: the build defines the result of a
+    probe as 0 when the feature is absent, and these tests took any
+    definition for presence.
+
 ### New Features
 
   - New `posix.sys.stat.futimens` and `posix.sys.stat.utimensat`, to set
