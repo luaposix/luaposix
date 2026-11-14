@@ -16,6 +16,12 @@ specify posix.stdio:
     - before:
         fdopen = M.fdopen
         fd = fdopen(require 'posix.unistd'.STDOUT_FILENO, "w")
+        -- Where the script creates its file, which is removed afterwards,
+        -- even if the script is killed before it removes the file itself.
+        path = os.tmpname()
+        os.remove(path)
+    - after:
+        os.remove(path)
 
     - context with bad arguments:
         badargs.diagnose("(int,string)", fdopen)
@@ -41,7 +47,7 @@ specify posix.stdio:
             return stdio.fdopen(fd, "w")
           end
 
-          local path = '.delete.me'
+          local path = arg[1]
           unlink(path)
           local f, msg = create_file(path)
           if not f then
@@ -53,7 +59,7 @@ specify posix.stdio:
           os.exit(0)
         ]]
         pending "issue #217"
-        expect(luaproc(script)).to_succeed_with ''
+        expect(luaproc(script, path)).to_succeed_with ''
 
 
     - it writes to the duplicated stream: |
