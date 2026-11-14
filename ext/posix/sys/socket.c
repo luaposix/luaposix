@@ -710,7 +710,7 @@ Psetsockopt(lua_State *L)
 	struct linger linger;
 	struct timeval tv;
 	struct ipv6_mreq mreq6;
-#ifdef SO_BINDTODEVICE
+#if HAVE_NET_IF_H && defined SO_BINDTODEVICE
 	char ifname[IFNAMSIZ];
 #endif
 	int vint = 0;
@@ -739,7 +739,7 @@ Psetsockopt(lua_State *L)
 					val = &tv;
 					len = sizeof(tv);
 					break;
-#ifdef SO_BINDTODEVICE
+#if HAVE_NET_IF_H && defined SO_BINDTODEVICE
 				case SO_BINDTODEVICE:
 					checknargs(L, 4);
 
@@ -826,7 +826,7 @@ Pgetsockopt(lua_State *L)
 	struct linger linger;
 	struct timeval tv;
 	int err = 0;
-#ifdef SO_BINDTODEVICE
+#if HAVE_NET_IF_H && defined SO_BINDTODEVICE
 	char ifname[IFNAMSIZ];
 #endif
 	int vint = 0;
@@ -847,7 +847,7 @@ Pgetsockopt(lua_State *L)
 					val = &tv;
 					len = sizeof(tv);
 					break;
-#ifdef SO_BINDTODEVICE
+#if HAVE_NET_IF_H && defined SO_BINDTODEVICE
 				case SO_BINDTODEVICE:
 					val = ifname;
 					len = IFNAMSIZ;
@@ -889,7 +889,7 @@ Pgetsockopt(lua_State *L)
 		pushintegerfield("l_onoff", linger.l_onoff);
 		settypemetatable("PosixLinger");
 	}
-#ifdef SO_BINDTODEVICE
+#if HAVE_NET_IF_H && defined SO_BINDTODEVICE
 	else if (val == &ifname)
 	{
 		lua_pushlstring(L, ifname, len);
@@ -949,6 +949,7 @@ static int Pgetpeername(lua_State *L)
 }
 
 
+#if HAVE_NET_IF_H
 /***
 Get network interface index by name.
 Needed for packet sockets, since SO_BINDTODEVICE won't work on packet family.
@@ -974,6 +975,7 @@ static int Pif_nametoindex(lua_State *L)
 	return 1;
 }
 #endif
+#endif
 
 
 static const luaL_Reg posix_sys_socket_fns[] =
@@ -995,7 +997,9 @@ static const luaL_Reg posix_sys_socket_fns[] =
 	LPOSIX_FUNC( Pgetsockopt	),
 	LPOSIX_FUNC( Pgetsockname	),
 	LPOSIX_FUNC( Pgetpeername	),
+#if HAVE_NET_IF_H
 	LPOSIX_FUNC( Pif_nametoindex	),
+#endif
 #endif
 	{NULL, NULL}
 };
@@ -1129,7 +1133,7 @@ luaopen_posix_sys_socket(lua_State *L)
 	LPOSIX_CONST( SO_LINGER	);
 	LPOSIX_CONST( SO_RCVTIMEO	);
 	LPOSIX_CONST( SO_SNDTIMEO	);
-# ifdef SO_BINDTODEVICE
+# if HAVE_NET_IF_H && defined SO_BINDTODEVICE
 	LPOSIX_CONST( SO_BINDTODEVICE	);
 # endif
 	LPOSIX_CONST( SO_DEBUG	);

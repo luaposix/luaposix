@@ -406,6 +406,27 @@ specify posix.sys.socket:
          to_be("number")
 
 
+- describe if_nametoindex:
+  - before:
+      if_nametoindex = M.if_nametoindex
+
+  - context with bad arguments:
+      if if_nametoindex then
+         badargs.diagnose("(string)", if_nametoindex)
+      end
+
+  - it finds the index of the loopback interface:
+      if if_nametoindex then
+         ifindex = if_nametoindex "lo" or if_nametoindex "lo0"
+         expect(type(ifindex)).to_be "number"
+         expect(ifindex > 0).to_be(true)
+      end
+  - it diagnoses an interface that does not exist:
+      if if_nametoindex then
+         expect(Emsg(if_nametoindex "no-such-if0")).to_contain "if_nametoindex"
+      end
+
+
 - describe UDP over loopback:
   - before: |
       unistd = require 'posix.unistd'

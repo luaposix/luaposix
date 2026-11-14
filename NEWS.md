@@ -27,6 +27,11 @@
     probe as 0 when the feature is absent, and these tests took any
     definition for presence.
 
+  - On a host without `net/if.h`, luaposix builds, with no
+    `posix.sys.socket.if_nametoindex`, and no `SO_BINDTODEVICE` option
+    for `posix.sys.socket.setsockopt` and `getsockopt`: it used
+    `IFNAMSIZ` and `if_nametoindex` whether or not it had the header.
+
 ### New Features
 
   - New `posix.sys.stat.futimens` and `posix.sys.stat.utimensat`, to set
