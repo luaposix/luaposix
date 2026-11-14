@@ -2,6 +2,9 @@
 
 ## Noteworthy changes in release ?.? (????-??-??) [?]
 
+
+## Noteworthy changes in release 39 (2026-11-14) [stable]
+
 ### Incompatible changes
 
   - luaposix needs std.normalize 5.1 or later, for the same `bit32`
