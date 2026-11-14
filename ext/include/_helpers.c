@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>		/* for _POSIX_VERSION */
 
 #if !defined PATH_MAX
@@ -317,6 +318,19 @@ optintegerfield(lua_State *L, int index, const char *k, int def)
 }
 #define optintfield(L,i,k,d)  ((int)optintegerfield(L,i,k,d))
 #define optlongfield(L,i,k,d) ((long)optintegerfield(L,i,k,d))
+
+/* Read a PosixTimespec table into *ts*: a missing tv_sec or tv_nsec is 0. */
+static void
+totimespec(lua_State *L, int index, struct timespec *ts)
+{
+	static const char *Stimespec_fields[] = { "tv_sec", "tv_nsec" };
+
+	luaL_checktype(L, index, LUA_TTABLE);
+	ts->tv_sec  = (time_t)optintegerfield(L, index, "tv_sec", 0);
+	ts->tv_nsec = optlongfield(L, index, "tv_nsec", 0);
+
+	checkfieldnames(L, index, Stimespec_fields);
+}
 
 static const char *
 optstringfield(lua_State *L, int index, const char *k, const char *def)

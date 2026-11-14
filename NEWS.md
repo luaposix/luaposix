@@ -21,6 +21,15 @@
     that it loaded as `std._debug.init`, so that `require 'std._debug'
     (false)` reaches it, as it does the other libraries.
 
+### New Features
+
+  - New `posix.sys.stat.futimens` and `posix.sys.stat.utimensat`, to set
+    the access and modification times of a file with the nanosecond
+    precision of a `PosixTimespec`, as in `futimens(2)` and
+    `utimensat(2)`, with `UTIME_NOW` and `UTIME_OMIT` to set a time to
+    now or leave it alone.  Like any API that the host lacks, they are
+    `nil` where it has no support.
+
 
 ## Noteworthy changes in release 38 (2026-10-25) [stable]
 

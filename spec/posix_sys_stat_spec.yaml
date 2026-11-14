@@ -396,6 +396,139 @@ specify posix.sys.stat:
       expect(blocks).to_be(stat(dir .. "/hard").st_blocks)
 
 
+- describe futimens:
+  - before:
+      fc = require "posix.fcntl"
+
+      futimens, lstat = M.futimens, M.lstat
+
+      file = dir .. "/file"
+      fd = fc.open(file, fc.O_RDONLY)
+      -- Start from a time that is not the current time, so that a change shows.
+      if futimens then
+         futimens(fd, {tv_sec = 1000000000}, {tv_sec = 900000000})
+      end
+  - after:
+      posix.close(fd)
+
+  - context with bad arguments:
+      if futimens then
+         badargs.diagnose("(int, ?table, ?table)", futimens)
+      end
+
+  - it returns zero on success:
+      if futimens then
+         expect(futimens(fd, {tv_sec = 1000000001})).to_be(0)
+      end
+  - it sets the modification and access times:
+      if futimens then
+         futimens(fd, {tv_sec = 1100000000}, {tv_sec = 1200000000})
+         st = lstat(file)
+         expect(st.st_mtime).to_be(1100000000)
+         expect(st.st_atime).to_be(1200000000)
+      end
+  - it sets both times to the current time when none is given:
+      if futimens then
+         futimens(fd)
+         st = lstat(file)
+         expect(st.st_mtime).to_be_within_n_of {value=EPOCH, delta=5}
+         expect(st.st_atime).to_be_within_n_of {value=EPOCH, delta=5}
+      end
+  - it sets a time that is nil to the current time:
+      if futimens then
+         futimens(fd, {tv_sec = 1100000000}, nil)
+         st = lstat(file)
+         expect(st.st_mtime).to_be(1100000000)
+         expect(st.st_atime).to_be_within_n_of {value=EPOCH, delta=5}
+      end
+  - it sets a time with UTIME_NOW to the current time:
+      if futimens then
+         futimens(fd, {tv_nsec = M.UTIME_NOW}, {tv_sec = 1200000000})
+         st = lstat(file)
+         expect(st.st_mtime).to_be_within_n_of {value=EPOCH, delta=5}
+         expect(st.st_atime).to_be(1200000000)
+      end
+  - it leaves a time with UTIME_OMIT alone:
+      if futimens then
+         futimens(fd, {tv_nsec = M.UTIME_OMIT}, {tv_sec = 1200000000})
+         st = lstat(file)
+         expect(st.st_mtime).to_be(1000000000)
+         expect(st.st_atime).to_be(1200000000)
+      end
+  - it diagnoses an invalid file descriptor:
+      if futimens then
+         expect(Emsg(futimens(-1))).to_contain "futimens"
+      end
+
+
+- describe utimensat:
+  - before:
+      fc = require "posix.fcntl"
+
+      utimensat, lstat = M.utimensat, M.lstat
+
+      file = dir .. "/file"
+      if utimensat then
+         utimensat(fc.AT_FDCWD, file, {tv_sec = 1000000000}, {tv_sec = 900000000})
+      end
+
+  - context with bad arguments:
+      if utimensat then
+         badargs.diagnose("(int, string, ?table, ?table, ?int)", utimensat)
+      end
+
+  - it returns zero on success:
+      if utimensat then
+         expect(utimensat(fc.AT_FDCWD, file, {tv_sec = 1000000001})).to_be(0)
+      end
+  - it sets the modification and access times:
+      if utimensat then
+         utimensat(fc.AT_FDCWD, file, {tv_sec = 1100000000}, {tv_sec = 1200000000})
+         st = lstat(file)
+         expect(st.st_mtime).to_be(1100000000)
+         expect(st.st_atime).to_be(1200000000)
+      end
+  - it sets both times to the current time when none is given:
+      if utimensat then
+         utimensat(fc.AT_FDCWD, file)
+         st = lstat(file)
+         expect(st.st_mtime).to_be_within_n_of {value=EPOCH, delta=5}
+         expect(st.st_atime).to_be_within_n_of {value=EPOCH, delta=5}
+      end
+  - it leaves a time with UTIME_OMIT alone:
+      if utimensat then
+         utimensat(fc.AT_FDCWD, file, {tv_nsec = M.UTIME_OMIT}, {tv_sec = 1200000000})
+         st = lstat(file)
+         expect(st.st_mtime).to_be(1000000000)
+         expect(st.st_atime).to_be(1200000000)
+      end
+  - it finds a path relative to a directory file descriptor:
+      if utimensat then
+         fd_dir = fc.open(dir, fc.O_RDONLY)
+         utimensat(fd_dir, "file", {tv_sec = 1100000000}, {tv_sec = 1200000000})
+         posix.close(fd_dir)
+         expect(lstat(file).st_mtime).to_be(1100000000)
+      end
+  - it follows a symbolic link by default:
+      if utimensat then
+         utimensat(fc.AT_FDCWD, dir .. "/soft", {tv_sec = 1100000000})
+         expect(lstat(dir .. "/subdir").st_mtime).to_be(1100000000)
+      end
+  - it acts on a symbolic link itself with AT_SYMLINK_NOFOLLOW:
+      if utimensat and fc.AT_SYMLINK_NOFOLLOW then
+         utimensat(fc.AT_FDCWD, dir .. "/subdir", {tv_sec = 1000000000})
+         utimensat(fc.AT_FDCWD, dir .. "/soft", {tv_sec = 1100000000}, nil,
+                   fc.AT_SYMLINK_NOFOLLOW)
+         expect(lstat(dir .. "/soft").st_mtime).to_be(1100000000)
+         expect(lstat(dir .. "/subdir").st_mtime).to_be(1000000000)
+      end
+  - it diagnoses a path that does not exist:
+      if utimensat then
+         expect(Emsg(utimensat(fc.AT_FDCWD, dir .. "/missing"))).
+            to_contain "missing"
+      end
+
+
 - describe umask:
   - before:
       lstat, umask = M.lstat, M.umask

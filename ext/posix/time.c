@@ -21,19 +21,6 @@
 #include "_helpers.c"
 
 
-static const char *Stimespec_fields[] = { "tv_sec", "tv_nsec" };
-
-static void
-totimespec(lua_State *L, int index, struct timespec *ts)
-{
-	luaL_checktype(L, index, LUA_TTABLE);
-	ts->tv_sec  = (time_t)optintegerfield(L, index, "tv_sec", 0);
-	ts->tv_nsec = optlongfield(L, index, "tv_nsec", 0);
-
-	checkfieldnames(L, index, Stimespec_fields);
-}
-
-
 /***
 Timespec record.
 @table PosixTimespec

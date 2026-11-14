@@ -118,7 +118,13 @@ build = {
          },
          sources   = 'ext/posix/sys/socket.c',
       }},
-      {['posix.sys.stat']      = 'ext/posix/sys/stat.c'},
+      {['posix.sys.stat']      = {
+         defines   = {
+            {HAVE_FUTIMENS     = {checkfunc='futimens'}},
+            {HAVE_UTIMENSAT    = {checkfunc='utimensat'}},
+         },
+         sources   = 'ext/posix/sys/stat.c',
+      }},
       {['posix.sys.statvfs']   = {
          defines   = {
             {HAVE_STATVFS      = {checkfunc='statvfs'}},

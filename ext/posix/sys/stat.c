@@ -326,6 +326,109 @@ Pumask(lua_State *L)
 }
 
 
+#if HAVE_FUTIMENS || HAVE_UTIMENSAT
+/* The times at arguments *index* (modification) and *index* + 1 (access)
+   as the access and modification pair that the system calls take.  A time
+   that is nil or not given is the current time. */
+static void
+checktimes(lua_State *L, int index, struct timespec times[2])
+{
+	int i;
+	for (i = 0; i < 2; i++)
+	{
+		/* The system calls take the access time first, as times[0]. */
+		struct timespec *ts = &times[1 - i];
+		if (lua_isnoneornil(L, index + i))
+		{
+			ts->tv_sec = 0;
+			ts->tv_nsec = UTIME_NOW;
+		}
+		else
+		{
+			if (lua_type(L, index + i) != LUA_TTABLE)
+				argtypeerror(L, index + i, "nil or table");
+			totimespec(L, index + i, ts);
+		}
+	}
+}
+#endif
+
+
+#if HAVE_FUTIMENS
+/***
+Change the access and modification times of an open file.
+Either time can be a @{posix.time.PosixTimespec}, to set it to that time
+with nanosecond precision, where the file system keeps it.  A time that is
+nil or not given is set to the current time, and a time whose `tv_nsec` is
+`UTIME_NOW` or `UTIME_OMIT` is set to the current time, or left alone.
+@function futimens
+@int fd open file descriptor to act on
+@tparam[opt=now] PosixTimespec mtime modification time
+@tparam[opt=now] PosixTimespec atime access time
+@treturn[1] int `0`, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see futimens(2)
+@see utimensat
+@usage
+  local fcntl = require "posix.fcntl"
+  local sys_stat = require "posix.sys.stat"
+  local fd = assert(fcntl.open("/etc/hostname", fcntl.O_RDONLY))
+  -- Set the modification time to 2001-09-09, leaving the access time alone.
+  assert(sys_stat.futimens(fd, {tv_sec = 1000000000, tv_nsec = 500},
+                           {tv_nsec = sys_stat.UTIME_OMIT}))
+*/
+static int
+Pfutimens(lua_State *L)
+{
+	struct timespec times[2];
+	int fd = checkint(L, 1);
+	checktimes(L, 2, times);
+	checknargs(L, 3);
+	return pushresult(L, futimens(fd, times), "futimens");
+}
+#endif
+
+
+#if HAVE_UTIMENSAT
+/***
+Change the access and modification times of a file path.
+This is @{futimens} for a path that is relative to the directory
+*dirfd*, or to the current directory with `posix.fcntl.AT_FDCWD`.
+@function utimensat
+@int dirfd open directory file descriptor, or `posix.fcntl.AT_FDCWD`
+@string path file to act on
+@tparam[opt=now] PosixTimespec mtime modification time
+@tparam[opt=now] PosixTimespec atime access time
+@int[opt=0] flags `posix.fcntl.AT_SYMLINK_NOFOLLOW` to act on a symbolic
+  link itself, and not the file it points to
+@treturn[1] int `0`, if successful
+@return[2] nil
+@treturn[2] string error message
+@treturn[2] int errnum
+@see utimensat(2)
+@see futimens
+@usage
+  local fcntl = require "posix.fcntl"
+  local sys_stat = require "posix.sys.stat"
+  assert(sys_stat.utimensat(fcntl.AT_FDCWD, "/tmp/file", {tv_sec = 1000000000}))
+*/
+static int
+Putimensat(lua_State *L)
+{
+	struct timespec times[2];
+	int dirfd = checkint(L, 1);
+	const char *path = luaL_checkstring(L, 2);
+	int flags;
+	checktimes(L, 3, times);
+	flags = optint(L, 5, 0);
+	checknargs(L, 5);
+	return pushresult(L, utimensat(dirfd, path, times, flags), path);
+}
+#endif
+
+
 static const luaL_Reg posix_sys_stat_fns[] =
 {
 	LPOSIX_FUNC( PS_ISBLK		),
@@ -338,10 +441,16 @@ static const luaL_Reg posix_sys_stat_fns[] =
 	LPOSIX_FUNC( Pchmod		),
 	LPOSIX_FUNC( Plstat		),
 	LPOSIX_FUNC( Pfstat		),
+#if HAVE_FUTIMENS
+	LPOSIX_FUNC( Pfutimens		),
+#endif
 	LPOSIX_FUNC( Pmkdir		),
 	LPOSIX_FUNC( Pmkfifo		),
 	LPOSIX_FUNC( Pstat		),
 	LPOSIX_FUNC( Pumask		),
+#if HAVE_UTIMENSAT
+	LPOSIX_FUNC( Putimensat		),
+#endif
 	{NULL, NULL}
 };
 
@@ -377,6 +486,8 @@ Any constants not available in the underlying system will be `nil` valued.
 @int S_IXOTH other execute
 @int S_ISGID set group id on execution
 @int S_ISUID set user id on execution
+@int UTIME_NOW `tv_nsec` value to set a time to the current time
+@int UTIME_OMIT `tv_nsec` value to leave a time unchanged
 @usage
   -- Print stat constants supported on this host.
   for name, value in pairs (require "posix.sys.stat") do
@@ -416,6 +527,10 @@ luaopen_posix_sys_stat(lua_State *L)
 	LPOSIX_CONST( S_IXOTH		);
 	LPOSIX_CONST( S_ISGID		);
 	LPOSIX_CONST( S_ISUID		);
+#if HAVE_FUTIMENS || HAVE_UTIMENSAT
+	LPOSIX_CONST( UTIME_NOW		);
+	LPOSIX_CONST( UTIME_OMIT	);
+#endif
 
 	return 1;
 }
